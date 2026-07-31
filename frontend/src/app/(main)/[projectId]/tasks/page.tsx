@@ -1,31 +1,51 @@
 export const dynamic = "force-dynamic";
 
-import { notFound } from "next/navigation";
-import { PageShell } from "@/components/layout";
+import { notFound, redirect } from "next/navigation";
 import { serviceDb } from "@/lib/supabase/service-db";
-import { TasksInboxClient } from "@/features/tasks/tasks-inbox-client";
 import { PlaneSurfaceDispatcher } from "@/features/plane-work-items/plane-surface-dispatcher";
 import { parsePlaneProjectId } from "@/features/plane-work-items/plane-surface-access";
+import { buildPlaneWorkItemsHrefFromLegacyTasks } from "@/features/plane-work-items-contracts/work-items-query";
+
+type RouteSearchParams = Record<string, string | string[] | undefined>;
+
+function toUrlSearchParams(searchParams: RouteSearchParams): URLSearchParams {
+  const params = new URLSearchParams();
+
+  for (const [key, rawValue] of Object.entries(searchParams)) {
+    const values = Array.isArray(rawValue) ? rawValue : [rawValue];
+    for (const value of values) {
+      if (value !== undefined) params.append(key, value);
+    }
+  }
+
+  return params;
+}
 
 export default async function ProjectTasksPage({
   params,
   searchParams,
 }: {
   params: Promise<{ projectId: string }>;
-  searchParams: Promise<{
-    planeSurface?: string | string[];
-  }>;
+  searchParams: Promise<RouteSearchParams>;
 }) {
   const { projectId } = await params;
-  const { planeSurface: planeSurfaceParam } = await searchParams;
+  const resolvedSearchParams = await searchParams;
+  const planeSurfaceParam = resolvedSearchParams.planeSurface;
   const planeSurface =
     typeof planeSurfaceParam === "string" ? planeSurfaceParam : null;
-  const numericProjectId = planeSurface
-    ? parsePlaneProjectId(projectId)
-    : Number.parseInt(projectId, 10);
+  const numericProjectId = parsePlaneProjectId(projectId);
 
-  if (numericProjectId === null || Number.isNaN(numericProjectId)) {
+  if (numericProjectId === null) {
     notFound();
+  }
+
+  if (!planeSurface) {
+    redirect(
+      buildPlaneWorkItemsHrefFromLegacyTasks(
+        projectId,
+        toUrlSearchParams(resolvedSearchParams),
+      ),
+    );
   }
 
   const { data: project, error } = await serviceDb
@@ -38,25 +58,11 @@ export default async function ProjectTasksPage({
     notFound();
   }
 
-  if (planeSurface) {
-    return (
-      <PlaneSurfaceDispatcher
-        projectId={projectId}
-        projectName={project.name}
-        planeSurface={planeSurface}
-      />
-    );
-  }
-
   return (
-    <PageShell
-      variant="table"
-      title="Tasks"
-      showHeader={false}
-      contentClassName="space-y-0 pt-0 pb-0"
-      fillHeight
-    >
-      <TasksInboxClient projectId={projectId} projectName={project.name} />
-    </PageShell>
+    <PlaneSurfaceDispatcher
+      projectId={projectId}
+      projectName={project.name}
+      planeSurface={planeSurface}
+    />
   );
 }

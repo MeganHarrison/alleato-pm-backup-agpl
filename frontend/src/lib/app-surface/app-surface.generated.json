@@ -593,13 +593,13 @@
     },
     {
       "url": "/[projectId]/tasks",
-      "title": "Tasks",
+      "title": null,
       "description": "Project task inbox and workflow management interface"
     },
     {
       "url": "/[projectId]/tasks/kanban",
-      "title": "Tasks",
-      "description": "Opening the canonical task board."
+      "title": null,
+      "description": null
     },
     {
       "url": "/[projectId]/timeline",

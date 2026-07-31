@@ -208,6 +208,23 @@ export function buildPlaneWorkItemsHref(
   return query ? `${pathname}?${query}` : pathname;
 }
 
+export function buildPlaneWorkItemsHrefFromLegacyTasks(
+  projectId: string | number,
+  value: URLSearchParams | string,
+): string {
+  const params =
+    typeof value === "string"
+      ? new URLSearchParams(value.startsWith("?") ? value.slice(1) : value)
+      : new URLSearchParams(value);
+  const legacyTaskId = params.get("task")?.trim();
+
+  if (!params.get("peek") && legacyTaskId) {
+    params.set("peek", legacyTaskId);
+  }
+
+  return buildPlaneWorkItemsHref(projectId, parsePlaneWorkItemsQuery(params));
+}
+
 function normalizeStatus(
   value: string | null | undefined,
 ): PlaneWorkItemStatus {

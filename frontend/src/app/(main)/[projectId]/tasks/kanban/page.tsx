@@ -2,7 +2,8 @@ export const dynamic = "force-dynamic";
 
 import { notFound, redirect } from "next/navigation";
 
-import { PageShell } from "@/components/layout";
+import { buildPlaneWorkItemsHref } from "@/features/plane-work-items-contracts/work-items-query";
+import { parsePlaneProjectId } from "@/features/plane-work-items/plane-surface-access";
 
 export default async function ProjectTasksKanbanPage({
   params,
@@ -10,19 +11,11 @@ export default async function ProjectTasksKanbanPage({
   params: Promise<{ projectId: string }>;
 }) {
   const { projectId } = await params;
-  const numericProjectId = Number.parseInt(projectId, 10);
+  const numericProjectId = parsePlaneProjectId(projectId);
 
-  if (Number.isNaN(numericProjectId)) {
+  if (numericProjectId === null) {
     notFound();
   }
 
-  return (
-    <PageShell
-      variant="table"
-      title="Tasks"
-      description="Opening the canonical task board."
-    >
-      {redirect(`/${projectId}/tasks?view=board`)}
-    </PageShell>
-  );
+  redirect(buildPlaneWorkItemsHref(projectId, { view: "board" }));
 }

@@ -1,5 +1,6 @@
 import {
   buildPlaneWorkItemsHref,
+  buildPlaneWorkItemsHrefFromLegacyTasks,
   filterAndSortPlaneWorkItems,
   parsePlaneWorkItemsQuery,
   serializePlaneWorkItemsQuery,
@@ -85,6 +86,26 @@ describe("Plane Work Items URL contract", () => {
     expect(buildPlaneWorkItemsHref("31", { peekId: "task-1" })).toBe(
       "/31/plane/work-items?peek=task-1",
     );
+  });
+
+  it("translates legacy project Tasks links without carrying retired scope state", () => {
+    expect(
+      buildPlaneWorkItemsHrefFromLegacyTasks(
+        31,
+        "scope=all&task=task-1&view=board&status=done&priority=high",
+      ),
+    ).toBe(
+      "/31/plane/work-items?view=board&status=done&priority=high&peek=task-1",
+    );
+  });
+
+  it("prefers an existing canonical peek value over a legacy task value", () => {
+    expect(
+      buildPlaneWorkItemsHrefFromLegacyTasks(
+        "31",
+        "task=legacy&peek=canonical",
+      ),
+    ).toBe("/31/plane/work-items?peek=canonical");
   });
 
   it("preserves valid legacy saved-view date ranges in canonical URLs", () => {

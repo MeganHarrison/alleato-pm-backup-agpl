@@ -13,7 +13,7 @@
 
 ## UI Routes (366)
 
-_295/366 have a description (from the page's `PageShell` or the curated `frontend/src/lib/app-surface/page-descriptions.json` sidecar). Pages without one are invisible to find-a-page search — add an entry to the sidecar (index-only) or a `PageShell` description (also renders in the UI)._
+_294/366 have a description (from the page's `PageShell` or the curated `frontend/src/lib/app-surface/page-descriptions.json` sidecar). Pages without one are invisible to find-a-page search — add an entry to the sidecar (index-only) or a `PageShell` description (also renders in the UI)._
 
 | URL | What it does | File |
 |-----|--------------|------|
@@ -136,7 +136,7 @@ _295/366 have a description (from the page's `PageShell` or the curated `fronten
 | `/[projectId]/submittals/[submittalId]/edit` | Edit submittal metadata, type, package, and specification associations | frontend/src/app/(main)/[projectId]/submittals/[submittalId]/edit/page.tsx |
 | `/[projectId]/submittals/new` | Create new submittal with optional package or spec section prefill | frontend/src/app/(main)/[projectId]/submittals/new/page.tsx |
 | `/[projectId]/tasks` | Project task inbox and workflow management interface | frontend/src/app/(main)/[projectId]/tasks/page.tsx |
-| `/[projectId]/tasks/kanban` | Opening the canonical task board. | frontend/src/app/(main)/[projectId]/tasks/kanban/page.tsx |
+| `/[projectId]/tasks/kanban` | — | frontend/src/app/(main)/[projectId]/tasks/kanban/page.tsx |
 | `/[projectId]/timeline` | Chronological feed of project events and activity history | frontend/src/app/(main)/[projectId]/timeline/page.tsx |
 | `/[projectId]/transmittals` | Manage transmittals and project correspondence | frontend/src/app/(main)/[projectId]/transmittals/page.tsx |
 | `/[projectId]/user-management` | Assign project roles and module-level access for every member of this project. | frontend/src/app/(main)/[projectId]/user-management/page.tsx |
