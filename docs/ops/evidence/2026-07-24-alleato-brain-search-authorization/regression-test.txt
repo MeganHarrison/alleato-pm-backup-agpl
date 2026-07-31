@@ -1,0 +1,29 @@
+Focused authorization and source-specific tests:
+
+npm run test:unit -- --runInBand --runTestsByPath \
+  src/lib/ai/tools/__tests__/business-area-retrieval.test.ts \
+  src/lib/ai/retrieval/__tests__/source-specific-rag.test.ts
+
+Result: PASS — 2 suites, 15 tests.
+
+Dedicated caller reachability:
+
+npm run test:unit -- --runInBand --runTestsByPath \
+  src/lib/ai/tools/__tests__/business-area-communication-reachability.test.ts
+
+Result: PASS — 1 suite, 2 tests.
+
+Additional checks:
+
+- targeted ESLint: PASS
+- npm --prefix frontend run typecheck:changed: PASS
+- npm run rag:verify:source-specific: PASS
+- npm run rag:verify:chat-architecture: PASS
+- git diff --check: PASS
+
+Full typecheck note:
+
+`npm run typecheck` is red on broad existing repository debt. The reported
+semantic-search input-schema errors at rag-search-tools.ts lines 104-106 are
+also present in the unmodified origin/main version of that file and were not
+introduced by this slice.

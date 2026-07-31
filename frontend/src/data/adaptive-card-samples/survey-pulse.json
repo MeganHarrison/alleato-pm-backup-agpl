@@ -1,0 +1,159 @@
+{
+  "type": "AdaptiveCard",
+  "$schema": "https://adaptivecards.io/schemas/adaptive-card.json",
+  "version": "1.5",
+  "body": [
+    {
+      "type": "ColumnSet",
+      "columns": [
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "Weekly Pulse",
+              "size": "Large",
+              "weight": "Bolder",
+              "wrap": false
+            },
+            {
+              "type": "TextBlock",
+              "text": "Takes about 60 seconds.",
+              "size": "Small",
+              "isSubtle": true,
+              "spacing": "None",
+              "wrap": false
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "auto",
+          "verticalContentAlignment": "Top",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "Week of Jun 9",
+              "size": "Small",
+              "isSubtle": true,
+              "horizontalAlignment": "Right",
+              "wrap": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "spacing": "Medium",
+      "separator": true,
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "How is the portfolio tracking overall this week?",
+          "weight": "Bolder",
+          "wrap": true
+        },
+        {
+          "type": "Input.ChoiceSet",
+          "id": "portfolio_health",
+          "style": "expanded",
+          "isMultiSelect": false,
+          "spacing": "Small",
+          "choices": [
+            {
+              "title": "On track — no major issues",
+              "value": "on_track"
+            },
+            {
+              "title": "Minor issues being managed",
+              "value": "minor_issues"
+            },
+            {
+              "title": "One or more projects need attention",
+              "value": "needs_attention"
+            },
+            {
+              "title": "Significant problems in play",
+              "value": "significant_problems"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "spacing": "Medium",
+      "separator": true,
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Which area is your biggest concern right now?",
+          "weight": "Bolder",
+          "wrap": true
+        },
+        {
+          "type": "Input.ChoiceSet",
+          "id": "top_concern",
+          "style": "expanded",
+          "isMultiSelect": false,
+          "spacing": "Small",
+          "choices": [
+            {
+              "title": "Schedule",
+              "value": "schedule"
+            },
+            {
+              "title": "Budget or cost control",
+              "value": "budget"
+            },
+            {
+              "title": "Subcontractor performance",
+              "value": "subcontractors"
+            },
+            {
+              "title": "Owner or design decisions pending",
+              "value": "owner_decisions"
+            },
+            {
+              "title": "No major concern this week",
+              "value": "none"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "spacing": "Medium",
+      "separator": true,
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Anything the team needs from you before Friday?",
+          "weight": "Bolder",
+          "wrap": true
+        },
+        {
+          "type": "Input.Text",
+          "id": "needs_from_leadership",
+          "placeholder": "Optional — any pending approvals, escalations, or decisions",
+          "isMultiline": true,
+          "maxLength": 400,
+          "spacing": "Small"
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.Submit",
+      "title": "Submit",
+      "data": {
+        "action": "submit_pulse_survey",
+        "week": "2026-06-09"
+      }
+    }
+  ]
+}

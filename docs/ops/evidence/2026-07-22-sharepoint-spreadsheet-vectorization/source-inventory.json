@@ -1,0 +1,60 @@
+{
+  "captured_at": "2026-07-22T20:04:44Z",
+  "scope": "Three configured Port Collective and Union Collective SharePoint estimate/proposal folders, including their descendants",
+  "source_file_count": 26,
+  "workbook_count": 8,
+  "existing_text_document_count": 18,
+  "workbook_source_ids": [
+    "01AFX6IXIHFEFTFQN22JA3RUZHZBM2ZEFZ",
+    "01AFX6IXIJP2F3BWORDRGLCMEZX7BL3FZO",
+    "01AFX6IXIXFWFNJUQENJAIN3NM5N7G3BLW",
+    "01AFX6IXJIWD2ET2TJGBBJWK7TX57J4TWT",
+    "01AFX6IXLFIY35XQID6NCJPPEHXX44SQFE",
+    "01AFX6IXLZNMDDG26LRVE3W4XXDXAVPMJX",
+    "01AFX6IXMDQTV7TP74FNAK57DXA6N75KKO",
+    "01AFX6IXOJJMBSLTPVFVH2DQTIJLLQOQLQ"
+  ],
+  "pre_release_readback": {
+    "pm_app_cataloged": 18,
+    "pm_app_cataloged_workbooks": 0,
+    "ai_rag_vectorized": 18,
+    "ai_rag_vectorized_workbooks": 0,
+    "missing_source_ids": [
+      "01AFX6IXIHFEFTFQN22JA3RUZHZBM2ZEFZ",
+      "01AFX6IXIJP2F3BWORDRGLCMEZX7BL3FZO",
+      "01AFX6IXIXFWFNJUQENJAIN3NM5N7G3BLW",
+      "01AFX6IXJIWD2ET2TJGBBJWK7TX57J4TWT",
+      "01AFX6IXLFIY35XQID6NCJPPEHXX44SQFE",
+      "01AFX6IXLZNMDDG26LRVE3W4XXDXAVPMJX",
+      "01AFX6IXMDQTV7TP74FNAK57DXA6N75KKO",
+      "01AFX6IXOJJMBSLTPVFVH2DQTIJLLQOQLQ"
+    ]
+  },
+  "post_release_readback": {
+    "captured_at": "2026-07-22T20:15:00Z",
+    "pm_app_cataloged": 26,
+    "pm_app_cataloged_workbooks": 8,
+    "ai_rag_vectorized": 26,
+    "ai_rag_vectorized_workbooks": 8,
+    "embedded_chunks": 436,
+    "workbook_embedded_chunks": 55,
+    "embedding_dimensions_min": 3072,
+    "embedding_dimensions_max": 3072,
+    "workbook_rag_rows": 8,
+    "workbook_content_characters": 176607,
+    "minimum_workbook_characters": 830,
+    "maximum_workbook_characters": 29173,
+    "source_id_hash": "239bfd3b3d8483e59c8249ab31c7dc8e",
+    "catalog_id_hash": "239bfd3b3d8483e59c8249ab31c7dc8e",
+    "vector_id_hash": "239bfd3b3d8483e59c8249ab31c7dc8e",
+    "missing_source_ids": []
+  },
+  "release_gate": {
+    "pm_app_cataloged": 26,
+    "pm_app_cataloged_workbooks": 8,
+    "ai_rag_vectorized": 26,
+    "ai_rag_vectorized_workbooks": 8,
+    "embedding_dimensions": 3072,
+    "missing_source_ids": []
+  }
+}

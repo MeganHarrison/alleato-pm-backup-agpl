@@ -1,0 +1,2333 @@
+{
+  "label": "rag",
+  "captured_at": "2026-07-24T05:13:30.328Z",
+  "table_count": 24,
+  "total_rows": 401024,
+  "tables": {
+    "document_attribution_candidates": {
+      "columns": [
+        {
+          "column": "id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "column": "source_document_id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "source_message_ids",
+          "type": "ARRAY",
+          "nullable": false
+        },
+        {
+          "column": "candidate_project_id",
+          "type": "bigint",
+          "nullable": true
+        },
+        {
+          "column": "candidate_project_name",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "confidence",
+          "type": "numeric",
+          "nullable": false
+        },
+        {
+          "column": "attribution_method",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "evidence_terms",
+          "type": "ARRAY",
+          "nullable": false
+        },
+        {
+          "column": "reasoning",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "status",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "reviewed_by",
+          "type": "uuid",
+          "nullable": true
+        },
+        {
+          "column": "reviewed_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "column": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        },
+        {
+          "column": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        },
+        {
+          "column": "candidate_target_id",
+          "type": "uuid",
+          "nullable": true
+        },
+        {
+          "column": "confidence_label",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "matched_fields",
+          "type": "ARRAY",
+          "nullable": false
+        },
+        {
+          "column": "evidence",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "column": "compiler_version",
+          "type": "text",
+          "nullable": true
+        }
+      ],
+      "row_count": 16394
+    },
+    "document_chunk_retrieval_telemetry": {
+      "columns": [
+        {
+          "column": "id",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "column": "chunk_id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "retrieval_date",
+          "type": "date",
+          "nullable": false
+        },
+        {
+          "column": "retrieval_mode",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "source_type",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "project_id",
+          "type": "bigint",
+          "nullable": true
+        },
+        {
+          "column": "recall_count",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "column": "first_recalled_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        },
+        {
+          "column": "last_recalled_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        },
+        {
+          "column": "last_query_signature",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "last_trace_id",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "metadata",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "column": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        },
+        {
+          "column": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        }
+      ],
+      "row_count": 16
+    },
+    "document_chunks": {
+      "columns": [
+        {
+          "column": "chunk_id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "document_id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "chunk_index",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "column": "text",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "metadata",
+          "type": "jsonb",
+          "nullable": true
+        },
+        {
+          "column": "content_hash",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "embedding",
+          "type": "USER-DEFINED",
+          "nullable": true
+        },
+        {
+          "column": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "column": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "column": "source_type",
+          "type": "text",
+          "nullable": true
+        }
+      ],
+      "row_count": 163793
+    },
+    "fireflies_ingestion_jobs": {
+      "columns": [
+        {
+          "column": "id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "column": "fireflies_id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "metadata_id",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "stage",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "attempt_count",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "column": "last_attempt_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "column": "error_message",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        },
+        {
+          "column": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        }
+      ],
+      "row_count": 29024
+    },
+    "graph_subscriptions": {
+      "columns": [
+        {
+          "column": "id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "column": "graph_subscription_id",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "resource",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "source",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "resource_id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "resource_name",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "change_type",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "notification_url",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "client_state_hash",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "lifecycle_notification_url",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "status",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "expiration_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "column": "last_notification_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "column": "last_lifecycle_event_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "column": "last_renewed_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "column": "last_error_message",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "metadata",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "column": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        },
+        {
+          "column": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        }
+      ],
+      "row_count": 11
+    },
+    "graph_sync_state": {
+      "columns": [
+        {
+          "column": "id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "column": "source",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "resource_id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "resource_name",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "delta_token",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "last_sync_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "column": "sync_status",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "error_message",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "items_synced",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "column": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        },
+        {
+          "column": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        }
+      ],
+      "row_count": 327
+    },
+    "ingestion_dead_letter": {
+      "columns": [
+        {
+          "column": "id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "column": "payload",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "column": "error",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        }
+      ],
+      "row_count": 17
+    },
+    "ingestion_jobs": {
+      "columns": [
+        {
+          "column": "id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "column": "fireflies_id",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "document_id",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "status",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "error",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "content_hash",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "started_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "column": "finished_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        }
+      ],
+      "row_count": 821
+    },
+    "outlook_email_intake": {
+      "columns": [
+        {
+          "column": "id",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "column": "graph_message_id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "mailbox_user_id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "project_id",
+          "type": "integer",
+          "nullable": true
+        },
+        {
+          "column": "project_email_id",
+          "type": "integer",
+          "nullable": true
+        },
+        {
+          "column": "document_metadata_id",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "subject",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "body",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "body_html",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "body_text",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "from_name",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "from_email",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "to_list",
+          "type": "ARRAY",
+          "nullable": true
+        },
+        {
+          "column": "cc_list",
+          "type": "ARRAY",
+          "nullable": true
+        },
+        {
+          "column": "bcc_list",
+          "type": "ARRAY",
+          "nullable": true
+        },
+        {
+          "column": "status",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "match_status",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "assignment_method",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "assignment_confidence",
+          "type": "double precision",
+          "nullable": true
+        },
+        {
+          "column": "received_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "column": "has_attachments",
+          "type": "boolean",
+          "nullable": true
+        },
+        {
+          "column": "web_link",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "internet_message_id",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "conversation_id",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "source_metadata",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "column": "last_synced_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "column": "deleted_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "column": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "column": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "column": "vectorization_status",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "vectorization_checked_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "column": "vectorization_chunk_count",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "column": "vectorization_error",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "triage_action",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "triage_reason",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "triage_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "column": "teams_alert_sent_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        }
+      ],
+      "row_count": 5145
+    },
+    "outlook_email_intake_attachments": {
+      "columns": [
+        {
+          "column": "id",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "column": "intake_email_id",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "column": "email_attachment_id",
+          "type": "integer",
+          "nullable": true
+        },
+        {
+          "column": "project_document_id",
+          "type": "integer",
+          "nullable": true
+        },
+        {
+          "column": "document_metadata_id",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "project_id",
+          "type": "integer",
+          "nullable": true
+        },
+        {
+          "column": "graph_attachment_id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "file_name",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "file_url",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "file_size",
+          "type": "bigint",
+          "nullable": true
+        },
+        {
+          "column": "content_type",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "content",
+          "type": "bytea",
+          "nullable": true
+        },
+        {
+          "column": "checksum_sha256",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "extracted_text",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "is_inline",
+          "type": "boolean",
+          "nullable": true
+        },
+        {
+          "column": "promotion_status",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "promotion_reason",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "promotion_attempt_count",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "column": "promoted_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "column": "source_metadata",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "column": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "column": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        }
+      ],
+      "row_count": 2504
+    },
+    "outlook_email_skip_audit": {
+      "columns": [
+        {
+          "column": "id",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "column": "graph_message_id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "mailbox_user_id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "internet_message_id",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "conversation_id",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "subject",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "body_preview",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "from_name",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "from_email",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "received_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "column": "web_link",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "classification_action",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "classification_category",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "classification_confidence",
+          "type": "double precision",
+          "nullable": true
+        },
+        {
+          "column": "classification_reason",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "classification_signals",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "column": "source_metadata",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "column": "first_seen_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        },
+        {
+          "column": "last_seen_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        },
+        {
+          "column": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        },
+        {
+          "column": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        }
+      ],
+      "row_count": 209
+    },
+    "packet_refresh_jobs": {
+      "columns": [
+        {
+          "column": "id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "column": "target_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "column": "reason",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "trigger_source_document_id",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "trigger_insight_card_id",
+          "type": "uuid",
+          "nullable": true
+        },
+        {
+          "column": "status",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "priority",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "column": "compiler_version",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "attempt_count",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "column": "last_error",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "output_packet_id",
+          "type": "uuid",
+          "nullable": true
+        },
+        {
+          "column": "queued_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        },
+        {
+          "column": "started_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "column": "finished_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "column": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        },
+        {
+          "column": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        },
+        {
+          "column": "projection_status",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "projection_payload",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "column": "projection_error",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "projection_attempt_count",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "column": "projected_output_packet_id",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "projected_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        }
+      ],
+      "row_count": 1694
+    },
+    "pipeline_model_usage": {
+      "columns": [
+        {
+          "column": "id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "column": "occurred_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        },
+        {
+          "column": "usage_date",
+          "type": "date",
+          "nullable": true
+        },
+        {
+          "column": "provider",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "model",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "stage",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "operation",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "source_system",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "source_item_id",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "project_id",
+          "type": "bigint",
+          "nullable": true
+        },
+        {
+          "column": "request_id",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "status",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "prompt_tokens",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "column": "cached_prompt_tokens",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "column": "completion_tokens",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "column": "total_tokens",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "column": "input_items",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "column": "output_items",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "column": "estimated_cost_usd",
+          "type": "numeric",
+          "nullable": true
+        },
+        {
+          "column": "error_code",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "error_message",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "metadata",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "column": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        }
+      ],
+      "row_count": 44887
+    },
+    "project_daily_deltas": {
+      "columns": [
+        {
+          "column": "id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "column": "project_id",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "column": "business_date",
+          "type": "date",
+          "nullable": false
+        },
+        {
+          "column": "status",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "source_synthesis_ids",
+          "type": "ARRAY",
+          "nullable": false
+        },
+        {
+          "column": "database_snapshot_id",
+          "type": "uuid",
+          "nullable": true
+        },
+        {
+          "column": "headline",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "what_changed",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "column": "decisions",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "column": "risks",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "column": "issues",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "column": "milestones",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "column": "financial_changes",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "column": "schedule_changes",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "column": "change_event_candidates",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "column": "task_candidates",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "column": "daily_report_draft",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "column": "progress_report_updates",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "column": "source_coverage",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "column": "confidence",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "confidence_notes",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "model",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "token_usage",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "column": "error_code",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "error_message",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "metadata",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "column": "completed_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "column": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        },
+        {
+          "column": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        }
+      ],
+      "row_count": 195
+    },
+    "rag_document_metadata": {
+      "columns": [
+        {
+          "column": "id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "app_document_id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "project_id",
+          "type": "integer",
+          "nullable": true
+        },
+        {
+          "column": "source",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "source_system",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "source_item_id",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "fireflies_id",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "title",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "type",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "category",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "source_web_url",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "url",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "storage_bucket",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "storage_path",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "file_name",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "content",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "raw_text",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "content_hash",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "content_length",
+          "type": "integer",
+          "nullable": true
+        },
+        {
+          "column": "summary",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "overview",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "summary_embedding",
+          "type": "USER-DEFINED",
+          "nullable": true
+        },
+        {
+          "column": "parsing_status",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "embedding_status",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "processing_metadata",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "column": "source_metadata",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "column": "last_synced_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "column": "last_content_loaded_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "column": "last_indexed_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "column": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "column": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "column": "document_type",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "embedding_attempts",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "column": "embedding_error",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "embedding_last_attempt_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        }
+      ],
+      "row_count": 62064
+    },
+    "rag_pipeline_state": {
+      "columns": [
+        {
+          "column": "pipeline_id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "pipeline_type",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "last_check_time",
+          "type": "timestamp without time zone",
+          "nullable": true
+        },
+        {
+          "column": "known_files",
+          "type": "jsonb",
+          "nullable": true
+        },
+        {
+          "column": "last_run",
+          "type": "timestamp without time zone",
+          "nullable": true
+        },
+        {
+          "column": "created_at",
+          "type": "timestamp without time zone",
+          "nullable": true
+        },
+        {
+          "column": "updated_at",
+          "type": "timestamp without time zone",
+          "nullable": true
+        }
+      ],
+      "row_count": 1
+    },
+    "source_intelligence_jobs": {
+      "columns": [
+        {
+          "column": "id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "column": "source_document_id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "source_hash",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "job_type",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "status",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "priority",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "column": "target_id",
+          "type": "uuid",
+          "nullable": true
+        },
+        {
+          "column": "project_id",
+          "type": "integer",
+          "nullable": true
+        },
+        {
+          "column": "compiler_version",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "attempt_count",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "column": "last_error",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "input_snapshot",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "column": "output_summary",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "column": "queued_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        },
+        {
+          "column": "started_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "column": "finished_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "column": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        },
+        {
+          "column": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        }
+      ],
+      "row_count": 18573
+    },
+    "source_processing_jobs": {
+      "columns": [
+        {
+          "column": "id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "column": "source_system",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "source_item_id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "content_hash",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "source_document_id",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "project_id",
+          "type": "bigint",
+          "nullable": true
+        },
+        {
+          "column": "status",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "source_title",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "source_url",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "occurred_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "column": "first_seen_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        },
+        {
+          "column": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        },
+        {
+          "column": "completed_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "column": "retry_count",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "column": "error_code",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "error_message",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "metadata",
+          "type": "jsonb",
+          "nullable": false
+        }
+      ],
+      "row_count": 8796
+    },
+    "source_signal_candidates": {
+      "columns": [
+        {
+          "column": "id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "column": "source_document_id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "source_chunk_id",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "target_id",
+          "type": "uuid",
+          "nullable": true
+        },
+        {
+          "column": "project_id",
+          "type": "integer",
+          "nullable": true
+        },
+        {
+          "column": "signal_type",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "title",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "summary",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "why_it_matters",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "current_status",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "confidence_score",
+          "type": "numeric",
+          "nullable": false
+        },
+        {
+          "column": "confidence",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "status",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "suggested_owner_person_id",
+          "type": "uuid",
+          "nullable": true
+        },
+        {
+          "column": "suggested_owner_label",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "next_action",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "stale_after",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "column": "source_occurred_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "column": "excerpt",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "normalized_signal_key",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "promoted_insight_card_id",
+          "type": "uuid",
+          "nullable": true
+        },
+        {
+          "column": "extraction_json",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "column": "compiler_version",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        },
+        {
+          "column": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        }
+      ],
+      "row_count": 9705
+    },
+    "source_sync_health_snapshots": {
+      "columns": [
+        {
+          "column": "id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "column": "source",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "resource_id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "resource_name",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "status",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "last_sync_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "column": "last_success_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "column": "last_error_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "column": "last_error_message",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "items_synced",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "column": "unprocessed_count",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "column": "unembedded_count",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "column": "uncompiled_count",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "column": "stale_minutes",
+          "type": "integer",
+          "nullable": true
+        },
+        {
+          "column": "metadata",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "column": "generated_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        },
+        {
+          "column": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        },
+        {
+          "column": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        }
+      ],
+      "row_count": 340
+    },
+    "source_sync_runs": {
+      "columns": [
+        {
+          "column": "id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "column": "source",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "resource_id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "resource_name",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "stage",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "status",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "started_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        },
+        {
+          "column": "finished_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "column": "items_seen",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "column": "items_synced",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "column": "items_created",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "column": "items_updated",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "column": "items_skipped",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "column": "items_failed",
+          "type": "integer",
+          "nullable": false
+        },
+        {
+          "column": "error_code",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "error_message",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "metadata",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "column": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        },
+        {
+          "column": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        }
+      ],
+      "row_count": 33084
+    },
+    "source_syntheses": {
+      "columns": [
+        {
+          "column": "id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "column": "source_document_id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "source_family",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "project_id",
+          "type": "integer",
+          "nullable": true
+        },
+        {
+          "column": "source_occurred_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "column": "source_title",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "source_url",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "full_source_hash",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "synthesis_model",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "synthesis_status",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "executive_summary",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "what_changed",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "column": "decisions",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "column": "risks",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "column": "commitments",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "column": "tasks",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "column": "financial_signals",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "column": "schedule_signals",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "column": "change_event_signals",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "column": "daily_log_signals",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "column": "progress_report_signals",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "column": "confidence",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "confidence_notes",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "source_quotes",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "column": "token_usage",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "column": "error_code",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "error_message",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "column": "metadata",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "column": "completed_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "column": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        },
+        {
+          "column": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        }
+      ],
+      "row_count": 3257
+    },
+    "system_alerts": {
+      "columns": [
+        {
+          "column": "id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "column": "alert_key",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "category",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "code",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "severity",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "source",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "resource_id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "title",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "message",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "status",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "first_seen_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        },
+        {
+          "column": "last_seen_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        },
+        {
+          "column": "resolved_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        },
+        {
+          "column": "project_id",
+          "type": "integer",
+          "nullable": true
+        },
+        {
+          "column": "metadata",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "column": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        },
+        {
+          "column": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        },
+        {
+          "column": "notified_at",
+          "type": "timestamp with time zone",
+          "nullable": true
+        }
+      ],
+      "row_count": 167
+    },
+    "user_phone_links": {
+      "columns": [
+        {
+          "column": "id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "column": "user_id",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "phone_number",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "column": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        },
+        {
+          "column": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        }
+      ],
+      "row_count": 0
+    }
+  }
+}

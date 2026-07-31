@@ -1,0 +1,42 @@
+{
+  "contractVersion": 1,
+  "taskId": "EXAMPLE-VERIFICATION",
+  "riskLevel": "high",
+  "feature": "Example create flow",
+  "route": "/{projectId}/example/new",
+  "flows": [
+    {
+      "name": "Create and edit",
+      "steps": ["Complete every required field", "Submit", "Reload the detail route", "Open edit mode"],
+      "expectedOutcome": "Every entered field persists and is prefilled on edit"
+    }
+  ],
+  "requiredEvidence": [
+    "screenshots",
+    "videos",
+    "actionLog",
+    "databaseReadback",
+    "reloadProof",
+    "negativePath",
+    "visualReview",
+    "regressionTest"
+  ],
+  "visual": {
+    "viewports": ["desktop", "tablet", "mobile"],
+    "checks": ["No overflow", "Primary action is usable", "Loading and error states are visible"]
+  },
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    { "id": "starting-state", "description": "Starting state is captured", "evidence": [{ "key": "screenshots", "min": 1 }] },
+    { "id": "completed-form", "description": "Completed form is captured before submit", "evidence": [{ "key": "screenshots", "min": 1 }] },
+    { "id": "result-state", "description": "Success/result state is captured", "evidence": [{ "key": "screenshots", "min": 1 }] },
+    { "id": "database-persistence", "description": "Every expected field is verified in the database", "evidence": [{ "key": "databaseReadback", "min": 1 }] },
+    { "id": "reload-prefill", "description": "Reload/edit prefill is verified", "evidence": [{ "key": "reloadProof", "min": 1 }] },
+    { "id": "negative-path", "description": "Validation or failure behavior is verified", "evidence": [{ "key": "negativePath", "min": 1 }] },
+    { "id": "visual-desktop", "description": "Desktop visual review is complete", "evidence": [{ "key": "visualReview", "min": 1 }] },
+    { "id": "visual-mobile", "description": "Mobile visual review is complete", "evidence": [{ "key": "visualReview", "min": 1 }] },
+    { "id": "regression", "description": "A durable regression test exists", "evidence": [{ "key": "regressionTest", "min": 1 }] }
+  ]
+}

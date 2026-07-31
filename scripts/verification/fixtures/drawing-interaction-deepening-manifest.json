@@ -1,0 +1,32 @@
+{
+  "contractVersion": 1,
+  "taskId": "AAI-1122",
+  "feature": "Canonical Drawing interaction module",
+  "route": "/{projectId}/drawings/viewer/{drawingId}",
+  "flows": [
+    {
+      "name": "Canvas interaction and persistence",
+      "steps": ["Open a canonical drawing", "Select a markup tool and color", "Create a markup", "Reload", "Edit or delete the markup", "Undo the last annotation"],
+      "expectedOutcome": "Canvas behavior persists across reload and remains usable after edit, delete, and undo."
+    },
+    {
+      "name": "Viewport and linked-record interaction",
+      "steps": ["Use wheel and toolbar zoom", "Pan and rotate", "Select a pin", "Place and save a link"],
+      "expectedOutcome": "Viewport controls retain their behavior and semantic pin/link intents reach the canonical route."
+    }
+  ],
+  "requiredEvidence": ["screenshots", "videos", "actionLog", "databaseReadback", "reloadProof", "negativePath", "visualReview", "regressionTest"],
+  "visual": {
+    "viewports": ["desktop", "tablet", "mobile"],
+    "checks": ["No canvas overflow", "Annotation toolbar is usable", "Side panels preserve a visible canvas", "Loading and failed-save states are visible"]
+  },
+  "independentReview": { "required": true },
+  "claims": [
+    { "id": "canvas-persistence", "description": "Annotation creation, reload, edit/delete, and undo are captured", "evidence": [{ "key": "screenshots", "min": 2 }, { "key": "databaseReadback", "min": 1 }, { "key": "reloadProof", "min": 1 }] },
+    { "id": "canvas-controls", "description": "Pan, wheel zoom, toolbar zoom, rotation, tool/color, and filter behavior are captured", "evidence": [{ "key": "actionLog", "min": 1 }, { "key": "videos", "min": 1 }] },
+    { "id": "semantic-intents", "description": "Pin selection and link placement are captured at the canonical route", "evidence": [{ "key": "screenshots", "min": 1 }, { "key": "actionLog", "min": 1 }] },
+    { "id": "failure-loudly", "description": "A failed annotation operation names the failure and preserves a recovery path", "evidence": [{ "key": "negativePath", "min": 1 }] },
+    { "id": "visual", "description": "Desktop, tablet, and mobile visual review is complete", "evidence": [{ "key": "visualReview", "min": 3 }] },
+    { "id": "regression", "description": "A durable interaction-seam regression test exists", "evidence": [{ "key": "regressionTest", "min": 1 }] }
+  ]
+}

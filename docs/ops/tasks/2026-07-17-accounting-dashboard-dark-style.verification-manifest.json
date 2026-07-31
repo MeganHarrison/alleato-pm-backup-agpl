@@ -1,0 +1,57 @@
+{
+  "contractVersion": 1,
+  "taskId": "AAI-1145",
+  "feature": "Canonical Accounting premium dark dashboard style",
+  "route": "/accounting",
+  "flows": [
+    {
+      "name": "Accounting financial overview",
+      "steps": [
+        "Open the authenticated Accounting dashboard",
+        "Confirm source freshness and financial-position charts",
+        "Open one canonical Accounting drilldown"
+      ],
+      "expectedOutcome": "The page uses the shared dark and orange dashboard language while live data and drilldowns remain available"
+    }
+  ],
+  "requiredEvidence": [
+    "screenshots",
+    "actionLog",
+    "negativePath",
+    "visualReview",
+    "regressionTest"
+  ],
+  "visual": {
+    "viewports": ["1440x1000", "1024x768", "768x1024", "414x896", "375x812"],
+    "checks": [
+      "Shared carbon canvas and warm orange accent",
+      "Financial charts lead the hierarchy",
+      "No duplicate KPI strips",
+      "No horizontal overflow",
+      "Accounting navigation remains usable"
+    ]
+  },
+  "independentReview": { "required": true },
+  "claims": [
+    {
+      "id": "shared-theme",
+      "description": "Accounting reuses the shared AI Dashboard theme boundary",
+      "evidence": [{ "key": "regressionTest", "min": 1 }]
+    },
+    {
+      "id": "live-content",
+      "description": "Live financial content and canonical drilldowns remain visible",
+      "evidence": [{ "key": "screenshots", "min": 2 }]
+    },
+    {
+      "id": "responsive-quality",
+      "description": "The exact Accounting route remains visually coherent and overflow-free across required widths",
+      "evidence": [{ "key": "visualReview", "min": 1 }]
+    },
+    {
+      "id": "negative-path",
+      "description": "The existing specific API error and Retry path remain present",
+      "evidence": [{ "key": "negativePath", "min": 1 }]
+    }
+  ]
+}

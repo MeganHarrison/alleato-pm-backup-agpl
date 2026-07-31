@@ -1,0 +1,57 @@
+{
+  "status": "PASS",
+  "taskId": "LOCAL-2026-07-23-PURGE-NONPROJECTS-BATCH-3",
+  "evidence": {
+    "summary": [
+      "docs/ops/evidence/2026-07-23-purge-nonproject-records-batch-3/verification.md"
+    ],
+    "actionLog": [
+      "docs/ops/evidence/2026-07-23-purge-nonproject-records-batch-3/verification.md"
+    ],
+    "databaseReadback": [
+      "docs/ops/evidence/2026-07-23-purge-nonproject-records-batch-3/storage-delete.json",
+      "docs/ops/evidence/2026-07-23-purge-nonproject-records-batch-3/apply.json",
+      "docs/ops/evidence/2026-07-23-purge-nonproject-records-batch-3/verify.json"
+    ],
+    "negativePath": [
+      "docs/ops/evidence/2026-07-23-purge-nonproject-records-batch-3/verification.md"
+    ],
+    "regressionTest": [
+      "docs/ops/evidence/2026-07-23-purge-nonproject-records-batch-3/verification.md"
+    ]
+  },
+  "claims": {
+    "exact-target-binding": {
+      "actionLog": [
+        "docs/ops/evidence/2026-07-23-purge-nonproject-records-batch-3/verification.md"
+      ],
+      "regressionTest": [
+        "docs/ops/evidence/2026-07-23-purge-nonproject-records-batch-3/verification.md"
+      ]
+    },
+    "complete-project-purge": {
+      "databaseReadback": [
+        "docs/ops/evidence/2026-07-23-purge-nonproject-records-batch-3/storage-delete.json",
+        "docs/ops/evidence/2026-07-23-purge-nonproject-records-batch-3/apply.json",
+        "docs/ops/evidence/2026-07-23-purge-nonproject-records-batch-3/verify.json"
+      ],
+      "summary": [
+        "docs/ops/evidence/2026-07-23-purge-nonproject-records-batch-3/verification.md"
+      ]
+    },
+    "fails-closed": {
+      "negativePath": [
+        "docs/ops/evidence/2026-07-23-purge-nonproject-records-batch-3/verification.md"
+      ],
+      "regressionTest": [
+        "docs/ops/evidence/2026-07-23-purge-nonproject-records-batch-3/verification.md"
+      ]
+    }
+  },
+  "independentReview": {
+    "reviewer": "/root/review_project_purge_batch_3",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-23T17:20:31Z",
+    "artifact": "docs/ops/evidence/2026-07-23-purge-nonproject-records-batch-3/independent-review.md"
+  }
+}

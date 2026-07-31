@@ -1,0 +1,48 @@
+{
+  "contractVersion": 1,
+  "taskId": "QA-2026-07-15-drawings-annotation",
+  "feature": "Drawing viewer annotations and linked-item workflows",
+  "route": "/{projectId}/drawings/viewer/{drawingId}",
+  "flows": [
+    {
+      "name": "Viewer baseline and core annotations",
+      "steps": ["Open a real drawing", "Capture desktop baseline", "Create representative markup/note/link annotations", "Save", "Reload", "Edit and delete"],
+      "expectedOutcome": "Viewer controls work, annotations persist, and edits are reflected after reload"
+    },
+    {
+      "name": "Link existing records",
+      "steps": ["Open annotation link flow", "Exercise existing-record selection for RFI, document, photo, submittal, punch list item, drawing, coordination issue, and task", "Save each link", "Reload and inspect linked state"],
+      "expectedOutcome": "Each advertised type can be selected, linked, persisted, and read back"
+    },
+    {
+      "name": "Create new linked records",
+      "steps": ["Open annotation link flow", "Create a new RFI, document, photo, submittal, punch list item, drawing, coordination issue, and task where supported", "Submit", "Reload linked drawing and inspect relation"],
+      "expectedOutcome": "Each advertised create flow completes with a specific success state and persisted relation"
+    },
+    {
+      "name": "Failure and recovery",
+      "steps": ["Submit incomplete create forms", "Exercise empty/unavailable selectors", "Observe failed-save or permission behavior", "Correct/retry where possible"],
+      "expectedOutcome": "Failures are explicit, actionable, and do not report success without persistence"
+    },
+    {
+      "name": "Responsive visual review",
+      "steps": ["Review desktop", "Review tablet", "Review mobile", "Open annotation/link/create panels at each viewport"],
+      "expectedOutcome": "Controls remain reachable, content is not clipped, and hierarchy follows the design system"
+    }
+  ],
+  "requiredEvidence": ["screenshots", "videos", "actionLog", "databaseReadback", "reloadProof", "negativePath", "visualReview", "regressionTest"],
+  "visual": {"viewports": ["desktop", "tablet", "mobile"], "checks": ["No overflow", "Annotation controls remain reachable", "Link/create forms remain usable", "Loading and error states are visible", "No duplicate or decorative UI noise"]},
+  "independentReview": {"required": true},
+  "claims": [
+    {"id": "starting-state", "description": "Real drawing starting state captured", "evidence": [{"key": "screenshots", "min": 1}]},
+    {"id": "core-annotation-persistence", "description": "Annotation create/save/reload/edit behavior proven", "evidence": [{"key": "reloadProof", "min": 1}, {"key": "databaseReadback", "min": 1}]},
+    {"id": "existing-links", "description": "Existing links tested for all eight requested record types", "evidence": [{"key": "actionLog", "min": 8}, {"key": "databaseReadback", "min": 1}]},
+    {"id": "new-links", "description": "New linked-item creation tested for all supported requested record types", "evidence": [{"key": "actionLog", "min": 1}, {"key": "databaseReadback", "min": 1}]},
+    {"id": "negative-path", "description": "Validation or failure behavior captured", "evidence": [{"key": "negativePath", "min": 1}]},
+    {"id": "visual-desktop", "description": "Desktop visual review complete", "evidence": [{"key": "visualReview", "min": 1}]},
+    {"id": "visual-tablet", "description": "Tablet visual review complete", "evidence": [{"key": "visualReview", "min": 1}]},
+    {"id": "visual-mobile", "description": "Mobile visual review complete", "evidence": [{"key": "visualReview", "min": 1}]},
+    {"id": "independent-review", "description": "Independent evidence judge review complete", "evidence": [{"key": "visualReview", "min": 1}]},
+    {"id": "regression", "description": "Existing durable regression coverage inventoried or gap recorded", "evidence": [{"key": "regressionTest", "min": 1}]}
+  ]
+}

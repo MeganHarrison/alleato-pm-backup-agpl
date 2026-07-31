@@ -1,0 +1,32 @@
+{
+  "generatedAt": "2026-07-22T19:30:55.700645Z",
+  "method": "Independent Supabase SQL readback against PM APP and AI Database; equality of sorted eligible ID-set hashes proves exact set coverage, not just matching counts.",
+  "pmApp": {
+    "projectId": "lgveqfnpkxvzbnnwuled",
+    "query": "with eligible as (select id from public.document_metadata where source_system = 'sharepoint' and deleted_at is null and coalesce(status, '') not in ('intentionally_excluded', 'metadata_only', 'skipped_low_content')), proposal_estimate as (select id from public.document_metadata where source_system = 'sharepoint' and deleted_at is null and coalesce(status, '') not in ('intentionally_excluded', 'metadata_only', 'skipped_low_content') and (source_path ilike '%/04 - Estimate/%' or source_path ilike '%/05 - Proposal/%')) select now() as generated_at, (select count(*) from eligible) as eligible_count, (select md5(string_agg(id, ',' order by id)) from eligible) as eligible_id_set_md5, (select count(*) from proposal_estimate) as proposal_estimate_count, (select md5(string_agg(id, ',' order by id)) from proposal_estimate) as proposal_estimate_id_set_md5;",
+    "result": {
+      "eligibleCount": 423,
+      "eligibleIdSetMd5": "4c03240e92a75f3788462bb624afa294",
+      "proposalEstimateCount": 18,
+      "proposalEstimateIdSetMd5": "ec17dc15860bd339488eaa752aca77e2"
+    }
+  },
+  "aiDatabase": {
+    "projectId": "fqcvmfqldlewvbsuxdvz",
+    "query": "with vectorized as (select distinct coalesce(nullif(m.app_document_id, ''), m.id) as id from public.rag_document_metadata m join public.document_chunks c on c.document_id = m.id where m.source_system = 'sharepoint' and c.embedding is not null), proposal_estimate as (select distinct coalesce(nullif(m.app_document_id, ''), m.id) as id from public.rag_document_metadata m join public.document_chunks c on c.document_id = m.id where m.source_system = 'sharepoint' and c.embedding is not null and (coalesce(m.source_metadata->>'source_path','') ilike '%/04 - Estimate/%' or coalesce(m.source_metadata->>'source_path','') ilike '%/05 - Proposal/%' or coalesce(m.source_metadata->>'source_folder','') ilike '%04 - Estimate%' or coalesce(m.source_metadata->>'source_folder','') ilike '%05 - Proposal%')) select now() as generated_at, (select count(*) from vectorized) as vectorized_count, (select md5(string_agg(id, ',' order by id)) from vectorized) as vectorized_id_set_md5, (select count(*) from proposal_estimate) as proposal_estimate_vectorized_count, (select md5(string_agg(id, ',' order by id)) from proposal_estimate) as proposal_estimate_vectorized_id_set_md5, (select min(vector_dims(c.embedding)) from public.document_chunks c join public.rag_document_metadata m on m.id=c.document_id where m.source_system='sharepoint' and c.embedding is not null) as min_dims, (select max(vector_dims(c.embedding)) from public.document_chunks c join public.rag_document_metadata m on m.id=c.document_id where m.source_system='sharepoint' and c.embedding is not null) as max_dims;",
+    "result": {
+      "vectorizedCount": 423,
+      "vectorizedIdSetMd5": "4c03240e92a75f3788462bb624afa294",
+      "proposalEstimateVectorizedCount": 18,
+      "proposalEstimateVectorizedIdSetMd5": "ec17dc15860bd339488eaa752aca77e2",
+      "minDimensions": 3072,
+      "maxDimensions": 3072
+    }
+  },
+  "reconciliation": {
+    "eligibleIdSetsMatchExactly": true,
+    "proposalEstimateIdSetsMatchExactly": true,
+    "missingEligible": 0,
+    "missingProposalEstimate": 0
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "status": "PASS",
+  "taskId": "AAI-1073",
+  "evidence": {
+    "regressionTest": ["scripts/verification/fixtures/evidence/regression-test.txt"]
+  },
+  "claims": {
+    "policy-tests": {
+      "regressionTest": ["scripts/verification/fixtures/evidence/regression-test.txt"]
+    }
+  },
+  "independentReview": {
+    "reviewer": "Erdos",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-14T16:30:06Z",
+    "artifact": "scripts/verification/fixtures/evidence/aai-1073-independent-review.md"
+  }
+}

@@ -1,0 +1,30 @@
+Migration ledger:
+
+npm run db:migrations:verify-applied -- \
+  supabase/migrations/20260723180000_create_business_areas_foundation.sql
+
+Result:
+Supabase migration ledger check passed: 20260723180000
+
+Live provider readback:
+
+ALLEATO_ENV_FILE=<secure-env> \
+  node scripts/database/verify-alleato-brain-foundation.mjs
+
+Earlier snapshot:
+PASS at 2026-07-24T04:13:35.265Z
+
+Current hardened result:
+BLOCKED — one newly ingested Fireflies project-60 row lacks the exact Finance
+Business Area label. The task remains open until caller routing is durable and
+this same verifier passes on fresh production state.
+
+- five expected Business Areas
+- Finance restricted
+- five expected project mappings
+- 2,115 current dual-labeled documents
+- 12,581 current dual-labeled RAG chunks
+- current branch and legacy RAG counts equal
+- zero Finance memberships
+- Business Area document policy present
+- all five containers remain unarchived

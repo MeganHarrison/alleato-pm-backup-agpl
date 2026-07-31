@@ -1,0 +1,63 @@
+{
+  "contractVersion": 1,
+  "taskId": "ALL-11",
+  "riskLevel": "high",
+  "feature": "Alleato Brain Business Area search authorization",
+  "route": "frontend/AI/retrieval",
+  "flows": [
+    {
+      "name": "Authorize exact Business Area retrieval",
+      "steps": [
+        "Load project and Business Area authorization scope",
+        "Treat business_area_id as authoritative over a retained legacy project label",
+        "Filter semantic, category, fallback, and source-specific results",
+        "Permit indexed branch communications without permitting project communications",
+        "Keep live Microsoft Graph communications admin-only"
+      ],
+      "expectedOutcome": "Users retrieve only authorized project or Business Area content and Finance remains fail-closed"
+    }
+  ],
+  "requiredEvidence": [
+    "actionLog",
+    "summary",
+    "negativePath",
+    "regressionTest"
+  ],
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "exact-branch-authorization",
+      "description": "Business Area authorization overrides retained legacy project labels",
+      "evidence": [
+        { "key": "regressionTest", "min": 1 },
+        { "key": "negativePath", "min": 1 }
+      ]
+    },
+    {
+      "id": "finance-fail-closed",
+      "description": "Restricted Finance content remains inaccessible with zero active memberships",
+      "evidence": [
+        { "key": "regressionTest", "min": 1 },
+        { "key": "negativePath", "min": 1 }
+      ]
+    },
+    {
+      "id": "communication-boundary",
+      "description": "Authorized indexed branch communications are reachable without widening project or live Graph communications",
+      "evidence": [
+        { "key": "regressionTest", "min": 1 },
+        { "key": "negativePath", "min": 1 }
+      ]
+    },
+    {
+      "id": "loud-scope-failures",
+      "description": "Malformed labels and authorization-scope query failures fail loudly",
+      "evidence": [
+        { "key": "regressionTest", "min": 1 },
+        { "key": "negativePath", "min": 1 }
+      ]
+    }
+  ]
+}

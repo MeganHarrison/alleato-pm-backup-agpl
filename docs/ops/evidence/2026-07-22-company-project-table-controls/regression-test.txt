@@ -1,0 +1,5 @@
+PASS: cd frontend && npm run test:unit -- --runInBand --runTestsByPath 'src/app/(main)/__tests__/project-table-layout.test.ts'
+
+2 assertions passed:
+- the Company page opts into the shared tabs-row toolbar composition
+- the labeled create-project action is not constrained to icon width

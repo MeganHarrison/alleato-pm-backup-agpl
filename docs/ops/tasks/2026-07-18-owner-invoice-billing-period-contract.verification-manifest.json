@@ -1,0 +1,73 @@
+{
+  "contractVersion": 1,
+  "taskId": "AAI-1159",
+  "feature": "Canonical owner invoice billing-period selection",
+  "route": "/{projectId}/invoices/new?contractType=prime",
+  "flows": [
+    {
+      "name": "Select and submit a canonical billing period",
+      "steps": [
+        "Open owner invoice creation for a project with billing periods",
+        "Confirm the open or most recent record is selected",
+        "Choose another available period when present",
+        "Submit or inspect the atomic request contract"
+      ],
+      "expectedOutcome": "The form and atomic API use one project-scoped billing-period ID and its canonical date range"
+    },
+    {
+      "name": "Fail loudly when no valid billing period is available",
+      "steps": [
+        "Open a project without billing periods or send a missing/foreign ID",
+        "Attempt owner invoice creation"
+      ],
+      "expectedOutcome": "Creation is blocked with a specific recovery path and no invoice is persisted"
+    }
+  ],
+  "requiredEvidence": [
+    "screenshots",
+    "actionLog",
+    "databaseReadback",
+    "negativePath",
+    "visualReview",
+    "regressionTest"
+  ],
+  "visual": {
+    "viewports": ["desktop", "mobile"],
+    "checks": [
+      "Billing period is a labeled select control",
+      "Loading, empty, and failure states remain legible",
+      "Primary create action is not duplicated",
+      "No horizontal page overflow or new wrapper-card noise"
+    ]
+  },
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "canonical-selector",
+      "description": "Billing Period is selected from canonical project records and defaults deterministically",
+      "evidence": [{ "key": "screenshots", "min": 1 }, { "key": "regressionTest", "min": 1 }]
+    },
+    {
+      "id": "atomic-contract",
+      "description": "The atomic API validates project scope and applies canonical period dates",
+      "evidence": [{ "key": "databaseReadback", "min": 1 }, { "key": "regressionTest", "min": 1 }]
+    },
+    {
+      "id": "negative-path",
+      "description": "Missing, conflicting, foreign, and unavailable periods fail specifically",
+      "evidence": [{ "key": "negativePath", "min": 1 }]
+    },
+    {
+      "id": "responsive-visual",
+      "description": "Desktop and mobile exact-route visual review passes",
+      "evidence": [{ "key": "visualReview", "min": 2 }]
+    },
+    {
+      "id": "independent-approval",
+      "description": "Independent reviewers approve functional, visual, and evidence quality",
+      "evidence": [{ "key": "actionLog", "min": 1 }]
+    }
+  ]
+}

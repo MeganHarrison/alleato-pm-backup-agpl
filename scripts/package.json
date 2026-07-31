@@ -1,0 +1,6 @@
+{
+  "name": "alleato-scripts",
+  "type": "module",
+  "private": true,
+  "description": "Scripts for Alleato Procore project"
+}

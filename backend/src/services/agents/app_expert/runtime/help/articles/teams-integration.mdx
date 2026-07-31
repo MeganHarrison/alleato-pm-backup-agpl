@@ -1,0 +1,55 @@
+---
+title: Microsoft Teams Integration
+description: Sync Teams messages and DMs into project intelligence with AI compilation.
+audience: client
+visibility: published
+module: integrations
+category: Integrations
+tags: [teams, microsoft-365, chat, sync, intelligence]
+featured: false
+client_visible: true
+ai_visible: true
+order: 1010
+related_routes:
+  - /team-chat
+  - /settings/integrations
+related_actions: []
+---
+
+# Microsoft Teams Integration
+
+Alleato OS connects to Microsoft Teams to sync channel messages and direct message conversations. The AI Intelligence Compiler reads these conversations, extracts tasks, decisions, risks, and project signals, and links them to the correct project.
+
+## How It Works
+
+- The integration reads Teams channels and DMs you have access to.
+- Each conversation is processed by the Intelligence Compiler.
+- Extracted tasks, decisions, risks, and project mentions appear in [Project Intelligence](/help/articles/project-intelligence).
+- Raw conversations are searchable from the **Team Chat** view.
+
+## Open Team Chat
+
+1. Open **Team Chat** from the main sidebar.
+2. Browse synced conversations by channel or DM.
+3. Use search to find specific topics or quotes.
+
+## Connect Teams
+
+1. Open **Settings** > **Integrations**.
+2. Select **Connect Microsoft Teams**.
+3. Sign in and approve the requested permissions.
+4. Initial sync may take time depending on conversation volume.
+
+## What the Compiler Does
+
+The compiler turns chat into structured intelligence. See [Teams Chat Compiler](/help/articles/teams-chat-compiler) for the full pipeline.
+
+## Privacy
+
+- The integration reads only conversations you have access to in Teams.
+- Personal DMs sync to your account and are not visible to others without explicit sharing.
+
+## Related Articles
+
+- [Teams Chat Compiler](/help/articles/teams-chat-compiler)
+- [Project Intelligence](/help/articles/project-intelligence)

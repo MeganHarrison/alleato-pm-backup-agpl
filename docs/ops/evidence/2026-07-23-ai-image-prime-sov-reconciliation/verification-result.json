@@ -1,0 +1,59 @@
+{
+  "contractVersion": 1,
+  "taskId": "LOCAL-AI-IMAGE-SOV-2026-07-23",
+  "status": "PASS",
+  "observedStatus": "PASS",
+  "evidence": {
+    "summary": [
+      "docs/ops/evidence/2026-07-23-ai-image-prime-sov-reconciliation/verification-summary.md",
+      "docs/ops/evidence/2026-07-23-ai-image-prime-sov-reconciliation/deployment-receipt.md",
+      "docs/ops/evidence/2026-07-23-ai-image-prime-sov-reconciliation/production-live-followup.png"
+    ],
+    "actionLog": [
+      "docs/ops/evidence/2026-07-23-ai-image-prime-sov-reconciliation/action-log.md"
+    ],
+    "negativePath": [
+      "docs/ops/evidence/2026-07-23-ai-image-prime-sov-reconciliation/negative-path.md"
+    ],
+    "regressionTest": [
+      "docs/ops/evidence/2026-07-23-ai-image-prime-sov-reconciliation/regression-test.md"
+    ]
+  },
+  "claims": {
+    "vision-conversation-boundary": {
+      "summary": [
+        "docs/ops/evidence/2026-07-23-ai-image-prime-sov-reconciliation/verification-summary.md",
+        "docs/ops/evidence/2026-07-23-ai-image-prime-sov-reconciliation/deployment-receipt.md",
+        "docs/ops/evidence/2026-07-23-ai-image-prime-sov-reconciliation/production-live-followup.png"
+      ],
+      "regressionTest": [
+        "docs/ops/evidence/2026-07-23-ai-image-prime-sov-reconciliation/regression-test.md"
+      ]
+    },
+    "sov-budget-reconciliation": {
+      "actionLog": [
+        "docs/ops/evidence/2026-07-23-ai-image-prime-sov-reconciliation/action-log.md"
+      ],
+      "negativePath": [
+        "docs/ops/evidence/2026-07-23-ai-image-prime-sov-reconciliation/negative-path.md"
+      ],
+      "regressionTest": [
+        "docs/ops/evidence/2026-07-23-ai-image-prime-sov-reconciliation/regression-test.md"
+      ]
+    },
+    "financial-write-safety": {
+      "negativePath": [
+        "docs/ops/evidence/2026-07-23-ai-image-prime-sov-reconciliation/negative-path.md"
+      ],
+      "regressionTest": [
+        "docs/ops/evidence/2026-07-23-ai-image-prime-sov-reconciliation/regression-test.md"
+      ]
+    }
+  },
+  "independentReview": {
+    "reviewer": "Independent Codex reviewer /root/independent_ai_sov_review",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-23T18:41:49Z",
+    "artifact": "docs/ops/evidence/2026-07-23-ai-image-prime-sov-reconciliation/independent-review.md"
+  }
+}

@@ -1,0 +1,203 @@
+---
+title: AI Chat Overview
+description: The AI Assistant chat — where it lives, what you can ask it, how conversations work, attachments, voice input, and the side panels that give you trace and source visibility.
+audience: client
+visibility: published
+module: ai
+category: AI & Intelligence
+tags: [ai, chat, assistant, conversations, voice, attachments, rag]
+featured: true
+client_visible: true
+ai_visible: true
+order: 100
+related_routes:
+  - /ai
+related_actions: []
+---
+
+# AI Chat Overview
+
+The AI Assistant is the front door to every piece of project intelligence Alleato can see. Ask it a question in plain English; it pulls answers from your budgets, contracts, change orders, commitments, invoices, RFIs, submittals, meeting transcripts, Teams messages, emails, and accounting data — at the same time — and writes back a single grounded response with citations.
+
+This article is the **overview**: where to find it, what it looks like, what you can do inside the chat. For how the AI actually picks answers, see [AI Architecture](/architecture/ai-rag) and [How AI Retrieval Works](/architecture/ai-rag).
+
+---
+
+## Where to find it
+
+Open the AI Assistant at **`/ai`** from the main navigation.
+
+There are two entry surfaces:
+
+- **Full chat page** (`/ai`) — the dedicated Eve workspace with conversation history and assistant controls.
+- **Global widget** — a compact floating chat that opens on top of any page. Conversations from the widget appear in your history just like full-page chats.
+
+---
+
+## The chat surface
+
+### Conversation panel (left)
+
+Every conversation you've had with the assistant is listed in the left sidebar, most recent first.
+
+- **New chat** — start a fresh thread. Existing thread is saved automatically.
+- **Rename** — click the conversation's menu and choose **Rename** to give a thread a clearer title (useful when you want to find it later).
+- **Delete** — also in the conversation menu.
+- **Search** — type to filter your history by title.
+
+A new conversation gets an auto-generated title from your first question. Rename whenever the title isn't specific enough.
+
+### Chat area (center)
+
+The main thread. You type at the bottom, the assistant streams its response above. Each AI response can include:
+
+- **Plain prose** — the answer.
+- **Source citations** — clickable references to the underlying meeting, email, document, or record. Click a citation to open the source.
+- **Tool calls** — when the assistant pulls live data (e.g. queries the budget, looks up a commitment), the tool calls render inline so you can see exactly what data the answer is based on.
+- **Widgets** — for some questions the assistant returns a richer card (a daily-update widget, a project status panel, an insight card) instead of plain text.
+- **Artifacts** — workspace records can open in a side panel so you can read or
+  copy them without losing the chat. Eve can read available artifacts but cannot
+  create or edit them through the current read-only bridge.
+
+### Side panels (right)
+
+Opened from the toolbar at the top of the chat:
+
+- **Turn evidence** — durable turn events and source receipts show which
+  request-scoped tools and evidence contributed to an answer.
+- **Workspace** — pinned context for the current conversation (a project you want every answer scoped to, a document you've attached for follow-up Q&A).
+- **Artifact panel** — opens when the assistant generates a document. Lets you read, copy, or download without leaving the chat.
+
+---
+
+## What you can ask it
+
+The assistant is built for whole-business questions across multiple data sources, not for one-tool lookups. Some examples it handles well:
+
+- "What's the projected over/under on the Union Collective project, and what's driving it?"
+- "Summarize what happened on the Vermillion Rise job this week."
+- "Did Brandon send anything about the steel delivery in the last 10 days?"
+- "Pull up every RFI on the East 96th project that's still open past its due date."
+- "Draft a reply to the latest message from Acme Mechanical letting them know the COR is approved."
+- "How is the Smith Group invoice tracking against the commitment?"
+- "What's our cash position across all active projects?"
+
+It's also fine to ask it about itself — “what tools do you have?”, “what data
+sources can you see?”, or “which skill applies?” — and it can use these help
+articles to answer.
+
+For questions it doesn't currently support well, see [AI Capabilities Index](/help/articles/ai-capabilities-index).
+
+---
+
+## Conversation features
+
+### Attachments
+
+Click the paperclip in the chat input to upload an **image** (screenshot, photo, plan markup). The assistant can describe what's in it, extract text, and answer questions about it.
+
+Document attachments (PDFs, contracts, transcripts) attach through the **Workspace** panel instead of the input bar — that pins them to the conversation so every follow-up question can reference them.
+
+### Voice input
+
+Click the microphone in the chat input to dictate your question instead of typing. Voice input uses your browser's speech recognition; speak naturally, then click again to stop. The transcript drops into the input box where you can edit before sending.
+
+Voice **output** (the assistant speaking responses) is available via the avatar surface — see [AI Voice](/help/articles/ai-assistant-overview).
+
+### Suggested prompts
+
+The welcome screen on a new conversation shows shortcut cards grouped by category — common workflows like "project status", "draft an email", "what's overdue", and "summarize this meeting". Click any card to drop the prompt into the input ready to send (or edit first).
+
+### Feedback
+
+Below every AI response there's a thumbs-up / thumbs-down. Use it.
+
+- **Thumbs-up** marks the response as a good example and feeds the quality model.
+- **Thumbs-down** opens a brief feedback form. The flagged response is reviewed and used to improve future answers.
+
+There are separate feedback paths for specific things the assistant produces:
+
+- **Task feedback** — when the assistant created or surfaced a task that was wrong, accept/edit/reject from the task itself.
+- **Email-draft feedback** — when the assistant drafted a reply for you to send, marking it as "used as-is", "edited", or "rejected" trains the email model.
+- **Packet card feedback** — same pattern for the insight cards that show up in daily packets.
+
+See [AI Feedback & Learning](/help/articles/ai-memory) for what each signal actually does.
+
+---
+
+## How long it remembers
+
+Two layers of memory:
+
+- **Within a conversation** — the assistant sees the whole thread. Reference earlier messages freely ("expand on that", "and what about the second project?").
+- **Across conversations** — the assistant can retain approved facts about you
+  and your projects. Review the available controls under **`/ai`**, or ask Eve
+  what it remembers.
+
+Full reference: [AI Conversation Memory](/help/articles/ai-memory).
+
+---
+
+## Which skill is active
+
+The assistant is one Eve identity with six skills: financial analysis,
+operations review, risk review, people capacity, business development, and
+marketing strategy. Eve can load one or several skills without handing the
+conversation to a separate frontend agent.
+
+You can ask Eve to use a specific lens, such as “review this through the
+financial analysis skill.”
+
+Full reference: [AI Architecture](/architecture/ai-rag).
+
+---
+
+## Privacy and access
+
+- **Per-user scope.** You see your own conversations only. Admins do not see other users' chats.
+- **Per-user data.** The assistant only retrieves data you already have permission to see in the app. A user without Budget Read won't get budget answers; a user not on a private commitment can't ask about it.
+- **Tracing.** Every response is traced for quality improvement. Trace data is internal — see [AI Tracing](/architecture/ai-rag) for what's logged.
+
+---
+
+## Common Questions
+
+**Why doesn't the assistant know about a meeting I just had?**
+The meeting needs to finish syncing through the pipeline first — transcript ingest, embedding, then Teams compiler. The full path runs every 30 minutes. If a meeting is more than ~45 minutes old and still missing, check the [AI Source Health](/architecture/rag-pipeline-project-intelligence) page.
+
+**Why does the assistant sometimes say "I couldn't check X"?**
+A data source was unreachable or timed out for that question. The assistant is built to keep going with whatever else it has and tell you what it couldn't reach — instead of silently dropping that source from the answer. Treat the message as a transient warning; try the question again a moment later.
+
+**Can I scope a question to a specific project?**
+Yes. Pin a project in the Workspace panel and every follow-up question is automatically scoped to it. Or just include the project in the question ("on Union Collective…").
+
+**How do I get a longer / more detailed answer?**
+Ask for it. "Give me the full breakdown", "show me every line", "explain the reasoning step by step". The assistant defaults to concise; verbose is on request.
+
+**Can I export a conversation?**
+Not yet from the UI. If you need a thread captured, copy the messages directly
+or ask Eve for a text summary, then save it through the normal workspace UI.
+Eve cannot create the artifact through the current read-only bridge.
+
+**What model is the assistant using?**
+Model selection belongs to the Eve deployment and provider configuration, not
+to separate frontend agents. See [AI Models & Providers](/architecture/ai-rag).
+
+**Why is the assistant suddenly slower?**
+The most common cause is a question that triggers many tool calls (e.g. a cross-project rollup that hits 20 data sources). Watch the trace panel — you'll see which step is taking the time. If a single tool is hanging, source health may be degraded.
+
+**Can I undo a delete?**
+Conversations are soft-deleted for 30 days. Contact an Admin to restore.
+
+---
+
+## Related Articles
+
+- [AI Architecture](/architecture/ai-rag) — Eve, skills, retrieval, and ingestion ownership
+- [How AI Retrieval Works](/architecture/ai-rag) — RAG, embeddings, hybrid search
+- [AI Data Sources](/architecture/rag-pipeline-project-intelligence) — every source the assistant can read
+- [AI Conversation Memory](/help/articles/ai-memory) — short-term and long-term memory
+- [AI Feedback & Learning](/help/articles/ai-memory) — how your feedback improves answers
+- [AI Models & Providers](/architecture/ai-rag) — which model runs where
+- [AI Capabilities Index](/help/articles/ai-capabilities-index) — what the assistant can and can't do
+- [AI Source Health](/architecture/rag-pipeline-project-intelligence) — when data sources are stale or failing

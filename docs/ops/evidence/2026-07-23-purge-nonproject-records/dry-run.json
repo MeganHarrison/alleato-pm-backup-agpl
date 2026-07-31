@@ -1,0 +1,6820 @@
+{
+  "status": "DRY_RUN_PASS",
+  "generatedAt": "2026-07-23T16:19:13.969Z",
+  "taskId": "LOCAL-2026-07-23-PURGE-NONPROJECTS",
+  "manifestDigest": "bc4c7e2f7e568012508168a67368d57cb82d659056c9948da779f3e2a9857cf2",
+  "requiredConfirmation": "PURGE_PROJECTS_BC4C7E2F7E568012",
+  "targets": [
+    {
+      "id": 1146,
+      "name": "26-125 GW Excel Playground",
+      "jobNumber": "26-125",
+      "projectNumber": "26-125",
+      "acumaticaProjectId": "26125",
+      "erpSystem": "acumatica",
+      "archived": false,
+      "createdAt": "2026-07-22T06:31:33.054Z"
+    },
+    {
+      "id": 1096,
+      "name": "Alleato Office Remodel",
+      "jobNumber": "26-124",
+      "projectNumber": "26-124",
+      "acumaticaProjectId": "26124",
+      "erpSystem": "acumatica",
+      "archived": false,
+      "createdAt": "2026-06-16T21:18:45.963Z"
+    },
+    {
+      "id": 88,
+      "name": "ArcEdge",
+      "jobNumber": null,
+      "projectNumber": null,
+      "acumaticaProjectId": null,
+      "erpSystem": null,
+      "archived": false,
+      "createdAt": "2025-12-15T18:38:18.334Z"
+    },
+    {
+      "id": 1033,
+      "name": "Eye Surgeons of Indiana",
+      "jobNumber": null,
+      "projectNumber": null,
+      "acumaticaProjectId": null,
+      "erpSystem": null,
+      "archived": false,
+      "createdAt": "2026-05-13T01:08:10.810Z"
+    },
+    {
+      "id": 1014,
+      "name": "NEXCOM SEDC",
+      "jobNumber": "26-120",
+      "projectNumber": "26-120",
+      "acumaticaProjectId": "26120",
+      "erpSystem": "acumatica",
+      "archived": false,
+      "createdAt": "2026-05-02T10:36:59.649Z"
+    },
+    {
+      "id": 1097,
+      "name": "Park Collective",
+      "jobNumber": null,
+      "projectNumber": null,
+      "acumaticaProjectId": null,
+      "erpSystem": null,
+      "archived": false,
+      "createdAt": "2026-06-17T02:55:16.095Z"
+    },
+    {
+      "id": 1141,
+      "name": "QA Financials 2026-07-09",
+      "jobNumber": "QA-0709",
+      "projectNumber": null,
+      "acumaticaProjectId": null,
+      "erpSystem": null,
+      "archived": false,
+      "createdAt": "2026-07-09T14:05:41.083Z"
+    }
+  ],
+  "appDatabase": {
+    "referencedTables": [
+      {
+        "schema": "public",
+        "table": "acumatica_ap_bills",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "SET NULL",
+        "rows": [
+          {
+            "projectId": 1096,
+            "count": 16
+          }
+        ],
+        "total": 16
+      },
+      {
+        "schema": "public",
+        "table": "acumatica_change_orders",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "SET NULL",
+        "rows": [
+          {
+            "projectId": 1096,
+            "count": 2
+          }
+        ],
+        "total": 2
+      },
+      {
+        "schema": "public",
+        "table": "acumatica_project_budgets",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "SET NULL",
+        "rows": [
+          {
+            "projectId": 1096,
+            "count": 14
+          }
+        ],
+        "total": 14
+      },
+      {
+        "schema": "public",
+        "table": "acumatica_purchase_orders",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "SET NULL",
+        "rows": [
+          {
+            "projectId": 1096,
+            "count": 1
+          }
+        ],
+        "total": 1
+      },
+      {
+        "schema": "public",
+        "table": "acumatica_subcontracts",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "SET NULL",
+        "rows": [
+          {
+            "projectId": 1096,
+            "count": 4
+          }
+        ],
+        "total": 4
+      },
+      {
+        "schema": "public",
+        "table": "agent_learnings",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "SET NULL",
+        "rows": [
+          {
+            "projectId": 88,
+            "count": 1
+          }
+        ],
+        "total": 1
+      },
+      {
+        "schema": "public",
+        "table": "ai_feedback_events",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "SET NULL",
+        "rows": [
+          {
+            "projectId": 1033,
+            "count": 1
+          },
+          {
+            "projectId": 88,
+            "count": 1
+          }
+        ],
+        "total": 2
+      },
+      {
+        "schema": "public",
+        "table": "ai_memories",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "SET NULL",
+        "rows": [
+          {
+            "projectId": 1033,
+            "count": 120
+          },
+          {
+            "projectId": 88,
+            "count": 34
+          }
+        ],
+        "total": 154
+      },
+      {
+        "schema": "public",
+        "table": "ai_retrieval_feedback",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "SET NULL",
+        "rows": [
+          {
+            "projectId": 1033,
+            "count": 6
+          }
+        ],
+        "total": 6
+      },
+      {
+        "schema": "public",
+        "table": "ai_task_feedback",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "SET NULL",
+        "rows": [
+          {
+            "projectId": 1033,
+            "count": 1
+          },
+          {
+            "projectId": 88,
+            "count": 1
+          }
+        ],
+        "total": 2
+      },
+      {
+        "schema": "public",
+        "table": "ai_tool_write_audits",
+        "column": "project_id",
+        "referencesProjects": false,
+        "deleteRule": "NONE",
+        "rows": [
+          {
+            "projectId": 1141,
+            "count": 4
+          }
+        ],
+        "total": 4
+      },
+      {
+        "schema": "public",
+        "table": "app_error_events",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "SET NULL",
+        "rows": [
+          {
+            "projectId": 1141,
+            "count": 6
+          }
+        ],
+        "total": 6
+      },
+      {
+        "schema": "public",
+        "table": "app_error_groups",
+        "column": "latest_project_id",
+        "referencesProjects": true,
+        "deleteRule": "SET NULL",
+        "rows": [
+          {
+            "projectId": 1141,
+            "count": 5
+          }
+        ],
+        "total": 5
+      },
+      {
+        "schema": "public",
+        "table": "billing_periods",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "NO ACTION",
+        "rows": [
+          {
+            "projectId": 1141,
+            "count": 1
+          }
+        ],
+        "total": 1
+      },
+      {
+        "schema": "public",
+        "table": "budget_line_history",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "NO ACTION",
+        "rows": [
+          {
+            "projectId": 1141,
+            "count": 3
+          }
+        ],
+        "total": 3
+      },
+      {
+        "schema": "public",
+        "table": "budget_lines",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "CASCADE",
+        "rows": [
+          {
+            "projectId": 1141,
+            "count": 1
+          }
+        ],
+        "total": 1
+      },
+      {
+        "schema": "public",
+        "table": "budget_views",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "CASCADE",
+        "rows": [
+          {
+            "projectId": 88,
+            "count": 1
+          }
+        ],
+        "total": 1
+      },
+      {
+        "schema": "public",
+        "table": "change_events",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "CASCADE",
+        "rows": [
+          {
+            "projectId": 1141,
+            "count": 2
+          }
+        ],
+        "total": 2
+      },
+      {
+        "schema": "public",
+        "table": "contract_change_orders",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "CASCADE",
+        "rows": [
+          {
+            "projectId": 1141,
+            "count": 1
+          }
+        ],
+        "total": 1
+      },
+      {
+        "schema": "public",
+        "table": "direct_costs",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "CASCADE",
+        "rows": [
+          {
+            "projectId": 1096,
+            "count": 16
+          }
+        ],
+        "total": 16
+      },
+      {
+        "schema": "public",
+        "table": "document_attribution_candidates",
+        "column": "candidate_project_id",
+        "referencesProjects": true,
+        "deleteRule": "SET NULL",
+        "rows": [
+          {
+            "projectId": 1014,
+            "count": 55
+          },
+          {
+            "projectId": 1033,
+            "count": 3
+          },
+          {
+            "projectId": 1096,
+            "count": 2
+          },
+          {
+            "projectId": 88,
+            "count": 93
+          }
+        ],
+        "total": 153
+      },
+      {
+        "schema": "public",
+        "table": "document_metadata",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "SET NULL",
+        "rows": [
+          {
+            "projectId": 1014,
+            "count": 54
+          },
+          {
+            "projectId": 1033,
+            "count": 34
+          },
+          {
+            "projectId": 1096,
+            "count": 7
+          },
+          {
+            "projectId": 1097,
+            "count": 24
+          },
+          {
+            "projectId": 1146,
+            "count": 3
+          },
+          {
+            "projectId": 88,
+            "count": 115
+          }
+        ],
+        "total": 237
+      },
+      {
+        "schema": "public",
+        "table": "intelligence_targets",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "CASCADE",
+        "rows": [
+          {
+            "projectId": 1014,
+            "count": 1
+          },
+          {
+            "projectId": 1033,
+            "count": 1
+          },
+          {
+            "projectId": 1096,
+            "count": 1
+          },
+          {
+            "projectId": 1097,
+            "count": 1
+          },
+          {
+            "projectId": 1146,
+            "count": 1
+          },
+          {
+            "projectId": 88,
+            "count": 1
+          }
+        ],
+        "total": 6
+      },
+      {
+        "schema": "public",
+        "table": "meeting_series",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "CASCADE",
+        "rows": [
+          {
+            "projectId": 1014,
+            "count": 2
+          },
+          {
+            "projectId": 1033,
+            "count": 3
+          },
+          {
+            "projectId": 1096,
+            "count": 1
+          },
+          {
+            "projectId": 1097,
+            "count": 1
+          },
+          {
+            "projectId": 88,
+            "count": 10
+          }
+        ],
+        "total": 17
+      },
+      {
+        "schema": "public",
+        "table": "meetings",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "CASCADE",
+        "rows": [
+          {
+            "projectId": 1014,
+            "count": 2
+          },
+          {
+            "projectId": 1033,
+            "count": 3
+          },
+          {
+            "projectId": 1096,
+            "count": 1
+          },
+          {
+            "projectId": 1097,
+            "count": 1
+          },
+          {
+            "projectId": 88,
+            "count": 21
+          }
+        ],
+        "total": 28
+      },
+      {
+        "schema": "public",
+        "table": "outlook_email_intake",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "SET NULL",
+        "rows": [
+          {
+            "projectId": 1014,
+            "count": 4
+          },
+          {
+            "projectId": 1033,
+            "count": 7
+          },
+          {
+            "projectId": 1097,
+            "count": 3
+          },
+          {
+            "projectId": 88,
+            "count": 5
+          }
+        ],
+        "total": 19
+      },
+      {
+        "schema": "public",
+        "table": "outlook_email_intake_attachments",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "SET NULL",
+        "rows": [
+          {
+            "projectId": 1014,
+            "count": 1
+          },
+          {
+            "projectId": 1033,
+            "count": 4
+          },
+          {
+            "projectId": 88,
+            "count": 14
+          }
+        ],
+        "total": 19
+      },
+      {
+        "schema": "public",
+        "table": "prime_contract_change_orders",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "CASCADE",
+        "rows": [
+          {
+            "projectId": 1141,
+            "count": 1
+          }
+        ],
+        "total": 1
+      },
+      {
+        "schema": "public",
+        "table": "prime_contract_payment_applications",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "CASCADE",
+        "rows": [
+          {
+            "projectId": 1141,
+            "count": 1
+          }
+        ],
+        "total": 1
+      },
+      {
+        "schema": "public",
+        "table": "prime_contract_pcos",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "CASCADE",
+        "rows": [
+          {
+            "projectId": 1141,
+            "count": 1
+          }
+        ],
+        "total": 1
+      },
+      {
+        "schema": "public",
+        "table": "prime_contracts",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "CASCADE",
+        "rows": [
+          {
+            "projectId": 1141,
+            "count": 5
+          }
+        ],
+        "total": 5
+      },
+      {
+        "schema": "public",
+        "table": "project_attribution_rules",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "CASCADE",
+        "rows": [
+          {
+            "projectId": 1014,
+            "count": 6
+          },
+          {
+            "projectId": 1033,
+            "count": 2
+          },
+          {
+            "projectId": 88,
+            "count": 3
+          }
+        ],
+        "total": 11
+      },
+      {
+        "schema": "public",
+        "table": "project_budget_codes",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "CASCADE",
+        "rows": [
+          {
+            "projectId": 1096,
+            "count": 11
+          },
+          {
+            "projectId": 1141,
+            "count": 1
+          }
+        ],
+        "total": 12
+      },
+      {
+        "schema": "public",
+        "table": "project_contact_references",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "CASCADE",
+        "rows": [
+          {
+            "projectId": 1014,
+            "count": 17
+          },
+          {
+            "projectId": 88,
+            "count": 175
+          }
+        ],
+        "total": 192
+      },
+      {
+        "schema": "public",
+        "table": "project_current_state",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "CASCADE",
+        "rows": [
+          {
+            "projectId": 1014,
+            "count": 1
+          },
+          {
+            "projectId": 1033,
+            "count": 1
+          },
+          {
+            "projectId": 1096,
+            "count": 1
+          },
+          {
+            "projectId": 1097,
+            "count": 1
+          },
+          {
+            "projectId": 88,
+            "count": 1
+          }
+        ],
+        "total": 5
+      },
+      {
+        "schema": "public",
+        "table": "project_current_state_projection_envelopes",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "CASCADE",
+        "rows": [
+          {
+            "projectId": 1014,
+            "count": 1
+          },
+          {
+            "projectId": 88,
+            "count": 1
+          }
+        ],
+        "total": 2
+      },
+      {
+        "schema": "public",
+        "table": "project_directory_memberships",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "CASCADE",
+        "rows": [
+          {
+            "projectId": 1014,
+            "count": 2
+          },
+          {
+            "projectId": 1033,
+            "count": 2
+          },
+          {
+            "projectId": 1096,
+            "count": 2
+          },
+          {
+            "projectId": 1097,
+            "count": 2
+          },
+          {
+            "projectId": 1141,
+            "count": 2
+          },
+          {
+            "projectId": 88,
+            "count": 2
+          }
+        ],
+        "total": 12
+      },
+      {
+        "schema": "public",
+        "table": "project_documents",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "CASCADE",
+        "rows": [
+          {
+            "projectId": 1014,
+            "count": 2
+          },
+          {
+            "projectId": 1033,
+            "count": 8
+          },
+          {
+            "projectId": 1097,
+            "count": 1
+          },
+          {
+            "projectId": 88,
+            "count": 3
+          }
+        ],
+        "total": 14
+      },
+      {
+        "schema": "public",
+        "table": "project_emails",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "CASCADE",
+        "rows": [
+          {
+            "projectId": 1014,
+            "count": 3
+          },
+          {
+            "projectId": 1033,
+            "count": 4
+          },
+          {
+            "projectId": 1096,
+            "count": 1
+          },
+          {
+            "projectId": 88,
+            "count": 7
+          }
+        ],
+        "total": 15
+      },
+      {
+        "schema": "public",
+        "table": "project_intelligence_packet_items",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "CASCADE",
+        "rows": [
+          {
+            "projectId": 1014,
+            "count": 11
+          },
+          {
+            "projectId": 1097,
+            "count": 13
+          },
+          {
+            "projectId": 88,
+            "count": 27
+          }
+        ],
+        "total": 51
+      },
+      {
+        "schema": "public",
+        "table": "project_intelligence_timeline_events",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "CASCADE",
+        "rows": [
+          {
+            "projectId": 1014,
+            "count": 1
+          },
+          {
+            "projectId": 1033,
+            "count": 3
+          },
+          {
+            "projectId": 1096,
+            "count": 1
+          },
+          {
+            "projectId": 1097,
+            "count": 3
+          }
+        ],
+        "total": 8
+      },
+      {
+        "schema": "public",
+        "table": "project_operating_snapshots",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "CASCADE",
+        "rows": [
+          {
+            "projectId": 1014,
+            "count": 1
+          },
+          {
+            "projectId": 1033,
+            "count": 3
+          },
+          {
+            "projectId": 1096,
+            "count": 1
+          },
+          {
+            "projectId": 1097,
+            "count": 3
+          },
+          {
+            "projectId": 88,
+            "count": 13
+          }
+        ],
+        "total": 21
+      },
+      {
+        "schema": "public",
+        "table": "project_progress_reports",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "CASCADE",
+        "rows": [
+          {
+            "projectId": 1096,
+            "count": 2
+          }
+        ],
+        "total": 2
+      },
+      {
+        "schema": "public",
+        "table": "project_report_suggestions",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "CASCADE",
+        "rows": [
+          {
+            "projectId": 1014,
+            "count": 2
+          },
+          {
+            "projectId": 1033,
+            "count": 4
+          },
+          {
+            "projectId": 1096,
+            "count": 2
+          },
+          {
+            "projectId": 1097,
+            "count": 4
+          },
+          {
+            "projectId": 88,
+            "count": 2
+          }
+        ],
+        "total": 14
+      },
+      {
+        "schema": "public",
+        "table": "project_roles",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "CASCADE",
+        "rows": [
+          {
+            "projectId": 1014,
+            "count": 3
+          },
+          {
+            "projectId": 1033,
+            "count": 3
+          },
+          {
+            "projectId": 1096,
+            "count": 3
+          },
+          {
+            "projectId": 1097,
+            "count": 3
+          },
+          {
+            "projectId": 1141,
+            "count": 3
+          },
+          {
+            "projectId": 1146,
+            "count": 3
+          },
+          {
+            "projectId": 88,
+            "count": 3
+          }
+        ],
+        "total": 21
+      },
+      {
+        "schema": "public",
+        "table": "project_synopsis_history",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "CASCADE",
+        "rows": [
+          {
+            "projectId": 1014,
+            "count": 1
+          },
+          {
+            "projectId": 1033,
+            "count": 1
+          },
+          {
+            "projectId": 1096,
+            "count": 1
+          },
+          {
+            "projectId": 1097,
+            "count": 1
+          },
+          {
+            "projectId": 1146,
+            "count": 3
+          },
+          {
+            "projectId": 88,
+            "count": 1
+          }
+        ],
+        "total": 8
+      },
+      {
+        "schema": "public",
+        "table": "projects_audit",
+        "column": "project_id",
+        "referencesProjects": false,
+        "deleteRule": "NONE",
+        "rows": [
+          {
+            "projectId": 1014,
+            "count": 70
+          },
+          {
+            "projectId": 1033,
+            "count": 36
+          },
+          {
+            "projectId": 1096,
+            "count": 23
+          },
+          {
+            "projectId": 1097,
+            "count": 27
+          },
+          {
+            "projectId": 1141,
+            "count": 3
+          },
+          {
+            "projectId": 1146,
+            "count": 6
+          },
+          {
+            "projectId": 88,
+            "count": 120
+          }
+        ],
+        "total": 285
+      },
+      {
+        "schema": "public",
+        "table": "purchase_orders",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "CASCADE",
+        "rows": [
+          {
+            "projectId": 1096,
+            "count": 1
+          }
+        ],
+        "total": 1
+      },
+      {
+        "schema": "public",
+        "table": "rfis",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "CASCADE",
+        "rows": [
+          {
+            "projectId": 1141,
+            "count": 1
+          }
+        ],
+        "total": 1
+      },
+      {
+        "schema": "public",
+        "table": "subcontractor_invoices",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "CASCADE",
+        "rows": [
+          {
+            "projectId": 1141,
+            "count": 1
+          }
+        ],
+        "total": 1
+      },
+      {
+        "schema": "public",
+        "table": "subcontractor_sov_submissions",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "CASCADE",
+        "rows": [
+          {
+            "projectId": 1141,
+            "count": 1
+          }
+        ],
+        "total": 1
+      },
+      {
+        "schema": "public",
+        "table": "subcontracts",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "CASCADE",
+        "rows": [
+          {
+            "projectId": 1096,
+            "count": 4
+          },
+          {
+            "projectId": 1141,
+            "count": 1
+          }
+        ],
+        "total": 5
+      },
+      {
+        "schema": "public",
+        "table": "submittals",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "CASCADE",
+        "rows": [
+          {
+            "projectId": 1141,
+            "count": 1
+          }
+        ],
+        "total": 1
+      },
+      {
+        "schema": "public",
+        "table": "vertical_markup",
+        "column": "project_id",
+        "referencesProjects": true,
+        "deleteRule": "CASCADE",
+        "rows": [
+          {
+            "projectId": 1141,
+            "count": 2
+          }
+        ],
+        "total": 2
+      }
+    ],
+    "totalScopedRows": 1414,
+    "transactionRollbackSimulation": {
+      "deletedProjects": 7,
+      "deletedIndirectTables": [
+        {
+          "table": "pco_line_items",
+          "rows": 1
+        },
+        {
+          "table": "change_event_line_items",
+          "rows": 2
+        },
+        {
+          "table": "purchase_order_sov_items",
+          "rows": 1
+        },
+        {
+          "table": "subcontract_sov_items",
+          "rows": 5
+        },
+        {
+          "table": "direct_cost_line_items",
+          "rows": 16
+        },
+        {
+          "table": "owner_invoices",
+          "rows": 1
+        }
+      ],
+      "deletedTables": [
+        {
+          "schema": "public",
+          "table": "acumatica_ap_bills",
+          "rows": 16
+        },
+        {
+          "schema": "public",
+          "table": "acumatica_ar_invoices",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "acumatica_change_orders",
+          "rows": 2
+        },
+        {
+          "schema": "public",
+          "table": "acumatica_outbound_audit_logs",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "acumatica_payments",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "acumatica_project_budgets",
+          "rows": 14
+        },
+        {
+          "schema": "public",
+          "table": "acumatica_project_tasks",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "acumatica_projects",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "acumatica_purchase_orders",
+          "rows": 1
+        },
+        {
+          "schema": "public",
+          "table": "acumatica_subcontracts",
+          "rows": 4
+        },
+        {
+          "schema": "public",
+          "table": "admin_feedback_items",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "agent_learnings",
+          "rows": 1
+        },
+        {
+          "schema": "public",
+          "table": "ai_agent_runs",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "ai_feedback_events",
+          "rows": 2
+        },
+        {
+          "schema": "public",
+          "table": "ai_learning_promotions",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "ai_memories",
+          "rows": 154
+        },
+        {
+          "schema": "public",
+          "table": "ai_operation_events",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "ai_retrieval_feedback",
+          "rows": 6
+        },
+        {
+          "schema": "public",
+          "table": "ai_retrieval_weights",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "ai_review_feedback",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "ai_skill_usage_events",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "ai_skills",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "ai_task_feedback",
+          "rows": 2
+        },
+        {
+          "schema": "public",
+          "table": "billing_invitations",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "billing_periods",
+          "rows": 1
+        },
+        {
+          "schema": "public",
+          "table": "briefing_runs",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "budget_changes",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "budget_forecast_line_items",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "budget_line_history",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "budget_line_item_history",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "budget_lines",
+          "rows": 1
+        },
+        {
+          "schema": "public",
+          "table": "budget_mod_lines",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "budget_modifications",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "budget_snapshots",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "budget_views",
+          "rows": 1
+        },
+        {
+          "schema": "public",
+          "table": "change_event_candidates",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "change_event_project_settings",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "change_event_related_items",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "change_event_rfqs",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "change_events",
+          "rows": 2
+        },
+        {
+          "schema": "public",
+          "table": "change_events_documents_links",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "change_orders",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "change_workflow_notifications",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "collaboration_comments",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "collaboration_notifications",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "commitment_payments",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "commitment_pcos",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "commitment_related_items",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "contract_change_orders",
+          "rows": 1
+        },
+        {
+          "schema": "public",
+          "table": "daily_log_photos",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "daily_logs",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "daily_logs_project_photos_links",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "design_recommendations",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "direct_costs",
+          "rows": 16
+        },
+        {
+          "schema": "public",
+          "table": "distribution_groups",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "document_attribution_candidates",
+          "rows": 6
+        },
+        {
+          "schema": "public",
+          "table": "document_insights",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "document_metadata",
+          "rows": 237
+        },
+        {
+          "schema": "public",
+          "table": "drawing_annotations",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "drawing_areas",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "drawing_change_history",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "drawing_markup_pins",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "drawing_sets",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "drawings",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "drawings_rfis_links",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "erp_sync_log",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "estimates",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "executive_attention_items",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "executive_claim_conflicts",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "feature_requests",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "files",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "financial_contracts",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "idea_items",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "inspections",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "intelligence_targets",
+          "rows": 6
+        },
+        {
+          "schema": "public",
+          "table": "invoice_payments",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "invoicing_settings",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "issues",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "manpower_projects",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "marketing_content_calendar_items",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "marketing_intelligence_items",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "meeting_preps",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "meeting_series",
+          "rows": 17
+        },
+        {
+          "schema": "public",
+          "table": "meetings",
+          "rows": 28
+        },
+        {
+          "schema": "public",
+          "table": "notes",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "observation_comments",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "observation_photos",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "observation_types",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "observations",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "observations_project_photos_links",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "outlook_email_intake",
+          "rows": 19
+        },
+        {
+          "schema": "public",
+          "table": "outlook_email_intake_attachments",
+          "rows": 19
+        },
+        {
+          "schema": "public",
+          "table": "permission_audit_log",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "photo_albums",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "photos",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "potential_change_orders",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "prime_contract_change_order_related_items",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "prime_contract_change_orders",
+          "rows": 1
+        },
+        {
+          "schema": "public",
+          "table": "prime_contract_payment_applications",
+          "rows": 1
+        },
+        {
+          "schema": "public",
+          "table": "prime_contract_payments",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "prime_contract_pcos",
+          "rows": 1
+        },
+        {
+          "schema": "public",
+          "table": "prime_contract_project_settings",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "prime_contracts",
+          "rows": 5
+        },
+        {
+          "schema": "public",
+          "table": "project_attribution_rules",
+          "rows": 11
+        },
+        {
+          "schema": "public",
+          "table": "project_briefings",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "project_budget_codes",
+          "rows": 12
+        },
+        {
+          "schema": "public",
+          "table": "project_budget_settings",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "project_companies",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "project_contact_references",
+          "rows": 192
+        },
+        {
+          "schema": "public",
+          "table": "project_current_state",
+          "rows": 5
+        },
+        {
+          "schema": "public",
+          "table": "project_current_state_projection_envelopes",
+          "rows": 2
+        },
+        {
+          "schema": "public",
+          "table": "project_directory_memberships",
+          "rows": 12
+        },
+        {
+          "schema": "public",
+          "table": "project_documents",
+          "rows": 14
+        },
+        {
+          "schema": "public",
+          "table": "project_documents_v2",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "project_emails",
+          "rows": 15
+        },
+        {
+          "schema": "public",
+          "table": "project_intelligence_packet_items",
+          "rows": 51
+        },
+        {
+          "schema": "public",
+          "table": "project_intelligence_timeline_events",
+          "rows": 8
+        },
+        {
+          "schema": "public",
+          "table": "project_notification_groups",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "project_operating_snapshots",
+          "rows": 21
+        },
+        {
+          "schema": "public",
+          "table": "project_photos",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "project_photos_punch_items_links",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "project_progress_report_photos",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "project_progress_report_versions",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "project_progress_reports",
+          "rows": 2
+        },
+        {
+          "schema": "public",
+          "table": "project_report_suggestions",
+          "rows": 14
+        },
+        {
+          "schema": "public",
+          "table": "project_resources",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "project_roles",
+          "rows": 21
+        },
+        {
+          "schema": "public",
+          "table": "project_schedule_calendar_exceptions",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "project_schedule_calendars",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "project_synopsis_history",
+          "rows": 8
+        },
+        {
+          "schema": "public",
+          "table": "project_transmittals",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "project_vendors",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "prospects",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "psr_comments",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "punch_item_comments",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "punch_item_template_categories",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "punch_item_templates",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "punch_items",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "purchase_orders",
+          "rows": 1
+        },
+        {
+          "schema": "public",
+          "table": "qto_items",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "qtos",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "recurring_issue_evidence",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "recurring_issue_projects",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "rfi_response_tokens",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "rfi_responses",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "rfis",
+          "rows": 1
+        },
+        {
+          "schema": "public",
+          "table": "rfis_submittals_links",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "schedule_alert_deliveries",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "schedule_baseline_events",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "schedule_baselines",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "schedule_leveling_events",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "schedule_leveling_run_changes",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "schedule_leveling_runs",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "schedule_resource_capacity_exceptions",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "schedule_resource_capacity_profiles",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "schedule_resource_weekday_capacity_overrides",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "schedule_resources",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "schedule_revision_events",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "schedule_revisions",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "schedule_task_assignments",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "schedule_task_field_updates",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "schedule_task_segments",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "schedule_task_submittal_links",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "schedule_tasks",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "sop_backlog",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "specification_areas",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "specification_divisions",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "specification_sections",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "sub_jobs",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "subcontractor_invoices",
+          "rows": 1
+        },
+        {
+          "schema": "public",
+          "table": "subcontractor_sov_submissions",
+          "rows": 1
+        },
+        {
+          "schema": "public",
+          "table": "subcontracts",
+          "rows": 5
+        },
+        {
+          "schema": "public",
+          "table": "submittal_ai_review_checks",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "submittal_ai_review_runs",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "submittal_analytics_events",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "submittal_notifications",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "submittal_packages",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "submittal_performance_metrics",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "submittal_project_settings",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "submittal_workflow_templates",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "submittals",
+          "rows": 1
+        },
+        {
+          "schema": "public",
+          "table": "system_alerts",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "tasks",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "timeline_events",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "timesheets",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "user_directory_permissions",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "user_email_notifications",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "user_granular_permission_overrides",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "user_module_permissions",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "user_project_preferences",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "user_schedule_notifications",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "vertical_markup",
+          "rows": 2
+        },
+        {
+          "schema": "public",
+          "table": "workspace_artifacts",
+          "rows": 0
+        }
+      ]
+    }
+  },
+  "ragDatabase": {
+    "referencedTables": [
+      {
+        "schema": "public",
+        "table": "document_attribution_candidates",
+        "column": "candidate_project_id",
+        "referencesProjects": false,
+        "deleteRule": "NONE",
+        "rows": [
+          {
+            "projectId": 1014,
+            "count": 65
+          },
+          {
+            "projectId": 1033,
+            "count": 11
+          },
+          {
+            "projectId": 1096,
+            "count": 8
+          },
+          {
+            "projectId": 1097,
+            "count": 8
+          },
+          {
+            "projectId": 88,
+            "count": 96
+          }
+        ],
+        "total": 188
+      },
+      {
+        "schema": "public",
+        "table": "outlook_email_intake",
+        "column": "project_id",
+        "referencesProjects": false,
+        "deleteRule": "NONE",
+        "rows": [
+          {
+            "projectId": 1014,
+            "count": 15
+          },
+          {
+            "projectId": 1033,
+            "count": 12
+          },
+          {
+            "projectId": 1096,
+            "count": 1
+          },
+          {
+            "projectId": 1097,
+            "count": 19
+          },
+          {
+            "projectId": 88,
+            "count": 7
+          }
+        ],
+        "total": 54
+      },
+      {
+        "schema": "public",
+        "table": "outlook_email_intake_attachments",
+        "column": "project_id",
+        "referencesProjects": false,
+        "deleteRule": "NONE",
+        "rows": [
+          {
+            "projectId": 1097,
+            "count": 1
+          }
+        ],
+        "total": 1
+      },
+      {
+        "schema": "public",
+        "table": "pipeline_model_usage",
+        "column": "project_id",
+        "referencesProjects": false,
+        "deleteRule": "NONE",
+        "rows": [
+          {
+            "projectId": 1014,
+            "count": 13
+          },
+          {
+            "projectId": 1033,
+            "count": 4
+          },
+          {
+            "projectId": 1096,
+            "count": 1
+          },
+          {
+            "projectId": 1097,
+            "count": 4
+          },
+          {
+            "projectId": 1146,
+            "count": 1
+          },
+          {
+            "projectId": 88,
+            "count": 16
+          }
+        ],
+        "total": 39
+      },
+      {
+        "schema": "public",
+        "table": "project_daily_deltas",
+        "column": "project_id",
+        "referencesProjects": false,
+        "deleteRule": "NONE",
+        "rows": [
+          {
+            "projectId": 1014,
+            "count": 4
+          },
+          {
+            "projectId": 1033,
+            "count": 3
+          },
+          {
+            "projectId": 1096,
+            "count": 1
+          },
+          {
+            "projectId": 1097,
+            "count": 4
+          },
+          {
+            "projectId": 88,
+            "count": 1
+          }
+        ],
+        "total": 13
+      },
+      {
+        "schema": "public",
+        "table": "rag_document_metadata",
+        "column": "project_id",
+        "referencesProjects": false,
+        "deleteRule": "NONE",
+        "rows": [
+          {
+            "projectId": 1014,
+            "count": 55
+          },
+          {
+            "projectId": 1033,
+            "count": 140
+          },
+          {
+            "projectId": 1096,
+            "count": 2
+          },
+          {
+            "projectId": 1097,
+            "count": 20
+          },
+          {
+            "projectId": 88,
+            "count": 115
+          }
+        ],
+        "total": 332
+      },
+      {
+        "schema": "public",
+        "table": "source_intelligence_jobs",
+        "column": "project_id",
+        "referencesProjects": false,
+        "deleteRule": "NONE",
+        "rows": [
+          {
+            "projectId": 1014,
+            "count": 51
+          },
+          {
+            "projectId": 1033,
+            "count": 10
+          },
+          {
+            "projectId": 1096,
+            "count": 2
+          },
+          {
+            "projectId": 1097,
+            "count": 7
+          },
+          {
+            "projectId": 88,
+            "count": 93
+          }
+        ],
+        "total": 163
+      },
+      {
+        "schema": "public",
+        "table": "source_processing_jobs",
+        "column": "project_id",
+        "referencesProjects": false,
+        "deleteRule": "NONE",
+        "rows": [
+          {
+            "projectId": 1014,
+            "count": 14
+          },
+          {
+            "projectId": 1033,
+            "count": 87
+          },
+          {
+            "projectId": 1096,
+            "count": 7
+          },
+          {
+            "projectId": 1097,
+            "count": 56
+          },
+          {
+            "projectId": 88,
+            "count": 2
+          }
+        ],
+        "total": 166
+      },
+      {
+        "schema": "public",
+        "table": "source_signal_candidates",
+        "column": "project_id",
+        "referencesProjects": false,
+        "deleteRule": "NONE",
+        "rows": [
+          {
+            "projectId": 1014,
+            "count": 17
+          },
+          {
+            "projectId": 1033,
+            "count": 13
+          },
+          {
+            "projectId": 1096,
+            "count": 12
+          },
+          {
+            "projectId": 1097,
+            "count": 10
+          },
+          {
+            "projectId": 88,
+            "count": 95
+          }
+        ],
+        "total": 147
+      },
+      {
+        "schema": "public",
+        "table": "source_syntheses",
+        "column": "project_id",
+        "referencesProjects": false,
+        "deleteRule": "NONE",
+        "rows": [
+          {
+            "projectId": 1014,
+            "count": 10
+          },
+          {
+            "projectId": 1033,
+            "count": 4
+          },
+          {
+            "projectId": 1096,
+            "count": 1
+          },
+          {
+            "projectId": 1097,
+            "count": 6
+          },
+          {
+            "projectId": 88,
+            "count": 1
+          }
+        ],
+        "total": 22
+      }
+    ],
+    "documentReferenceTables": [
+      {
+        "schema": "public",
+        "table": "document_attribution_candidates",
+        "column": "source_document_id",
+        "referencesProjects": false,
+        "rows": [
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          }
+        ],
+        "total": 187
+      },
+      {
+        "schema": "public",
+        "table": "document_chunks",
+        "column": "document_id",
+        "referencesProjects": false,
+        "rows": [
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 16
+          },
+          {
+            "projectId": null,
+            "count": 15
+          },
+          {
+            "projectId": null,
+            "count": 6
+          },
+          {
+            "projectId": null,
+            "count": 29
+          },
+          {
+            "projectId": null,
+            "count": 60
+          },
+          {
+            "projectId": null,
+            "count": 25
+          },
+          {
+            "projectId": null,
+            "count": 53
+          },
+          {
+            "projectId": null,
+            "count": 10
+          },
+          {
+            "projectId": null,
+            "count": 5
+          },
+          {
+            "projectId": null,
+            "count": 52
+          },
+          {
+            "projectId": null,
+            "count": 100
+          },
+          {
+            "projectId": null,
+            "count": 87
+          },
+          {
+            "projectId": null,
+            "count": 100
+          },
+          {
+            "projectId": null,
+            "count": 122
+          },
+          {
+            "projectId": null,
+            "count": 27
+          },
+          {
+            "projectId": null,
+            "count": 32
+          },
+          {
+            "projectId": null,
+            "count": 23
+          },
+          {
+            "projectId": null,
+            "count": 14
+          },
+          {
+            "projectId": null,
+            "count": 11
+          },
+          {
+            "projectId": null,
+            "count": 9
+          },
+          {
+            "projectId": null,
+            "count": 56
+          },
+          {
+            "projectId": null,
+            "count": 23
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 24
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 5
+          },
+          {
+            "projectId": null,
+            "count": 11
+          },
+          {
+            "projectId": null,
+            "count": 7
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 4
+          },
+          {
+            "projectId": null,
+            "count": 5
+          },
+          {
+            "projectId": null,
+            "count": 7
+          },
+          {
+            "projectId": null,
+            "count": 7
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 4
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 4
+          },
+          {
+            "projectId": null,
+            "count": 4
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 4
+          },
+          {
+            "projectId": null,
+            "count": 4
+          },
+          {
+            "projectId": null,
+            "count": 4
+          },
+          {
+            "projectId": null,
+            "count": 4
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 4
+          },
+          {
+            "projectId": null,
+            "count": 4
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 11
+          },
+          {
+            "projectId": null,
+            "count": 13
+          },
+          {
+            "projectId": null,
+            "count": 7
+          },
+          {
+            "projectId": null,
+            "count": 8
+          },
+          {
+            "projectId": null,
+            "count": 13
+          },
+          {
+            "projectId": null,
+            "count": 19
+          },
+          {
+            "projectId": null,
+            "count": 11
+          },
+          {
+            "projectId": null,
+            "count": 8
+          },
+          {
+            "projectId": null,
+            "count": 14
+          },
+          {
+            "projectId": null,
+            "count": 9
+          },
+          {
+            "projectId": null,
+            "count": 7
+          },
+          {
+            "projectId": null,
+            "count": 5
+          },
+          {
+            "projectId": null,
+            "count": 7
+          },
+          {
+            "projectId": null,
+            "count": 8
+          },
+          {
+            "projectId": null,
+            "count": 8
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 9
+          },
+          {
+            "projectId": null,
+            "count": 6
+          },
+          {
+            "projectId": null,
+            "count": 7
+          },
+          {
+            "projectId": null,
+            "count": 6
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 4
+          },
+          {
+            "projectId": null,
+            "count": 6
+          },
+          {
+            "projectId": null,
+            "count": 6
+          },
+          {
+            "projectId": null,
+            "count": 7
+          },
+          {
+            "projectId": null,
+            "count": 4
+          },
+          {
+            "projectId": null,
+            "count": 7
+          },
+          {
+            "projectId": null,
+            "count": 8
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 4
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 4
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 4
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 4
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 4
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 5
+          },
+          {
+            "projectId": null,
+            "count": 5
+          },
+          {
+            "projectId": null,
+            "count": 5
+          },
+          {
+            "projectId": null,
+            "count": 17
+          },
+          {
+            "projectId": null,
+            "count": 6
+          },
+          {
+            "projectId": null,
+            "count": 18
+          },
+          {
+            "projectId": null,
+            "count": 8
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 4
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 15
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 7
+          },
+          {
+            "projectId": null,
+            "count": 19
+          },
+          {
+            "projectId": null,
+            "count": 8
+          },
+          {
+            "projectId": null,
+            "count": 8
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 3
+          }
+        ],
+        "total": 1664
+      },
+      {
+        "schema": "public",
+        "table": "fireflies_ingestion_jobs",
+        "column": "metadata_id",
+        "referencesProjects": false,
+        "rows": [
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          }
+        ],
+        "total": 166
+      },
+      {
+        "schema": "public",
+        "table": "outlook_email_intake",
+        "column": "document_metadata_id",
+        "referencesProjects": false,
+        "rows": [
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          }
+        ],
+        "total": 50
+      },
+      {
+        "schema": "public",
+        "table": "outlook_email_intake_attachments",
+        "column": "document_metadata_id",
+        "referencesProjects": false,
+        "rows": [
+          {
+            "projectId": null,
+            "count": 1
+          }
+        ],
+        "total": 1
+      },
+      {
+        "schema": "public",
+        "table": "packet_refresh_jobs",
+        "column": "trigger_source_document_id",
+        "referencesProjects": false,
+        "rows": [
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          }
+        ],
+        "total": 17
+      },
+      {
+        "schema": "public",
+        "table": "source_intelligence_jobs",
+        "column": "source_document_id",
+        "referencesProjects": false,
+        "rows": [
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 12
+          },
+          {
+            "projectId": null,
+            "count": 8
+          }
+        ],
+        "total": 177
+      },
+      {
+        "schema": "public",
+        "table": "source_processing_jobs",
+        "column": "source_document_id",
+        "referencesProjects": false,
+        "rows": [
+          {
+            "projectId": null,
+            "count": 31
+          },
+          {
+            "projectId": null,
+            "count": 18
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 4
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 3
+          },
+          {
+            "projectId": null,
+            "count": 2
+          },
+          {
+            "projectId": null,
+            "count": 3
+          }
+        ],
+        "total": 156
+      },
+      {
+        "schema": "public",
+        "table": "source_signal_candidates",
+        "column": "source_document_id",
+        "referencesProjects": false,
+        "rows": [
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 4
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          }
+        ],
+        "total": 120
+      },
+      {
+        "schema": "public",
+        "table": "source_syntheses",
+        "column": "source_document_id",
+        "referencesProjects": false,
+        "rows": [
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          },
+          {
+            "projectId": null,
+            "count": 1
+          }
+        ],
+        "total": 18
+      }
+    ],
+    "directProjectRows": 1125,
+    "documentReferenceRows": 2556,
+    "targetDocumentCount": 332,
+    "totalScopedRows": 3681,
+    "transactionRollbackSimulation": {
+      "clearedPipelineUsageRows": 39,
+      "deletedTables": [
+        {
+          "schema": "public",
+          "table": "document_attribution_candidates",
+          "rows": 206
+        },
+        {
+          "schema": "public",
+          "table": "document_chunk_retrieval_telemetry",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "document_chunks",
+          "rows": 1664
+        },
+        {
+          "schema": "public",
+          "table": "fireflies_ingestion_jobs",
+          "rows": 166
+        },
+        {
+          "schema": "public",
+          "table": "ingestion_jobs",
+          "rows": 0
+        },
+        {
+          "schema": "public",
+          "table": "outlook_email_intake",
+          "rows": 55
+        },
+        {
+          "schema": "public",
+          "table": "outlook_email_intake_attachments",
+          "rows": 1
+        },
+        {
+          "schema": "public",
+          "table": "packet_refresh_jobs",
+          "rows": 17
+        },
+        {
+          "schema": "public",
+          "table": "project_daily_deltas",
+          "rows": 13
+        },
+        {
+          "schema": "public",
+          "table": "rag_document_metadata",
+          "rows": 332
+        },
+        {
+          "schema": "public",
+          "table": "source_intelligence_jobs",
+          "rows": 190
+        },
+        {
+          "schema": "public",
+          "table": "source_processing_jobs",
+          "rows": 166
+        },
+        {
+          "schema": "public",
+          "table": "source_signal_candidates",
+          "rows": 151
+        },
+        {
+          "schema": "public",
+          "table": "source_syntheses",
+          "rows": 22
+        },
+        {
+          "schema": "public",
+          "table": "system_alerts",
+          "rows": 0
+        }
+      ]
+    }
+  },
+  "storage": {
+    "candidates": [],
+    "candidateCount": 0,
+    "candidateBytes": 0,
+    "note": "Candidates are name-pattern matches only and are not approved for deletion until reviewed."
+  },
+  "applyEnabled": true,
+  "applyNote": "Apply requires the manifest-bound confirmation and reruns this exact resolution before opening either deletion transaction."
+}

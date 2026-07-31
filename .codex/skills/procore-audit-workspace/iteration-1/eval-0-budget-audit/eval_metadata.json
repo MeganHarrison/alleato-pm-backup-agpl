@@ -1,0 +1,15 @@
+{
+  "eval_id": 0,
+  "eval_name": "budget-audit",
+  "prompt": "Hey, I need to audit our budget tool against Procore. We've been working on it but I'm not sure we have all the fields and columns matching. Can you crawl the budget tool on Procore and then check our implementation to see what's missing? Generate a full gap analysis report.",
+  "assertions": [
+    {"id": "finds-budget-crawler", "text": "Agent identifies and locates the budget crawler script (crawl-budget-comprehensive.js)", "type": "presence"},
+    {"id": "references-analyzer", "text": "Agent references or uses the analyze-procore-features.js script for structured DOM analysis", "type": "presence"},
+    {"id": "maps-alleato-budget", "text": "Agent identifies Alleato PM budget implementation artifacts (pages, components, hooks, or services)", "type": "presence"},
+    {"id": "gap-report-format", "text": "Output includes an Executive Summary table with status indicators", "type": "format"},
+    {"id": "form-field-comparison", "text": "Output includes a form field comparison section listing Procore vs Alleato fields", "type": "presence"},
+    {"id": "table-column-comparison", "text": "Output includes a table column comparison section", "type": "presence"},
+    {"id": "prioritized-tasks", "text": "Output includes missing functionality categorized by impact (HIGH/MEDIUM/LOW)", "type": "format"},
+    {"id": "output-saved", "text": "Gap analysis report saved as a markdown file in the outputs directory", "type": "correctness"}
+  ]
+}

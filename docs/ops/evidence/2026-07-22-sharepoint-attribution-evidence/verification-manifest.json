@@ -1,0 +1,56 @@
+{
+  "contractVersion": 1,
+  "taskId": "AAI-1263",
+  "riskLevel": "high",
+  "feature": "SharePoint-backed Project Intelligence attribution",
+  "route": "/daily-briefs/e7e55360-bfa2-455c-b012-2c7f3cb817e1",
+  "flows": [
+    {
+      "name": "Daily deep read with authoritative project identity",
+      "steps": [
+        "Enumerate the prior business day's complete source corpus",
+        "Resolve project identity from SharePoint proposal and estimate folders",
+        "Synthesize and validate the detailed and structured reports",
+        "Persist the packet and read back every required consumer"
+      ],
+      "expectedOutcome": "The current packet is complete, source-linked, and contains no cross-project attribution"
+    }
+  ],
+  "requiredEvidence": ["summary", "actionLog", "databaseReadback", "negativePath", "regressionTest"],
+  "visual": { "viewports": [], "checks": [] },
+  "independentReview": { "required": true },
+  "claims": [
+    {
+      "id": "sharepoint-identity",
+      "description": "Proposal and estimate folders are mandatory attribution evidence before synthesis",
+      "evidence": [
+        { "key": "databaseReadback", "min": 1 },
+        { "key": "regressionTest", "min": 1 }
+      ]
+    },
+    {
+      "id": "fail-closed-attribution",
+      "description": "Unsupported or cross-project citations stop publication",
+      "evidence": [
+        { "key": "negativePath", "min": 1 },
+        { "key": "regressionTest", "min": 1 }
+      ]
+    },
+    {
+      "id": "complete-current-packet",
+      "description": "The accepted deep read is fresh, current, complete, and persisted with consumer readbacks",
+      "evidence": [
+        { "key": "databaseReadback", "min": 1 },
+        { "key": "actionLog", "min": 1 }
+      ]
+    },
+    {
+      "id": "space-coast-not-port",
+      "description": "Space Coast is preserved as its own source identity and Port contamination is zero",
+      "evidence": [
+        { "key": "databaseReadback", "min": 1 },
+        { "key": "summary", "min": 1 }
+      ]
+    }
+  ]
+}

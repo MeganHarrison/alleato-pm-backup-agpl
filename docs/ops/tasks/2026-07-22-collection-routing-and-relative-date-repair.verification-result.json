@@ -1,0 +1,26 @@
+{
+  "status": "PASS",
+  "taskId": "AI-COLLECTION-ROUTING-0722",
+  "evidence": {
+    "actionLog": ["docs/ops/evidence/2026-07-22-collection-routing-and-relative-date-repair/production-localization.md"],
+    "regressionTest": ["docs/ops/evidence/2026-07-22-collection-routing-and-relative-date-repair/regression-test.md"],
+    "visualReview": ["docs/ops/evidence/2026-07-22-collection-routing-and-relative-date-repair/independent-review.md"]
+  },
+  "claims": {
+    "daily-route-precedence": {
+      "regressionTest": ["docs/ops/evidence/2026-07-22-collection-routing-and-relative-date-repair/regression-test.md"]
+    },
+    "meeting-collection-preserved": {
+      "regressionTest": ["docs/ops/evidence/2026-07-22-collection-routing-and-relative-date-repair/regression-test.md"]
+    },
+    "independent-review": {
+      "visualReview": ["docs/ops/evidence/2026-07-22-collection-routing-and-relative-date-repair/independent-review.md"]
+    }
+  },
+  "independentReview": {
+    "reviewer": "/root/collection_review",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-22T13:30:00Z",
+    "artifact": "docs/ops/evidence/2026-07-22-collection-routing-and-relative-date-repair/independent-review.md"
+  }
+}

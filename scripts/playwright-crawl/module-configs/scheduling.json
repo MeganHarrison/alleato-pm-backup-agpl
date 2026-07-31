@@ -1,0 +1,25 @@
+{
+  "module": "scheduling",
+  "startUrl": "https://us02.procore.com/webclients/host/companies/562949953443325/projects/562949955214786/tools/schedulemgmt",
+  "pages": [
+    {
+      "name": "scheduling",
+      "label": "Scheduling",
+      "category": "scheduling",
+      "interactions": [
+        {
+          "type": "right-click",
+          "selector": "[role=\"row\"]:has([role=\"gridcell\"])",
+          "description": "Right-click task row to open context menu",
+          "captureMenuItems": true
+        },
+        {
+          "type": "double-click",
+          "selector": "[role=\"row\"]:has([role=\"gridcell\"])",
+          "description": "Double-click task row to open edit modal",
+          "captureModalButtons": true
+        }
+      ]
+    }
+  ]
+}

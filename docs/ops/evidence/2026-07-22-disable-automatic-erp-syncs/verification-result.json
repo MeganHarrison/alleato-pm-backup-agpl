@@ -1,0 +1,47 @@
+{
+  "status": "PASS",
+  "taskId": "LOCAL-2026-07-22-DISABLE-AUTO-SYNCS",
+  "evidence": {
+    "summary": [
+      "docs/ops/evidence/2026-07-22-disable-automatic-erp-syncs/verification.md"
+    ],
+    "actionLog": [
+      "docs/ops/evidence/2026-07-22-disable-automatic-erp-syncs/verification.md"
+    ],
+    "negativePath": [
+      "docs/ops/evidence/2026-07-22-disable-automatic-erp-syncs/verification.md"
+    ],
+    "regressionTest": [
+      "docs/ops/evidence/2026-07-22-disable-automatic-erp-syncs/verification.md"
+    ]
+  },
+  "claims": {
+    "acumatica-fails-closed": {
+      "negativePath": [
+        "docs/ops/evidence/2026-07-22-disable-automatic-erp-syncs/verification.md"
+      ],
+      "regressionTest": [
+        "docs/ops/evidence/2026-07-22-disable-automatic-erp-syncs/verification.md"
+      ]
+    },
+    "jobplanner-dispatch-only": {
+      "actionLog": [
+        "docs/ops/evidence/2026-07-22-disable-automatic-erp-syncs/verification.md"
+      ],
+      "regressionTest": [
+        "docs/ops/evidence/2026-07-22-disable-automatic-erp-syncs/verification.md"
+      ]
+    },
+    "user-facing-copy-is-manual-only": {
+      "summary": [
+        "docs/ops/evidence/2026-07-22-disable-automatic-erp-syncs/verification.md"
+      ]
+    }
+  },
+  "independentReview": {
+    "reviewer": "/root/review_disable_auto_syncs",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-23T12:58:00Z",
+    "artifact": "docs/ops/evidence/2026-07-22-disable-automatic-erp-syncs/independent-review.md"
+  }
+}

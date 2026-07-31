@@ -1,0 +1,47 @@
+{
+  "status": "PASS",
+  "taskId": "LOCAL-20260722-legacy-compiler-eradication",
+  "evidence": {
+    "summary": [
+      "docs/ops/evidence/2026-07-22-legacy-intelligence-compiler-eradication/verification.md"
+    ],
+    "actionLog": [
+      "docs/ops/evidence/2026-07-22-legacy-intelligence-compiler-eradication/verification.md"
+    ],
+    "negativePath": [
+      "docs/ops/evidence/2026-07-22-legacy-intelligence-compiler-eradication/verification.md"
+    ],
+    "regressionTest": [
+      "docs/ops/evidence/2026-07-22-legacy-intelligence-compiler-eradication/verification.md"
+    ]
+  },
+  "claims": {
+    "runtime-eradication": {
+      "regressionTest": [
+        "docs/ops/evidence/2026-07-22-legacy-intelligence-compiler-eradication/verification.md"
+      ],
+      "actionLog": [
+        "docs/ops/evidence/2026-07-22-legacy-intelligence-compiler-eradication/verification.md"
+      ]
+    },
+    "failure-loudly": {
+      "negativePath": [
+        "docs/ops/evidence/2026-07-22-legacy-intelligence-compiler-eradication/verification.md"
+      ]
+    },
+    "source-health-preserved": {
+      "summary": [
+        "docs/ops/evidence/2026-07-22-legacy-intelligence-compiler-eradication/verification.md"
+      ],
+      "regressionTest": [
+        "docs/ops/evidence/2026-07-22-legacy-intelligence-compiler-eradication/verification.md"
+      ]
+    }
+  },
+  "independentReview": {
+    "reviewer": "/root/legacy_compiler_review",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-22T20:01:29Z",
+    "artifact": "docs/ops/evidence/2026-07-22-legacy-intelligence-compiler-eradication/independent-review.md"
+  }
+}

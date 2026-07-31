@@ -1,0 +1,102 @@
+{
+  "feature": "drawings",
+  "featureName": "Drawings",
+  "capturedAt": "2026-04-07T14:09:18.697Z",
+  "states": {
+    "list": {
+      "id": "list",
+      "description": "Drawings list view",
+      "url": "https://us02.procore.com/webclients/host/companies/562949953443325/projects/562949954728542/tools/drawings/areas",
+      "columnGroups": [],
+      "columns": [],
+      "toolbarActions": [
+        {
+          "label": "Alleato Group24-104 - Goodwill Bart",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Project ToolsDrawings",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Give me a breakdown of photos uploaded by user.CmdK",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "AppsSelect an App",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Support & Feedback",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Announcements",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "BC",
+          "type": "dropdown",
+          "variant": "default"
+        }
+      ],
+      "filters": [],
+      "rowActions": [],
+      "autoRows": [],
+      "formSections": [
+        {
+          "title": "",
+          "fields": [
+            {
+              "name": "give_me_a_breakdown_of_photos_uploaded_by_user.",
+              "label": "Give me a breakdown of photos uploaded by user.",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "cmdk",
+              "label": "CmdK",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "bc",
+              "label": "BC",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "add_drawing_area",
+              "label": "Add Drawing Area",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            }
+          ]
+        }
+      ],
+      "tabs": [],
+      "headerFields": [],
+      "screenshot": "screenshots/list.png",
+      "_capture_note": "",
+      "domFile": "dom/list.html"
+    }
+  }
+}

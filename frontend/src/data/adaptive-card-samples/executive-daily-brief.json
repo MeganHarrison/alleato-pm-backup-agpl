@@ -1,0 +1,590 @@
+{
+  "type": "AdaptiveCard",
+  "$schema": "https://adaptivecards.io/schemas/adaptive-card.json",
+  "version": "1.5",
+  "body": [
+    {
+      "type": "ColumnSet",
+      "columns": [
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "Daily Brief",
+              "size": "Large",
+              "weight": "Bolder",
+              "wrap": false
+            },
+            {
+              "type": "TextBlock",
+              "text": "Tuesday, June 10, 2026",
+              "size": "Small",
+              "isSubtle": true,
+              "spacing": "None",
+              "wrap": false
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "auto",
+          "verticalContentAlignment": "Top",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "Good morning, Brandon.",
+              "size": "Small",
+              "isSubtle": true,
+              "horizontalAlignment": "Right",
+              "wrap": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "ColumnSet",
+      "spacing": "Medium",
+      "separator": true,
+      "columns": [
+        {
+          "type": "Column",
+          "width": "auto",
+          "verticalContentAlignment": "Center",
+          "items": [
+            {
+              "type": "Icon",
+              "name": "Alert",
+              "size": "xSmall",
+              "color": "Attention"
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "stretch",
+          "spacing": "Small",
+          "verticalContentAlignment": "Center",
+          "items": [
+            {
+              "type": "RichTextBlock",
+              "inlines": [
+                {
+                  "type": "TextRun",
+                  "text": "3 decisions needed",
+                  "weight": "Bolder",
+                  "color": "Attention"
+                },
+                {
+                  "type": "TextRun",
+                  "text": "  ·  5 pending  ·  2 meetings today"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "spacing": "Medium",
+      "separator": true,
+      "items": [
+        {
+          "type": "ColumnSet",
+          "selectAction": {
+            "type": "Action.ToggleVisibility",
+            "targetElements": [
+              "decisions-items",
+              "decisions-chevron-down",
+              "decisions-chevron-up"
+            ]
+          },
+          "columns": [
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "Decisions Needed",
+                  "weight": "Bolder",
+                  "wrap": true
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "auto",
+              "verticalContentAlignment": "Center",
+              "items": [
+                {
+                  "type": "Icon",
+                  "name": "ChevronDown",
+                  "size": "xSmall",
+                  "id": "decisions-chevron-down",
+                  "isVisible": false
+                },
+                {
+                  "type": "Icon",
+                  "name": "ChevronUp",
+                  "size": "xSmall",
+                  "id": "decisions-chevron-up"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Container",
+          "id": "decisions-items",
+          "spacing": "Small",
+          "items": [
+            {
+              "type": "ColumnSet",
+              "spacing": "None",
+              "columns": [
+                {
+                  "type": "Column",
+                  "width": "auto",
+                  "verticalContentAlignment": "Top",
+                  "items": [
+                    {
+                      "type": "TextBlock",
+                      "text": "1",
+                      "size": "Small",
+                      "weight": "Bolder",
+                      "color": "Attention"
+                    }
+                  ]
+                },
+                {
+                  "type": "Column",
+                  "width": "stretch",
+                  "spacing": "Small",
+                  "items": [
+                    {
+                      "type": "TextBlock",
+                      "text": "Union Collective",
+                      "size": "Small",
+                      "weight": "Bolder",
+                      "wrap": true
+                    },
+                    {
+                      "type": "TextBlock",
+                      "text": "Change order CO-047 requires approval before concrete pour Thursday. $38K scope addition.",
+                      "size": "Small",
+                      "isSubtle": true,
+                      "wrap": true,
+                      "spacing": "None"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "ColumnSet",
+              "spacing": "Small",
+              "separator": true,
+              "columns": [
+                {
+                  "type": "Column",
+                  "width": "auto",
+                  "verticalContentAlignment": "Top",
+                  "items": [
+                    {
+                      "type": "TextBlock",
+                      "text": "2",
+                      "size": "Small",
+                      "weight": "Bolder",
+                      "color": "Attention"
+                    }
+                  ]
+                },
+                {
+                  "type": "Column",
+                  "width": "stretch",
+                  "spacing": "Small",
+                  "items": [
+                    {
+                      "type": "TextBlock",
+                      "text": "Vermillion Rise Warehouse",
+                      "size": "Small",
+                      "weight": "Bolder",
+                      "wrap": true
+                    },
+                    {
+                      "type": "TextBlock",
+                      "text": "Electrical subcontractor invoice dispute — PM requesting sign-off to release $12K payment.",
+                      "size": "Small",
+                      "isSubtle": true,
+                      "wrap": true,
+                      "spacing": "None"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "ColumnSet",
+              "spacing": "Small",
+              "separator": true,
+              "columns": [
+                {
+                  "type": "Column",
+                  "width": "auto",
+                  "verticalContentAlignment": "Top",
+                  "items": [
+                    {
+                      "type": "TextBlock",
+                      "text": "3",
+                      "size": "Small",
+                      "weight": "Bolder",
+                      "color": "Attention"
+                    }
+                  ]
+                },
+                {
+                  "type": "Column",
+                  "width": "stretch",
+                  "spacing": "Small",
+                  "items": [
+                    {
+                      "type": "TextBlock",
+                      "text": "Maple Street Mixed-Use",
+                      "size": "Small",
+                      "weight": "Bolder",
+                      "wrap": true
+                    },
+                    {
+                      "type": "TextBlock",
+                      "text": "GC requesting confirmation on MEP coordination scope before submitting RFI response.",
+                      "size": "Small",
+                      "isSubtle": true,
+                      "wrap": true,
+                      "spacing": "None"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "spacing": "Small",
+      "separator": true,
+      "items": [
+        {
+          "type": "ColumnSet",
+          "selectAction": {
+            "type": "Action.ToggleVisibility",
+            "targetElements": [
+              "pending-items",
+              "pending-chevron-down",
+              "pending-chevron-up"
+            ]
+          },
+          "columns": [
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "Pending from Others",
+                  "weight": "Bolder",
+                  "wrap": true
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "auto",
+              "verticalContentAlignment": "Center",
+              "items": [
+                {
+                  "type": "Icon",
+                  "name": "ChevronDown",
+                  "size": "xSmall",
+                  "id": "pending-chevron-down"
+                },
+                {
+                  "type": "Icon",
+                  "name": "ChevronUp",
+                  "size": "xSmall",
+                  "id": "pending-chevron-up",
+                  "isVisible": false
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Container",
+          "id": "pending-items",
+          "isVisible": false,
+          "spacing": "Small",
+          "items": [
+            {
+              "type": "ColumnSet",
+              "columns": [
+                {
+                  "type": "Column",
+                  "width": "auto",
+                  "verticalContentAlignment": "Top",
+                  "items": [
+                    {
+                      "type": "Icon",
+                      "name": "Clock",
+                      "size": "xxSmall",
+                      "color": "Warning"
+                    }
+                  ]
+                },
+                {
+                  "type": "Column",
+                  "width": "stretch",
+                  "spacing": "Small",
+                  "items": [
+                    {
+                      "type": "TextBlock",
+                      "text": "Maple Street Mixed-Use",
+                      "size": "Small",
+                      "weight": "Bolder",
+                      "wrap": true
+                    },
+                    {
+                      "type": "TextBlock",
+                      "text": "Structural drawings from WM Engineers — requested 6 days ago.",
+                      "size": "Small",
+                      "isSubtle": true,
+                      "wrap": true,
+                      "spacing": "None"
+                    }
+                  ]
+                },
+                {
+                  "type": "Column",
+                  "width": "auto",
+                  "verticalContentAlignment": "Top",
+                  "items": [
+                    {
+                      "type": "TextBlock",
+                      "text": "6d",
+                      "size": "Small",
+                      "color": "Warning",
+                      "weight": "Bolder"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "ColumnSet",
+              "spacing": "Small",
+              "separator": true,
+              "columns": [
+                {
+                  "type": "Column",
+                  "width": "auto",
+                  "verticalContentAlignment": "Top",
+                  "items": [
+                    {
+                      "type": "Icon",
+                      "name": "Clock",
+                      "size": "xxSmall",
+                      "color": "Default"
+                    }
+                  ]
+                },
+                {
+                  "type": "Column",
+                  "width": "stretch",
+                  "spacing": "Small",
+                  "items": [
+                    {
+                      "type": "TextBlock",
+                      "text": "Union Collective",
+                      "size": "Small",
+                      "weight": "Bolder",
+                      "wrap": true
+                    },
+                    {
+                      "type": "TextBlock",
+                      "text": "Owner review of value engineering options — awaiting response since Monday.",
+                      "size": "Small",
+                      "isSubtle": true,
+                      "wrap": true,
+                      "spacing": "None"
+                    }
+                  ]
+                },
+                {
+                  "type": "Column",
+                  "width": "auto",
+                  "verticalContentAlignment": "Top",
+                  "items": [
+                    {
+                      "type": "TextBlock",
+                      "text": "2d",
+                      "size": "Small",
+                      "isSubtle": true,
+                      "weight": "Bolder"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "spacing": "Small",
+      "separator": true,
+      "items": [
+        {
+          "type": "ColumnSet",
+          "selectAction": {
+            "type": "Action.ToggleVisibility",
+            "targetElements": [
+              "meetings-items",
+              "meetings-chevron-down",
+              "meetings-chevron-up"
+            ]
+          },
+          "columns": [
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "Today's Meetings",
+                  "weight": "Bolder",
+                  "wrap": true
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "auto",
+              "verticalContentAlignment": "Center",
+              "items": [
+                {
+                  "type": "Icon",
+                  "name": "ChevronDown",
+                  "size": "xSmall",
+                  "id": "meetings-chevron-down"
+                },
+                {
+                  "type": "Icon",
+                  "name": "ChevronUp",
+                  "size": "xSmall",
+                  "id": "meetings-chevron-up",
+                  "isVisible": false
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Container",
+          "id": "meetings-items",
+          "isVisible": false,
+          "spacing": "Small",
+          "items": [
+            {
+              "type": "ColumnSet",
+              "columns": [
+                {
+                  "type": "Column",
+                  "width": "60px",
+                  "items": [
+                    {
+                      "type": "TextBlock",
+                      "text": "9:00 AM",
+                      "size": "Small",
+                      "isSubtle": true,
+                      "wrap": false
+                    }
+                  ]
+                },
+                {
+                  "type": "Column",
+                  "width": "stretch",
+                  "spacing": "Small",
+                  "items": [
+                    {
+                      "type": "TextBlock",
+                      "text": "OAC Meeting — Union Collective",
+                      "size": "Small",
+                      "weight": "Bolder",
+                      "wrap": true
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "ColumnSet",
+              "spacing": "Small",
+              "separator": true,
+              "columns": [
+                {
+                  "type": "Column",
+                  "width": "60px",
+                  "items": [
+                    {
+                      "type": "TextBlock",
+                      "text": "2:00 PM",
+                      "size": "Small",
+                      "isSubtle": true,
+                      "wrap": false
+                    }
+                  ]
+                },
+                {
+                  "type": "Column",
+                  "width": "stretch",
+                  "spacing": "Small",
+                  "items": [
+                    {
+                      "type": "TextBlock",
+                      "text": "Budget Review — Vermillion Rise",
+                      "size": "Small",
+                      "weight": "Bolder",
+                      "wrap": true
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "TextBlock",
+      "text": "Reply with a project name to drill down or draft a follow-up.",
+      "size": "Small",
+      "isSubtle": true,
+      "wrap": true,
+      "spacing": "Medium",
+      "separator": true
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.OpenUrl",
+      "title": "Open Alleato",
+      "url": "https://projects.alleatogroup.com"
+    }
+  ]
+}

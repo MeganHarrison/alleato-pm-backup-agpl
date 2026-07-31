@@ -1,0 +1,15 @@
+AAI-1150 authenticated action log
+
+1. Opened the full assistant at /ai in an authenticated browser and selected project 767.
+2. Requested an RFI preview. Database readback showed no matching write before approval.
+3. Sent the legacy confirm response. The server returned a signed AI SDK approval request and the browser rendered Deny and Approve.
+4. Approved the exact request. Automatic resume completed, the UI reported RFI #8 created, and database readback found exactly one row with the signed subject and question.
+5. Deleted only test row 7ff0ac94-9f5e-4f8a-b132-4460acb6150d and verified its remaining count was zero.
+6. Repeated the flow at a 390x844 viewport and selected Deny. The UI reported that no RFI was created; database count for the exact subject was zero.
+7. Opened Ask Alleato at desktop and mobile widths and requested a confirmed RFI write. The compact route reported that its RFI write tool was unavailable. Direct-route and widget subjects both had database count zero.
+8. Reused an Ask Alleato session against the full route in the focused seam test; the namespace mismatch fails closed.
+
+Observed live runtime owner:
+- server ai runtime: 7.0.31
+- @ai-sdk/react resolved ai runtime after frozen install: 7.0.31
+- architecture verifier status: pass

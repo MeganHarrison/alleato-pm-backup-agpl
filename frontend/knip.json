@@ -1,0 +1,39 @@
+{
+  "$schema": "./node_modules/knip/schema.json",
+  "entry": [
+    "src/app/**/{page,layout,route,loading,error,not-found,template,default}.{ts,tsx}",
+    "sentry.*.config.ts",
+    "config/playwright/*.ts",
+    "tests/**/*.{ts,tsx}",
+    "scripts/**/*.{ts,tsx,js,mjs,cjs}",
+    "src/**/*.stories.{ts,tsx}",
+    "src/stories/**/*.{ts,tsx}"
+  ],
+  "project": [
+    "src/**/*.{ts,tsx,js,jsx}",
+    "scripts/**/*.{ts,tsx,js,mjs,cjs}",
+    "tests/**/*.{ts,tsx,js}",
+    "config/**/*.{ts,tsx,js,mjs,cjs}",
+    "*.config.{ts,tsx,js,mjs,cjs}",
+    "sentry.*.config.ts"
+  ],
+  "paths": {
+    "@/*": ["src/*"]
+  },
+  "ignore": [
+    "src/types/database.local.types.ts",
+    "src/components/dev-tools/*.generated.*"
+  ],
+  "ignoreIssues": {
+    "src/types/database.types.ts": ["exports", "types"],
+    "src/types/database.local.types.ts": ["exports", "types"],
+    "src/components/dev-tools/*.generated.*": ["exports", "types"],
+    "src/lib/app-surface/app-surface.generated.json": ["exports", "types"]
+  },
+  "next": true,
+  "jest": true,
+  "playwright": true,
+  "storybook": true,
+  "tailwind": true,
+  "vitest": true
+}

@@ -1,0 +1,914 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Create Meeting Mock-up</title>
+    <style>
+      :root {
+        --background: #fbfaf8;
+        --surface: #ffffff;
+        --muted: #f3f1ee;
+        --line: #dfd9d1;
+        --line-soft: #ece7e1;
+        --text: #211f1d;
+        --text-muted: #706a62;
+        --text-faint: #9a9288;
+        --primary: #b85f1f;
+        --focus: #d78235;
+        color-scheme: light;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--background);
+        color: var(--text);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        font-size: 14px;
+        line-height: 1.45;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+      }
+
+      button {
+        min-height: 44px;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        font-size: 22px;
+        font-weight: 650;
+        letter-spacing: 0;
+        line-height: 1.2;
+      }
+
+      h2 {
+        font-size: 16px;
+        font-weight: 650;
+      }
+
+      h3 {
+        font-size: 14px;
+        font-weight: 650;
+      }
+
+      .page {
+        min-height: 100vh;
+        padding: 24px;
+      }
+
+      .shell {
+        max-width: 1440px;
+        margin: 0 auto;
+      }
+
+      .route {
+        margin-bottom: 14px;
+        color: var(--text-faint);
+        font-size: 12px;
+      }
+
+      .header {
+        display: grid;
+        gap: 16px;
+        padding-bottom: 18px;
+      }
+
+      .title-row {
+        display: grid;
+        gap: 14px;
+      }
+
+      .title-stack {
+        display: grid;
+        gap: 6px;
+      }
+
+      .header-control {
+        display: grid;
+        gap: 5px;
+      }
+
+      .eyebrow {
+        color: var(--primary);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        line-height: 1;
+        text-transform: uppercase;
+      }
+
+      .title-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 14px;
+        color: var(--text-muted);
+        font-size: 13px;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        min-height: 40px;
+        border: 1px solid transparent;
+        border-radius: 6px;
+        background: var(--primary);
+        color: #fffaf4;
+        padding: 0 14px;
+        font-weight: 650;
+        cursor: pointer;
+      }
+
+      .button.secondary {
+        background: transparent;
+        color: var(--text-muted);
+        border-color: var(--line);
+      }
+
+      .button.ghost {
+        min-height: 36px;
+        background: transparent;
+        color: var(--text-muted);
+        border: 0;
+        padding: 0 8px;
+      }
+
+      .button.ghost:hover,
+      .add-row:hover,
+      .section-toggle:hover {
+        background: var(--muted);
+        color: var(--text);
+      }
+
+      .plus-icon,
+      .chevron-icon {
+        width: 14px;
+        height: 14px;
+        stroke: currentColor;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 28px;
+        padding-top: 24px;
+      }
+
+      .main {
+        display: grid;
+        gap: 30px;
+        min-width: 0;
+      }
+
+      .section {
+        display: grid;
+        gap: 14px;
+      }
+
+      .section-heading {
+        display: grid;
+        gap: 4px;
+      }
+
+      .section-note {
+        max-width: 72ch;
+        color: var(--text-muted);
+        font-size: 13px;
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 12px;
+      }
+
+      .field {
+        display: grid;
+        gap: 5px;
+      }
+
+      .field label,
+      .field-label {
+        color: var(--text-muted);
+        font-size: 12px;
+        font-weight: 650;
+      }
+
+      .input,
+      .select,
+      .textarea {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background: var(--surface);
+        color: var(--text);
+        outline: none;
+      }
+
+      .input,
+      .select {
+        min-height: 40px;
+        padding: 0 10px;
+      }
+
+      .textarea {
+        min-height: 88px;
+        resize: vertical;
+        padding: 9px 10px;
+      }
+
+      .editable {
+        min-height: 24px;
+        border-radius: 4px;
+        outline: none;
+      }
+
+      .input:focus,
+      .select:focus,
+      .textarea:focus,
+      .editable:focus,
+      button:focus-visible,
+      a:focus-visible {
+        box-shadow: 0 0 0 2px var(--focus);
+      }
+
+      .checkbox-row {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        align-items: start;
+        gap: 8px;
+        color: var(--text-muted);
+        font-size: 13px;
+      }
+
+      .checkbox-row input,
+      .attendee-row input,
+      .action-row input {
+        width: 16px;
+        height: 16px;
+        margin-top: 2px;
+        accent-color: var(--primary);
+      }
+
+      .row-list {
+        display: grid;
+        gap: 0;
+      }
+
+      .attendee-row,
+      .agenda-row,
+      .action-row {
+        display: grid;
+        gap: 10px;
+        padding: 9px 0;
+        border-top: 1px solid var(--line-soft);
+      }
+
+      .attendee-row:first-child,
+      .agenda-row:first-child,
+      .action-row:first-child {
+        border-top: 0;
+      }
+
+      .attendee-row {
+        grid-template-columns: auto minmax(0, 1fr) auto;
+      }
+
+      .agenda-row,
+      .action-row {
+        grid-template-columns: auto minmax(0, 1fr) auto;
+      }
+
+      .row-number {
+        width: 38px;
+        color: var(--text-faint);
+        font-variant-numeric: tabular-nums;
+        font-weight: 650;
+      }
+
+      .row-title {
+        color: var(--text);
+        font-weight: 600;
+      }
+
+      .row-meta {
+        color: var(--text-faint);
+        font-size: 12px;
+      }
+
+      .row-state {
+        color: var(--text-muted);
+        font-size: 12px;
+        white-space: nowrap;
+      }
+
+      .agenda-section {
+        display: grid;
+        gap: 6px;
+      }
+
+      .agenda-section-header {
+        display: grid;
+        grid-template-columns: auto auto minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .section-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 36px;
+        width: 36px;
+        border: 0;
+        border-radius: 6px;
+        background: transparent;
+        color: var(--text-muted);
+        cursor: pointer;
+      }
+
+      .agenda-section.collapsed .chevron-icon {
+        transform: rotate(-90deg);
+      }
+
+      .agenda-section-content {
+        display: grid;
+        gap: 0;
+      }
+
+      .agenda-section.collapsed .agenda-section-content {
+        display: none;
+      }
+
+      .section-number {
+        color: var(--primary);
+        font-weight: 700;
+      }
+
+      .section-input {
+        min-width: 0;
+        border: 0;
+        background: transparent;
+        color: var(--text);
+        font-weight: 650;
+        outline: none;
+      }
+
+      .add-row {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        justify-self: start;
+        min-height: 36px;
+        border: 0;
+        border-radius: 6px;
+        background: transparent;
+        color: var(--text-muted);
+        padding: 0 8px;
+        cursor: pointer;
+      }
+
+      .rail {
+        display: grid;
+        align-content: start;
+        gap: 24px;
+        min-width: 0;
+      }
+
+      .rail-module {
+        display: grid;
+        gap: 10px;
+        padding-top: 16px;
+        border-top: 1px solid var(--line-soft);
+      }
+
+      .rail-module:first-child {
+        padding-top: 0;
+        border-top: 0;
+      }
+
+      .rail-title {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        color: var(--text);
+        font-size: 13px;
+        font-weight: 650;
+      }
+
+      .rail-list {
+        display: grid;
+        gap: 8px;
+      }
+
+      .quick-link,
+      .quiet-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: start;
+        gap: 8px;
+        color: var(--text-muted);
+        font-size: 13px;
+        text-decoration: none;
+      }
+
+      .quick-link:hover {
+        color: var(--text);
+      }
+
+      .rail-meta {
+        color: var(--text-faint);
+        font-size: 12px;
+        white-space: nowrap;
+      }
+
+      .status-list {
+        display: grid;
+        gap: 8px;
+      }
+
+      .status-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 8px;
+        color: var(--text-muted);
+        font-size: 13px;
+      }
+
+      .bottom-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding-top: 2px;
+      }
+
+      @media (min-width: 700px) {
+        .title-row {
+          grid-template-columns: minmax(0, 1fr) auto;
+          align-items: start;
+        }
+
+        .header-control {
+          min-width: 320px;
+        }
+
+        .form-grid.two {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .form-grid.three {
+          grid-template-columns: 1.1fr 0.9fr 0.9fr;
+        }
+      }
+
+      @media (min-width: 1040px) {
+        .page {
+          padding: 32px;
+        }
+
+        .layout {
+          grid-template-columns: minmax(0, 1fr) 320px;
+          gap: 40px;
+        }
+      }
+
+      @media (max-width: 560px) {
+        .page {
+          padding: 16px;
+        }
+
+        h1 {
+          font-size: 20px;
+        }
+
+        .attendee-row,
+        .agenda-row,
+        .action-row {
+          grid-template-columns: minmax(0, 1fr);
+        }
+
+        .row-number {
+          width: auto;
+        }
+
+        .row-state {
+          white-space: normal;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <div class="shell">
+        <div class="route">/25125/meetings/new</div>
+
+        <header class="header">
+          <div class="title-row">
+            <div class="title-stack">
+              <span class="eyebrow">New meeting</span>
+              <h1>Create meeting</h1>
+              <div class="title-meta">
+                <span>Goodwill Noblesville</span>
+                <span>OAC series</span>
+              </div>
+            </div>
+            <label class="field header-control">
+              <span>Template</span>
+              <select class="select">
+                <option>OAC weekly agenda</option>
+                <option>Blank agenda</option>
+                <option>Subcontractor coordination</option>
+              </select>
+            </label>
+          </div>
+        </header>
+
+        <div class="layout">
+          <div class="main">
+            <section class="section" aria-labelledby="details-heading">
+              <div class="section-heading">
+                <h2 id="details-heading">Meeting details</h2>
+              </div>
+
+              <div class="form-grid two">
+                <label class="field">
+                  <span>Meeting title</span>
+                  <input class="input" value="Goodwill Noblesville OAC Meeting" />
+                </label>
+                <label class="field">
+                  <span>Series</span>
+                  <input class="input" value="OAC weekly" list="series-options" />
+                </label>
+                <datalist id="series-options">
+                  <option value="OAC weekly"></option>
+                  <option value="Owner coordination"></option>
+                  <option value="Subcontractor coordination"></option>
+                </datalist>
+              </div>
+
+              <div class="form-grid three">
+                <label class="field">
+                  <span>Date</span>
+                  <input class="input" type="date" value="2026-07-08" />
+                </label>
+                <label class="field">
+                  <span>Start</span>
+                  <input class="input" value="10:00 AM" />
+                </label>
+                <label class="field">
+                  <span>Timezone</span>
+                  <select class="select">
+                    <option>Eastern (Indianapolis)</option>
+                    <option>Eastern (New York)</option>
+                    <option>Central</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="form-grid two">
+                <label class="field">
+                  <span>Location</span>
+                  <input class="input" value="Goodwill Noblesville trailer" />
+                </label>
+                <label class="field">
+                  <span>Meeting link</span>
+                  <input class="input" value="https://teams.microsoft.com/l/meetup-join/..." />
+                </label>
+              </div>
+
+              <label class="field">
+                <span>Objective</span>
+                <textarea class="textarea">Confirm pricing path, schedule risks, and owner decisions needed before the next lookahead.</textarea>
+              </label>
+            </section>
+
+            <section class="section" aria-labelledby="attendees-heading">
+              <div class="section-heading">
+                <h2 id="attendees-heading">Attendees</h2>
+              </div>
+              <div class="row-list">
+                <label class="attendee-row">
+                  <input type="checkbox" checked />
+                  <span>
+                    <span class="row-title">Brandon Harrison</span>
+                    <span class="row-meta">Project manager</span>
+                  </span>
+                  <span class="row-state">Required</span>
+                </label>
+                <label class="attendee-row">
+                  <input type="checkbox" checked />
+                  <span>
+                    <span class="row-title">Megan Harrison</span>
+                    <span class="row-meta">Admin</span>
+                  </span>
+                  <span class="row-state">Required</span>
+                </label>
+                <label class="attendee-row">
+                  <input type="checkbox" checked />
+                  <span>
+                    <span class="row-title">Architect</span>
+                    <span class="row-meta">Design partner</span>
+                  </span>
+                  <span class="row-state">Optional</span>
+                </label>
+              </div>
+              <button class="add-row" type="button">
+                <svg class="plus-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke-width="2" stroke-linecap="round">
+                  <path d="M12 5v14" />
+                  <path d="M5 12h14" />
+                </svg>
+                Add attendee
+              </button>
+            </section>
+
+            <section class="section" aria-labelledby="agenda-heading">
+              <div class="section-heading">
+                <h2 id="agenda-heading">Agenda</h2>
+                <p class="section-note">
+                  Seed the agenda before the meeting opens. Press Enter in the last agenda row to add another item.
+                </p>
+              </div>
+
+              <section class="agenda-section">
+                <div class="agenda-section-header">
+                  <button class="section-toggle" type="button" data-section-toggle aria-expanded="true" aria-label="Collapse Budget and procurement">
+                    <svg class="chevron-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="m6 9 6 6 6-6" />
+                    </svg>
+                  </button>
+                  <span class="section-number">1</span>
+                  <input class="section-input" value="Budget and procurement" aria-label="Section title" />
+                  <button class="button ghost" type="button">History</button>
+                </div>
+                <div class="agenda-section-content">
+                  <div class="row-list" data-agenda-list data-section-number="1">
+                    <article class="agenda-row">
+                      <span class="row-number">1.1</span>
+                      <div class="editable row-title" contenteditable="true">Review lighting package pricing and confirm VE option.</div>
+                      <span class="row-state">Source linked</span>
+                    </article>
+                    <article class="agenda-row">
+                      <span class="row-number">1.2</span>
+                      <div class="editable row-title" contenteditable="true">Confirm allowance drawdown against the latest owner directive.</div>
+                      <span class="row-state">Owner decision</span>
+                    </article>
+                  </div>
+                  <button class="add-row" type="button" data-add-agenda-item>
+                    <svg class="plus-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke-width="2" stroke-linecap="round">
+                      <path d="M12 5v14" />
+                      <path d="M5 12h14" />
+                    </svg>
+                    Add item
+                  </button>
+                </div>
+              </section>
+
+              <section class="agenda-section">
+                <div class="agenda-section-header">
+                  <button class="section-toggle" type="button" data-section-toggle aria-expanded="true" aria-label="Collapse Schedule constraints">
+                    <svg class="chevron-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="m6 9 6 6 6-6" />
+                    </svg>
+                  </button>
+                  <span class="section-number">2</span>
+                  <input class="section-input" value="Schedule constraints" aria-label="Section title" />
+                  <button class="button ghost" type="button">History</button>
+                </div>
+                <div class="agenda-section-content">
+                  <div class="row-list" data-agenda-list data-section-number="2">
+                    <article class="agenda-row">
+                      <span class="row-number">2.1</span>
+                      <div class="editable row-title" contenteditable="true">Resolve storefront lead time before the next lookahead is issued.</div>
+                      <span class="row-state">Critical path</span>
+                    </article>
+                  </div>
+                  <button class="add-row" type="button" data-add-agenda-item>
+                    <svg class="plus-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke-width="2" stroke-linecap="round">
+                      <path d="M12 5v14" />
+                      <path d="M5 12h14" />
+                    </svg>
+                    Add item
+                  </button>
+                </div>
+              </section>
+            </section>
+
+            <section class="section" aria-labelledby="action-items-heading">
+              <div class="section-heading">
+                <h2 id="action-items-heading">Action items to carry in</h2>
+                <p class="section-note">
+                  Pulled from the prior meeting and open project tasks. Uncheck anything that should not be carried into this agenda.
+                </p>
+              </div>
+              <div class="row-list" data-action-list>
+                <label class="action-row">
+                  <input type="checkbox" checked />
+                  <span>
+                    <span class="row-title">Send revised lighting pricing.</span>
+                    <span class="row-meta">Brandon, yesterday: waiting on pricing.</span>
+                  </span>
+                  <span class="row-state">Open, due Jul 10</span>
+                </label>
+                <label class="action-row">
+                  <input type="checkbox" checked />
+                  <span>
+                    <span class="row-title">Confirm storefront lead time.</span>
+                    <span class="row-meta">Architect, yesterday: submittal returned.</span>
+                  </span>
+                  <span class="row-state">Open, due Jul 9</span>
+                </label>
+              </div>
+              <button class="add-row" type="button" data-add-action-item>
+                <svg class="plus-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke-width="2" stroke-linecap="round">
+                  <path d="M12 5v14" />
+                  <path d="M5 12h14" />
+                </svg>
+                Add item
+              </button>
+            </section>
+
+            <div class="bottom-actions">
+              <button class="button" type="button" data-create-meeting>Create agenda</button>
+              <button class="button secondary" type="button">Save draft</button>
+              <button class="button ghost" type="button">Cancel</button>
+            </div>
+          </div>
+
+          <aside class="rail" aria-label="Meeting planning rail">
+            <section class="rail-module">
+              <div class="rail-title">
+                <span>Planning sources</span>
+                <span class="rail-meta">3 linked</span>
+              </div>
+              <div class="rail-list">
+                <label class="checkbox-row">
+                  <input type="checkbox" checked />
+                  <span>Previous OAC minutes</span>
+                  <span class="rail-meta">Jun 24</span>
+                </label>
+                <label class="checkbox-row">
+                  <input type="checkbox" checked />
+                  <span>Fireflies transcript</span>
+                  <span class="rail-meta">Latest</span>
+                </label>
+                <label class="checkbox-row">
+                  <input type="checkbox" checked />
+                  <span>Lighting quote PDF</span>
+                  <span class="rail-meta">PDF</span>
+                </label>
+              </div>
+            </section>
+
+            <section class="rail-module">
+              <div class="rail-title">
+                <span>Quick links</span>
+              </div>
+              <div class="rail-list">
+                <a class="quick-link" href="#">
+                  <span>Submittals</span>
+                  <span class="rail-meta">12 open</span>
+                </a>
+                <a class="quick-link" href="#">
+                  <span>RFIs</span>
+                  <span class="rail-meta">4 open</span>
+                </a>
+                <a class="quick-link" href="#">
+                  <span>Change events</span>
+                  <span class="rail-meta">7 active</span>
+                </a>
+                <a class="quick-link" href="#">
+                  <span>Change orders</span>
+                  <span class="rail-meta">3 pending</span>
+                </a>
+                <a class="quick-link" href="#">
+                  <span>Schedule</span>
+                  <span class="rail-meta">Lookahead</span>
+                </a>
+                <a class="quick-link" href="#">
+                  <span>Drawings</span>
+                  <span class="rail-meta">Latest set</span>
+                </a>
+              </div>
+            </section>
+
+            <section class="rail-module">
+              <div class="rail-title">
+                <span>After create</span>
+              </div>
+              <div class="status-list">
+                <div class="status-row">
+                  <span>Open meeting</span>
+                  <span class="rail-meta">Agenda tab</span>
+                </div>
+                <div class="status-row">
+                  <span>Focus</span>
+                  <span class="rail-meta">First agenda row</span>
+                </div>
+                <div class="status-row">
+                  <span>Status</span>
+                  <span class="rail-meta">Draft</span>
+                </div>
+              </div>
+            </section>
+          </aside>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      function renumberAgenda(list) {
+        const sectionNumber = list.dataset.sectionNumber;
+        Array.from(list.querySelectorAll(".agenda-row")).forEach((row, index) => {
+          row.querySelector(".row-number").textContent = `${sectionNumber}.${index + 1}`;
+        });
+      }
+
+      function addAgendaItem(button) {
+        const content = button.closest(".agenda-section-content");
+        const list = content.querySelector("[data-agenda-list]");
+        const row = document.createElement("article");
+        row.className = "agenda-row";
+        row.innerHTML = `
+          <span class="row-number"></span>
+          <div class="editable row-title" contenteditable="true"></div>
+          <span class="row-state">Agenda</span>
+        `;
+        list.appendChild(row);
+        renumberAgenda(list);
+        row.querySelector(".editable").focus();
+      }
+
+      document.querySelectorAll("[data-section-toggle]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const section = button.closest(".agenda-section");
+          const collapsed = section.classList.toggle("collapsed");
+          button.setAttribute("aria-expanded", String(!collapsed));
+        });
+      });
+
+      document.querySelectorAll("[data-add-agenda-item]").forEach((button) => {
+        button.addEventListener("click", () => addAgendaItem(button));
+      });
+
+      document.querySelectorAll("[data-agenda-list]").forEach((list) => {
+        list.addEventListener("keydown", (event) => {
+          if (event.key !== "Enter" || event.shiftKey) return;
+          const currentRow = event.target.closest(".agenda-row");
+          const lastRow = list.querySelector(".agenda-row:last-child");
+          if (currentRow !== lastRow) return;
+          event.preventDefault();
+          addAgendaItem(list.closest(".agenda-section-content").querySelector("[data-add-agenda-item]"));
+        });
+      });
+
+      document.querySelector("[data-add-action-item]").addEventListener("click", () => {
+        const list = document.querySelector("[data-action-list]");
+        const row = document.createElement("label");
+        row.className = "action-row";
+        row.innerHTML = `
+          <input type="checkbox" checked />
+          <span>
+            <span class="editable row-title" contenteditable="true"></span>
+            <span class="row-meta">Unassigned</span>
+          </span>
+          <span class="row-state">Open</span>
+        `;
+        list.appendChild(row);
+        row.querySelector(".editable").focus();
+      });
+
+      document.querySelectorAll("[data-create-meeting]").forEach((button) => {
+        button.addEventListener("click", () => {
+          button.textContent = "Creating agenda";
+          window.setTimeout(() => {
+            button.textContent = "Open agenda";
+          }, 450);
+        });
+      });
+    </script>
+  </body>
+</html>

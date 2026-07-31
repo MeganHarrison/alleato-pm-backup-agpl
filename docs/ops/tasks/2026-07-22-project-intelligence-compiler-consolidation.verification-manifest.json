@@ -1,0 +1,30 @@
+{
+  "contractVersion": 1,
+  "taskId": "AAI-1249",
+  "feature": "Canonical Project Intelligence compiler module",
+  "route": "Render cron and repository runtime ownership",
+  "flows": [
+    {
+      "name": "Compile and project one governed Daily Brief",
+      "steps": [
+        "Enter through project-intelligence/runner",
+        "Compile through project-intelligence/core",
+        "Materialize the complete corpus through project-intelligence/ingestion",
+        "Write required fan-out through project-intelligence/projections",
+        "Reject any reintroduced scripts/intelligence functional path"
+      ],
+      "expectedOutcome": "One canonical module owns execution and every former functional path is absent."
+    }
+  ],
+  "requiredEvidence": ["screenshots", "actionLog", "summary", "negativePath", "visualReview", "regressionTest"],
+  "visual": {
+    "viewports": ["desktop"],
+    "checks": ["Canonical module tree is readable", "Former functional tree is explicitly absent", "Remaining backend seam is identified"]
+  },
+  "independentReview": {"required": true},
+  "claims": [
+    {"id":"canonical-module","description":"Compiler, runner policy, corpus, projections, and maintenance have one module owner","evidence":[{"key":"summary","min":1},{"key":"regressionTest","min":1}]},
+    {"id":"former-paths-absent","description":"Former scripts/intelligence functional paths are absent and guarded","evidence":[{"key":"negativePath","min":1},{"key":"actionLog","min":1}]},
+    {"id":"viewable-proof","description":"The task comment includes a viewable canonical ownership screenshot","evidence":[{"key":"screenshots","min":1},{"key":"visualReview","min":1}]}
+  ]
+}

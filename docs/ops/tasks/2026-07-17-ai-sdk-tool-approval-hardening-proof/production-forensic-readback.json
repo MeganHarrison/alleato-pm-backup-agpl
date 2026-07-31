@@ -1,0 +1,41 @@
+{
+  "capturedAt": "2026-07-22T22:31:00Z",
+  "productionCommit": "b9fd86668ed9a55f5a9f9e04752619e03c665da8",
+  "productionDeploymentId": "dpl_Ert7hKiA9nz8oNiaeomhAMLd6Rqm",
+  "productionUrl": "https://projects.alleatogroup.com/ai",
+  "project": {
+    "id": 1142,
+    "name": "Test July 2026"
+  },
+  "exactFieldProbe": {
+    "sessionId": "b465c7db-012b-48e7-90d2-090acf64c347",
+    "requestedSubject": "AAI-1150 Production Signed Approval 2026-07-22T2218Z",
+    "requestedQuestion": "Verify production AI SDK signed approval after route ownership repair.",
+    "previewSubject": "RFI - Field Question",
+    "previewQuestion": "Please clarify field question.",
+    "providerPath": "deterministic-rfi-preview-router",
+    "requestedSubjectRowCount": 0,
+    "replacementSubjectRowCount": 0,
+    "cancelRegeneratedPreview": true
+  },
+  "approvedProbe": {
+    "sessionId": "d2f020da-9034-4655-b4aa-e758508b06d5",
+    "previewSubject": "RFI - Production Signed Approval Proof July 22 2225",
+    "previewQuestion": "Please clarify production signed approval proof july 22 2225.",
+    "executedSubject": "Production Signed Approval Proof July 22 2225",
+    "executedQuestion": "Please clarify and provide the production signed approval proof dated July 22, 2225.",
+    "providerPath": "ai-gateway",
+    "createdRowId": "1b3eb963-3538-432c-9248-89f06bb23193",
+    "createdRowCount": 1,
+    "scopedCleanupRemainingCount": 0,
+    "previewMatchedSignedPayload": false
+  },
+  "deniedProbe": {
+    "sessionId": "fef0c5c6-e442-4631-b035-00ce24bb20e1",
+    "subject": "RFI - Production Signed Denial Proof July 22 2230",
+    "providerPath": "ai-gateway",
+    "denied": true,
+    "rowCountBefore": 0,
+    "rowCountAfter": 0
+  }
+}

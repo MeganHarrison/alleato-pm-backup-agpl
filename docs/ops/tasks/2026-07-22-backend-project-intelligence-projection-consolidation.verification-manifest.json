@@ -1,0 +1,13 @@
+{
+  "contractVersion": 1,
+  "taskId": "AAI-1250",
+  "feature": "Canonical backend Project Intelligence projection runner",
+  "route": "Render cron commands and backend projection ownership",
+  "requiredEvidence": ["screenshots", "actionLog", "summary", "negativePath", "visualReview", "regressionTest"],
+  "independentReview": {"required": true},
+  "claims": [
+    {"id":"one-runner","description":"Both backend projection schedules resolve through one canonical runner","evidence":[{"key":"summary","min":1},{"key":"regressionTest","min":1}]},
+    {"id":"former-paths-absent","description":"Former backend projection paths are deleted and guarded","evidence":[{"key":"negativePath","min":1},{"key":"actionLog","min":1}]},
+    {"id":"viewable-proof","description":"AAI-1250 includes a viewable architecture receipt","evidence":[{"key":"screenshots","min":1},{"key":"visualReview","min":1}]}
+  ]
+}

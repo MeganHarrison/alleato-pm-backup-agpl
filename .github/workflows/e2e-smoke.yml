@@ -1,0 +1,44 @@
+name: E2E Smoke (post-merge)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: "10.13.1"
+
+      - name: Install frontend dependencies
+        run: pnpm --dir frontend install --frozen-lockfile
+
+      - name: Install Playwright browsers
+        run: pnpm --dir frontend exec playwright install chromium
+
+      - name: Run E2E smoke tests
+        env:
+          PLAYWRIGHT_BASE_URL: ${{ secrets.PLAYWRIGHT_BASE_URL || secrets.API_SMOKE_BASE_URL }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          E2E_PROJECT_ID: "67"
+        run: |
+          if [[ -z "${PLAYWRIGHT_BASE_URL}" ]]; then
+            echo "PLAYWRIGHT_BASE_URL not set — skipping E2E smoke (set secret to enable)"
+            exit 0
+          fi
+          pnpm --dir frontend exec playwright test \
+            --config=config/playwright/playwright.config.smoke.ts \
+            --project=smoke \
+            --reporter=list

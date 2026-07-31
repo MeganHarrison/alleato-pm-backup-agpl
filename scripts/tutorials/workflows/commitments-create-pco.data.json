@@ -1,0 +1,13 @@
+{
+  "projectId": 1034,
+  "submitWorkflow": false,
+  "number": "001",
+  "title": "Added rebar for footing change",
+  "amount": "4200",
+  "requestReceivedFrom": "Field Superintendent",
+  "description": "Additional rebar required after soils report revision.",
+  "changeReason": "Owner Change",
+  "scheduleImpact": "3",
+  "location": "Building A footings",
+  "reference": "RFI-014"
+}

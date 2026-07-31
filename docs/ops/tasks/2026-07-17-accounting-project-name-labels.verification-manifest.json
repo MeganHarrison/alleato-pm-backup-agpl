@@ -1,0 +1,42 @@
+{
+  "contractVersion": 1,
+  "taskId": "AAI-1149",
+  "feature": "Human project names in Accounting charts",
+  "route": "/accounting",
+  "flows": [
+    {
+      "name": "Recognize project exposure by name",
+      "steps": [
+        "Open the authenticated Accounting dashboard",
+        "Confirm Accounts Receivable uses human project names",
+        "Confirm Accounts Payable uses human project names",
+        "Confirm full project names and values remain available without raw identifier fallbacks",
+        "Inspect the chart pair at desktop and mobile widths"
+      ],
+      "expectedOutcome": "Accounting users can recognize every project from its human name, including safe missing-name states, without code-only labels or responsive regressions"
+    }
+  ],
+  "requiredEvidence": ["screenshots", "actionLog", "summary", "visualReview", "regressionTest"],
+  "visual": {
+    "viewports": ["desktop", "mobile"],
+    "checks": ["AR labels are human project names", "AP labels are human project names", "No numeric code-only chart labels", "No horizontal overflow", "Full names are recoverable"]
+  },
+  "independentReview": { "required": true },
+  "claims": [
+    {
+      "id": "human-project-names",
+      "description": "AR and AP chart labels use the shared human project display-name contract",
+      "evidence": [{ "key": "summary", "min": 1 }, { "key": "regressionTest", "min": 1 }]
+    },
+    {
+      "id": "safe-fallback",
+      "description": "Missing project names never fall back to raw IDs or codes",
+      "evidence": [{ "key": "regressionTest", "min": 1 }]
+    },
+    {
+      "id": "canonical-responsive-flow",
+      "description": "Authenticated Accounting route remains readable without overflow at desktop and mobile widths",
+      "evidence": [{ "key": "screenshots", "min": 2 }, { "key": "actionLog", "min": 1 }, { "key": "visualReview", "min": 1 }]
+    }
+  ]
+}

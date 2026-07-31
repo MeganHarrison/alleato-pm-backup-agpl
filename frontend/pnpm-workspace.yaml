@@ -1,0 +1,21 @@
+allowBuilds:
+  '@parcel/watcher': true
+  '@scarf/scarf': false
+  '@sentry/cli': true
+  better-sqlite3: true
+  canvas: true
+  core-js: true
+  esbuild: true
+  msw: true
+  protobufjs: true
+  puppeteer: false
+  sharp: true
+  unrs-resolver: true
+patchedDependencies:
+  agentation@3.0.2: patches/agentation@3.0.2.patch
+overrides:
+  '@opentelemetry/sdk-trace-base': ^2.7.1
+  '@opentelemetry/exporter-trace-otlp-http': ^0.208.0
+  '@opentelemetry/sdk-node': ^0.208.0
+minimumReleaseAgeExclude:
+  - '@ai-sdk/openai@4.0.8'

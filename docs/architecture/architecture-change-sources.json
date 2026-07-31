@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "changes": [
+    {
+      "taskFile": "docs/ops/tasks/2026-07-16-ai-dashboard-architecture-assurance.md",
+      "verificationResult": "docs/ops/evidence/2026-07-16-ai-dashboard-architecture-assurance/verification-result.json",
+      "repository": "The-Alleato-Group/project-management",
+      "revision": "68c70158d159b0c5ec6f462707d671b02c846b3b",
+      "whyItMatters": "Leadership can see the existing ownership model and safe change path without receiving repository controls."
+    },
+    {
+      "taskFile": "docs/ops/tasks/2026-07-16-brandon-architecture-center.md",
+      "verificationResult": "docs/ops/evidence/2026-07-16-brandon-architecture-center/verification-result.json",
+      "repository": "MeganHarrison/alleato-os",
+      "revision": "dff1876711342f5752e2b815ae60409909ab4141",
+      "whyItMatters": "The long-form architecture explanation now has one published home that links back to maintained technical sources."
+    }
+  ]
+}

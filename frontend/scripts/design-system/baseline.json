@@ -1,0 +1,5 @@
+{
+  "designSystemLintCount": 3416,
+  "updatedAt": "2026-04-13",
+  "notes": "Baseline for CI ratchet: design-system lint count must never increase."
+}

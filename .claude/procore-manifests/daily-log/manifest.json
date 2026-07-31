@@ -1,0 +1,2023 @@
+{
+  "feature": "daily-log",
+  "featureName": "Daily Log",
+  "capturedAt": "2026-04-07T14:14:28.220Z",
+  "states": {
+    "list": {
+      "id": "list",
+      "description": "Daily Log list view",
+      "url": "https://us02.procore.com/webclients/host/companies/562949953443325/projects/562949954728542/tools/dailylog/list",
+      "columnGroups": [
+        {
+          "label": "",
+          "columns": [
+            "Area",
+            "Company",
+            "Time Observed*",
+            "Delay",
+            "Location",
+            "Sky",
+            "Temperature",
+            "Calamity",
+            "Average",
+            "Precipitation",
+            "Wind",
+            "Ground / Sea",
+            "Comments",
+            "Attachments",
+            "Related Items"
+          ],
+          "colspan": 15
+        }
+      ],
+      "columns": [
+        {
+          "label": "Area",
+          "columnGroup": null
+        },
+        {
+          "label": "Company",
+          "columnGroup": null
+        },
+        {
+          "label": "Time Observed*",
+          "columnGroup": null
+        },
+        {
+          "label": "Delay",
+          "columnGroup": null
+        },
+        {
+          "label": "Location",
+          "columnGroup": null
+        },
+        {
+          "label": "Sky",
+          "columnGroup": null
+        },
+        {
+          "label": "Temperature",
+          "columnGroup": null
+        },
+        {
+          "label": "Calamity",
+          "columnGroup": null
+        },
+        {
+          "label": "Average",
+          "columnGroup": null
+        },
+        {
+          "label": "Precipitation",
+          "columnGroup": null
+        },
+        {
+          "label": "Wind",
+          "columnGroup": null
+        },
+        {
+          "label": "Ground / Sea",
+          "columnGroup": null
+        },
+        {
+          "label": "Comments",
+          "columnGroup": null
+        },
+        {
+          "label": "Attachments",
+          "columnGroup": null
+        },
+        {
+          "label": "Related Items",
+          "columnGroup": null
+        }
+      ],
+      "toolbarActions": [
+        {
+          "label": "Alleato Group24-104 - Goodwill Bart",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Project ToolsDaily Log",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "AppsSelect an App",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Support & Feedback",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Announcements",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "BC",
+          "type": "dropdown",
+          "variant": "default"
+        }
+      ],
+      "filters": [],
+      "rowActions": [],
+      "autoRows": [],
+      "formSections": [
+        {
+          "title": "",
+          "fields": [
+            {
+              "name": "cmdk",
+              "label": "CmdK",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "bc",
+              "label": "BC",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "skip",
+              "label": "Skip",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "feedback",
+              "label": "Feedback",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "help",
+              "label": "Help",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "add_related_items",
+              "label": "Add Related Items",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "create",
+              "label": "Create",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "export",
+              "label": "Export",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "reports",
+              "label": "Reports",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "email",
+              "label": "Email",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "copy",
+              "label": "Copy",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "collapse_all",
+              "label": "Collapse All",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "tue,_april_7,_2026",
+              "label": "Tue, April 7, 2026",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "area",
+              "label": "Area",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "company",
+              "label": "Company",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "time_observed*",
+              "label": "Time Observed*",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "delay",
+              "label": "Delay",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "location",
+              "label": "Location",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "sky",
+              "label": "Sky",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "temperature",
+              "label": "Temperature",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "calamity",
+              "label": "Calamity",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "average",
+              "label": "Average",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "precipitation",
+              "label": "Precipitation",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "wind",
+              "label": "Wind",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "ground_/_sea",
+              "label": "Ground / Sea",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "comments",
+              "label": "Comments",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "attachments",
+              "label": "Attachments",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "related_items",
+              "label": "Related Items",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "attach_file(s)",
+              "label": "Attach File(s)",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "--",
+              "label": "--",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "all_areas",
+              "label": "All Areas",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "search",
+              "label": "Search",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "10_am",
+              "label": "10 AM",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "14",
+              "label": "14",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "select_a_location",
+              "label": "Select a Location",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "workers*",
+              "label": "Workers*",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "hours*",
+              "label": "Hours*",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "total_hours",
+              "label": "Total Hours",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "issue?",
+              "label": "Issue?",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "employee",
+              "label": "Employee",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "cost_code",
+              "label": "Cost Code",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "type",
+              "label": "Type",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "billable?",
+              "label": "Billable?",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "regular_time",
+              "label": "Regular Time",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "equipment_name",
+              "label": "Equipment Name",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "hours_operating",
+              "label": "Hours Operating",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "hours_idle",
+              "label": "Hours Idle",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "inspected",
+              "label": "Inspected",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "inspection_time",
+              "label": "Inspection Time",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "visitor",
+              "label": "Visitor",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "start*",
+              "label": "Start*",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "end*",
+              "label": "End*",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "call_from",
+              "label": "Call From",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "call_to",
+              "label": "Call To",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "inspection_type",
+              "label": "Inspection Type",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "inspecting_entity",
+              "label": "Inspecting Entity",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "inspector_name",
+              "label": "Inspector Name",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "inspection_area",
+              "label": "Inspection Area",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "time*",
+              "label": "Time*",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "delivery_from",
+              "label": "Delivery From",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "tracking_number",
+              "label": "Tracking Number",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "contents",
+              "label": "Contents",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "subject",
+              "label": "Subject",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "safety_notice",
+              "label": "Safety Notice",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "issued_to",
+              "label": "Issued To",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "compliance_due",
+              "label": "Compliance Due",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "party_involved",
+              "label": "Party Involved",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "company_involved",
+              "label": "Company Involved",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "quantity",
+              "label": "Quantity",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "units",
+              "label": "Units",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "contract",
+              "label": "Contract",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "line_item_(#-description-qty_units)*",
+              "label": "Line Item (#-Description-Qty Units)*",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "previously_delivered",
+              "label": "Previously Delivered",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "previou...",
+              "label": "Previou...",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "quantity_delivered*",
+              "label": "Quantity Delivered*",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "quantity_put-in-place*",
+              "label": "Quantity Put-in-Place*",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "#_delivered*",
+              "label": "# Delivered*",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "#_removed*",
+              "label": "# Removed*",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "material",
+              "label": "Material",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "disposed_by",
+              "label": "Disposed By",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "method_of_disposal",
+              "label": "Method Of Disposal",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "disposal_location",
+              "label": "Disposal Location",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "approximate_quantity_[#]*",
+              "label": "Approximate Quantity [#]*",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "resource",
+              "label": "Resource",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "scheduled_tasks",
+              "label": "Scheduled tasks",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "showed?",
+              "label": "Showed?",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "reimbur...",
+              "label": "Reimbur...",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "rate_($)",
+              "label": "Rate ($)",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "delay_type",
+              "label": "Delay Type",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "start_time",
+              "label": "Start Time",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "end_time",
+              "label": "End Time",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "duration_(hours)",
+              "label": "Duration (Hours)",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "compose_email",
+              "label": "Compose Email",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "attach_files",
+              "label": "Attach Files",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "cancel",
+              "label": "Cancel",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "attach",
+              "label": "Attach",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            }
+          ]
+        }
+      ],
+      "tabs": [],
+      "headerFields": [],
+      "screenshot": "screenshots/list.png",
+      "_capture_note": "",
+      "domFile": "dom/list.html"
+    },
+    "detail": {
+      "id": "detail",
+      "description": "Daily Log entry detail",
+      "url": "https://us02.procore.com/webclients/host/companies/562949953443325/projects/562949954728542/tools/dailylog/list",
+      "columnGroups": [
+        {
+          "label": "",
+          "columns": [
+            "Area",
+            "Company",
+            "Time Observed*",
+            "Delay",
+            "Location",
+            "Sky",
+            "Temperature",
+            "Calamity",
+            "Average",
+            "Precipitation",
+            "Wind",
+            "Ground / Sea",
+            "Comments",
+            "Attachments",
+            "Related Items"
+          ],
+          "colspan": 15
+        }
+      ],
+      "columns": [
+        {
+          "label": "Area",
+          "columnGroup": null
+        },
+        {
+          "label": "Company",
+          "columnGroup": null
+        },
+        {
+          "label": "Time Observed*",
+          "columnGroup": null
+        },
+        {
+          "label": "Delay",
+          "columnGroup": null
+        },
+        {
+          "label": "Location",
+          "columnGroup": null
+        },
+        {
+          "label": "Sky",
+          "columnGroup": null
+        },
+        {
+          "label": "Temperature",
+          "columnGroup": null
+        },
+        {
+          "label": "Calamity",
+          "columnGroup": null
+        },
+        {
+          "label": "Average",
+          "columnGroup": null
+        },
+        {
+          "label": "Precipitation",
+          "columnGroup": null
+        },
+        {
+          "label": "Wind",
+          "columnGroup": null
+        },
+        {
+          "label": "Ground / Sea",
+          "columnGroup": null
+        },
+        {
+          "label": "Comments",
+          "columnGroup": null
+        },
+        {
+          "label": "Attachments",
+          "columnGroup": null
+        },
+        {
+          "label": "Related Items",
+          "columnGroup": null
+        }
+      ],
+      "toolbarActions": [
+        {
+          "label": "Alleato Group24-104 - Goodwill Bart",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Project ToolsDaily Log",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "What RFIs have affected exterior corridor topping slabs?CmdK",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "AppsSelect an App",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Support & Feedback",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Announcements",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "BC",
+          "type": "dropdown",
+          "variant": "default"
+        }
+      ],
+      "filters": [],
+      "rowActions": [],
+      "autoRows": [],
+      "formSections": [
+        {
+          "title": "",
+          "fields": [
+            {
+              "name": "what_rfis_have_affected_exterior_corridor_topping_slabs?",
+              "label": "What RFIs have affected exterior corridor topping slabs?",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "cmdk",
+              "label": "CmdK",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "bc",
+              "label": "BC",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "skip",
+              "label": "Skip",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "feedback",
+              "label": "Feedback",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "help",
+              "label": "Help",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "add_related_items",
+              "label": "Add Related Items",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "create",
+              "label": "Create",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "export",
+              "label": "Export",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "reports",
+              "label": "Reports",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "email",
+              "label": "Email",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "copy",
+              "label": "Copy",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "collapse_all",
+              "label": "Collapse All",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "tue,_april_7,_2026",
+              "label": "Tue, April 7, 2026",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "area",
+              "label": "Area",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "company",
+              "label": "Company",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "time_observed*",
+              "label": "Time Observed*",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "delay",
+              "label": "Delay",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "location",
+              "label": "Location",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "sky",
+              "label": "Sky",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "temperature",
+              "label": "Temperature",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "calamity",
+              "label": "Calamity",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "average",
+              "label": "Average",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "precipitation",
+              "label": "Precipitation",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "wind",
+              "label": "Wind",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "ground_/_sea",
+              "label": "Ground / Sea",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "comments",
+              "label": "Comments",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "attachments",
+              "label": "Attachments",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "related_items",
+              "label": "Related Items",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "attach_file(s)",
+              "label": "Attach File(s)",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "--",
+              "label": "--",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "all_areas",
+              "label": "All Areas",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "search",
+              "label": "Search",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "10_am",
+              "label": "10 AM",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "15",
+              "label": "15",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "select_a_location",
+              "label": "Select a Location",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "workers*",
+              "label": "Workers*",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "hours*",
+              "label": "Hours*",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "total_hours",
+              "label": "Total Hours",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "issue?",
+              "label": "Issue?",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "employee",
+              "label": "Employee",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "cost_code",
+              "label": "Cost Code",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "type",
+              "label": "Type",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "billable?",
+              "label": "Billable?",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "regular_time",
+              "label": "Regular Time",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "equipment_name",
+              "label": "Equipment Name",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "hours_operating",
+              "label": "Hours Operating",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "hours_idle",
+              "label": "Hours Idle",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "inspected",
+              "label": "Inspected",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "inspection_time",
+              "label": "Inspection Time",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "visitor",
+              "label": "Visitor",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "start*",
+              "label": "Start*",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "end*",
+              "label": "End*",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "call_from",
+              "label": "Call From",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "call_to",
+              "label": "Call To",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "inspection_type",
+              "label": "Inspection Type",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "inspecting_entity",
+              "label": "Inspecting Entity",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "inspector_name",
+              "label": "Inspector Name",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "inspection_area",
+              "label": "Inspection Area",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "time*",
+              "label": "Time*",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "delivery_from",
+              "label": "Delivery From",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "tracking_number",
+              "label": "Tracking Number",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "contents",
+              "label": "Contents",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "subject",
+              "label": "Subject",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "safety_notice",
+              "label": "Safety Notice",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "issued_to",
+              "label": "Issued To",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "compliance_due",
+              "label": "Compliance Due",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "party_involved",
+              "label": "Party Involved",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "company_involved",
+              "label": "Company Involved",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "quantity",
+              "label": "Quantity",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "units",
+              "label": "Units",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "contract",
+              "label": "Contract",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "line_item_(#-description-qty_units)*",
+              "label": "Line Item (#-Description-Qty Units)*",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "previously_delivered",
+              "label": "Previously Delivered",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "previou...",
+              "label": "Previou...",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "quantity_delivered*",
+              "label": "Quantity Delivered*",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "quantity_put-in-place*",
+              "label": "Quantity Put-in-Place*",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "#_delivered*",
+              "label": "# Delivered*",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "#_removed*",
+              "label": "# Removed*",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "material",
+              "label": "Material",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "disposed_by",
+              "label": "Disposed By",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "method_of_disposal",
+              "label": "Method Of Disposal",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "disposal_location",
+              "label": "Disposal Location",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "approximate_quantity_[#]*",
+              "label": "Approximate Quantity [#]*",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "resource",
+              "label": "Resource",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "scheduled_tasks",
+              "label": "Scheduled tasks",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "showed?",
+              "label": "Showed?",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "reimbur...",
+              "label": "Reimbur...",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "rate_($)",
+              "label": "Rate ($)",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "delay_type",
+              "label": "Delay Type",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "start_time",
+              "label": "Start Time",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "end_time",
+              "label": "End Time",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "duration_(hours)",
+              "label": "Duration (Hours)",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "compose_email",
+              "label": "Compose Email",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "attach_files",
+              "label": "Attach Files",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "cancel",
+              "label": "Cancel",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "attach",
+              "label": "Attach",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            }
+          ]
+        }
+      ],
+      "tabs": [],
+      "headerFields": [],
+      "screenshot": "screenshots/detail.png",
+      "_capture_note": "",
+      "domFile": "dom/detail.html"
+    }
+  }
+}

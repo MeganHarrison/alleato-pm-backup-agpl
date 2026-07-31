@@ -1,0 +1,18 @@
+# Vendor-distributed PDF.js Express assets preserve upstream whitespace.
+frontend/public/webviewer/** -whitespace
+.agents/skills/design/design-md.md/SKILL.md -whitespace
+.agents/skills/design/design-md.md/examples/DESIGN.md -whitespace
+.agents/skills/parity-audit/SKILL.md -whitespace
+.agents/skills/procore-verify/SKILL.md -whitespace
+.agents/skills/testing/agent-browser/templates/TEMPLATE-TEST-SUMMARY.html -whitespace
+.codex/agents/supabase-architect.toml -whitespace
+
+# Append-style log files every session is required to update (session notes,
+# "Last verified" stacks, dated corrections). Concurrent PRs conflict here by
+# construction, and the right resolution is always "keep both sides" — which is
+# exactly what merge=union does. 2026-07-23: 6 of 8 open PRs were DIRTY, and
+# ~10 conflict hunks across them were all manually resolved as keep-both in
+# these three files.
+WORKING_CONTEXT.md merge=union
+docs/architecture/AI-RAG-ARCHITECTURE.md merge=union
+docs/architecture/TABLE-INVENTORY.md merge=union

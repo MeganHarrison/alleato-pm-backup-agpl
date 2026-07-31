@@ -1,0 +1,392 @@
+{
+  "feature": "rfis",
+  "featureName": "RFIs",
+  "capturedAt": "2026-04-07T14:09:18.696Z",
+  "states": {
+    "list": {
+      "id": "list",
+      "description": "RFIs list view",
+      "url": "https://us02.procore.com/webclients/host/companies/562949953443325/projects/562949954728542/tools/rfis?view=list&locale=en&page=1&per_page=150&sort%5Battribute%5D=position&sort%5Bdirection%5D=desc",
+      "columnGroups": [
+        {
+          "label": "",
+          "columns": [
+            "Number",
+            "Status",
+            "Subject",
+            "Responsible Contractor",
+            "Received From",
+            "Date Initiated",
+            "Assignees",
+            "Distribution List",
+            "RFI Manager",
+            "Ball In Court",
+            "Due Date",
+            "Closed Date",
+            "Location",
+            "Schedule Impact",
+            "Cost Impact",
+            "Cost Code",
+            "Sub Job",
+            "RFI Stage",
+            "Private"
+          ],
+          "colspan": 19
+        }
+      ],
+      "columns": [
+        {
+          "label": "Number",
+          "columnGroup": null
+        },
+        {
+          "label": "Status",
+          "columnGroup": null
+        },
+        {
+          "label": "Subject",
+          "columnGroup": null
+        },
+        {
+          "label": "Responsible Contractor",
+          "columnGroup": null
+        },
+        {
+          "label": "Received From",
+          "columnGroup": null
+        },
+        {
+          "label": "Date Initiated",
+          "columnGroup": null
+        },
+        {
+          "label": "Assignees",
+          "columnGroup": null
+        },
+        {
+          "label": "Distribution List",
+          "columnGroup": null
+        },
+        {
+          "label": "RFI Manager",
+          "columnGroup": null
+        },
+        {
+          "label": "Ball In Court",
+          "columnGroup": null
+        },
+        {
+          "label": "Due Date",
+          "columnGroup": null
+        },
+        {
+          "label": "Closed Date",
+          "columnGroup": null
+        },
+        {
+          "label": "Location",
+          "columnGroup": null
+        },
+        {
+          "label": "Schedule Impact",
+          "columnGroup": null
+        },
+        {
+          "label": "Cost Impact",
+          "columnGroup": null
+        },
+        {
+          "label": "Cost Code",
+          "columnGroup": null
+        },
+        {
+          "label": "Sub Job",
+          "columnGroup": null
+        },
+        {
+          "label": "RFI Stage",
+          "columnGroup": null
+        },
+        {
+          "label": "Private",
+          "columnGroup": null
+        }
+      ],
+      "toolbarActions": [
+        {
+          "label": "Alleato Group24-104 - Goodwill Bart",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Project ToolsRFIs",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Can you find me the med gas service valve transmittal?CmdK",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "AppsSelect an App",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Support & Feedback",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Announcements",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "BC",
+          "type": "dropdown",
+          "variant": "default"
+        }
+      ],
+      "filters": [],
+      "rowActions": [],
+      "autoRows": [],
+      "formSections": [
+        {
+          "title": "",
+          "fields": [
+            {
+              "name": "react-aria1641971064-:r2f:",
+              "label": "Overdue",
+              "type": "checkbox",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            }
+          ]
+        }
+      ],
+      "tabs": [],
+      "headerFields": [],
+      "screenshot": "screenshots/list.png",
+      "_capture_note": "",
+      "domFile": "dom/list.html"
+    },
+    "create-form": {
+      "id": "create-form",
+      "description": "Create RFI form",
+      "url": "https://us02.procore.com/webclients/host/companies/562949953443325/projects/562949954728542/tools/rfis/settings",
+      "columnGroups": [
+        {
+          "label": "",
+          "columns": [
+            "Event",
+            "Enable Email",
+            "Creator",
+            "Manager",
+            "Assignee",
+            "Distribution Group"
+          ],
+          "colspan": 6
+        }
+      ],
+      "columns": [
+        {
+          "label": "Event",
+          "columnGroup": null
+        },
+        {
+          "label": "Enable Email",
+          "columnGroup": null
+        },
+        {
+          "label": "Creator",
+          "columnGroup": null
+        },
+        {
+          "label": "Manager",
+          "columnGroup": null
+        },
+        {
+          "label": "Assignee",
+          "columnGroup": null
+        },
+        {
+          "label": "Distribution Group",
+          "columnGroup": null
+        }
+      ],
+      "toolbarActions": [
+        {
+          "label": "Alleato Group24-104 - Goodwill Bart",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Project ToolsRFIs",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Who was the med gas service transmittal sent to? CmdK",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "AppsSelect an App",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Support & Feedback",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Announcements",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "BC",
+          "type": "dropdown",
+          "variant": "default"
+        }
+      ],
+      "filters": [],
+      "rowActions": [],
+      "autoRows": [],
+      "formSections": [
+        {
+          "title": "General Settings",
+          "fields": [
+            {
+              "name": "react-aria9970706818-:rf:",
+              "label": "Enable Private RFIs",
+              "type": "checkbox",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "react-aria9970706818-:rm:",
+              "label": "Set new RFIs to private by default",
+              "type": "checkbox",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "rfi_due_days_default",
+              "label": "Days to Answer RFI Questions",
+              "type": "text",
+              "required": true,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "react-aria9970706818-:r13:",
+              "label": "Mark assignees’ responses required by default",
+              "type": "checkbox",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "react-aria9970706818-:r1a:",
+              "label": "Only show official responses to Standard and Read-Only users",
+              "type": "checkbox",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "rfis_custom_textfield_1_label",
+              "label": "Label For Custom Field 1",
+              "type": "text",
+              "required": false,
+              "placeholder": "Enter field name",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "rfis_custom_textfield_2_label",
+              "label": "Label For Custom Field 2",
+              "type": "text",
+              "required": false,
+              "placeholder": "Enter field name",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            }
+          ]
+        },
+        {
+          "title": "RFI Number PrefixesSet unique RFI numbering sequences based on project stage.",
+          "fields": [
+            {
+              "name": "react-aria9970706818-:r1m:",
+              "label": "Enable prefix RFI numbers by number stage",
+              "type": "checkbox",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            }
+          ]
+        },
+        {
+          "title": "",
+          "fields": [
+            {
+              "name": "react-aria9970706818-:r2b:",
+              "label": "Enable email reminders for overdue RFIs",
+              "type": "checkbox",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            }
+          ]
+        }
+      ],
+      "tabs": [],
+      "headerFields": [],
+      "screenshot": "screenshots/create-form.png",
+      "_capture_note": "",
+      "domFile": "dom/create-form.html"
+    },
+    "detail": {
+      "id": "detail",
+      "description": "RFI detail page",
+      "url": "",
+      "columnGroups": [],
+      "columns": [],
+      "toolbarActions": [],
+      "filters": [],
+      "rowActions": [],
+      "autoRows": [],
+      "formSections": [],
+      "tabs": [],
+      "headerFields": [],
+      "screenshot": "screenshots/detail.png",
+      "_capture_note": ""
+    }
+  }
+}

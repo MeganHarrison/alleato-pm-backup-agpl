@@ -1,0 +1,253 @@
+---
+title: Commitments Reference
+description: Complete reference for the Commitments tool — subcontracts and purchase orders, statuses, columns, change orders, SOV, retainage, and how Commitments drive the Budget table.
+audience: client
+visibility: published
+module: commitments
+category: Financial Tools
+tags: [commitments, subcontracts, purchase-orders, change-orders, sov, retainage, reference]
+featured: false
+client_visible: true
+ai_visible: true
+order: 120
+related_routes:
+  - /[projectId]/commitments
+  - /[projectId]/commitments/new
+  - /[projectId]/commitments/[commitmentId]
+  - /[projectId]/commitments/[commitmentId]/edit
+related_actions: []
+---
+
+# Commitments Reference
+
+A **commitment** is a binding (or soon-to-be-binding) financial agreement between the project and an outside party. The Commitments tool covers two types in one unified table:
+
+- **Subcontracts** — agreements with trade contractors performing work
+- **Purchase Orders (POs)** — agreements to buy materials, equipment, or services
+
+Both types share the same lifecycle, the same change-order machinery, the same SOV (Schedule of Values), and the same effect on the Budget table. They differ in default retainage handling, the company type they bind to, and the status vocabulary used along the way.
+
+This article is the reference: every column, every status, every related concept. For step-by-step workflows (creating a subcontract, applying a change order, invoicing against a commitment) see the related articles at the end.
+
+---
+
+## How a Commitment Is Identified
+
+Every commitment has:
+
+- **Type** — `subcontract` or `purchase_order`
+- **Number** — the contract or PO number (unique within the project)
+- **Title** — short description
+- **Contract Company** — the bound vendor or subcontractor (FK to `companies`)
+- **Project** — every commitment belongs to exactly one project
+
+**Source tables:** `subcontracts` and `purchase_orders`. The unified list view reads from the `commitments_unified` view, which projects both types into a single shape for the table.
+
+---
+
+## Columns Reference
+
+The Commitments table shows these columns. All money values are computed from the commitment, its SOV items, its invoices, and its change orders.
+
+### Identity and parties
+
+| Column | Definition | Source |
+|---|---|---|
+| **Number** | Contract or PO number. | `contract_number` |
+| **Title** | Short name describing the scope. | `title` |
+| **Type** | `Subcontract` or `Purchase Order`. | `commitment_type` |
+| **Contract Company** | The vendor or subcontractor. Links to the Directory. | `contract_company_id` → `companies` |
+| **Trade(s)** | Trade tags on the contract company. | Derived from company |
+| **Status** | Current lifecycle status — see Statuses below. | `status` |
+| **Executed** | `true` once the contract is signed/fully approved. | `executed` |
+
+### Money
+
+| Column | Definition | Formula |
+|---|---|---|
+| **Original Amount** | Sum of the SOV items as originally entered. | `Σ subcontract_sov_items.amount` (or `purchase_order_sov_items.amount`) |
+| **Approved Change Orders** | Net dollar value of approved commitment change orders on this commitment. | `Σ commitment_change_order_lines.amount` where parent CO status ∈ approved/executed |
+| **Pending Change Orders** | Net dollar value of pending commitment change orders. | Same source, pending statuses |
+| **Draft Change Orders** | Net dollar value of draft (not yet routed) change orders. | Same source, draft statuses |
+| **Revised Contract Amount** | `Original Amount + Approved Change Orders`. The current binding contract value. | Computed |
+| **Invoiced Amount** | Total value of submitted/approved invoices billed against this commitment. | Sum of subcontractor invoices |
+| **Billed to Date** | Same as Invoiced Amount, shown in the contract-progress context. | Computed |
+| **Payments Issued** | Total payments made to the contract company on this commitment. | Sum of issued payments |
+| **Percent Paid** | `Payments Issued / Revised Contract Amount × 100`. | Computed |
+| **Remaining Balance** | `Revised Contract Amount − Payments Issued`. | Computed |
+| **Balance to Finish** | `Revised Contract Amount − Billed to Date`. The amount the contractor can still bill against this contract. | Computed |
+| **Retainage Default** | Default retainage % applied to new SOV lines and invoices. | `default_retainage_percent` |
+
+### Dates
+
+| Column | Definition |
+|---|---|
+| **Contract Date** | Date stamped on the contract itself. |
+| **Issued On Date** | Date the contract was issued to the contractor. |
+| **Start Date** | Planned start of work or delivery. |
+| **Signed Contract Received Date** | When the executed (countersigned) contract was returned. |
+| **Executed Date** | When `executed` flipped to true. |
+| **Estimated Completion Date** | Planned finish date. |
+| **Actual Completion Date** | When the scope was substantially complete. |
+
+### Visibility
+
+| Column | Definition |
+|---|---|
+| **Private** | If true, only Admins and explicitly named users on `non_admin_user_ids` can see the commitment. | `is_private` |
+| **SOV Visibility** | Whether non-admins on the project can see the commitment's SOV items. | `allow_non_admin_view_sov_items` |
+
+---
+
+## Statuses
+
+Statuses differ slightly between subcontracts and POs because they reflect industry vocabulary, but the **budget side semantics are identical**: every status maps to either *pending* (the project will probably owe this money) or *executed* (the project definitely owes this money), and the Budget table treats them accordingly.
+
+### Subcontract statuses
+
+| Status | Meaning | Effect on Budget |
+|---|---|---|
+| `Draft` | Being built. Not yet sent to the contractor. | Ignored. |
+| `Out for Signature` | Sent to the contractor; awaiting signed return. | Counted in **Pending Cost Changes**. |
+| `Pending` | All parties have signed; waiting on final internal approval. | Counted in **Pending Cost Changes**. |
+| `Approved` | Fully executed and binding. | Counted in **Committed Costs**. |
+| `Complete` | Scope is complete; final payment processed. | Counted in **Committed Costs**. |
+| `Terminated` / `Void` | Cancelled before completion. | Ignored. |
+
+### Purchase Order statuses
+
+| Status | Meaning | Effect on Budget |
+|---|---|---|
+| `Draft` | Being built. Not yet sent. | Counted in **Pending Cost Changes**. |
+| `Sent` | Issued to the vendor. | Counted in **Pending Cost Changes**. |
+| `Acknowledged` | Vendor has confirmed receipt. | Counted in **Pending Cost Changes**. |
+| `Approved` | Internally approved. | Counted in **Committed Costs**. |
+| `Completed` | Goods or services delivered; PO closed. | Counted in **Committed Costs**. |
+| `Cancelled` | Cancelled before completion. | Ignored. |
+
+The exact list of statuses available may be tightened or extended per project in **Commitments Settings**.
+
+---
+
+## Schedule of Values (SOV)
+
+Every commitment is broken into line items called the **Schedule of Values**. Each SOV item assigns a portion of the contract amount to a specific budget code, which is how a commitment lands on the right rows of the Budget table.
+
+**SOV item fields:**
+
+- **Budget Code** — the cost code the line rolls up to. This is what links the commitment to a Budget line.
+- **Description** — what the line covers.
+- **Amount** — the dollar value of the line.
+- **Retainage %** — overrides the commitment default for this line, if needed.
+
+A commitment's **Original Amount** is the sum of its SOV items. Adding, editing, or removing an SOV item before execution is normal; after execution, changes must go through a Commitment Change Order.
+
+**Source tables:** `subcontract_sov_items`, `purchase_order_sov_items`.
+
+---
+
+## Commitment Change Orders
+
+A **Commitment Change Order (CCO)** modifies an executed commitment — adding scope, removing scope, or adjusting amounts on existing SOV lines. The change order itself has a status, and only **approved/executed** CCOs flow into the Revised Contract Amount and into the Budget's **Committed Costs**.
+
+### CCO statuses
+
+| Status | Effect on commitment | Effect on Budget |
+|---|---|---|
+| `draft` | Visible on commitment as Draft CO. | Ignored. |
+| `pending` / `Pending` / `Pending Approval` | Visible as Pending CO. | Counted in **Pending Cost Changes**. |
+| `approved` / `Approved` / `executed` / `Executed` | Adjusts Revised Contract Amount. | Counted in **Committed Costs**. |
+| `rejected` / `void` | Closed without applying. | Ignored. |
+
+**Source tables:** `contract_change_orders` (the CCO header), `commitment_change_order_lines` (the line items).
+
+CCOs typically originate from **Change Events** when a Potential Change Order (PCO) is promoted on the cost side. Direct creation of a CCO from the commitment detail page is also supported.
+
+---
+
+## Retainage
+
+Retainage is money held back from progress payments until the work is accepted, as a financial incentive for the contractor to complete the job correctly.
+
+- **Default retainage %** is set per commitment (`default_retainage_percent`).
+- Each SOV line can override the default.
+- Retainage is calculated on each invoice, accumulated as **Retainage Held**, and released through a **Retainage Release** invoice at substantial or final completion.
+- Subcontracts and POs use the same retainage mechanics; POs typically default to 0%.
+
+See [Invoicing](/help/articles/invoicing) for how retainage flows through pay applications.
+
+---
+
+## Privacy and SOV Visibility
+
+Two independent toggles control who can see what.
+
+- **Private commitment (`is_private`)** — Admins always see private commitments. Other users see them only if listed in `non_admin_user_ids`.
+- **SOV visibility (`allow_non_admin_view_sov_items`)** — Even on a non-private commitment, the SOV (and therefore the dollar amounts) may be hidden from non-Admin users. Set this when contract amounts shouldn't be visible to the wider project team.
+
+Both flags can be changed by users with Admin permission on Commitments.
+
+---
+
+## Permissions
+
+| Permission | Can do |
+|---|---|
+| **Commitments Read** | View commitments (subject to privacy flags above), SOV items, change orders, invoices linked to the commitment, and exports. |
+| **Commitments Write** | Everything in Read, plus: create commitments, edit unexecuted commitments, build SOV, create draft change orders, mark a commitment as executed. |
+| **Commitments Admin** | Everything in Write, plus: approve change orders, edit executed commitments, change retainage defaults, toggle privacy and SOV visibility, delete commitments (soft delete → recycle bin), restore from recycle bin. |
+
+---
+
+## How Commitments Connect to Other Tools
+
+| Tool | Relationship |
+|---|---|
+| **Budget** | Executed commitments and approved CCOs → **Committed Costs**. Pending commitments and pending CCOs → **Pending Cost Changes**. The link is by SOV `budget_code` → `cost_codes.id`. |
+| **Change Events** | When a Change Event's cost side is promoted into a Potential Change Order (PCO), the PCO becomes a Commitment Change Order on the affected commitment. |
+| **Invoicing** | Subcontractor invoices and pay applications are filed against a specific commitment. Their approval feeds **Direct Costs** and **JTD** on the Budget. |
+| **Direct Costs** | Subcontractor invoices show up as Direct Costs with `cost_type = "Subcontractor Invoice"`, which is counted in **JTD** but excluded from the Budget's **Direct Costs** column (to avoid double-counting with Committed Costs). |
+| **Prime Contracts** | A commitment can optionally link back to the Prime Contract it executes work under (`prime_contract_id`). |
+| **Directory** | Contract Company is the FK to `companies`. Trade tags on the company surface on the commitment row. |
+| **Acumatica** | Subcontracts sync to Acumatica via `acumatica_external_key` (subcontracts only). PO sync follows the Direct Costs pattern. |
+
+---
+
+## Common Questions
+
+**Why doesn't my new subcontract show up on the Budget yet?**
+Check the status. Until the subcontract reaches `Out for Signature`, `Pending`, `Approved`, or `Complete`, the Budget ignores it. `Draft` subcontracts are intentionally excluded.
+
+**Why doesn't my new PO show up on the Budget yet?**
+POs are counted starting at `Draft` (in Pending Cost Changes). If a PO isn't showing up, the most likely cause is its SOV items aren't assigned to a budget code, so they have nothing to roll up to.
+
+**What's the difference between Revised Contract Amount and Original Amount?**
+`Original Amount` is the value at signing. `Revised Contract Amount = Original + Approved Change Orders`. Pending and draft change orders are *not* in Revised.
+
+**Why is the Balance to Finish negative?**
+The contractor has been billed for more than the Revised Contract Amount. Either an invoice was filed in excess of the contract, or an approved change order was reversed after invoicing. Investigate the invoice and CO history.
+
+**Why can't I edit this commitment?**
+Either the commitment is executed (and you need Admin to edit), or you don't have Write permission, or the commitment is private and you're not on the access list.
+
+**How do I bill against a commitment?**
+Create an invoice from the **Invoicing** tool and select this commitment. The invoice's SOV mirrors the commitment's SOV with the additional billed-to-date columns. See [Invoicing](/help/articles/invoicing).
+
+**Why doesn't my Subcontractor Invoice show in Direct Costs on the Budget?**
+By design. Subcontractor Invoices count toward **JTD** but are excluded from the Budget's **Direct Costs** column because that work is already counted under **Committed Costs**. Including both would double-count.
+
+**Can I delete a commitment?**
+Soft delete only — it moves to the **Recycle Bin** and can be restored. Only Admins can delete or restore. Hard delete is not exposed in the UI.
+
+---
+
+## Related Articles
+
+- [Commitments](/help/articles/commitments) — overview
+- [Budget Reference](/help/articles/budget-reference)
+- [Change Events](/help/articles/change-events)
+- [Change Orders](/help/articles/change-orders)
+- [Invoicing](/help/articles/invoicing)
+- [Direct Costs](/help/articles/direct-costs)
+- [Company Directory](/help/articles/company-directory)
+- [Manage User Access](/help/articles/manage-permissions)

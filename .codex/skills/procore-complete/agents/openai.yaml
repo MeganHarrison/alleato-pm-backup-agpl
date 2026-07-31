@@ -1,0 +1,4 @@
+interface:
+  display_name: "Procore Complete"
+  short_description: "Finalize Procore implementation release gates."
+  default_prompt: "Run procore-complete for the target feature and drive it to release-readiness with strict gates."

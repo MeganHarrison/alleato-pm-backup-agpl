@@ -1,0 +1,83 @@
+{
+  "contractVersion": 1,
+  "taskId": "LOCAL-2026-07-22-project-creation-attribution",
+  "riskLevel": "high",
+  "feature": "Immutable project creation attribution and app-admin creation log",
+  "route": "/company-settings/project-creation-log",
+  "flows": [
+    {
+      "name": "Attributed project creation",
+      "steps": [
+        "Create a project through a request or integration writer",
+        "Inspect the immutable project attribution fields",
+        "Attempt missing or rewritten attribution"
+      ],
+      "expectedOutcome": "The writer records trusted actor or integration evidence and the database rejects missing or mutable attribution"
+    },
+    {
+      "name": "App-admin creation audit",
+      "steps": [
+        "Authenticate as an app admin",
+        "Open the Project Creation Log from Company Settings",
+        "Search for GW Excel Playground",
+        "Open a current project link"
+      ],
+      "expectedOutcome": "The read-only table shows searchable actor, time, source, status, and correlation evidence without exposing raw audit JSON"
+    },
+    {
+      "name": "Historical gap preservation",
+      "steps": [
+        "Read the retained creation event for project 1145",
+        "Compare the event to available actor and source evidence"
+      ],
+      "expectedOutcome": "The deleted historical project remains visible as legacy_unknown and legacy_gap with no guessed human actor"
+    }
+  ],
+  "requiredEvidence": [
+    "screenshots",
+    "actionLog",
+    "summary",
+    "databaseReadback",
+    "negativePath",
+    "visualReview",
+    "regressionTest"
+  ],
+  "visual": {
+    "viewports": ["desktop", "mobile"],
+    "checks": [
+      "The shared table page remains visually quiet and read-only",
+      "Project, actor, created time, source, and attribution status remain visible on mobile",
+      "Historical dirty metadata is not rendered as raw serialized content",
+      "Current project links are interactive while retained deleted events are not linked"
+    ]
+  },
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "immutable-attribution",
+      "description": "Every future project writer supplies trusted request or integration correlation evidence and the database fails closed",
+      "evidence": [
+        { "key": "databaseReadback", "min": 1 },
+        { "key": "regressionTest", "min": 1 }
+      ]
+    },
+    {
+      "id": "scoped-admin-log",
+      "description": "App admins can inspect the scoped searchable creation ledger on desktop and mobile",
+      "evidence": [
+        { "key": "screenshots", "min": 2 },
+        { "key": "visualReview", "min": 1 }
+      ]
+    },
+    {
+      "id": "no-guessed-history",
+      "description": "Missing historical actor evidence remains an explicit legacy gap instead of being assigned to a human",
+      "evidence": [
+        { "key": "negativePath", "min": 1 },
+        { "key": "databaseReadback", "min": 1 }
+      ]
+    }
+  ]
+}

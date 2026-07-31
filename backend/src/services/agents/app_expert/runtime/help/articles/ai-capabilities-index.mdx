@@ -1,0 +1,245 @@
+---
+title: AI Capabilities Index
+description: Every AI feature in Alleato OS — what it does, where to find it, and what to ask.
+audience: client
+visibility: published
+module: ai-assistant
+category: AI & Intelligence
+tags: [ai-assistant, ask-alleato, eve, skills, rag, intelligence, index, overview]
+featured: true
+client_visible: true
+ai_visible: true
+order: 599
+related_routes:
+  - /ai
+  - /[projectId]/intelligence
+related_actions: []
+---
+
+# AI Capabilities Index
+
+Ask Alleato is an AI system built into the platform that has live access to your project data — financials, contracts, meetings, emails, Teams messages, schedule, and accounting. This page maps every AI capability in one place so you can see what's available and where to find it.
+
+---
+
+## Where to Access the AI
+
+| Entry Point | How to Open | Best For |
+|-------------|-------------|----------|
+| **Full-screen assistant** | Click **Ask Alleato** in the main sidebar | Deep conversations, financial analysis, portfolio reviews |
+| **Floating pill** | Press `⌘I` (Mac) or `Ctrl+I` (Windows) from anywhere | Quick questions without leaving your current page |
+| **Inline sidebar** | Click the brain icon in the top-right header | Following up on what you're looking at without switching views |
+
+Past conversations are saved in the left panel of the full-screen assistant. The assistant picks up where you left off.
+
+---
+
+## Feature Index by Job-to-Be-Done
+
+### Get caught up on a project
+
+| Feature | Where It Lives | What It Does |
+|---------|---------------|--------------|
+| **Project Briefing** | AI assistant (ask naturally) | Searches meetings, emails, Teams, financials, and schedule simultaneously and returns a synthesized status update |
+| **Project Intelligence** | Sidebar → Intelligence | Pre-compiled snapshot: KPIs, insight cards (risks, decisions, blockers, exposures), freshness status, and evidence citations |
+| **Portfolio Briefing** | AI assistant | Cross-project view — which projects need your attention, ranked by urgency |
+| **Daily Catch-Up** | AI assistant | "What do I need to know this morning?" surfaces overnight emails, Teams activity, and daily flags |
+
+→ See [Get a Project Briefing from the AI](/help/articles/ai-project-updates) and [Project Intelligence](/help/articles/project-intelligence)
+
+---
+
+### Understand your finances
+
+| Feature | Where It Lives | What It Does |
+|---------|---------------|--------------|
+| **Financial analysis skill** | Eve | Analyzes margin, cash position, change order exposure, AP/AR, and billing |
+| **Budget & Margin Analysis** | AI assistant | Traces margin erosion to specific line items, change orders, or cost overruns |
+| **Cash Flow Forecast** | AI assistant | Combines project receivables with live Acumatica bank data for a 60-day cash view |
+| **Change Order Exposure** | AI assistant | Tracks the full lifecycle (Change Event → CO to Owner → Commitment Adjustment) and flags gaps |
+| **Acumatica ERP Access** | AI assistant | Live AP/AR aging, vendor spend history, project budgets, purchase orders, and bills |
+| **Forecast Comparison** | AI assistant | Budget vs. actual vs. forecast side-by-side with variance explanation |
+
+→ See [Ask the AI About Finances](/help/articles/ai-financial-advisor)
+
+---
+
+### Track meetings and decisions
+
+| Feature | Where It Lives | What It Does |
+|---------|---------------|--------------|
+| **Meeting Intelligence** | AI assistant | Searches all transcripts by project, topic, date, or keyword — no project selection required |
+| **Action Item Tracking** | AI assistant | Surfaces open action items from meetings, filtered by assignee or date |
+| **Decision Search** | AI assistant | "What did we decide about X?" searches across all meeting transcripts |
+| **Meeting Prep Brief** | AI assistant | Pre-meeting briefing: recent decisions, open action items, financial exposure, and schedule risks |
+| **Fireflies Transcript Processing** | Sidebar → Meetings | Transcripts are auto-ingested, decisions/tasks/risks extracted, and linked to the project |
+
+→ See [Ask the AI About Meetings](/help/articles/ai-meeting-intelligence) and [Meetings](/help/articles/meetings)
+
+---
+
+### Monitor risks and exposures
+
+| Feature | Where It Lives | What It Does |
+|---------|---------------|--------------|
+| **Proactive Alerts** | Sidebar → Intelligence | Daily flags for budget variance (>10%), overdue RFIs, late tasks, and stale change events |
+| **Risk Insight Cards** | Sidebar → Intelligence | AI-identified risks from meetings, emails, and project records with source citations |
+| **Risk review skill** | Eve | Risk-focused analysis: overdue RFIs, submittal flags, budget variance, schedule slippage |
+| **Financial Exposure Tracking** | Sidebar → Intelligence | Insight cards for potential cost impacts from RFIs, change events, and commitments |
+
+→ See [Proactive AI Alerts](/help/articles/ai-proactive-alerts) and [Project Intelligence](/help/articles/project-intelligence)
+
+---
+
+### Find information across all projects
+
+| Feature | Where It Lives | What It Does |
+|---------|---------------|--------------|
+| **Semantic Search** | AI assistant | Ask in plain English — searches meetings, emails, Teams, documents, and project records simultaneously |
+| **Email Search** | AI assistant | "Find everything about the steel delivery" searches indexed Outlook emails |
+| **Teams Message Search** | AI assistant | Searches compiled Teams channels and DMs for decisions, threads, and context |
+| **Document Search** | AI assistant | Searches indexed PDFs, specs, and OneDrive files by topic |
+| **Knowledge Base** | AI assistant | Company-specific facts, lessons learned, and standard practices saved across sessions |
+| **Cross-Project Patterns** | AI assistant | "Is there a pattern of procurement delays across our jobs?" finds recurring issues |
+
+→ See [Outlook Integration](/help/articles/outlook-integration) and [AI Memory](/help/articles/ai-memory)
+
+---
+
+### Find and understand actions
+
+Eve can explain a workflow and link you to the correct application page. Eve's
+current production bridge is read-only, so it cannot create or update RFIs,
+change events, change orders, tasks, commitments, daily reports, knowledge
+records, email drafts, calendar invitations, or Teams messages from chat.
+
+Typed implementations and preview/approval UI exist for future governed action
+work, but they are not exposed to Eve today.
+
+→ See [AI Assistant Actions and Current Limits](/help/articles/ai-assistant-actions)
+
+---
+
+### Stay connected to your team
+
+| Feature | Where It Lives | What It Does |
+|---------|---------------|--------------|
+| **Outlook Email Sync** | Settings → Integrations | Syncs incoming M365 emails to projects with attachment indexing |
+| **Teams Integration** | Settings → Integrations | Syncs Teams channel posts and DMs; compiles conversations into project intelligence |
+| **Teams Chat Compiler** | Background (automatic) | Converts raw Teams messages into tasks, risks, decisions, and project insights |
+| **Project Email Inbox** | Sidebar → Emails | All project-matched emails in one view, searchable |
+
+→ See [Outlook Integration](/help/articles/outlook-integration) and [Teams Integration](/help/articles/teams-integration)
+
+---
+
+### Manage your tasks and work
+
+| Feature | Where It Lives | What It Does |
+|---------|---------------|--------------|
+| **My Work** | Main sidebar → My Work | Personalized task list aggregated from all projects you're assigned to |
+| **Task Extraction** | Background (automatic) | Action items from meetings and emails are auto-extracted and linked to projects |
+| **Operations review skill** | Eve | Field operations: schedule status, daily log summaries, open punch items, staffing |
+| **People capacity skill** | Eve | Team capacity, over-allocation, directory, role assignments |
+
+→ See [My Work](/help/articles/my-work) and [Schedule](/help/articles/schedule)
+
+---
+
+## Eve's Six Domain Skills
+
+Every question goes through Eve. Eve loads the relevant domain skills and can
+combine them for cross-domain questions.
+
+| Skill | Domain | Sample Questions |
+|---------|--------|-----------------|
+| **Financial analysis** | Finances, margin, cash, ERP | "What's our cash position?" / "Where are we losing margin?" |
+| **Operations review** | Field ops, schedule, daily logs | "What tasks are running late on Vermillion Rise?" |
+| **Risk review** | Risk, exposure, overdue items | "What are our top risks across all projects?" |
+| **People capacity** | Team, staffing, capacity | "Who is over-allocated next month?" |
+| **Business development** | Pipeline, market intelligence, pursuits | "Research tilt-up warehouse costs in our market." |
+| **Marketing strategy** | Positioning, campaigns, content planning | "Build a source-backed case-study outline for this project." |
+
+The business-development and marketing skills can use web capabilities only
+when those capabilities are enabled for the Eve deployment.
+
+---
+
+## What the AI Can See
+
+| Data Source | Examples |
+|-------------|---------|
+| **Project financials** | Budgets, commitments, change orders, direct costs, invoices, prime contracts |
+| **Project records** | RFIs, submittals, daily logs, punch lists, schedule tasks, drawings |
+| **Meetings** | Fireflies transcripts, extracted decisions, action items, risks |
+| **Emails** | Indexed Outlook emails, matched to projects |
+| **Teams messages** | Compiled channel posts and DMs |
+| **Accounting (Acumatica)** | AP/AR aging, cash position, vendor spend, bills, POs |
+| **Documents** | PDFs, Word docs, specs, and OneDrive files (indexed content) |
+| **Company knowledge** | Saved lessons, standard practices, and preferences from the knowledge base |
+| **Your memory** | Preferences and context saved across your past conversations |
+
+---
+
+## What the AI Cannot Do
+
+- **Create, update, delete, or send from chat** — Eve's current bridge is read-only
+- **Approve, sign, or pay** on your behalf
+- **Access records outside your permissions** — the AI is scoped to projects you can access
+- **See unsynced data** — emails and Teams messages only appear after the integration syncs (every 30 minutes)
+- **Guarantee accuracy on high-stakes decisions** — always verify financial and schedule data against source records before acting
+- **Access competitor systems** — it only reads the platforms connected to your account
+
+---
+
+## 20 Questions to Try Right Now
+
+Copy any of these into the assistant to see it in action.
+
+**Project status**
+1. "What's the latest on [your project]?"
+2. "Which projects need my attention today?"
+3. "Catch me up on everything from this week."
+4. "What happened while I was out last week?"
+
+**Finances**
+5. "What's the current margin on [your project]?"
+6. "Which projects are over budget right now?"
+7. "Show me AP aging from Acumatica."
+8. "What's our cash position for the next 60 days?"
+9. "Which change events don't have a corresponding change order?"
+
+**Meetings and decisions**
+10. "What action items are still open from last week's meetings?"
+11. "What did we decide about [topic]?"
+12. "Help me prepare for the OAC meeting on [your project]."
+13. "Find everything we know about [vendor or issue]."
+
+**Risks**
+14. "What are the top risks across all my projects?"
+15. "Which RFIs are overdue?"
+16. "Are there any schedule tasks running late?"
+
+**Actions**
+17. "Create an RFI for [issue]. Ball in court is [name]. Due in 5 days."
+18. "Log a risk on [project] — [description]."
+19. "Create a task for [name] to [do something] by [date]."
+20. "Remember that [fact you want saved]."
+
+---
+
+## All AI Articles
+
+| Article | Description |
+|---------|-------------|
+| [AI Assistant Overview](/help/articles/ai-assistant-overview) | How Eve works, its six domain skills, and conversation history |
+| [AI Assistant Actions and Current Limits](/help/articles/ai-assistant-actions) | Current read-only boundary and future governed action requirements |
+| [Get a Project Briefing](/help/articles/ai-project-updates) | How to ask for project and portfolio updates |
+| [Project Intelligence](/help/articles/project-intelligence) | Pre-compiled insight cards, KPIs, freshness, evidence citations |
+| [Ask the AI About Finances](/help/articles/ai-financial-advisor) | Financial analysis skill, budget, margin, cash flow, Acumatica |
+| [Ask the AI About Meetings](/help/articles/ai-meeting-intelligence) | Transcript search, decisions, action items, meeting prep |
+| [Proactive AI Alerts](/help/articles/ai-proactive-alerts) | Daily flags for budget variance, overdue RFIs, late tasks |
+| [AI Memory](/help/articles/ai-memory) | What the AI remembers, how to manage it, privacy |
+| [Outlook Integration](/help/articles/outlook-integration) | Email sync, attachment indexing, project matching |
+| [Teams Integration](/help/articles/teams-integration) | Teams channel and DM sync, compiler |
+| [Use Help Center and Ask Alleato Together](/help/articles/use-help-center-and-ai-assistant) | Combining written guides with AI follow-up |

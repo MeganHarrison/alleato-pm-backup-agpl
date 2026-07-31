@@ -1,0 +1,47 @@
+{
+  "taskId": "LOCAL-2026-07-23-PURGE-NONPROJECTS",
+  "targets": [
+    {
+      "name": "26-125 GW Excel Playground",
+      "projectId": 1146,
+      "jobNumber": "26-125",
+      "acumaticaProjectId": "26125"
+    },
+    {
+      "name": "Alleato Office Remodel",
+      "projectId": 1096,
+      "jobNumber": "26-124",
+      "acumaticaProjectId": "26124"
+    },
+    {
+      "name": "ArcEdge",
+      "projectId": 88,
+      "jobNumber": null,
+      "acumaticaProjectId": null
+    },
+    {
+      "name": "Eye Surgeons of Indiana",
+      "projectId": 1033,
+      "jobNumber": null,
+      "acumaticaProjectId": null
+    },
+    {
+      "name": "NEXCOM SEDC",
+      "projectId": 1014,
+      "jobNumber": "26-120",
+      "acumaticaProjectId": "26120"
+    },
+    {
+      "name": "Park Collective",
+      "projectId": 1097,
+      "jobNumber": null,
+      "acumaticaProjectId": null
+    },
+    {
+      "name": "QA Financials 2026-07-09",
+      "projectId": 1141,
+      "jobNumber": "QA-0709",
+      "acumaticaProjectId": null
+    }
+  ]
+}

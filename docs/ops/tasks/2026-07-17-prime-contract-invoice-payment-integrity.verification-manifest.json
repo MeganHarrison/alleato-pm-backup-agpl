@@ -1,0 +1,30 @@
+{
+  "contractVersion": 1,
+  "taskId": "local-prime-contract-invoice-payment-integrity",
+  "feature": "Prime contract invoice ERP link and payment attribution",
+  "route": "/67/prime-contracts/42343859-9239-4ded-b375-d4d67536b94b",
+  "flows": [
+    {
+      "name": "Invoice link and payment readback",
+      "steps": [
+        "Open the invoice tab",
+        "Verify an Acumatica invoice reference links to AR301000",
+        "Open Payments Received",
+        "Verify the three resolved payment records appear"
+      ],
+      "expectedOutcome": "The invoice table exposes ERP records and Payments Received reflects the contract-owned Acumatica payments."
+    }
+  ],
+  "requiredEvidence": ["screenshots", "databaseReadback", "visualReview", "regressionTest"],
+  "visual": {
+    "viewports": ["desktop"],
+    "checks": ["Unified table settings remain available", "Acumatica link is readable", "Payment rows are visible"]
+  },
+  "independentReview": { "required": true },
+  "claims": [
+    { "id": "database-attribution", "description": "The three verified Acumatica payments are assigned to the correct contract", "evidence": [{ "key": "databaseReadback", "min": 1 }] },
+    { "id": "erp-link", "description": "An invoice row contains a working Acumatica AR record link", "evidence": [{ "key": "screenshots", "min": 1 }] },
+    { "id": "payments-surface", "description": "Payments Received displays the resolved rows", "evidence": [{ "key": "screenshots", "min": 1 }] },
+    { "id": "regression", "description": "Ambiguous multi-contract payment attribution is prevented", "evidence": [{ "key": "regressionTest", "min": 1 }] }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "contractVersion": 1,
+  "taskId": "AAI-1265-EVE-ONLY",
+  "riskLevel": "high",
+  "feature": "Eve-only Alleato AI runtime",
+  "route": "/ai",
+  "flows": [
+    {
+      "name": "Live portfolio answer",
+      "steps": [
+        "Authenticate in a fresh agent-browser session",
+        "Ask for active project contract values using real data",
+        "Wait for the Eve response",
+        "Confirm tool-backed values and persistence"
+      ],
+      "expectedOutcome": "Eve returns the live Nexcom and Test July 2026 contract values and identifies the larger value"
+    },
+    {
+      "name": "Ask Alleato cancellation",
+      "steps": [
+        "Open Ask Alleato",
+        "Start an Eve request",
+        "Confirm Stop is visible while streaming",
+        "Stop the request"
+      ],
+      "expectedOutcome": "The active Eve request stops and the composer becomes usable without reporting a completed turn"
+    }
+  ],
+  "requiredEvidence": [
+    "screenshots",
+    "actionLog",
+    "reloadProof",
+    "negativePath",
+    "visualReview",
+    "regressionTest"
+  ],
+  "visual": {
+    "viewports": ["desktop"],
+    "checks": [
+      "The live answer is visible and readable",
+      "The Stop control is visible only while streaming",
+      "No legacy runtime selector is exposed"
+    ]
+  },
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "published-answer",
+      "description": "Published main returns a real Eve tool-backed answer",
+      "evidence": [{ "key": "screenshots", "min": 1 }]
+    },
+    {
+      "id": "persistence",
+      "description": "The Eve conversation restores after reload",
+      "evidence": [{ "key": "reloadProof", "min": 1 }]
+    },
+    {
+      "id": "stop-failure-path",
+      "description": "An in-flight Eve request can be stopped visibly",
+      "evidence": [{ "key": "negativePath", "min": 1 }]
+    },
+    {
+      "id": "independent-review",
+      "description": "An independent reviewer approved the sole-runtime cutover",
+      "evidence": [{ "key": "visualReview", "min": 1 }]
+    },
+    {
+      "id": "regression",
+      "description": "Durable sole-runtime and Stop regression tests exist",
+      "evidence": [{ "key": "regressionTest", "min": 2 }]
+    }
+  ]
+}

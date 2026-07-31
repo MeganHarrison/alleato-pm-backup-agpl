@@ -1,0 +1,33 @@
+{
+  "status": "PASS",
+  "taskId": "COMPANY-PROJECT-TABLE-CONTROLS",
+  "evidence": {
+    "screenshots": [
+      "docs/ops/evidence/2026-07-22-company-project-table-controls/desktop-1440.png",
+      "docs/ops/evidence/2026-07-22-company-project-table-controls/mobile-375.png"
+    ],
+    "actionLog": ["docs/ops/evidence/2026-07-22-company-project-table-controls/browser-readback.md"],
+    "visualReview": ["docs/ops/evidence/2026-07-22-company-project-table-controls/independent-review.md"],
+    "regressionTest": ["docs/ops/evidence/2026-07-22-company-project-table-controls/regression-test.txt"]
+  },
+  "claims": {
+    "desktop-layout": {
+      "screenshots": ["docs/ops/evidence/2026-07-22-company-project-table-controls/desktop-1440.png"],
+      "visualReview": ["docs/ops/evidence/2026-07-22-company-project-table-controls/independent-review.md"]
+    },
+    "mobile-layout": {
+      "screenshots": ["docs/ops/evidence/2026-07-22-company-project-table-controls/mobile-375.png"],
+      "actionLog": ["docs/ops/evidence/2026-07-22-company-project-table-controls/browser-readback.md"],
+      "visualReview": ["docs/ops/evidence/2026-07-22-company-project-table-controls/independent-review.md"]
+    },
+    "regression": {
+      "regressionTest": ["docs/ops/evidence/2026-07-22-company-project-table-controls/regression-test.txt"]
+    }
+  },
+  "independentReview": {
+    "reviewer": "/root/company_table_review",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-22T12:00:00Z",
+    "artifact": "docs/ops/evidence/2026-07-22-company-project-table-controls/independent-review.md"
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "skill_name": "procore-audit",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "Hey, I need to audit our budget tool against Procore. We've been working on it but I'm not sure we have all the fields and columns matching. Can you crawl the budget tool on Procore and then check our implementation to see what's missing? Generate a full gap analysis report.",
+      "expected_output": "Agent should: 1) Find existing budget crawler, 2) Know correct output directory, 3) Reference analyze-procore-features.js for structured analysis, 4) Map Alleato budget implementation (pages, components, hooks, services, API routes, DB schema), 5) Generate gap analysis report in the correct markdown format with Executive Summary, Page-by-Page Comparison, Form Field Comparison, Table Column Comparison, Missing Functionality, Status/Workflow Comparison, Database Schema Gaps",
+      "files": [],
+      "assertions": [
+        {"id": "finds-budget-crawler", "text": "Agent identifies and locates the budget crawler script (crawl-budget-comprehensive.js)", "type": "presence"},
+        {"id": "references-analyzer", "text": "Agent references or uses the analyze-procore-features.js script for structured DOM analysis", "type": "presence"},
+        {"id": "maps-alleato-budget", "text": "Agent identifies Alleato PM budget implementation artifacts (pages, components, hooks, or services)", "type": "presence"},
+        {"id": "gap-report-format", "text": "Output includes an Executive Summary table with status indicators", "type": "format"},
+        {"id": "form-field-comparison", "text": "Output includes a form field comparison section listing Procore vs Alleato fields", "type": "presence"},
+        {"id": "table-column-comparison", "text": "Output includes a table column comparison section", "type": "presence"},
+        {"id": "prioritized-tasks", "text": "Output includes missing functionality categorized by impact (HIGH/MEDIUM/LOW)", "type": "format"},
+        {"id": "output-saved", "text": "Gap analysis report saved as a markdown file in the outputs directory", "type": "correctness"}
+      ]
+    },
+    {
+      "id": 1,
+      "prompt": "I want to make sure our submittals feature has all the same forms and fields as Procore before we release it. Can you do a feature parity check? Focus especially on the create/edit forms - every field needs to match exactly.",
+      "expected_output": "Agent should: 1) Find existing submittals crawler, 2) Know to run structured analysis after crawl, 3) Focus on form field extraction (name, type, required, validation, options), 4) Cross-reference with Alleato submittals implementation, 5) Produce form-field-level comparison with status indicators and impact ratings, 6) Save report to docs/PRPs/submittals/",
+      "files": [],
+      "assertions": [
+        {"id": "finds-submittals-crawler", "text": "Agent identifies and locates the submittals crawler script", "type": "presence"},
+        {"id": "focuses-on-forms", "text": "Agent specifically focuses on form field extraction and comparison as requested", "type": "quality"},
+        {"id": "field-level-comparison", "text": "Output includes per-field comparison with field name, type, and required status", "type": "format"},
+        {"id": "maps-alleato-submittals", "text": "Agent identifies Alleato PM submittals implementation (components, hooks, schemas)", "type": "presence"},
+        {"id": "status-indicators", "text": "Report uses status indicators for each compared item", "type": "format"},
+        {"id": "output-saved", "text": "Report saved as a markdown file in the outputs directory", "type": "correctness"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "We're about to start building the transmittals tool. Before we begin, can you audit what Procore has for transmittals so we know exactly what we need to build? I need a complete inventory of pages, forms, table columns, statuses, and workflows.",
+      "expected_output": "Agent should: 1) Find existing transmittals crawler, 2) Run crawl and structured analysis, 3) Since this is a 'not yet built' tool, the gap analysis should show most items as NOT IMPLEMENTED, 4) Generate comprehensive task list prioritized by impact, 5) Include database schema requirements for new tables/columns, 6) Save to docs/PRPs/transmittals/",
+      "files": [],
+      "assertions": [
+        {"id": "finds-transmittals-crawler", "text": "Agent identifies and locates the transmittals crawler script", "type": "presence"},
+        {"id": "identifies-not-built", "text": "Agent recognizes transmittals is not yet implemented in Alleato PM", "type": "correctness"},
+        {"id": "complete-inventory", "text": "Output includes inventory of pages, forms, table columns, statuses, and workflows", "type": "format"},
+        {"id": "database-schema", "text": "Output includes database schema requirements for new tables/columns", "type": "presence"},
+        {"id": "greenfield-tasks", "text": "Task list reflects building from scratch with comprehensive implementation steps", "type": "quality"},
+        {"id": "output-saved", "text": "Report saved as a markdown file in the outputs directory", "type": "correctness"}
+      ]
+    }
+  ]
+}

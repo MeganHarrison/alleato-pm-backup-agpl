@@ -1,0 +1,61 @@
+---
+title: Navigate Alleato PM
+description: Understand project pages, global tools, admin areas, and how Ask Alleato should point you to the right place.
+audience: client
+visibility: published
+module: app-navigation
+category: Getting Started
+tags: [navigation, sitemap, projects, ai-assistant]
+featured: true
+client_visible: true
+ai_visible: true
+order: 12
+related_routes:
+  - /
+  - /[projectId]/home
+  - /site-map
+  - /ai
+related_actions: []
+---
+
+# Navigate Alleato PM
+
+Alleato PM is organized around two kinds of pages: global pages and
+project-scoped pages.
+
+Global pages are not tied to one project. Use them for portfolio work,
+company-wide directory records, account settings, knowledge, and the AI
+assistant.
+
+Project-scoped pages include a project ID in the route. Use them for work that
+belongs to a single project, such as budget, commitments, change events, RFIs,
+submittals, drawings, daily logs, documents, photos, schedule, and project
+directory.
+
+If a project page is missing or hidden, the first checks are project context and
+permission scope. The user may be on a global page without a selected project,
+may not have project membership for that project, or may not have the permission
+level required for that page or action. Admin-only pages also stay hidden from
+standard project users.
+
+## Ask Alleato For The Right Page
+
+Ask Alleato can answer navigation questions like:
+
+- Where do I create a change event?
+- Which page has project contacts?
+- Where can I see project documents?
+- Is this an admin page or a normal project page?
+
+When possible, the assistant should include the exact route and a short reason
+why that page is the right place.
+
+## Current Boundary
+
+The app sitemap and feature registry are generated from the codebase and help
+article metadata. If a route exists but does not have a curated help article
+yet, Ask Alleato should say that it found the route from the app inventory and
+that user-facing documentation still needs to be filled in.
+
+Eve can find and explain the route, but its current production bridge is
+read-only. Opening the page and completing the write remains the user's action.

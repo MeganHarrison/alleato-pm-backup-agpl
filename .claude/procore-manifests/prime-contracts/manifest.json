@@ -1,0 +1,1343 @@
+{
+  "feature": "prime-contracts",
+  "featureName": "Prime Contracts",
+  "capturedAt": "2026-04-07T13:55:32.890Z",
+  "states": {
+    "list": {
+      "id": "list",
+      "description": "Prime Contracts list view",
+      "url": "https://us02.procore.com/webclients/host/companies/562949953443325/projects/562949954728542/tools/contracts/prime_contracts",
+      "columnGroups": [
+        {
+          "label": "",
+          "columns": [
+            "Number",
+            "Owner/Client",
+            "Title",
+            "ERP Status",
+            "Status",
+            "Executed",
+            "Original Contract Amount",
+            "Approved Change Orders",
+            "Revised Contract Amount",
+            "Pending Change Orders",
+            "Draft Change Orders",
+            "Invoiced",
+            "Payments Received",
+            "% Paid",
+            "Remaining Balance Outstanding",
+            "Private",
+            "Attachments"
+          ],
+          "colspan": 17
+        }
+      ],
+      "columns": [
+        {
+          "label": "Number",
+          "columnGroup": null
+        },
+        {
+          "label": "Owner/Client",
+          "columnGroup": null
+        },
+        {
+          "label": "Title",
+          "columnGroup": null
+        },
+        {
+          "label": "ERP Status",
+          "columnGroup": null
+        },
+        {
+          "label": "Status",
+          "columnGroup": null
+        },
+        {
+          "label": "Executed",
+          "columnGroup": null
+        },
+        {
+          "label": "Original Contract Amount",
+          "columnGroup": null
+        },
+        {
+          "label": "Approved Change Orders",
+          "columnGroup": null
+        },
+        {
+          "label": "Revised Contract Amount",
+          "columnGroup": null
+        },
+        {
+          "label": "Pending Change Orders",
+          "columnGroup": null
+        },
+        {
+          "label": "Draft Change Orders",
+          "columnGroup": null
+        },
+        {
+          "label": "Invoiced",
+          "columnGroup": null
+        },
+        {
+          "label": "Payments Received",
+          "columnGroup": null
+        },
+        {
+          "label": "% Paid",
+          "columnGroup": null
+        },
+        {
+          "label": "Remaining Balance Outstanding",
+          "columnGroup": null
+        },
+        {
+          "label": "Private",
+          "columnGroup": null
+        },
+        {
+          "label": "Attachments",
+          "columnGroup": null
+        }
+      ],
+      "toolbarActions": [
+        {
+          "label": "Alleato Group24-104 - Goodwill Bart",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Project ToolsPrime Contracts",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "How many RFIs are assigned to me?CmdK",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "AppsSelect an App",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Support & Feedback",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Announcements",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "BC",
+          "type": "dropdown",
+          "variant": "default"
+        }
+      ],
+      "filters": [],
+      "rowActions": [],
+      "autoRows": [],
+      "formSections": [
+        {
+          "title": "",
+          "fields": [
+            {
+              "name": "owner/client",
+              "label": "Owner/Client",
+              "type": "select",
+              "required": false,
+              "placeholder": "Select Values",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "erp_status",
+              "label": "ERP Status",
+              "type": "select",
+              "required": false,
+              "placeholder": "Select Values",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "status",
+              "label": "Status",
+              "type": "select",
+              "required": false,
+              "placeholder": "Select Values",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "executed",
+              "label": "Executed",
+              "type": "select",
+              "required": false,
+              "placeholder": "Select Values",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            }
+          ]
+        }
+      ],
+      "tabs": [],
+      "headerFields": [],
+      "screenshot": "screenshots/list.png",
+      "_capture_note": "",
+      "domFile": "dom/list.html"
+    },
+    "create-form": {
+      "id": "create-form",
+      "description": "Create Prime Contract form",
+      "url": "https://us02.procore.com/webclients/host/companies/562949953443325/projects/562949954728542/tools/contracts/prime_contracts/create",
+      "columnGroups": [],
+      "columns": [],
+      "toolbarActions": [
+        {
+          "label": "Bold",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "Italic",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "Underline",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "Strikethrough",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "Align left",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "Align center",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "Align right",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "Decrease indent",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "Increase indent",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "Cut",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "Paste",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "Paste as text",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "12pt",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Insert/edit link",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "Undo",
+          "type": "button",
+          "variant": "default"
+        }
+      ],
+      "filters": [],
+      "rowActions": [],
+      "autoRows": [],
+      "formSections": [
+        {
+          "title": "General Information",
+          "fields": [
+            {
+              "name": "number",
+              "label": "Contract #",
+              "type": "select",
+              "required": false,
+              "placeholder": "Enter contract number",
+              "options": [],
+              "currentValue": "Select company",
+              "helpText": ""
+            },
+            {
+              "name": "vendor",
+              "label": "Owner/Client",
+              "type": "select",
+              "required": false,
+              "placeholder": "Enter contract number",
+              "options": [],
+              "currentValue": "Select company",
+              "helpText": ""
+            },
+            {
+              "name": "title",
+              "label": "Title",
+              "type": "select",
+              "required": false,
+              "placeholder": "Enter title",
+              "options": [],
+              "currentValue": "Select company",
+              "helpText": ""
+            },
+            {
+              "name": "status",
+              "label": "Status",
+              "type": "select",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "Draft",
+              "helpText": ""
+            },
+            {
+              "name": "executed",
+              "label": "Executed",
+              "type": "select",
+              "required": true,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "Draft",
+              "helpText": ""
+            },
+            {
+              "name": "retainage_percent",
+              "label": "Default Retainage",
+              "type": "select",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "Draft",
+              "helpText": ""
+            },
+            {
+              "name": "contractor",
+              "label": "Contractor",
+              "type": "select",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "architect",
+              "label": "Architect/Engineer",
+              "type": "select",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "description",
+              "label": "Description",
+              "type": "richtext",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "attachments",
+              "label": "Attachments",
+              "type": "file",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            }
+          ]
+        },
+        {
+          "title": "Inclusions & Exclusions",
+          "fields": [
+            {
+              "name": "inclusions",
+              "label": "Inclusions",
+              "type": "richtext",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "exclusions",
+              "label": "Exclusions",
+              "type": "richtext",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            }
+          ]
+        },
+        {
+          "title": "Contract Dates",
+          "fields": [
+            {
+              "name": "contract_start_date",
+              "label": "Start Date",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "contract_estimated_completion_date",
+              "label": "Estimated Completion Date",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "substantial_completion_date",
+              "label": "Substantial Completion Date",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "actual_completion_date",
+              "label": "Actual Completion Date",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "signed_contract_received_date",
+              "label": "Signed Contract Received Date",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "contract_termination_date",
+              "label": "Contract Termination Date",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            }
+          ]
+        },
+        {
+          "title": "Contract Privacy",
+          "fields": [
+            {
+              "name": "access_policy.private",
+              "label": "Private",
+              "type": "checkbox",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "access_policy.accessors",
+              "label": "Access for Non-Admin Users",
+              "type": "select",
+              "required": false,
+              "placeholder": "Select Values",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "react-aria5725055767-:rc6:",
+              "label": "Allow these non-admin users to view the SOV items.",
+              "type": "checkbox",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            }
+          ]
+        }
+      ],
+      "tabs": [],
+      "headerFields": [],
+      "screenshot": "screenshots/create-form.png",
+      "_capture_note": "",
+      "domFile": "dom/create-form.html"
+    },
+    "detail": {
+      "id": "detail",
+      "description": "Prime Contract detail page",
+      "url": "",
+      "columnGroups": [],
+      "columns": [],
+      "toolbarActions": [],
+      "filters": [],
+      "rowActions": [],
+      "autoRows": [],
+      "formSections": [],
+      "tabs": [],
+      "headerFields": [],
+      "screenshot": "screenshots/detail.png",
+      "_capture_note": ""
+    },
+    "detail-schedule-of-values": {
+      "id": "detail-schedule-of-values",
+      "description": "Prime Contract — Schedule of Values tab",
+      "url": "https://us02.procore.com/webclients/host/companies/562949953443325/projects/562949954728542/tools/contracts/prime_contracts/562949957345977",
+      "columnGroups": [],
+      "columns": [],
+      "toolbarActions": [
+        {
+          "label": "Alleato Group24-104 - Goodwill Bart",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Project ToolsPrime Contracts",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Which observation types are most common?CmdK",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "AppsSelect an App",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Support & Feedback",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Announcements",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "BC",
+          "type": "dropdown",
+          "variant": "default"
+        }
+      ],
+      "filters": [],
+      "rowActions": [],
+      "autoRows": [],
+      "formSections": [
+        {
+          "title": "General InformationEdit",
+          "fields": [
+            {
+              "name": "number",
+              "label": "Contract #",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "vendor",
+              "label": "Owner/Client",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "title",
+              "label": "Title",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "status",
+              "label": "Status",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "executed",
+              "label": "Executed",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "retainage_percent",
+              "label": "Default Retainage",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "contractor",
+              "label": "Contractor",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "architect",
+              "label": "Architect/Engineer",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "description",
+              "label": "Description",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "attachments",
+              "label": "Attachments",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            }
+          ]
+        },
+        {
+          "title": "Contract Summary",
+          "fields": [
+            {
+              "name": "grand_total",
+              "label": "Original Contract Amount",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "change_summary.pending_change_orders_amount",
+              "label": "Pending Change Orders",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "invoicing_summary.total_invoices_amount",
+              "label": "Invoices",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "total_payments",
+              "label": "Payments Received",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "change_summary.approved_change_orders_amount",
+              "label": "Approved Change Orders",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "change_summary.pending_revised_contract_amount",
+              "label": "Pending Revised Contract Amount",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "invoicing_summary.outstanding_balance",
+              "label": "Remaining Balance",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "invoicing_summary.percentage_paid",
+              "label": "Percent Paid",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "change_summary.revised_contract_amount",
+              "label": "Revised Contract Amount",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "change_summary.draft_change_orders_amount",
+              "label": "Draft Change Orders",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            }
+          ]
+        },
+        {
+          "title": "Inclusions & ExclusionsEdit",
+          "fields": [
+            {
+              "name": "inclusions",
+              "label": "Inclusions",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "exclusions",
+              "label": "Exclusions",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            }
+          ]
+        },
+        {
+          "title": "Contract DatesEdit",
+          "fields": [
+            {
+              "name": "contract_start_date",
+              "label": "Start Date",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "contract_estimated_completion_date",
+              "label": "Estimated Completion Date",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "substantial_completion_date",
+              "label": "Substantial Completion Date",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "actual_completion_date",
+              "label": "Actual Completion Date",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "signed_contract_received_date",
+              "label": "Signed Contract Received Date",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "contract_termination_date",
+              "label": "Contract Termination Date",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            }
+          ]
+        },
+        {
+          "title": "Contract PrivacyEdit",
+          "fields": [
+            {
+              "name": "access_policy.private",
+              "label": "Private",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "access_policy.accessors",
+              "label": "Access for Non-Admin Users",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "access_policy.show_line_items_to_non_admins",
+              "label": "View SOV Items",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            }
+          ]
+        }
+      ],
+      "tabs": [],
+      "headerFields": [],
+      "screenshot": "screenshots/detail-schedule-of-values.png",
+      "_capture_note": "",
+      "domFile": "dom/detail-schedule-of-values.html"
+    },
+    "detail-change-orders": {
+      "id": "detail-change-orders",
+      "description": "Prime Contract — Change Orders tab",
+      "url": "https://us02.procore.com/webclients/host/companies/562949953443325/projects/562949954728542/tools/contracts/prime_contracts/562949957345977/change_orders",
+      "columnGroups": [
+        {
+          "label": "",
+          "columns": [
+            "Number",
+            "Revision",
+            "Title",
+            "Status",
+            "Executed",
+            "Amount",
+            "Date Initiated",
+            "Due Date",
+            "Review Date",
+            "Designated Reviewer",
+            "PCO"
+          ],
+          "colspan": 11
+        }
+      ],
+      "columns": [
+        {
+          "label": "Number",
+          "columnGroup": null
+        },
+        {
+          "label": "Revision",
+          "columnGroup": null
+        },
+        {
+          "label": "Title",
+          "columnGroup": null
+        },
+        {
+          "label": "Status",
+          "columnGroup": null
+        },
+        {
+          "label": "Executed",
+          "columnGroup": null
+        },
+        {
+          "label": "Amount",
+          "columnGroup": null
+        },
+        {
+          "label": "Date Initiated",
+          "columnGroup": null
+        },
+        {
+          "label": "Due Date",
+          "columnGroup": null
+        },
+        {
+          "label": "Review Date",
+          "columnGroup": null
+        },
+        {
+          "label": "Designated Reviewer",
+          "columnGroup": null
+        },
+        {
+          "label": "PCO",
+          "columnGroup": null
+        }
+      ],
+      "toolbarActions": [
+        {
+          "label": "Alleato Group24-104 - Goodwill Bart",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Project ToolsPrime Contracts",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Which observation types are most common?CmdK",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "AppsSelect an App",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Support & Feedback",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Announcements",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "BC",
+          "type": "dropdown",
+          "variant": "default"
+        }
+      ],
+      "filters": [],
+      "rowActions": [],
+      "autoRows": [],
+      "formSections": [
+        {
+          "title": "",
+          "fields": [
+            {
+              "name": "status",
+              "label": "Status",
+              "type": "select",
+              "required": false,
+              "placeholder": "Select Values",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "executed",
+              "label": "Executed",
+              "type": "select",
+              "required": false,
+              "placeholder": "Select Values",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            }
+          ]
+        },
+        {
+          "title": "",
+          "fields": [
+            {
+              "name": "status",
+              "label": "Status",
+              "type": "select",
+              "required": false,
+              "placeholder": "Select Values",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "executed",
+              "label": "Executed",
+              "type": "select",
+              "required": false,
+              "placeholder": "Select Values",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "change_reason",
+              "label": "Change Reason",
+              "type": "select",
+              "required": false,
+              "placeholder": "Select Values",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            }
+          ]
+        }
+      ],
+      "tabs": [],
+      "headerFields": [],
+      "screenshot": "screenshots/detail-change-orders.png",
+      "_capture_note": "",
+      "domFile": "dom/detail-change-orders.html"
+    },
+    "detail-payments": {
+      "id": "detail-payments",
+      "description": "Prime Contract — Payments tab",
+      "url": "https://us02.procore.com/webclients/host/companies/562949953443325/projects/562949954728542/tools/contracts/prime_contracts/562949957345977/payments",
+      "columnGroups": [
+        {
+          "label": "",
+          "columns": [
+            "Invoice",
+            "ERP Status",
+            "Amount",
+            "Date Paid",
+            "Payment Number",
+            "Invoice Number",
+            "Check Number",
+            "Notes",
+            "Attachments"
+          ],
+          "colspan": 9
+        }
+      ],
+      "columns": [
+        {
+          "label": "Invoice",
+          "columnGroup": null
+        },
+        {
+          "label": "ERP Status",
+          "columnGroup": null
+        },
+        {
+          "label": "Amount",
+          "columnGroup": null
+        },
+        {
+          "label": "Date Paid",
+          "columnGroup": null
+        },
+        {
+          "label": "Payment Number",
+          "columnGroup": null
+        },
+        {
+          "label": "Invoice Number",
+          "columnGroup": null
+        },
+        {
+          "label": "Check Number",
+          "columnGroup": null
+        },
+        {
+          "label": "Notes",
+          "columnGroup": null
+        },
+        {
+          "label": "Attachments",
+          "columnGroup": null
+        }
+      ],
+      "toolbarActions": [
+        {
+          "label": "Alleato Group24-104 - Goodwill Bart",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Project ToolsPrime Contracts",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Which RFI relates to the ATS pad?CmdK",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "AppsSelect an App",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Support & Feedback",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Announcements",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "BC",
+          "type": "dropdown",
+          "variant": "default"
+        }
+      ],
+      "filters": [],
+      "rowActions": [],
+      "autoRows": [],
+      "formSections": [
+        {
+          "title": "",
+          "fields": [
+            {
+              "name": "which_rfi_relates_to_the_ats_pad?",
+              "label": "Which RFI relates to the ATS pad?",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "cmdk",
+              "label": "CmdK",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "bc",
+              "label": "BC",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "skip",
+              "label": "Skip",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "feedback",
+              "label": "Feedback",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "create",
+              "label": "Create",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "export",
+              "label": "Export",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "add_payment",
+              "label": "Add Payment",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "filters",
+              "label": "Filters",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "select_a_column_to_group",
+              "label": "Select a column to group",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "configure",
+              "label": "Configure",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "loading",
+              "label": "Loading",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "exit_beta",
+              "label": "Exit Beta",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "provide_feedback",
+              "label": "Provide Feedback",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            }
+          ]
+        }
+      ],
+      "tabs": [],
+      "headerFields": [],
+      "screenshot": "screenshots/detail-payments.png",
+      "_capture_note": "",
+      "domFile": "dom/detail-payments.html"
+    }
+  }
+}

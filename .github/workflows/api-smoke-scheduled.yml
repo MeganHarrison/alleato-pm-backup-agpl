@@ -1,0 +1,33 @@
+name: API Smoke Contracts
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 8 * * *"
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Validate smoke base URL
+        env:
+          API_SMOKE_BASE_URL: ${{ secrets.API_SMOKE_BASE_URL }}
+        run: |
+          if [[ -z "${API_SMOKE_BASE_URL}" ]]; then
+            echo "Missing required secret: API_SMOKE_BASE_URL"
+            exit 1
+          fi
+
+      - name: Run API smoke contracts
+        env:
+          API_SMOKE_BASE_URL: ${{ secrets.API_SMOKE_BASE_URL }}
+        run: node scripts/api-smoke-contracts.mjs
+

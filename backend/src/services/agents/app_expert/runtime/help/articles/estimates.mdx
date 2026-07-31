@@ -1,0 +1,124 @@
+---
+title: Estimates
+description: Build quantity takeoff estimates in Alleato, then import them directly into a prime contract schedule of values.
+audience: client
+visibility: published
+module: estimates
+category: Financial Tools
+tags: [estimates, qto, quantity-takeoff, sov, cost-codes]
+featured: false
+client_visible: true
+ai_visible: true
+order: 170
+related_routes:
+  - /[projectId]/estimates
+  - /[projectId]/estimates/new
+  - /[projectId]/estimates/[estimateId]
+related_actions: []
+---
+
+# Estimates
+
+The Estimates tool is a database-backed quantity takeoff (QTO) system built directly into Alleato. It replaces the Excel estimate workflow with a collaborative, versioned tool that connects to project cost codes, the directory, and the rest of the platform.
+
+When you finish an estimate, you can import its lines directly into a prime contract schedule of values — either from within the app or by using the Alleato Excel workbook template.
+
+## Open the Estimates Tool
+
+1. Select the project.
+2. Open **Estimates** from the project sidebar under Financial Management.
+3. The list shows all estimates for the project with their title, estimate number, revision, status, estimator, and date.
+
+## Create an Estimate
+
+1. Select **New Estimate** in the top-right corner.
+2. Fill in the form:
+
+   - **Title** (required) — a descriptive name, such as "Warehouse HVAC Replacement R1".
+   - **Estimate Number** — optional reference number.
+   - **Revision** — defaults to 1; increment when revising an approved estimate.
+   - **Status** — Draft, Pending Review, Approved, or Rejected.
+   - **Estimate Type** — Design Build, Design Bid Build, or other.
+   - **Date**, **Estimator**, **Location** — informational fields.
+   - **Project Duration (weeks)** — drives the General Conditions cost calculations.
+   - **Insurance Rate** — defaults to 1.25%.
+   - **Fee Rate** — defaults to 10%.
+   - **Contingency Amount** — a flat dollar addition to the grand total.
+   - **Notes** — free-text context.
+
+3. Select **Create Estimate**. The detail page opens.
+
+## Estimate Detail Page
+
+The detail page has a left sidebar and three tabs.
+
+### Left Sidebar
+
+**Estimate Settings** — update duration, insurance rate, fee rate, and contingency amount. Changes save automatically; a "saving…" indicator appears while the update is in flight.
+
+**Division Summary** — shows the total cost for each CSI division present in the estimate, followed by the cost roll-up:
+
+| Row | Calculation |
+|-----|-------------|
+| Subtotal | Sum of all line item costs |
+| Contingency | Flat amount from settings |
+| Insurance | Subtotal × insurance rate |
+| Fee | Subtotal × fee rate |
+| **Grand Total** | Subtotal + Contingency + Insurance + Fee |
+
+The Insurance and Fee rows show the actual rate in parentheses — for example, "Insurance (1.25%)".
+
+### General Conditions Tab
+
+Lists the Division 01 (General Conditions) items for the estimate. Each row shows a description, quantity, rate, and total. Click into a Qty or Rate cell to edit it inline; the total and the Grand Total recalculate immediately.
+
+### Quantity Takeoff Tab
+
+All non-GC line items grouped by CSI division in collapsible accordion sections.
+
+**To add a line item:**
+
+1. Expand a division accordion.
+2. Click **+ Add item** at the bottom of that division.
+3. Fill in the Description, Quantity, Unit, and cost fields for Material, Labor, Equipment, and/or Subcontract.
+4. Press Enter or click away. The line saves automatically and the division total updates.
+
+**To edit a line item:** Click any cell in an existing row, change the value, and press Enter.
+
+**To remove a line item:** Hover over the row and click the trash icon.
+
+Use **Expand All** and **Collapse All** to open or close all divisions at once.
+
+### Alternates and Allowances Tab
+
+Lists add/deduct alternates and allowance schedule items for the estimate. When empty, each section shows placeholder text.
+
+## Find and Filter Estimates
+
+On the Estimates list page:
+
+- **Search** — filters by title, estimate number, estimator, location, or status.
+- **Status filter** — narrow to Draft, Pending Review, Approved, or Rejected.
+- **Column visibility** — the Location column is hidden by default; enable it from the column toggle menu.
+- Click any column header to sort. Click again to reverse.
+
+## How Estimates Connect to Prime Contracts
+
+The Alleato estimate workbook (`.xlsm` or `.xlsx`) is the bridge between the Estimates tool and a prime contract schedule of values.
+
+**Two paths to a prime contract SOV:**
+
+| Path | When to use |
+|------|-------------|
+| Build the estimate in the app, then import | Work is done inside Alleato from the start |
+| Fill out the Excel workbook externally, then import | Estimator works offline or in the existing Excel template |
+
+Either way, the import reads from the same file format and maps each row to a project cost code before populating the SOV.
+
+To import an estimate workbook into a prime contract, see [Import an Estimate Workbook into the SOV](/help/articles/prime-contracts#import-an-estimate-workbook-into-the-sov) in the Prime Contracts article.
+
+## Related Articles
+
+- [Prime Contracts](/help/articles/prime-contracts)
+- [Budget Overview](/help/articles/budget-overview)
+- [Direct Costs](/help/articles/direct-costs)

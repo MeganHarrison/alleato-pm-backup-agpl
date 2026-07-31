@@ -1,0 +1,58 @@
+name: Prune merged branches
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "23 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  prune:
+    name: Delete merged branch refs without open pull requests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete safe stale branch refs
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const defaultBranch = context.payload.repository.default_branch;
+            const branches = await github.paginate(github.rest.repos.listBranches, { owner, repo, per_page: 100 });
+            const deleted = [];
+            const skipped = [];
+            const failures = [];
+
+            for (const { name } of branches) {
+              if (name === defaultBranch) continue;
+              const openPullRequests = await github.paginate(github.rest.pulls.list, {
+                owner, repo, state: "open", head: `${owner}:${name}`, per_page: 100,
+              });
+              if (openPullRequests.length > 0) {
+                skipped.push(`${name} (open PR)`);
+                continue;
+              }
+              const comparison = await github.rest.repos.compareCommits({ owner, repo, base: defaultBranch, head: name });
+              if (!["behind", "identical"].includes(comparison.data.status)) {
+                skipped.push(`${name} (not merged into ${defaultBranch})`);
+                continue;
+              }
+              try {
+                await github.rest.git.deleteRef({ owner, repo, ref: `heads/${name}` });
+                deleted.push(name);
+              } catch (error) {
+                failures.push(`${name}: ${error.message}`);
+              }
+            }
+
+            await core.summary
+              .addHeading("Merged branch cleanup")
+              .addRaw(`Deleted: ${deleted.length ? deleted.join(", ") : "none"}\n\n`)
+              .addRaw(`Skipped: ${skipped.length ? skipped.join(", ") : "none"}\n\n`)
+              .addRaw(`Failures: ${failures.length ? failures.join("; ") : "none"}`)
+              .write();
+            if (failures.length > 0) core.setFailed(`Merged branch cleanup failed: ${failures.join("; ")}`);

@@ -1,0 +1,13 @@
+{
+  "projectId": 1034,
+  "submitWorkflow": false,
+  "title": "Tutorial Subcontract - Sitework",
+  "contractNumber": "SC-1001",
+  "contractCompany": "Demo Site Contractors",
+  "retainage": "10",
+  "description": "Demo subcontract created for the tutorial recorder.",
+  "inclusions": "All sitework, grading, and erosion control per plans.",
+  "exclusions": "Permit fees and offsite utility tie-ins.",
+  "sovDescription": "Mobilization",
+  "sovAmount": "25000"
+}

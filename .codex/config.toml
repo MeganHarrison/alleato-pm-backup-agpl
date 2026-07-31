@@ -1,0 +1,30 @@
+[mcp_servers.supabase]
+url = "https://mcp.supabase.com/mcp?project_ref=lgveqfnpkxvzbnnwuled"
+
+[mcp_servers.agentation]
+command = "npx"
+args = [
+    "-y",
+    "agentation-mcp",
+    "server",
+]
+
+[mcp_servers.fireflies-docs]
+url = "https://docs.fireflies.ai/mcp"
+
+[mcp_servers.playwright-test]
+command = "npx"
+args = [
+    "playwright",
+    "run-test-mcp-server",
+]
+
+[shell_environment_policy]
+inherit = "core"
+
+[shell_environment_policy.set]
+CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS = "1"
+
+[agents]
+max_threads = 6
+max_depth = 1

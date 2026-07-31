@@ -1,0 +1,66 @@
+.theme {
+  /* Route-scoped warm accent with a quiet light canvas. */
+  --ai-dashboard-accent: 29 71% 48%;
+  --ai-dashboard-accent-foreground: 0 0% 100%;
+  --ai-dashboard-accent-muted: 29 84% 94%;
+  --ai-dashboard-accent-muted-foreground: 26 70% 32%;
+  --ai-dashboard-nav-active: 240 6% 93%;
+  --background: 0 0% 98%;
+  --foreground: 240 6% 10%;
+  --card: 0 0% 100%;
+  --card-foreground: 240 6% 10%;
+  --primary: var(--ai-dashboard-accent);
+  --primary-foreground: var(--ai-dashboard-accent-foreground);
+  --border: 240 5% 88%;
+  --ring: var(--ai-dashboard-accent);
+  --sidebar: hsl(0 0% 98%);
+  --sidebar-foreground: hsl(240 6% 10%);
+  --sidebar-primary: hsl(var(--ai-dashboard-accent));
+  --sidebar-primary-foreground: hsl(var(--ai-dashboard-accent-foreground));
+  --sidebar-accent: hsl(var(--ai-dashboard-accent-muted));
+  --sidebar-accent-foreground: hsl(var(--ai-dashboard-accent-muted-foreground));
+  --sidebar-border: hsl(240 5% 88%);
+  --sidebar-ring: hsl(var(--ai-dashboard-accent));
+}
+
+:global(.dark) .theme,
+.theme:global(.dark) {
+  /* Cool blue carries emphasis against carbon without the orange-on-black effect. */
+  --ai-dashboard-accent: 215 84% 70%;
+  --ai-dashboard-accent-foreground: 217 38% 14%;
+  --ai-dashboard-accent-muted: 215 34% 18%;
+  --ai-dashboard-accent-muted-foreground: 215 84% 76%;
+  --ai-dashboard-nav-active: 0 0% 9%;
+  /* Neutral carbon canvas: #1f1f1f page, #262626 card/chart surfaces. */
+  --background: 0 0% 12%;
+  --foreground: 0 0% 92%;
+  --card: 0 0% 15%;
+  --card-foreground: 0 0% 92%;
+  --muted: 0 0% 18%;
+  --muted-foreground: 0 0% 63%;
+  --popover: 0 0% 15%;
+  --popover-foreground: 0 0% 92%;
+  --primary: var(--ai-dashboard-accent);
+  --primary-foreground: var(--ai-dashboard-accent-foreground);
+  --border: 0 0% 22%;
+  --input: 0 0% 22%;
+  --ring: var(--ai-dashboard-accent);
+  --sidebar: hsl(0 0% 12%);
+  --sidebar-foreground: hsl(0 0% 92%);
+  --sidebar-primary: hsl(var(--ai-dashboard-accent));
+  --sidebar-primary-foreground: hsl(var(--ai-dashboard-accent-foreground));
+  --sidebar-accent: hsl(var(--ai-dashboard-accent-muted));
+  --sidebar-accent-foreground: hsl(var(--ai-dashboard-accent-muted-foreground));
+  --sidebar-border: hsl(0 0% 22%);
+  --sidebar-ring: hsl(var(--ai-dashboard-accent));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme *,
+  .theme *::before,
+  .theme *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

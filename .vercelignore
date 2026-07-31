@@ -1,0 +1,53 @@
+# Large non-runtime directories at repo root (prevents upload bloat)
+/_bmad
+/_bmad-output
+/backend
+/docs-ai
+/dogfood-output
+/e2e-screenshots
+/logs
+/memories
+/output
+/procore-crawls
+/procore-templates
+/tests
+/tmp
+/verify-output
+/vermillian
+/.claude
+/.codex
+/.venv*
+/claude-memory-compiler-main
+/tools
+
+# Large subdirs inside docs (keep docs/design which the build reads)
+/docs/.archive
+/docs/BMAD
+/docs/PRPs
+/docs/ai-plan/evals
+/docs/asrs
+/docs/change-order-process
+/docs/ops/evidence
+/docs/procore-reference/procore-workflow-images
+/docs/reports
+
+# Scripts — keep scripts/ since build may need it
+# but exclude large subdirs
+/scripts/screenshot-capture
+/scripts/playwright-crawl
+/scripts/feature-tracker
+/scripts/change-events-crawl
+/scripts/adversarial-harness
+/scripts/visual-audit
+/scripts/mcp-servers
+
+# Frontend dev-only artifacts
+frontend/config/playwright
+frontend/.devtools
+frontend/coverage
+frontend/e2e-recordings
+frontend/e2e-screenshots
+frontend/playwright-report
+frontend/storybook-static
+frontend/tests
+frontend/tsconfig*.tsbuildinfo

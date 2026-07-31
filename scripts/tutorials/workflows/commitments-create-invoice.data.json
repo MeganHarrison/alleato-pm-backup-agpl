@@ -1,0 +1,10 @@
+{
+  "projectId": 1034,
+  "submitWorkflow": false,
+  "periodStart": "2026-06-01",
+  "periodEnd": "2026-06-30",
+  "billingDate": "2026-06-30",
+  "invoiceNumber": "INV-0001",
+  "fromThisPeriod": "12000",
+  "materialsStored": "0"
+}

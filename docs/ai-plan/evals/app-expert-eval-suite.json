@@ -1,0 +1,364 @@
+{
+  "version": 1,
+  "description": "First App Expert eval suite. These cases target the read-only /api/intelligence/app-expert endpoint before routing the production strategist to the App Expert specialist.",
+  "targetEndpoint": "/api/intelligence/app-expert",
+  "expectedToolPolicy": [
+    "Use read-only App Expert tools only.",
+    "Prefer curated help and feature registry evidence before route-discovered implementation evidence.",
+    "Include exact routes or source references when available.",
+    "Distinguish live, partial, planned, blocked, deprecated, and unknown behavior.",
+    "Do not claim a write action has been executed."
+  ],
+  "cases": [
+    {
+      "id": "appnav-change-events-location",
+      "category": "navigation",
+      "question": "Where do I create a change event for a project?",
+      "mustInclude": ["/[projectId]/change-events", "change event"],
+      "preferredTools": ["search_feature_registry", "search_app_sitemap"]
+    },
+    {
+      "id": "appnav-rfis-location",
+      "category": "navigation",
+      "question": "Where do RFIs live in the app?",
+      "mustInclude": ["/[projectId]/rfis", "RFI"],
+      "preferredTools": ["search_feature_registry", "search_app_sitemap"]
+    },
+    {
+      "id": "appnav-submittals-location",
+      "category": "navigation",
+      "question": "Which page owns submittals?",
+      "mustInclude": ["/[projectId]/submittals", "submittal"],
+      "preferredTools": ["search_feature_registry", "search_app_sitemap"]
+    },
+    {
+      "id": "appnav-budget-location",
+      "category": "navigation",
+      "question": "Where should I go to review project budget line items?",
+      "mustInclude": ["/[projectId]/budget", "budget"],
+      "preferredTools": ["search_feature_registry", "search_app_sitemap"]
+    },
+    {
+      "id": "appnav-prime-contracts-location",
+      "category": "navigation",
+      "question": "Where do owner prime contracts live?",
+      "mustInclude": ["/[projectId]/prime-contracts", "prime contract"],
+      "preferredTools": ["search_feature_registry", "search_app_sitemap"]
+    },
+    {
+      "id": "appnav-commitments-location",
+      "category": "navigation",
+      "question": "Where are subcontract commitments managed?",
+      "mustInclude": ["/[projectId]/commitments", "commitment"],
+      "preferredTools": ["search_feature_registry", "search_app_sitemap"]
+    },
+    {
+      "id": "appnav-documents-location",
+      "category": "navigation",
+      "question": "Where do I find project documents?",
+      "mustInclude": ["/[projectId]/documents", "document"],
+      "preferredTools": ["search_feature_registry", "search_app_sitemap"]
+    },
+    {
+      "id": "appnav-drawings-location",
+      "category": "navigation",
+      "question": "Where are drawings viewed?",
+      "mustInclude": ["/[projectId]/drawings", "drawing"],
+      "preferredTools": ["search_feature_registry", "search_app_sitemap"]
+    },
+    {
+      "id": "appnav-project-directory-location",
+      "category": "navigation",
+      "question": "Where do I manage project team contacts?",
+      "mustInclude": ["/[projectId]/directory", "project"],
+      "preferredTools": ["search_feature_registry", "search_app_sitemap"]
+    },
+    {
+      "id": "appnav-company-directory-location",
+      "category": "navigation",
+      "question": "Where do company records live outside a project?",
+      "mustInclude": ["/directory", "company"],
+      "preferredTools": ["search_feature_registry", "search_app_sitemap"]
+    },
+    {
+      "id": "workflow-create-project",
+      "category": "workflow",
+      "question": "How do I start a new project?",
+      "mustInclude": ["create", "project"],
+      "preferredTools": ["search_feature_registry"]
+    },
+    {
+      "id": "workflow-budget-line-items",
+      "category": "workflow",
+      "question": "How should budget line items work?",
+      "mustInclude": ["budget", "line item"],
+      "preferredTools": ["search_feature_registry"]
+    },
+    {
+      "id": "workflow-change-management-lifecycle",
+      "category": "workflow",
+      "question": "Explain the change management lifecycle in the app.",
+      "mustInclude": ["change", "event"],
+      "preferredTools": ["search_feature_registry"]
+    },
+    {
+      "id": "workflow-rfi-create",
+      "category": "workflow",
+      "question": "Can the app help create an RFI?",
+      "mustInclude": ["RFI", "preview"],
+      "preferredTools": ["search_feature_registry"]
+    },
+    {
+      "id": "workflow-submittal-review",
+      "category": "workflow",
+      "question": "What should I check on the submittals page?",
+      "mustInclude": ["submittal"],
+      "preferredTools": ["search_feature_registry"]
+    },
+    {
+      "id": "workflow-prime-contract-sov",
+      "category": "workflow",
+      "question": "Where does schedule of values fit into prime contracts?",
+      "mustInclude": ["prime", "SOV"],
+      "preferredTools": ["search_feature_registry"]
+    },
+    {
+      "id": "workflow-commitment-sov",
+      "category": "workflow",
+      "question": "Where does a subcontractor SOV belong?",
+      "mustInclude": ["commitment", "SOV"],
+      "preferredTools": ["search_feature_registry"]
+    },
+    {
+      "id": "workflow-invoicing-owner",
+      "category": "workflow",
+      "question": "Where do owner invoices belong?",
+      "mustInclude": ["invoice", "owner"],
+      "preferredTools": ["search_feature_registry"]
+    },
+    {
+      "id": "workflow-direct-costs",
+      "category": "workflow",
+      "question": "What are direct costs for in the app?",
+      "mustInclude": ["direct costs"],
+      "preferredTools": ["search_feature_registry"]
+    },
+    {
+      "id": "workflow-schedule",
+      "category": "workflow",
+      "question": "Where do schedule tasks live?",
+      "mustInclude": ["/[projectId]/schedule", "schedule"],
+      "preferredTools": ["search_feature_registry", "search_app_sitemap"]
+    },
+    {
+      "id": "permissions-hidden-page",
+      "category": "permissions",
+      "question": "Why might I not see a project page?",
+      "mustInclude": ["permission", "project"],
+      "preferredTools": ["search_feature_registry"]
+    },
+    {
+      "id": "permissions-admin-page",
+      "category": "permissions",
+      "question": "How should the assistant explain admin-only pages?",
+      "mustInclude": ["admin"],
+      "preferredTools": ["search_feature_registry", "search_app_sitemap"]
+    },
+    {
+      "id": "permissions-employee-email-privacy",
+      "category": "permissions",
+      "question": "What if someone can see another employee's emails?",
+      "mustInclude": ["email", "permission"],
+      "preferredTools": ["search_feature_registry"]
+    },
+    {
+      "id": "permissions-project-membership",
+      "category": "permissions",
+      "question": "Why does project membership matter?",
+      "mustInclude": ["project", "membership"],
+      "preferredTools": ["search_feature_registry"]
+    },
+    {
+      "id": "permissions-user-management",
+      "category": "permissions",
+      "question": "Where should user management questions point?",
+      "mustInclude": ["user", "management"],
+      "preferredTools": ["search_feature_registry", "search_app_sitemap"]
+    },
+    {
+      "id": "assistant-capability-actions",
+      "category": "assistant-capability",
+      "question": "Can Ask Alleato create records for me?",
+      "mustInclude": ["preview", "confirm"],
+      "preferredTools": ["search_feature_registry"]
+    },
+    {
+      "id": "assistant-capability-source-order",
+      "category": "assistant-capability",
+      "question": "How should Ask Alleato decide what app documentation to trust?",
+      "mustInclude": ["help", "sitemap"],
+      "preferredTools": ["search_feature_registry", "get_app_expert_artifact_status"]
+    },
+    {
+      "id": "assistant-capability-app-expert",
+      "category": "assistant-capability",
+      "question": "What is the App Expert supposed to answer?",
+      "mustInclude": ["app", "expert"],
+      "preferredTools": ["search_feature_registry"]
+    },
+    {
+      "id": "assistant-capability-ai-actions",
+      "category": "assistant-capability",
+      "question": "What AI assistant actions are live versus planned?",
+      "mustInclude": ["planned"],
+      "preferredTools": ["search_feature_registry"]
+    },
+    {
+      "id": "assistant-capability-memory",
+      "category": "assistant-capability",
+      "question": "Where does AI memory fit in the product?",
+      "mustInclude": ["memory"],
+      "preferredTools": ["search_feature_registry"]
+    },
+    {
+      "id": "data-documents-rag-boundary",
+      "category": "data-source",
+      "question": "What is the difference between project documents and RAG knowledge?",
+      "mustInclude": ["document", "RAG"],
+      "preferredTools": ["search_feature_registry"]
+    },
+    {
+      "id": "data-feature-route-source",
+      "category": "data-source",
+      "question": "What source should the assistant cite for where a page exists?",
+      "mustInclude": ["sitemap", "route"],
+      "preferredTools": ["get_app_expert_artifact_status", "search_app_sitemap"]
+    },
+    {
+      "id": "data-feature-registry-source",
+      "category": "data-source",
+      "question": "What source should the assistant cite for whether a feature is documented?",
+      "mustInclude": ["feature registry"],
+      "preferredTools": ["search_feature_registry"]
+    },
+    {
+      "id": "data-route-discovered-boundary",
+      "category": "data-source",
+      "question": "What should the assistant say if a route exists but there is no help article?",
+      "mustInclude": ["route", "help article"],
+      "preferredTools": ["search_feature_registry", "search_app_sitemap"]
+    },
+    {
+      "id": "data-artifact-freshness",
+      "category": "data-source",
+      "question": "How can the assistant know whether its app map is current?",
+      "mustInclude": ["generated", "artifact"],
+      "preferredTools": ["get_app_expert_artifact_status"]
+    },
+    {
+      "id": "status-live-feature",
+      "category": "status",
+      "question": "How should Ask Alleato answer when a feature is live?",
+      "mustInclude": ["live"],
+      "preferredTools": ["search_feature_registry"]
+    },
+    {
+      "id": "status-partial-feature",
+      "category": "status",
+      "question": "How should Ask Alleato explain a partially implemented feature?",
+      "mustInclude": ["partial"],
+      "preferredTools": ["search_feature_registry"]
+    },
+    {
+      "id": "status-planned-feature",
+      "category": "status",
+      "question": "How should Ask Alleato explain a planned feature?",
+      "mustInclude": ["planned"],
+      "preferredTools": ["search_feature_registry"]
+    },
+    {
+      "id": "status-blocked-feature",
+      "category": "status",
+      "question": "How should Ask Alleato explain a blocked feature?",
+      "mustInclude": ["blocked"],
+      "preferredTools": ["search_feature_registry"]
+    },
+    {
+      "id": "status-deprecated-feature",
+      "category": "status",
+      "question": "How should Ask Alleato explain deprecated behavior?",
+      "mustInclude": ["deprecated"],
+      "preferredTools": ["search_feature_registry"]
+    },
+    {
+      "id": "troubleshooting-missing-button",
+      "category": "troubleshooting",
+      "question": "Why might a button be missing on a page?",
+      "mustInclude": ["permission"],
+      "preferredTools": ["search_feature_registry"]
+    },
+    {
+      "id": "troubleshooting-empty-data",
+      "category": "troubleshooting",
+      "question": "Why might a page be empty even though the route exists?",
+      "mustInclude": ["data"],
+      "preferredTools": ["search_feature_registry", "lookup_app_route"]
+    },
+    {
+      "id": "troubleshooting-wrong-page",
+      "category": "troubleshooting",
+      "question": "What should I do if I am on the wrong page for a workflow?",
+      "mustInclude": ["route"],
+      "preferredTools": ["search_app_sitemap"]
+    },
+    {
+      "id": "troubleshooting-stale-docs",
+      "category": "troubleshooting",
+      "question": "What should Ask Alleato say if documentation and the route map disagree?",
+      "mustInclude": ["conflict"],
+      "preferredTools": ["get_app_expert_artifact_status", "search_feature_registry"]
+    },
+    {
+      "id": "troubleshooting-no-current-route",
+      "category": "troubleshooting",
+      "question": "Can the App Expert answer without knowing my current page?",
+      "mustInclude": ["current route"],
+      "preferredTools": ["search_feature_registry"]
+    },
+    {
+      "id": "admin-feedback-inbox",
+      "category": "feature",
+      "question": "Where should questions about feedback and annotation triage go?",
+      "mustInclude": ["feedback"],
+      "preferredTools": ["search_feature_registry"]
+    },
+    {
+      "id": "feature-progress-reports",
+      "category": "feature",
+      "question": "Does the app have progress reports?",
+      "mustInclude": ["progress"],
+      "preferredTools": ["search_feature_registry"]
+    },
+    {
+      "id": "feature-photos",
+      "category": "feature",
+      "question": "Where are project photos?",
+      "mustInclude": ["photos"],
+      "preferredTools": ["search_feature_registry", "search_app_sitemap"]
+    },
+    {
+      "id": "feature-daily-log",
+      "category": "feature",
+      "question": "Where do daily logs live?",
+      "mustInclude": ["daily log"],
+      "preferredTools": ["search_feature_registry", "search_app_sitemap"]
+    },
+    {
+      "id": "feature-outlook-integration",
+      "category": "feature",
+      "question": "How should the app explain Outlook integration?",
+      "mustInclude": ["Outlook"],
+      "preferredTools": ["search_feature_registry"]
+    }
+  ]
+}

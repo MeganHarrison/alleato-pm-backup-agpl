@@ -1,0 +1,15 @@
+{
+  "label": "pm-app",
+  "at": "2026-07-24T05:40:42.192Z",
+  "prior": "/private/tmp/claude-501/-Users-meganharrison-Documents-github-project-management/8b44198a-b73b-4045-ab6a-d2fa2f585de2/scratchpad/pm-backup/audit/snapshots/pm-app/pm-app__2026-07-24T05-13-13-901Z.json",
+  "fresh": "/private/tmp/claude-501/-Users-meganharrison-Documents-github-project-management/8b44198a-b73b-4045-ab6a-d2fa2f585de2/scratchpad/pm-backup/audit/snapshots/pm-app/pm-app__2026-07-24T05-40-42-192Z.json",
+  "findings": [
+    {
+      "severity": "info",
+      "kind": "column_added",
+      "table": "projects",
+      "column": "is_development",
+      "detail": "Column \"projects.is_development\" was added."
+    }
+  ]
+}

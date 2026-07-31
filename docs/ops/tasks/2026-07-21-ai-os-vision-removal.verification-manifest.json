@@ -1,0 +1,31 @@
+{
+  "contractVersion": 1,
+  "taskId": "local-ai-os-vision-removal",
+  "feature": "Remove the duplicate AI OS vision timeline",
+  "route": "/ai-dashboard/ai-os",
+  "flows": [
+    {
+      "name": "AI OS planning-surface review",
+      "steps": ["Authenticate locally", "Open /ai-dashboard/ai-os", "Inspect the page after the retained roadmap"],
+      "expectedOutcome": "The page ends with the actionable roadmap and does not render a separate 'The path ahead' timeline."
+    }
+  ],
+  "requiredEvidence": ["screenshots", "visualReview", "regressionTest"],
+  "visual": {
+    "viewports": ["desktop"],
+    "checks": ["The duplicate vision timeline is absent", "The roadmap remains the final planning surface", "No layout regression is visible"]
+  },
+  "independentReview": { "required": true },
+  "claims": [
+    {
+      "id": "vision-removed",
+      "description": "The authenticated AI OS route no longer renders 'The path ahead'.",
+      "evidence": [{ "key": "screenshots", "min": 1 }, { "key": "regressionTest", "min": 1 }]
+    },
+    {
+      "id": "roadmap-retained",
+      "description": "The actionable roadmap remains the final planning surface.",
+      "evidence": [{ "key": "visualReview", "min": 1 }]
+    }
+  ]
+}

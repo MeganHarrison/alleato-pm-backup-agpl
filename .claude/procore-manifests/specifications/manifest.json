@@ -1,0 +1,104 @@
+{
+  "feature": "specifications",
+  "featureName": "Specifications",
+  "capturedAt": "2026-04-07T14:10:48.484Z",
+  "states": {
+    "list": {
+      "id": "list",
+      "description": "Specifications list view",
+      "url": "https://us02.procore.com/webclients/host/companies/562949953443325/projects/562949954728542/tools/specifications/specification_sections",
+      "columnGroups": [
+        {
+          "label": "",
+          "columns": [
+            "Number",
+            "Description",
+            "Revision",
+            "Date Issued",
+            "Date Received",
+            "Set"
+          ],
+          "colspan": 6
+        }
+      ],
+      "columns": [
+        {
+          "label": "Number",
+          "columnGroup": null
+        },
+        {
+          "label": "Description",
+          "columnGroup": null
+        },
+        {
+          "label": "Revision",
+          "columnGroup": null
+        },
+        {
+          "label": "Date Issued",
+          "columnGroup": null
+        },
+        {
+          "label": "Date Received",
+          "columnGroup": null
+        },
+        {
+          "label": "Set",
+          "columnGroup": null
+        }
+      ],
+      "toolbarActions": [
+        {
+          "label": "Alleato Group24-104 - Goodwill Bart",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Project ToolsSpecifications",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Do we have a task involving ADA compliance?CmdK",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "AppsSelect an App",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Support & Feedback",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Announcements",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "BC",
+          "type": "dropdown",
+          "variant": "default"
+        }
+      ],
+      "filters": [],
+      "rowActions": [],
+      "autoRows": [],
+      "formSections": [
+        {
+          "title": "",
+          "fields": [],
+          "_isTable": true
+        }
+      ],
+      "tabs": [],
+      "headerFields": [],
+      "screenshot": "screenshots/list.png",
+      "_capture_note": "",
+      "domFile": "dom/list.html"
+    }
+  }
+}

@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alleato RAG Process Map</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='4' fill='%230f766e'/%3E%3Cpath d='M3.5 8h9M9 4.5 12.5 8 9 11.5' fill='none' stroke='white' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <style>
+    :root {
+      --bg: #fbfbfa;
+      --ink: #17211d;
+      --muted: #64716c;
+      --line: #dce3e0;
+      --panel: #ffffff;
+      --soft: #f1f5f3;
+      --accent: #0f766e;
+      --accent-soft: #e2f4f1;
+      --accent-ink: #0b504b;
+      --blue: #1d4ed8;
+      --blue-soft: #e9f0ff;
+      --amber: #946200;
+      --amber-soft: #fff4d7;
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font: 16px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    code {
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      background: #fff;
+      padding: 0.05rem 0.3rem;
+      font: 0.85rem/1.4 "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+    }
+
+    .page {
+      width: min(1120px, 100%);
+      margin: 0 auto;
+      padding: 1rem;
+    }
+
+    header {
+      display: grid;
+      gap: 0.65rem;
+      padding: 1.25rem 0 1rem;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .eyebrow {
+      margin: 0;
+      color: var(--accent);
+      font-size: 0.75rem;
+      font-weight: 750;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 2rem;
+      font-weight: 650;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .lede {
+      max-width: 70ch;
+      margin: 0;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    .source-picker {
+      display: flex;
+      gap: 0.5rem;
+      max-width: 100%;
+      overflow-x: auto;
+      padding: 0.85rem 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .source-button {
+      min-height: 44px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--panel);
+      color: var(--muted);
+      cursor: pointer;
+      flex: 0 0 auto;
+      padding: 0.5rem 0.8rem;
+    }
+
+    .source-button[aria-pressed="true"] {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: var(--accent-ink);
+      font-weight: 700;
+    }
+
+    .map {
+      display: grid;
+      gap: 1rem;
+      padding: 1rem 0;
+    }
+
+    .flow {
+      display: grid;
+      gap: 0.6rem;
+      align-items: center;
+    }
+
+    .node {
+      min-height: 56px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      color: var(--ink);
+      cursor: pointer;
+      padding: 0.65rem 0.75rem;
+      text-align: left;
+    }
+
+    .node:hover,
+    .node:focus-visible,
+    .node.active {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      outline: none;
+    }
+
+    .node small {
+      display: block;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 750;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .node strong {
+      display: block;
+      margin-top: 0.08rem;
+      font-size: 0.95rem;
+      line-height: 1.2;
+    }
+
+    .arrow {
+      color: var(--muted);
+      font-weight: 750;
+      text-align: center;
+    }
+
+    .split-label {
+      margin: 0.4rem 0 0;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 750;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .branches {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .branch {
+      display: grid;
+      gap: 0.5rem;
+      border-left: 2px solid var(--line);
+      padding-left: 0.75rem;
+    }
+
+    .branch.assistant .node.active,
+    .branch.assistant .node:hover,
+    .branch.assistant .node:focus-visible {
+      border-color: var(--blue);
+      background: var(--blue-soft);
+    }
+
+    .branch.intelligence .node.active,
+    .branch.intelligence .node:hover,
+    .branch.intelligence .node:focus-visible {
+      border-color: var(--amber);
+      background: var(--amber-soft);
+    }
+
+    .detail {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      padding: 0.9rem;
+    }
+
+    .detail-kicker {
+      margin: 0;
+      color: var(--accent);
+      font-size: 0.75rem;
+      font-weight: 750;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .detail h2 {
+      margin: 0.2rem 0 0;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .detail p {
+      margin: 0.45rem 0 0;
+      color: var(--muted);
+    }
+
+    .facts {
+      display: grid;
+      gap: 0.45rem;
+      margin-top: 0.75rem;
+    }
+
+    .fact {
+      display: grid;
+      grid-template-columns: 7.5rem minmax(0, 1fr);
+      gap: 0.5rem;
+      border-top: 1px solid var(--line);
+      padding-top: 0.45rem;
+      font-size: 0.92rem;
+    }
+
+    .fact:first-child {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .fact strong {
+      font-weight: 700;
+    }
+
+    .fact span {
+      color: var(--muted);
+    }
+
+    .plain-grid {
+      display: grid;
+      gap: 0.75rem;
+      padding: 1rem 0 2rem;
+      border-top: 1px solid var(--line);
+    }
+
+    .plain-item {
+      border-top: 1px solid var(--line);
+      padding-top: 0.75rem;
+    }
+
+    .plain-item:first-child {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .plain-item strong {
+      display: block;
+      font-weight: 700;
+    }
+
+    .plain-item span {
+      display: block;
+      color: var(--muted);
+      margin-top: 0.12rem;
+    }
+
+    details {
+      border-top: 1px solid var(--line);
+      padding: 0.75rem 0 2rem;
+    }
+
+    summary {
+      min-height: 44px;
+      cursor: pointer;
+      color: var(--accent-ink);
+      font-weight: 700;
+      padding: 0.55rem 0;
+    }
+
+    .technical {
+      display: grid;
+      gap: 0.45rem;
+      margin-top: 0.4rem;
+    }
+
+    .technical div {
+      display: grid;
+      gap: 0.15rem;
+      border-top: 1px solid var(--line);
+      padding-top: 0.45rem;
+    }
+
+    .technical div:first-child {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .technical span {
+      color: var(--muted);
+    }
+
+    @media (min-width: 760px) {
+      .page {
+        padding: 1.25rem 1.5rem 2rem;
+      }
+
+      header {
+        grid-template-columns: 0.7fr 1.3fr;
+        align-items: end;
+      }
+
+      h1 {
+        font-size: 2.5rem;
+      }
+
+      .map {
+        grid-template-columns: minmax(0, 1fr) 22rem;
+        align-items: start;
+      }
+
+      .detail {
+        position: sticky;
+        top: 1rem;
+      }
+
+      .flow {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .arrow {
+        display: none;
+      }
+
+      .node[data-node="source"],
+      .node[data-node="sync"],
+      .node[data-node="catalog"] {
+        position: relative;
+      }
+
+      .node[data-node="source"]::after,
+      .node[data-node="sync"]::after,
+      .node[data-node="catalog"]::after {
+        content: "->";
+        position: absolute;
+        right: -1.05rem;
+        top: 50%;
+        color: var(--muted);
+        font-weight: 750;
+        transform: translateY(-50%);
+      }
+
+      .split-label {
+        grid-column: 1 / -1;
+      }
+
+      .branches {
+        grid-column: 1 / -1;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .plain-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .plain-item {
+        border-top: 0;
+        border-left: 1px solid var(--line);
+        padding-top: 0;
+        padding-left: 0.75rem;
+      }
+
+      .plain-item:first-child {
+        border-left: 0;
+        padding-left: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <div>
+        <p class="eyebrow">RAG process</p>
+        <h1>One item in. Two products out.</h1>
+      </div>
+      <p class="lede">
+        Every source follows the same first path: sync it, catalog it, store the raw text, make it searchable. After that, the path splits.
+      </p>
+    </header>
+
+    <nav class="source-picker" aria-label="Choose source type">
+      <button class="source-button" type="button" data-source="meeting" aria-pressed="true">Meeting</button>
+      <button class="source-button" type="button" data-source="email" aria-pressed="false">Email</button>
+      <button class="source-button" type="button" data-source="teams" aria-pressed="false">Teams</button>
+      <button class="source-button" type="button" data-source="document" aria-pressed="false">Document</button>
+    </nav>
+
+    <section class="map">
+      <section class="flow" aria-label="Interactive RAG flow map">
+        <button class="node" type="button" data-node="source">
+          <small>1</small>
+          <strong id="sourceNodeTitle">Meeting transcript</strong>
+        </button>
+        <div class="arrow">↓</div>
+        <button class="node" type="button" data-node="sync"><small>2</small><strong>Sync</strong></button>
+        <div class="arrow">↓</div>
+        <button class="node" type="button" data-node="catalog"><small>3</small><strong>Catalog + raw text</strong></button>
+        <div class="arrow">↓</div>
+        <button class="node active" type="button" data-node="vectors"><small>4</small><strong>Searchable chunks</strong></button>
+
+        <p class="split-label">Then it splits</p>
+
+        <div class="branches">
+          <div class="branch assistant">
+            <button class="node" type="button" data-node="assistant"><small>Live Q&amp;A</small><strong>AI Assistant</strong></button>
+          </div>
+          <div class="branch intelligence">
+            <button class="node" type="button" data-node="extract"><small>Compile</small><strong>Cards + tasks</strong></button>
+            <button class="node" type="button" data-node="packet"><small>Synthesize</small><strong>Project packet</strong></button>
+            <button class="node" type="button" data-node="brief"><small>Roll up</small><strong>Portfolio brief</strong></button>
+          </div>
+        </div>
+      </section>
+
+      <aside class="detail" aria-live="polite">
+        <p class="detail-kicker" id="detailKicker">Step 4</p>
+        <h2 id="detailTitle">Searchable chunks</h2>
+        <p id="detailText">The raw text is split into small overlapping chunks and embedded. This makes the source findable by meaning, not just exact keywords.</p>
+        <div class="facts" id="facts"></div>
+      </aside>
+    </section>
+
+    <section class="plain-grid" aria-label="Plain English definitions">
+      <div class="plain-item">
+        <strong>Catalog</strong>
+        <span>What is this source, when did it happen, and which project does it belong to?</span>
+      </div>
+      <div class="plain-item">
+        <strong>Chunks</strong>
+        <span>Searchable pieces of the full text. They power live retrieval.</span>
+      </div>
+      <div class="plain-item">
+        <strong>Cards</strong>
+        <span>Extracted facts: risks, decisions, tasks, flags, and evidence quotes.</span>
+      </div>
+      <div class="plain-item">
+        <strong>Packets</strong>
+        <span>The current project read. This is what the intelligence page and brief summarize.</span>
+      </div>
+    </section>
+
+    <details>
+      <summary>Show implementation names</summary>
+      <div class="technical">
+        <div><strong>PM APP catalog</strong><span><code>document_metadata</code>, <code>project_emails</code>, attribution candidates</span></div>
+        <div><strong>AI Database raw text</strong><span><code>rag_document_metadata.content</code></span></div>
+        <div><strong>Vector store</strong><span><code>document_chunks</code> through <code>search_document_chunks</code></span></div>
+        <div><strong>Compiled intelligence</strong><span><code>insight_cards</code>, <code>tasks</code>, <code>intelligence_packets</code></span></div>
+      </div>
+    </details>
+  </main>
+
+  <script>
+    const sources = {
+      meeting: {
+        label: "Meeting transcript",
+        sync: "Fireflies pulls the transcript and normalizes it.",
+        catalog: "The meeting gets a catalog row, project link, and transcript storage reference.",
+        raw: "Full transcript text stays in the AI Database."
+      },
+      email: {
+        label: "Email",
+        sync: "Outlook sync pulls the message through Microsoft Graph.",
+        catalog: "The email is filtered for relevance, then assigned to a project when confidence is high enough.",
+        raw: "The full body is stored for RAG; raw intake remains separate from AI-ready catalog rows."
+      },
+      teams: {
+        label: "Teams message",
+        sync: "Graph sync pulls channels and DMs.",
+        catalog: "DMs are grouped into conversation documents before they become useful retrieval sources.",
+        raw: "Conversation text is stored as raw RAG content."
+      },
+      document: {
+        label: "Document",
+        sync: "OneDrive, SharePoint, or manual upload brings the file in.",
+        catalog: "The app records file metadata and extracts text when possible.",
+        raw: "Extracted text is stored in the AI Database; scanned or low-text files are flagged."
+      }
+    };
+
+    const details = {
+      source: {
+        kicker: "Step 1",
+        title: () => sources[state.source].label,
+        text: () => `The process starts with one ${sources[state.source].label.toLowerCase()}. The exact sync source changes, but the rest of the pipeline is the same.`,
+        facts: () => [["Source-specific note", sources[state.source].sync]]
+      },
+      sync: {
+        kicker: "Step 2",
+        title: () => "Sync",
+        text: () => sources[state.source].sync,
+        facts: () => [["Purpose", "Bring the source into Alleato without making it an AI answer yet."]]
+      },
+      catalog: {
+        kicker: "Step 3",
+        title: () => "Catalog + raw text",
+        text: () => sources[state.source].catalog,
+        facts: () => [["PM APP", "Keeps lightweight metadata and project assignment."], ["AI Database", sources[state.source].raw]]
+      },
+      vectors: {
+        kicker: "Step 4",
+        title: () => "Searchable chunks",
+        text: () => "The raw text is split into small overlapping chunks and embedded. This makes the source findable by meaning, not just exact keywords.",
+        facts: () => [["Used by", "AI Assistant retrieval."], ["Stored in", "document_chunks."]]
+      },
+      assistant: {
+        kicker: "Live Q&A",
+        title: () => "AI Assistant",
+        text: () => "The assistant searches chunks at question time, then combines source evidence with live tools like SQL or Acumatica when needed.",
+        facts: () => [["Best for", "Flexible questions."], ["Important", "Live numbers do not come from RAG."]]
+      },
+      extract: {
+        kicker: "Compile",
+        title: () => "Cards + tasks",
+        text: () => "Extraction turns source text into evidence-backed facts: risks, decisions, action items, flags, and tasks.",
+        facts: () => [["Why it exists", "Searchable text is not the same thing as understood project intelligence."]]
+      },
+      packet: {
+        kicker: "Synthesize",
+        title: () => "Project packet",
+        text: () => "The system combines new source evidence, prior state, and SQL truth into one current project read.",
+        facts: () => [["Used by", "Project Intelligence page."], ["Guardrail", "Bad citations are dropped; failed synthesis should not write an empty packet."]]
+      },
+      brief: {
+        kicker: "Roll up",
+        title: () => "Portfolio brief",
+        text: () => "The executive brief summarizes current packets across projects and adds financial pulse data.",
+        facts: () => [["Used for", "What changed, what needs attention, and who is waiting."]]
+      }
+    };
+
+    const state = { source: "meeting", node: "vectors" };
+
+    function render() {
+      document.getElementById("sourceNodeTitle").textContent = sources[state.source].label;
+      document.querySelectorAll("[data-source]").forEach(button => {
+        button.setAttribute("aria-pressed", button.dataset.source === state.source ? "true" : "false");
+      });
+      document.querySelectorAll("[data-node]").forEach(button => {
+        button.classList.toggle("active", button.dataset.node === state.node);
+      });
+      const selected = details[state.node];
+      document.getElementById("detailKicker").textContent = selected.kicker;
+      document.getElementById("detailTitle").textContent = selected.title();
+      document.getElementById("detailText").textContent = selected.text();
+      document.getElementById("facts").innerHTML = selected.facts().map(([label, value]) => `
+        <div class="fact"><strong>${label}</strong><span>${value}</span></div>
+      `).join("");
+    }
+
+    document.querySelectorAll("[data-source]").forEach(button => {
+      button.addEventListener("click", () => {
+        state.source = button.dataset.source;
+        state.node = "source";
+        render();
+      });
+    });
+
+    document.querySelectorAll("[data-node]").forEach(button => {
+      button.addEventListener("click", () => {
+        state.node = button.dataset.node;
+        render();
+      });
+    });
+
+    render();
+  </script>
+</body>
+</html>

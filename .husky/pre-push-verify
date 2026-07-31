@@ -1,0 +1,25 @@
+#!/bin/sh
+# Pre-push hook for final verification
+# Ensures all work is verified before pushing
+
+echo "🚀 Pre-push verification check..."
+
+# Update activity log
+node scripts/monitoring/update-progress.cjs activity "Pre-push verification initiated"
+
+# Run quality checks
+echo "Running quality checks..."
+cd frontend && npm run quality
+
+if [ $? -eq 0 ]; then
+    echo "✅ Quality checks passed"
+    node scripts/monitoring/update-progress.cjs activity "Quality checks passed" "TypeScript and ESLint clean"
+else
+    echo "❌ Quality checks failed - push blocked"
+    node scripts/monitoring/update-progress.cjs activity "Quality checks failed" "Push blocked"
+    exit 1
+fi
+
+# Trigger comprehensive verification
+echo "🔍 Triggering comprehensive verification..."
+node scripts/monitoring/trigger-verification.cjs test-completion "Pre-push comprehensive check"

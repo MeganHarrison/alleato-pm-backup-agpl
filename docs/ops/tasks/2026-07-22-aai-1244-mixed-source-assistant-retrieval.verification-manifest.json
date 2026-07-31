@@ -1,0 +1,16 @@
+{
+  "contractVersion": 1,
+  "taskId": "AAI-1244",
+  "feature": "Mixed-source FMDS assistant retrieval",
+  "route": "/ai",
+  "flows": [{"name":"Mixed research request","steps":["Submit mixed FMDS, meeting, email, and Teams request","Confirm all four analysis steps","Review separated answer"],"expectedOutcome":"The assistant searches every requested source family and keeps communication findings separate from FMDS conclusions."}],
+  "requiredEvidence": ["screenshots", "actionLog", "negativePath", "visualReview", "regressionTest"],
+  "visual": {"viewports":["desktop"],"checks":["Requested analysis steps are visible","Failure state is actionable"]},
+  "independentReview": {"required": true},
+  "claims": [
+    {"id":"mixed-source-result","description":"Requested source families are visibly invoked","evidence":[{"key":"screenshots","min":1},{"key":"actionLog","min":1}]},
+    {"id":"failure-loudly","description":"Unavailable source capability is surfaced with a specific cause","evidence":[{"key":"negativePath","min":1}]},
+    {"id":"visual-desktop","description":"Desktop result is visibly reviewable","evidence":[{"key":"visualReview","min":1}]},
+    {"id":"regression","description":"Typed routing and policy regression coverage exists","evidence":[{"key":"regressionTest","min":1}]}
+  ]
+}

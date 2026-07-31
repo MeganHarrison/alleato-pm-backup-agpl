@@ -1,0 +1,74 @@
+---
+title: Invoicing
+description: Manage owner pay applications and subcontractor invoices against the schedule of values.
+audience: client
+visibility: published
+module: invoicing
+category: Financial Tools
+tags: [invoicing, pay-application, sov, billing]
+featured: true
+client_visible: true
+ai_visible: true
+order: 140
+related_routes:
+  - /[projectId]/invoicing
+related_actions: []
+---
+
+# Invoicing
+
+The Invoicing tool handles two flows: owner pay applications (billing the owner) and subcontractor invoices (subs billing the project). Both bill against an approved schedule of values.
+
+## Open Invoicing
+
+1. Select the project.
+2. Open **Invoicing** from the sidebar.
+3. Use the tabs to switch between **Owner Invoices** and **Subcontractor Invoices**.
+
+## Owner Pay Applications
+
+Owner invoices are pay applications submitted to the owner against the prime contract SOV.
+
+1. Select **Create Owner Invoice**.
+2. Choose the **Billing Period**.
+3. Enter the **% Complete** or **Amount Billed** for each prime contract SOV line.
+4. Apply retainage as configured on the prime contract.
+5. Review the cover sheet and totals.
+6. Submit for approval, then send to the owner.
+
+## Subcontractor Invoices
+
+Subcontractor invoices bill the project against a commitment SOV.
+
+1. Select **Create Subcontractor Invoice**.
+2. Choose the **Commitment**.
+3. Enter the billed amount or % complete for each SOV line.
+4. Apply retainage and any deductions.
+5. Attach the subcontractor's invoice PDF and any lien waivers.
+6. Submit for approval.
+
+## Status
+
+- **Draft** — in progress, not yet submitted.
+- **Submitted** — awaiting review.
+- **Approved** — approved for payment.
+- **Paid** — payment recorded.
+- **Rejected** — returned for revision.
+
+## Approve an Invoice
+
+Approval requires the **approve_invoices** capability. See [Manage User Access](/help/articles/manage-permissions).
+
+1. Open the invoice record.
+2. Review SOV lines, retainage, and attachments.
+3. Select **Approve** or **Reject** with comments.
+
+## Subcontractor Submission Portal
+
+Subcontractors can submit their own invoices through the portal. See [Submit an Invoice](/help/articles/submit-invoice).
+
+## Related Articles
+
+- [Commitments](/help/articles/commitments)
+- [Prime Contracts](/help/articles/prime-contracts)
+- [Submit an Invoice](/help/articles/submit-invoice)

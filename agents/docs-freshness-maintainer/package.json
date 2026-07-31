@@ -1,0 +1,22 @@
+{
+  "name": "docs-freshness-maintainer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "eve": "eve",
+    "info": "eve info",
+    "dev": "eve dev",
+    "eval": "eve eval",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "eve": "^0.17.1",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^25.1.0",
+    "typescript": "^5.9.2"
+  }
+}

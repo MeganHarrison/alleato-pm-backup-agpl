@@ -1,0 +1,65 @@
+{
+  "contractVersion": 1,
+  "taskId": "AAI-1147",
+  "feature": "Accounting AR and AP project balance charts",
+  "route": "/accounting",
+  "flows": [
+    {
+      "name": "Review project-grouped financial position",
+      "steps": [
+        "Open the authenticated Accounting dashboard",
+        "Confirm Accounts Receivable is grouped by project",
+        "Confirm Accounts Payable is grouped by project",
+        "Inspect project labels, totals, and ledger links at responsive widths"
+      ],
+      "expectedOutcome": "Both charts show source-backed project balances instead of aging-day buckets without losing totals, links, or failure recovery"
+    }
+  ],
+  "requiredEvidence": [
+    "screenshots",
+    "actionLog",
+    "summary",
+    "visualReview",
+    "regressionTest"
+  ],
+  "visual": {
+    "viewports": ["desktop", "tablet", "mobile"],
+    "checks": [
+      "Project codes are readable",
+      "No horizontal overflow",
+      "AR and AP have equal hierarchy",
+      "Ledger links remain usable"
+    ]
+  },
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "project-grouping",
+      "description": "AR and AP charts render project-group response data instead of aging buckets",
+      "evidence": [
+        { "key": "summary", "min": 1 },
+        { "key": "regressionTest", "min": 1 }
+      ]
+    },
+    {
+      "id": "desktop-visual",
+      "description": "Desktop chart hierarchy and labels are visually approved",
+      "evidence": [{ "key": "visualReview", "min": 1 }]
+    },
+    {
+      "id": "mobile-visual",
+      "description": "Mobile chart hierarchy and labels are readable without overflow",
+      "evidence": [{ "key": "visualReview", "min": 1 }]
+    },
+    {
+      "id": "canonical-flow",
+      "description": "Authenticated Accounting route retains totals, links, and recovery behavior",
+      "evidence": [
+        { "key": "screenshots", "min": 2 },
+        { "key": "actionLog", "min": 1 }
+      ]
+    }
+  ]
+}

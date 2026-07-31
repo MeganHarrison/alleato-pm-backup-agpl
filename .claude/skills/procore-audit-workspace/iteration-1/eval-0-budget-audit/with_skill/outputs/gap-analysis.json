@@ -1,0 +1,364 @@
+{
+  "meta": {
+    "tool": "budget",
+    "generated": "2026-03-08",
+    "procore_crawl_source": "_bmad-output/planning-artifacts/budget/.archive/",
+    "procore_crawl_date": "2025-12",
+    "procore_crawl_pages_captured": 14,
+    "alleato_path": "frontend/src/app/(main)/[projectId]/budget/",
+    "overall_verdict": "NEEDS MINOR WORK",
+    "overall_completion_pct": 80
+  },
+
+  "executive_summary": {
+    "pages": {
+      "status": "partial",
+      "implemented": 5,
+      "total": 6,
+      "pct": 83,
+      "notes": "Budget Details tab missing; replaced by Cost Codes tab (different purpose)"
+    },
+    "list_table_columns": {
+      "status": "complete",
+      "implemented": 15,
+      "total": 15,
+      "pct": 100,
+      "notes": "All 15 Procore budget columns implemented with correct formulas"
+    },
+    "form_fields": {
+      "status": "partial",
+      "implemented": 5,
+      "total": 7,
+      "pct": 71,
+      "notes": "Missing: vendor field, WBS attributes on line-item form"
+    },
+    "status_workflow": {
+      "status": "complete",
+      "implemented": 4,
+      "total": 4,
+      "pct": 100,
+      "notes": "draft, pending, approved, void all implemented for modifications"
+    },
+    "crud_operations": {
+      "status": "partial",
+      "implemented": ["create", "read", "update", "delete"],
+      "missing": ["import_from_excel", "export_to_pdf", "export_to_excel"],
+      "notes": "Export and Import buttons exist but show 'coming soon' toasts"
+    },
+    "database_schema": {
+      "status": "partial",
+      "notes": "Core columns present; missing vendor_id, wbs_attributes on budget_lines; missing modification_type, change_event_id, voided_reason on budget_modification_lines"
+    },
+    "validations": {
+      "status": "partial",
+      "notes": "Required fields enforced; missing red-text budget warning visual indicators"
+    },
+    "financial_views": {
+      "status": "partial",
+      "notes": "budget_views + budget_view_columns tables in DB; UI selector not confirmed"
+    },
+    "erp_integration": {
+      "status": "not_implemented",
+      "notes": "Intentionally out of scope for Phase 1"
+    },
+    "export_import": {
+      "status": "not_implemented",
+      "notes": "All export/import actions stubbed with toast.info('coming soon')"
+    }
+  },
+
+  "pages": [
+    {
+      "procore_page": "Budget main table view",
+      "procore_url_pattern": "/projects/{id}/budget",
+      "alleato_route": "/[projectId]/budget",
+      "status": "complete",
+      "notes": "Full 15-column budget table with TanStack Table, grouping by cost code"
+    },
+    {
+      "procore_page": "Budget Details tab",
+      "procore_url_pattern": "/projects/{id}/budget?tab=details",
+      "alleato_route": null,
+      "status": "missing",
+      "notes": "Alleato has Cost Codes tab instead (different function — manage active cost codes for project). Procore Details shows sub-job breakdown and additional metadata."
+    },
+    {
+      "procore_page": "Budget Modifications tab",
+      "procore_url_pattern": "Budget tool > Modifications section",
+      "alleato_route": "/[projectId]/budget (modifications tab)",
+      "status": "complete",
+      "notes": "All modification statuses implemented with creation and approval workflow"
+    },
+    {
+      "procore_page": "Forecasting tab",
+      "procore_url_pattern": "/projects/{id}/budget?tab=forecast",
+      "alleato_route": "/[projectId]/budget (forecasting tab)",
+      "status": "partial",
+      "notes": "Implemented but Export stubbed; shows max 10 cost codes; no S-curve chart"
+    },
+    {
+      "procore_page": "Snapshots tab",
+      "procore_url_pattern": "/projects/{id}/budget?tab=snapshots",
+      "alleato_route": "/[projectId]/budget (snapshots tab)",
+      "status": "partial",
+      "notes": "Implemented; comparison sequential only (no arbitrary selector); max 5 snapshots displayed; Export stubbed"
+    },
+    {
+      "procore_page": "Change History tab",
+      "procore_url_pattern": "/projects/{id}/budget?tab=history",
+      "alleato_route": "/[projectId]/budget (change-history tab)",
+      "status": "complete",
+      "notes": "History tracking implemented"
+    },
+    {
+      "procore_page": "Financial Views selector",
+      "procore_url_pattern": "Budget tool header > Financial Views dropdown",
+      "alleato_route": null,
+      "status": "partial",
+      "notes": "DB tables exist (budget_views, budget_view_columns); UI selector not confirmed"
+    }
+  ],
+
+  "table_columns": {
+    "main_budget_table": [
+      { "procore": "Cost Code", "alleato": "cost_code + cost_type (description)", "status": "complete", "impact": null },
+      { "procore": "Original Budget", "alleato": "originalBudgetAmount", "status": "complete", "impact": null },
+      { "procore": "Budget Modifications", "alleato": "budgetModifications", "status": "complete", "impact": null },
+      { "procore": "Approved Change Orders", "alleato": "approvedCOs", "status": "complete", "impact": null },
+      { "procore": "Revised Budget", "alleato": "revisedBudget", "status": "complete", "impact": null },
+      { "procore": "Job to Date Cost (Detail)", "alleato": "jobToDateCostDetail", "status": "complete", "impact": null },
+      { "procore": "Direct Costs", "alleato": "directCosts", "status": "complete", "impact": null },
+      { "procore": "Pending Budget Changes", "alleato": "pendingChanges", "status": "complete", "impact": null },
+      { "procore": "Projected Budget", "alleato": "projectedBudget", "status": "complete", "impact": null },
+      { "procore": "Committed Costs", "alleato": "committedCosts", "status": "complete", "impact": null },
+      { "procore": "Pending Cost Changes", "alleato": "pendingCostChanges", "status": "complete", "impact": null },
+      { "procore": "Projected Costs", "alleato": "projectedCosts", "status": "complete", "impact": null },
+      { "procore": "Forecast to Complete", "alleato": "forecastToComplete", "status": "complete", "impact": null },
+      { "procore": "Estimated Cost at Completion (EAC)", "alleato": "estimatedCostAtCompletion", "status": "complete", "impact": null },
+      { "procore": "Projected Over/Under", "alleato": "projectedOverUnder", "status": "complete", "impact": null }
+    ],
+    "modifications_table": [
+      { "procore": "# (Number)", "alleato": "number", "status": "complete", "impact": null },
+      { "procore": "Status", "alleato": "status (StatusBadge)", "status": "complete", "impact": null },
+      { "procore": "Title", "alleato": "title", "status": "complete", "impact": null },
+      { "procore": "Cost Codes", "alleato": "cost_codes summary", "status": "complete", "impact": null },
+      { "procore": "Amount", "alleato": "amount", "status": "complete", "impact": null },
+      { "procore": "Created", "alleato": "created_at", "status": "complete", "impact": null },
+      { "procore": "Effective Date", "alleato": "effective_date", "status": "complete", "impact": null },
+      { "procore": "Modification Type", "alleato": null, "status": "missing", "impact": "medium" },
+      { "procore": "Change Event #", "alleato": null, "status": "missing", "impact": "medium" }
+    ]
+  },
+
+  "form_fields": {
+    "budget_line_item": [
+      { "procore": "Budget Code", "type": "select", "required": true, "alleato": "project_budget_code_id + cost_code_id + cost_type_id", "status": "complete", "impact": null },
+      { "procore": "Quantity", "type": "number", "required": false, "alleato": "quantity", "status": "complete", "impact": null },
+      { "procore": "Unit of Measure", "type": "select", "required": false, "alleato": "unit_of_measure", "status": "complete", "impact": null },
+      { "procore": "Unit Cost", "type": "number", "required": false, "alleato": "unit_cost", "status": "complete", "impact": null },
+      { "procore": "Amount / Original Budget", "type": "number", "required": true, "alleato": "original_amount", "status": "complete", "impact": null },
+      { "procore": "Description / Notes", "type": "textarea", "required": false, "alleato": "description", "status": "complete", "impact": null },
+      { "procore": "Sub-job", "type": "select", "required": false, "alleato": "sub_job_id (DB only)", "status": "partial", "impact": "medium", "notes": "DB column exists; UI picker not confirmed" },
+      { "procore": "Vendor", "type": "select", "required": false, "alleato": null, "status": "missing", "impact": "low" },
+      { "procore": "WBS Attributes", "type": "key-value", "required": false, "alleato": null, "status": "missing", "impact": "low" }
+    ],
+    "budget_modification": [
+      { "procore": "Title", "type": "text", "required": true, "alleato": "title", "status": "complete", "impact": null },
+      { "procore": "Status", "type": "select", "required": true, "alleato": "status", "status": "complete", "impact": null },
+      { "procore": "Effective Date", "type": "date", "required": false, "alleato": "effective_date", "status": "complete", "impact": null },
+      { "procore": "Cost Code Lines", "type": "repeating", "required": true, "alleato": "budget_mod_lines", "status": "complete", "impact": null },
+      { "procore": "Modification Type", "type": "select (addition/deduction)", "required": false, "alleato": null, "status": "missing", "impact": "medium" },
+      { "procore": "Change Event link", "type": "select", "required": false, "alleato": null, "status": "missing", "impact": "medium" },
+      { "procore": "Void Reason", "type": "textarea", "required": false, "alleato": null, "status": "missing", "impact": "low" }
+    ]
+  },
+
+  "statuses": {
+    "budget_modifications": [
+      { "procore": "Draft", "alleato": "draft", "implemented": true },
+      { "procore": "Pending", "alleato": "pending", "implemented": true },
+      { "procore": "Approved", "alleato": "approved", "implemented": true },
+      { "procore": "Void", "alleato": "void", "implemented": true }
+    ],
+    "budget_master": [
+      { "procore": "Active (unlocked)", "alleato": "isLocked = false", "implemented": true },
+      { "procore": "Locked", "alleato": "isLocked = true", "implemented": true },
+      { "procore": "ERP Synced", "alleato": null, "implemented": false, "notes": "Out of scope" }
+    ]
+  },
+
+  "missing_functionality": {
+    "high": [
+      {
+        "id": "export-budget",
+        "description": "Export budget to PDF and Excel",
+        "detail": "Export buttons in main table, forecasting tab, and snapshots tab all show 'coming soon' toasts. Procore exports are heavily used for owner reporting and GC billing packages.",
+        "affected_files": [
+          "frontend/src/components/budget/forecasting-tab.tsx",
+          "frontend/src/components/budget/snapshots-tab.tsx"
+        ]
+      },
+      {
+        "id": "import-budget",
+        "description": "Import budget line items from Excel",
+        "detail": "Procore's Import dropdown allows bulk line-item creation from spreadsheet. Critical for initial project setup workflows when owners provide budget in Excel.",
+        "affected_files": []
+      }
+    ],
+    "medium": [
+      {
+        "id": "budget-details-tab",
+        "description": "Budget Details tab (sub-job breakdown and metadata view)",
+        "detail": "Procore's ?tab=details shows sub-job segmentation, additional metadata columns, and a different grid layout. Alleato's Cost Codes tab serves a different purpose (managing which codes are active). Neither fully replaces the other."
+      },
+      {
+        "id": "financial-views-ui",
+        "description": "Financial Views selector UI",
+        "detail": "Procore allows saving named column configurations (e.g., 'Owner View'). budget_views + budget_view_columns tables exist in Alleato DB. UI selector not confirmed implemented.",
+        "db_tables_exist": true
+      },
+      {
+        "id": "modification-type",
+        "description": "Modification Type field (addition vs. deduction) on budget modifications",
+        "detail": "Procore distinguishes addition vs. deduction budget modifications. Allows filtering, reporting, and sign-aware display.",
+        "db_migration_needed": true
+      },
+      {
+        "id": "change-event-linkage",
+        "description": "Change Event linkage on budget modifications",
+        "detail": "Procore modifications can reference a parent change event for full audit trail. Missing change_event_id FK on budget_modification_lines.",
+        "db_migration_needed": true
+      },
+      {
+        "id": "snapshot-comparison-selector",
+        "description": "Arbitrary snapshot-to-snapshot comparison selector",
+        "detail": "Procore allows selecting any two snapshots for side-by-side comparison. Alleato only shows sequential comparison (each vs. prior)."
+      },
+      {
+        "id": "sub-job-ui",
+        "description": "Sub-job picker on line-item form",
+        "detail": "sub_job_id column exists in budget_lines but the line-item create/edit form may not expose a sub-job dropdown. Procore sub-jobs segment budget by phase or section.",
+        "db_column_exists": true
+      }
+    ],
+    "low": [
+      {
+        "id": "vendor-field",
+        "description": "Vendor field on budget line items",
+        "detail": "Procore allows associating a vendor with a budget line. No vendor_id column in budget_lines.",
+        "db_migration_needed": true
+      },
+      {
+        "id": "wbs-attributes",
+        "description": "WBS (Work Breakdown Structure) attributes on line items",
+        "detail": "Procore allows custom key-value WBS attributes for owner reporting. Not present in Alleato schema.",
+        "db_migration_needed": true
+      },
+      {
+        "id": "void-reason",
+        "description": "Void reason text field on modifications",
+        "detail": "Procore requires a reason when voiding a modification. Alleato sets void status but has no voided_reason column.",
+        "db_migration_needed": true
+      },
+      {
+        "id": "red-text-warnings",
+        "description": "Red-text row highlighting when projected costs exceed budget",
+        "detail": "Procore highlights budget lines in red when projected costs exceed revised budget by threshold. is_red_text field in Procore spec. No visual indicator in Alleato."
+      },
+      {
+        "id": "forecasting-curve-chart",
+        "description": "S-curve forecast visualization in forecasting tab",
+        "detail": "Procore's forecasting tab renders an S-curve chart. Alleato has curve_id on budget_lines and forecasting_curves table but no chart rendered."
+      },
+      {
+        "id": "snapshot-display-limit",
+        "description": "Snapshot card grid limited to 5 snapshots",
+        "detail": "Alleato shows max 5 snapshots in the card grid. Should use pagination or scroll."
+      },
+      {
+        "id": "forecast-display-limit",
+        "description": "Forecasting tab shows max 10 cost codes",
+        "detail": "Alleato's forecast breakdown is capped at 10 items. Should paginate."
+      }
+    ]
+  },
+
+  "database_schema_gaps": {
+    "budget_lines": [
+      { "column": "cost_code_id", "type": "string (FK)", "exists": true, "migration_needed": false },
+      { "column": "cost_type_id", "type": "string (FK)", "exists": true, "migration_needed": false },
+      { "column": "original_amount", "type": "numeric", "exists": true, "migration_needed": false },
+      { "column": "quantity", "type": "numeric", "exists": true, "migration_needed": false },
+      { "column": "unit_of_measure", "type": "string", "exists": true, "migration_needed": false },
+      { "column": "unit_cost", "type": "numeric", "exists": true, "migration_needed": false },
+      { "column": "description", "type": "text", "exists": true, "migration_needed": false },
+      { "column": "sub_job_id", "type": "string (FK)", "exists": true, "migration_needed": false },
+      { "column": "forecasting_enabled", "type": "boolean", "exists": true, "migration_needed": false },
+      { "column": "default_ftc_method", "type": "string", "exists": true, "migration_needed": false },
+      { "column": "default_curve_id", "type": "string (FK)", "exists": true, "migration_needed": false },
+      { "column": "vendor_id", "type": "string (FK to vendors)", "exists": false, "migration_needed": true, "priority": "low" },
+      { "column": "wbs_attributes", "type": "jsonb", "exists": false, "migration_needed": true, "priority": "low" },
+      { "column": "is_red_text", "type": "boolean", "exists": false, "migration_needed": false, "priority": "low", "notes": "Can be derived from projected costs vs revised budget" }
+    ],
+    "budget_modification_lines": [
+      { "column": "modification_type", "type": "text (addition|deduction)", "exists": false, "migration_needed": true, "priority": "medium" },
+      { "column": "change_event_id", "type": "UUID (FK)", "exists": false, "migration_needed": true, "priority": "medium" },
+      { "column": "voided_reason", "type": "text", "exists": false, "migration_needed": true, "priority": "low" }
+    ]
+  },
+
+  "formula_verification": {
+    "all_formulas_match": true,
+    "formulas": [
+      {
+        "column": "revised_budget",
+        "procore_formula": "original_budget + budget_modifications + approved_change_orders",
+        "alleato_implementation": "v_budget_rollup.revised_budget",
+        "verified": true
+      },
+      {
+        "column": "projected_budget",
+        "procore_formula": "revised_budget + pending_budget_changes",
+        "alleato_implementation": "v_budget_rollup.projected_budget",
+        "verified": true
+      },
+      {
+        "column": "projected_costs",
+        "procore_formula": "committed_costs + pending_cost_changes + direct_costs",
+        "alleato_implementation": "v_budget_rollup.projected_costs",
+        "verified": true
+      },
+      {
+        "column": "forecast_to_complete",
+        "procore_formula": "estimated_cost_at_completion - job_to_date_cost",
+        "alleato_implementation": "v_budget_rollup.forecast_to_complete",
+        "verified": true
+      },
+      {
+        "column": "projected_over_under",
+        "procore_formula": "projected_budget - estimated_cost_at_completion",
+        "alleato_implementation": "v_budget_rollup.projected_over_under",
+        "verified": true
+      }
+    ]
+  },
+
+  "alleato_files_analyzed": [
+    "frontend/src/app/(main)/[projectId]/budget/page.tsx",
+    "frontend/src/components/budget/budget-table.tsx",
+    "frontend/src/components/budget/budget-modifications-tab.tsx",
+    "frontend/src/components/budget/budget-line-item-form.tsx",
+    "frontend/src/components/budget/forecasting-tab.tsx",
+    "frontend/src/components/budget/snapshots-tab.tsx",
+    "frontend/src/components/budget/change-history-tab.tsx",
+    "frontend/src/components/budget/cost-codes-tab.tsx",
+    "frontend/src/types/database.types.ts (budget_lines section)",
+    "_bmad-output/planning-artifacts/budget/schema-budget.md"
+  ],
+
+  "procore_sources_analyzed": [
+    "_bmad-output/planning-artifacts/budget/.archive/comprehensive-budget-crawl-report.md",
+    "_bmad-output/planning-artifacts/budget/.archive/budget-table.md",
+    "_bmad-output/planning-artifacts/budget/.archive/budget-analysis.md"
+  ]
+}

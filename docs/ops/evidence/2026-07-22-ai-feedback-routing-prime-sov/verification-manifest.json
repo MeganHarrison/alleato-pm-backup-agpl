@@ -1,0 +1,76 @@
+{
+  "contractVersion": 1,
+  "taskId": "LOCAL-AI-SOV-2026-07-22",
+  "riskLevel": "high",
+  "feature": "Alleato AI feedback routing and guarded Prime Contract SOV editing",
+  "route": "/1144/prime-contracts/aac4b9dd-4a8b-4e91-b1bf-19fa01bc0037",
+  "flows": [
+    {
+      "name": "Feature-gap feedback routing",
+      "steps": [
+        "Open Alleato AI with Nexcom selected",
+        "Submit the exact feature-gap confirmation wording",
+        "Inspect the assistant tool trace and response"
+      ],
+      "expectedOutcome": "The assistant uses the feedback workflow and does not return a project briefing"
+    },
+    {
+      "name": "Existing Prime Contract SOV preview",
+      "steps": [
+        "Open the Nexcom draft Prime Contract",
+        "Ask Alleato AI to preview a change to cost code 01-3120",
+        "Inspect the preview and stop before confirmation"
+      ],
+      "expectedOutcome": "The assistant returns an edit preview with an explicit confirmation boundary and does not mutate the contract"
+    },
+    {
+      "name": "Protected confirmed write",
+      "steps": [
+        "Build a deterministic preview",
+        "Exercise invalid permission, stale-state, and token cases",
+        "Exercise the exact confirmed preview through the atomic RPC test double"
+      ],
+      "expectedOutcome": "Only the exact authorized draft-state preview can reach the atomic write"
+    }
+  ],
+  "requiredEvidence": [
+    "screenshots",
+    "actionLog",
+    "summary",
+    "databaseReadback",
+    "negativePath",
+    "regressionTest"
+  ],
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "feedback-action-routing",
+      "description": "Explicit feature-gap confirmations reach the feedback workflow instead of project briefing retrieval",
+      "evidence": [
+        { "key": "screenshots", "min": 1 },
+        { "key": "actionLog", "min": 1 },
+        { "key": "regressionTest", "min": 1 }
+      ]
+    },
+    {
+      "id": "global-sov-preview",
+      "description": "Alleato AI can preview an existing draft Prime Contract SOV edit from the global chat surface without applying it",
+      "evidence": [
+        { "key": "screenshots", "min": 1 },
+        { "key": "databaseReadback", "min": 1 },
+        { "key": "regressionTest", "min": 1 }
+      ]
+    },
+    {
+      "id": "confirmed-write-safety",
+      "description": "Confirmed SOV writes require the exact authorized preview and fail closed on permission or state drift",
+      "evidence": [
+        { "key": "negativePath", "min": 1 },
+        { "key": "databaseReadback", "min": 1 },
+        { "key": "regressionTest", "min": 1 }
+      ]
+    }
+  ]
+}

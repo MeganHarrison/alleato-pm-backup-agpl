@@ -1,0 +1,24 @@
+{
+  "contractVersion": 1,
+  "riskLevel": "high",
+  "taskId": "AAI-1261",
+  "feature": "Source-backed RAG pipeline dashboard",
+  "route": "/ai-dashboard",
+  "flows": [
+    {
+      "name": "Inspect RAG vectorization throughput",
+      "steps": ["Authenticate", "Open /ai-dashboard", "Choose 24h, 3d, 7d, or 30d", "Inspect source count detail", "Open the selected source lifecycle view"],
+      "expectedOutcome": "The dashboard shows live vectorization counts for meetings, Teams messages, emails, and documents, then links each source to its scoped RAG lifecycle records."
+    }
+  ],
+  "requiredEvidence": ["screenshots", "regressionTest", "visualReview"],
+  "visual": {
+    "viewports": ["desktop", "mobile"],
+    "checks": ["Range controls remain visible", "The chart has four source bars", "No mobile horizontal overflow"]
+  },
+  "independentReview": { "required": true },
+  "claims": [
+    { "id": "source-backed-counts", "description": "Counts read from the RAG lifecycle source of truth.", "evidence": [{ "key": "regressionTest", "min": 1 }] },
+    { "id": "responsive-drilldown", "description": "The range controls and source drill-down work at desktop and mobile widths.", "evidence": [{ "key": "screenshots", "min": 2 }, { "key": "visualReview", "min": 1 }] }
+  ]
+}

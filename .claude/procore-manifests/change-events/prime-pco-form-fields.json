@@ -1,0 +1,13 @@
+{
+  "url": "https://us02.procore.com/webclients/host/companies/562949953443325/projects/562949955214671/tools/change-events/events",
+  "capturedAt": "2026-03-30T13:20:59.355Z",
+  "fields": [
+    {
+      "label": "Search",
+      "type": "search",
+      "name": "",
+      "required": false,
+      "placeholder": "Search"
+    }
+  ]
+}

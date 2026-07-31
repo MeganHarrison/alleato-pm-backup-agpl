@@ -1,0 +1,50 @@
+{
+  "expectations": [
+    {
+      "text": "finds-budget-crawler",
+      "passed": true,
+      "evidence": "Line 3 references 'Procore Data Source: _bmad-output/planning-artifacts/budget/.archive/comprehensive-budget-crawl-report.md (crawled 2025-12-29)' and entire document uses crawled data from budget crawler as reference material"
+    },
+    {
+      "text": "references-analyzer",
+      "passed": false,
+      "evidence": "Document does not mention 'analyze-procore-features.js' anywhere. Analysis appears to be manual code review and comparison without explicit use of the analyzer script"
+    },
+    {
+      "text": "maps-alleato-budget",
+      "passed": true,
+      "evidence": "Section 2 'Alleato Budget Tool: Actual Implementation State' explicitly maps implementation artifacts including: 'frontend/src/components/budget/budget-table.tsx' (line 126), 'frontend/src/components/budget/budget-page-header.tsx' (line 156), 'frontend/src/components/budget/budget-filters.tsx' (line 181), plus routes and additional components throughout sections 2, 3, and 4"
+    },
+    {
+      "text": "gap-report-format",
+      "passed": true,
+      "evidence": "Lines 8-30 contain 'Executive Summary' section with table showing columns 'Category | Procore | Alleato | Gap' with status indicators: 'HIGH', 'MEDIUM', 'MINIMAL', 'None' indicating gap severity"
+    },
+    {
+      "text": "form-field-comparison",
+      "passed": true,
+      "evidence": "Section 2.5 'Create Form Fields' (lines 206-221) shows table comparing 'Field | Procore | Alleato Form | Notes' with entries like 'Quantity (Unit Qty)', 'UOM', 'Unit Cost', 'Calculation Method'"
+    },
+    {
+      "text": "table-column-comparison",
+      "passed": true,
+      "evidence": "Section 2.1 'Main Table Columns Rendered' (lines 124-153) shows comprehensive table with structure 'Column | Key | Rendered in Table | Notes' comparing 14 financial columns and identifying 4 missing structural columns (Calculation Method, Unit Qty, UOM, Unit Cost)"
+    },
+    {
+      "text": "prioritized-tasks",
+      "passed": true,
+      "evidence": "Multiple priority categorizations present: Section 5 'Gap Priority Matrix' (lines 455-471) shows P0/P1/P2/P3 categorization with effort and impact columns. Section 8 'Recommended Action Plan' (lines 505-526) organizes by priority bands (P0 Immediate, P1 Short-Term, P2 Medium-Term, P3 Longer-Term). Section 3 detail gaps labeled 'HIGH PRIORITY', 'MEDIUM PRIORITY', 'LOW PRIORITY'"
+    },
+    {
+      "text": "output-saved",
+      "passed": true,
+      "evidence": "File exists at '/Users/meganharrison/Documents/github/alleato-pm/.claude/skills/procore-audit-workspace/iteration-1/eval-0-budget-audit/without_skill/outputs/budget-gap-analysis.md' with 531 lines of properly formatted markdown content including sections, tables, and detailed analysis"
+    }
+  ],
+  "summary": {
+    "passed": 7,
+    "failed": 1,
+    "total": 8,
+    "pass_rate": 0.875
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "status": "PASS",
+  "taskId": "LOCAL-AI-SOV-2026-07-22",
+  "verifiedAt": "2026-07-22T17:05:28.2215706Z",
+  "evidence": {
+    "screenshots": [
+      "docs/ops/evidence/2026-07-22-ai-feedback-routing-prime-sov/feedback-routing-preview.png",
+      "docs/ops/evidence/2026-07-22-ai-feedback-routing-prime-sov/prime-contract-sov-preview.png"
+    ],
+    "actionLog": [
+      "docs/ops/evidence/2026-07-22-ai-feedback-routing-prime-sov/browser-readback.md"
+    ],
+    "summary": [
+      "docs/ops/tasks/2026-07-22-ai-feedback-routing-prime-sov.md",
+      "docs/ops/handoffs/2026-07-22-SROOT431A-ai-feedback-routing-prime-sov.md"
+    ],
+    "databaseReadback": [
+      "docs/ops/evidence/2026-07-22-ai-feedback-routing-prime-sov/database-readback.md"
+    ],
+    "negativePath": [
+      "docs/ops/evidence/2026-07-22-ai-feedback-routing-prime-sov/negative-path.md"
+    ],
+    "regressionTest": [
+      "docs/ops/evidence/2026-07-22-ai-feedback-routing-prime-sov/regression-test.txt"
+    ]
+  },
+  "claims": {
+    "feedback-action-routing": {
+      "status": "PASS",
+      "note": "The exact feature-gap confirmation ran the feature-request workflow instead of project briefing retrieval."
+    },
+    "global-sov-preview": {
+      "status": "PASS",
+      "note": "The exact Preview changing wording invoked the global Edit Prime Contract Sov tool and returned a read-only preview."
+    },
+    "confirmed-write-safety": {
+      "status": "PASS",
+      "note": "Production stopped at preview; automated tests prove permission, state, token, idempotency, audit, and atomic-write boundaries."
+    }
+  },
+  "independentReview": {
+    "reviewer": "/root/image_vision_code_review + /root/image_vision_security_review + /root/image_vision_verification",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-22T17:05:28.2215706Z",
+    "artifact": "docs/ops/evidence/2026-07-22-ai-feedback-routing-prime-sov/independent-review.md"
+  }
+}

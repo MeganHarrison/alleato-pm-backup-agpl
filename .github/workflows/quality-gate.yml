@@ -1,0 +1,89 @@
+name: Quality Gate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  changed-quality:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: "10.13.1"
+
+      - name: Validate non-production route state
+        run: npm run verify:nonprod-routes
+
+      - name: Install frontend dependencies
+        run: pnpm --dir frontend install --frozen-lockfile
+
+      - name: Run changed-file quality ratchet
+        env:
+          GUARDRAIL_BASE_REF: origin/${{ github.base_ref }}
+        run: pnpm --dir frontend run quality:changed
+
+      - name: Run API smoke contracts (PR gate)
+        env:
+          API_SMOKE_BASE_URL: ${{ secrets.API_SMOKE_BASE_URL }}
+        run: |
+          if [[ -z "${API_SMOKE_BASE_URL}" ]]; then
+            echo "API_SMOKE_BASE_URL not set — skipping smoke (set secret to enable)"
+            exit 0
+          fi
+          node scripts/api-smoke-contracts.mjs
+
+  predeploy-gate:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: "10.13.1"
+
+      - name: Validate non-production route state
+        run: npm run verify:nonprod-routes
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install frontend dependencies
+        run: pnpm --dir frontend install --frozen-lockfile
+
+      - name: Run pre-deploy quality gate
+        env:
+          GUARDRAIL_BASE_REF: origin/${{ github.base_ref || 'main' }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || 'https://example.supabase.co' }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'local-dev-anon-key' }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          RAG_DATABASE_URL: ${{ secrets.RAG_DATABASE_URL }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: npm run quality:predeploy

@@ -1,0 +1,42 @@
+{
+  // markdownlint configuration
+  // Rules reference: https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md
+  "config": {
+    "default": true,
+    // Allow any heading style
+    "MD003": false,
+    // Allow any line length (too noisy for docs-heavy projects)
+    "MD013": false,
+    // Allow multiple headings with same content
+    "MD024": false,
+    // Allow trailing punctuation in headings (e.g., "What Happened?")
+    "MD026": false,
+    // Allow inline HTML (used in MDX and complex docs)
+    "MD033": false,
+    // Allow bold used as headings (common in this project's docs)
+    "MD036": false,
+    // MD040 - fenced code language (handled by fix-md040.mjs script)
+    "MD040": true,
+    // Allow first line to not be a heading (many docs start with frontmatter or context)
+    "MD041": false,
+    // Allow any emphasis/strong style
+    "MD049": false,
+    "MD050": false,
+    // Disable table column style (auto-generated reports have compact tables)
+    "MD060": false
+  },
+  "globs": [
+    "**/*.md",
+    "**/*.mdx"
+  ],
+  "ignores": [
+    "node_modules",
+    "**/node_modules",
+    ".next",
+    "**/.next",
+    ".venv",
+    "**/.venv",
+    "**/venv",
+    "backend/.venv/**"
+  ]
+}

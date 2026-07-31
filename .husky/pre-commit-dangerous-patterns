@@ -1,0 +1,91 @@
+#!/usr/bin/env sh
+
+# Check for dangerous patterns in staged code files
+# This prevents common mistakes from entering the codebase
+
+echo "🔍 Checking for dangerous patterns..."
+
+# Get staged TypeScript/JavaScript files (exclude scripts, seeds, tests, tools, and dev-tools)
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|tsx|js|jsx)$' | grep -v -E '^(scripts/|tools/|frontend/scripts/|frontend/tests/|frontend/add-line-items|\.claude/scripts/|frontend/src/components/dev-tools/)' || true)
+
+if [ -z "$STAGED_FILES" ]; then
+  # No code files staged, skip check
+  exit 0
+fi
+
+ISSUES_FOUND=0
+
+# 1. Check for console.log (should use console.warn/error)
+CONSOLE_LOGS=$(echo "$STAGED_FILES" | xargs grep -n "console\.log" 2>/dev/null || true)
+if [ -n "$CONSOLE_LOGS" ]; then
+  echo ""
+  echo "❌ Found console.log statements:"
+  echo "$CONSOLE_LOGS"
+  echo ""
+  echo "Use console.warn() or console.error() instead."
+  echo "If debugging, remove before committing."
+  echo ""
+  ISSUES_FOUND=1
+fi
+
+# 2. Check for @ts-ignore or @ts-expect-error
+TS_IGNORES=$(echo "$STAGED_FILES" | xargs grep -n "@ts-ignore\|@ts-expect-error" 2>/dev/null || true)
+if [ -n "$TS_IGNORES" ]; then
+  echo ""
+  echo "❌ Found @ts-ignore or @ts-expect-error:"
+  echo "$TS_IGNORES"
+  echo ""
+  echo "Fix the type error instead of suppressing it."
+  echo "If absolutely necessary, document why with a comment."
+  echo ""
+  ISSUES_FOUND=1
+fi
+
+# 3. Check for .only() in test files (would skip other tests)
+TEST_ONLY=$(echo "$STAGED_FILES" | grep -E 'spec\.(ts|tsx|js|jsx)$|test\.(ts|tsx|js|jsx)$' | xargs grep -n "\.only(" 2>/dev/null || true)
+if [ -n "$TEST_ONLY" ]; then
+  echo ""
+  echo "❌ Found .only() in test files:"
+  echo "$TEST_ONLY"
+  echo ""
+  echo "Remove .only() to run all tests."
+  echo "Using .only() would skip other tests in CI."
+  echo ""
+  ISSUES_FOUND=1
+fi
+
+# 4. Check for debugger statements
+DEBUGGERS=$(echo "$STAGED_FILES" | xargs grep -n "^\s*debugger" 2>/dev/null || true)
+if [ -n "$DEBUGGERS" ]; then
+  echo ""
+  echo "❌ Found debugger statements:"
+  echo "$DEBUGGERS"
+  echo ""
+  echo "Remove debugger statements before committing."
+  echo ""
+  ISSUES_FOUND=1
+fi
+
+# 5. Check for TODO/FIXME without context
+TODOS=$(echo "$STAGED_FILES" | xargs grep -n "//\s*TODO\s*$\|//\s*FIXME\s*$" 2>/dev/null || true)
+if [ -n "$TODOS" ]; then
+  echo ""
+  echo "⚠️  Found TODO/FIXME without description:"
+  echo "$TODOS"
+  echo ""
+  echo "Add context: // TODO: Add user validation"
+  echo "(This is a warning, not blocking commit)"
+  echo ""
+fi
+
+if [ $ISSUES_FOUND -eq 1 ]; then
+  echo "❌ Dangerous pattern check FAILED"
+  echo ""
+  echo "Fix the issues above before committing."
+  echo "If you must bypass (emergencies only): git commit --no-verify"
+  echo ""
+  exit 1
+fi
+
+echo "✅ No dangerous patterns found"
+exit 0

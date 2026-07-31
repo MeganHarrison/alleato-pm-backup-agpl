@@ -1,0 +1,15 @@
+Command:
+pytest -q backend/tests/test_outlook_intake.py backend/tests/test_business_area_embedder.py backend/tests/test_leadership_restriction.py backend/tests/test_project_assignment.py backend/tests/test_project_inference.py
+
+Result:
+59 passed, 28 warnings in 0.34s
+
+Warnings:
+Existing FastAPI on_event and datetime.utcnow deprecation warnings only.
+
+Additional checks:
+python3 -m py_compile backend/src/services/integrations/microsoft_graph/outlook.py backend/src/services/supabase_helpers.py backend/src/services/pipeline/embedder.py
+git diff --check
+
+Result:
+PASS

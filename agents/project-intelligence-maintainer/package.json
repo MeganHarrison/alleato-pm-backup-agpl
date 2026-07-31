@@ -1,0 +1,26 @@
+{
+  "name": "project-intelligence-maintainer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "eve": "eve",
+    "info": "eve info",
+    "postinstall": "node scripts/patch-eve-linear-agent-session.mjs",
+    "dev": "eve dev",
+    "eval": "EVE_PROJECT_INTELLIGENCE_MOCK_MODEL=true eve eval --max-concurrency 1 --timeout 60000",
+    "eval:live": "eve eval",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "eve": "^0.17.1",
+    "pg": "^8.16.3",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^25.1.0",
+    "@types/pg": "^8.16.0",
+    "typescript": "^5.9.2"
+  }
+}

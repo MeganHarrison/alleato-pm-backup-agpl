@@ -1,0 +1,233 @@
+name: Autofix PR Manager
+
+# Owns the lifecycle of automation-created PRs (label `automated-pr` or branch `autofix/*`):
+#   1. Marks draft PRs ready for review.
+#   2. Runs a blocking-defect review with structured verdict.
+#   3. verdict=request_changes → fixes the feedback in-place, pushes to the PR branch
+#      (which re-triggers this workflow for a re-review). Capped at 3 fix rounds,
+#      then labels `autofix:needs-human` and stops.
+#   4. verdict=approve → approves and enables auto-merge (squash). GitHub merges once
+#      required checks pass; `Resolves #N` in the PR body closes the source issue.
+#   5. On merge, posts a closing comment on the PR.
+# External reviews (CodeRabbit, humans) that request changes also trigger a fix round.
+
+on:
+  pull_request:
+    types: [opened, reopened, ready_for_review, synchronize, labeled, closed]
+  pull_request_review:
+    types: [submitted]
+
+concurrency:
+  group: autofix-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  manage:
+    if: |
+      github.event.pull_request.state == 'open' &&
+      (
+        startsWith(github.event.pull_request.head.ref, 'autofix/') ||
+        contains(github.event.pull_request.labels.*.name, 'automated-pr') ||
+        (github.event_name == 'pull_request' && github.event.action == 'labeled' && github.event.label.name == 'automated-pr')
+      ) &&
+      !contains(github.event.pull_request.labels.*.name, 'autofix:needs-human') &&
+      (github.event_name != 'pull_request_review' || github.event.review.state == 'changes_requested')
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      id-token: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+      HEAD_REF: ${{ github.event.pull_request.head.ref }}
+    steps:
+      - name: Check out PR branch
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+          token: ${{ secrets.AUTOFIX_GITHUB_TOKEN }}
+
+      - name: Mark draft PR ready for review
+        if: github.event.pull_request.draft
+        run: gh pr ready "$PR_NUMBER" --repo "${{ github.repository }}"
+
+      - name: Count fix rounds
+        id: rounds
+        shell: bash
+        run: |
+          git fetch origin main --quiet
+          count=$(git log origin/main..HEAD --grep="autofix: address review feedback" --oneline | wc -l | tr -d ' ')
+          echo "count=$count" >> "$GITHUB_OUTPUT"
+          echo "Fix rounds so far: $count"
+
+      - name: Stop loop after 3 fix rounds
+        if: steps.rounds.outputs.count >= 3
+        id: exhausted
+        run: |
+          gh pr edit "$PR_NUMBER" --repo "${{ github.repository }}" --add-label "autofix:needs-human"
+          gh pr comment "$PR_NUMBER" --repo "${{ github.repository }}" --body "Autofix review loop stopped after 3 fix rounds without reaching an approvable state. A human needs to review this PR. Remove the \`autofix:needs-human\` label and push a commit to resume automation."
+          echo "stopped=true" >> "$GITHUB_OUTPUT"
+
+      - name: Review PR with structured verdict
+        if: steps.exhausted.outputs.stopped != 'true' && github.event_name != 'pull_request_review'
+        id: review
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            You are the merge gatekeeper for an automation-created PR in this repository.
+
+            REPO: ${{ github.repository }}
+            PR NUMBER: ${{ github.event.pull_request.number }}
+
+            Review the full diff (`gh pr diff ${{ github.event.pull_request.number }}`) and the PR
+            description (`gh pr view ${{ github.event.pull_request.number }} --json title,body`).
+            Also read all existing review comments and unresolved threads
+            (`gh api repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/comments`
+            and `gh pr view ${{ github.event.pull_request.number }} --json reviews`) — treat unaddressed
+            defect reports from other reviewers (including CodeRabbit) as your findings too.
+
+            Verdict rules — this gates an automatic merge, so be strict but not pedantic:
+            - `request_changes` ONLY for defects that matter: incorrect behavior, broken or changed
+              contracts (API shapes, FK targets, auth), security issues, silent failure paths,
+              data loss risks, violations of repo guardrails (design-system rules, no hardcoded
+              colors, no raw fetch, etc.), or missing regression guardrails the PR claims to add.
+            - Style nitpicks, subjective preferences, and speculative refactors are NOT blocking.
+            - `approve` when the change is correct, scoped to the linked issue, and safe to ship.
+
+            List each blocking issue as a separate concrete, actionable string in `issues`.
+          claude_args: |
+            --allowedTools "Read,Glob,Grep,LS,Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh api:*),Bash(git diff:*),Bash(git log:*)"
+            --json-schema '{"type":"object","properties":{"verdict":{"type":"string","enum":["approve","request_changes"]},"summary":{"type":"string"},"issues":{"type":"array","items":{"type":"string"}}},"required":["verdict","summary"]}'
+
+      - name: Resolve verdict
+        if: steps.exhausted.outputs.stopped != 'true'
+        id: verdict
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          STRUCTURED: ${{ steps.review.outputs.structured_output }}
+          EXTERNAL_REVIEW_BODY: ${{ github.event.review.body }}
+          EXTERNAL_REVIEWER: ${{ github.event.review.user.login }}
+        run: |
+          if [ "$EVENT_NAME" = "pull_request_review" ]; then
+            echo "verdict=request_changes" >> "$GITHUB_OUTPUT"
+            {
+              echo "feedback<<EOF"
+              echo "Reviewer @$EXTERNAL_REVIEWER requested changes:"
+              echo "$EXTERNAL_REVIEW_BODY"
+              echo "Also address every unresolved inline review comment on this PR."
+              echo "EOF"
+            } >> "$GITHUB_OUTPUT"
+          else
+            if [ -z "$STRUCTURED" ]; then
+              echo "Review step returned no structured output." >&2
+              exit 1
+            fi
+            verdict=$(echo "$STRUCTURED" | jq -r '.verdict')
+            echo "verdict=$verdict" >> "$GITHUB_OUTPUT"
+            {
+              echo "feedback<<EOF"
+              echo "$STRUCTURED" | jq -r '.summary'
+              echo
+              echo "$STRUCTURED" | jq -r '(.issues // [])[] | "- " + .'
+              echo "EOF"
+            } >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Post review feedback comment
+        if: steps.exhausted.outputs.stopped != 'true' && steps.verdict.outputs.verdict == 'request_changes' && github.event_name != 'pull_request_review'
+        env:
+          FEEDBACK: ${{ steps.verdict.outputs.feedback }}
+        run: |
+          gh pr comment "$PR_NUMBER" --repo "${{ github.repository }}" --body "**Autofix review — changes requested (round $(( ${{ steps.rounds.outputs.count }} + 1 )) of 3):**
+
+          $FEEDBACK
+
+          An automated fix round is starting now."
+
+      - name: Fix review feedback
+        if: steps.exhausted.outputs.stopped != 'true' && steps.verdict.outputs.verdict == 'request_changes'
+        id: fix
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            You are addressing review feedback on PR #${{ github.event.pull_request.number }} in
+            ${{ github.repository }}. The PR branch is already checked out in the workspace.
+
+            Blocking feedback to resolve:
+            ${{ steps.verdict.outputs.feedback }}
+
+            Also fetch and address every unresolved inline review comment:
+            `gh api repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/comments`
+
+            Rules:
+            - Fix ONLY the reported problems. Do not expand scope.
+            - Stay under frontend/src/** and frontend/tests/** unless a reported defect is elsewhere in the PR's own diff.
+            - Do not commit or push — the workflow handles git.
+            - Follow AGENTS.md and the design-system guardrails.
+          claude_args: |
+            --allowedTools "Edit,MultiEdit,Write,Read,Glob,Grep,LS,Bash(pnpm:*),Bash(npm run:*),Bash(node:*),Bash(npx:*),Bash(ls:*),Bash(cat:*),Bash(grep:*),Bash(rg:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh api:*),Bash(git diff:*),Bash(git log:*),Bash(git status:*)"
+
+      - name: Push fix round
+        if: steps.exhausted.outputs.stopped != 'true' && steps.verdict.outputs.verdict == 'request_changes'
+        shell: bash
+        run: |
+          git config user.name "MeganHarrison"
+          git config user.email "109628141+MeganHarrison@users.noreply.github.com"
+
+          if git diff --quiet && [ -z "$(git ls-files --others --exclude-standard)" ]; then
+            gh pr edit "$PR_NUMBER" --repo "${{ github.repository }}" --add-label "autofix:needs-human"
+            gh pr comment "$PR_NUMBER" --repo "${{ github.repository }}" --body "The automated fix round produced no changes for the requested feedback, so the loop was stopped. A human needs to resolve the remaining review comments."
+            exit 0
+          fi
+
+          git add -A
+          git commit -m "autofix: address review feedback (round $(( ${{ steps.rounds.outputs.count }} + 1 )))"
+          git push origin "HEAD:$HEAD_REF"
+
+      - name: Approve and enable auto-merge
+        if: steps.exhausted.outputs.stopped != 'true' && steps.verdict.outputs.verdict == 'approve'
+        shell: bash
+        env:
+          SUMMARY: ${{ steps.verdict.outputs.feedback }}
+        run: |
+          gh pr review "$PR_NUMBER" --repo "${{ github.repository }}" --approve --body "**Autofix review — approved.**
+
+          $SUMMARY
+
+          Auto-merge is enabled; this PR merges automatically once required checks pass."
+
+          if ! gh pr merge "$PR_NUMBER" --repo "${{ github.repository }}" --auto --squash; then
+            echo "Auto-merge enablement failed — it may already be enabled (low-risk lane) or checks are already complete."
+            if ! gh pr merge "$PR_NUMBER" --repo "${{ github.repository }}" --squash; then
+              echo "Direct merge also unavailable; the ruleset will complete the merge once required checks pass."
+            fi
+          fi
+
+  notify-merged:
+    if: |
+      github.event_name == 'pull_request' &&
+      github.event.action == 'closed' &&
+      github.event.pull_request.merged == true &&
+      (
+        startsWith(github.event.pull_request.head.ref, 'autofix/') ||
+        contains(github.event.pull_request.labels.*.name, 'automated-pr')
+      )
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      pull-requests: write
+      issues: write
+    steps:
+      - name: Comment on merged PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr comment "${{ github.event.pull_request.number }}" --repo "${{ github.repository }}" \
+            --body "Merged automatically after passing review and required checks. The linked issue was closed by the merge."

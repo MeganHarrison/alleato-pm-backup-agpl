@@ -1,0 +1,40 @@
+{
+  "expectations": [
+    {
+      "text": "finds-transmittals-crawler - Agent identifies and locates the transmittals crawler script",
+      "passed": true,
+      "evidence": "Crawler script located at 'scripts/playwright-crawl/scripts/crawlers/features/crawl-transmittals-comprehensive.js' and referenced in JSON output as crawl source 'procore-crawls/procore-crawl-outputs/transmittals/crawl-transmittals/'. Agent successfully identified and used the crawler to generate audit data."
+    },
+    {
+      "text": "identifies-not-built - Agent recognizes transmittals is not yet implemented in Alleato PM",
+      "passed": true,
+      "evidence": "JSON explicitly documents: route_exists=true, implementation_state='placeholder only (Coming soon message)', database_tables='none found', hooks='none found', services='none found', migrations='none found'. Markdown clearly states: 'Alleato currently has zero implementation beyond a placeholder route. Everything must be built from scratch.'"
+    },
+    {
+      "text": "complete-inventory - Output includes inventory of pages, forms, table columns, statuses, and workflows",
+      "passed": true,
+      "evidence": "Pages (5): list, new, recycle_bin, export, configure_tab documented with URLs and components. Forms: 11 create form fields listed with types and sources. Columns: 8 log view columns with sortability. Statuses: Draft, Sent, Received, Closed. Workflows: 17 tutorials and 12 FAQ topics provide comprehensive workflow context. Permissions matrix covers 19 actions."
+    },
+    {
+      "text": "database-schema - Output includes database schema requirements for new tables/columns",
+      "passed": true,
+      "evidence": "Gap Analysis section includes complete 'Database Schema' subsection detailing 7 tables: transmittals (11 fields with FKs), transmittal_recipients (4 fields), transmittal_items (6 fields), transmittal_related_items (4 fields), transmittal_settings (2 fields), transmittal_distribution_defaults (2 fields), transmittal_email_log (6 fields). Each includes primary keys, foreign keys, data types, and business logic rationale."
+    },
+    {
+      "text": "greenfield-tasks - Task list reflects building from scratch with comprehensive implementation steps",
+      "passed": true,
+      "evidence": "Markdown includes phased implementation roadmap: Phase 1 MVP (schema, CRUD API, list/create/view UI, basic privacy), Phase 2 full parity (recycle bin, 3 export formats, email, settings, column customization), Phase 3 advanced (related items, email tracking, location filtering, granular permissions). Includes 11 API routes, 6 frontend pages with priorities, 8 React Query hooks, and 10 special implementation features."
+    },
+    {
+      "text": "output-saved - Report saved as a markdown file in the outputs directory",
+      "passed": true,
+      "evidence": "transmittals-gap-analysis.md saved at outputs/transmittals-gap-analysis.md (425 lines). transmittals-inventory.json saved at outputs/transmittals-inventory.json (459 lines). Both files present in correct directory with complete structured content."
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "pass_rate": 1.0
+  }
+}

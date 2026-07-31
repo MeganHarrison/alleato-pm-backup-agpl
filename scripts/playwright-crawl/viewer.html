@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alleato Procore Crawl Viewer</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #DB802D;
+            --primary-hover: #c46d1f;
+            --sidebar-bg: #fafbfc;
+            --content-bg: #ffffff;
+            --border-color: #e5e7eb;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --text-muted: #9ca3af;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --radius: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            background: var(--content-bg);
+            color: var(--text-primary);
+            font-size: 15px;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Top Navigation */
+        .top-nav {
+            display: flex;
+            gap: 0;
+            background: linear-gradient(to bottom, #ffffff, #f9fafb);
+            border-bottom: 2px solid var(--border-color);
+            padding: 0;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 16px 24px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-right: 1px solid var(--border-color);
+            transition: all 0.15s ease;
+            position: relative;
+        }
+
+        .nav-tab:last-child {
+            border-right: none;
+        }
+
+        .nav-tab:hover {
+            background: #ffffff;
+            color: var(--primary-color);
+        }
+
+        .nav-tab.active {
+            background: #ffffff;
+            color: var(--primary-color);
+            border-bottom: 3px solid var(--primary-color);
+            margin-bottom: -2px;
+        }
+
+        /* Main Content Container */
+        .main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 280px;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            overflow-y: auto;
+            padding: 24px 16px;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 3px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af;
+        }
+
+        .sidebar h2 {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 16px;
+            color: var(--text-muted);
+            padding: 0 12px;
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar li {
+            margin-bottom: 2px;
+        }
+
+        .sidebar a {
+            color: var(--text-primary);
+            text-decoration: none;
+            display: block;
+            padding: 8px 12px;
+            border-radius: 6px;
+            transition: all 0.15s ease;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .sidebar a:hover {
+            background: #ffffff;
+            color: var(--primary-color);
+            transform: translateX(2px);
+        }
+
+        .sidebar a.active {
+            background: var(--primary-color);
+            color: #ffffff;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .sidebar a.active:hover {
+            background: var(--primary-hover);
+            transform: translateX(0);
+        }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 48px 64px;
+            background: var(--content-bg);
+        }
+
+        .content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .content::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 4px;
+        }
+
+        .content::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af;
+        }
+
+        .markdown-body {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        /* Typography */
+        .markdown-body h1 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+        }
+
+        .markdown-body h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-top: 40px;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+            letter-spacing: -0.01em;
+        }
+
+        .markdown-body p {
+            margin-bottom: 16px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        .markdown-body strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* Beautiful Table Styling */
+        .markdown-body table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 32px 0;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .markdown-body thead {
+            background: linear-gradient(to bottom, #f9fafb, #f3f4f6);
+        }
+
+        .markdown-body th {
+            padding: 14px 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 2px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        .markdown-body td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #f3f4f6;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .markdown-body tbody tr {
+            transition: all 0.15s ease;
+        }
+
+        .markdown-body tbody tr:hover {
+            background: #fafbfc;
+            transform: scale(1.001);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .markdown-body tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Number columns - right align */
+        .markdown-body td:nth-child(3),
+        .markdown-body td:nth-child(4),
+        .markdown-body td:nth-child(5),
+        .markdown-body th:nth-child(3),
+        .markdown-body th:nth-child(4),
+        .markdown-body th:nth-child(5) {
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .markdown-body a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: color 0.15s ease;
+        }
+
+        .markdown-body a:hover {
+            color: var(--primary-hover);
+        }
+
+        /* Screenshot Preview */
+        .screenshot-preview {
+            max-width: 200px;
+            max-height: 140px;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .screenshot-preview:hover {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-color);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            justify-content: center;
+            align-items: center;
+            -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(8px);
+        }
+
+        .modal.active {
+            display: flex;
+            animation: fadeIn 0.2s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 12px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 24px;
+            right: 32px;
+            color: #ffffff;
+            font-size: 36px;
+            font-weight: 300;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(90deg);
+        }
+
+        /* Welcome Screen */
+        .welcome {
+            text-align: center;
+            padding: 120px 20px;
+            color: var(--text-secondary);
+        }
+
+        .welcome h1 {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+            letter-spacing: -0.03em;
+        }
+
+        .welcome p {
+            font-size: 18px;
+            color: var(--text-muted);
+        }
+
+        /* Category Headers in Sidebar */
+        .sidebar h3 {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-top: 24px;
+            margin-bottom: 8px;
+            padding: 0 12px;
+        }
+
+        .sidebar h3:first-of-type {
+            margin-top: 0;
+        }
+
+        /* Hide inactive project content */
+        .project-content {
+            display: none;
+        }
+
+        .project-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navigation -->
+    <div class="top-nav">
+        <div class="nav-tab active" data-project="budget">Budget</div>
+        <div class="nav-tab" data-project="prime-contracts">Prime Contracts</div>
+        <div class="nav-tab" data-project="support">Support</div>
+        <div class="nav-tab" data-project="docs">Docs</div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <div class="sidebar">
+            <div id="budget-files" class="project-content active">
+                <h2>Budget Files</h2>
+                <ul id="budget-file-list">
+                    <li>Loading files...</li>
+                </ul>
+            </div>
+
+            <div id="prime-contracts-files" class="project-content">
+                <h2>Prime Contracts Files</h2>
+                <ul id="prime-contracts-file-list">
+                    <li>Loading files...</li>
+                </ul>
+            </div>
+
+            <div id="support-files" class="project-content">
+                <h2>Support Files</h2>
+                <ul id="support-file-list">
+                    <li>Loading files...</li>
+                </ul>
+            </div>
+
+            <div id="docs-files" class="project-content">
+                <h2>Documentation</h2>
+                <ul id="docs-file-list">
+                    <li>Loading files...</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="markdown-body" id="markdown-content">
+                <div class="welcome">
+                    <h1>Alleato Procore Crawl Viewer</h1>
+                    <p>Select a project from the top navigation, then choose a file from the sidebar.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="image-modal">
+        <span class="modal-close">&times;</span>
+        <img id="modal-image" src="" alt="Screenshot">
+    </div>
+
+    <script>
+        const contentDiv = document.getElementById('markdown-content');
+        const modal = document.getElementById('image-modal');
+        const modalImage = document.getElementById('modal-image');
+        const modalClose = document.querySelector('.modal-close');
+        let currentFile = null;
+        let currentProject = 'budget';
+
+        // Configure marked options
+        marked.setOptions({
+            breaks: true,
+            gfm: true
+        });
+
+        // Project configurations
+        const projects = {
+            'budget': {
+                name: 'Budget',
+                folder: 'procore-budget-crawl',
+                listEl: document.getElementById('budget-file-list'),
+                contentEl: document.getElementById('budget-files')
+            },
+            'prime-contracts': {
+                name: 'Prime Contracts',
+                folder: 'procore-prime-contracts-crawl',
+                listEl: document.getElementById('prime-contracts-file-list'),
+                contentEl: document.getElementById('prime-contracts-files')
+            },
+            'support': {
+                name: 'Support',
+                folder: 'procore-support-crawl',
+                listEl: document.getElementById('support-file-list'),
+                contentEl: document.getElementById('support-files')
+            },
+            'docs': {
+                name: 'Documentation',
+                folder: 'docs',
+                listEl: document.getElementById('docs-file-list'),
+                contentEl: document.getElementById('docs-files')
+            }
+        };
+
+        // Top navigation handling
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const projectKey = tab.dataset.project;
+
+                // Update active tab
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                // Update active project content
+                document.querySelectorAll('.project-content').forEach(c => c.classList.remove('active'));
+                projects[projectKey].contentEl.classList.add('active');
+
+                // Update current project
+                currentProject = projectKey;
+
+                // Show welcome message when switching projects
+                contentDiv.innerHTML = `
+                    <div class="welcome">
+                        <h1>${projects[projectKey].name}</h1>
+                        <p>Select a file from the sidebar to view its contents.</p>
+                    </div>
+                `;
+            });
+        });
+
+        // Load file list from API for a specific project
+        async function loadFileList(projectKey) {
+            const project = projects[projectKey];
+            try {
+                const response = await fetch(`/api/files?project=${projectKey}`);
+                const files = await response.json();
+
+                // Group files by category
+                const grouped = files.reduce((acc, file) => {
+                    if (!acc[file.category]) acc[file.category] = [];
+                    acc[file.category].push(file);
+                    return acc;
+                }, {});
+
+                // Build the sidebar
+                project.listEl.innerHTML = '';
+
+                Object.entries(grouped).forEach(([category, categoryFiles]) => {
+                    if (categoryFiles.length > 0) {
+                        const categoryHeader = document.createElement('li');
+                        categoryHeader.innerHTML = `<h3 style="font-size: 14px; color: #666; margin-top: 15px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">${category}</h3>`;
+                        project.listEl.appendChild(categoryHeader);
+
+                        categoryFiles.forEach(file => {
+                            const li = document.createElement('li');
+                            const a = document.createElement('a');
+                            a.href = '#';
+                            // Convert to title case
+                            const displayName = file.name
+                                .toLowerCase()
+                                .split(' ')
+                                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                .join(' ');
+                            a.textContent = displayName;
+                            a.dataset.file = file.path;
+                            a.dataset.project = projectKey;
+
+                            a.addEventListener('click', (e) => {
+                                e.preventDefault();
+
+                                // Update active state within this project
+                                project.listEl.querySelectorAll('a').forEach(l => l.classList.remove('active'));
+                                a.classList.add('active');
+
+                                // Load and render markdown
+                                loadMarkdownFile(file.path, projectKey);
+                            });
+
+                            li.appendChild(a);
+                            project.listEl.appendChild(li);
+                        });
+                    }
+                });
+            } catch (error) {
+                project.listEl.innerHTML = '<li style="color: red;">Error loading files</li>';
+                console.error(`Error loading file list for ${projectKey}:`, error);
+            }
+        }
+
+        // Load all project file lists
+        Object.keys(projects).forEach(projectKey => {
+            loadFileList(projectKey);
+        });
+
+        // Set up Server-Sent Events for live reload
+        const eventSource = new EventSource('/events');
+
+        eventSource.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            if (data.type === 'reload' && currentFile && data.project === currentProject) {
+                // Reload the current file if it was changed
+                console.log('File changed, reloading:', data.file);
+                loadMarkdownFile(currentFile, currentProject);
+            }
+        };
+
+        eventSource.onerror = (error) => {
+            console.error('SSE connection error:', error);
+        };
+
+        async function loadMarkdownFile(filename, projectKey) {
+            currentFile = filename;
+            currentProject = projectKey;
+
+            try {
+                const response = await fetch(`/${projects[projectKey].folder}/${filename}`);
+                const markdown = await response.text();
+                const html = marked.parse(markdown);
+                contentDiv.innerHTML = html;
+
+                // Convert screenshot links to inline images
+                enhanceScreenshotLinks(projectKey);
+            } catch {
+                contentDiv.innerHTML = `<div class="welcome"><h1>Error</h1><p>Could not load file: ${filename}</p></div>`;
+            }
+        }
+
+        function enhanceScreenshotLinks(projectKey) {
+            // Handle links to screenshots (convert to inline images)
+            const links = contentDiv.querySelectorAll('a[href*="screenshot.png"], a[href*=".png"], a[href*=".jpg"], a[href*=".jpeg"]');
+            links.forEach(link => {
+                const href = link.getAttribute('href');
+                // Convert relative path to absolute from project directory
+                const imgPath = href.startsWith('../')
+                    ? `/${projects[projectKey].folder}/${href.replace('../', '')}`
+                    : `/${projects[projectKey].folder}/${href}`;
+
+                // Create thumbnail
+                const img = document.createElement('img');
+                img.src = imgPath;
+                img.className = 'screenshot-preview';
+                img.alt = 'Screenshot';
+
+                // Replace link with image
+                link.replaceWith(img);
+
+                // Add click handler for modal
+                img.addEventListener('click', () => {
+                    modalImage.src = imgPath;
+                    modal.classList.add('active');
+                });
+            });
+
+            // Handle images that are already rendered (make them clickable for modal)
+            const images = contentDiv.querySelectorAll('img:not(.screenshot-preview)');
+            images.forEach(img => {
+                // Fix relative image paths to include project folder
+                let currentSrc = img.getAttribute('src');
+
+                // If it's a full URL, extract just the path
+                if (currentSrc && currentSrc.startsWith('http')) {
+                    try {
+                        const url = new URL(currentSrc);
+                        currentSrc = url.pathname;
+                    } catch (e) {
+                        console.error('Failed to parse URL:', currentSrc);
+                    }
+                }
+
+                // Check if path needs project folder prefix
+                // If it starts with /pages/ or ./pages/ or pages/, it needs the project folder
+                if (currentSrc && (currentSrc.includes('/pages/') || currentSrc.startsWith('pages/') || currentSrc.startsWith('./pages/'))) {
+                    // Extract just the pages/... part
+                    const pagesMatch = currentSrc.match(/(?:\.\/)?pages\/.+/);
+                    if (pagesMatch) {
+                        const relativePath = pagesMatch[0].replace('./', '');
+                        const newSrc = `/${projects[projectKey].folder}/${relativePath}`;
+                        img.src = newSrc;
+                        console.log(`Fixed image path: ${currentSrc} -> ${newSrc}`);
+                    }
+                }
+
+                // Make all images clickable for modal view
+                img.style.cursor = 'pointer';
+                img.style.transition = 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)';
+
+                // Add hover effect
+                img.addEventListener('mouseenter', () => {
+                    img.style.transform = 'scale(1.02)';
+                    img.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)';
+                });
+
+                img.addEventListener('mouseleave', () => {
+                    img.style.transform = 'scale(1)';
+                    img.style.boxShadow = 'none';
+                });
+
+                // Add click handler for modal
+                img.addEventListener('click', () => {
+                    modalImage.src = img.src;
+                    modal.classList.add('active');
+                });
+            });
+        }
+
+        // Close modal on click
+        modalClose.addEventListener('click', () => {
+            modal.classList.remove('active');
+        });
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('active');
+            }
+        });
+
+        // Close modal on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                modal.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>

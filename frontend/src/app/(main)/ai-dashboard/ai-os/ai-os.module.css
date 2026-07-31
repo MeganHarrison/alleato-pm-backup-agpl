@@ -1,0 +1,176 @@
+/*
+ * AI Operating System — scoped visual tokens + custom-component styles.
+ * The ai-dashboard route is forced into `dark` at the layout, so these are the
+ * dark values. Series/node/status colors live here (not in Tailwind classNames)
+ * so the page stays free of hardcoded color classes; components reference them
+ * via `var(--aios-*)` through inline style or the classes below.
+ */
+
+.root {
+  /* ingestion + growth series */
+  --aios-s1: hsl(188 72% 58%);
+  --aios-s2: hsl(211 82% 66%);
+  --aios-s3: hsl(250 80% 74%);
+  --aios-s4: hsl(176 60% 52%);
+  --aios-s5: hsl(224 72% 72%);
+  --aios-s6: hsl(338 78% 70%);
+  --aios-s7: hsl(150 54% 56%);
+  --aios-s8: hsl(193 70% 58%);
+  --aios-line: hsl(0 0% 92%);
+
+  /* company-brain node types */
+  --aios-n-project: hsl(215 76% 70%);
+  --aios-n-meeting: hsl(211 80% 68%);
+  --aios-n-person: hsl(178 58% 54%);
+  --aios-n-client: hsl(150 54% 56%);
+  --aios-n-doc: hsl(224 72% 74%);
+  --aios-n-drawing: hsl(338 78% 72%);
+  --aios-n-decision: hsl(250 80% 76%);
+  --aios-n-task: hsl(190 68% 58%);
+  --aios-n-risk: hsl(0 74% 66%);
+  --aios-n-opp: hsl(193 70% 60%);
+
+  /* semantic + helpers bound to dashboard tokens */
+  --aios-accent: hsl(var(--ai-dashboard-accent));
+  --aios-good: hsl(152 55% 55%);
+  --aios-warn: hsl(265 65% 70%);
+  --aios-bad: hsl(0 74% 64%);
+  --aios-faint: hsl(240 5% 50%);
+}
+
+/* Major dashboard modules use tonal elevation, not decorative borders. The page
+   canvas is #1f1f1f and every operational module intentionally lifts to #262626. */
+.section {
+  margin-top: 40px;
+  padding: 28px;
+  border-radius: 16px;
+  background: hsl(var(--card));
+}
+
+.statusSurface { margin-top: 40px; }
+.roadmapSurface { padding-bottom: 32px; }
+
+.statusGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px 28px;
+}
+
+.statusMetric { min-width: 0; }
+
+.heartbeat {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid hsl(var(--border) / 0.7);
+}
+
+.chartModule { min-width: 0; }
+
+/* ---- heartbeat ---- */
+.hbBars { display: flex; gap: 3px; align-items: flex-end; height: 52px; }
+.hbBar { flex: 1 1 0; border-radius: 2px; min-width: 0; transition: opacity 0.15s ease; }
+.hbBar:hover { opacity: 0.7; }
+
+/* ---- charts ---- */
+.chartHolder { position: relative; width: 100%; }
+.chartSvg { display: block; width: 100%; height: auto; overflow: visible; }
+.gridLine { stroke: hsl(var(--border)); stroke-width: 1; }
+.axisNum { fill: hsl(var(--muted-foreground) / 0.7); font-family: var(--font-mono, ui-monospace, monospace); font-size: 10px; }
+.axisNumRight { fill: var(--aios-accent); }
+.xLbl { fill: hsl(var(--muted-foreground)); font-family: var(--font-mono, ui-monospace, monospace); font-size: 9.5px; }
+.xLblWeekend { opacity: 0.55; }
+.colGuide { fill: hsl(var(--foreground)); opacity: 0; transition: opacity 0.12s ease; }
+.colGuideOn { opacity: 0.85; }
+.colHit { fill: transparent; cursor: pointer; }
+.taskLine { fill: none; stroke: var(--aios-line); stroke-width: 2.1; stroke-linejoin: round; stroke-linecap: round; }
+.taskDot { fill: hsl(var(--card)); stroke: var(--aios-line); stroke-width: 2; }
+.areaFill { opacity: 0.16; }
+.areaLine { fill: none; stroke-width: 2.2; stroke-linejoin: round; stroke-linecap: round; }
+
+.tip {
+  position: absolute; z-index: 6; pointer-events: none; min-width: 168px; font-size: 12px;
+  background: hsl(240 6% 13%); color: hsl(var(--foreground)); border-radius: 12px; padding: 11px 12px;
+  box-shadow: 0 2px 6px hsl(0 0% 0% / 0.4), 0 24px 50px -20px hsl(0 0% 0% / 0.75);
+  opacity: 0; transform: translateY(3px); transition: opacity 0.12s ease, transform 0.12s ease;
+}
+.tipShow { opacity: 1; transform: translateY(0); }
+.tipDate { font-weight: 600; font-size: 12px; margin-bottom: 8px; }
+.tipRow { display: flex; align-items: center; gap: 8px; padding: 2px 0; }
+.tipSw { width: 8px; height: 8px; border-radius: 2px; flex: none; }
+.tipName { color: hsl(var(--muted-foreground)); }
+.tipVal { margin-left: auto; font-family: var(--font-mono, ui-monospace, monospace); font-weight: 600; }
+.tipSep { height: 1px; background: hsl(var(--border)); margin: 6px 0; }
+
+.legendBtn { display: inline-flex; align-items: center; gap: 7px; cursor: pointer; font-size: 12px;
+  color: hsl(var(--foreground) / 0.85); background: none; border: 0; padding: 3px 1px; transition: opacity 0.16s ease; }
+.legendBtn:focus-visible { outline: 2px solid var(--aios-accent); outline-offset: 2px; border-radius: 4px; }
+.legendSw { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+.legendSwLine { height: 3px; width: 14px; border-radius: 2px; }
+.legendOff { opacity: 0.36; }
+.legendOff .legendName { text-decoration: line-through; }
+
+/* ---- live pipeline ---- */
+.pipe { overflow-x: auto; padding-bottom: 2px; }
+.pipeTrack { display: flex; gap: 0; min-width: 780px; align-items: stretch; }
+.pipeLane { display: flex; flex-direction: column; gap: 8px; }
+.pnode { background: hsl(var(--background) / 0.68); border-radius: 10px; padding: 10px 12px; display: flex; align-items: center; gap: 9px; min-width: 132px; }
+.pnodeRun { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--aios-accent) 45%, transparent); }
+.pnDot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+.pnDotQueue { background: var(--aios-faint); }
+.pnDotRun { background: var(--aios-accent); animation: aiosPulse 1.4s ease-in-out infinite; }
+.pnDotDone { background: var(--aios-good); }
+.pnDotErr { background: var(--aios-bad); }
+@keyframes aiosPulse { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--aios-accent) 60%, transparent); } 50% { box-shadow: 0 0 0 5px transparent; } }
+.pipeArrow { display: flex; align-items: center; padding: 0 4px; color: hsl(var(--border)); }
+
+/* ---- company brain ---- */
+.brainWrap { position: relative; border-radius: 20px; overflow: hidden;
+  background:
+    radial-gradient(80% 90% at 22% 18%, color-mix(in srgb, var(--aios-n-meeting) 12%, transparent), transparent 60%),
+    radial-gradient(70% 80% at 82% 78%, color-mix(in srgb, var(--aios-n-opp) 10%, transparent), transparent 55%),
+    radial-gradient(120% 120% at 50% 0%, color-mix(in srgb, var(--aios-accent) 10%, hsl(var(--card))), hsl(var(--card)) 62%); }
+.brainCanvas { display: block; width: 100%; height: 540px; }
+@media (max-width: 640px) { .brainCanvas { height: 420px; } }
+.brainTip { position: absolute; z-index: 5; pointer-events: none; opacity: 0; transition: opacity 0.12s ease;
+  background: hsl(240 6% 13%); border-radius: 9px; padding: 7px 10px; font-size: 11.5px; transform: translate(-50%, -130%);
+  box-shadow: 0 2px 6px hsl(0 0% 0% / 0.4), 0 24px 50px -20px hsl(0 0% 0% / 0.75); }
+.brainTipShow { opacity: 1; }
+
+/* ---- kanban ---- */
+.kbar { height: 5px; border-radius: 999px; background: hsl(var(--muted) / 0.6); margin-top: 10px; overflow: hidden; }
+.kbarFill { display: block; height: 100%; border-radius: 999px; background: var(--aios-accent); }
+.kdot { width: 8px; height: 8px; border-radius: 50%; }
+.kprio { font-size: 9.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 2px 6px; border-radius: 5px; }
+.kprioHigh { background: color-mix(in srgb, var(--aios-bad) 16%, transparent); color: var(--aios-bad); }
+
+/* ---- tool cards ---- */
+/* The element is a div, not a <button> — no reset. A `background`/`border` reset
+   here silently overrides the Tailwind surface utilities on the callsite. */
+.tool { background: hsl(var(--background) / 0.55); text-align: left; width: 100%; cursor: pointer; color: inherit; }
+.tool:hover { background: hsl(var(--muted) / 0.72); }
+.tool:focus-visible { outline: 2px solid var(--aios-accent); outline-offset: 2px; border-radius: 12px; }
+.toolDetail { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+.toolDetailOpen { grid-template-rows: 1fr; }
+.toolDetailInner { overflow: hidden; }
+.statusBeta { background: hsl(var(--ai-dashboard-accent-muted)); color: hsl(var(--ai-dashboard-accent-muted-foreground)); }
+.statusSoon { background: hsl(var(--muted) / 0.6); color: hsl(var(--muted-foreground)); }
+
+/* ---- health dots ---- */
+.healthGreen { background: var(--aios-good); }
+.healthYellow { background: var(--aios-warn); }
+.healthRed { background: var(--aios-bad); }
+
+@media (min-width: 640px) {
+  .statusGrid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+@media (max-width: 639px) {
+  .section { margin-top: 28px; padding: 20px; border-radius: 14px; }
+  .statusSurface { margin-top: 32px; }
+  .heartbeat { margin-top: 24px; padding-top: 20px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pnDotRun { animation: none; }
+  .toolDetail { transition: none; }
+}

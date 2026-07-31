@@ -1,0 +1,56 @@
+{
+  "contractVersion": 1,
+  "taskId": "AAI-1225",
+  "feature": "Main-only repository delivery and branch reconciliation",
+  "route": "GitHub repository branch refs and rulesets",
+  "flows": [
+    {
+      "name": "Prevent a non-main branch push",
+      "steps": [
+        "Attempt to create a unique non-main branch ref",
+        "Observe the GitHub ruleset rejection",
+        "Attempt the local pre-push branch path",
+        "Observe the specific local failure"
+      ],
+      "expectedOutcome": "Both GitHub and local delivery paths fail loudly before a non-main branch can be created."
+    },
+    {
+      "name": "Reconcile historic refs without loss",
+      "steps": [
+        "Publish an archive tag for each original branch tip",
+        "Promote current intended commits to main",
+        "Delete the corresponding remote branch refs",
+        "Read back main, tags, ruleset, and branch inventory"
+      ],
+      "expectedOutcome": "Only main remains as a remote branch and every retired tip is recoverable from an immutable archive tag."
+    }
+  ],
+  "requiredEvidence": ["screenshots", "actionLog", "summary", "regressionTest"],
+  "visual": {
+    "viewports": ["desktop"],
+    "checks": ["The reconciliation receipt visibly names the live policy, main-only branch state, and recovery tags."]
+  },
+  "independentReview": { "required": true },
+  "claims": [
+    {
+      "id": "remote-fails-closed",
+      "description": "GitHub rejects creation of a non-main branch ref.",
+      "evidence": [{ "key": "actionLog", "min": 1 }, { "key": "regressionTest", "min": 1 }]
+    },
+    {
+      "id": "local-fails-closed",
+      "description": "The local hook and publish command reject non-main delivery.",
+      "evidence": [{ "key": "regressionTest", "min": 1 }]
+    },
+    {
+      "id": "no-work-lost",
+      "description": "Every retired branch tip is retained by an archive tag and intended current work is on main.",
+      "evidence": [{ "key": "summary", "min": 1 }, { "key": "actionLog", "min": 1 }]
+    },
+    {
+      "id": "visible-receipt",
+      "description": "The canonical reconciliation receipt visibly states the policy and recovery state.",
+      "evidence": [{ "key": "screenshots", "min": 1 }]
+    }
+  ]
+}

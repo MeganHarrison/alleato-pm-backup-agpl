@@ -1,0 +1,49 @@
+{
+  "contractVersion": 1,
+  "taskId": "AAI-1158",
+  "feature": "Accounting dashboard hierarchy and project chart polish",
+  "route": "/accounting",
+  "flows": [
+    {
+      "name": "Scan project financial exposure",
+      "steps": [
+        "Open the authenticated Accounting dashboard",
+        "Confirm Gross Margin follows Financial Position and Needs attention",
+        "Confirm Revenue by Project contains only named projects",
+        "Confirm empty Cost Breakdown is absent",
+        "Inspect the horizontal project rankings at desktop and mobile widths"
+      ],
+      "expectedOutcome": "Accounting users can compare named project financial exposure quickly without non-project artifacts, empty sections, diagonal-label noise, or responsive regressions"
+    }
+  ],
+  "requiredEvidence": ["screenshots", "actionLog", "summary", "visualReview", "regressionTest"],
+  "visual": {
+    "viewports": ["desktop", "mobile"],
+    "checks": [
+      "Gross Margin appears before Retainage",
+      "Project labels are readable horizontal rankings",
+      "Revenue by Project has no Unnamed project or X artifact",
+      "Empty Cost Breakdown is absent",
+      "Premium dark styling is preserved",
+      "No horizontal overflow"
+    ]
+  },
+  "independentReview": { "required": true },
+  "claims": [
+    {
+      "id": "project-only-revenue",
+      "description": "Revenue by Project includes only canonical named projects",
+      "evidence": [{ "key": "summary", "min": 1 }, { "key": "regressionTest", "min": 1 }, { "key": "actionLog", "min": 1 }]
+    },
+    {
+      "id": "decision-hierarchy",
+      "description": "Margin is prioritized and empty/noisy content is suppressed",
+      "evidence": [{ "key": "screenshots", "min": 1 }, { "key": "regressionTest", "min": 1 }]
+    },
+    {
+      "id": "responsive-project-rankings",
+      "description": "Project charts remain readable, dark, and overflow-free at desktop and mobile widths",
+      "evidence": [{ "key": "screenshots", "min": 2 }, { "key": "visualReview", "min": 1 }]
+    }
+  ]
+}

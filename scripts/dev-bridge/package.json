@@ -1,0 +1,14 @@
+{
+  "name": "alleato-dev-bridge",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@supabase/supabase-js": "*",
+    "dotenv": "*"
+  },
+  "scripts": {
+    "watch": "tsx watch-annotations.ts"
+  },
+  "notes": "Dependencies are resolved from frontend/node_modules. Run via: npm run watch"
+}

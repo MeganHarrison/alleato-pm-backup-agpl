@@ -1,0 +1,101 @@
+---
+title: Project Intelligence
+description: Review the AI-compiled project storyline with an executive snapshot, current focus, risks, decisions, timeline, and evidence citations.
+audience: client
+visibility: published
+module: intelligence
+category: AI & Intelligence
+tags: [intelligence, insights, ai, kpis, risk, decisions, blockers, financial-exposure]
+featured: true
+client_visible: true
+ai_visible: true
+order: 610
+related_routes:
+  - /[projectId]/intelligence
+related_actions: []
+---
+
+# Project Intelligence
+
+Project Intelligence is an AI-compiled snapshot of everything the platform knows about a project. It synthesizes meetings, emails, RFIs, change events, schedule data, and financials into a single page that explains what matters now, what changed, what could hurt the job, which decisions are still open, and how the project got here.
+
+## Open Project Intelligence
+
+1. Select the project.
+2. Open **Intelligence** from the sidebar.
+
+## What You See
+
+### Executive Snapshot
+
+The top of the page is designed to answer the present-state questions first:
+
+- Project stage
+- Schedule status
+- Budget status
+- Risk status
+- Overall health
+- A short executive summary
+- The immediate-attention list
+
+### Current Focus
+
+The next sections stay in present tense:
+
+- Current focus areas
+- Critical risks
+- Decisions needed
+- Executive-level action items
+
+These sections are intentionally selective. They are meant to surface the highest-signal operating issues, not every task or every record in the system.
+
+### Project Timeline
+
+Below the present-state sections, the page shows the project storyline as a vertical timeline. This is the historical memory of the job: what changed, when it changed, and why it mattered.
+
+### Freshness Status
+
+Shows when the intelligence was last compiled and whether it is current.
+
+- **Fresh** — compiled within the last 24 hours with recent source data
+- **Stale** — older than 24 hours; trigger a recompile for the latest view
+- **Partial** — some data sources were unavailable during the last compile
+- **Failed** — the last compile attempt did not complete; retry from the page
+
+### Supporting Insight Detail
+
+Supporting insight cards are still available deeper on the page for drill-down and auditability. Each card includes a short narrative, the source it was derived from, and a link to the underlying record.
+
+| Card Type | What It Represents |
+|-----------|-------------------|
+| **Risk** | Something that may impact cost, schedule, or scope |
+| **Decision** | A decision made or pending in recent communications |
+| **Blocker** | Work that is waiting on someone or something to proceed |
+| **Financial Exposure** | Potential cost impact from RFIs, change events, or commitments |
+| **Schedule Risk** | Activities trending late or identified as blocked |
+| **Change Management** | Open changes working through the approval lifecycle |
+| **Open Question** | Unresolved questions surfaced from meetings or emails |
+| **Project Update** | General status information extracted from recent sources |
+
+### Confidence Rating
+
+A rating of how much underlying evidence supports the current intelligence — High, Medium, or Low. A Low rating usually means the project has limited recent activity in the system. A High rating means multiple sources (meetings, emails, project records) have contributed recent evidence.
+
+## Evidence Citations
+
+Every insight card cites at least one source. Click the citation to open the meeting transcript, email, document, RFI, or record it was derived from. Verify the source before acting on a high-impact card.
+
+## Recompile
+
+Intelligence recompiles automatically as new evidence arrives. Trigger a manual recompile from the page if you want the latest view immediately after a meeting or email sync.
+
+## Difference from the AI Chat
+
+Project Intelligence is a precompiled packet — it gives you a strategic overview first. The AI chat assistant is interactive — ask follow-up questions, drill into specifics, and request analysis across multiple projects. Use both together: start with Intelligence for the storyline, then ask the assistant to go deeper on anything that needs attention.
+
+## Related Articles
+
+- [AI Assistant Overview](/help/articles/ai-assistant-overview)
+- [Get a Project Briefing from the AI](/help/articles/ai-project-updates)
+- [Proactive AI Alerts](/help/articles/ai-proactive-alerts)
+- [Meetings](/help/articles/meetings)

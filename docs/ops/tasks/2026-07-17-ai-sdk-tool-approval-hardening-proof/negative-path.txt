@@ -1,0 +1,8 @@
+AAI-1150 negative-path evidence
+
+- Denied signed approval: explicit Denied state, assistant response stated the write did not go through, exact database subject count 0.
+- Ask Alleato direct route: HTTP 200, no createRFI tool and no tool-approval request; persisted answer stated the required RFI write tool was unavailable; exact database subject count 0.
+- Ask Alleato widget: desktop/mobile answer stated the RFI creation tool was unavailable; exact database subject count 0.
+- Tampered signed input, tool name, and call ID: all rejected by the installed AI SDK roundtrip regression test before execution.
+- Missing or short TOOL_APPROVAL_SECRET: policy throws AI_TOOL_APPROVAL_SECRET_MISSING when action tools are enabled.
+- AI runtime mismatch: architecture verifier failed with server ai@7.0.31 versus @ai-sdk/react ai@7.0.15, identifying the live signature-loss mechanism. A frozen-lockfile install aligned both to 7.0.31 and the verifier passed.

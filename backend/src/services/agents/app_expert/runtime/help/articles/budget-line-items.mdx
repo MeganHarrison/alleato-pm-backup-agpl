@@ -1,0 +1,62 @@
+---
+title: Budget Line Items
+description: Add, edit, and modify budget line items and apply budget modifications.
+audience: client
+visibility: published
+module: budget
+category: Financial Tools
+tags: [budget, line-items, modifications, cost-codes]
+featured: false
+client_visible: true
+ai_visible: true
+order: 101
+related_routes:
+  - /[projectId]/budget
+related_actions: []
+---
+
+# Budget Line Items
+
+A budget line item is one row in the budget tied to a cost code and cost type. Line items are the base unit for tracking budget vs actual on the project.
+
+## Add a Line Item
+
+1. Open **Budget** for the project.
+2. Select **Add Line Item**.
+3. Choose the **Cost Code** from the project cost code list.
+4. Choose the **Cost Type** (labor, material, equipment, subcontract, other).
+5. Enter the **Description** and **Original Budget** amount.
+6. Save the line item.
+
+If the cost code does not appear, ask an admin to add it to the project cost code list first.
+
+## Edit a Line Item
+
+1. Click the line item row.
+2. Update the description, quantity, unit cost, or original budget.
+3. Save changes.
+
+Direct edits to original budget should be rare after contract signing. Use a budget modification when the change should be tracked.
+
+## Apply a Budget Modification
+
+A budget modification moves money between line items without changing the contract value.
+
+1. Open the line item or use the **Modifications** action.
+2. Enter source and target line items.
+3. Enter the amount and a reason.
+4. Submit for approval if your project requires it.
+
+## Forecast
+
+The forecast column projects total cost at completion. It can be:
+
+- **Auto-calculated** based on actual + remaining committed.
+- **Manually overridden** when the project manager has better information.
+
+Switch a line item's forecast method from the line item detail panel.
+
+## Related Articles
+
+- [Budget Overview](/help/articles/budget-overview)
+- [Change Orders](/help/articles/change-orders)

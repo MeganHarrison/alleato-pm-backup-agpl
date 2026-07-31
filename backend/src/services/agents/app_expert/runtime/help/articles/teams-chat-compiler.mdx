@@ -1,0 +1,93 @@
+---
+title: Teams Chat Compiler
+description: Understand how raw Microsoft Teams conversations become project intelligence, tasks, risks, and decisions.
+audience: internal
+visibility: published
+module: intelligence
+category: Features
+tags: [teams, microsoft-graph, compiler, intelligence, tasks, risks]
+featured: true
+client_visible: false
+ai_visible: false
+order: 310
+related_routes:
+  - /project-attribution
+  - /document-metadata
+related_actions: []
+---
+
+# Teams Chat Compiler
+
+The Teams Chat Compiler is the digestion layer between raw Microsoft Teams
+message ingestion and useful project intelligence. It reads Teams conversations
+from `document_metadata`, extracts structured business signals, and writes
+those signals back into the system.
+
+## What It Produces
+
+After a Teams conversation is compiled, the system can have:
+
+- a plain-English overview of what happened;
+- tasks with owners, due dates, confidence, and review flags;
+- risks, decisions, sentiment, and initiative signals;
+- project attribution or attribution candidates for review;
+- a compiled status so the same conversation is not processed repeatedly.
+
+## Pipeline
+
+The compiler runs each document through this sequence:
+
+```text
+fetch -> parse -> normalize -> attribute -> extract -> write -> mark compiled
+```
+
+If a stage fails, the document should be marked with an error state that says
+which stage failed and why. Silent compiler failures are not acceptable because
+they make downstream AI answers look empty or unreliable.
+
+## Project Attribution
+
+The compiler tries to connect each Teams conversation to the right project.
+
+1. Title override scans the chat title for project names, aliases, clients, and
+   project numbers.
+2. Content inference searches the conversation text and participants when the
+   title does not provide a strong match.
+3. Uncertain matches are written for human review instead of being silently
+   auto-assigned.
+
+## Batch Behavior
+
+Manual or scheduled runs process the newest conversations first. Low-content
+conversations are skipped so "ok," "thanks," or "sent" messages do not consume
+model calls or create noisy intelligence.
+
+Common run patterns:
+
+```text
+/run-teams-compiler
+/run-teams-compiler 50
+```
+
+## Tables It Updates
+
+- `document_metadata` for overview, project attribution, tags, and status.
+- `tasks` for extracted action items.
+- `insights` for risks, decisions, sentiment, and initiative signals.
+- `project_insights` for high-confidence project-linked intelligence cards.
+- `document_attribution_candidates` for uncertain or competing project matches.
+
+## When To Check This Feature
+
+Check the Teams Chat Compiler when:
+
+- Teams conversations are ingesting but executive briefs or project intelligence
+  are missing the substance of those chats.
+- Documents remain in `raw_ingested` or `embedded` status for too long.
+- Project attribution looks wrong or incomplete.
+- Extracted tasks, risks, or decisions are too generic to trust.
+
+## Engineering Reference
+
+The detailed implementation document lives at
+the current Teams compiler implementation and its route-discovered evidence.

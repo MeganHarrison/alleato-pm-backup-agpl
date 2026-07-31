@@ -1,0 +1,92 @@
+---
+title: Ask the AI About Meetings
+description: How the AI assistant uses meeting transcripts, action items, and decisions from Fireflies to answer questions about project activity.
+audience: client
+visibility: published
+module: ai-assistant
+category: AI & Intelligence
+tags: [ai-assistant, meetings, fireflies, transcripts, action-items, decisions]
+featured: false
+client_visible: true
+ai_visible: true
+order: 612
+related_routes:
+  - /ai
+  - /[projectId]/meetings
+related_actions: []
+---
+
+# Ask the AI About Meetings
+
+Meeting transcripts are the richest intelligence source in the platform. The AI assistant can search across all your meetings — by project, topic, date, or keyword — without you needing to specify a project or meeting ID.
+
+## How It Works
+
+Eve searches meeting evidence that has already been synchronized, processed,
+and authorized for the signed-in user. If Fireflies/source synchronization is
+stale or a transcript has not finished processing, Eve should state that
+freshness gap instead of presenting older evidence as current.
+
+When a meeting is recorded and transcribed through Fireflies.ai, the transcript is automatically:
+
+1. Ingested and stored in the platform
+2. Processed to extract decisions, action items, risks, and follow-ups
+3. Split into searchable chunks and embedded for semantic search
+4. Linked to the relevant project by topic matching
+
+The assistant searches this corpus whenever you ask about project activity, decisions, or follow-ups.
+
+## What You Can Ask
+
+### Project Updates
+
+- "What's the latest on Vermillion Rise?"
+- "Catch me up on everything from this week."
+- "Is there anything urgent I missed while I was out?"
+
+When you ask for updates on a project, the assistant simultaneously searches meetings, emails, and Teams messages, then synthesizes a unified briefing.
+
+### Decisions
+
+- "What did we decide about the electrical scope on Vermillion Rise?"
+- "Have we made a decision on the panel supplier?"
+- "What decisions were made in the OAC meeting last Thursday?"
+
+### Action Items
+
+- "What action items are still open from last week's meetings?"
+- "Did Sarah ever follow up on the submittal log?"
+- "Show me all open action items assigned to the MEP engineer."
+
+### Risks and Blockers
+
+- "What risks were discussed in recent meetings?"
+- "Are there any blockers mentioned across project meetings this month?"
+
+### Meeting Prep
+
+Before a meeting, ask: "Help me prepare for the OAC meeting tomorrow on Vermillion Rise." The assistant generates a preparation brief covering recent decisions, open action items, financial exposure, and schedule risks relevant to the meeting.
+
+## Searching by Topic Without Knowing the Project
+
+You do not need to select a project or know a meeting ID. Ask naturally:
+
+- "When did we last discuss the fire suppression clearance issue?"
+- "Find everything we know about the steel delivery delay."
+- "What have we talked about regarding Apex Electric?"
+
+The assistant searches across all projects and all meetings and surfaces the most relevant excerpts with speaker attribution and date.
+
+## Meeting Detail Page
+
+To read a full transcript or review AI-extracted items for a specific meeting:
+
+1. Select the project.
+2. Open **Meetings** from the sidebar.
+3. Click any meeting to see the transcript, action items, insights, and AI-generated meeting prep.
+
+## Related Articles
+
+- [Meetings](/help/articles/meetings)
+- [AI Assistant Overview](/help/articles/ai-assistant-overview)
+- [Project Intelligence](/help/articles/project-intelligence)

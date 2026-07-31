@@ -1,0 +1,10 @@
+{
+  "projectId": 1034,
+  "changeEventId": "7ddf2da3-f9e0-4878-8517-3aec475bad32",
+  "primeContractId": "6a8f61d6-a9ae-4bf2-9ae4-bca938f05879",
+  "submitWorkflow": false,
+  "title": "Tutorial demo prime PCO",
+  "description": "Priced change against the prime contract for the tutorial walkthrough.",
+  "scheduleImpactDays": "5",
+  "amount": "12000.00"
+}

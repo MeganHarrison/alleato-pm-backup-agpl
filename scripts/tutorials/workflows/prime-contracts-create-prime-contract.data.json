@@ -1,0 +1,18 @@
+{
+  "projectId": 67,
+  "contractNumber": "PC-TRAIN-20260716",
+  "title": "Owner Contract - Interior Renovation",
+  "ownerClient": "QA Owner Company 1010",
+  "status": "Draft",
+  "description": "Prime contract for the interior renovation owner scope, including general conditions and finish packages.",
+  "defaultRetainage": "10",
+  "startDate": "2026-07-17",
+  "estimatedCompletionDate": "2026-07-31",
+  "budgetCodeSearch": "01-3120.O",
+  "budgetCode": "01-3120.O – Vice President – Other",
+  "sovDescription": "Interior demolition and wall framing",
+  "sovAmount": "25000",
+  "inclusions": "General conditions, demolition, framing, drywall, and finish coordination.",
+  "exclusions": "Owner-furnished equipment, loose furniture, and specialty audiovisual packages.",
+  "submitWorkflow": false
+}

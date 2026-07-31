@@ -1,0 +1,17 @@
+.git
+.next
+.vercel
+node_modules
+frontend/node_modules
+backend/__pycache__
+backend/src/**/__pycache__
+*.pyc
+.env
+.env.*
+!.env.example
+logs
+tmp
+output
+verify-output
+tests/agent-browser-runs
+.DS_Store

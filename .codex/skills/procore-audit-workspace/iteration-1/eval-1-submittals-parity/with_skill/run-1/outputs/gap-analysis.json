@@ -1,0 +1,633 @@
+{
+  "meta": {
+    "tool": "submittals",
+    "generated": "2026-03-08",
+    "procore_crawl_source": "procore-crawls/submittals/spec/",
+    "alleato_path": "frontend/src/app/(main)/[projectId]/submittals/",
+    "form_component": "frontend/src/features/submittals/submittal-form-dialog.tsx",
+    "table_config": "frontend/src/features/submittals/submittals-table-config.tsx",
+    "overall_verdict": "NEEDS SIGNIFICANT WORK",
+    "overall_completion_pct": 55
+  },
+  "executive_summary": {
+    "pages": {
+      "status": "partial",
+      "procore_count": 3,
+      "alleato_count": 2,
+      "pct": 67,
+      "notes": "Create/edit are dialogs (no dedicated route). List and detail exist. Packages/Spec/BIC/Recycle Bin tabs exist as UI tabs."
+    },
+    "list_table_columns": {
+      "status": "partial",
+      "procore_count": 12,
+      "alleato_count": 12,
+      "pct": 100,
+      "notes": "All 12 columns defined but 4 return null data — responsible_contractor, received_from, approvers, latest_response not joined in list query."
+    },
+    "form_fields": {
+      "status": "failing",
+      "procore_count": 24,
+      "alleato_count": 13,
+      "pct": 54,
+      "notes": "11 FK/reference fields entirely absent from form dialog. API and DB layers accept them but form does not expose them."
+    },
+    "status_workflow": {
+      "status": "partial",
+      "notes": "Main API uses correct statuses (Draft, Open, Distributed, Closed). Legacy (tables) client uses wrong status set."
+    },
+    "crud_operations": {
+      "status": "partial",
+      "implemented": ["create", "read", "update", "delete_soft"],
+      "missing": ["create_revision", "duplicate", "redistribute", "update_and_send_emails", "email_submittal", "bulk_actions"]
+    },
+    "database_schema": {
+      "status": "complete",
+      "notes": "All 8 tables confirmed in generated types. submittal_types extra table also integrated."
+    },
+    "filters": {
+      "status": "failing",
+      "procore_count": 11,
+      "alleato_count": 3,
+      "pct": 27
+    },
+    "validations": {
+      "status": "partial",
+      "notes": "title, submittal_number, revision required. submittal_manager_id (required in Procore) not in form at all."
+    }
+  },
+  "pages": [
+    {
+      "procore_page": "List view (Items tab)",
+      "alleato_route": "/[projectId]/submittals",
+      "status": "complete",
+      "notes": "Implemented with UnifiedTablePage"
+    },
+    {
+      "procore_page": "Packages tab",
+      "alleato_route": "/[projectId]/submittals?tab=packages",
+      "status": "partial",
+      "notes": "Tab exists, shows placeholder"
+    },
+    {
+      "procore_page": "Spec Sections tab",
+      "alleato_route": "/[projectId]/submittals?tab=spec_sections",
+      "status": "partial",
+      "notes": "Tab exists"
+    },
+    {
+      "procore_page": "Ball In Court tab",
+      "alleato_route": "/[projectId]/submittals?tab=ball_in_court",
+      "status": "partial",
+      "notes": "Tab exists"
+    },
+    {
+      "procore_page": "Recycle Bin tab",
+      "alleato_route": "/[projectId]/submittals?tab=recycle_bin",
+      "status": "complete",
+      "notes": "API supports deleted_at soft-delete filter"
+    },
+    {
+      "procore_page": "Detail view",
+      "alleato_route": "/[projectId]/submittals/[submittalId]",
+      "status": "partial",
+      "notes": "Exists but missing Emails tab; has Workflow tab not present in Procore detail; workflow responses show UUID not names"
+    },
+    {
+      "procore_page": "Create form",
+      "alleato_route": "Dialog (no dedicated route)",
+      "status": "partial",
+      "notes": "Exists but missing 11 fields"
+    },
+    {
+      "procore_page": "Edit form",
+      "alleato_route": "Dialog (no dedicated route)",
+      "status": "partial",
+      "notes": "Same dialog as create; same field gaps"
+    }
+  ],
+  "form_fields": [
+    {
+      "section": "General Information",
+      "procore_field": "title",
+      "procore_type": "text",
+      "procore_required": true,
+      "alleato_field": "title",
+      "alleato_widget": "text input",
+      "status": "complete",
+      "impact": null
+    },
+    {
+      "section": "General Information",
+      "procore_field": "number",
+      "procore_type": "text",
+      "procore_required": true,
+      "alleato_field": "submittal_number",
+      "alleato_widget": "text input",
+      "status": "complete",
+      "impact": null,
+      "notes": "Field name differs (submittal_number vs number)"
+    },
+    {
+      "section": "General Information",
+      "procore_field": "revision",
+      "procore_type": "integer",
+      "procore_required": true,
+      "alleato_field": "revision",
+      "alleato_widget": "number input",
+      "status": "complete",
+      "impact": null
+    },
+    {
+      "section": "General Information",
+      "procore_field": "specification_section",
+      "procore_type": "text (searchable dropdown)",
+      "procore_required": false,
+      "alleato_field": "specification_section",
+      "alleato_widget": "plain text Input",
+      "status": "partial",
+      "impact": "MEDIUM",
+      "notes": "Wrong widget type. Procore uses searchable dropdown with CSI spec codes."
+    },
+    {
+      "section": "General Information",
+      "procore_field": "submittal_type",
+      "procore_type": "dropdown",
+      "procore_required": false,
+      "alleato_field": "submittal_type",
+      "alleato_widget": "plain text Input",
+      "status": "partial",
+      "impact": "MEDIUM",
+      "notes": "Should be dropdown from submittal_types table (table exists in DB and is joined in detail API)"
+    },
+    {
+      "section": "General Information",
+      "procore_field": "submittal_package_id",
+      "procore_type": "reference (dropdown)",
+      "procore_required": false,
+      "alleato_field": null,
+      "alleato_widget": null,
+      "status": "missing",
+      "impact": "HIGH",
+      "notes": "Completely absent from form. submittal_packages table exists in DB."
+    },
+    {
+      "section": "General Information",
+      "procore_field": "responsible_contractor_id",
+      "procore_type": "reference (searchable, company)",
+      "procore_required": false,
+      "alleato_field": null,
+      "alleato_widget": null,
+      "status": "missing",
+      "impact": "HIGH",
+      "notes": "Key workflow field. FK to companies table."
+    },
+    {
+      "section": "General Information",
+      "procore_field": "received_from_id",
+      "procore_type": "reference (searchable, contact)",
+      "procore_required": false,
+      "alleato_field": null,
+      "alleato_widget": null,
+      "status": "missing",
+      "impact": "HIGH",
+      "notes": "Key workflow field. FK to contacts/people."
+    },
+    {
+      "section": "General Information",
+      "procore_field": "submittal_manager_id",
+      "procore_type": "reference (searchable, contact)",
+      "procore_required": true,
+      "alleato_field": null,
+      "alleato_widget": null,
+      "status": "missing",
+      "impact": "HIGH",
+      "notes": "REQUIRED in Procore (asterisk). Completely absent from Alleato form. FK accepted by API and in CreateSubmittalInput type."
+    },
+    {
+      "section": "General Information",
+      "procore_field": "status",
+      "procore_type": "dropdown",
+      "procore_required": false,
+      "alleato_field": "status",
+      "alleato_widget": "dropdown",
+      "status": "complete",
+      "impact": null
+    },
+    {
+      "section": "General Information",
+      "procore_field": "final_due_date",
+      "procore_type": "date (read-only display)",
+      "procore_required": false,
+      "alleato_field": "final_due_date",
+      "alleato_widget": "date input",
+      "status": "partial",
+      "impact": "LOW",
+      "notes": "Procore shows as read-only computed date; Alleato makes it editable"
+    },
+    {
+      "section": "General Information",
+      "procore_field": "cost_code_id",
+      "procore_type": "reference (searchable)",
+      "procore_required": false,
+      "alleato_field": null,
+      "alleato_widget": null,
+      "status": "missing",
+      "impact": "MEDIUM",
+      "notes": "Financial classification field. FK to cost_codes."
+    },
+    {
+      "section": "General Information",
+      "procore_field": "location_id",
+      "procore_type": "reference (searchable)",
+      "procore_required": false,
+      "alleato_field": null,
+      "alleato_widget": null,
+      "status": "missing",
+      "impact": "MEDIUM",
+      "notes": "FK to locations table."
+    },
+    {
+      "section": "General Information",
+      "procore_field": "linked_drawings",
+      "procore_type": "reference[] (multi-select)",
+      "procore_required": false,
+      "alleato_field": null,
+      "alleato_widget": null,
+      "status": "missing",
+      "impact": "LOW",
+      "notes": "Drawings integration not built yet"
+    },
+    {
+      "section": "Distribution & Scheduling",
+      "procore_field": "distribution_list",
+      "procore_type": "reference[] (tag chips)",
+      "procore_required": false,
+      "alleato_field": null,
+      "alleato_widget": null,
+      "status": "missing",
+      "impact": "HIGH",
+      "notes": "Core distribution workflow field. submittal_distribution_recipients table exists in DB."
+    },
+    {
+      "section": "Distribution & Scheduling",
+      "procore_field": "ball_in_court",
+      "procore_type": "text (computed display)",
+      "procore_required": false,
+      "alleato_field": "ball_in_court",
+      "alleato_widget": "text input",
+      "status": "partial",
+      "impact": "LOW",
+      "notes": "Field exists but is editable; Procore computes it from the active workflow step"
+    },
+    {
+      "section": "Distribution & Scheduling",
+      "procore_field": "lead_time",
+      "procore_type": "integer (days)",
+      "procore_required": false,
+      "alleato_field": "lead_time",
+      "alleato_widget": "number input",
+      "status": "complete",
+      "impact": null
+    },
+    {
+      "section": "Distribution & Scheduling",
+      "procore_field": "required_on_site_date",
+      "procore_type": "date",
+      "procore_required": false,
+      "alleato_field": "required_on_site_date",
+      "alleato_widget": "date input",
+      "status": "complete",
+      "impact": null
+    },
+    {
+      "section": "Content",
+      "procore_field": "is_private",
+      "procore_type": "boolean (checkbox)",
+      "procore_required": false,
+      "alleato_field": "is_private",
+      "alleato_widget": "checkbox",
+      "status": "complete",
+      "impact": null
+    },
+    {
+      "section": "Content",
+      "procore_field": "description",
+      "procore_type": "rich text editor",
+      "procore_required": true,
+      "alleato_field": "description",
+      "alleato_widget": "plain Textarea",
+      "status": "partial",
+      "impact": "MEDIUM",
+      "notes": "Procore rich text supports Bold, Italic, Underline, Strikethrough, alignment, lists, tables, font size, colors"
+    },
+    {
+      "section": "Content",
+      "procore_field": "attachments",
+      "procore_type": "file upload (drag-drop)",
+      "procore_required": false,
+      "alleato_field": null,
+      "alleato_widget": null,
+      "status": "missing",
+      "impact": "HIGH",
+      "notes": "Files viewable in detail but no upload in create/edit form. submittal_attachments table exists."
+    },
+    {
+      "section": "Workflow",
+      "procore_field": "workflow_template",
+      "procore_type": "dropdown",
+      "procore_required": false,
+      "alleato_field": null,
+      "alleato_widget": null,
+      "status": "missing",
+      "impact": "HIGH",
+      "notes": "Cannot assign workflow on create"
+    },
+    {
+      "section": "Workflow",
+      "procore_field": "workflow_steps",
+      "procore_type": "step builder",
+      "procore_required": false,
+      "alleato_field": null,
+      "alleato_widget": null,
+      "status": "missing",
+      "impact": "HIGH",
+      "notes": "submittal_workflow_steps table exists but not editable via form"
+    },
+    {
+      "section": "Extra (Alleato only)",
+      "procore_field": null,
+      "alleato_field": "division",
+      "status": "extra",
+      "notes": "Procore derives division from spec section; Alleato makes it a free-text form field"
+    },
+    {
+      "section": "Extra (Alleato only)",
+      "procore_field": null,
+      "alleato_field": "priority",
+      "status": "extra",
+      "notes": "Not in Procore's submittal form. In Alleato API types but not in the form dialog."
+    }
+  ],
+  "form_actions": [
+    {
+      "procore_button": "Cancel",
+      "alleato_button": "Cancel",
+      "status": "complete"
+    },
+    {
+      "procore_button": "Update",
+      "alleato_button": "Save / Create Submittal",
+      "status": "complete",
+      "notes": "Label differs but function is equivalent"
+    },
+    {
+      "procore_button": "Update & Send Emails",
+      "alleato_button": null,
+      "status": "missing",
+      "impact": "HIGH",
+      "notes": "Distribution email trigger completely absent"
+    },
+    {
+      "procore_button": "Delete (trash icon, top-right corner)",
+      "alleato_button": "Delete",
+      "status": "partial",
+      "impact": "LOW",
+      "notes": "Delete exists in edit mode but positioning differs from Procore"
+    }
+  ],
+  "table_columns": [
+    {
+      "procore_column": "Spec",
+      "sql_name": "specification_section",
+      "alleato_column": "specification_section",
+      "data_joined": true,
+      "status": "complete",
+      "impact": null
+    },
+    {
+      "procore_column": "#",
+      "sql_name": "number",
+      "alleato_column": "submittal_number",
+      "data_joined": true,
+      "status": "complete",
+      "impact": null
+    },
+    {
+      "procore_column": "Rev.",
+      "sql_name": "revision",
+      "alleato_column": "revision",
+      "data_joined": true,
+      "status": "complete",
+      "impact": null
+    },
+    {
+      "procore_column": "Title",
+      "sql_name": "title",
+      "alleato_column": "title",
+      "data_joined": true,
+      "status": "complete",
+      "impact": null
+    },
+    {
+      "procore_column": "Type",
+      "sql_name": "submittal_type",
+      "alleato_column": "submittal_type",
+      "data_joined": true,
+      "status": "complete",
+      "impact": null
+    },
+    {
+      "procore_column": "Status",
+      "sql_name": "status",
+      "alleato_column": "status",
+      "data_joined": true,
+      "status": "complete",
+      "impact": null
+    },
+    {
+      "procore_column": "Responsible C.",
+      "sql_name": "responsible_contractor",
+      "alleato_column": "responsible_contractor",
+      "data_joined": false,
+      "status": "partial",
+      "impact": "HIGH",
+      "notes": "Column defined in table config with toTableRow() returning null. List API does not join companies table."
+    },
+    {
+      "procore_column": "Received From",
+      "sql_name": "received_from",
+      "alleato_column": "received_from",
+      "data_joined": false,
+      "status": "partial",
+      "impact": "HIGH",
+      "notes": "Column defined in table config with toTableRow() returning null. List API does not join contacts/people table."
+    },
+    {
+      "procore_column": "Ball In Court",
+      "sql_name": "ball_in_court",
+      "alleato_column": "ball_in_court",
+      "data_joined": true,
+      "status": "complete",
+      "impact": null,
+      "notes": "Stored as text field; computed logic not yet implemented"
+    },
+    {
+      "procore_column": "Approvers",
+      "sql_name": "approvers",
+      "alleato_column": "approvers",
+      "data_joined": false,
+      "status": "partial",
+      "impact": "HIGH",
+      "notes": "Column defined in table config with toTableRow() returning null. M2M through submittal_workflow_steps not joined in list query."
+    },
+    {
+      "procore_column": "Response",
+      "sql_name": "latest_response",
+      "alleato_column": "latest_response",
+      "data_joined": false,
+      "status": "partial",
+      "impact": "HIGH",
+      "notes": "Column defined in table config with toTableRow() returning null. submittal_responses not joined in list query."
+    },
+    {
+      "procore_column": "Sent Date",
+      "sql_name": "sent_date",
+      "alleato_column": "sent_date",
+      "data_joined": true,
+      "status": "complete",
+      "impact": null
+    }
+  ],
+  "filters": [
+    { "procore_filter": "Approver", "alleato_filter": null, "status": "missing" },
+    { "procore_filter": "Ball In Court", "alleato_filter": null, "status": "missing" },
+    { "procore_filter": "Created By", "alleato_filter": null, "status": "missing" },
+    { "procore_filter": "Current Revision", "alleato_filter": null, "status": "missing" },
+    { "procore_filter": "Division", "alleato_filter": "division", "status": "complete" },
+    { "procore_filter": "Location", "alleato_filter": null, "status": "missing" },
+    { "procore_filter": "Number", "alleato_filter": null, "status": "missing" },
+    { "procore_filter": "Private", "alleato_filter": null, "status": "missing" },
+    { "procore_filter": "Received From", "alleato_filter": null, "status": "missing" },
+    { "procore_filter": "Response", "alleato_filter": "latest_response", "status": "complete" },
+    { "procore_filter": "Responsible Contractor", "alleato_filter": null, "status": "missing" },
+    { "alleato_filter": "status", "procore_filter": null, "status": "extra", "notes": "Alleato has status filter; Procore uses tabs for status" }
+  ],
+  "status_workflow": {
+    "main_statuses": [
+      { "procore": "Draft", "alleato_api": "Draft", "alleato_legacy": "Draft", "status": "complete" },
+      { "procore": "Open", "alleato_api": "Open", "alleato_legacy": "Submitted", "status": "partial", "notes": "Correct in API; legacy client maps differently" },
+      { "procore": "Distributed", "alleato_api": "Distributed", "alleato_legacy": null, "status": "partial", "notes": "Correct in API; absent from legacy client" },
+      { "procore": "Closed", "alleato_api": "Closed", "alleato_legacy": null, "status": "partial", "notes": "Correct in API; legacy client has Approved/Rejected/Superseded instead" }
+    ],
+    "response_statuses": [
+      { "procore": "Submitted", "alleato": "Submitted", "status": "complete" },
+      { "procore": "Pending", "alleato": "Pending", "status": "complete" },
+      { "procore": "Approved", "alleato": "Approved", "status": "complete" },
+      { "procore": "Approved as Noted", "alleato": "Approved as Noted", "status": "complete" }
+    ]
+  },
+  "crud_operations": [
+    { "operation": "create_submittal", "status": "partial", "notes": "Works but form missing 11 fields" },
+    { "operation": "read_submittal_list", "status": "partial", "notes": "Works but 4 columns return null" },
+    { "operation": "read_submittal_detail", "status": "partial", "notes": "Works; workflow responses show UUID not name" },
+    { "operation": "update_submittal", "status": "partial", "notes": "Works via API; form missing same 11 fields as create" },
+    { "operation": "update_and_send_emails", "status": "missing", "impact": "HIGH" },
+    { "operation": "delete_submittal", "status": "complete", "notes": "Soft delete to recycle bin implemented" },
+    { "operation": "create_revision", "status": "missing", "impact": "MEDIUM" },
+    { "operation": "duplicate_submittal", "status": "missing", "impact": "MEDIUM" },
+    { "operation": "redistribute", "status": "missing", "impact": "LOW" },
+    { "operation": "email_submittal", "status": "missing", "impact": "LOW" },
+    { "operation": "bulk_actions", "status": "missing", "impact": "LOW" },
+    { "operation": "export_csv", "status": "disabled", "notes": "enableExport: false in page config" },
+    { "operation": "export_pdf", "status": "disabled", "notes": "enableExport: false in page config" },
+    { "operation": "export_excel", "status": "disabled", "notes": "enableExport: false in page config" }
+  ],
+  "database_schema": {
+    "tables": [
+      { "table": "submittals", "status": "complete" },
+      { "table": "submittal_packages", "status": "complete" },
+      { "table": "submittal_workflow_steps", "status": "complete" },
+      { "table": "submittal_responses", "status": "complete" },
+      { "table": "submittal_distributions", "status": "complete" },
+      { "table": "submittal_distribution_recipients", "status": "complete" },
+      { "table": "submittal_attachments", "status": "complete" },
+      { "table": "submittal_linked_drawings", "status": "complete" },
+      { "table": "submittal_types", "status": "complete", "notes": "Extra table not in original Procore spec; already integrated" },
+      { "table": "submittal_history", "status": "complete", "notes": "Used by Change History tab in detail view" }
+    ],
+    "potential_issues": [
+      {
+        "table": "submittal_workflow_steps",
+        "concern": "assignees[] M2M",
+        "notes": "Step builder requires per-step assignee list; verify this join table exists"
+      },
+      {
+        "table": "submittals",
+        "concern": "submittal_type vs submittal_type_id",
+        "notes": "Both text and FK fields exist; prefer FK. Legacy text field may cause data inconsistency."
+      },
+      {
+        "table": "submittals",
+        "concern": "ball_in_court stored as text",
+        "notes": "Should be computed from active workflow step, not a free-text editable field"
+      }
+    ]
+  },
+  "detail_view_tabs": {
+    "procore_tabs": ["General", "Related Items", "Emails", "Change History"],
+    "alleato_tabs": ["General", "Workflow", "Related Items", "Change History"],
+    "gaps": [
+      { "procore_tab": "Emails", "alleato_tab": null, "status": "missing", "impact": "LOW" },
+      { "procore_tab": null, "alleato_tab": "Workflow", "status": "extra", "notes": "Alleato has a Workflow tab not present in Procore detail view. May be valuable but not a parity requirement." }
+    ]
+  },
+  "legacy_files": [
+    {
+      "file": "frontend/src/app/(tables)/submittals/submittals-client.tsx",
+      "concern": "Uses different status set (Draft, Submitted, Under Review, Requires Revision, Approved, Rejected, Superseded) — does not match Procore or current API",
+      "recommendation": "Determine if this route is still used. If not, remove. If yes, align status values."
+    },
+    {
+      "file": "frontend/src/app/(tables)/submittals/submittals-data.ts",
+      "concern": "Queries from active_submittals view using (supabase as any) cast — view may not be in generated types. Uses field names that differ from main submittals table.",
+      "recommendation": "If active_submittals view is still needed, add it to generated types. Otherwise remove this file."
+    }
+  ],
+  "missing_functionality_prioritized": {
+    "high": [
+      "Add submittal_manager_id field to form (REQUIRED in Procore)",
+      "Add distribution_list[] field to form (tag chips, M2M)",
+      "Add responsible_contractor_id field to form",
+      "Add received_from_id field to form",
+      "Add attachments file upload to form",
+      "Add workflow_template and workflow_steps to form",
+      "Add Update & Send Emails button",
+      "Fix list API to join companies/contacts/responses for 4 null columns"
+    ],
+    "medium": [
+      "Add submittal_package_id dropdown to form",
+      "Add cost_code_id searchable dropdown to form",
+      "Add location_id searchable dropdown to form",
+      "Change specification_section to searchable dropdown",
+      "Change submittal_type to dropdown from submittal_types table",
+      "Upgrade description to rich text editor",
+      "Add Create Revision action to detail page",
+      "Add Duplicate Submittal action to detail page",
+      "Add 8 missing list filters (Approver, Ball In Court, Created By, Current Revision, Location, Number, Private, Received From, Responsible Contractor)"
+    ],
+    "low": [
+      "Add linked_drawings multi-select to form",
+      "Add Redistribute action",
+      "Add Email Submittal action",
+      "Add bulk actions to list view",
+      "Enable CSV/PDF/Excel export (change enableExport: false to true)",
+      "Add Emails tab to detail view",
+      "Fix workflow responses to show name + company instead of UUID",
+      "Fix distribution summary to show From/To/Message format",
+      "Make ball_in_court computed from active workflow step",
+      "Add Create Submittal Package option to Add button dropdown",
+      "Clean up or remove legacy (tables)/submittals/ files",
+      "Add Create New Report and Approvers Response Time report actions"
+    ]
+  }
+}

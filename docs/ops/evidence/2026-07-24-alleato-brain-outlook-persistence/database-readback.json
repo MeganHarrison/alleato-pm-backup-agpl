@@ -1,0 +1,26 @@
+{
+  "source": "ALL-7 and ALL-10 production Supabase Management API readback",
+  "observedDuring": "2026-07-23/2026-07-24 Alleato Brain implementation session",
+  "projectRef": "lgveqfnpkxvzbnnwuled",
+  "migrationVersion": "20260723180000",
+  "migrationLedgerPresent": true,
+  "businessAreas": 5,
+  "businessAreaProjectMappings": [
+    { "legacyProjectId": 60, "businessAreaId": 3, "slug": "finance", "restricted": true },
+    { "legacyProjectId": 89, "businessAreaId": 5, "slug": "marketing", "restricted": false },
+    { "legacyProjectId": 90, "businessAreaId": 4, "slug": "internal-operations", "restricted": false },
+    { "legacyProjectId": 756, "businessAreaId": 1, "slug": "leads", "restricted": false },
+    { "legacyProjectId": 767, "businessAreaId": 2, "slug": "ai", "restricted": false }
+  ],
+  "documentMetadataRowsWithBusinessArea": 2115,
+  "documentMetadataRowsWithLegacyAndBusinessAreaDuringParallelRun": 2115,
+  "documentCountMatchesLegacyScope": true,
+  "chunkReadback": {
+    "initialRelabelCount": 12651,
+    "laterObservedCount": 12581,
+    "branchCountMatchesCurrentLegacyCount": true,
+    "explanation": "Normal chunk lifecycle churn changed the absolute count; no branch label loss was observed."
+  },
+  "financeMembershipCount": 0,
+  "financeBehavior": "fail-closed until an approved membership is seeded"
+}

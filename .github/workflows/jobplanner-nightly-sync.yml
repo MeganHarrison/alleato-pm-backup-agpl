@@ -1,0 +1,90 @@
+name: JobPlanner Manual Sync
+
+# Pulls new NON-FINANCIAL, verified JobPlanner data into the app only after a
+# human deliberately dispatches and confirms this workflow:
+# photos (incremental), RFIs, submittals, punch items — for every Current, non-archived,
+# JobPlanner-mapped project. Financial data (commitments, change orders, prime contracts,
+# invoices) is NEVER touched here; it stays manual and human-reviewed.
+#
+# Every project is verified field-by-field against JobPlanner after import; if anything
+# does not tie out, or an importer errors, the run fails (red) and opens/updates a
+# needs-megan issue. It never silently writes mismatched data.
+#
+# There is intentionally no schedule. Automatic JobPlanner sync is disabled.
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type yes by selecting it below to authorize this manual import"
+        required: true
+        default: "no"
+        type: choice
+        options:
+          - "no"
+          - "yes"
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Confirm deliberate manual import
+        env:
+          MANUAL_CONFIRMATION: ${{ inputs.confirm }}
+        run: |
+          if [[ "$MANUAL_CONFIRMATION" != "yes" ]]; then
+            echo "JobPlanner automatic sync is disabled. Select confirm=yes for a deliberate manual import."
+            exit 1
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Validate secrets
+        env:
+          JOBPLANNER_API_KEY: ${{ secrets.JOBPLANNER_API_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          for v in JOBPLANNER_API_KEY SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY; do
+            if [[ -z "${!v}" ]]; then echo "Missing required secret: $v"; exit 1; fi
+          done
+
+      - name: Install runtime deps
+        # Standalone install of only what the sync needs at runtime — no pnpm workspace.
+        # Node's require walks up from frontend/package.json to this root install. Uses the
+        # Supabase REST client (HTTPS/IPv4) throughout — no raw pg/IPv6 DB connection, which
+        # GitHub Actions runners can't reach.
+        run: npm install @supabase/supabase-js dotenv --no-save --no-package-lock
+
+      - name: Run manual JobPlanner sync
+        env:
+          JOBPLANNER_API_KEY: ${{ secrets.JOBPLANNER_API_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          JOBPLANNER_MANUAL_SYNC_CONFIRMED: "true"
+        run: node scripts/jobplanner/nightly-sync.mjs --manual
+
+      - name: Alert on failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh label create jobplanner-sync --color BFD4F2 --description "JobPlanner manual sync" 2>/dev/null || true
+          TITLE="Manual JobPlanner sync failed"
+          BODY="The manually authorized JobPlanner sync failed — an importer errored or a project's data did not tie out to JobPlanner. No mismatched data was trusted. See the run log for the exact project + entity: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          EXISTING=$(gh issue list --state open --search "$TITLE in:title" --json number --jq '.[0].number' 2>/dev/null || true)
+          if [[ -n "$EXISTING" ]]; then
+            gh issue comment "$EXISTING" --body "$BODY"
+          else
+            gh issue create --title "$TITLE" --body "$BODY" --label needs-megan --label jobplanner-sync
+          fi

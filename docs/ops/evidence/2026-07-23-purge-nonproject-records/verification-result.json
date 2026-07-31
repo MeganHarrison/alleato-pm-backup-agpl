@@ -1,0 +1,60 @@
+{
+  "status": "PASS",
+  "taskId": "LOCAL-2026-07-23-PURGE-NONPROJECTS",
+  "evidence": {
+    "summary": [
+      "docs/ops/evidence/2026-07-23-purge-nonproject-records/verification.md"
+    ],
+    "actionLog": [
+      "docs/ops/evidence/2026-07-23-purge-nonproject-records/verification.md"
+    ],
+    "databaseReadback": [
+      "docs/ops/evidence/2026-07-23-purge-nonproject-records/apply.json",
+      "docs/ops/evidence/2026-07-23-purge-nonproject-records/verify.json"
+    ],
+    "negativePath": [
+      "docs/ops/evidence/2026-07-23-purge-nonproject-records/verification.md"
+    ],
+    "regressionTest": [
+      "docs/ops/evidence/2026-07-23-purge-nonproject-records/verification.md"
+    ]
+  },
+  "claims": {
+    "exact-target-binding": {
+      "actionLog": [
+        "docs/ops/evidence/2026-07-23-purge-nonproject-records/verification.md"
+      ],
+      "regressionTest": [
+        "docs/ops/evidence/2026-07-23-purge-nonproject-records/verification.md"
+      ]
+    },
+    "cross-store-deletion": {
+      "databaseReadback": [
+        "docs/ops/evidence/2026-07-23-purge-nonproject-records/apply.json",
+        "docs/ops/evidence/2026-07-23-purge-nonproject-records/verify.json"
+      ]
+    },
+    "fails-closed": {
+      "negativePath": [
+        "docs/ops/evidence/2026-07-23-purge-nonproject-records/verification.md"
+      ],
+      "regressionTest": [
+        "docs/ops/evidence/2026-07-23-purge-nonproject-records/verification.md"
+      ]
+    },
+    "audit-preservation": {
+      "databaseReadback": [
+        "docs/ops/evidence/2026-07-23-purge-nonproject-records/apply.json"
+      ],
+      "summary": [
+        "docs/ops/evidence/2026-07-23-purge-nonproject-records/verification.md"
+      ]
+    }
+  },
+  "independentReview": {
+    "reviewer": "/root/review_project_purge",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-23T16:31:58Z",
+    "artifact": "docs/ops/evidence/2026-07-23-purge-nonproject-records/independent-review.md"
+  }
+}

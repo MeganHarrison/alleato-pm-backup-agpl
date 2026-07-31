@@ -1,0 +1,101 @@
+{
+  "module": "submittals",
+  "startUrl": "https://us02.procore.com/webclients/host/companies/562949953443325/projects/562949954056757/tools/submittals?view=list&serializer_view=minimal_list&sort%5Battribute%5D=number&sort%5Bdirection%5D=desc&per_page=150&page=1",
+  "pages": [
+    {
+      "name": "submittals-list",
+      "label": "Submittals List (Items Tab)",
+      "category": "submittals",
+      "interactions": [
+        {
+          "type": "click",
+          "selector": "button:has-text('Create'), [data-testid*='create'], a:has-text('Create')",
+          "description": "Open create submittal dialog",
+          "waitMs": 2500,
+          "captureAfterClick": true,
+          "captureForms": true,
+          "goBack": true
+        },
+        {
+          "type": "click",
+          "selector": "button:has-text('Add Filter'), [data-testid*='filter']",
+          "description": "Open filter panel",
+          "waitMs": 1500,
+          "captureAfterClick": true,
+          "captureForms": true
+        },
+        {
+          "type": "click",
+          "selector": "button:has-text('Export'), [data-testid*='export']",
+          "description": "Open export menu",
+          "waitMs": 1500,
+          "captureAfterClick": true
+        },
+        {
+          "type": "click",
+          "selector": "button:has-text('Reports')",
+          "description": "Open reports menu",
+          "waitMs": 1500,
+          "captureAfterClick": true
+        }
+      ]
+    },
+    {
+      "name": "submittals-tab-packages",
+      "label": "Submittals Packages Tab",
+      "category": "submittals",
+      "url": "__click_link__",
+      "clickSelector": "[data-qa='tooltab-packages']",
+      "interactions": []
+    },
+    {
+      "name": "submittals-tab-spec-sections",
+      "label": "Submittals Spec Sections Tab",
+      "category": "submittals",
+      "url": "__click_link__",
+      "clickSelector": "[data-qa='tooltab-spec_sections']",
+      "interactions": []
+    },
+    {
+      "name": "submittals-tab-ball-in-court",
+      "label": "Submittals Ball In Court Tab",
+      "category": "submittals",
+      "url": "__click_link__",
+      "clickSelector": "[data-qa='tooltab-ball_in_court']",
+      "interactions": []
+    },
+    {
+      "name": "submittals-tab-recycle-bin",
+      "label": "Submittals Recycle Bin Tab",
+      "category": "submittals",
+      "url": "__click_link__",
+      "clickSelector": "[data-qa='tooltab-recycle_bin']",
+      "interactions": []
+    },
+    {
+      "name": "submittals-detail",
+      "label": "Submittal Detail View",
+      "category": "submittals",
+      "url": "__click_link__",
+      "clickSelector": "a:has-text('Doors, Frames, Hardware')",
+      "interactions": [
+        {
+          "type": "click",
+          "selector": "button:has-text('Edit'), [data-testid*='edit']",
+          "description": "Open edit submittal form",
+          "waitMs": 2500,
+          "captureAfterClick": true,
+          "captureForms": true,
+          "goBack": true
+        },
+        {
+          "type": "click",
+          "selector": "[data-qa='actions-menu'], [data-qa='ci-EllipsisVertical']",
+          "description": "Open actions overflow menu on detail",
+          "waitMs": 1500,
+          "captureAfterClick": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "contractVersion": 1,
+  "taskId": "AAI-783 follow-up",
+  "feature": "Expanded Prime Contract training video publication",
+  "route": "https://docs.alleatogroup.com/prime-contracts/create-a-prime-contract",
+  "flows": [
+    {
+      "name": "Public Prime Contract training walkthrough",
+      "steps": [
+        "Open the public Alleato Docs Prime Contract training page",
+        "Confirm the owner entity and invoice-contact readiness guidance",
+        "Confirm contract dates, estimate-based Schedule of Values, detailed scope, and execution guidance",
+        "Verify the published MP4 byte count and SHA-256"
+      ],
+      "expectedOutcome": "The public page serves the complete slower narrated walkthrough and the MP4 exactly matches the approved deliverable."
+    }
+  ],
+  "requiredEvidence": ["screenshots", "actionLog", "summary", "reloadProof", "visualReview", "regressionTest"],
+  "visual": {
+    "viewports": ["desktop"],
+    "checks": [
+      "The canonical public route renders the Prime Contract training page",
+      "The walkthrough description names owner entity and invoice contact",
+      "The embedded video is visible and playable"
+    ]
+  },
+  "independentReview": { "required": true },
+  "claims": [
+    {
+      "id": "complete-training-coverage",
+      "description": "The walkthrough covers every requested Prime Contract setup topic.",
+      "evidence": [
+        { "key": "screenshots", "min": 6 },
+        { "key": "actionLog", "min": 1 },
+        { "key": "summary", "min": 1 }
+      ]
+    },
+    {
+      "id": "published-artifact-integrity",
+      "description": "The public MP4 is the exact approved slower ElevenLabs-narrated deliverable.",
+      "evidence": [
+        { "key": "summary", "min": 1 },
+        { "key": "reloadProof", "min": 1 }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+name: RAG Pipeline Operations
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/rag-pipeline-ops.yml
+      - render.yaml
+      - scripts/ops/reconcile-render-rag-crons.mjs
+      - scripts/verify/verify_render_rag_cron_health.mjs
+  workflow_dispatch:
+    inputs:
+      action:
+        description: Audit is read-only; reconcile restores guardrails and resumes; reconcile-and-run also triggers each selected cron sequentially.
+        required: true
+        default: audit
+        type: choice
+        options:
+          - audit
+          - reconcile
+          - reconcile-and-run
+      group:
+        description: Canonical Render RAG cron group.
+        required: true
+        default: all
+        type: choice
+        options:
+          - source
+          - health
+          - intelligence
+          - all
+      confirmation:
+        description: Mutating actions require the exact value RESUME_RAG_PIPELINE.
+        required: false
+        type: string
+
+concurrency:
+  group: rag-pipeline-operations
+  cancel-in-progress: false
+
+jobs:
+  reconcile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Install root dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Audit or reconcile canonical Render RAG owners
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+        run: >-
+          node scripts/ops/reconcile-render-rag-crons.mjs
+          --action=${{ inputs.action || 'audit' }}
+          --group=${{ inputs.group || 'all' }}
+          --confirm=${{ inputs.confirmation || '' }}

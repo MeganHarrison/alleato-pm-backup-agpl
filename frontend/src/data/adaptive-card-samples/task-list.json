@@ -1,0 +1,419 @@
+{
+  "type": "AdaptiveCard",
+  "$schema": "https://adaptivecards.io/schemas/adaptive-card.json",
+  "version": "1.5",
+  "body": [
+    {
+      "type": "ColumnSet",
+      "columns": [
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "Your Tasks",
+              "size": "Large",
+              "weight": "Bolder",
+              "wrap": false
+            },
+            {
+              "type": "TextBlock",
+              "text": "6 open · 2 due today",
+              "size": "Small",
+              "isSubtle": true,
+              "spacing": "None",
+              "wrap": false
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "auto",
+          "verticalContentAlignment": "Top",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "Tuesday, June 10",
+              "size": "Small",
+              "isSubtle": true,
+              "horizontalAlignment": "Right",
+              "wrap": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "TextBlock",
+      "text": "DUE TODAY",
+      "size": "Small",
+      "weight": "Bolder",
+      "color": "Attention",
+      "spacing": "Medium",
+      "separator": true
+    },
+    {
+      "type": "ColumnSet",
+      "spacing": "Small",
+      "columns": [
+        {
+          "type": "Column",
+          "width": "auto",
+          "verticalContentAlignment": "Top",
+          "items": [
+            {
+              "type": "Icon",
+              "name": "CircleSmall",
+              "size": "Small",
+              "color": "Attention"
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "stretch",
+          "spacing": "Small",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "Review and approve CO-047",
+              "size": "Default",
+              "weight": "Bolder",
+              "wrap": true
+            },
+            {
+              "type": "TextBlock",
+              "text": "Union Collective",
+              "size": "Small",
+              "isSubtle": true,
+              "spacing": "None",
+              "wrap": false
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "auto",
+          "verticalContentAlignment": "Top",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "Today",
+              "size": "Small",
+              "color": "Attention",
+              "weight": "Bolder",
+              "wrap": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "ColumnSet",
+      "spacing": "Small",
+      "separator": true,
+      "columns": [
+        {
+          "type": "Column",
+          "width": "auto",
+          "verticalContentAlignment": "Top",
+          "items": [
+            {
+              "type": "Icon",
+              "name": "CircleSmall",
+              "size": "Small",
+              "color": "Attention"
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "stretch",
+          "spacing": "Small",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "Sign off electrical invoice — $12K",
+              "size": "Default",
+              "weight": "Bolder",
+              "wrap": true
+            },
+            {
+              "type": "TextBlock",
+              "text": "Vermillion Rise Warehouse",
+              "size": "Small",
+              "isSubtle": true,
+              "spacing": "None",
+              "wrap": false
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "auto",
+          "verticalContentAlignment": "Top",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "Today",
+              "size": "Small",
+              "color": "Attention",
+              "weight": "Bolder",
+              "wrap": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "TextBlock",
+      "text": "THIS WEEK",
+      "size": "Small",
+      "weight": "Bolder",
+      "isSubtle": true,
+      "spacing": "Medium",
+      "separator": true
+    },
+    {
+      "type": "ColumnSet",
+      "spacing": "Small",
+      "columns": [
+        {
+          "type": "Column",
+          "width": "auto",
+          "verticalContentAlignment": "Top",
+          "items": [
+            {
+              "type": "Icon",
+              "name": "CircleSmall",
+              "size": "Small",
+              "color": "Warning"
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "stretch",
+          "spacing": "Small",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "Respond to MEP coordination RFI",
+              "size": "Default",
+              "weight": "Bolder",
+              "wrap": true
+            },
+            {
+              "type": "TextBlock",
+              "text": "Maple Street Mixed-Use",
+              "size": "Small",
+              "isSubtle": true,
+              "spacing": "None",
+              "wrap": false
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "auto",
+          "verticalContentAlignment": "Top",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "Jun 12",
+              "size": "Small",
+              "color": "Warning",
+              "weight": "Bolder",
+              "wrap": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "ColumnSet",
+      "spacing": "Small",
+      "separator": true,
+      "columns": [
+        {
+          "type": "Column",
+          "width": "auto",
+          "verticalContentAlignment": "Top",
+          "items": [
+            {
+              "type": "Icon",
+              "name": "CircleSmall",
+              "size": "Small",
+              "color": "Warning"
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "stretch",
+          "spacing": "Small",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "Review submittal package — steel connections",
+              "size": "Default",
+              "weight": "Bolder",
+              "wrap": true
+            },
+            {
+              "type": "TextBlock",
+              "text": "Union Collective",
+              "size": "Small",
+              "isSubtle": true,
+              "spacing": "None",
+              "wrap": false
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "auto",
+          "verticalContentAlignment": "Top",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "Jun 13",
+              "size": "Small",
+              "color": "Warning",
+              "weight": "Bolder",
+              "wrap": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "TextBlock",
+      "text": "UPCOMING",
+      "size": "Small",
+      "weight": "Bolder",
+      "isSubtle": true,
+      "spacing": "Medium",
+      "separator": true
+    },
+    {
+      "type": "ColumnSet",
+      "spacing": "Small",
+      "columns": [
+        {
+          "type": "Column",
+          "width": "auto",
+          "verticalContentAlignment": "Top",
+          "items": [
+            {
+              "type": "Icon",
+              "name": "CircleSmall",
+              "size": "Small",
+              "color": "Default"
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "stretch",
+          "spacing": "Small",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "Finalize budget reconciliation for Q2",
+              "size": "Default",
+              "weight": "Bolder",
+              "wrap": true
+            },
+            {
+              "type": "TextBlock",
+              "text": "Company-wide",
+              "size": "Small",
+              "isSubtle": true,
+              "spacing": "None",
+              "wrap": false
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "auto",
+          "verticalContentAlignment": "Top",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "Jun 18",
+              "size": "Small",
+              "isSubtle": true,
+              "wrap": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "ColumnSet",
+      "spacing": "Small",
+      "separator": true,
+      "columns": [
+        {
+          "type": "Column",
+          "width": "auto",
+          "verticalContentAlignment": "Top",
+          "items": [
+            {
+              "type": "Icon",
+              "name": "CircleSmall",
+              "size": "Small",
+              "color": "Default"
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "stretch",
+          "spacing": "Small",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "Schedule pre-construction kickoff",
+              "size": "Default",
+              "weight": "Bolder",
+              "wrap": true
+            },
+            {
+              "type": "TextBlock",
+              "text": "Northgate Office Renovation",
+              "size": "Small",
+              "isSubtle": true,
+              "spacing": "None",
+              "wrap": false
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "auto",
+          "verticalContentAlignment": "Top",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "Jun 20",
+              "size": "Small",
+              "isSubtle": true,
+              "wrap": false
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.OpenUrl",
+      "title": "View all tasks",
+      "url": "https://projects.alleatogroup.com"
+    }
+  ]
+}

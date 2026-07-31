@@ -1,0 +1,43 @@
+{
+  "checkedAt": "2026-07-24T02:29:00Z",
+  "projectRef": "lgveqfnpkxvzbnnwuled",
+  "mappings": [
+    {
+      "projectId": 60,
+      "businessAreaId": 3,
+      "key": "finance",
+      "restricted": true,
+      "projectArchived": false
+    },
+    {
+      "projectId": 89,
+      "businessAreaId": 5,
+      "key": "marketing",
+      "restricted": false,
+      "projectArchived": false
+    },
+    {
+      "projectId": 90,
+      "businessAreaId": 4,
+      "key": "internal-operations",
+      "restricted": false,
+      "projectArchived": false
+    },
+    {
+      "projectId": 756,
+      "businessAreaId": 1,
+      "key": "leads",
+      "restricted": false,
+      "projectArchived": false
+    },
+    {
+      "projectId": 767,
+      "businessAreaId": 2,
+      "key": "ai",
+      "restricted": false,
+      "projectArchived": false
+    }
+  ],
+  "mappingCount": 5,
+  "result": "PASS"
+}

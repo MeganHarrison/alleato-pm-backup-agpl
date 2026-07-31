@@ -1,0 +1,87 @@
+{
+  "status": "PASS",
+  "taskId": "AAI-1146",
+  "evidence": {
+    "screenshots": [
+      "docs/ops/evidence/2026-07-17-billing-period-management-parity/billing-periods-desktop.png",
+      "docs/ops/evidence/2026-07-17-billing-period-management-parity/billing-periods-tablet.png",
+      "docs/ops/evidence/2026-07-17-billing-period-management-parity/billing-periods-mobile.png",
+      "docs/ops/evidence/2026-07-17-billing-period-management-parity/billing-periods-mobile-dialog.png",
+      "docs/ops/evidence/2026-07-17-billing-period-management-parity/duplicate-range-error.png"
+    ],
+    "videos": [
+      "docs/ops/evidence/2026-07-17-billing-period-management-parity/billing-periods-flow.webm"
+    ],
+    "actionLog": [
+      "docs/ops/evidence/2026-07-17-billing-period-management-parity/action-log.md"
+    ],
+    "databaseReadback": [
+      "docs/ops/evidence/2026-07-17-billing-period-management-parity/database-readback.json"
+    ],
+    "reloadProof": [
+      "docs/ops/evidence/2026-07-17-billing-period-management-parity/reload-proof.md"
+    ],
+    "negativePath": [
+      "docs/ops/evidence/2026-07-17-billing-period-management-parity/negative-path.md"
+    ],
+    "visualReview": [
+      "docs/ops/evidence/2026-07-17-billing-period-management-parity/visual-review.md"
+    ],
+    "regressionTest": [
+      "docs/ops/evidence/2026-07-17-billing-period-management-parity/regression-test.md"
+    ]
+  },
+  "claims": {
+    "starting-state": {
+      "screenshots": [
+        "docs/ops/evidence/2026-07-17-billing-period-management-parity/billing-periods-desktop.png"
+      ]
+    },
+    "completed-form": {
+      "screenshots": [
+        "docs/ops/evidence/2026-07-17-billing-period-management-parity/billing-periods-mobile-dialog.png"
+      ]
+    },
+    "result-state": {
+      "screenshots": [
+        "docs/ops/evidence/2026-07-17-billing-period-management-parity/billing-periods-desktop.png"
+      ]
+    },
+    "database-persistence": {
+      "databaseReadback": [
+        "docs/ops/evidence/2026-07-17-billing-period-management-parity/database-readback.json"
+      ]
+    },
+    "reload-prefill": {
+      "reloadProof": [
+        "docs/ops/evidence/2026-07-17-billing-period-management-parity/reload-proof.md"
+      ]
+    },
+    "negative-path": {
+      "negativePath": [
+        "docs/ops/evidence/2026-07-17-billing-period-management-parity/negative-path.md"
+      ]
+    },
+    "visual-desktop": {
+      "visualReview": [
+        "docs/ops/evidence/2026-07-17-billing-period-management-parity/visual-review.md"
+      ]
+    },
+    "visual-mobile": {
+      "visualReview": [
+        "docs/ops/evidence/2026-07-17-billing-period-management-parity/visual-review.md"
+      ]
+    },
+    "regression": {
+      "regressionTest": [
+        "docs/ops/evidence/2026-07-17-billing-period-management-parity/regression-test.md"
+      ]
+    }
+  },
+  "independentReview": {
+    "reviewer": "billing_independent_review and billing_visual_review",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-17T12:17:00Z",
+    "artifact": "docs/ops/evidence/2026-07-17-billing-period-management-parity/independent-review.md"
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "expectations": [
+    {
+      "text": "finds-transmittals-crawler - Agent identifies and locates the transmittals crawler script",
+      "passed": true,
+      "evidence": "Gap analysis report explicitly references crawl source: 'Procore crawl: `_bmad-output/planning-artifacts/transmittals/crawl/`' and JSON metadata includes 'procoreCrawlDir': '_bmad-output/planning-artifacts/transmittals/crawl/'. Actual crawler files confirmed at /scripts/playwright-crawl/scripts/crawlers/crawl-transmittals-comprehensive.js"
+    },
+    {
+      "text": "identifies-not-built - Agent recognizes transmittals is not yet implemented in Alleato PM",
+      "passed": true,
+      "evidence": "Report states 'Overall Verdict: NOT STARTED — approximately 2% complete' with explicit summary: 'Only a stub placeholder page exists. No database schema, API routes, hooks, services, or real components have been built.' JSON meta includes 'overallStatus': 'NOT_STARTED' and 'overallCompletionPercent': 2"
+    },
+    {
+      "text": "complete-inventory - Output includes inventory of pages, forms, table columns, statuses, and workflows",
+      "passed": true,
+      "evidence": "Report includes: (1) Page-by-Page Comparison table with 6 routes and status; (2) List View Table Column Comparison with 8 standard columns + customizable columns; (3) Create/Edit Form Field Comparison with 20+ fields organized by section (Header, Content, Items, Distribution); (4) Status/Workflow Comparison section; (5) CRUD Operations Comparison table. JSON has corresponding detailed arrays for pages, listColumns, formFields, crudOperations."
+    },
+    {
+      "text": "database-schema - Output includes database schema requirements for new tables/columns",
+      "passed": true,
+      "evidence": "Database Schema Gaps section documents 3 required tables: 'transmittals' (18 columns with types, requirements, FK notes), 'transmittal_items' (7 columns), and 'transmittal_attachments' (6 columns). Markdown includes detailed column specs; JSON schema section (lines 113-164) provides complete table definitions with column types, required flags, and notes."
+    },
+    {
+      "text": "greenfield-tasks - Task list reflects building from scratch with comprehensive implementation steps",
+      "passed": true,
+      "evidence": "Missing Functionality section provides prioritized checklist: HIGH Impact (12 items: database schema, list view, create/edit forms, API routes, React Query hooks, auto-numbering, attachments, items linking); MEDIUM Impact (13 items: recycle bin, private transmittals, distribution, exports, email features, method field, search); LOW Impact (5 items: settings, column customization, received checkbox, sorting). Tasks are specific and implementation-ready (e.g., 'create `transmittals` table with all required columns', 'CRUD endpoints at `api/projects/[projectId]/transmittals/`')"
+    },
+    {
+      "text": "output-saved - Report saved as a markdown file in the outputs directory",
+      "passed": true,
+      "evidence": "File gap-analysis-report.md exists in outputs directory at /Users/meganharrison/Documents/github/alleato-pm/.claude/skills/procore-audit-workspace/iteration-1/eval-2-transmittals-inventory/with_skill/outputs/gap-analysis-report.md and contains formatted markdown with headers, tables, and structured sections."
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "pass_rate": 1.0
+  }
+}

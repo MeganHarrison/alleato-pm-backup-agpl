@@ -1,0 +1,83 @@
+{
+  "status": "PASS",
+  "taskId": "AAI-1150",
+  "evidence": {
+    "screenshots": [
+      "docs/ops/tasks/2026-07-17-ai-sdk-tool-approval-hardening-proof/desktop-rfi-signed-approval-pass-ready.png",
+      "docs/ops/tasks/2026-07-17-ai-sdk-tool-approval-hardening-proof/desktop-rfi-signed-approval-expanded.png",
+      "docs/ops/tasks/2026-07-17-ai-sdk-tool-approval-hardening-proof/desktop-rfi-approved-created.png",
+      "docs/ops/tasks/2026-07-17-ai-sdk-tool-approval-hardening-proof/mobile-rfi-signed-approval-expanded.png",
+      "docs/ops/tasks/2026-07-17-ai-sdk-tool-approval-hardening-proof/mobile-rfi-denied-no-run.png",
+      "docs/ops/tasks/2026-07-17-ai-sdk-tool-approval-hardening-proof/desktop-ask-alleato-read-only.png",
+      "docs/ops/tasks/2026-07-17-ai-sdk-tool-approval-hardening-proof/mobile-ask-alleato-read-only.png"
+    ],
+    "actionLog": [
+      "docs/ops/tasks/2026-07-17-ai-sdk-tool-approval-hardening-proof/action-log.txt"
+    ],
+    "databaseReadback": [
+      "docs/ops/tasks/2026-07-17-ai-sdk-tool-approval-hardening-proof/database-readback.json"
+    ],
+    "negativePath": [
+      "docs/ops/tasks/2026-07-17-ai-sdk-tool-approval-hardening-proof/negative-path.txt"
+    ],
+    "visualReview": [
+      "docs/ops/tasks/2026-07-17-ai-sdk-tool-approval-hardening-proof/visual-review.md",
+      "docs/ops/tasks/2026-07-17-ai-sdk-tool-approval-hardening-proof/mobile-rfi-signed-approval-expanded.png"
+    ],
+    "summary": [
+      "docs/ops/tasks/2026-07-17-ai-sdk-tool-approval-hardening-proof/summary.md"
+    ],
+    "regressionTest": [
+      "docs/ops/tasks/2026-07-17-ai-sdk-tool-approval-hardening-proof/regression-test.txt"
+    ]
+  },
+  "claims": {
+    "signed-approval": {
+      "screenshots": [
+        "docs/ops/tasks/2026-07-17-ai-sdk-tool-approval-hardening-proof/desktop-rfi-signed-approval-expanded.png"
+      ]
+    },
+    "exact-once-write": {
+      "databaseReadback": [
+        "docs/ops/tasks/2026-07-17-ai-sdk-tool-approval-hardening-proof/database-readback.json"
+      ]
+    },
+    "denial-no-write": {
+      "negativePath": [
+        "docs/ops/tasks/2026-07-17-ai-sdk-tool-approval-hardening-proof/negative-path.txt"
+      ]
+    },
+    "tamper-fails-closed": {
+      "regressionTest": [
+        "docs/ops/tasks/2026-07-17-ai-sdk-tool-approval-hardening-proof/regression-test.txt"
+      ]
+    },
+    "ask-read-only": {
+      "actionLog": [
+        "docs/ops/tasks/2026-07-17-ai-sdk-tool-approval-hardening-proof/action-log.txt"
+      ]
+    },
+    "shared-provider-secret": {
+      "summary": [
+        "docs/ops/tasks/2026-07-17-ai-sdk-tool-approval-hardening-proof/summary.md"
+      ]
+    },
+    "visual-responsive": {
+      "visualReview": [
+        "docs/ops/tasks/2026-07-17-ai-sdk-tool-approval-hardening-proof/visual-review.md",
+        "docs/ops/tasks/2026-07-17-ai-sdk-tool-approval-hardening-proof/mobile-rfi-signed-approval-expanded.png"
+      ]
+    },
+    "architecture-regression": {
+      "regressionTest": [
+        "docs/ops/tasks/2026-07-17-ai-sdk-tool-approval-hardening-proof/regression-test.txt"
+      ]
+    }
+  },
+  "independentReview": {
+    "reviewer": "ai_ownership_audit_review",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-22T20:52:00Z",
+    "artifact": "docs/ops/tasks/2026-07-17-ai-sdk-tool-approval-hardening-proof/independent-review.md"
+  }
+}

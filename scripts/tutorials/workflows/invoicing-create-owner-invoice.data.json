@@ -1,0 +1,14 @@
+{
+  "projectId": 1034,
+  "primeContractId": "6a8f61d6-a9ae-4bf2-9ae4-bca938f05879",
+  "invoiceNumber": "OWNER-APP-001",
+  "billingPeriod": "July 2026",
+  "description": "Owner billing application for the July progress period.",
+  "retentionPercent": "10",
+  "costCode": "01-000",
+  "lineDescription": "General conditions and mobilization",
+  "contractAmount": "50000",
+  "previouslyBilled": "10000",
+  "thisMonthAmount": "15000",
+  "submitWorkflow": false
+}

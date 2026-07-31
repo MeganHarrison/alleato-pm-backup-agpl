@@ -1,0 +1,55 @@
+{
+  "contractVersion": 1,
+  "taskId": "ALL-7",
+  "riskLevel": "high",
+  "feature": "Alleato Brain Business Area foundation",
+  "route": "Supabase PM APP and AI Database",
+  "flows": [
+    {
+      "name": "Establish additive Business Area scope",
+      "steps": [
+        "Apply and ledger the foundation migration",
+        "Seed five branches and permanent project mappings",
+        "Preserve existing access and comparison labels",
+        "Verify PM APP and AI Database parity"
+      ],
+      "expectedOutcome": "Business Area scope exists without archiving containers, deleting content, or inventing Finance access"
+    }
+  ],
+  "requiredEvidence": [
+    "actionLog",
+    "summary",
+    "databaseReadback",
+    "negativePath",
+    "regressionTest"
+  ],
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "foundation-schema",
+      "description": "Five branches, memberships, mappings, helper, policy, and document column are live",
+      "evidence": [
+        { "key": "databaseReadback", "min": 1 },
+        { "key": "regressionTest", "min": 1 }
+      ]
+    },
+    {
+      "id": "parallel-label-parity",
+      "description": "Current branch labels match retained legacy labels during parallel run",
+      "evidence": [
+        { "key": "databaseReadback", "min": 1 },
+        { "key": "negativePath", "min": 1 }
+      ]
+    },
+    {
+      "id": "finance-fail-closed",
+      "description": "Finance is restricted and no unauthorized membership is invented",
+      "evidence": [
+        { "key": "databaseReadback", "min": 1 },
+        { "key": "negativePath", "min": 1 }
+      ]
+    }
+  ]
+}

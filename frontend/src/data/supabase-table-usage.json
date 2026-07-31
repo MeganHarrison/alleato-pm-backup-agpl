@@ -1,0 +1,220 @@
+{
+  "fileUsage": [
+    {
+      "file": "frontend/src/app/(tables)/(procore)/daily-logs/[id]/page.tsx",
+      "tables": [
+        "daily_logs"
+      ]
+    },
+    {
+      "file": "frontend/src/app/[projectId]/daily-log/[id]/page.tsx",
+      "tables": [
+        "daily_log_equipment",
+        "daily_log_manpower",
+        "daily_log_notes"
+      ]
+    },
+    {
+      "file": "frontend/src/app/[projectId]/home/page.tsx",
+      "tables": [
+        "projects"
+      ]
+    },
+    {
+      "file": "frontend/src/app/api/commitments/[commitmentId]/route.ts",
+      "tables": [
+        "commitments"
+      ]
+    },
+    {
+      "file": "frontend/src/app/api/projects/[projectId]/budget/views/route.ts",
+      "tables": [
+        "budget_views"
+      ]
+    },
+    {
+      "file": "frontend/src/app/api/projects/[projectId]/change-events/[changeEventId]/attachments/[attachmentId]/route.ts",
+      "tables": [
+        "change_event_history"
+      ]
+    },
+    {
+      "file": "frontend/src/app/api/projects/[projectId]/change-events/[changeEventId]/attachments/route.ts",
+      "tables": [
+        "change_event_history"
+      ]
+    },
+    {
+      "file": "frontend/src/app/api/projects/[projectId]/change-events/[changeEventId]/route.ts",
+      "tables": [
+        "change_event_history"
+      ]
+    },
+    {
+      "file": "frontend/src/app/api/projects/[projectId]/change-events/route.ts",
+      "tables": [
+        "change_event_history"
+      ]
+    },
+    {
+      "file": "frontend/src/app/api/projects/[projectId]/subcontracts/route.ts",
+      "tables": [
+        "subcontracts"
+      ]
+    },
+    {
+      "file": "frontend/src/app/api/projects/bootstrap/route.ts",
+      "tables": [
+        "cost_codes"
+      ]
+    },
+    {
+      "file": "frontend/src/components/drawings/upload-drawing-dialog.tsx",
+      "tables": [
+        "files"
+      ]
+    },
+    {
+      "file": "frontend/src/components/project-setup-wizard/cost-code-setup.tsx",
+      "tables": [
+        "cost_codes"
+      ]
+    },
+    {
+      "file": "frontend/src/components/tutorial/fetch-data-steps.tsx",
+      "tables": [
+        "notes"
+      ]
+    },
+    {
+      "file": "frontend/src/lib/services/direct-cost-service.ts",
+      "tables": [
+        "direct_cost_audit_log",
+        "direct_costs"
+      ]
+    },
+    {
+      "file": "frontend/src/lib/supabase/queries.ts",
+      "tables": [
+        "budget_line_items",
+        "projects",
+        "rfis"
+      ]
+    },
+    {
+      "file": "frontend/src/services/inviteService.ts",
+      "tables": [
+        "users_auth"
+      ]
+    }
+  ],
+  "tableUsage": [
+    {
+      "table": "budget_line_items",
+      "files": [
+        "frontend/src/lib/supabase/queries.ts"
+      ]
+    },
+    {
+      "table": "budget_views",
+      "files": [
+        "frontend/src/app/api/projects/[projectId]/budget/views/route.ts"
+      ]
+    },
+    {
+      "table": "change_event_history",
+      "files": [
+        "frontend/src/app/api/projects/[projectId]/change-events/[changeEventId]/attachments/[attachmentId]/route.ts",
+        "frontend/src/app/api/projects/[projectId]/change-events/[changeEventId]/attachments/route.ts",
+        "frontend/src/app/api/projects/[projectId]/change-events/[changeEventId]/route.ts",
+        "frontend/src/app/api/projects/[projectId]/change-events/route.ts"
+      ]
+    },
+    {
+      "table": "commitments",
+      "files": [
+        "frontend/src/app/api/commitments/[commitmentId]/route.ts"
+      ]
+    },
+    {
+      "table": "cost_codes",
+      "files": [
+        "frontend/src/app/api/projects/bootstrap/route.ts",
+        "frontend/src/components/project-setup-wizard/cost-code-setup.tsx"
+      ]
+    },
+    {
+      "table": "daily_log_equipment",
+      "files": [
+        "frontend/src/app/[projectId]/daily-log/[id]/page.tsx"
+      ]
+    },
+    {
+      "table": "daily_log_manpower",
+      "files": [
+        "frontend/src/app/[projectId]/daily-log/[id]/page.tsx"
+      ]
+    },
+    {
+      "table": "daily_log_notes",
+      "files": [
+        "frontend/src/app/[projectId]/daily-log/[id]/page.tsx"
+      ]
+    },
+    {
+      "table": "daily_logs",
+      "files": [
+        "frontend/src/app/(tables)/(procore)/daily-logs/[id]/page.tsx"
+      ]
+    },
+    {
+      "table": "direct_cost_audit_log",
+      "files": [
+        "frontend/src/lib/services/direct-cost-service.ts"
+      ]
+    },
+    {
+      "table": "direct_costs",
+      "files": [
+        "frontend/src/lib/services/direct-cost-service.ts"
+      ]
+    },
+    {
+      "table": "files",
+      "files": [
+        "frontend/src/components/drawings/upload-drawing-dialog.tsx"
+      ]
+    },
+    {
+      "table": "notes",
+      "files": [
+        "frontend/src/components/tutorial/fetch-data-steps.tsx"
+      ]
+    },
+    {
+      "table": "projects",
+      "files": [
+        "frontend/src/app/[projectId]/home/page.tsx",
+        "frontend/src/lib/supabase/queries.ts"
+      ]
+    },
+    {
+      "table": "rfis",
+      "files": [
+        "frontend/src/lib/supabase/queries.ts"
+      ]
+    },
+    {
+      "table": "subcontracts",
+      "files": [
+        "frontend/src/app/api/projects/[projectId]/subcontracts/route.ts"
+      ]
+    },
+    {
+      "table": "users_auth",
+      "files": [
+        "frontend/src/services/inviteService.ts"
+      ]
+    }
+  ]
+}

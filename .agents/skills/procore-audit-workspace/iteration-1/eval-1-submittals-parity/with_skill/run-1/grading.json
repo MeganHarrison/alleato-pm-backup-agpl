@@ -1,0 +1,40 @@
+{
+  "expectations": [
+    {
+      "text": "finds-submittals-crawler - Agent identifies and locates the submittals crawler script",
+      "passed": true,
+      "evidence": "Report header explicitly references 'Procore crawl: procore-crawls/submittals/spec/' and multiple references to 'procore-crawls/submittals/spec/FORMS.md' and 'procore-crawls/submittals/spec/COMMANDS.md' throughout the analysis. JSON meta includes 'procore_crawl_source': 'procore-crawls/submittals/spec/'"
+    },
+    {
+      "text": "focuses-on-forms - Agent specifically focuses on form field extraction and comparison as requested",
+      "passed": true,
+      "evidence": "Entire section titled 'Form Field Comparison (Create / Edit Submittal)' (lines 45-108 in markdown, lines 108-370 in JSON) with detailed breakdown by form sections: General Information, Distribution & Scheduling, Content, Workflow. Includes 24 field entries with Procore vs Alleato comparison."
+    },
+    {
+      "text": "field-level-comparison - Output includes per-field comparison with field name, type, and required status",
+      "passed": true,
+      "evidence": "Form field table (lines 52-108 in markdown) and JSON array (lines 109-369) show structure: 'procore_field' | 'procore_type' | 'procore_required' | 'alleato_field' | 'alleato_widget' | 'status' | 'impact'. Example row: title (text, required=Yes) → title (text input) ✅. All 24 fields mapped with type and required status."
+    },
+    {
+      "text": "maps-alleato-submittals - Agent identifies Alleato PM submittals implementation (components, hooks, schemas)",
+      "passed": true,
+      "evidence": "Report explicitly identifies Alleato implementation paths: 'Form component: frontend/src/features/submittals/submittal-form-dialog.tsx' (line 6), 'Table config: frontend/src/features/submittals/submittals-table-config.tsx' (line 7), 'Alleato path: frontend/src/app/(main)/[projectId]/submittals/' (line 5), and references to 'use-submittals.ts' hook (line 213 markdown). JSON meta includes all three."
+    },
+    {
+      "text": "status-indicators - Report uses status indicators for each compared item",
+      "passed": true,
+      "evidence": "Consistent use of status indicators throughout: ✅ (complete), ⚠️ (partial), ❌ (missing), ✅ (complete) across all sections. Executive Summary table (lines 13-24), Page comparison table (lines 32-42), Form section (every field has status column with emoji), Table columns (lines 116-130), Filters (lines 140-155). JSON uses 'status' field with values: 'complete', 'partial', 'missing', 'failing'."
+    },
+    {
+      "text": "output-saved - Report saved as a markdown file in the outputs directory",
+      "passed": true,
+      "evidence": "File exists at /Users/meganharrison/Documents/github/alleato-pm/.claude/skills/procore-audit-workspace/iteration-1/eval-1-submittals-parity/with_skill/outputs/gap-analysis-report.md (verified via file listing). Report is 301 lines of well-formatted markdown with proper headers, tables, and structure."
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "pass_rate": 1.0
+  }
+}

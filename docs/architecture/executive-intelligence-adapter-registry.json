@@ -1,0 +1,120 @@
+{
+  "version": 1,
+  "owner": "AAI-1098",
+  "purpose": "Phase 0 registry for Executive Operating System reads. It records the existing canonical owners only; it does not create executive attention, conflict, or normalized-event state.",
+  "entries": [
+    {
+      "id": "daily-executive-brief",
+      "kind": "executive_projection",
+      "subject": "portfolio daily executive brief",
+      "canonicalSource": "public.intelligence_packets for intelligence_targets.slug=daily-executive-brief and packet_type=current",
+      "authorityClass": "Derived",
+      "writerOwner": "Daily Deep Read compiler",
+      "writerAnchor": "project-intelligence/core/compile-daily-executive-brief.mjs",
+      "writers": ["project-intelligence/core/compile-daily-executive-brief.mjs"],
+      "writerMode": "single_projection_writer",
+      "ownershipStatus": "verified",
+      "readAdapter": "frontend/src/lib/daily-briefs/canonical-packets.ts",
+      "freshnessOwner": "packet.generated_at and packet.freshness_status",
+      "failureDetector": "scripts/verify/daily-brief-source-of-truth.mjs",
+      "legacyOrParallel": ["public.daily_recaps", "page-local daily brief generation"]
+    },
+    {
+      "id": "project-operating-record",
+      "kind": "executive_projection",
+      "subject": "current project operating state",
+      "canonicalSource": "public.project_current_state",
+      "authorityClass": "Derived",
+      "writerOwner": "public.apply_project_current_state_projection",
+      "writerAnchor": "supabase/migrations/20260716110000_control_project_current_state_projection.sql",
+      "writers": ["supabase/migrations/20260716110000_control_project_current_state_projection.sql"],
+      "writerMode": "single_projection_writer",
+      "ownershipStatus": "verified",
+      "readAdapter": "frontend/src/lib/ai/intelligence/packet-service.ts",
+      "freshnessOwner": "project_current_state.updated_at",
+      "failureDetector": "backend/src/services/health/project_intelligence_staleness_check.py",
+      "legacyOrParallel": ["page-local project status synthesis"]
+    },
+    {
+      "id": "source-signal-evidence",
+      "kind": "evidence_and_candidate_input",
+      "subject": "evidence-backed candidate risks, decisions, tasks, and updates",
+      "canonicalSource": "RAG public.source_signal_candidates linked to immutable source evidence",
+      "authorityClass": "Observed",
+      "writerOwner": "Multiple canonical ingestion/compiler producers; not an executive projection writer",
+      "writerAnchor": "project-intelligence/projections/daily-deep-read-consumers.mjs",
+      "writers": [
+        "project-intelligence/projections/daily-deep-read-consumers.mjs",
+        "backend/src/services/intelligence/compiler.py",
+        "backend/src/services/intelligence/project_synthesizer.py",
+        "backend/src/services/pipeline/extractor.py"
+      ],
+      "writerMode": "multi_writer_ingestion",
+      "ownershipStatus": "verified",
+      "readAdapter": "frontend/src/lib/executive/canonical-operating-packet.ts",
+      "freshnessOwner": "source_signal_candidates.source_occurred_at bounded by the canonical packet window",
+      "failureDetector": "scripts/verify/daily-brief-source-of-truth.mjs",
+      "legacyOrParallel": ["page-local RAG retrieval", "unlinked candidate evidence"]
+    },
+    {
+      "id": "financial-ground-truth",
+      "kind": "transactional_input",
+      "subject": "accounts receivable and pending change-order exposure",
+      "canonicalSource": "public.acumatica_ar_invoices and public.acumatica_change_orders",
+      "authorityClass": "Official",
+      "writerOwner": "Acumatica synchronization service",
+      "writerAnchor": "backend/src/services/acumatica_sync.py",
+      "writers": ["backend/src/services/acumatica_sync.py"],
+      "writerMode": "single_transactional_sync_writer",
+      "ownershipStatus": "verified",
+      "readAdapter": "frontend/src/lib/executive/financial-pulse.ts",
+      "freshnessOwner": "Acumatica sync-run and transactional updated timestamps",
+      "failureDetector": "frontend/src/lib/executive/financial-pulse.ts",
+      "legacyOrParallel": ["AI-generated financial facts", "dashboard-local financial aggregation"]
+    },
+    {
+      "id": "official-schedule",
+      "kind": "transactional_input",
+      "subject": "project schedule and delivery facts",
+      "canonicalSource": "public.schedule_tasks",
+      "authorityClass": "Official",
+      "writerOwner": "Scheduling service",
+      "writerAnchor": "frontend/src/lib/services/scheduling-service.ts",
+      "writers": ["frontend/src/lib/services/scheduling-service.ts"],
+      "writerMode": "transactional_service_writer",
+      "ownershipStatus": "verified",
+      "readAdapter": "frontend/src/lib/services/scheduling-service.ts",
+      "freshnessOwner": "schedule_tasks.updated_at",
+      "failureDetector": "frontend/src/app/api/cron/daily-flags/route.ts",
+      "legacyOrParallel": ["AI-generated schedule dates", "page-local schedule summary"]
+    },
+    {
+      "id": "executive-brief-delivery",
+      "kind": "delivery_output",
+      "subject": "Daily Executive Brief Teams delivery and receipt",
+      "canonicalSource": "canonical packet plus public.ai_work_run_delivery_attempts receipt ledger",
+      "authorityClass": "Human-confirmed",
+      "writerOwner": "AI Ops ledger",
+      "writerAnchor": "frontend/src/lib/ai-ops/ledger.ts",
+      "writers": ["frontend/src/lib/ai-ops/ledger.ts"],
+      "writerMode": "single_delivery_ledger_writer",
+      "ownershipStatus": "verified",
+      "readAdapter": "frontend/src/app/api/executive/daily-brief/send-teams/route.ts",
+      "freshnessOwner": "packet business date plus delivery attempt status",
+      "failureDetector": "scripts/verify/verify_daily_executive_brief_schedule.mjs",
+      "legacyOrParallel": ["legacy owner-briefing test send", "independent report delivery"]
+    }
+  ],
+  "deferredDomains": [
+    {
+      "id": "executive-attention-and-conflict",
+      "owner": "AAI-1097",
+      "reason": "No executive attention, conflict, or normalized-event tables exist in the generated database types; they must be introduced as a distinct domain rather than reused from generic project tasks."
+    },
+    {
+      "id": "projection-enforcement",
+      "owner": "AAI-1096",
+      "reason": "Controlled writer enforcement and normalized event verification are downstream of this ownership inventory."
+    }
+  ]
+}

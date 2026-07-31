@@ -1,0 +1,37 @@
+{
+  "contractVersion": 1,
+  "taskId": "LOCAL-20260722-legacy-compiler-eradication",
+  "riskLevel": "high",
+  "feature": "Retired Project Intelligence compiler eradication",
+  "route": "Backend source health and frontend admin/assistant runtime",
+  "flows": [
+    {
+      "name": "Canonical Project Intelligence ownership",
+      "steps": [
+        "Scan backend and frontend runtime source for retired compiler ingress and queue reads",
+        "Read source-sync lifecycle state from ingestion artifacts only",
+        "Read packet readiness from canonical Project Intelligence artifacts only"
+      ],
+      "expectedOutcome": "No runtime surface invokes or reads the retired compiler as current truth, and any reintroduction fails the ownership test."
+    }
+  ],
+  "requiredEvidence": ["summary", "actionLog", "negativePath", "regressionTest"],
+  "independentReview": { "required": true },
+  "claims": [
+    {
+      "id": "runtime-eradication",
+      "description": "Backend and frontend runtime code contains no active retired compiler ingress or queue reads",
+      "evidence": [{ "key": "regressionTest", "min": 1 }, { "key": "actionLog", "min": 1 }]
+    },
+    {
+      "id": "failure-loudly",
+      "description": "The ownership guard rejects a reintroduced backend or frontend retired queue consumer",
+      "evidence": [{ "key": "negativePath", "min": 1 }]
+    },
+    {
+      "id": "source-health-preserved",
+      "description": "Source health still reports sync and embedding state while packet readiness uses canonical artifacts",
+      "evidence": [{ "key": "summary", "min": 1 }, { "key": "regressionTest", "min": 1 }]
+    }
+  ]
+}

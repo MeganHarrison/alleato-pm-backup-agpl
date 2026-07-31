@@ -1,0 +1,40 @@
+{
+  "expectations": [
+    {
+      "text": "finds-submittals-crawler - Agent identifies and locates the submittals crawler script",
+      "passed": true,
+      "evidence": "Section 'Source Files Referenced' explicitly identifies and references Procore crawl specifications: '/procore-crawls/submittals/spec/FORMS.md', '/procore-crawls/submittals/spec/COMMANDS.md', '/procore-crawls/submittals/spec/MUTATIONS.md' as 'source of truth' for comparison"
+    },
+    {
+      "text": "focuses-on-forms - Agent specifically focuses on form field extraction and comparison as requested",
+      "passed": true,
+      "evidence": "Section 1 'Create / Edit Form Field Parity' (lines 28-82) dedicates extensive analysis to form field comparison. Four subsections analyze form widgets: General Information, Distribution & Scheduling, Content, and Workflow sections. JSON contains comprehensive 'form_fields' object with detailed widget-level comparisons"
+    },
+    {
+      "text": "field-level-comparison - Output includes per-field comparison with field name, type, and required status",
+      "passed": true,
+      "evidence": "Tables throughout markdown include columns: Field, Procore, Alleato, Status, Notes. Example: '| submittal_manager_id | Required, searchable dropdown (contact) | NOT PRESENT | CRITICAL MISSING |'. JSON includes for each field: field_name, procore_required, procore_widget, alleato_present, alleato_widget, status"
+    },
+    {
+      "text": "maps-alleato-submittals - Agent identifies Alleato PM submittals implementation (components, hooks, schemas)",
+      "passed": true,
+      "evidence": "Section 'Source Files Referenced' explicitly lists all Alleato implementation files: '/frontend/src/features/submittals/submittal-form-dialog.tsx', '/frontend/src/hooks/use-submittals.ts', '/frontend/src/app/api/projects/[projectId]/submittals/route.ts', '/frontend/src/features/submittals/submittals-table-config.tsx', and others. Analysis cross-references these specific files throughout"
+    },
+    {
+      "text": "status-indicators - Report uses status indicators for each compared item",
+      "passed": true,
+      "evidence": "Consistent status indicators applied throughout both markdown and JSON: PASS, MISSING, CRITICAL_MISSING, WIDGET_MISMATCH, PARTIAL, DATA_GAP, EXTRA, OK. Every field in markdown tables includes Status column with appropriate indicator. JSON status field present on every item"
+    },
+    {
+      "text": "output-saved - Report saved as a markdown file in the outputs directory",
+      "passed": true,
+      "evidence": "File exists at /Users/meganharrison/Documents/github/alleato-pm/.claude/skills/procore-audit-workspace/iteration-1/eval-1-submittals-parity/without_skill/outputs/gap-analysis.md with properly formatted markdown structure including sections, tables, and executive summary. JSON version also saved as gap-analysis.json"
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "pass_rate": 1.0
+  }
+}

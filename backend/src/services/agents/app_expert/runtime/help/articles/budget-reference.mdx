@@ -1,0 +1,189 @@
+---
+title: Budget Reference
+description: Complete column-by-column reference for the Budget tool — definitions, formulas, source data, forecast methods, permissions, and how Budget connects to the rest of the system.
+audience: client
+visibility: published
+module: budget
+category: Financial Tools
+tags: [budget, reference, columns, forecast, variance, committed, direct-costs, change-orders]
+featured: false
+client_visible: true
+ai_visible: true
+order: 110
+related_routes:
+  - /[projectId]/budget
+  - /[projectId]/budget/line-item
+  - /[projectId]/budget/setup
+related_actions: []
+---
+
+# Budget Reference
+
+The Budget tool is the project's running financial picture. It pulls from prime contracts, change orders, commitments (subcontracts and purchase orders), direct costs, and forecasts to show — line by line — what was budgeted, what's been spent, what's still committed, and what the project is projected to land at.
+
+This article is the **reference**: every column, every formula, every source of truth. For step-by-step workflows (creating modifications, editing forecasts) see the related articles at the end.
+
+---
+
+## How a Budget Line Is Identified
+
+Every budget line is uniquely keyed by:
+
+- **Cost Code** — what the work is (e.g., `03-30-00 Concrete`)
+- **Cost Type** — the kind of cost (e.g., Labor, Material, Subcontract, Equipment)
+- **Sub Job** — optional, used to split a code by phase, building, or area
+
+Two lines can share a cost code as long as their cost type or sub job differs.
+
+**Source table:** `budget_lines` (one row per line). The Budget table on screen is served from the `v_budget_lines` view, which joins in approved-CO totals, modification totals, and revised budget for performance. If the view is unavailable, the app falls back to the `budget_lines` table and computes those columns on the fly.
+
+---
+
+## Columns Reference
+
+The Budget table renders these columns in order. Every dollar value rolls up from the per-line value to a grand total at the bottom of the table.
+
+### Budget side (what's authorized to spend)
+
+| Column | Definition | Source |
+|---|---|---|
+| **Original Budget Amount** | The baseline budget at contract signing for this line. | `budget_lines.original_amount` |
+| **Budget Modifications** | Net dollar change from all **approved** budget modifications on this line. Internal reallocations between lines — does not change the project total. | `budget_modification_lines` where `budget_modifications.status` is approved |
+| **Approved COs** | Net dollar change from all **approved** prime contract change orders on this line. Increases (or decreases) the total project budget. | `pcco_line_items` where `prime_contract_change_orders.status` ∈ `approved` |
+| **Revised Budget** | `Original Budget + Budget Modifications + Approved COs`. The current authorized budget for this line. | Computed |
+| **Pending Changes** | Sum of pending **prime contract** change orders touching this line. Not yet authorized — shown for visibility. | `pcco_line_items` where status ∈ `proposed`, `pending`, `submitted`, `under_review`, `revised` |
+| **Projected Budget** | `Revised Budget + Pending Changes`. What the budget would be if every pending prime CO is approved as written. | Computed |
+
+### Cost side (what's been spent or committed)
+
+| Column | Definition | Source |
+|---|---|---|
+| **Job to Date Cost Detail (JTD)** | All approved direct costs on this line, **including subcontractor invoices**. The complete "money out" picture for the line. Includes cost types: Invoice, Expense, Payroll, Subcontractor Invoice. | `direct_cost_line_items` joined to `direct_costs` where status = `Approved` |
+| **Direct Costs** | Approved direct costs **excluding subcontractor invoices**. Used to avoid double-counting subcontractor work that's already reflected in Committed Costs. Includes cost types: Invoice, Expense, Payroll. | Same source as JTD, filtered |
+| **Committed Costs** | Total of **executed** subcontracts, executed purchase orders, and **approved** commitment change orders on this line. Money the project is contractually obligated to spend. | `subcontract_sov_items` + `purchase_order_sov_items` + `commitment_change_order_lines` (executed/approved only) |
+| **Pending Cost Changes** | **Not-yet-executed** subcontracts, POs, and commitment change orders. Money likely to be committed but not yet binding. | Same sources, filtered to pending statuses |
+| **Projected Costs** | `Direct Costs + Committed Costs + Pending Cost Changes`. What the line is projected to cost based on what's known today, before any forecast-to-complete. | Computed |
+
+### Forecast and variance
+
+| Column | Definition | Source |
+|---|---|---|
+| **Forecast to Complete (FTC)** | Estimated remaining cost to finish this line of work. Calculated three different ways depending on the forecast method (see below). | `cost_forecasts` + `budget_forecast_line_items`, or computed |
+| **Estimated Cost at Completion (EAC)** | `Projected Costs + Forecast to Complete`. The projected final cost of the line at substantial completion. | Computed |
+| **Projected Over/Under** | `Projected Budget − Estimated Cost at Completion`. Negative is over budget. Positive is under budget (or unspent contingency). | Computed |
+
+---
+
+## Forecast Methods
+
+Each budget line has a forecast method that decides how **Forecast to Complete** is calculated. The current method is shown on the line item detail page and can be changed by users with Write or Admin permission.
+
+| Method | How FTC is calculated | When to use it |
+|---|---|---|
+| **Automatic** | `max(0, Projected Budget − Projected Costs)`. Whatever budget is left over after subtracting what's already committed and spent. | The default. Use it when the remaining work is tracking to budget and no manual override is needed. |
+| **Manual** | Sum of `quantity × unit_cost` across the line's forecast detail rows. PMs enter expected remaining quantities and unit costs directly. | When the team has better information than the budget formula (scope changes, productivity loss, market shifts). |
+| **Monitored Resources** | Sum of `unit_cost × (utilization_rate / 100) × units_remaining` for each forecast detail row, where units remaining is computed from the row's start/end dates and weeks-or-months mode. | When forecasting labor or rented equipment by time on site. |
+
+If the method is Manual or Monitored Resources but no detail rows have been entered, the system falls back to the last saved manual forecast value, and then to the Automatic calculation.
+
+**Underlying field:** `budget_lines.default_ftc_method` — one of `automatic`, `manual`, `monitored_resources`.
+
+---
+
+## Statuses
+
+### Budget Modification statuses
+
+A budget modification (an internal reallocation between cost codes) moves through these statuses. Only **approved** modifications affect the Revised Budget.
+
+- `draft` — being built, not yet routed for approval
+- `pending_approval` — submitted, awaiting approver
+- `approved` — applied to the budget; counted in the **Budget Modifications** column
+- `rejected` — not applied; ignored by all budget calculations
+
+**Source field:** `budget_modifications.status`
+
+### Prime contract Change Order statuses
+
+Affect the Budget table on the **budget side**.
+
+- **Approved** (`approved`, `Approved`) → adds to **Approved COs**, increases Revised Budget
+- **Pending** (`proposed`, `pending`, `submitted`, `under_review`, `revised`) → adds to **Pending Changes**, increases Projected Budget but not Revised Budget
+
+### Commitment statuses
+
+Affect the Budget table on the **cost side**.
+
+- **Subcontracts:** `Approved` or `Complete` → **Committed Costs**. `Out for Signature` or `Pending` → **Pending Cost Changes**.
+- **Purchase Orders:** `Approved` or `Completed` → **Committed Costs**. `Draft`, `Sent`, or `Acknowledged` → **Pending Cost Changes**.
+
+### Commitment Change Order statuses
+
+- `approved`, `Approved`, `executed`, `Executed` → counted in **Committed Costs**
+- `pending`, `Pending`, `Pending Approval` → counted in **Pending Cost Changes**
+
+---
+
+## Permissions
+
+| Permission | Can do |
+|---|---|
+| **Budget Read** | View the Budget table, line item detail, snapshots, history, and exports. |
+| **Budget Write** | Everything in Read, plus: add/edit/delete budget lines, change forecast method, enter manual or monitored-resource forecast detail, create budget modifications. |
+| **Budget Admin** | Everything in Write, plus: approve budget modifications, lock or unlock the budget, import from estimate or contract, seed a new budget from an estimate. |
+
+Locking a budget freezes Original Budget values on every line. Modifications and change orders still apply on top. Only an Admin can unlock.
+
+---
+
+## How Budget Connects to Other Tools
+
+The Budget table is read-only with respect to most of its inputs. The values in the cost-side columns are derived from other tools' data — change those tools, and the Budget table updates.
+
+| Source tool | What it contributes |
+|---|---|
+| **Estimates** | Optional seed source for the initial budget. Use **Seed from Estimate** to create budget lines from an approved estimate. |
+| **Prime Contracts** | The contract value defines the project total. Prime contract change orders flow into **Approved COs** (approved) or **Pending Changes** (pending). |
+| **Commitments** (Subcontracts + Purchase Orders) | Executed commitments flow into **Committed Costs**. Pending commitments flow into **Pending Cost Changes**. Commitment change orders follow the same approved/pending split. |
+| **Direct Costs** | Approved direct costs (invoices, expenses, payroll, subcontractor invoices) flow into **JTD** and **Direct Costs** depending on cost type. |
+| **Change Events** | Where most prime contract and commitment change orders originate. The Budget reflects the downstream COs, not the Change Events themselves. |
+| **Invoicing** | Subcontractor invoices applied against commitments flow through Direct Costs and appear in **JTD**. |
+| **Forecasts** | Per-line forecast methods and detail rows drive the **Forecast to Complete** column. |
+
+---
+
+## Common Questions
+
+**Why is my Variance (Projected Over/Under) red?**
+The line's **Estimated Cost at Completion** is higher than its **Projected Budget**. The line is projected to finish over budget. Drill into the line item to see whether the overrun is coming from Direct Costs, Committed Costs, Pending Cost Changes, or the Forecast to Complete.
+
+**Why don't my Budget Modifications match what I entered?**
+Only **approved** modifications count. Drafts and items pending approval are not reflected in the **Budget Modifications** column. Open the Budget Modifications page and confirm the modification's status.
+
+**Why is Direct Costs lower than Job to Date Cost Detail?**
+JTD includes subcontractor invoices; Direct Costs does not. Subcontractor invoices are already counted in Committed Costs (via the commitment's SOV), so they're excluded from Direct Costs to avoid double-counting in **Projected Costs**.
+
+**Why can't I edit the forecast?**
+You need **Budget Write** permission. If you have Write but the forecast field is still read-only, the budget may be **locked** by an Admin.
+
+**Why did my Forecast to Complete suddenly change?**
+Two common causes: (1) the forecast method is **Automatic** and a recent change order or commitment changed the underlying budget or cost projection, recomputing FTC; (2) someone changed the forecast method on this line. Check the line item history.
+
+**Where does Committed Costs come from?**
+Three sources, all combined: executed subcontract SOV line items, executed purchase order SOV line items, and approved commitment change order lines. Pending versions of those same three feed **Pending Cost Changes** instead.
+
+**Can two lines share the same cost code?**
+Yes — as long as they differ by cost type or sub job. Two lines with the same cost code, cost type, **and** sub job will collide on insert.
+
+---
+
+## Related Articles
+
+- [Budget Overview](/help/articles/budget-overview)
+- [Budget Line Items](/help/articles/budget-line-items)
+- [Change Events](/help/articles/change-events)
+- [Change Orders](/help/articles/change-orders)
+- [Commitments](/help/articles/commitments)
+- [Direct Costs](/help/articles/direct-costs)
+- [Estimates](/help/articles/estimates)
+- [Manage User Access](/help/articles/manage-permissions)

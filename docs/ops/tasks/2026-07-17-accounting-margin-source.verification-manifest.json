@@ -1,0 +1,48 @@
+{
+  "contractVersion": 1,
+  "taskId": "AAI-1157",
+  "feature": "Canonical Accounting project margin source",
+  "route": "/accounting",
+  "flows": [
+    {
+      "name": "Compare named project margin to date",
+      "steps": [
+        "Open the authenticated Accounting dashboard",
+        "Scroll to the project margin visualization",
+        "Confirm the bars represent named projects from canonical WIP data",
+        "Confirm the invalid non-project X bar and redundant description are absent",
+        "Inspect the exact route at desktop and mobile widths"
+      ],
+      "expectedOutcome": "Accounting users see internally consistent billed-to-date minus costs-to-date margin for real named projects without technical non-project artifacts or responsive regressions"
+    }
+  ],
+  "requiredEvidence": ["screenshots", "actionLog", "summary", "visualReview", "regressionTest"],
+  "visual": {
+    "viewports": ["desktop", "mobile"],
+    "checks": [
+      "Project names are human readable",
+      "No invalid Unnamed project or X bar",
+      "Redundant margin description is absent",
+      "Premium dark styling is preserved",
+      "No horizontal overflow"
+    ]
+  },
+  "independentReview": { "required": true },
+  "claims": [
+    {
+      "id": "canonical-margin-owner",
+      "description": "The Accounting dashboard uses the canonical WIP portfolio owner for project margin",
+      "evidence": [{ "key": "summary", "min": 1 }, { "key": "regressionTest", "min": 1 }]
+    },
+    {
+      "id": "project-only-human-output",
+      "description": "The chart exposes real human project names and excludes the known non-project X artifact",
+      "evidence": [{ "key": "screenshots", "min": 1 }, { "key": "actionLog", "min": 1 }]
+    },
+    {
+      "id": "canonical-responsive-flow",
+      "description": "The authenticated Accounting route remains dark, readable, and overflow-free at desktop and mobile widths",
+      "evidence": [{ "key": "screenshots", "min": 2 }, { "key": "visualReview", "min": 1 }]
+    }
+  ]
+}

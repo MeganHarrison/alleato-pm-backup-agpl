@@ -1,0 +1,76 @@
+{
+  "contractVersion": 1,
+  "taskId": "LOCAL-2026-07-23-PURGE-NONPROJECTS",
+  "riskLevel": "high",
+  "feature": "Guarded purge of seven non-project production records",
+  "route": "Production PM database, AI/RAG database, and Supabase Storage",
+  "flows": [
+    {
+      "name": "Exact-target dry run",
+      "steps": [
+        "Resolve every manifest target by exact name and internal ID",
+        "Validate job and Acumatica identifiers where present",
+        "Inventory app, RAG, indirect document, and storage dependencies",
+        "Run the complete deletion sequence and roll it back"
+      ],
+      "expectedOutcome": "All seven targets resolve uniquely and the full rollback rehearsal leaves no scoped non-audit reference"
+    },
+    {
+      "name": "Confirmed production purge",
+      "steps": [
+        "Supply the manifest-bound confirmation",
+        "Delete RAG content and clear retained cost-ledger attribution",
+        "Delete app content and the seven project rows",
+        "Run committed readback and a separate deleted-state verifier"
+      ],
+      "expectedOutcome": "No active project, non-audit app reference, RAG project/document reference, or exact project-folder object remains"
+    }
+  ],
+  "requiredEvidence": [
+    "summary",
+    "actionLog",
+    "databaseReadback",
+    "negativePath",
+    "regressionTest"
+  ],
+  "visual": {
+    "viewports": [],
+    "checks": []
+  },
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "exact-target-binding",
+      "description": "The destructive operation is bound to the exact seven intended records and rejects changed or ambiguous targets",
+      "evidence": [
+        { "key": "actionLog", "min": 1 },
+        { "key": "regressionTest", "min": 1 }
+      ]
+    },
+    {
+      "id": "cross-store-deletion",
+      "description": "The seven projects and their non-audit app and RAG data were deleted with zero scoped residue",
+      "evidence": [
+        { "key": "databaseReadback", "min": 2 }
+      ]
+    },
+    {
+      "id": "fails-closed",
+      "description": "Wrong confirmation, target mismatch, dependency failure, and remaining-row checks stop the operation loudly",
+      "evidence": [
+        { "key": "negativePath", "min": 1 },
+        { "key": "regressionTest", "min": 1 }
+      ]
+    },
+    {
+      "id": "audit-preservation",
+      "description": "Historical audit tombstones and anonymized cost-ledger entries remain without an active project",
+      "evidence": [
+        { "key": "databaseReadback", "min": 1 },
+        { "key": "summary", "min": 1 }
+      ]
+    }
+  ]
+}

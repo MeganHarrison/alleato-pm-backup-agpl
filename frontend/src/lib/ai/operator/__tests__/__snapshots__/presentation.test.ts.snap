@@ -1,0 +1,59 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`operator presentation renders a deterministic Teams Adaptive Card payload 1`] = `
+{
+  "$schema": "https://adaptivecards.io/schemas/adaptive-card.json",
+  "actions": [
+    {
+      "data": {
+        "actionId": "approve",
+        "approvalId": "approval-123",
+        "operatorId": "owner-comms",
+        "value": "approve",
+      },
+      "style": "positive",
+      "title": "Approve",
+      "type": "Action.Submit",
+    },
+    {
+      "title": "Revise",
+      "type": "Action.OpenUrl",
+      "url": "https://projects.alleatogroup.com/ai",
+    },
+  ],
+  "body": [
+    {
+      "color": "Warning",
+      "size": "Medium",
+      "text": "Approve Teams message",
+      "type": "TextBlock",
+      "weight": "Bolder",
+      "wrap": true,
+    },
+    {
+      "text": "Send the owner-facing change order approval message.",
+      "type": "TextBlock",
+      "wrap": true,
+    },
+    {
+      "facts": [
+        {
+          "title": "Operator",
+          "value": "owner-comms",
+        },
+        {
+          "title": "Approval",
+          "value": "approval-123",
+        },
+        {
+          "title": "Priority",
+          "value": "high",
+        },
+      ],
+      "type": "FactSet",
+    },
+  ],
+  "type": "AdaptiveCard",
+  "version": "1.5",
+}
+`;

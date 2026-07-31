@@ -1,0 +1,60 @@
+NOBLESVILLE COMMITMENTS - COMPANY UUID MAPPING
+================================================
+
+✅ FOUND (16 vendors):
+
+1. C&S Heating & Cooling Inc.
+   → bb92bdf1-aa1f-46f7-b078-d851e5955302
+
+2. Casework Concepts LLC
+   → acd6b024-7ef9-4ce9-b9ea-575f6659989e
+
+3. Superior Contractors Inc.
+   → f48d62e8-8d91-4ba4-a975-3949dc442771
+
+4. Deem, LLC
+   → 75e38d22-a809-42ac-99cf-c494d12b2b7e
+
+5. Justin Dorsey Plumbing
+   → c8c5a808-b214-4082-8f42-d0fe1f8bd97c
+
+6. KLEENIT GROUP INC.
+   → ff95148a-25b1-41b9-a26f-f841e4a73f44
+
+7. Inline Painting LLC
+   → 238ec404-14c8-4954-bb3a-66f483f5e9e9
+
+8. Integrity Concrete Cutters
+   → 0aaf7454-5db4-417c-b316-3f27c7b8437d
+
+9. Central Security & Communications
+   → e2877efa-d68e-4158-a422-124d1b1df73e
+
+10. Vulcan Fire Protection Services, Inc.
+    → 2221ebff-14c4-442f-9df7-1b3a4c67976a
+
+11. Division 4 Masonry
+    → 1def4648-e0c0-4cbc-ba75-ee3333c366ce
+
+12. Market Ready Interiors Inc
+    → d4b48e8a-db18-4f0b-8512-9efae4c81a8b
+
+13. Apex Glass LLC
+    → 87f6a109-4889-4c30-a5ef-5a43eda76202
+
+14. Bul-Tec Roofing (stored as "Bul-Tec Roofing, Inc.")
+    → e8c6c563-6e80-4fcb-9e60-6a3bf80e7d51
+
+15. EURO Plastering (stored as "Euro Plastering, Inc.")
+    → a60e517c-badf-455e-9f20-acf7b2842493
+
+16. Steel Services, Inc.
+    → 44f84efb-a5e7-4a86-a42f-b3d08300ab93
+
+❌ NOT FOUND:
+   - Central Indiana Hardware, CO, Inc
+
+Note: 16 of 17 vendors found. Central Indiana Hardware, CO, Inc must be created
+in the Alleato Directory before importing those 2 commitments (SC-5092-0011 and SC-5092-0017).
+
+Deleted: 18 existing Noblesville commitments from database (project_id=25125)

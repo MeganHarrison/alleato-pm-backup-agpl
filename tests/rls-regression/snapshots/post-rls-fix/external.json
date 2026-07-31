@@ -1,0 +1,54 @@
+{
+  "persona": "external",
+  "email": "rls-test-external@alleato.test",
+  "timestamp": "2026-05-15T18:35:47.188Z",
+  "supabase_project": "lgveqfnpkxvzbnnwuled",
+  "counts": {
+    "projects": {
+      "count": 1
+    },
+    "commitments": {
+      "count": 0
+    },
+    "documents": {
+      "count": 0
+    },
+    "document_metadata": {
+      "count": 7037
+    },
+    "insight_cards": {
+      "count": 197
+    },
+    "rfis": {
+      "count": 4
+    },
+    "change_orders": {
+      "count": 0
+    },
+    "prime_contracts": {
+      "count": 5
+    },
+    "owner_invoices": {
+      "count": 3
+    }
+  },
+  "sample_ids": {
+    "projects": {
+      "ids": [
+        67
+      ]
+    },
+    "commitments_unified": {
+      "ids": []
+    },
+    "insight_cards": {
+      "ids": [
+        "00275f4b-ea0c-4eb3-abbe-e7d58a3df9f4",
+        "01a4f15a-4066-4358-8425-80f1eb4415e3",
+        "02f02b78-e56b-4e44-8a51-d963ee6179e2",
+        "036afbf5-6676-4396-8975-0f7641d36e84",
+        "03d5f591-feb1-4f2f-af96-29aa4f3468dc"
+      ]
+    }
+  }
+}

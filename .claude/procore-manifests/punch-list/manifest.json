@@ -1,0 +1,222 @@
+{
+  "feature": "punch-list",
+  "featureName": "Punch List",
+  "capturedAt": "2026-04-07T14:09:18.697Z",
+  "states": {
+    "list": {
+      "id": "list",
+      "description": "Punch List view",
+      "url": "https://us02.procore.com/webclients/host/companies/562949953443325/projects/562949954728542/tools/punchlist/list?p=1&s=&so%5Battribute%5D=number&so%5Bdirection%5D=desc",
+      "columnGroups": [],
+      "columns": [],
+      "toolbarActions": [
+        {
+          "label": "Alleato Group24-104 - Goodwill Bart",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Project ToolsPunch List",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Which observation types are most common?CmdK",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "AppsSelect an App",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Support & Feedback",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Announcements",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "BC",
+          "type": "dropdown",
+          "variant": "default"
+        }
+      ],
+      "filters": [],
+      "rowActions": [],
+      "autoRows": [],
+      "formSections": [],
+      "tabs": [],
+      "headerFields": [],
+      "screenshot": "screenshots/list.png",
+      "_capture_note": "",
+      "domFile": "dom/list.html"
+    },
+    "create-form": {
+      "id": "create-form",
+      "description": "Create Punch List item form",
+      "url": "https://us02.procore.com/webclients/host/companies/562949953443325/projects/562949954728542/tools/punchlist/settings/general",
+      "columnGroups": [
+        {
+          "label": "",
+          "columns": [
+            "Action",
+            "Creator",
+            "Punch Item Manager",
+            "Assignee",
+            "Final Approver",
+            "Distribution Group"
+          ],
+          "colspan": 6
+        }
+      ],
+      "columns": [
+        {
+          "label": "Action",
+          "columnGroup": null
+        },
+        {
+          "label": "Creator",
+          "columnGroup": null
+        },
+        {
+          "label": "Punch Item Manager",
+          "columnGroup": null
+        },
+        {
+          "label": "Assignee",
+          "columnGroup": null
+        },
+        {
+          "label": "Final Approver",
+          "columnGroup": null
+        },
+        {
+          "label": "Distribution Group",
+          "columnGroup": null
+        }
+      ],
+      "toolbarActions": [
+        {
+          "label": "Alleato Group24-104 - Goodwill Bart",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Project ToolsPunch List",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "AppsSelect an App",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Support & Feedback",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Announcements",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "BC",
+          "type": "dropdown",
+          "variant": "default"
+        }
+      ],
+      "filters": [],
+      "rowActions": [],
+      "autoRows": [],
+      "formSections": [
+        {
+          "title": "",
+          "fields": [
+            {
+              "name": "root_default_punch_item_manager_id",
+              "label": "Default Punch Item Manager",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "root_default_punch_item_final_approver_id",
+              "label": "Default Final Approver",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "root_punch_list_default_distribution_ids",
+              "label": "Default Distribution List",
+              "type": "text",
+              "required": false,
+              "placeholder": "Select",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "root_whitelisted_punch_item_manager_ids",
+              "label": "Standard permission users who can act as a Punch Item Manager",
+              "type": "text",
+              "required": false,
+              "placeholder": "Select",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "root_punch_item_days_due_default",
+              "label": "Punch Item Response Will Be Due",
+              "type": "text",
+              "required": true,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "root_all_punch_items_private_by_default",
+              "label": "Punch List Items Private By Default",
+              "type": "checkbox",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "root_punch_item_overdue_emails_enabled",
+              "label": "Enable overdue emails for assignees",
+              "type": "checkbox",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            }
+          ]
+        }
+      ],
+      "tabs": [],
+      "headerFields": [],
+      "screenshot": "screenshots/create-form.png",
+      "_capture_note": "",
+      "domFile": "dom/create-form.html"
+    }
+  }
+}

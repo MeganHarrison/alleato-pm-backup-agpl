@@ -1,0 +1,71 @@
+# Core dependencies
+openai>=1.0.0
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
+
+# Web framework
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+python-multipart>=0.0.6
+sentry-sdk[fastapi]>=2.35.0
+opentelemetry-sdk>=1.20.0
+opentelemetry-exporter-otlp-proto-http>=1.20.0
+
+# Database
+supabase>=2.0.0
+psycopg2-binary>=2.9.0
+sqlalchemy>=2.0.0
+
+# Data processing
+pandas>=2.0.0
+numpy>=1.24.0
+openpyxl>=3.1.0
+xlrd>=2.0.1
+pypdf>=4.0.0
+mpxj==16.2.0
+JPype1>=1.5,<2
+azure-ai-documentintelligence>=1.0.0
+python-docx>=1.1.0
+# LangChain ecosystem — pinned to the versions that were live when LangSmith
+# tracing last worked (2026-05-18). Unpinned ranges previously let a silent
+# upgrade break trace export. Bump deliberately, with a deploy that confirms
+# the startup tracing probe still emits a run.
+langchain==1.3.1
+langchain-core==1.4.0
+langchain-community==0.4.1
+langchain-openai==1.2.1
+langsmith==0.8.5
+deepagents==0.6.1
+mcp>=1.20.0
+cohere>=5.0.0
+google-genai>=1.0.0
+pillow>=12.2.0
+pymupdf>=1.24.0
+
+# Web scraping (for crawl4ai)
+crawl4ai>=0.1.0
+beautifulsoup4>=4.12.0
+httpx>=0.25.0
+
+# Scheduling
+apscheduler>=3.10.0
+
+# Utils
+python-dotenv>=1.0.0
+click>=8.1.0
+rich>=13.0.0
+
+
+# Testing (optional, for development)
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-cov>=4.1.0
+
+# YokeFlow Agent Platform
+claude-agent-sdk>=0.1.18
+pyyaml>=6.0
+websockets>=12.0
+python-jose[cryptography]>=3.3.0  # JWT token generation and validation
+passlib[bcrypt]>=1.7.4  # Password hashing
+asyncpg>=0.31.0  # High-performance async PostgreSQL driver
+aiohttp>=3.9.0  # Async HTTP client for notifications

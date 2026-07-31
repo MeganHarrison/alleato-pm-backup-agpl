@@ -1,0 +1,4 @@
+PASS: bash -n scripts/dev/start-frontend-clean.sh
+PASS: npm run dev:frontend defaulted to http://localhost:3000
+PASS: cold-start auth setup completed 1 test in 23.7s
+PASS: authenticated Documents smoke reopened /876/documents and rendered 103 records

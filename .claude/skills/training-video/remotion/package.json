@@ -1,0 +1,22 @@
+{
+  "name": "training-video-remotion",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Remotion editing layer for training videos — footage + editable captions/intro/frame",
+  "scripts": {
+    "dev": "remotion studio",
+    "render": "remotion render Walkthrough out/create-a-prime-contract.mp4"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.0",
+    "@remotion/media-utils": "^4.0.0",
+    "remotion": "^4.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "zod": "^3.22.3"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.1",
+    "typescript": "^5.5.0"
+  }
+}

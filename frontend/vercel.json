@@ -1,0 +1,18 @@
+{
+  "framework": "nextjs",
+  "installCommand": "pnpm install --frozen-lockfile --ignore-scripts",
+  "buildCommand": "pnpm run build:production",
+  "github": {
+    "autoJobCancelation": true
+  },
+  "crons": [
+    { "path": "/api/cron/decay-memories", "schedule": "0 4 * * 0" },
+    { "path": "/api/cron/autonomous-triage", "schedule": "0 2 * * *" },
+    { "path": "/api/cron/daily-flags", "schedule": "0 6 * * *" },
+    { "path": "/api/cron/daily-deep-read-promote-accepted", "schedule": "15 * * * *" },
+    { "path": "/api/cron/progress-reports", "schedule": "0 8 * * *" },
+    { "path": "/api/cron/attribution-rules", "schedule": "0 8 * * 1" },
+    { "path": "/api/cron/sync-feedback-pr-status", "schedule": "*/15 * * * *" },
+    { "path": "/api/cron/check-feedback-github-health", "schedule": "0 */6 * * *" }
+  ]
+}

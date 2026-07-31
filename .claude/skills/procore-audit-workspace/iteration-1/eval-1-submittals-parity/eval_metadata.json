@@ -1,0 +1,13 @@
+{
+  "eval_id": 1,
+  "eval_name": "submittals-parity",
+  "prompt": "I want to make sure our submittals feature has all the same forms and fields as Procore before we release it. Can you do a feature parity check? Focus especially on the create/edit forms - every field needs to match exactly.",
+  "assertions": [
+    {"id": "finds-submittals-crawler", "text": "Agent identifies and locates the submittals crawler script", "type": "presence"},
+    {"id": "focuses-on-forms", "text": "Agent specifically focuses on form field extraction and comparison as requested", "type": "quality"},
+    {"id": "field-level-comparison", "text": "Output includes per-field comparison with field name, type, and required status", "type": "format"},
+    {"id": "maps-alleato-submittals", "text": "Agent identifies Alleato PM submittals implementation (components, hooks, schemas)", "type": "presence"},
+    {"id": "status-indicators", "text": "Report uses status indicators for each compared item", "type": "format"},
+    {"id": "output-saved", "text": "Report saved as a markdown file in the outputs directory", "type": "correctness"}
+  ]
+}

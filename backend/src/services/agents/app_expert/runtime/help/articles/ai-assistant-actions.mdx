@@ -1,0 +1,77 @@
+---
+title: AI Assistant Actions and Current Limits
+description: Understand what Eve can read, the governed RFI action available in AI Assistant, and which mutations remain unavailable.
+audience: client
+visibility: published
+module: ai-assistant
+category: AI & Intelligence
+tags: [ai-assistant, eve, actions, approvals, safety]
+featured: true
+client_visible: true
+ai_visible: true
+order: 605
+related_routes:
+  - /ai
+related_actions:
+  - create_rfi
+---
+
+# AI Assistant Actions and Current Limits
+
+Eve is source-backed and read-capable across approved project and company data.
+In the main AI Assistant, Eve can also create an RFI through a governed action.
+Ask Alleato remains read-only.
+
+## What Eve Can Read
+
+- Project, portfolio, budget, cost, commitment, change, schedule, RFI, and
+  submittal data available to your account.
+- Authorized meetings, emails, Teams messages, documents, company knowledge,
+  past conversations, and user memories.
+- Project-intelligence packets and the current executive brief.
+- Application help and the correct page for workflows that are not available
+  as chat actions.
+
+## Governed RFI Creation
+
+When you ask Eve to create an RFI in the AI Assistant:
+
+1. Eve collects the project, subject, question, due date, responsible party,
+   and cost and schedule impacts.
+2. The chat shows the exact action payload and asks for approval.
+3. Denying or cancelling performs no write.
+4. Approval resumes the same durable Eve call.
+5. The app rechecks your current project and RFI write permission.
+6. The app creates the RFI once and returns an idempotent execution receipt.
+
+The approved business payload cannot set its own confirmation flag,
+idempotency key, user, project permission, session, or tool-call identity.
+Those controls are owned by Eve and the application boundary.
+
+## Actions That Remain Unavailable
+
+Other typed implementations in the codebase, including change events, change
+orders, commitments, contacts, tasks, submittals, daily reports, messages,
+calendar delivery, and payments, are not exposed through Eve yet. Their
+presence in source code or in reusable UI does not mean they are live.
+
+For those workflows, ask Eve to find or explain the correct page, then complete
+the action in the normal authenticated application form.
+
+## Safety and Failure Behavior
+
+- Writes are never available in Ask Alleato.
+- Eve does not advertise RFI creation without current RFI write permission.
+- Unsigned, expired, tampered, cross-project, and cross-surface requests fail
+  before execution.
+- A retry or reconnect reuses the same action receipt instead of creating a
+  second RFI.
+- If the governed boundary is unavailable, Eve reports the failure rather than
+  claiming the record was created.
+
+## Related Articles
+
+- [AI Assistant Overview](/help/articles/ai-assistant-overview)
+- [AI Capabilities Index](/help/articles/ai-capabilities-index)
+- [RFIs](/help/articles/rfis)
+- [Manage User Access](/help/articles/manage-permissions)

@@ -1,0 +1,51 @@
+{
+  "status": "VERIFY_PASS",
+  "generatedAt": "2026-07-23T17:16:35.583Z",
+  "taskId": "LOCAL-2026-07-23-PURGE-NONPROJECTS-BATCH-3",
+  "manifestDigest": "1073ebe83e4bb27aa601175db1f2671e4b2aa50bb07ffe31e1b2d4ca35c89c07",
+  "targets": [
+    {
+      "name": "Superior Beverae Exotec",
+      "projectId": 178,
+      "jobNumber": "26-117",
+      "acumaticaProjectId": "26117"
+    },
+    {
+      "name": "Paradise Isle Geotech",
+      "projectId": 58,
+      "jobNumber": "26-101",
+      "acumaticaProjectId": "26101"
+    }
+  ],
+  "verification": {
+    "remainingProjectRows": [],
+    "remainingAppNonAuditReferences": [],
+    "remainingRagProjectReferences": [],
+    "checkedRagDocumentIds": 530,
+    "remainingRagDocumentReferences": [],
+    "remainingStorageObjects": [],
+    "retainedAppAuditReferences": [
+      {
+        "schema": "public",
+        "table": "projects_audit",
+        "column": "project_id",
+        "referencesProjects": false,
+        "deleteRule": "NONE",
+        "rows": [
+          {
+            "reference": "178",
+            "projectId": 178,
+            "count": 516
+          },
+          {
+            "reference": "58",
+            "projectId": 58,
+            "count": 57
+          }
+        ],
+        "total": 573
+      }
+    ]
+  },
+  "note": "The verifier independently replayed the manifest-bound apply receipt's exact RAG document IDs."
+}

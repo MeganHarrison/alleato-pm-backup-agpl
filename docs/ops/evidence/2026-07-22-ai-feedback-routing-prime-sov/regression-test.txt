@@ -1,0 +1,16 @@
+PASS - 2026-07-22
+
+Command:
+npm.cmd run test:unit -- --runInBand src/lib/ai/__tests__/intent-router.test.ts src/lib/ai/retrieval/__tests__/planner.test.ts src/lib/ai/__tests__/tool-approval-policy.test.ts src/lib/ai/tools/write/prime-contract-tools.unit.test.ts src/lib/ai/tools/__tests__/prime-contract-sov-migration.test.ts src/lib/__tests__/permissions.test.ts
+
+Result:
+Test Suites: 6 passed, 6 total
+Tests: 266 passed, 266 total
+
+Additional checks:
+- Changed-file ESLint: PASS
+- Project architecture map freshness: PASS
+- System architecture map freshness: PASS
+- git diff --check: PASS
+
+The focused regression includes the exact feedback sentence, the production `Preview changing...` wording, read-only SOV update questions, singular/plural change-order questions, preview/confirmation binding, stale-state rejection, permissions, private visibility, precision, audit/idempotency, and atomic RPC behavior.

@@ -1,0 +1,11 @@
+PASS
+
+Command:
+cd frontend && npm run test:unit -- --runInBand --runTestsByPath src/components/ai-assistant/__tests__/rag-chat-page-layout.test.tsx src/hooks/__tests__/use-rag-conversations.test.tsx
+
+Result:
+- 2 suites passed
+- 4 tests passed
+- New chat contains no placeholder conversation mutation
+- New chat is guarded and disabled while conversation creation is pending
+- Two concurrent creation attempts issue one API request and resolve to the same session

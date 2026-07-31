@@ -1,0 +1,88 @@
+name: Issue Handler
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  route-autofix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      issues: write
+    steps:
+      - name: Assert autofix token is configured
+        env:
+          AUTOFIX_GITHUB_TOKEN: ${{ secrets.AUTOFIX_GITHUB_TOKEN }}
+        run: |
+          if [ -z "$AUTOFIX_GITHUB_TOKEN" ]; then
+            echo "::error::AUTOFIX_GITHUB_TOKEN is required so the issue-open workflow can trigger the autofix workflow."
+            exit 1
+          fi
+
+      - name: Route new issue into Codex autofix
+        id: route
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.AUTOFIX_GITHUB_TOKEN }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const issue = context.payload.issue;
+            const title = issue.title || "";
+            const body = issue.body || "";
+            const labels = Array.isArray(issue.labels)
+              ? issue.labels.map((label) => typeof label === "string" ? label : label.name).filter(Boolean)
+              : [];
+
+            const alreadyRouted = labels.some((name) => ["autofix", "codex:fix", "claude:fix"].includes(name));
+            if (alreadyRouted) {
+              core.info(`Issue #${issue.number} already has an autofix routing label; skipping.`);
+              core.setOutput("routed", "false");
+              return;
+            }
+
+            const templateSignals = [
+              title.startsWith("[Autofix]:"),
+              body.includes("### Automation scope"),
+              body.includes("### Problem statement"),
+              body.includes("### Allowed edit paths"),
+            ];
+            const lookedLikeAutofixTemplate = templateSignals.filter(Boolean).length >= 2;
+
+            await github.rest.issues.addLabels({
+              owner,
+              repo,
+              issue_number: issue.number,
+              labels: ["codex:fix"],
+            });
+
+            const commentLines = [
+              "## GitHub Autofix Routing",
+              "",
+              "Path: codex:fix",
+              "Status: queued",
+              "",
+              lookedLikeAutofixTemplate
+                ? "This issue matched the Autofix template and was queued for the Codex fix lane automatically."
+                : "This issue was queued for the Codex fix lane automatically. If the issue is too broad or unsafe, the autofix workflow will fail loudly with a blocker comment instead of forcing a bad PR.",
+            ];
+
+            await github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number: issue.number,
+              body: commentLines.join("\n"),
+            });
+
+            core.setOutput("routed", "true");
+
+      - name: Assert routing completed
+        if: ${{ always() }}
+        env:
+          ROUTED: ${{ steps.route.outputs.routed }}
+        run: |
+          if [ "$ROUTED" != "true" ] && [ "$ROUTED" != "false" ]; then
+            echo "::error::Issue routing did not finish cleanly."
+            exit 1
+          fi

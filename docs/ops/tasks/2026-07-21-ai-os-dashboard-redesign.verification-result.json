@@ -1,0 +1,36 @@
+{
+  "status": "PASS",
+  "observedStatus": "PASS",
+  "taskId": "local-ai-os-dashboard-redesign",
+  "evidence": {
+    "screenshots": [
+      "docs/ops/evidence/2026-07-21-ai-os-dashboard-redesign-desktop-top.png",
+      "docs/ops/evidence/2026-07-21-ai-os-dashboard-redesign-roadmap.png",
+      "docs/ops/evidence/2026-07-21-ai-os-dashboard-redesign-mobile-top.png"
+    ],
+    "visualReview": ["docs/ops/evidence/2026-07-21-ai-os-dashboard-redesign/visual-review.md"],
+    "regressionTest": ["docs/ops/evidence/2026-07-21-ai-os-dashboard-redesign/static-checks.md"]
+  },
+  "claims": {
+    "operating-priority": {
+      "screenshots": [
+        "docs/ops/evidence/2026-07-21-ai-os-dashboard-redesign-desktop-top.png",
+        "docs/ops/evidence/2026-07-21-ai-os-dashboard-redesign-roadmap.png"
+      ],
+      "visualReview": ["docs/ops/evidence/2026-07-21-ai-os-dashboard-redesign/visual-review.md"]
+    },
+    "responsive-charcoal-hierarchy": {
+      "screenshots": [
+        "docs/ops/evidence/2026-07-21-ai-os-dashboard-redesign-desktop-top.png",
+        "docs/ops/evidence/2026-07-21-ai-os-dashboard-redesign-mobile-top.png"
+      ],
+      "regressionTest": ["docs/ops/evidence/2026-07-21-ai-os-dashboard-redesign/static-checks.md"]
+    }
+  },
+  "independentReview": {
+    "reviewer": "agent-browser visual review",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-21T18:50:56Z",
+    "artifact": "docs/ops/evidence/2026-07-21-ai-os-dashboard-redesign/visual-review.md"
+  }
+}

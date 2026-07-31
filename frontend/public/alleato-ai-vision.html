@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Alleato AI — The Vision</title>
+<style>
+  :root {
+    --bg:            #07090d;
+    --bg-2:          #0b0e14;
+    --ink:           #f4f1ea;
+    --ink-dim:       #9aa0ab;
+    --ink-faint:     #5b616d;
+    --orange-400:    hsl(29 90% 61%);
+    --orange-500:    hsl(29 71% 52%);
+    --orange-600:    hsl(28 69% 45%);
+    --orange-glow:   hsla(29, 90%, 61%, 0.35);
+    --line:          rgba(255,255,255,0.07);
+    --line-strong:   rgba(255,255,255,0.14);
+    --panel:         rgba(13,16,22,0.86);
+    --ease:          cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  html, body { height:100%; }
+
+  body {
+    background:
+      radial-gradient(1200px 700px at 50% -10%, rgba(214,138,68,0.10), transparent 60%),
+      radial-gradient(900px 900px at 85% 110%, rgba(214,138,68,0.06), transparent 55%),
+      linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
+    color: var(--ink);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Inter, Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  /* faint star/grid field */
+  body::before {
+    content:"";
+    position:fixed; inset:0;
+    background-image:
+      radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.25), transparent),
+      radial-gradient(1px 1px at 70% 60%, rgba(255,255,255,0.18), transparent),
+      radial-gradient(1px 1px at 40% 80%, rgba(255,255,255,0.15), transparent),
+      radial-gradient(1px 1px at 90% 20%, rgba(255,255,255,0.2), transparent),
+      radial-gradient(1px 1px at 10% 70%, rgba(255,255,255,0.12), transparent);
+    pointer-events:none;
+    z-index:0;
+  }
+
+  .wrap { position:relative; z-index:1; }
+
+  /* ---------- Header ---------- */
+  header.top {
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 28px clamp(20px, 5vw, 64px);
+  }
+  .brand-mini { display:flex; align-items:center; gap:12px; }
+  .brand-mini img { height:26px; width:auto; opacity:0.95; }
+  .brand-mini .tag {
+    font-size:11px; letter-spacing:0.28em; text-transform:uppercase;
+    color:var(--ink-faint); padding-left:14px; margin-left:2px;
+    border-left:1px solid var(--line-strong);
+  }
+  .top-cta {
+    font-size:12px; letter-spacing:0.16em; text-transform:uppercase;
+    color:var(--ink-dim); text-decoration:none;
+    display:flex; align-items:center; gap:8px;
+    transition: color .3s var(--ease);
+  }
+  .top-cta:hover { color: var(--orange-400); }
+  .top-cta .dot { width:6px; height:6px; border-radius:50%; background:var(--orange-500); box-shadow:0 0 10px var(--orange-glow); }
+
+  /* ---------- Hero copy ---------- */
+  .hero {
+    text-align:center;
+    padding: clamp(20px, 4vh, 48px) 20px 0;
+  }
+  .eyebrow {
+    font-size:12px; letter-spacing:0.34em; text-transform:uppercase;
+    color:var(--orange-400); margin-bottom:18px;
+  }
+  .hero h1 {
+    font-size: clamp(30px, 5.2vw, 62px);
+    line-height:1.04; font-weight:600; letter-spacing:-0.02em;
+    max-width: 14ch; margin: 0 auto;
+  }
+  .hero h1 em { font-style:normal; color: var(--orange-400); }
+  .hero p {
+    margin: 22px auto 0; max-width: 56ch;
+    color: var(--ink-dim); font-size: clamp(14px, 1.4vw, 17px); line-height:1.6;
+  }
+  .hero .hint {
+    margin-top:22px; font-size:12px; letter-spacing:0.12em; text-transform:uppercase;
+    color: var(--ink-faint);
+  }
+
+  /* ---------- Orbital system ---------- */
+  .stage {
+    position:relative;
+    width: min(88vw, 720px);
+    aspect-ratio: 1 / 1;
+    margin: clamp(10px, 2vh, 30px) auto clamp(40px, 6vh, 90px);
+  }
+
+  .orbit {
+    position:absolute; inset:0; margin:auto;
+    border:1px solid var(--line);
+    border-radius:50%;
+    transform-style: preserve-3d;
+  }
+  .orbit::after {
+    /* a brighter arc segment so rotation is visible on the ring itself */
+    content:"";
+    position:absolute; inset:-1px; border-radius:50%;
+    border:1px solid transparent;
+    border-top-color: rgba(214,138,68,0.4);
+    border-right-color: rgba(214,138,68,0.12);
+  }
+  .orbit.r1 { width:46%; height:46%; animation: spin 38s linear infinite; }
+  .orbit.r2 { width:72%; height:72%; animation: spin 64s linear infinite reverse; }
+  .orbit.r3 { width:100%; height:100%; animation: spin 96s linear infinite; }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes spin-rev { to { transform: rotate(-360deg); } }
+
+  /* A node fills the orbit box and is rotated by its angle, so its top-center
+     point lands on the ring. inset:0 makes the rotation pivot the ring center. */
+  .node { position:absolute; inset:0; pointer-events:none; }
+  .node-pos {
+    position:absolute; top:0; left:50%;
+    transform: translate(-50%, -50%);
+  }
+  /* .node-counter spins opposite the orbit (set inline) to keep chips upright */
+
+  .chip {
+    pointer-events:auto;
+    position:relative;
+    display:flex; flex-direction:column; align-items:center; gap:8px;
+    cursor:pointer;
+    transition: transform .4s var(--ease);
+  }
+  .chip .pin {
+    width:54px; height:54px; border-radius:16px;
+    display:grid; place-items:center;
+    background: rgba(255,255,255,0.03);
+    border:1px solid var(--line-strong);
+    backdrop-filter: blur(6px);
+    transition: all .4s var(--ease);
+    color: var(--ink);
+  }
+  .chip .pin svg { width:24px; height:24px; stroke-width:1.6; }
+  .chip .label {
+    font-size:11.5px; letter-spacing:0.06em;
+    color: var(--ink-dim);
+    white-space:nowrap;
+    transition: color .35s var(--ease);
+    text-shadow: 0 2px 10px rgba(0,0,0,0.6);
+  }
+  .chip:hover { transform: scale(1.12); }
+  .chip:hover .pin {
+    background: linear-gradient(160deg, var(--orange-400), var(--orange-600));
+    border-color: transparent;
+    color:#1a1206;
+    box-shadow: 0 12px 40px var(--orange-glow), 0 0 0 6px rgba(214,138,68,0.08);
+  }
+  .chip:hover .label { color: var(--ink); }
+
+  /* ---------- Center core ---------- */
+  .core {
+    position:absolute; inset:0; margin:auto;
+    width: 34%; height:34%;
+    border-radius:50%;
+    display:grid; place-items:center;
+    background:
+      radial-gradient(circle at 50% 38%, rgba(214,138,68,0.22), transparent 62%),
+      rgba(8,10,14,0.7);
+    border:1px solid var(--line-strong);
+    box-shadow: 0 0 80px rgba(214,138,68,0.12), inset 0 0 40px rgba(0,0,0,0.6);
+    cursor:pointer;
+    transition: transform .5s var(--ease), box-shadow .5s var(--ease);
+    z-index:5;
+  }
+  .core:hover { transform: scale(1.04); box-shadow: 0 0 110px rgba(214,138,68,0.22), inset 0 0 40px rgba(0,0,0,0.6); }
+  .core .pulse {
+    position:absolute; inset:0; border-radius:50%;
+    border:1px solid rgba(214,138,68,0.4);
+    animation: pulse 3.4s ease-out infinite;
+  }
+  .core .pulse.b { animation-delay: 1.7s; }
+  @keyframes pulse {
+    0%   { transform: scale(1); opacity:0.6; }
+    100% { transform: scale(1.7); opacity:0; }
+  }
+  .core .mark { display:flex; flex-direction:column; align-items:center; gap:8px; text-align:center; padding:10px; }
+  .core .mark img { width: min(46%, 120px); height:auto; }
+  .core .mark .ai {
+    font-size:11px; letter-spacing:0.42em; text-transform:uppercase;
+    color: var(--orange-400);
+  }
+
+  /* ---------- Detail panel ---------- */
+  .scrim {
+    position:fixed; inset:0; z-index:40;
+    background: rgba(4,6,9,0.55);
+    backdrop-filter: blur(4px);
+    opacity:0; pointer-events:none;
+    transition: opacity .45s var(--ease);
+  }
+  .scrim.open { opacity:1; pointer-events:auto; }
+
+  .panel {
+    position:fixed; top:0; right:0; z-index:50;
+    height:100%; width: min(560px, 92vw);
+    background: var(--panel);
+    border-left:1px solid var(--line-strong);
+    backdrop-filter: blur(20px);
+    transform: translateX(102%);
+    transition: transform .55s var(--ease);
+    overflow-y:auto;
+    box-shadow: -40px 0 120px rgba(0,0,0,0.5);
+  }
+  .panel.open { transform: translateX(0); }
+
+  .panel-inner { padding: clamp(28px, 4vw, 52px); }
+  .panel .close {
+    position:absolute; top:22px; right:22px;
+    width:40px; height:40px; border-radius:12px;
+    border:1px solid var(--line-strong); background:transparent;
+    color:var(--ink-dim); cursor:pointer; font-size:18px;
+    display:grid; place-items:center;
+    transition: all .3s var(--ease);
+  }
+  .panel .close:hover { color:var(--ink); border-color:var(--orange-500); }
+
+  .panel .p-icon {
+    width:60px; height:60px; border-radius:18px;
+    display:grid; place-items:center; margin-bottom:24px;
+    background: linear-gradient(160deg, var(--orange-400), var(--orange-600));
+    color:#1a1206;
+    box-shadow: 0 16px 50px var(--orange-glow);
+  }
+  .panel .p-icon svg { width:28px; height:28px; stroke-width:1.6; }
+  .panel .p-kicker { font-size:12px; letter-spacing:0.26em; text-transform:uppercase; color:var(--orange-400); }
+  .panel h2 { font-size: clamp(26px, 3.4vw, 38px); font-weight:600; letter-spacing:-0.02em; margin-top:10px; }
+  .panel .p-lede { color:var(--ink-dim); font-size:16px; line-height:1.66; margin-top:16px; }
+
+  .p-section-title {
+    font-size:11px; letter-spacing:0.22em; text-transform:uppercase;
+    color:var(--ink-faint); margin: 34px 0 16px;
+    display:flex; align-items:center; gap:12px;
+  }
+  .p-section-title::after { content:""; flex:1; height:1px; background:var(--line); }
+
+  .cap { display:flex; gap:14px; padding:14px 0; border-top:1px solid var(--line); }
+  .cap:first-of-type { border-top:none; }
+  .cap .num {
+    flex:none; width:30px; height:30px; border-radius:9px;
+    display:grid; place-items:center; font-size:12px; font-weight:600;
+    color:var(--orange-400);
+    background: rgba(214,138,68,0.1); border:1px solid rgba(214,138,68,0.25);
+  }
+  .cap .cap-body strong { display:block; font-size:15px; font-weight:600; margin-bottom:3px; }
+  .cap .cap-body span { font-size:14px; color:var(--ink-dim); line-height:1.55; }
+
+  .metric-row { display:flex; gap:14px; margin-top:22px; flex-wrap:wrap; }
+  .metric {
+    flex:1; min-width:140px;
+    border:1px solid var(--line); border-radius:14px; padding:18px;
+    background: rgba(255,255,255,0.015);
+  }
+  .metric .big { font-size:26px; font-weight:600; color:var(--orange-400); letter-spacing:-0.01em; }
+  .metric .small { font-size:12px; color:var(--ink-dim); margin-top:6px; line-height:1.45; }
+
+  .quote {
+    margin-top:30px; padding:20px 22px;
+    border-radius:14px; border:1px solid var(--line);
+    background: linear-gradient(160deg, rgba(214,138,68,0.07), transparent);
+    font-size:15px; line-height:1.6; color:var(--ink);
+  }
+  .quote span { color:var(--ink-faint); display:block; margin-top:10px; font-size:12px; letter-spacing:0.1em; text-transform:uppercase; }
+
+  /* ---------- footer band ---------- */
+  .band {
+    display:grid; grid-template-columns:repeat(4, 1fr);
+    gap:1px; background:var(--line);
+    border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+    margin-top: 10px;
+  }
+  .band .cell { background:var(--bg); padding:26px clamp(16px,2vw,30px); }
+  .band .cell .k { font-size:24px; font-weight:600; color:var(--ink); letter-spacing:-0.01em; }
+  .band .cell .k em { color:var(--orange-400); font-style:normal; }
+  .band .cell .v { font-size:12.5px; color:var(--ink-dim); margin-top:8px; line-height:1.5; }
+
+  footer.foot {
+    text-align:center; padding:40px 20px 60px; color:var(--ink-faint); font-size:12px; letter-spacing:0.08em;
+  }
+
+  @media (max-width: 560px) {
+    .chip .label { font-size:10px; }
+    .chip .pin { width:46px; height:46px; border-radius:13px; }
+    .chip .pin svg { width:20px; height:20px; }
+    .band { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .orbit, .core .pulse { animation: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand-mini">
+      <img src="/Alleato-Group-Logo_Light.png" alt="Alleato" />
+      <span class="tag">Intelligence</span>
+    </div>
+    <a class="top-cta" href="#" id="overviewLink"><span class="dot"></span>The full vision</a>
+  </header>
+
+  <section class="hero">
+    <div class="eyebrow">One model of your project</div>
+    <h1>Every part of the build, <em>thinking together</em>.</h1>
+    <p>
+      Alleato AI sits at the center of the project and reads everything around it —
+      budgets, contracts, the schedule, the field. Each discipline orbits the same
+      brain, so a change in one is understood by all. Tap a process to see the vision.
+    </p>
+    <div class="hint">↳ Click any node — or the core</div>
+  </section>
+
+  <!-- ORBITAL STAGE -->
+  <section class="stage" id="stage">
+    <div class="orbit r3"></div>
+    <div class="orbit r2"></div>
+    <div class="orbit r1"></div>
+
+    <div class="core" id="core">
+      <span class="pulse"></span>
+      <span class="pulse b"></span>
+      <div class="mark">
+        <img src="/Alleato-Group-Logo_Light.png" alt="Alleato" />
+        <div class="ai">AI Core</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- METRIC BAND -->
+  <div class="band">
+    <div class="cell"><div class="k">12<em>+</em></div><div class="v">Disciplines on one shared model of the project</div></div>
+    <div class="cell"><div class="k">0</div><div class="v">Re-keyed numbers — the AI reconciles sources for you</div></div>
+    <div class="cell"><div class="k">24<em>/7</em></div><div class="v">Watching budgets, contracts, and the field for risk</div></div>
+    <div class="cell"><div class="k">1</div><div class="v">Source of truth, surfaced wherever you're working</div></div>
+  </div>
+
+  <footer class="foot">Alleato Group · AI Vision · Construction intelligence, end to end</footer>
+</div>
+
+<!-- DETAIL PANEL -->
+<div class="scrim" id="scrim"></div>
+<aside class="panel" id="panel" aria-hidden="true">
+  <div class="panel-inner">
+    <button class="close" id="closeBtn" aria-label="Close">✕</button>
+    <div class="p-icon" id="pIcon"></div>
+    <div class="p-kicker" id="pKicker"></div>
+    <h2 id="pTitle"></h2>
+    <p class="p-lede" id="pLede"></p>
+
+    <div class="metric-row" id="pMetrics"></div>
+
+    <div class="p-section-title">What the AI does here</div>
+    <div id="pCaps"></div>
+
+    <div class="quote" id="pQuote"></div>
+  </div>
+</aside>
+
+<script>
+/* ---------- Icon set (inline strokes) ---------- */
+const I = {
+  budget:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 3v18h18"/><rect x="7" y="11" width="3" height="7"/><rect x="12" y="7" width="3" height="11"/><rect x="17" y="13" width="3" height="5"/></svg>',
+  prime:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h4"/></svg>',
+  schedule: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/><path d="M7 13h4M7 17h7"/></svg>',
+  commit:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>',
+  submit:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 4h16v4H4z"/><path d="M4 12h10M4 16h16M4 20h7"/></svg>',
+  change:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>',
+  punch:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3L20 6"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/></svg>',
+  rfi:      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>',
+  invoice:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 2h9l5 5v15H6z"/><path d="M15 2v5h5"/><path d="M12 11v6M9.5 12.5h4a1.5 1.5 0 0 1 0 3h-3a1.5 1.5 0 0 0 0 3h4"/></svg>',
+  dailylog: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M9 7h7M9 11h5"/></svg>',
+  directory:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13A4 4 0 0 1 16 11"/></svg>',
+  docs:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M13 2v7h7"/></svg>'
+};
+
+/* ---------- Vision content per process ---------- */
+const DATA = {
+  budget: {
+    icon:'budget', kicker:'Cost Control', title:'Budgeting',
+    lede:'The budget stops being a spreadsheet you maintain and becomes a living forecast the AI keeps honest — reconciling commitments, change events, and actuals against your original estimate in real time.',
+    metrics:[['Live','Forecast at completion, recomputed on every cost event'],['Auto','Variance flagged before it becomes a problem']],
+    caps:[
+      ['Reconciles every source','Pulls commitments, direct costs, and change events into each budget line so the forecast is never stale.'],
+      ['Explains the variance','Tells you not just that a code is over, but which commitment or change event moved it.'],
+      ['Predicts the overrun','Watches burn rate against schedule and warns when a line is trending past its budget.']
+    ],
+    quote:'"Show me every cost code trending over budget and what\'s driving it." — answered in seconds, with the source documents attached.'
+  },
+  prime: {
+    icon:'prime', kicker:'Owner Contract', title:'Prime Contracts',
+    lede:'Your agreement with the owner becomes the contract the whole system understands — schedule of values, billing, and approved changes all reconcile back to it automatically.',
+    metrics:[['SOV','Schedule of values kept in lockstep with billing'],['100%','Of approved COs flowed back to the contract value']],
+    caps:[
+      ['Tracks the contract value','Original value plus every approved owner change, always current.'],
+      ['Owns the SOV','Each pay application reconciles against the schedule of values with retainage handled correctly.'],
+      ['Connects to billing','Knows what\'s been billed, what\'s outstanding, and what\'s available to bill this period.']
+    ],
+    quote:'"What\'s our remaining contract balance and how much is available to bill?" — pulled straight from the live SOV.'
+  },
+  schedule: {
+    icon:'schedule', kicker:'Time', title:'Schedule',
+    lede:'The schedule is read by the AI the way a superintendent reads it — as a network of dependencies the rest of the project must respect. Submittals, RFIs, and procurement get pulled onto the timeline they actually affect.',
+    metrics:[['Critical','Path impacts surfaced the moment they emerge'],['Linked','Submittals & long-leads mapped to their activities']],
+    caps:[
+      ['Ties documents to dates','A late submittal or open RFI is connected to the activity it can delay.'],
+      ['Flags slippage early','Compares field progress against plan and surfaces the activities at risk.'],
+      ['Forecasts the knock-on','Models how one slipped activity ripples through the critical path.']
+    ],
+    quote:'"Which open RFIs are sitting on the critical path right now?" — the schedule and the RFI log, answered as one.'
+  },
+  commit: {
+    icon:'commit', kicker:'Subcontracts & POs', title:'Commitments',
+    lede:'Every subcontract and purchase order is understood against the budget it draws from and the work it covers — so commitments, billings, and retainage stay reconciled without manual cross-checking.',
+    metrics:[['Reconciled','Commitments mapped to budget cost codes'],['Tracked','Retainage and billed-to-date per contract']],
+    caps:[
+      ['Maps to the budget','Each commitment lands on the right cost code so committed cost is always accurate.'],
+      ['Watches the draw','Tracks billed-to-date, retainage, and balance remaining per subcontractor.'],
+      ['Surfaces exposure','Flags commitments approaching their value or missing required documents.']
+    ],
+    quote:'"How much have we committed against the concrete budget, and how much is left?" — instant, with the contracts behind it.'
+  },
+  submit: {
+    icon:'submit', kicker:'Approvals', title:'Submittals',
+    lede:'Submittals stop being a log you chase and become a workflow the AI moves forward — it reads the spec, checks the package against the drawings, and knows what\'s holding up an approval.',
+    metrics:[['Auto-review','Packages checked against drawings & specs'],['Ball-in-court','Always knows who owes the next action']],
+    caps:[
+      ['Reads the package','Compares submitted product data against the specified requirements and drawings.'],
+      ['Tracks ball-in-court','Knows who holds each submittal and how long it\'s been there.'],
+      ['Protects the schedule','Connects each submittal to the activity it releases so delays are visible.']
+    ],
+    quote:'"Does this submittal match what the drawings call for?" — reviewed against the drawing set before it reaches you.'
+  },
+  change: {
+    icon:'change', kicker:'Scope & Cost', title:'Change Events',
+    lede:'The moment scope shifts, the AI captures it — drafting the change event, estimating its cost impact, and tracing it through to the commitment and the owner change order, so nothing falls through the cracks.',
+    metrics:[['Drafted','Change events created from meetings & email'],['Traced','From event → CO → budget, end to end']],
+    caps:[
+      ['Catches the change','Detects potential changes in meeting notes and emails and drafts the event for you.'],
+      ['Estimates the impact','Rolls the cost and schedule effect into the budget forecast immediately.'],
+      ['Closes the loop','Links the event to its commitment change and owner change order so the trail is complete.']
+    ],
+    quote:'"Draft a change event for the added steel from this morning\'s meeting." — created, priced, and linked.'
+  },
+  punch: {
+    icon:'punch', kicker:'Closeout', title:'Punch List',
+    lede:'Closeout becomes measurable. The AI organizes punch items by trade, location, and responsible party, and keeps the owner\'s view honest about what\'s truly complete.',
+    metrics:[['By trade','Items grouped by responsible subcontractor'],['%','Real completion, not optimistic completion']],
+    caps:[
+      ['Routes every item','Assigns punch items to the responsible trade and location automatically.'],
+      ['Tracks to done','Knows what\'s open, verified, and closed across the whole project.'],
+      ['Drives closeout','Surfaces the items standing between you and substantial completion.']
+    ],
+    quote:'"What\'s left before we can call Level 3 substantially complete?" — the punch list, answered by area.'
+  },
+  rfi: {
+    icon:'rfi', kicker:'Coordination', title:'RFIs',
+    lede:'Requests for information are read for what they cost — time and money. The AI drafts them, routes them, and connects each one to the drawings, the schedule, and any change it implies.',
+    metrics:[['Linked','Each RFI tied to its drawing & activity'],['Aging','Overdue responses surfaced automatically']],
+    caps:[
+      ['Drafts from context','Turns a field question into a clear RFI with the right references attached.'],
+      ['Tracks the response','Watches aging and flags RFIs blocking work or holding a submittal.'],
+      ['Connects to change','Recognizes when an answer implies a change event and starts one.']
+    ],
+    quote:'"Which RFIs are overdue and what work are they blocking?" — the log, the schedule, and the impact in one answer.'
+  },
+  invoice: {
+    icon:'invoice', kicker:'Billing', title:'Invoicing',
+    lede:'Pay applications and subcontractor invoices reconcile themselves against the schedule of values and the commitments behind them — so every dollar billed is a dollar earned.',
+    metrics:[['Reconciled','Invoices checked against SOV & commitments'],['Retainage','Calculated and tracked correctly every period']],
+    caps:[
+      ['Validates the bill','Checks each invoice against the commitment and the work in place.'],
+      ['Handles retainage','Applies and tracks retainage so released amounts are always right.'],
+      ['Builds the pay app','Assembles the owner billing from the SOV and current period progress.']
+    ],
+    quote:'"Does this sub\'s invoice match their committed value and billed-to-date?" — reconciled before it\'s approved.'
+  },
+  dailylog: {
+    icon:'dailylog', kicker:'The Field', title:'Daily Logs',
+    lede:'What happens on site becomes structured intelligence. The AI reads daily logs for manpower, weather, and delays — and connects them to schedule slippage and potential claims.',
+    metrics:[['Structured','Manpower, weather & delays extracted daily'],['Evidence','A defensible record when claims arise']],
+    caps:[
+      ['Reads the field','Pulls manpower counts, weather, and delay notes from each day\'s log.'],
+      ['Connects to schedule','Links low-production or weather days to the activities they affected.'],
+      ['Builds the record','Assembles a defensible timeline of events for delay claims.']
+    ],
+    quote:'"Show me every weather delay on the foundation work this month." — the field record, instantly searchable.'
+  },
+  directory: {
+    icon:'directory', kicker:'People & Companies', title:'Directory',
+    lede:'Every person and company on the project is a known entity the AI uses to route work — the right RFI to the right engineer, the right submittal to the right reviewer, automatically.',
+    metrics:[['Resolved','One record per company across every tool'],['Routed','Work directed to the right person by role']],
+    caps:[
+      ['Knows the players','Maintains one clean record per company and contact across the project.'],
+      ['Routes by role','Sends each document to the person responsible for it.'],
+      ['Powers everything','Feeds the directory into commitments, RFIs, submittals, and billing.']
+    ],
+    quote:'"Who\'s the engineer of record for the structural package?" — the directory, connected to every document.'
+  },
+  docs: {
+    icon:'docs', kicker:'The Record', title:'Documents & Drawings', short:'Documents',
+    lede:'Drawings, specs, and contracts become a searchable, understood corpus. The AI reads the set, so every other process — submittals, RFIs, change events — can be checked against the source of truth.',
+    metrics:[['Read','Every drawing & spec page OCR\'d and embedded'],['Cited','Answers point back to the exact source page']],
+    caps:[
+      ['Reads the set','Extracts and understands the content of every drawing and spec.'],
+      ['Answers with sources','Every answer cites the drawing sheet or spec section it came from.'],
+      ['Checks the work','Lets submittals and RFIs be validated against the real documents.']
+    ],
+    quote:'"What does the spec say about concrete cure time for the slabs?" — answered with the spec section attached.'
+  }
+};
+
+const CORE = {
+  icon:'budget', kicker:'The Alleato Vision', title:'One brain for the whole build',
+  lede:'Construction software has always been a stack of disconnected logs. Alleato AI inverts that: a single intelligence sits at the center of the project and reads every discipline at once — so the budget understands the change event, the schedule understands the submittal, and you ask one question instead of opening twelve tools.',
+  metrics:[['End to end','From estimate to closeout on one model'],['Live','Every answer reflects the project as it is right now']],
+  caps:[
+    ['It reads everything','Budgets, contracts, schedules, drawings, emails, meetings, and the field — all understood, not just stored.'],
+    ['It connects the dots','A change in one discipline is automatically reflected in every other that depends on it.'],
+    ['It works for you','Drafts the document, reconciles the numbers, flags the risk, and cites its sources — so you decide, not dig.']
+  ],
+  quote:'The vision is simple: stop managing tools, and start managing the project. Alleato AI handles the tools.'
+};
+
+/* ---------- Build orbital nodes ---------- */
+const RINGS = {
+  r1: ['budget','prime','schedule'],
+  r2: ['commit','submit','change','punch','rfi'],
+  r3: ['invoice','dailylog','directory','docs']
+};
+
+const stage = document.getElementById('stage');
+
+/* Each ring spins one way; each chip counter-spins the same duration the other
+   way (cancels the orbit motion) and statically rotates -angle (cancels its
+   placement angle) — so every label stays perfectly upright while orbiting. */
+const SPIN = { r1: '38s', r2: '64s', r3: '96s' };
+const ORBIT_REVERSED = { r1: false, r2: true, r3: false };
+
+Object.entries(RINGS).forEach(([ringClass, keys]) => {
+  const orbit = stage.querySelector('.orbit.' + ringClass);
+  const dur = SPIN[ringClass];
+  // counter must oppose the orbit's own direction
+  const counterDir = ORBIT_REVERSED[ringClass] ? '' : 'reverse';
+
+  keys.forEach((key, i) => {
+    const angle = (360 / keys.length) * i;
+    const d = DATA[key];
+
+    const node = document.createElement('div');
+    node.className = 'node';
+    node.style.transform = `rotate(${angle}deg)`;
+
+    const pos = document.createElement('div');
+    pos.className = 'node-pos';
+
+    const counter = document.createElement('div');
+    counter.className = 'node-counter';
+    counter.style.animation = `spin ${dur} linear infinite ${counterDir}`;
+
+    const chip = document.createElement('div');
+    chip.className = 'chip';
+    chip.style.transform = `rotate(${-angle}deg)`;
+    chip.innerHTML = `<div class="pin">${I[d.icon]}</div><div class="label">${d.short || d.title}</div>`;
+    chip.addEventListener('click', (e) => { e.stopPropagation(); openPanel(key); });
+
+    counter.appendChild(chip);
+    pos.appendChild(counter);
+    node.appendChild(pos);
+    orbit.appendChild(node);
+  });
+});
+
+/* ---------- Panel logic ---------- */
+const scrim = document.getElementById('scrim');
+const panel = document.getElementById('panel');
+
+function openPanel(key) {
+  const d = key === 'core' ? CORE : DATA[key];
+  document.getElementById('pIcon').innerHTML = I[d.icon];
+  document.getElementById('pKicker').textContent = d.kicker;
+  document.getElementById('pTitle').textContent = d.title;
+  document.getElementById('pLede').textContent = d.lede;
+
+  document.getElementById('pMetrics').innerHTML = d.metrics.map(
+    ([big, small]) => `<div class="metric"><div class="big">${big}</div><div class="small">${small}</div></div>`
+  ).join('');
+
+  document.getElementById('pCaps').innerHTML = d.caps.map(
+    ([t, b], i) => `<div class="cap"><div class="num">${i+1}</div><div class="cap-body"><strong>${t}</strong><span>${b}</span></div></div>`
+  ).join('');
+
+  document.getElementById('pQuote').innerHTML = d.quote;
+
+  scrim.classList.add('open');
+  panel.classList.add('open');
+  panel.setAttribute('aria-hidden', 'false');
+  panel.scrollTop = 0;
+}
+
+function closePanel() {
+  scrim.classList.remove('open');
+  panel.classList.remove('open');
+  panel.setAttribute('aria-hidden', 'true');
+}
+
+document.getElementById('core').addEventListener('click', () => openPanel('core'));
+document.getElementById('overviewLink').addEventListener('click', (e) => { e.preventDefault(); openPanel('core'); });
+document.getElementById('closeBtn').addEventListener('click', closePanel);
+scrim.addEventListener('click', closePanel);
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePanel(); });
+</script>
+</body>
+</html>

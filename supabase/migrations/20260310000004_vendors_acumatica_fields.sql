@@ -1,0 +1,11 @@
+-- Add Acumatica vendor fields to vendors table
+ALTER TABLE vendors ADD COLUMN IF NOT EXISTS legal_name TEXT;
+ALTER TABLE vendors ADD COLUMN IF NOT EXISTS vendor_class TEXT;
+ALTER TABLE vendors ADD COLUMN IF NOT EXISTS terms TEXT;
+ALTER TABLE vendors ADD COLUMN IF NOT EXISTS payment_method TEXT;
+ALTER TABLE vendors ADD COLUMN IF NOT EXISTS ap_account TEXT;
+ALTER TABLE vendors ADD COLUMN IF NOT EXISTS cash_account TEXT;
+ALTER TABLE vendors ADD COLUMN IF NOT EXISTS is_1099_vendor BOOLEAN;
+ALTER TABLE vendors ADD COLUMN IF NOT EXISTS is_foreign_entity BOOLEAN;
+ALTER TABLE vendors ADD COLUMN IF NOT EXISTS is_labor_union BOOLEAN;
+ALTER TABLE vendors ADD COLUMN IF NOT EXISTS is_tax_agency BOOLEAN;

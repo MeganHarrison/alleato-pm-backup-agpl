@@ -1,0 +1,48 @@
+{
+  "contractVersion": 1,
+  "taskId": "LOCAL-2026-07-22-SHAREPOINT-VECTOR-FRESHNESS",
+  "riskLevel": "high",
+  "feature": "SharePoint vector freshness and fail-closed Graph synchronization",
+  "route": "alleato-graph-sync",
+  "flows": [
+    {
+      "name": "SharePoint source-to-vector reconciliation",
+      "steps": [
+        "Enumerate eligible SharePoint source rows",
+        "Reconcile source IDs against non-null document chunk embeddings",
+        "Replay only missing vectors through the verified provider route",
+        "Fail the Graph cron when downstream vectorization reports any error"
+      ],
+      "expectedOutcome": "Every eligible cataloged SharePoint document is searchable and any future vectorization gap makes the scheduled run fail loudly"
+    }
+  ],
+  "requiredEvidence": ["summary", "actionLog", "databaseReadback", "negativePath", "regressionTest"],
+  "visual": { "viewports": [], "checks": [] },
+  "independentReview": { "required": true },
+  "claims": [
+    {
+      "id": "complete-vector-coverage",
+      "description": "Every eligible cataloged SharePoint document has a non-null 3072-dimensional vector",
+      "evidence": [
+        { "key": "databaseReadback", "min": 1 },
+        { "key": "actionLog", "min": 1 }
+      ]
+    },
+    {
+      "id": "fail-closed-graph-sync",
+      "description": "A downstream vectorization error cannot be masked by successful source writes",
+      "evidence": [
+        { "key": "negativePath", "min": 1 },
+        { "key": "regressionTest", "min": 1 }
+      ]
+    },
+    {
+      "id": "active-health-monitor",
+      "description": "The source RAG health monitor runs from the canonical repository on the intended schedule",
+      "evidence": [
+        { "key": "actionLog", "min": 1 },
+        { "key": "summary", "min": 1 }
+      ]
+    }
+  ]
+}

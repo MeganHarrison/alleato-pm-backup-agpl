@@ -1,0 +1,62 @@
+{
+  "contractVersion": 1,
+  "taskId": "AAI-1267",
+  "riskLevel": "high",
+  "feature": "Durable provider-neutral AssistantTurn lifecycle shell",
+  "route": "/api/ai-assistant/chat",
+  "flows": [
+    {
+      "name": "Execute, observe, deduplicate, and cancel",
+      "steps": [
+        "Submit one authenticated read-only assistant command",
+        "Observe its receipt",
+        "Repeat the same client message ID",
+        "Observe and cancel a separate running turn"
+      ],
+      "expectedOutcome": "The AI SDK stream is preserved, history is linked once, duplicate generation is suppressed, and cancellation remains terminal."
+    }
+  ],
+  "requiredEvidence": [
+    "apiFlow",
+    "databaseReadback",
+    "negativePath",
+    "regressionTest",
+    "migrationLedger"
+  ],
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "public-stream",
+      "description": "The authenticated public route preserves the production AI SDK stream.",
+      "evidence": [{ "key": "apiFlow", "min": 1 }]
+    },
+    {
+      "id": "idempotent-reconnect",
+      "description": "A running receipt is observable and a duplicate command reuses the same receipt.",
+      "evidence": [
+        { "key": "apiFlow", "min": 1 },
+        { "key": "regressionTest", "min": 1 }
+      ]
+    },
+    {
+      "id": "history-persistence",
+      "description": "Exactly one user and one assistant history row link to the durable turn.",
+      "evidence": [{ "key": "databaseReadback", "min": 1 }]
+    },
+    {
+      "id": "terminal-states",
+      "description": "Cancellation and invalid transitions are explicit and fail loudly.",
+      "evidence": [
+        { "key": "negativePath", "min": 1 },
+        { "key": "regressionTest", "min": 1 }
+      ]
+    },
+    {
+      "id": "migration-ledger",
+      "description": "The restored base and incremental hardening migrations are applied.",
+      "evidence": [{ "key": "migrationLedger", "min": 1 }]
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+-- Add leading indexes for foreign-key columns the migration validator can prove
+-- are otherwise unindexed. These reduce FK update/delete checks and common
+-- actor/history lookups without changing application behavior.
+CREATE INDEX IF NOT EXISTS idx_estimates_created_by ON public.estimates (created_by);
+CREATE INDEX IF NOT EXISTS idx_ai_memories_superseded_by ON public.ai_memories (superseded_by);
+CREATE INDEX IF NOT EXISTS idx_project_vendors_added_by ON public.project_vendors (added_by);
+CREATE INDEX IF NOT EXISTS idx_drawing_sets_created_by ON public.drawing_sets (created_by);
+CREATE INDEX IF NOT EXISTS idx_drawing_areas_created_by ON public.drawing_areas (created_by);
+CREATE INDEX IF NOT EXISTS idx_drawings_created_by ON public.drawings (created_by);
+CREATE INDEX IF NOT EXISTS idx_drawings_deleted_by ON public.drawings (deleted_by);
+CREATE INDEX IF NOT EXISTS idx_drawing_revisions_uploaded_by ON public.drawing_revisions (uploaded_by);
+CREATE INDEX IF NOT EXISTS idx_drawing_markup_pins_created_by ON public.drawing_markup_pins (created_by);
+CREATE INDEX IF NOT EXISTS idx_pcco_attachments_uploaded_by ON public.pcco_attachments (uploaded_by);
+CREATE INDEX IF NOT EXISTS idx_cco_attachments_uploaded_by ON public.cco_attachments (uploaded_by);
+CREATE INDEX IF NOT EXISTS idx_dev_annotations_created_by ON public.dev_annotations (created_by);
+CREATE INDEX IF NOT EXISTS idx_design_violations_submitted_by ON public.design_violations (submitted_by);
+CREATE INDEX IF NOT EXISTS idx_user_module_permissions_updated_by ON public.user_module_permissions (updated_by);
+CREATE INDEX IF NOT EXISTS idx_permission_audit_log_changed_by ON public.permission_audit_log (changed_by);
+CREATE INDEX IF NOT EXISTS idx_invoice_attachments_uploaded_by ON public.invoice_attachments (uploaded_by);
+CREATE INDEX IF NOT EXISTS idx_commitment_related_items_created_by ON public.commitment_related_items (created_by);
+CREATE INDEX IF NOT EXISTS idx_punch_items_created_by ON public.punch_items (created_by);
+CREATE INDEX IF NOT EXISTS idx_punch_items_updated_by ON public.punch_items (updated_by);
+CREATE INDEX IF NOT EXISTS idx_punch_item_comments_created_by ON public.punch_item_comments (created_by);
+CREATE INDEX IF NOT EXISTS idx_team_chat_channels_created_by ON public.team_chat_channels (created_by);
+CREATE INDEX IF NOT EXISTS idx_purchase_order_attachments_uploaded_by ON public.purchase_order_attachments (uploaded_by);
+CREATE INDEX IF NOT EXISTS idx_budget_changes_created_by ON public.budget_changes (created_by);
+CREATE INDEX IF NOT EXISTS idx_drawing_change_history_changed_by ON public.drawing_change_history (changed_by);
+CREATE INDEX IF NOT EXISTS idx_submittal_workflow_templates_created_by ON public.submittal_workflow_templates (created_by);
+CREATE INDEX IF NOT EXISTS idx_prime_cco_related_items_created_by ON public.prime_contract_change_order_related_items (created_by);
+CREATE INDEX IF NOT EXISTS idx_user_granular_permission_overrides_updated_by ON public.user_granular_permission_overrides (updated_by);
+CREATE INDEX IF NOT EXISTS idx_document_attribution_candidates_reviewed_by ON public.document_attribution_candidates (reviewed_by);
+CREATE INDEX IF NOT EXISTS idx_documents_rfis_links_created_by ON public.documents_rfis_links (created_by);
+CREATE INDEX IF NOT EXISTS idx_documents_submittals_links_created_by ON public.documents_submittals_links (created_by);
+CREATE INDEX IF NOT EXISTS idx_change_events_documents_links_created_by ON public.change_events_documents_links (created_by);
+CREATE INDEX IF NOT EXISTS idx_project_photos_punch_items_links_created_by ON public.project_photos_punch_items_links (created_by);
+CREATE INDEX IF NOT EXISTS idx_observations_project_photos_links_created_by ON public.observations_project_photos_links (created_by);
+CREATE INDEX IF NOT EXISTS idx_daily_logs_project_photos_links_created_by ON public.daily_logs_project_photos_links (created_by);
+CREATE INDEX IF NOT EXISTS idx_drawings_rfis_links_created_by ON public.drawings_rfis_links (created_by);
+CREATE INDEX IF NOT EXISTS idx_rfis_submittals_links_created_by ON public.rfis_submittals_links (created_by);
+CREATE INDEX IF NOT EXISTS idx_psr_comments_created_by ON public.psr_comments (created_by);
+CREATE INDEX IF NOT EXISTS idx_project_progress_reports_created_by ON public.project_progress_reports (created_by);
+CREATE INDEX IF NOT EXISTS idx_project_progress_reports_updated_by ON public.project_progress_reports (updated_by);
+CREATE INDEX IF NOT EXISTS idx_project_progress_report_photos_created_by ON public.project_progress_report_photos (created_by);
+CREATE INDEX IF NOT EXISTS idx_project_contact_references_created_by ON public.project_contact_references (created_by);
+CREATE INDEX IF NOT EXISTS idx_ai_review_feedback_created_by ON public.ai_review_feedback (created_by);
+CREATE INDEX IF NOT EXISTS idx_recurring_issues_created_by ON public.recurring_issues (created_by);
+CREATE INDEX IF NOT EXISTS idx_recurring_issue_evidence_tagged_by ON public.recurring_issue_evidence (tagged_by);

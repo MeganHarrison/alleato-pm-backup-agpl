@@ -1,0 +1,25 @@
+{
+  "contractVersion": 1,
+  "taskId": "LOCAL-2026-07-17-EXCLUDE-INTENTIONAL-PIPELINE-FAILURES",
+  "feature": "Exclude intentional pipeline skips from AI dashboard recovery",
+  "route": "/ai-dashboard",
+  "flows": [
+    {
+      "name": "Recovery list classification",
+      "steps": ["Open the AI dashboard", "Load the RAG pipeline preview", "Inspect lifecycle and recovery rows"],
+      "expectedOutcome": "Intentional exclusions are absent while genuine timeout failures remain visible"
+    }
+  ],
+  "requiredEvidence": ["screenshots", "actionLog", "negativePath", "visualReview", "regressionTest"],
+  "visual": {
+    "viewports": ["desktop", "tablet", "mobile"],
+    "checks": ["No overflow", "Recovery heading remains understandable", "Intentional exclusions are not displayed"]
+  },
+  "independentReview": { "required": true },
+  "claims": [
+    { "id": "recovery-filter", "description": "Recovery list contains only actionable failures", "evidence": [{ "key": "screenshots", "min": 1 }] },
+    { "id": "negative-path", "description": "Intentional exclusion is omitted", "evidence": [{ "key": "negativePath", "min": 1 }] },
+    { "id": "visual-review", "description": "Canonical dashboard surface reviewed", "evidence": [{ "key": "visualReview", "min": 1 }] },
+    { "id": "regression", "description": "Shared intentional-skip predicate regression test passes", "evidence": [{ "key": "regressionTest", "min": 1 }] }
+  ]
+}

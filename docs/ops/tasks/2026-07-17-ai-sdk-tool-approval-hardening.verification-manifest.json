@@ -1,0 +1,104 @@
+{
+  "contractVersion": 1,
+  "taskId": "AAI-1150",
+  "riskLevel": "high",
+  "feature": "AI SDK v7 signed tool approvals and assistant surface boundaries",
+  "route": "/ai",
+  "flows": [
+    {
+      "name": "Approve an exact signed write",
+      "steps": [
+        "Ask the full assistant to create a scoped test task",
+        "Inspect the side-effect-free preview",
+        "Proceed to the exact confirmed tool request",
+        "Approve the signed tool request",
+        "Wait for automatic resume",
+        "Open or read back the created task",
+        "Remove the scoped test record after evidence capture"
+      ],
+      "expectedOutcome": "The signed approval executes its exact write once, the preview mutates nothing, and the created record is observable"
+    },
+    {
+      "name": "Deny a write",
+      "steps": [
+        "Ask the full assistant to create a second scoped test task",
+        "Deny the signed tool request",
+        "Confirm the assistant reports the denial",
+        "Verify no matching record exists"
+      ],
+      "expectedOutcome": "Denied or tampered approvals execute no write and fail visibly"
+    },
+    {
+      "name": "Use compact Ask Alleato read-only",
+      "steps": [
+        "Open Ask Alleato from the authenticated app shell",
+        "Request a write action",
+        "Inspect the response and network request"
+      ],
+      "expectedOutcome": "The compact route and conversation namespace force read-only capability, receive no action tools, and direct action work to the canonical full assistant without stalling"
+    }
+  ],
+  "requiredEvidence": [
+    "screenshots",
+    "actionLog",
+    "databaseReadback",
+    "negativePath",
+    "visualReview",
+    "summary",
+    "regressionTest"
+  ],
+  "visual": {
+    "viewports": ["desktop", "mobile"],
+    "checks": [
+      "Approval input and approve or deny actions are visible without overflow",
+      "The compact Ask panel remains a quiet read-only surface",
+      "No nested card, banner, or helper panel is added",
+      "Denial and configuration failures are explicit and recoverable"
+    ]
+  },
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "signed-approval",
+      "description": "The canonical full assistant renders a signed write approval request",
+      "evidence": [{ "key": "screenshots", "min": 1 }]
+    },
+    {
+      "id": "exact-once-write",
+      "description": "Approval executes the exact intended write once",
+      "evidence": [{ "key": "databaseReadback", "min": 1 }]
+    },
+    {
+      "id": "denial-no-write",
+      "description": "Denial produces no matching write",
+      "evidence": [{ "key": "negativePath", "min": 1 }]
+    },
+    {
+      "id": "tamper-fails-closed",
+      "description": "A changed signed tool input is rejected before execution",
+      "evidence": [{ "key": "regressionTest", "min": 1 }]
+    },
+    {
+      "id": "ask-read-only",
+      "description": "Ask Alleato cannot receive action tools it does not render",
+      "evidence": [{ "key": "actionLog", "min": 1 }]
+    },
+    {
+      "id": "shared-provider-secret",
+      "description": "The approval secret is present across all Vercel runtime environments",
+      "evidence": [{ "key": "summary", "min": 1 }]
+    },
+    {
+      "id": "visual-responsive",
+      "description": "Desktop and mobile approval and compact-panel review is complete",
+      "evidence": [{ "key": "visualReview", "min": 2 }]
+    },
+    {
+      "id": "architecture-regression",
+      "description": "The architecture guardrail discovers split tools and rejects legacy approval APIs",
+      "evidence": [{ "key": "regressionTest", "min": 1 }]
+    }
+  ]
+}

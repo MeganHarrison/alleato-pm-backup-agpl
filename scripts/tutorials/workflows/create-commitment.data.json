@@ -1,0 +1,17 @@
+{
+  "projectId": 1034,
+  "commitmentType": "subcontract",
+  "vendor": "Steel Services LLC",
+  "commitmentTitle": "Steel Fabrication Contract",
+  "contractNumber": "COM-001",
+  "description": "Structural steel framing and miscellaneous metals per drawings.",
+  "retainage": "10",
+  "sovItems": [
+    {
+      "costCode": "05-1200",
+      "description": "Structural steel framing",
+      "amount": "125000"
+    }
+  ],
+  "submitWorkflow": false
+}

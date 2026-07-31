@@ -1,0 +1,1 @@
+Prime contract attachment fixture for Playwright tests.

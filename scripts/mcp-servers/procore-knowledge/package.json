@@ -1,0 +1,13 @@
+{
+  "name": "procore-knowledge-mcp",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "description": "MCP server for querying Procore knowledge embeddings and manifests",
+  "main": "index.mjs",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "@supabase/supabase-js": "^2.0.0",
+    "openai": "^4.0.0"
+  }
+}

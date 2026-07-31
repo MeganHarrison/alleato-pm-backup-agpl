@@ -1,0 +1,350 @@
+{
+  "meta": {
+    "feature": "submittals",
+    "analysis_date": "2026-03-08",
+    "methodology": "static codebase analysis",
+    "procore_source": "procore-crawls/submittals/spec/",
+    "alleato_source": "frontend/src/features/submittals/"
+  },
+  "summary": {
+    "overall_status": "CRITICAL_GAP",
+    "form_fields_procore": 24,
+    "form_fields_alleato": 13,
+    "form_fields_missing": 11,
+    "form_fields_widget_mismatch": 4,
+    "required_fields_missing": 1,
+    "list_filters_procore": 11,
+    "list_filters_alleato": 3,
+    "list_columns_procore": 12,
+    "list_columns_alleato": 12,
+    "list_columns_data_gap": 2,
+    "detail_tabs_procore": 4,
+    "detail_tabs_alleato": 4,
+    "commands_procore": 24,
+    "commands_alleato": 4,
+    "backend_ready_for_fk_fields": true
+  },
+  "form_fields": {
+    "general_information_section": [
+      {
+        "field_name": "title",
+        "procore_required": true,
+        "procore_widget": "text input",
+        "alleato_present": true,
+        "alleato_widget": "text input",
+        "status": "PASS"
+      },
+      {
+        "field_name": "number",
+        "procore_required": true,
+        "procore_widget": "text input",
+        "alleato_present": true,
+        "alleato_field_name": "submittal_number",
+        "alleato_widget": "text input",
+        "status": "PASS",
+        "notes": "Field renamed submittal_number in Alleato"
+      },
+      {
+        "field_name": "revision",
+        "procore_required": true,
+        "procore_widget": "text input, default 0",
+        "alleato_present": true,
+        "alleato_widget": "number input, default 0",
+        "status": "PASS"
+      },
+      {
+        "field_name": "specification_section",
+        "procore_required": false,
+        "procore_widget": "searchable dropdown (CSI spec codes)",
+        "alleato_present": true,
+        "alleato_widget": "plain text input",
+        "status": "WIDGET_MISMATCH",
+        "required_fix": "Replace with searchable combobox linked to spec sections data"
+      },
+      {
+        "field_name": "submittal_type",
+        "procore_required": false,
+        "procore_widget": "dropdown with predefined options",
+        "alleato_present": true,
+        "alleato_widget": "plain text input",
+        "status": "WIDGET_MISMATCH",
+        "required_fix": "Replace with Select dropdown with predefined type options"
+      },
+      {
+        "field_name": "status",
+        "procore_required": false,
+        "procore_widget": "dropdown",
+        "alleato_present": true,
+        "alleato_widget": "Select dropdown",
+        "status": "PASS"
+      },
+      {
+        "field_name": "submittal_package_id",
+        "procore_required": false,
+        "procore_widget": "dropdown (FK to packages)",
+        "alleato_present": false,
+        "status": "MISSING",
+        "backend_ready": true,
+        "priority": 2
+      },
+      {
+        "field_name": "responsible_contractor_id",
+        "procore_required": false,
+        "procore_widget": "searchable dropdown (company)",
+        "alleato_present": false,
+        "status": "MISSING",
+        "backend_ready": true,
+        "priority": 1
+      },
+      {
+        "field_name": "received_from_id",
+        "procore_required": false,
+        "procore_widget": "searchable dropdown (contact)",
+        "alleato_present": false,
+        "status": "MISSING",
+        "backend_ready": true,
+        "priority": 1
+      },
+      {
+        "field_name": "submittal_manager_id",
+        "procore_required": true,
+        "procore_widget": "searchable dropdown (contact)",
+        "alleato_present": false,
+        "status": "CRITICAL_MISSING",
+        "backend_ready": true,
+        "priority": 1,
+        "notes": "Marked required in Procore; entirely absent from Alleato form"
+      },
+      {
+        "field_name": "final_due_date",
+        "procore_required": false,
+        "procore_widget": "date display (read-only on form)",
+        "alleato_present": true,
+        "alleato_widget": "date input (editable)",
+        "status": "PARTIAL",
+        "notes": "Alleato makes it editable; Procore shows it read-only on the edit form"
+      },
+      {
+        "field_name": "cost_code_id",
+        "procore_required": false,
+        "procore_widget": "searchable dropdown",
+        "alleato_present": false,
+        "status": "MISSING",
+        "backend_ready": true,
+        "priority": 2
+      },
+      {
+        "field_name": "location_id",
+        "procore_required": false,
+        "procore_widget": "searchable dropdown",
+        "alleato_present": false,
+        "status": "MISSING",
+        "backend_ready": true,
+        "priority": 2
+      },
+      {
+        "field_name": "linked_drawings",
+        "procore_required": false,
+        "procore_widget": "multi-select",
+        "alleato_present": false,
+        "status": "MISSING",
+        "priority": 3
+      }
+    ],
+    "distribution_and_scheduling_section": [
+      {
+        "field_name": "distribution_list",
+        "procore_required": false,
+        "procore_widget": "multi-select contacts (tag chips)",
+        "alleato_present": false,
+        "status": "MISSING",
+        "priority": 1,
+        "notes": "Only shown as read-only Distribution History in detail view"
+      },
+      {
+        "field_name": "ball_in_court",
+        "procore_required": false,
+        "procore_widget": "display field (computed, read-only)",
+        "alleato_present": true,
+        "alleato_widget": "editable text input",
+        "status": "WIDGET_MISMATCH",
+        "required_fix": "Convert to read-only computed display; remove editable input"
+      },
+      {
+        "field_name": "lead_time",
+        "procore_required": false,
+        "procore_widget": "number input with 'day(s)' suffix label",
+        "alleato_present": true,
+        "alleato_widget": "number input (no unit label)",
+        "status": "PARTIAL",
+        "notes": "Missing 'day(s)' unit label"
+      },
+      {
+        "field_name": "required_on_site_date",
+        "procore_required": false,
+        "procore_widget": "date picker (Month/Day/Year)",
+        "alleato_present": true,
+        "alleato_widget": "date input",
+        "status": "PASS"
+      }
+    ],
+    "content_section": [
+      {
+        "field_name": "is_private",
+        "procore_required": false,
+        "procore_widget": "checkbox",
+        "alleato_present": true,
+        "alleato_widget": "checkbox",
+        "status": "PASS"
+      },
+      {
+        "field_name": "description",
+        "procore_required": true,
+        "procore_widget": "rich text editor (Bold, Italic, Underline, Strikethrough, alignment, lists, indent, tables, font size, colors, undo/redo)",
+        "alleato_present": true,
+        "alleato_widget": "basic Textarea",
+        "status": "WIDGET_MISMATCH",
+        "required_fix": "Replace with rich text editor component (e.g. Tiptap or Quill)"
+      },
+      {
+        "field_name": "attachments",
+        "procore_required": false,
+        "procore_widget": "file upload area (drag-and-drop, Attach Files button)",
+        "alleato_present": false,
+        "status": "MISSING",
+        "priority": 2
+      }
+    ],
+    "workflow_section": [
+      {
+        "field_name": "workflow_template",
+        "procore_required": false,
+        "procore_widget": "dropdown (pre-defined templates)",
+        "alleato_present": false,
+        "status": "MISSING",
+        "priority": 3
+      },
+      {
+        "field_name": "workflow_steps",
+        "procore_required": false,
+        "procore_widget": "step builder with Add Step button",
+        "alleato_present": false,
+        "status": "MISSING",
+        "priority": 3
+      }
+    ],
+    "extra_fields_in_alleato_not_in_procore_form": [
+      {
+        "field_name": "division",
+        "notes": "Present in Alleato form and schema but not shown in Procore's edit form"
+      }
+    ]
+  },
+  "form_actions": [
+    { "button": "Cancel", "procore": true, "alleato": true, "status": "PASS" },
+    { "button": "Update / Submit", "procore": true, "alleato": true, "status": "PASS" },
+    { "button": "Update & Send Emails", "procore": true, "alleato": false, "status": "MISSING", "priority": 1 },
+    { "button": "Delete (trash icon)", "procore": true, "alleato": true, "status": "PASS", "notes": "In detail view actions menu in Alleato" }
+  ],
+  "list_view": {
+    "columns": [
+      { "label": "Spec", "field": "specification_section", "procore": true, "alleato": true, "status": "PASS" },
+      { "label": "#", "field": "submittal_number", "procore": true, "alleato": true, "status": "PASS" },
+      { "label": "Rev.", "field": "revision", "procore": true, "alleato": true, "status": "PASS" },
+      { "label": "Title", "field": "title", "procore": true, "alleato": true, "status": "PASS" },
+      { "label": "Type", "field": "submittal_type", "procore": true, "alleato": true, "status": "PASS" },
+      { "label": "Status", "field": "status", "procore": true, "alleato": true, "status": "PASS" },
+      { "label": "Responsible C.", "field": "responsible_contractor", "procore": true, "alleato": true, "status": "DATA_GAP", "notes": "Column defined but always null; FK not resolved in list API" },
+      { "label": "Received From", "field": "received_from", "procore": true, "alleato": true, "status": "DATA_GAP", "notes": "Column defined but always null; FK not resolved in list API" },
+      { "label": "Ball In Court", "field": "ball_in_court", "procore": true, "alleato": true, "status": "PASS" },
+      { "label": "Approvers", "field": "approvers", "procore": true, "alleato": true, "status": "PASS" },
+      { "label": "Response", "field": "latest_response", "procore": true, "alleato": true, "status": "PASS" },
+      { "label": "Sent Date", "field": "sent_date", "procore": true, "alleato": true, "status": "PASS" }
+    ],
+    "filters": [
+      { "filter": "Approver", "procore": true, "alleato": false, "status": "MISSING" },
+      { "filter": "Ball In Court", "procore": true, "alleato": false, "status": "MISSING" },
+      { "filter": "Created By", "procore": true, "alleato": false, "status": "MISSING" },
+      { "filter": "Current Revision", "procore": true, "alleato": false, "status": "MISSING" },
+      { "filter": "Division", "procore": true, "alleato": true, "status": "PASS" },
+      { "filter": "Location", "procore": true, "alleato": false, "status": "MISSING" },
+      { "filter": "Number", "procore": true, "alleato": false, "status": "MISSING" },
+      { "filter": "Private", "procore": true, "alleato": false, "status": "MISSING" },
+      { "filter": "Received From", "procore": true, "alleato": false, "status": "MISSING" },
+      { "filter": "Response", "procore": true, "alleato": true, "status": "PASS" },
+      { "filter": "Responsible Contractor", "procore": true, "alleato": false, "status": "MISSING" },
+      { "filter": "Status", "procore": false, "alleato": true, "status": "EXTRA", "notes": "Alleato-only filter" }
+    ],
+    "tabs": [
+      { "tab": "Items", "procore": true, "alleato": true, "status": "PASS" },
+      { "tab": "Packages", "procore": true, "alleato": true, "status": "PARTIAL", "notes": "Coming Soon in Alleato" },
+      { "tab": "Spec Sections", "procore": true, "alleato": true, "status": "PARTIAL", "notes": "Coming Soon in Alleato" },
+      { "tab": "Ball In Court", "procore": true, "alleato": true, "status": "PASS" },
+      { "tab": "Recycle Bin", "procore": true, "alleato": true, "status": "PASS" }
+    ]
+  },
+  "detail_view": {
+    "tabs": [
+      { "tab": "General", "procore": true, "alleato": true, "status": "PASS" },
+      { "tab": "Workflow", "procore": false, "alleato": true, "status": "EXTRA", "notes": "Alleato has separate Workflow tab; Procore integrates into General tab" },
+      { "tab": "Related Items", "procore": true, "alleato": true, "status": "PASS" },
+      { "tab": "Emails", "procore": true, "alleato": false, "status": "MISSING" },
+      { "tab": "Change History", "procore": true, "alleato": true, "status": "PASS" }
+    ]
+  },
+  "commands": [
+    { "command": "create_submittal", "procore": true, "alleato": true, "status": "PASS" },
+    { "command": "edit_submittal", "procore": true, "alleato": true, "status": "PASS" },
+    { "command": "update_submittal", "procore": true, "alleato": true, "status": "PASS" },
+    { "command": "update_and_send_emails", "procore": true, "alleato": false, "status": "MISSING", "priority": 1 },
+    { "command": "delete_submittal", "procore": true, "alleato": true, "status": "PASS" },
+    { "command": "create_revision", "procore": true, "alleato": false, "status": "MISSING", "priority": 4 },
+    { "command": "duplicate_submittal", "procore": true, "alleato": false, "status": "MISSING", "priority": 4 },
+    { "command": "redistribute", "procore": true, "alleato": false, "status": "MISSING", "priority": 4 },
+    { "command": "add_workflow_step", "procore": true, "alleato": false, "status": "MISSING", "priority": 3 },
+    { "command": "email_submittal", "procore": true, "alleato": false, "status": "MISSING", "priority": 4 },
+    { "command": "create_submittal_package", "procore": true, "alleato": false, "status": "MISSING", "priority": 3 },
+    { "command": "bulk_actions", "procore": true, "alleato": false, "status": "MISSING", "priority": 4 },
+    { "command": "export_pdf", "procore": true, "alleato": false, "status": "MISSING", "priority": 4 },
+    { "command": "export_csv", "procore": true, "alleato": false, "status": "MISSING", "priority": 4 },
+    { "command": "export_excel", "procore": true, "alleato": false, "status": "MISSING", "priority": 4 },
+    { "command": "report_approvers_response_time", "procore": true, "alleato": false, "status": "MISSING", "priority": 4 }
+  ],
+  "remediation_priorities": {
+    "priority_1_critical": [
+      "Add submittal_manager_id field (searchable contact dropdown, required)",
+      "Add distribution_list field (multi-select contacts with tag chip UI)",
+      "Add responsible_contractor_id field (searchable company dropdown)",
+      "Add received_from_id field (searchable contact dropdown)",
+      "Fix specification_section widget (plain text -> searchable combobox)",
+      "Fix description widget (textarea -> rich text editor)"
+    ],
+    "priority_2_high": [
+      "Add submittal_package_id field (dropdown FK)",
+      "Add cost_code_id field (searchable dropdown FK)",
+      "Add location_id field (searchable dropdown FK)",
+      "Fix submittal_type widget (plain text -> predefined options Select)",
+      "Fix ball_in_court (editable input -> computed read-only display)",
+      "Add file attachments upload (drag-and-drop zone)",
+      "Add Update & Send Emails secondary action button",
+      "Fix responsible_contractor and received_from list columns (resolve FK values in API query)",
+      "Add 8 missing filters (Approver, Ball In Court, Created By, Current Revision, Location, Number, Private, Received From, Responsible Contractor)"
+    ],
+    "priority_3_medium": [
+      "Add linked_drawings multi-select field",
+      "Add Emails tab to detail view",
+      "Implement Packages tab (currently Coming Soon)",
+      "Implement Spec Sections tab (currently Coming Soon)",
+      "Add workflow step builder (template dropdown + Add Step UI)"
+    ],
+    "priority_4_low": [
+      "Implement Create Revision command",
+      "Implement Duplicate Submittal command",
+      "Implement Redistribute command",
+      "Implement file exports (PDF, CSV, Excel)",
+      "Implement Bulk Actions",
+      "Implement Email Submittal action",
+      "Add Approvers Response Time report"
+    ]
+  }
+}

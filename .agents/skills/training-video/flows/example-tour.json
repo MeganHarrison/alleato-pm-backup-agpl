@@ -1,0 +1,18 @@
+{
+  "name": "example-tour",
+  "base": "http://localhost:3000",
+  "startPath": "/",
+  "viewport": { "width": 1440, "height": 900 },
+  "frame": true,
+  "title": { "title": "Alleato PM", "subtitle": "A quick product tour", "hold": 2000 },
+  "outro": { "title": "Recorded automatically from the live app", "subtitle": "Repeatable · no manual editing", "hold": 2400 },
+  "hideSelectors": [],
+  "steps": [
+    { "caption": "Every project across your organization", "hold": 1800 },
+    { "click": "text=Estimating", "caption": "Filter by pipeline — Clients, Estimating, Internal", "hold": 1900 },
+    { "goto": "/prime-contracts", "caption": "Prime Contracts — every owner agreement in one place", "hold": 1900 },
+    { "goto": "/meetings", "caption": "Meetings — transcripts, summaries & action items", "hold": 1900 },
+    { "goto": "/tasks", "caption": "Tasks — assigned work across every project", "hold": 1900 },
+    { "goto": "/prime-contracts", "zoom": "h1, h2", "caption": "Zoom to focus attention where it matters", "scale": 1.45, "hold": 1800 }
+  ]
+}

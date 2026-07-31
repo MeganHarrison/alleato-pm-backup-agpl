@@ -1,0 +1,458 @@
+{
+  "tool": "Transmittals",
+  "procore_squad": "Submittals",
+  "audit_date": "2026-03-08",
+  "crawl_source": "procore-crawls/procore-crawl-outputs/transmittals/crawl-transmittals/",
+  "crawl_date": "2026-01-11",
+
+  "pages": {
+    "list": {
+      "url": "/project/transmittals/list?sort=number&view=list&per_page=150&page=1",
+      "title": "Transmittals (List View)",
+      "state_captured": "empty",
+      "components": {
+        "buttons": ["Export (dropdown)", "Create"],
+        "inputs": 3,
+        "forms": 0,
+        "tables": 0,
+        "navigation": 2
+      },
+      "tabs": ["Items", "Recycle Bin", "More"],
+      "toolbar_actions": ["Export", "Create"],
+      "export_options": ["PDF", "CSV"],
+      "empty_state_message": "No Transmittals Found - Transmittals is where you keep documented records of any correspondence.",
+      "sort_default": "number",
+      "per_page_default": 150,
+      "view_mode": "list",
+      "notes": "List was empty at crawl time - column headers not captured in DOM"
+    },
+    "new": {
+      "url": "/project/transmittals/new",
+      "title": "Create Transmittal",
+      "state_captured": "404",
+      "notes": "Page returned 404 during crawl - form fields must be inferred from documentation"
+    },
+    "recycle_bin": {
+      "url": "/transmittals/recycle_bin?project_id=...",
+      "title": "Recycle Bin",
+      "notes": "Endpoint confirmed from URL extraction; not crawled directly"
+    },
+    "export": {
+      "url": "/transmittals/export?project_id=...",
+      "title": "Export",
+      "notes": "Endpoint confirmed from URL extraction; not crawled directly"
+    },
+    "configure_tab": {
+      "url": "/project/transmittals/configure_tab",
+      "title": "Configure Settings",
+      "tabs": [
+        "Transmittal Settings",
+        "Permissions Table",
+        "Project Dates (not transmittals-specific)",
+        "Project Home Settings (not transmittals-specific)"
+      ]
+    },
+    "configure_transmittal_settings": {
+      "url": "/project/transmittals/configure_tab (Transmittal Settings tab)",
+      "title": "Transmittal Settings",
+      "h1": "Transmittal Settings",
+      "form_fields": [
+        {
+          "label": "Transmittals Private By Default",
+          "type": "checkbox",
+          "description": "Mark this checkbox to set all new transmittals to Private by default. A Private transmittal is visible only to users with Admin level permission, the creator, the recipients in the To and Cc fields, and members of the Default Distribution list."
+        },
+        {
+          "label": "Default Distribution",
+          "type": "multi-select (people picker from Project Directory)",
+          "description": "Add one or more people to the default distribution group. The system will automatically add these group members to new transmittals. Person must be added to the Project Directory first."
+        }
+      ],
+      "actions": ["Update"],
+      "components": {
+        "buttons": 3,
+        "forms": 1,
+        "inputs": 9,
+        "tables": 1,
+        "tabs": 4,
+        "dropdowns": 2
+      }
+    }
+  },
+
+  "create_form_fields_inferred": {
+    "source": "permissions matrix, documentation, and URL patterns",
+    "fields": [
+      {
+        "name": "Number",
+        "type": "auto-generated or manual integer",
+        "notes": "Inferred from sort=number URL param and 'Number' as a common Procore transmittal field"
+      },
+      {
+        "name": "Title / Subject",
+        "type": "text",
+        "notes": "Common transmittal field for correspondence subject"
+      },
+      {
+        "name": "To",
+        "type": "multi-select (people picker)",
+        "required": true,
+        "notes": "Explicitly named in permissions documentation as a recipient field"
+      },
+      {
+        "name": "CC",
+        "type": "multi-select (people picker)",
+        "required": false,
+        "notes": "Explicitly named in permissions documentation as a recipient field"
+      },
+      {
+        "name": "Date",
+        "type": "date picker",
+        "notes": "Standard transmittal field"
+      },
+      {
+        "name": "Description / Body",
+        "type": "rich text / textarea",
+        "notes": "Content of the correspondence being transmitted"
+      },
+      {
+        "name": "Attachments / Items",
+        "type": "file upload (multi-file)",
+        "notes": "FAQ explicitly mentions attaching multiple files; tutorial 'Add Items to a Transmittal' exists"
+      },
+      {
+        "name": "Related Items",
+        "type": "item picker (cross-tool linking)",
+        "notes": "Tutorial 'Add a Related Item to a Transmittal' exists; FAQ explains Related Items concept"
+      },
+      {
+        "name": "Private",
+        "type": "checkbox",
+        "notes": "Per-transmittal privacy override; defaults based on project setting"
+      },
+      {
+        "name": "Distribution",
+        "type": "multi-select (people picker)",
+        "notes": "Per-transmittal distribution list; differs from project-level Default Distribution group"
+      },
+      {
+        "name": "Location",
+        "type": "tiered location picker",
+        "notes": "FAQ mentions 'filter items by multi-tiered locations' - likely a field on the transmittal"
+      }
+    ]
+  },
+
+  "log_columns_inferred": {
+    "source": "URL sort param, permissions matrix, industry standard",
+    "columns": [
+      {"name": "Number", "sortable": true, "notes": "Default sort field (sort=number in URL)"},
+      {"name": "Title / Subject", "sortable": true},
+      {"name": "Creator", "sortable": true, "notes": "Mentioned in permissions as key role"},
+      {"name": "To", "sortable": false, "notes": "Recipient field"},
+      {"name": "Date", "sortable": true},
+      {"name": "Status", "sortable": true, "notes": "Standard Procore field"},
+      {"name": "Private", "type": "boolean indicator"},
+      {"name": "Attachments", "type": "count or indicator"}
+    ],
+    "column_features": [
+      "Customizable column display (show/hide columns)",
+      "Resizable column widths",
+      "Sortable columns"
+    ]
+  },
+
+  "statuses": {
+    "source": "inferred from industry standard and Procore patterns",
+    "values": ["Draft", "Sent", "Received", "Closed"],
+    "notes": "Procore transmittal statuses not explicitly listed in crawl data - these are industry standard values"
+  },
+
+  "permissions_matrix": {
+    "levels": ["None", "Read Only", "Standard", "Admin"],
+    "actions": [
+      {
+        "action": "Add Items to a Transmittal",
+        "platform": "Web",
+        "none": false,
+        "read_only": false,
+        "standard": true,
+        "admin": true
+      },
+      {
+        "action": "Add Related Items to a Transmittal",
+        "platform": "Web",
+        "none": false,
+        "read_only": false,
+        "standard": true,
+        "admin": true
+      },
+      {
+        "action": "Configure Advanced Settings: Transmittals",
+        "platform": "Web",
+        "none": false,
+        "read_only": false,
+        "standard": false,
+        "admin": true
+      },
+      {
+        "action": "Create a Transmittal",
+        "platform": "Web",
+        "none": false,
+        "read_only": false,
+        "standard": true,
+        "admin": true
+      },
+      {
+        "action": "Customize the Column Display in the Transmittals Tool",
+        "platform": "Web",
+        "none": false,
+        "read_only": false,
+        "standard": true,
+        "admin": true
+      },
+      {
+        "action": "Delete a Transmittal",
+        "platform": "Web",
+        "none": false,
+        "read_only": false,
+        "standard": false,
+        "admin": true
+      },
+      {
+        "action": "Edit a Transmittal You Created",
+        "platform": "Web",
+        "none": false,
+        "read_only": false,
+        "standard": true,
+        "admin": true
+      },
+      {
+        "action": "Edit Any Transmittal",
+        "platform": "Web",
+        "none": false,
+        "read_only": false,
+        "standard": false,
+        "admin": true
+      },
+      {
+        "action": "Export a Transmittal Letter to PDF",
+        "platform": "Web",
+        "none": false,
+        "read_only": false,
+        "standard": true,
+        "admin": true,
+        "notes": "Letter format = individual transmittal PDF"
+      },
+      {
+        "action": "Export a Transmittal Log to CSV",
+        "platform": "Web",
+        "none": false,
+        "read_only": false,
+        "standard": true,
+        "admin": true,
+        "notes": "Log = list of all transmittals exported as CSV"
+      },
+      {
+        "action": "Export a Transmittal Log to PDF",
+        "platform": "Web",
+        "none": false,
+        "read_only": false,
+        "standard": true,
+        "admin": true,
+        "notes": "Log = list of all transmittals exported as PDF"
+      },
+      {
+        "action": "Forward a Transmittal by Email",
+        "platform": "Web",
+        "none": false,
+        "read_only": false,
+        "standard": true,
+        "admin": true
+      },
+      {
+        "action": "Resize Column Width in the Transmittals Log",
+        "platform": "Web",
+        "none": false,
+        "read_only": false,
+        "standard": true,
+        "admin": true
+      },
+      {
+        "action": "Retrieve a Transmittal from the Recycle Bin",
+        "platform": "Web",
+        "none": false,
+        "read_only": false,
+        "standard": false,
+        "admin": true
+      },
+      {
+        "action": "Search Transmittals",
+        "platform": "Web",
+        "none": false,
+        "read_only": true,
+        "standard": true,
+        "admin": true
+      },
+      {
+        "action": "View a Transmittal (Not Private)",
+        "platform": "Web",
+        "none": false,
+        "read_only": true,
+        "standard": true,
+        "admin": true
+      },
+      {
+        "action": "View a Transmittal (Private)",
+        "platform": "Web",
+        "none": false,
+        "read_only": "conditional",
+        "standard": "conditional",
+        "admin": true,
+        "notes": "Read Only and Standard users must also be the transmittal's Creator, or listed in the To or CC field"
+      },
+      {
+        "action": "View a Transmittal for Users at your Same Company (Private)",
+        "platform": "Web",
+        "none": false,
+        "read_only": "granular",
+        "standard": "granular",
+        "admin": "granular",
+        "notes": "Granular permission: View Private Transmittals Associated to Users within Same Company. You or a user at your company must be the Creator, or listed in To or CC"
+      },
+      {
+        "action": "View the Email Correspondence for a Transmittal",
+        "platform": "Web",
+        "none": false,
+        "read_only": false,
+        "standard": true,
+        "admin": true
+      }
+    ],
+    "granular_permissions": [
+      "View Private Transmittals Associated to Users within Same Company"
+    ]
+  },
+
+  "export_formats": {
+    "letter_pdf": {
+      "scope": "Single transmittal",
+      "format": "letter size",
+      "action": "Export a Transmittal Letter to PDF"
+    },
+    "log_csv": {
+      "scope": "All transmittals (log view)",
+      "action": "Export a Transmittal Log to CSV"
+    },
+    "log_pdf": {
+      "scope": "All transmittals (log view)",
+      "action": "Export a Transmittal Log to PDF"
+    }
+  },
+
+  "email_functionality": {
+    "forward_by_email": true,
+    "email_correspondence_view": true,
+    "download_link_expiry": "Procore email download links expire (duration not specified in crawl)",
+    "notes": "Forward a Transmittal by Email action exists; View the Email Correspondence for a Transmittal exists"
+  },
+
+  "recycle_bin": {
+    "soft_delete": true,
+    "restore_permission": "Admin only",
+    "navigation": "Recycle Bin tab in main transmittals navigation"
+  },
+
+  "related_items": {
+    "cross_tool_linking": true,
+    "notes": "Transmittals can be linked to other Procore items via Related Items feature"
+  },
+
+  "configure_settings": {
+    "access": "Configure Settings icon (gear icon with class walkme-transmittals-cog)",
+    "url": "/project/transmittals/configure_tab",
+    "settings": [
+      {
+        "name": "Transmittals Private By Default",
+        "type": "checkbox",
+        "default": "unchecked (not private by default)"
+      },
+      {
+        "name": "Default Distribution",
+        "type": "people picker (from Project Directory)",
+        "description": "People automatically added to new transmittals"
+      }
+    ],
+    "permissions_table": "Standard Procore permissions matrix (None/Read Only/Standard/Admin)"
+  },
+
+  "tutorials_inventory": [
+    "Add a Related Item to a Transmittal",
+    "Add Items to a Transmittal",
+    "Configure Advanced Settings: Transmittals",
+    "Create a Transmittal",
+    "Customize the Column Display in the Transmittals Tool",
+    "Delete a Transmittal",
+    "Edit a Transmittal",
+    "Export a Transmittal Letter to PDF",
+    "Export the Transmittals Log to CSV",
+    "Export the Transmittals Log to PDF",
+    "Forward a Transmittal by Email",
+    "Navigate Procore's Tools",
+    "Resize Column Width in the Transmittals Log",
+    "Retrieve a Transmittal from the Recycle Bin",
+    "Search for Transmittals",
+    "View a Transmittal",
+    "View the Email Correspondence for a Transmittal"
+  ],
+
+  "faq_topics": [
+    "How can I troubleshoot an issue with the Procore Web Application?",
+    "How do I attach multiple files at once to a transmittal?",
+    "How do I change my web browser's default email client for mailto links?",
+    "How do I filter items by multi-tiered locations?",
+    "What are related items in Procore?",
+    "What granular permissions are available for the project's Transmittals tool?",
+    "What is a transmittal in Procore?",
+    "What is Procore's Recycle Bin?",
+    "What is the difference between a distribution group and distribution list in Procore?",
+    "When do the download links in emails sent from Procore expire?",
+    "Which Microsoft Excel file versions can be attached to items in Procore?",
+    "Which Procore tools support granular permissions?"
+  ],
+
+  "key_concepts": {
+    "transmittal_definition": "A documented record of any project-related correspondence",
+    "private_transmittal": "Visible only to Admin users, the creator, To/CC recipients, and Default Distribution members",
+    "distribution_group_vs_list": {
+      "distribution_group": "Project-level setting; auto-added to all new transmittals (configured in Advanced Settings)",
+      "distribution_list": "Per-transmittal list of recipients"
+    },
+    "creator_role": "The user who created the transmittal; has special access to private transmittals",
+    "items_vs_related_items": {
+      "items": "Files/documents attached directly to the transmittal",
+      "related_items": "Links to other Procore items (cross-tool references)"
+    },
+    "location_support": "Transmittals support multi-tiered location filtering"
+  },
+
+  "alleato_implementation_status": {
+    "route_exists": true,
+    "route_path": "frontend/src/app/(main)/[projectId]/transmittals/page.tsx",
+    "implementation_state": "placeholder only ('Coming soon' message)",
+    "database_tables": "none found",
+    "hooks": "none found",
+    "services": "none found",
+    "migrations": "none found",
+    "navigation_registered": true,
+    "nav_files": [
+      "frontend/src/lib/menu-list.ts",
+      "frontend/src/lib/navigation-config.ts",
+      "frontend/src/components/misc/app-sidebar.tsx",
+      "frontend/src/components/misc/simplified-header.tsx",
+      "frontend/src/components/header/tools-dropdown-variants.tsx",
+      "frontend/src/components/header/mega-menu-panel.tsx",
+      "frontend/src/components/domain/users/UserPermissionsManager.tsx"
+    ]
+  }
+}

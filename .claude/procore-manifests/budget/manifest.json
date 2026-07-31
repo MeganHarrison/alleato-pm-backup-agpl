@@ -1,0 +1,275 @@
+{
+  "feature": "budget",
+  "featureName": "Budget",
+  "capturedAt": "2026-04-07T14:04:14.970Z",
+  "states": {
+    "list": {
+      "id": "list",
+      "description": "Budget main view",
+      "url": "https://us02.procore.com/webclients/host/companies/562949953443325/projects/562949954728542/tools/budgets?budget_view_id=562949953559494",
+      "columnGroups": [
+        {
+          "label": "",
+          "columns": [
+            "Description",
+            "Original Budget Amount",
+            "Budget Modifications",
+            "Approved COs",
+            "Revised Budget",
+            "Pending COs",
+            "Projected Budget",
+            "Committed Costs",
+            "Direct Cost Details"
+          ],
+          "colspan": 9
+        }
+      ],
+      "columns": [
+        {
+          "label": "Description",
+          "columnGroup": null
+        },
+        {
+          "label": "Original Budget Amount",
+          "columnGroup": null
+        },
+        {
+          "label": "Budget Modifications",
+          "columnGroup": null
+        },
+        {
+          "label": "Approved COs",
+          "columnGroup": null
+        },
+        {
+          "label": "Revised Budget",
+          "columnGroup": null
+        },
+        {
+          "label": "Pending COs",
+          "columnGroup": null
+        },
+        {
+          "label": "Projected Budget",
+          "columnGroup": null
+        },
+        {
+          "label": "Committed Costs",
+          "columnGroup": null
+        },
+        {
+          "label": "Direct Cost Details",
+          "columnGroup": null
+        }
+      ],
+      "toolbarActions": [
+        {
+          "label": "Alleato Group24-104 - Goodwill Bart",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Project ToolsBudget",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Give me a breakdown of photos uploaded by user.CmdK",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "AppsSelect an App",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Support & Feedback",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Announcements",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "BC",
+          "type": "dropdown",
+          "variant": "default"
+        }
+      ],
+      "filters": [],
+      "rowActions": [],
+      "autoRows": [],
+      "formSections": [],
+      "tabs": [
+        "Comparison Settings"
+      ],
+      "headerFields": [],
+      "screenshot": "screenshots/list.png",
+      "_capture_note": "",
+      "domFile": "dom/list.html"
+    },
+    "budget-details": {
+      "id": "budget-details",
+      "description": "Budget Details tab — ERP Job Cost Detail view with budget codes and cost types",
+      "url": "https://us02.procore.com/webclients/host/companies/562949953443325/projects/562949954728542/tools/budgets",
+      "screenshot": "screenshots/budget-details.png"
+    },
+    "budget-modifications": {
+      "id": "budget-modifications",
+      "description": "Budget in unlocked state showing Budget Modifications column — inline editing workflow",
+      "url": "https://us02.procore.com/webclients/host/companies/562949953443325/projects/562949954728542/tools/budgets",
+      "screenshot": "screenshots/budget-modifications.png"
+    },
+    "cost-codes": {
+      "id": "cost-codes",
+      "description": "Cost Code / Cost Type Assignments — project admin view for managing cost codes",
+      "url": "https://us02.procore.com/562949954728542/project/admin",
+      "screenshot": "screenshots/cost-codes.png"
+    },
+    "forecasting": {
+      "id": "forecasting",
+      "description": "Forecasting tab — configure forecasting views and forecast to complete",
+      "url": "https://us02.procore.com/webclients/host/companies/562949953443325/projects/562949954728542/tools/budgets",
+      "screenshot": "screenshots/forecasting.png"
+    },
+    "project-status-snapshots": {
+      "id": "project-status-snapshots",
+      "description": "Project Status Snapshots tab — create and compare budget snapshots over time",
+      "url": "https://us02.procore.com/webclients/host/companies/562949953443325/projects/562949954728542/tools/budgets",
+      "screenshot": "screenshots/project-status-snapshots.png"
+    },
+    "change-history": {
+      "id": "change-history",
+      "description": "Change History tab — full audit log of all budget changes",
+      "url": "https://us02.procore.com/webclients/host/companies/562949953443325/projects/562949954728542/tools/budgets",
+      "screenshot": "screenshots/change-history.png"
+    },
+    "settings": {
+      "id": "settings",
+      "description": "Budget Settings — formatting, forecasting options, and budget modification permissions",
+      "url": "https://us02.procore.com/webclients/host/companies/562949953443325/projects/562949954728542/tools/budgets",
+      "screenshot": "screenshots/settings.png"
+    },
+    "create-form": {
+      "id": "create-form",
+      "description": "Budget edit / create form",
+      "url": "https://us02.procore.com/webclients/host/companies/562949953443325/projects/562949954728542/tools/budgets?budget_view_id=562949953559494",
+      "columnGroups": [
+        {
+          "label": "",
+          "columns": [
+            "Description",
+            "Original Budget Amount",
+            "Budget Modifications",
+            "Approved COs",
+            "Revised Budget",
+            "Pending COs",
+            "Projected Budget",
+            "Committed Costs",
+            "Direct Cost Details"
+          ],
+          "colspan": 9
+        }
+      ],
+      "columns": [
+        {
+          "label": "Description",
+          "columnGroup": null
+        },
+        {
+          "label": "Original Budget Amount",
+          "columnGroup": null
+        },
+        {
+          "label": "Budget Modifications",
+          "columnGroup": null
+        },
+        {
+          "label": "Approved COs",
+          "columnGroup": null
+        },
+        {
+          "label": "Revised Budget",
+          "columnGroup": null
+        },
+        {
+          "label": "Pending COs",
+          "columnGroup": null
+        },
+        {
+          "label": "Projected Budget",
+          "columnGroup": null
+        },
+        {
+          "label": "Committed Costs",
+          "columnGroup": null
+        },
+        {
+          "label": "Direct Cost Details",
+          "columnGroup": null
+        }
+      ],
+      "toolbarActions": [
+        {
+          "label": "Alleato Group24-104 - Goodwill Bart",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Project ToolsBudget",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Are there any RFIs that reference engine exhaust?CmdK",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "AppsSelect an App",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Support & Feedback",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Announcements",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "BC",
+          "type": "dropdown",
+          "variant": "default"
+        }
+      ],
+      "filters": [],
+      "rowActions": [
+        {
+          "label": "Budget Line Item"
+        },
+        {
+          "label": "Snapshot"
+        },
+        {
+          "label": "Budget Modification"
+        }
+      ],
+      "autoRows": [],
+      "formSections": [],
+      "tabs": [
+        "Comparison Settings"
+      ],
+      "headerFields": [],
+      "screenshot": "screenshots/create-form.png",
+      "_capture_note": "",
+      "domFile": "dom/create-form.html"
+    }
+  }
+}

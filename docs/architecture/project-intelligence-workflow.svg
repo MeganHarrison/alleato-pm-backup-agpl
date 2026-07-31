@@ -1,0 +1,147 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1080" viewBox="0 0 1600 1080" role="img" aria-labelledby="title description">
+  <title id="title">Project Intelligence — daily evidence to operating action</title>
+  <desc id="description">A visual workflow showing four source lanes flowing through complete-source validation, focused executive synthesis and packet persistence modules, reconciled projection adapters, publication, recovery, and downstream Project Intelligence outputs.</desc>
+  <defs>
+    <linearGradient id="paper" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fffdf8"/>
+      <stop offset="1" stop-color="#f5f0e8"/>
+    </linearGradient>
+    <linearGradient id="ink" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#39312b"/>
+      <stop offset="1" stop-color="#61564c"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="7" stdDeviation="9" flood-color="#42372d" flood-opacity=".12"/>
+    </filter>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto">
+      <path d="M1,1 L10,6 L1,11" fill="none" stroke="#71655b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <style>
+      .sans { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif; }
+      .serif { font-family: Iowan Old Style, Palatino Linotype, Palatino, Georgia, serif; }
+      .eyebrow { font-size: 13px; letter-spacing: 4px; fill: #8b8074; font-weight: 700; }
+      .title { font-size: 54px; fill: #342d27; font-weight: 500; letter-spacing: -2px; }
+      .sub { font-size: 18px; fill: #665b50; }
+      .label { font-size: 13px; fill: #7d7166; letter-spacing: 2px; font-weight: 700; }
+      .card-title { font-size: 21px; fill: #3d342d; font-weight: 700; }
+      .body { font-size: 15px; fill: #61564c; }
+      .tiny { font-size: 12px; fill: #887c70; }
+      .metric { font-size: 15px; fill: #493f36; font-weight: 700; }
+      .line { stroke: #9d9083; stroke-width: 2; fill: none; stroke-linecap: round; }
+    </style>
+  </defs>
+  <rect width="1600" height="1080" fill="url(#paper)"/>
+  <path d="M0 150 C330 100 510 184 790 132 S1270 94 1600 148" fill="none" stroke="#e7ddd2" stroke-width="2"/>
+  <path d="M80 970 C430 900 710 1010 1020 945 S1360 935 1540 974" fill="none" stroke="#e8ded4" stroke-width="2"/>
+
+  <g transform="translate(90 74)">
+    <circle cx="4" cy="7" r="4" fill="#c95c4e"/>
+    <text x="20" y="12" class="sans eyebrow">ALLEATO · DAILY OPERATING SYSTEM</text>
+    <text x="0" y="78" class="serif title">Project Intelligence</text>
+    <text x="0" y="112" class="sans sub">From a complete daily read to source-linked executive action — without publishing partial intelligence.</text>
+  </g>
+
+  <g transform="translate(90 228)">
+    <text class="sans label" x="0" y="0">01 · COMPLETE SOURCE CORPUS</text>
+    <path d="M0 22 H430" stroke="#d9cec2"/>
+    <g filter="url(#shadow)">
+      <rect x="0" y="44" width="108" height="132" rx="15" fill="#fffdf9" stroke="#dfd5ca"/>
+      <rect x="0" y="44" width="108" height="7" rx="3" fill="#6f97be"/>
+      <path d="M41 85 h25 m-25 12 h25 m-25 12 h17" stroke="#6f97be" stroke-width="3" stroke-linecap="round"/>
+      <text x="54" y="135" text-anchor="middle" class="sans metric">MEETINGS</text>
+      <text x="54" y="157" text-anchor="middle" class="sans tiny">full transcripts</text>
+      <rect x="122" y="44" width="108" height="132" rx="15" fill="#fffdf9" stroke="#dfd5ca"/>
+      <rect x="122" y="44" width="108" height="7" rx="3" fill="#c5a357"/>
+      <path d="M157 84 h34 v25 h-34z M157 84 l17 14 17-14" fill="none" stroke="#c5a357" stroke-width="3" stroke-linejoin="round"/>
+      <text x="176" y="135" text-anchor="middle" class="sans metric">EMAILS</text>
+      <text x="176" y="157" text-anchor="middle" class="sans tiny">full bodies</text>
+      <rect x="244" y="44" width="108" height="132" rx="15" fill="#fffdf9" stroke="#dfd5ca"/>
+      <rect x="244" y="44" width="108" height="7" rx="3" fill="#6b8f68"/>
+      <path d="M276 91 h31 a4 4 0 0 1 4 4 v17 a4 4 0 0 1-4 4 h-12 l-8 8 v-8 h-11 a4 4 0 0 1-4-4 v-17 a4 4 0 0 1 4-4" fill="none" stroke="#6b8f68" stroke-width="3" stroke-linejoin="round"/>
+      <text x="298" y="135" text-anchor="middle" class="sans metric">TEAMS</text>
+      <text x="298" y="157" text-anchor="middle" class="sans tiny">messages</text>
+      <rect x="366" y="44" width="108" height="132" rx="15" fill="#fffdf9" stroke="#dfd5ca"/>
+      <rect x="366" y="44" width="108" height="7" rx="3" fill="#c95c4e"/>
+      <path d="M402 84 h25 l10 10 v28 h-35z M426 84 v11 h11" fill="none" stroke="#c95c4e" stroke-width="3" stroke-linejoin="round"/>
+      <text x="420" y="135" text-anchor="middle" class="sans metric">DOCS</text>
+      <text x="420" y="157" text-anchor="middle" class="sans tiny">materialized text</text>
+    </g>
+    <text x="0" y="212" class="sans tiny">Every eligible source · stable snapshot · full text materialized · duplicate/exclusion receipt</text>
+  </g>
+
+  <path d="M575 346 H650" class="line" marker-end="url(#arrow)"/>
+  <text x="591" y="328" class="sans tiny">all chunks</text>
+
+  <g transform="translate(670 227)">
+    <text class="sans label" x="0" y="0">02 · EVIDENCE GATE</text>
+    <path d="M0 22 H265" stroke="#d9cec2"/>
+    <g filter="url(#shadow)">
+      <rect x="0" y="44" width="265" height="178" rx="18" fill="#fffdf9" stroke="#d8cec3"/>
+      <path d="M132 66 l43 22 v40 c0 29-20 48-43 58-23-10-43-29-43-58V88z" fill="#f8ede1" stroke="#c5a357" stroke-width="2"/>
+      <path d="M112 123 l14 14 27-31" fill="none" stroke="#6b8f68" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="132" y="164" text-anchor="middle" class="sans card-title">READ IN ENTIRETY</text>
+      <text x="132" y="189" text-anchor="middle" class="sans body">count every character</text>
+      <text x="132" y="210" text-anchor="middle" class="sans body">resolve every citation</text>
+    </g>
+  </g>
+
+  <path d="M955 346 H1029" class="line" marker-end="url(#arrow)"/>
+  <text x="968" y="328" class="sans tiny">only if complete</text>
+
+  <g transform="translate(1050 227)">
+    <text class="sans label" x="0" y="0">03 · EXECUTIVE SYNTHESIS</text>
+    <path d="M0 22 H385" stroke="#d9cec2"/>
+    <g filter="url(#shadow)">
+      <rect x="0" y="44" width="385" height="178" rx="18" fill="#fffdf9" stroke="#d8cec3"/>
+      <text x="30" y="85" class="serif card-title">Extended Executive Report</text>
+      <path d="M30 103 H353" stroke="#e6ddd4"/>
+      <circle cx="42" cy="130" r="5" fill="#c95c4e"/><text x="58" y="136" class="sans body">patterns + root causes</text>
+      <circle cx="42" cy="157" r="5" fill="#c5a357"/><text x="58" y="163" class="sans body">risks, decisions, opportunities</text>
+      <circle cx="42" cy="184" r="5" fill="#6f97be"/><text x="58" y="190" class="sans body">facts, inferences, actions — all cited</text>
+    </g>
+  </g>
+
+  <path d="M1242 474 V548" class="line" marker-end="url(#arrow)"/>
+  <text x="1260" y="520" class="sans tiny">stage → read-back</text>
+
+  <g transform="translate(1002 568)">
+    <g filter="url(#shadow)">
+      <path d="M240 0 l90 54-90 54-90-54z" fill="#f7eee5" stroke="#c5a357" stroke-width="2"/>
+      <text x="240" y="49" text-anchor="middle" class="sans card-title">PUBLISH?</text>
+      <text x="240" y="69" text-anchor="middle" class="sans tiny">corpus + citations + reconciled adapters</text>
+    </g>
+  </g>
+
+  <path d="M1000 622 H830 Q800 622 800 652 V747" class="line" marker-end="url(#arrow)"/>
+  <path d="M1332 622 H1450 Q1480 622 1480 652 V747" class="line" marker-end="url(#arrow)"/>
+  <text x="866" y="610" class="sans tiny">NO · preserve prior report</text>
+  <text x="1372" y="610" class="sans tiny">YES · one completed packet</text>
+
+  <g transform="translate(584 766)">
+    <rect x="0" y="0" width="420" height="202" rx="18" fill="#f9e9e5" stroke="#e1bbb3"/>
+    <text x="28" y="39" class="sans label" fill="#af4e43">FAIL LOUDLY + RECOVER</text>
+    <text x="28" y="77" class="serif card-title">No partial report is published.</text>
+    <text x="28" y="108" class="sans body">• durable attempt + blocker</text>
+    <text x="28" y="134" class="sans body">• retry: 15 · 30 · 60 · 120 min</text>
+    <text x="28" y="160" class="sans body">• stale run resumes after 45 min</text>
+    <text x="28" y="186" class="sans tiny">previous completed brief remains current</text>
+    <path d="M397 87 C440 58 454 10 429-28" fill="none" stroke="#c95c4e" stroke-width="2" stroke-dasharray="5 7" marker-end="url(#arrow)"/>
+  </g>
+
+  <g transform="translate(1065 766)">
+    <rect x="0" y="0" width="435" height="202" rx="18" fill="#edf3ef" stroke="#c6d6c6"/>
+    <text x="28" y="39" class="sans label" fill="#5e7e5b">PROJECT INTELLIGENCE PROJECTIONS</text>
+    <g transform="translate(28 62)">
+      <rect x="0" y="0" width="180" height="52" rx="10" fill="#fffdf9" stroke="#d7e2d6"/><text x="14" y="23" class="sans metric">DAILY BRIEF</text><text x="14" y="41" class="sans tiny">concise executive view</text>
+      <rect x="200" y="0" width="180" height="52" rx="10" fill="#fffdf9" stroke="#d7e2d6"/><text x="214" y="23" class="sans metric">PROJECT STATE</text><text x="214" y="41" class="sans tiny">packet + timeline + risks</text>
+      <rect x="0" y="70" width="180" height="52" rx="10" fill="#fffdf9" stroke="#d7e2d6"/><text x="14" y="93" class="sans metric">TASKS + REPORTS</text><text x="14" y="111" class="sans tiny">governed, versioned</text>
+      <rect x="200" y="70" width="180" height="52" rx="10" fill="#fffdf9" stroke="#d7e2d6"/><text x="214" y="93" class="sans metric">AI ASSISTANT</text><text x="214" y="111" class="sans tiny">report + source links</text>
+    </g>
+  </g>
+
+  <g transform="translate(90 1008)">
+    <path d="M0 0 H1420" stroke="#d8cec3"/>
+    <text x="0" y="32" class="sans tiny">THE GOVERNING IDEA</text>
+    <text x="174" y="32" class="serif" font-size="22" fill="url(#ink)">A report is valuable only when its evidence, reasoning, and operating consequences remain connected.</text>
+  </g>
+</svg>

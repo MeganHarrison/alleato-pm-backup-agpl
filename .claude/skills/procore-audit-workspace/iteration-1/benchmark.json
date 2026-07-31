@@ -1,0 +1,401 @@
+{
+  "metadata": {
+    "skill_name": "procore-audit",
+    "skill_path": "<path/to/skill>",
+    "executor_model": "<model-name>",
+    "analyzer_model": "<model-name>",
+    "timestamp": "2026-03-08T09:10:26Z",
+    "evals_run": [
+      0,
+      1,
+      2
+    ],
+    "runs_per_configuration": 3
+  },
+  "runs": [
+    {
+      "eval_id": 0,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.75,
+        "passed": 6,
+        "failed": 2,
+        "total": 8,
+        "time_seconds": 532.1,
+        "tokens": 165685,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "finds-budget-crawler: Agent identifies and locates the budget crawler script (crawl-budget-comprehensive.js)",
+          "passed": false,
+          "evidence": "The report references archived crawl artifacts from '_bmad-output/planning-artifacts/budget/.archive/' but does not identify or reference the actual 'crawl-budget-comprehensive.js' script file. The agent used pre-existing crawl data rather than locating or running the crawler itself."
+        },
+        {
+          "text": "references-analyzer: Agent references or uses the analyze-procore-features.js script for structured DOM analysis",
+          "passed": false,
+          "evidence": "No mention of 'analyze-procore-features.js' or any analyzer script appears in either the markdown report or JSON output. The analysis was performed using archived crawl artifacts and codebase inspection, not via the analyzer script."
+        },
+        {
+          "text": "maps-alleato-budget: Agent identifies Alleato PM budget implementation artifacts (pages, components, hooks, or services)",
+          "passed": true,
+          "evidence": "JSON lines 346-357 and Markdown lines 248-251 list specific Alleato files analyzed: 'frontend/src/app/(main)/[projectId]/budget/page.tsx', 'frontend/src/components/budget/budget-table.tsx', 'frontend/src/components/budget/budget-modifications-tab.tsx', 'frontend/src/components/budget/budget-line-item-form.tsx', 'frontend/src/components/budget/forecasting-tab.tsx', 'frontend/src/components/budget/snapshots-tab.tsx', 'frontend/src/components/budget/change-history-tab.tsx', 'frontend/src/components/budget/cost-codes-tab.tsx', and 'frontend/src/types/database.types.ts'."
+        },
+        {
+          "text": "gap-report-format: Output includes an Executive Summary table with status indicators",
+          "passed": true,
+          "evidence": "Markdown lines 9-24 contain a properly formatted Executive Summary table with columns 'Category | Status | Details' and status indicators including \u2705, \u26a0\ufe0f, and \u274c symbols. The table shows 8 categories (Pages/Tabs, List Table Columns, Form Fields, Status Workflow, CRUD Operations, Database Schema, Validations, Financial Views, ERP Integration, Export/Import) with clear status coverage."
+        },
+        {
+          "text": "form-field-comparison: Output includes a form field comparison section listing Procore vs Alleato fields",
+          "passed": true,
+          "evidence": "Markdown lines 45-72 contain section titled 'Form Field Comparison' with two subsections: 'Budget Line Item Create/Edit Form' and 'Budget Modification Create Form'. Each shows Procore Field | Type | Required | Alleato Field | Status | Impact with complete field mappings. JSON lines 153-174 mirror this structure in the 'form_fields' object."
+        },
+        {
+          "text": "table-column-comparison: Output includes a table column comparison section",
+          "passed": true,
+          "evidence": "Markdown lines 75-113 contain section titled 'Table Column Comparison' with two subsections: 'Main Budget Table' and 'Budget Modifications Table'. Shows Procore Column | Alleato Column | Status | Impact format. All 15 core Procore budget columns are listed with complete status (\u2705 for all). JSON lines 122-150 contain equivalent 'table_columns' object with 'main_budget_table' and 'modifications_table' arrays."
+        },
+        {
+          "text": "prioritized-tasks: Output includes missing functionality categorized by impact (HIGH/MEDIUM/LOW)",
+          "passed": true,
+          "evidence": "Markdown lines 115-142 contain 'Missing Functionality' section with three subsections: 'HIGH Impact (blocks core workflows)' with 2 items (Export budget, Import budget), 'MEDIUM Impact (reduces functionality)' with 6 items, 'LOW Impact (nice to have)' with 8 items. JSON lines 190-283 contain 'missing_functionality' object with 'high', 'medium', 'low' arrays containing formatted task objects with descriptions and priorities."
+        },
+        {
+          "text": "output-saved: Gap analysis report saved as a markdown file in the outputs directory",
+          "passed": true,
+          "evidence": "File 'gap-analysis-report.md' exists at the correct location '/Users/meganharrison/Documents/github/alleato-pm/.claude/skills/procore-audit-workspace/iteration-1/eval-0-budget-audit/with_skill/outputs/gap-analysis-report.md' with complete markdown-formatted content. Report includes metadata header, executive summary, page-by-page comparison, form field comparison, table column comparison, missing functionality, database schema gaps, and formula verification sections totaling 252 lines."
+        }
+      ],
+      "notes": [
+        "2 of 8 assertions failed: finds-budget-crawler and references-analyzer.",
+        "finds-budget-crawler: agent used pre-existing crawl output data instead of locating the actual crawler script. The skill may be directing agents toward captured data rather than tooling.",
+        "references-analyzer: agent did not reference analyze-procore-features.js. This assertion also fails in the without_skill baseline, making it non-discriminating.",
+        "This is the only eval where with_skill underperforms baseline (75% vs 87.5%). The 12.5% gap is entirely attributable to finds-budget-crawler."
+      ]
+    },
+    {
+      "eval_id": 1,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 504.6,
+        "tokens": 160918,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "finds-submittals-crawler - Agent identifies and locates the submittals crawler script",
+          "passed": true,
+          "evidence": "Report header explicitly references 'Procore crawl: procore-crawls/submittals/spec/' and multiple references to 'procore-crawls/submittals/spec/FORMS.md' and 'procore-crawls/submittals/spec/COMMANDS.md' throughout the analysis. JSON meta includes 'procore_crawl_source': 'procore-crawls/submittals/spec/'"
+        },
+        {
+          "text": "focuses-on-forms - Agent specifically focuses on form field extraction and comparison as requested",
+          "passed": true,
+          "evidence": "Entire section titled 'Form Field Comparison (Create / Edit Submittal)' (lines 45-108 in markdown, lines 108-370 in JSON) with detailed breakdown by form sections: General Information, Distribution & Scheduling, Content, Workflow. Includes 24 field entries with Procore vs Alleato comparison."
+        },
+        {
+          "text": "field-level-comparison - Output includes per-field comparison with field name, type, and required status",
+          "passed": true,
+          "evidence": "Form field table (lines 52-108 in markdown) and JSON array (lines 109-369) show structure: 'procore_field' | 'procore_type' | 'procore_required' | 'alleato_field' | 'alleato_widget' | 'status' | 'impact'. Example row: title (text, required=Yes) \u2192 title (text input) \u2705. All 24 fields mapped with type and required status."
+        },
+        {
+          "text": "maps-alleato-submittals - Agent identifies Alleato PM submittals implementation (components, hooks, schemas)",
+          "passed": true,
+          "evidence": "Report explicitly identifies Alleato implementation paths: 'Form component: frontend/src/features/submittals/submittal-form-dialog.tsx' (line 6), 'Table config: frontend/src/features/submittals/submittals-table-config.tsx' (line 7), 'Alleato path: frontend/src/app/(main)/[projectId]/submittals/' (line 5), and references to 'use-submittals.ts' hook (line 213 markdown). JSON meta includes all three."
+        },
+        {
+          "text": "status-indicators - Report uses status indicators for each compared item",
+          "passed": true,
+          "evidence": "Consistent use of status indicators throughout: \u2705 (complete), \u26a0\ufe0f (partial), \u274c (missing), \u2705 (complete) across all sections. Executive Summary table (lines 13-24), Page comparison table (lines 32-42), Form section (every field has status column with emoji), Table columns (lines 116-130), Filters (lines 140-155). JSON uses 'status' field with values: 'complete', 'partial', 'missing', 'failing'."
+        },
+        {
+          "text": "output-saved - Report saved as a markdown file in the outputs directory",
+          "passed": true,
+          "evidence": "File exists at /Users/meganharrison/Documents/github/alleato-pm/.claude/skills/procore-audit-workspace/iteration-1/eval-1-submittals-parity/with_skill/outputs/gap-analysis-report.md (verified via file listing). Report is 301 lines of well-formatted markdown with proper headers, tables, and structure."
+        }
+      ],
+      "notes": [
+        "All 6 assertions passed (100%). Non-discriminating: baseline also achieves 100%.",
+        "This eval does not differentiate skill from baseline. Consider adding harder assertions in iteration-2."
+      ]
+    },
+    {
+      "eval_id": 2,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 471.7,
+        "tokens": 146336,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "finds-transmittals-crawler - Agent identifies and locates the transmittals crawler script",
+          "passed": true,
+          "evidence": "Gap analysis report explicitly references crawl source: 'Procore crawl: `_bmad-output/planning-artifacts/transmittals/crawl/`' and JSON metadata includes 'procoreCrawlDir': '_bmad-output/planning-artifacts/transmittals/crawl/'. Actual crawler files confirmed at /scripts/playwright-crawl/scripts/crawlers/crawl-transmittals-comprehensive.js"
+        },
+        {
+          "text": "identifies-not-built - Agent recognizes transmittals is not yet implemented in Alleato PM",
+          "passed": true,
+          "evidence": "Report states 'Overall Verdict: NOT STARTED \u2014 approximately 2% complete' with explicit summary: 'Only a stub placeholder page exists. No database schema, API routes, hooks, services, or real components have been built.' JSON meta includes 'overallStatus': 'NOT_STARTED' and 'overallCompletionPercent': 2"
+        },
+        {
+          "text": "complete-inventory - Output includes inventory of pages, forms, table columns, statuses, and workflows",
+          "passed": true,
+          "evidence": "Report includes: (1) Page-by-Page Comparison table with 6 routes and status; (2) List View Table Column Comparison with 8 standard columns + customizable columns; (3) Create/Edit Form Field Comparison with 20+ fields organized by section (Header, Content, Items, Distribution); (4) Status/Workflow Comparison section; (5) CRUD Operations Comparison table. JSON has corresponding detailed arrays for pages, listColumns, formFields, crudOperations."
+        },
+        {
+          "text": "database-schema - Output includes database schema requirements for new tables/columns",
+          "passed": true,
+          "evidence": "Database Schema Gaps section documents 3 required tables: 'transmittals' (18 columns with types, requirements, FK notes), 'transmittal_items' (7 columns), and 'transmittal_attachments' (6 columns). Markdown includes detailed column specs; JSON schema section (lines 113-164) provides complete table definitions with column types, required flags, and notes."
+        },
+        {
+          "text": "greenfield-tasks - Task list reflects building from scratch with comprehensive implementation steps",
+          "passed": true,
+          "evidence": "Missing Functionality section provides prioritized checklist: HIGH Impact (12 items: database schema, list view, create/edit forms, API routes, React Query hooks, auto-numbering, attachments, items linking); MEDIUM Impact (13 items: recycle bin, private transmittals, distribution, exports, email features, method field, search); LOW Impact (5 items: settings, column customization, received checkbox, sorting). Tasks are specific and implementation-ready (e.g., 'create `transmittals` table with all required columns', 'CRUD endpoints at `api/projects/[projectId]/transmittals/`')"
+        },
+        {
+          "text": "output-saved - Report saved as a markdown file in the outputs directory",
+          "passed": true,
+          "evidence": "File gap-analysis-report.md exists in outputs directory at /Users/meganharrison/Documents/github/alleato-pm/.claude/skills/procore-audit-workspace/iteration-1/eval-2-transmittals-inventory/with_skill/outputs/gap-analysis-report.md and contains formatted markdown with headers, tables, and structured sections."
+        }
+      ],
+      "notes": [
+        "All 6 assertions passed (100%). Non-discriminating: baseline also achieves 100%.",
+        "Same ceiling effect as eval-1. Assertions may be too easy to surface skill value."
+      ]
+    },
+    {
+      "eval_id": 0,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.875,
+        "passed": 7,
+        "failed": 1,
+        "total": 8,
+        "time_seconds": 423.5,
+        "tokens": 149684,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "finds-budget-crawler",
+          "passed": true,
+          "evidence": "Line 3 references 'Procore Data Source: _bmad-output/planning-artifacts/budget/.archive/comprehensive-budget-crawl-report.md (crawled 2025-12-29)' and entire document uses crawled data from budget crawler as reference material"
+        },
+        {
+          "text": "references-analyzer",
+          "passed": false,
+          "evidence": "Document does not mention 'analyze-procore-features.js' anywhere. Analysis appears to be manual code review and comparison without explicit use of the analyzer script"
+        },
+        {
+          "text": "maps-alleato-budget",
+          "passed": true,
+          "evidence": "Section 2 'Alleato Budget Tool: Actual Implementation State' explicitly maps implementation artifacts including: 'frontend/src/components/budget/budget-table.tsx' (line 126), 'frontend/src/components/budget/budget-page-header.tsx' (line 156), 'frontend/src/components/budget/budget-filters.tsx' (line 181), plus routes and additional components throughout sections 2, 3, and 4"
+        },
+        {
+          "text": "gap-report-format",
+          "passed": true,
+          "evidence": "Lines 8-30 contain 'Executive Summary' section with table showing columns 'Category | Procore | Alleato | Gap' with status indicators: 'HIGH', 'MEDIUM', 'MINIMAL', 'None' indicating gap severity"
+        },
+        {
+          "text": "form-field-comparison",
+          "passed": true,
+          "evidence": "Section 2.5 'Create Form Fields' (lines 206-221) shows table comparing 'Field | Procore | Alleato Form | Notes' with entries like 'Quantity (Unit Qty)', 'UOM', 'Unit Cost', 'Calculation Method'"
+        },
+        {
+          "text": "table-column-comparison",
+          "passed": true,
+          "evidence": "Section 2.1 'Main Table Columns Rendered' (lines 124-153) shows comprehensive table with structure 'Column | Key | Rendered in Table | Notes' comparing 14 financial columns and identifying 4 missing structural columns (Calculation Method, Unit Qty, UOM, Unit Cost)"
+        },
+        {
+          "text": "prioritized-tasks",
+          "passed": true,
+          "evidence": "Multiple priority categorizations present: Section 5 'Gap Priority Matrix' (lines 455-471) shows P0/P1/P2/P3 categorization with effort and impact columns. Section 8 'Recommended Action Plan' (lines 505-526) organizes by priority bands (P0 Immediate, P1 Short-Term, P2 Medium-Term, P3 Longer-Term). Section 3 detail gaps labeled 'HIGH PRIORITY', 'MEDIUM PRIORITY', 'LOW PRIORITY'"
+        },
+        {
+          "text": "output-saved",
+          "passed": true,
+          "evidence": "File exists at '/Users/meganharrison/Documents/github/alleato-pm/.claude/skills/procore-audit-workspace/iteration-1/eval-0-budget-audit/without_skill/outputs/budget-gap-analysis.md' with 531 lines of properly formatted markdown content including sections, tables, and detailed analysis"
+        }
+      ],
+      "notes": [
+        "7 of 8 assertions passed (87.5%). Only references-analyzer failed.",
+        "references-analyzer is non-discriminating: fails in both configs for eval-0.",
+        "Baseline outperforms with_skill on this eval (87.5% vs 75%). Baseline found the budget crawler script without skill guidance; the skill-guided agent did not.",
+        "Output was 531 lines vs with_skill 252 lines, suggesting baseline produced more detailed report."
+      ]
+    },
+    {
+      "eval_id": 1,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 298.5,
+        "tokens": 151897,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "finds-submittals-crawler - Agent identifies and locates the submittals crawler script",
+          "passed": true,
+          "evidence": "Section 'Source Files Referenced' explicitly identifies and references Procore crawl specifications: '/procore-crawls/submittals/spec/FORMS.md', '/procore-crawls/submittals/spec/COMMANDS.md', '/procore-crawls/submittals/spec/MUTATIONS.md' as 'source of truth' for comparison"
+        },
+        {
+          "text": "focuses-on-forms - Agent specifically focuses on form field extraction and comparison as requested",
+          "passed": true,
+          "evidence": "Section 1 'Create / Edit Form Field Parity' (lines 28-82) dedicates extensive analysis to form field comparison. Four subsections analyze form widgets: General Information, Distribution & Scheduling, Content, and Workflow sections. JSON contains comprehensive 'form_fields' object with detailed widget-level comparisons"
+        },
+        {
+          "text": "field-level-comparison - Output includes per-field comparison with field name, type, and required status",
+          "passed": true,
+          "evidence": "Tables throughout markdown include columns: Field, Procore, Alleato, Status, Notes. Example: '| submittal_manager_id | Required, searchable dropdown (contact) | NOT PRESENT | CRITICAL MISSING |'. JSON includes for each field: field_name, procore_required, procore_widget, alleato_present, alleato_widget, status"
+        },
+        {
+          "text": "maps-alleato-submittals - Agent identifies Alleato PM submittals implementation (components, hooks, schemas)",
+          "passed": true,
+          "evidence": "Section 'Source Files Referenced' explicitly lists all Alleato implementation files: '/frontend/src/features/submittals/submittal-form-dialog.tsx', '/frontend/src/hooks/use-submittals.ts', '/frontend/src/app/api/projects/[projectId]/submittals/route.ts', '/frontend/src/features/submittals/submittals-table-config.tsx', and others. Analysis cross-references these specific files throughout"
+        },
+        {
+          "text": "status-indicators - Report uses status indicators for each compared item",
+          "passed": true,
+          "evidence": "Consistent status indicators applied throughout both markdown and JSON: PASS, MISSING, CRITICAL_MISSING, WIDGET_MISMATCH, PARTIAL, DATA_GAP, EXTRA, OK. Every field in markdown tables includes Status column with appropriate indicator. JSON status field present on every item"
+        },
+        {
+          "text": "output-saved - Report saved as a markdown file in the outputs directory",
+          "passed": true,
+          "evidence": "File exists at /Users/meganharrison/Documents/github/alleato-pm/.claude/skills/procore-audit-workspace/iteration-1/eval-1-submittals-parity/without_skill/outputs/gap-analysis.md with properly formatted markdown structure including sections, tables, and executive summary. JSON version also saved as gap-analysis.json"
+        }
+      ],
+      "notes": [
+        "All 6 assertions passed (100%). Non-discriminating: baseline also achieves 100%."
+      ]
+    },
+    {
+      "eval_id": 2,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 639.9,
+        "tokens": 142637,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "finds-transmittals-crawler - Agent identifies and locates the transmittals crawler script",
+          "passed": true,
+          "evidence": "Crawler script located at 'scripts/playwright-crawl/scripts/crawlers/features/crawl-transmittals-comprehensive.js' and referenced in JSON output as crawl source 'procore-crawls/procore-crawl-outputs/transmittals/crawl-transmittals/'. Agent successfully identified and used the crawler to generate audit data."
+        },
+        {
+          "text": "identifies-not-built - Agent recognizes transmittals is not yet implemented in Alleato PM",
+          "passed": true,
+          "evidence": "JSON explicitly documents: route_exists=true, implementation_state='placeholder only (Coming soon message)', database_tables='none found', hooks='none found', services='none found', migrations='none found'. Markdown clearly states: 'Alleato currently has zero implementation beyond a placeholder route. Everything must be built from scratch.'"
+        },
+        {
+          "text": "complete-inventory - Output includes inventory of pages, forms, table columns, statuses, and workflows",
+          "passed": true,
+          "evidence": "Pages (5): list, new, recycle_bin, export, configure_tab documented with URLs and components. Forms: 11 create form fields listed with types and sources. Columns: 8 log view columns with sortability. Statuses: Draft, Sent, Received, Closed. Workflows: 17 tutorials and 12 FAQ topics provide comprehensive workflow context. Permissions matrix covers 19 actions."
+        },
+        {
+          "text": "database-schema - Output includes database schema requirements for new tables/columns",
+          "passed": true,
+          "evidence": "Gap Analysis section includes complete 'Database Schema' subsection detailing 7 tables: transmittals (11 fields with FKs), transmittal_recipients (4 fields), transmittal_items (6 fields), transmittal_related_items (4 fields), transmittal_settings (2 fields), transmittal_distribution_defaults (2 fields), transmittal_email_log (6 fields). Each includes primary keys, foreign keys, data types, and business logic rationale."
+        },
+        {
+          "text": "greenfield-tasks - Task list reflects building from scratch with comprehensive implementation steps",
+          "passed": true,
+          "evidence": "Markdown includes phased implementation roadmap: Phase 1 MVP (schema, CRUD API, list/create/view UI, basic privacy), Phase 2 full parity (recycle bin, 3 export formats, email, settings, column customization), Phase 3 advanced (related items, email tracking, location filtering, granular permissions). Includes 11 API routes, 6 frontend pages with priorities, 8 React Query hooks, and 10 special implementation features."
+        },
+        {
+          "text": "output-saved - Report saved as a markdown file in the outputs directory",
+          "passed": true,
+          "evidence": "transmittals-gap-analysis.md saved at outputs/transmittals-gap-analysis.md (425 lines). transmittals-inventory.json saved at outputs/transmittals-inventory.json (459 lines). Both files present in correct directory with complete structured content."
+        }
+      ],
+      "notes": [
+        "All 6 assertions passed (100%). Non-discriminating: baseline also achieves 100%."
+      ]
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 0.9167,
+        "stddev": 0.1443,
+        "min": 0.75,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 502.8,
+        "stddev": 30.2402,
+        "min": 471.7,
+        "max": 532.1
+      },
+      "tokens": {
+        "mean": 157646.3333,
+        "stddev": 10080.8632,
+        "min": 146336,
+        "max": 165685
+      }
+    },
+    "without_skill": {
+      "pass_rate": {
+        "mean": 0.9583,
+        "stddev": 0.0722,
+        "min": 0.875,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 453.9667,
+        "stddev": 172.7271,
+        "min": 298.5,
+        "max": 639.9
+      },
+      "tokens": {
+        "mean": 148072.6667,
+        "stddev": 4835.7209,
+        "min": 142637,
+        "max": 151897
+      }
+    },
+    "delta": {
+      "pass_rate": "-0.04",
+      "time_seconds": "+48.8",
+      "tokens": "+9574"
+    }
+  },
+  "notes": [
+    "OVERALL: Skill underperforms baseline by 4 percentage points (91.67% vs 95.83%).",
+    "DISCRIMINATING EVAL: Only eval-0 (budget-audit) differentiates configs. Evals 1 and 2 show 100% for both, providing no signal.",
+    "KEY FAILURE: finds-budget-crawler passes 100% without-skill but fails 100% with-skill. The skill appears to redirect agents toward pre-existing crawl data rather than toward the crawler scripts themselves.",
+    "NON-DISCRIMINATING ASSERTION: references-analyzer fails 100% in both configs for eval-0. It should be revised or removed.",
+    "COST: Skill adds ~9,574 tokens (+6.5%) and ~48.8s (+10.7%) per run with no accuracy benefit.",
+    "VARIANCE: Skill reduces time stddev (30.2s vs 172.7s), suggesting more consistent but slower execution.",
+    "ITERATION-2 PRIORITIES: (1) Fix skill to direct agents to crawler scripts not crawl output data, (2) add explicit instruction to use analyze-procore-features.js, (3) add harder assertions to evals 1 and 2 to create discriminating signal."
+  ]
+}

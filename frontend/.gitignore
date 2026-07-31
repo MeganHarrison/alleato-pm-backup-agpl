@@ -1,0 +1,7 @@
+.vercel
+.env*.local
+.devtools
+storybook-static
+
+*storybook.log
+/.swc

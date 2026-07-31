@@ -1,0 +1,12 @@
+#!/bin/sh
+# Post-commit hook for project monitoring
+# Automatically triggers verification when commits indicate completion
+
+echo "🔍 Checking commit for completion indicators..."
+
+# Trigger verification check
+node scripts/monitoring/trigger-verification.cjs git-commit
+
+# Update activity log
+COMMIT_MSG=$(git log -1 --pretty=%B | head -1)
+node scripts/monitoring/update-progress.cjs activity "Commit created" "$COMMIT_MSG"

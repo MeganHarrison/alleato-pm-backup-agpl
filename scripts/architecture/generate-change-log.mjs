@@ -1,0 +1,213 @@
+#!/usr/bin/env node
+
+import { readFile, writeFile } from "node:fs/promises";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const SCRIPT_PATH = fileURLToPath(import.meta.url);
+const DEFAULT_ROOT = path.resolve(path.dirname(SCRIPT_PATH), "../..");
+const DEFAULT_REGISTRY = "docs/architecture/architecture-change-sources.json";
+const DEFAULT_OUTPUT = "frontend/src/data/architecture-change-log.generated.ts";
+
+function requireMatch(value, pattern, message) {
+  const match = value.match(pattern);
+  if (!match?.[1]) throw new Error(message);
+  return match[1].trim();
+}
+
+function extractSection(markdown, heading, sourcePath) {
+  const escaped = heading.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = markdown.match(
+    new RegExp(`^##\\s+${escaped}\\s*\\r?\\n([\\s\\S]*?)(?=\\r?\\n##\\s+|$)`, "im"),
+  );
+  const value = match?.[1]?.trim();
+  if (!value) throw new Error(`${sourcePath}: missing ${heading} section.`);
+  return value.replace(/\s+/g, " ").trim();
+}
+
+export function parseTaskMarkdown(markdown, sourcePath = "task") {
+  const title = requireMatch(
+    markdown,
+    /^#(?: Task:)?\s+(.+)$/m,
+    `${sourcePath}: missing task title.`,
+  );
+  const status = requireMatch(
+    markdown,
+    /^Status:\s*(.+)$/m,
+    `${sourcePath}: missing task status.`,
+  );
+  const created = requireMatch(
+    markdown,
+    /^Created:\s*(\d{4}-\d{2}-\d{2})$/m,
+    `${sourcePath}: missing Created date.`,
+  );
+  const taskId = requireMatch(
+    markdown,
+    /^Task ID:\s*(.+)$/m,
+    `${sourcePath}: missing Task ID.`,
+  );
+  const linearMatch = markdown.match(
+    /^Linear Issue:\s*\[[^\]]+\]\((https:\/\/linear\.app\/[^)]+)\)$/m,
+  );
+  if (!linearMatch?.[1]) {
+    throw new Error(`${sourcePath}: missing canonical Linear issue URL.`);
+  }
+
+  return {
+    title,
+    status,
+    created,
+    taskId,
+    issueUrl: linearMatch[1],
+    objective: extractSection(markdown, "Objective", sourcePath),
+  };
+}
+
+function validateRegistrySource(source, index) {
+  const label = `registry.changes[${index}]`;
+  for (const key of [
+    "taskFile",
+    "verificationResult",
+    "repository",
+    "revision",
+    "whyItMatters",
+  ]) {
+    if (typeof source?.[key] !== "string" || !source[key].trim()) {
+      throw new Error(`${label}: missing ${key}.`);
+    }
+  }
+  if (!/^[0-9a-f]{40}$/i.test(source.revision)) {
+    throw new Error(`${label}: revision must be a full 40-character commit SHA.`);
+  }
+  if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(source.repository)) {
+    throw new Error(`${label}: repository must use owner/name format.`);
+  }
+}
+
+export async function buildArchitectureChanges({
+  repoRoot = DEFAULT_ROOT,
+  registryPath = DEFAULT_REGISTRY,
+} = {}) {
+  const absoluteRegistryPath = path.join(repoRoot, registryPath);
+  const registry = JSON.parse(await readFile(absoluteRegistryPath, "utf8"));
+  if (registry.schemaVersion !== 1 || !Array.isArray(registry.changes)) {
+    throw new Error(`${registryPath}: expected schemaVersion 1 and a changes array.`);
+  }
+
+  const changes = await Promise.all(
+    registry.changes.map(async (source, index) => {
+      validateRegistrySource(source, index);
+      const [taskMarkdown, verificationRaw] = await Promise.all([
+        readFile(path.join(repoRoot, source.taskFile), "utf8"),
+        readFile(path.join(repoRoot, source.verificationResult), "utf8"),
+      ]);
+      const task = parseTaskMarkdown(taskMarkdown, source.taskFile);
+      const verification = JSON.parse(verificationRaw);
+
+      if (task.status !== "Complete") {
+        throw new Error(`${source.taskFile}: task status must be Complete, received ${task.status}.`);
+      }
+      if (verification.taskId !== task.taskId) {
+        throw new Error(
+          `${source.verificationResult}: taskId ${verification.taskId ?? "missing"} does not match ${task.taskId}.`,
+        );
+      }
+      if (verification.status !== "PASS") {
+        throw new Error(
+          `${source.verificationResult}: verification status must be PASS, received ${verification.status ?? "missing"}.`,
+        );
+      }
+      if (verification.independentReview?.decision !== "APPROVED") {
+        throw new Error(
+          `${source.verificationResult}: independent review must be APPROVED.`,
+        );
+      }
+
+      return {
+        taskId: task.taskId,
+        title: task.title,
+        date: task.created,
+        objective: task.objective,
+        whyItMatters: source.whyItMatters.trim(),
+        issueUrl: task.issueUrl,
+        repository: source.repository,
+        revision: source.revision.toLowerCase(),
+        revisionUrl: `https://github.com/${source.repository}/commit/${source.revision.toLowerCase()}`,
+        reviewArtifact: verification.independentReview.artifact,
+        status: "Accepted",
+      };
+    }),
+  );
+
+  return changes.sort(
+    (left, right) =>
+      right.date.localeCompare(left.date) || right.taskId.localeCompare(left.taskId),
+  );
+}
+
+export function renderGeneratedModule(changes) {
+  return `// AUTO-GENERATED by npm run architecture:changes. Do not edit by hand.
+
+export type ArchitectureChange = {
+  taskId: string;
+  title: string;
+  date: string;
+  objective: string;
+  whyItMatters: string;
+  issueUrl: string;
+  repository: string;
+  revision: string;
+  revisionUrl: string;
+  reviewArtifact: string;
+  status: "Accepted";
+};
+
+export const ARCHITECTURE_CHANGES = ${JSON.stringify(changes, null, 2)} as const satisfies readonly ArchitectureChange[];
+`;
+}
+
+export async function runGenerator({
+  repoRoot = DEFAULT_ROOT,
+  registryPath = DEFAULT_REGISTRY,
+  outputPath = DEFAULT_OUTPUT,
+  check = false,
+} = {}) {
+  const rendered = renderGeneratedModule(
+    await buildArchitectureChanges({ repoRoot, registryPath }),
+  );
+  const absoluteOutputPath = path.join(repoRoot, outputPath);
+
+  if (check) {
+    const current = await readFile(absoluteOutputPath, "utf8").catch(() => "");
+    if (current !== rendered) {
+      throw new Error(
+        `${outputPath}: generated architecture changes are stale. Run npm run architecture:changes.`,
+      );
+    }
+    return { outputPath, count: JSON.parse(rendered.match(/= (\[[\s\S]*\]) as const/)?.[1] ?? "[]").length };
+  }
+
+  await writeFile(absoluteOutputPath, rendered, "utf8");
+  return { outputPath, count: changesCount(rendered) };
+}
+
+function changesCount(rendered) {
+  return (rendered.match(/"taskId":/g) ?? []).length;
+}
+
+async function main() {
+  const check = process.argv.includes("--check");
+  try {
+    const result = await runGenerator({ check });
+    console.log(
+      `${check ? "Architecture change log is current" : "Generated architecture change log"}: ${result.count} accepted change(s).`,
+    );
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : error);
+    process.exitCode = 1;
+  }
+}
+
+if (process.argv[1] && path.resolve(process.argv[1]) === SCRIPT_PATH) {
+  await main();
+}

@@ -1,0 +1,14 @@
+{
+  "projectId": 1034,
+  "submitWorkflow": false,
+  "title": "Tutorial demo change event",
+  "description": "Added scope discovered during demo walkthrough.",
+  "type": "Owner Change",
+  "changeReason": "Owner Request",
+  "scope": "In Scope",
+  "lineItem": {
+    "amount": "5000.00",
+    "budgetCode": "01-100",
+    "description": "Tutorial demo line item"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "status": "PASS",
+  "observedStatus": "PASS",
+  "taskId": "local-ai-os-vision-removal",
+  "evidence": {
+    "screenshots": ["docs/ops/evidence/2026-07-21-ai-os-vision-removal/ai-os-without-vision-timeline.png"],
+    "visualReview": ["docs/ops/evidence/2026-07-21-ai-os-vision-removal/visual-review.md"],
+    "regressionTest": ["docs/ops/evidence/2026-07-21-ai-os-vision-removal/regression-test.md"]
+  },
+  "claims": {
+    "vision-removed": {
+      "screenshots": ["docs/ops/evidence/2026-07-21-ai-os-vision-removal/ai-os-without-vision-timeline.png"],
+      "regressionTest": ["docs/ops/evidence/2026-07-21-ai-os-vision-removal/regression-test.md"]
+    },
+    "roadmap-retained": {
+      "visualReview": ["docs/ops/evidence/2026-07-21-ai-os-vision-removal/visual-review.md"]
+    }
+  },
+  "independentReview": {
+    "reviewer": "authenticated agent-browser visual review",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-21T18:37:26Z",
+    "artifact": "docs/ops/evidence/2026-07-21-ai-os-vision-removal/visual-review.md"
+  }
+}

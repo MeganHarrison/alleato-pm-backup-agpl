@@ -1,0 +1,329 @@
+{
+  "feature": "change-orders",
+  "featureName": "Change Orders",
+  "capturedAt": "2026-03-22T14:30:57.088Z",
+  "states": {
+    "list": {
+      "id": "list",
+      "description": "Change Orders list view",
+      "url": "https://us02.procore.com/562949954728542/project/change_orders/list",
+      "columnGroups": [
+        {
+          "label": "",
+          "columns": [
+            "Contract",
+            "#",
+            "Revision",
+            "Title",
+            "Date Initiated",
+            "Contract Company",
+            "Designated Reviewer",
+            "Due Date",
+            "Review Date",
+            "Status",
+            "Amount"
+          ],
+          "colspan": 11
+        }
+      ],
+      "columns": [
+        {
+          "label": "Contract",
+          "columnGroup": null
+        },
+        {
+          "label": "#",
+          "columnGroup": null
+        },
+        {
+          "label": "Revision",
+          "columnGroup": null
+        },
+        {
+          "label": "Title",
+          "columnGroup": null
+        },
+        {
+          "label": "Date Initiated",
+          "columnGroup": null
+        },
+        {
+          "label": "Contract Company",
+          "columnGroup": null
+        },
+        {
+          "label": "Designated Reviewer",
+          "columnGroup": null
+        },
+        {
+          "label": "Due Date",
+          "columnGroup": null
+        },
+        {
+          "label": "Review Date",
+          "columnGroup": null
+        },
+        {
+          "label": "Status",
+          "columnGroup": null
+        },
+        {
+          "label": "Amount",
+          "columnGroup": null
+        }
+      ],
+      "toolbarActions": [
+        {
+          "label": "Alleato Group24-104 - Goodwill Bart",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Project ToolsChange Orders",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "AppsSelect an App",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Support & Feedback",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Announcements",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "BC",
+          "type": "dropdown",
+          "variant": "default"
+        }
+      ],
+      "filters": [],
+      "rowActions": [],
+      "autoRows": [],
+      "formSections": [
+        {
+          "title": "",
+          "fields": [
+            {
+              "name": "cmdk",
+              "label": "CmdK",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "bc",
+              "label": "BC",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "export",
+              "label": "Export",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "reports",
+              "label": "Reports",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            }
+          ]
+        }
+      ],
+      "tabs": [],
+      "headerFields": [],
+      "screenshot": "screenshots/list.png",
+      "_capture_note": "",
+      "domFile": "dom/list.html"
+    },
+    "create-form": {
+      "id": "create-form",
+      "description": "Change Orders create flow",
+      "url": "https://us02.procore.com/562949954728542/project/change_orders/list",
+      "columnGroups": [
+        {
+          "label": "",
+          "columns": [
+            "Contract",
+            "#",
+            "Revision",
+            "Title",
+            "Date Initiated",
+            "Contract Company",
+            "Designated Reviewer",
+            "Due Date",
+            "Review Date",
+            "Status",
+            "Amount"
+          ],
+          "colspan": 11
+        }
+      ],
+      "columns": [
+        {
+          "label": "Contract",
+          "columnGroup": null
+        },
+        {
+          "label": "#",
+          "columnGroup": null
+        },
+        {
+          "label": "Revision",
+          "columnGroup": null
+        },
+        {
+          "label": "Title",
+          "columnGroup": null
+        },
+        {
+          "label": "Date Initiated",
+          "columnGroup": null
+        },
+        {
+          "label": "Contract Company",
+          "columnGroup": null
+        },
+        {
+          "label": "Designated Reviewer",
+          "columnGroup": null
+        },
+        {
+          "label": "Due Date",
+          "columnGroup": null
+        },
+        {
+          "label": "Review Date",
+          "columnGroup": null
+        },
+        {
+          "label": "Status",
+          "columnGroup": null
+        },
+        {
+          "label": "Amount",
+          "columnGroup": null
+        }
+      ],
+      "toolbarActions": [
+        {
+          "label": "Alleato Group24-104 - Goodwill Bart",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Project ToolsChange Orders",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "AppsSelect an App",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Support & Feedback",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Announcements",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "BC",
+          "type": "dropdown",
+          "variant": "default"
+        }
+      ],
+      "filters": [],
+      "rowActions": [],
+      "autoRows": [],
+      "formSections": [
+        {
+          "title": "",
+          "fields": [
+            {
+              "name": "cmdk",
+              "label": "CmdK",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "bc",
+              "label": "BC",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "export",
+              "label": "Export",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "reports",
+              "label": "Reports",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            }
+          ]
+        }
+      ],
+      "tabs": [],
+      "headerFields": [],
+      "screenshot": "screenshots/create-form.png",
+      "_capture_note": "",
+      "domFile": "dom/create-form.html"
+    },
+    "detail": {
+      "id": "detail",
+      "description": "Change Orders detail page",
+      "url": "",
+      "columnGroups": [],
+      "columns": [],
+      "toolbarActions": [],
+      "filters": [],
+      "rowActions": [],
+      "autoRows": [],
+      "formSections": [],
+      "tabs": [],
+      "headerFields": [],
+      "screenshot": "screenshots/detail.png",
+      "_capture_note": ""
+    }
+  }
+}

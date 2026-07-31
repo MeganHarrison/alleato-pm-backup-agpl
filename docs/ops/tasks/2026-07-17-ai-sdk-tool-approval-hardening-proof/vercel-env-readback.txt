@@ -1,0 +1,9 @@
+Vercel project: the-alleato-group/project-management-agent
+Readback command: vercel env ls --cwd /Users/meganharrison/Documents/github/project-management
+Checked: 2026-07-22
+
+TOOL_APPROVAL_SECRET: Encrypted, Production
+TOOL_APPROVAL_SECRET: Encrypted, Preview
+TOOL_APPROVAL_SECRET: Encrypted, Development
+
+Secret values were not retrieved or printed.

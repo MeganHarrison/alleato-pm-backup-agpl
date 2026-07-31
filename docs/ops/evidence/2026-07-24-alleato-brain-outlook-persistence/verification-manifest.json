@@ -1,0 +1,69 @@
+{
+  "contractVersion": 1,
+  "taskId": "ALL-11",
+  "riskLevel": "high",
+  "feature": "Outlook Business Area persistence and chunk labeling",
+  "route": "backend/MicrosoftGraph/Outlook",
+  "flows": [
+    {
+      "name": "Persist one exact Outlook assignment scope",
+      "steps": [
+        "Resolve a typed assignment target",
+        "Preserve existing scope when present",
+        "Write project_id or business_area_id to document_metadata",
+        "Copy business_area_id into canonical chunk metadata",
+        "Preserve scope across repair and learned-rule replay"
+      ],
+      "expectedOutcome": "Every indexed Outlook record and chunk has one safe scope without a fabricated project ID or silently erased Business Area"
+    }
+  ],
+  "requiredEvidence": [
+    "actionLog",
+    "summary",
+    "databaseReadback",
+    "negativePath",
+    "regressionTest"
+  ],
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "outlook-exact-scope",
+      "description": "Live sync persists one project or Business Area and preserves existing scope",
+      "evidence": [
+        { "key": "regressionTest", "min": 1 },
+        { "key": "negativePath", "min": 1 }
+      ]
+    },
+    {
+      "id": "historical-repair",
+      "description": "Historical assignment and missing-document repairs preserve Business Area scope",
+      "evidence": [
+        { "key": "regressionTest", "min": 1 }
+      ]
+    },
+    {
+      "id": "chunk-authorization-label",
+      "description": "Canonical chunks copy business_area_id without fabricating project_id",
+      "evidence": [
+        { "key": "regressionTest", "min": 1 }
+      ]
+    },
+    {
+      "id": "live-branch-contract",
+      "description": "Production contains the five approved mappings and additive branch labels",
+      "evidence": [
+        { "key": "databaseReadback", "min": 1 }
+      ]
+    },
+    {
+      "id": "fail-closed-replay",
+      "description": "Malformed scope fails loudly and learned-rule replay cannot erase an existing branch",
+      "evidence": [
+        { "key": "negativePath", "min": 1 },
+        { "key": "regressionTest", "min": 1 }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "_comment": "Allowlist + metadata for the user-guide generator. Only slugs listed here get scaffolded. 'slug' must match the first path segment after /[projectId]/ in PROJECT-MAP.md. 'singular' is used in task titles ('Create a <singular>'). 'related' are other slugs in this file. 'extraTasks' add task articles beyond the create/edit/delete derived from routes. See docs/user-guide/_templates/README.md.",
+  "defaults": {
+    "audience": ["pm"],
+    "lastVerified": "TBD"
+  },
+  "tools": [
+    { "slug": "budget", "title": "Budget", "singular": "budget line item", "domain": "financials", "audience": ["pm", "owner"], "related": ["prime-contracts", "commitments", "change-management", "direct-costs"], "extraTasks": [
+      { "slug": "set-up-the-budget", "title": "Set up the budget", "description": "Create initial budget line items from cost codes." },
+      { "slug": "forecasting", "title": "Forecast costs to complete", "description": "Manage forecast-to-complete and estimated final cost." }
+    ] },
+    { "slug": "prime-contracts", "title": "Prime contracts", "singular": "prime contract", "domain": "financials", "audience": ["pm", "owner"], "related": ["budget", "change-management", "invoices", "sov"], "email": true },
+    { "slug": "commitments", "title": "Commitments", "singular": "commitment", "domain": "financials", "audience": ["pm", "owner"], "related": ["budget", "change-management", "invoices", "directory"], "email": true, "extraTasks": [
+      { "slug": "create-a-subcontract", "title": "Create a subcontract", "description": "Create a subcontract commitment with a subcontractor." },
+      { "slug": "create-a-purchase-order", "title": "Create a purchase order", "description": "Create a purchase-order commitment for materials or goods." },
+      { "slug": "schedule-of-values", "title": "Add a schedule of values", "description": "Break the commitment amount into SOV line items." },
+      { "slug": "change-orders", "title": "Create a commitment change order", "description": "Price a change against this commitment." }
+    ] },
+    { "slug": "change-management", "title": "Change management", "singular": "change", "domain": "financials", "audience": ["pm", "owner"], "related": ["change-events", "commitments", "prime-contracts", "budget"], "extraTasks": [
+      { "slug": "create-a-change-event", "title": "Create a change event", "description": "Document a potential change to scope, schedule, or budget." },
+      { "slug": "create-a-pco", "title": "Create a PCO", "description": "Price the impact of a change event as a potential change order." },
+      { "slug": "create-a-change-order", "title": "Create a change order", "description": "Modify a contract with an approved change order." }
+    ] },
+    { "slug": "invoices", "title": "Invoices", "singular": "invoice", "domain": "financials", "audience": ["pm", "owner"], "related": ["prime-contracts", "commitments", "billing-periods"], "email": true },
+    { "slug": "direct-costs", "title": "Direct costs", "singular": "direct cost", "domain": "financials", "audience": ["pm", "owner"], "related": ["budget", "commitments"] },
+    { "slug": "sov", "title": "Schedule of values", "singular": "SOV line", "domain": "financials", "audience": ["pm", "owner"], "related": ["prime-contracts", "invoices"] },
+    { "slug": "estimates", "title": "Estimates", "singular": "estimate", "domain": "financials", "audience": ["pm", "owner"], "related": ["budget", "prime-contracts"] },
+    { "slug": "billing-periods", "title": "Billing periods", "singular": "billing period", "domain": "financials", "audience": ["pm", "owner"], "related": ["invoices"] },
+
+    { "slug": "rfis", "title": "RFIs", "singular": "RFI", "domain": "project-management", "audience": ["pm"], "related": ["submittals", "drawings", "directory"], "email": true, "extraTasks": [
+      { "slug": "distribute", "title": "Distribute an RFI", "description": "Send the RFI to its recipients." },
+      { "slug": "respond", "title": "Respond to an RFI", "description": "Add an official response and close the loop." }
+    ] },
+    { "slug": "submittals", "title": "Submittals", "singular": "submittal", "domain": "project-management", "audience": ["pm"], "related": ["rfis", "drawings", "specifications"], "email": true },
+    { "slug": "drawings", "title": "Drawings", "singular": "drawing", "domain": "project-management", "audience": ["pm", "field"], "related": ["specifications", "rfis", "submittals"] },
+    { "slug": "specifications", "title": "Specifications", "singular": "specification", "domain": "project-management", "audience": ["pm"], "related": ["drawings", "submittals"] },
+    { "slug": "daily-log", "title": "Daily logs", "singular": "daily log", "domain": "project-management", "audience": ["field", "pm"], "related": ["photos", "punch-list", "schedule"] },
+    { "slug": "punch-list", "title": "Punch list", "singular": "punch item", "domain": "project-management", "audience": ["field", "pm"], "related": ["daily-log", "photos"] },
+    { "slug": "schedule", "title": "Schedule", "singular": "schedule task", "domain": "project-management", "audience": ["pm", "field"], "related": ["daily-log", "tasks"] },
+    { "slug": "transmittals", "title": "Transmittals", "singular": "transmittal", "domain": "project-management", "audience": ["pm"], "related": ["documents", "drawings"], "email": true },
+    { "slug": "photos", "title": "Photos", "singular": "photo", "domain": "project-management", "audience": ["field", "pm"], "related": ["daily-log", "documents"] },
+
+    { "slug": "documents", "title": "Documents & files", "singular": "document", "domain": "communication", "audience": ["pm", "field"], "related": ["drawings", "emails", "transmittals"] },
+    { "slug": "emails", "title": "Emails", "singular": "email", "domain": "communication", "audience": ["pm"], "related": ["documents", "meetings", "directory"] },
+    { "slug": "meetings", "title": "Meetings", "singular": "meeting", "domain": "communication", "audience": ["pm", "owner"], "related": ["tasks", "intelligence"] },
+    { "slug": "tasks", "title": "Tasks & assignments", "singular": "task", "domain": "communication", "audience": ["pm", "field"], "related": ["meetings", "my-work"] },
+    { "slug": "directory", "title": "Directory", "singular": "contact", "domain": "communication", "audience": ["pm", "admin"], "related": ["commitments", "rfis"] },
+
+    { "slug": "intelligence", "title": "Project intelligence", "singular": "insight", "domain": "ai", "audience": ["pm", "owner"], "related": ["meetings", "progress-reports", "project-status-report"] },
+    { "slug": "progress-reports", "title": "Progress reports", "singular": "progress report", "domain": "ai", "audience": ["pm", "owner"], "related": ["intelligence", "project-status-report"] },
+
+    { "slug": "client-dashboard", "title": "Client dashboard", "singular": "dashboard", "domain": "reporting", "audience": ["owner"], "related": ["project-status-report", "intelligence"] },
+    { "slug": "project-status-report", "title": "Project status report", "singular": "status report", "domain": "reporting", "audience": ["pm", "owner"], "related": ["intelligence", "progress-reports"] },
+    { "slug": "reporting", "title": "Reporting & analytics", "singular": "report", "domain": "reporting", "audience": ["pm", "owner"], "related": ["project-status-report"] }
+  ]
+}

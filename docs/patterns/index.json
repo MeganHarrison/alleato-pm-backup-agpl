@@ -1,0 +1,355 @@
+{
+  "version": "1.1.0",
+  "lastUpdated": "2026-07-14",
+  "description": "Pattern library for preventing recurring AI mistakes in Alleato-Procore",
+  "patterns": [
+    {
+      "id": "networkidle-timeout",
+      "name": "NetworkIdle Timeout",
+      "type": "error",
+      "severity": "CRITICAL",
+      "file": "errors/networkidle-timeout.md",
+      "triggers": [
+        "playwright",
+        "test",
+        "waitForLoadState",
+        "networkidle",
+        "timeout",
+        "navigation",
+        "goto"
+      ],
+      "solution": "solutions/domcontentloaded-pattern.md",
+      "summary": "Use domcontentloaded instead of networkidle for Playwright navigation"
+    },
+    {
+      "id": "auth-fixture-missing",
+      "name": "Auth Fixture Missing",
+      "type": "error",
+      "severity": "CRITICAL",
+      "file": "errors/auth-fixture-missing.md",
+      "triggers": [
+        "playwright",
+        "test",
+        "api",
+        "request",
+        "401",
+        "403",
+        "unauthorized",
+        "forbidden",
+        "auth",
+        "cookie",
+        "bearer",
+        "token"
+      ],
+      "solution": "solutions/auth-fixture-pattern.md",
+      "summary": "Import from fixtures instead of @playwright/test for authenticated API requests"
+    },
+    {
+      "id": "route-param-mismatch",
+      "name": "Route Parameter Mismatch",
+      "type": "error",
+      "severity": "CRITICAL",
+      "file": "errors/route-param-mismatch.md",
+      "triggers": [
+        "route",
+        "[projectId]",
+        "[id]",
+        "param",
+        "dynamic",
+        "api",
+        "app router",
+        "next.js",
+        "page.tsx",
+        "route.ts"
+      ],
+      "solution": null,
+      "summary": "Always use [projectId] not [id] for project routes - check existing routes before creating"
+    },
+    {
+      "id": "premature-completion",
+      "name": "Premature Completion Claims",
+      "type": "error",
+      "severity": "CRITICAL",
+      "file": "errors/premature-completion.md",
+      "triggers": [
+        "complete",
+        "done",
+        "finished",
+        "verified",
+        "passing",
+        "working",
+        "ready"
+      ],
+      "solution": "solutions/verification-gate-pattern.md",
+      "summary": "Never claim completion without gate checksums and verification evidence"
+    },
+    {
+      "id": "fk-constraint-user",
+      "name": "Foreign Key Constraint on User Profile",
+      "type": "error",
+      "severity": "HIGH",
+      "file": "errors/fk-constraint-user.md",
+      "triggers": [
+        "foreign key",
+        "fk",
+        "constraint",
+        "profiles",
+        "created_by",
+        "user_id",
+        "auth.users",
+        "insert",
+        "violates"
+      ],
+      "solution": null,
+      "summary": "Check if user profile exists before setting created_by foreign key"
+    },
+    {
+      "id": "supabase-types-stale",
+      "name": "Stale Supabase Types",
+      "type": "error",
+      "severity": "HIGH",
+      "file": "errors/supabase-types-stale.md",
+      "triggers": [
+        "supabase",
+        "database",
+        "types",
+        "schema",
+        "migration",
+        "column",
+        "table",
+        "Property does not exist"
+      ],
+      "solution": null,
+      "summary": "Always run supabase gen types before writing database code"
+    },
+    {
+      "id": "nil-uuid-cascade",
+      "name": "Nil-UUID Cascade",
+      "type": "error",
+      "severity": "HIGH",
+      "file": "errors/nil-uuid-cascade.md",
+      "triggers": [
+        "useQuery",
+        "useEffect",
+        "apiFetch",
+        "useMutation",
+        "00000000-0000-0000-0000-000000000000",
+        "Change event not found",
+        "commitment not found",
+        "INVALID_PAYLOAD"
+      ],
+      "solution": "solutions/assert-non-nil-uuid.md",
+      "summary": "Parent-not-loaded React hooks fire with the nil UUID. Use assertNonNilUuid server-side and `enabled: !!parent.id` client-side."
+    },
+    {
+      "id": "generic-error-swallow",
+      "name": "Generic Error Swallow",
+      "type": "error",
+      "severity": "HIGH",
+      "file": "errors/generic-error-swallow.md",
+      "triggers": [
+        "Unexpected error",
+        "Failed to load",
+        "Failed to save",
+        "GuardrailError",
+        "instanceof Error",
+        "PostgrestError",
+        "asGuardrailError"
+      ],
+      "solution": "solutions/error-message-fidelity.md",
+      "summary": "Hardcoded 'Unexpected error' / 'Failed to load X' messages erase the real Supabase error. PostgrestError is a plain object, not an Error subclass, so instanceof checks miss it."
+    },
+    {
+      "id": "postgrest-embed-ambiguity",
+      "name": "PostgREST Embed & Select Quirks",
+      "type": "error",
+      "severity": "HIGH",
+      "file": "errors/postgrest-embed-ambiguity.md",
+      "triggers": [
+        ".select(",
+        "companies(",
+        "people(",
+        "more than one relationship was found",
+        "column ... does not exist",
+        "PostgREST",
+        "embed",
+        "42703",
+        "fk hint"
+      ],
+      "solution": "solutions/postgrest-fk-disambiguation.md",
+      "summary": "Multi-FK embeds and quoted-identifiers-with-spaces both produce runtime errors that never typecheck. Use !fk_name hints and snake_case column names."
+    },
+    {
+      "id": "telemetry-noise-classification",
+      "name": "Telemetry Noise Classification",
+      "type": "error",
+      "severity": "HIGH",
+      "file": "errors/telemetry-noise-classification.md",
+      "triggers": [
+        "app_error_events",
+        "recordAppErrorEvent",
+        "withApiGuardrails",
+        "reportApiFailure",
+        "/errors",
+        "Authentication required",
+        "Lock broken",
+        "File too large"
+      ],
+      "solution": "solutions/telemetry-suppress-list.md",
+      "summary": "Expected behaviors (auth failures, library lock contention, 4xx user-validation) were being logged as application errors, burying real bugs under noise."
+    },
+    {
+      "id": "apifetch-null-passthrough",
+      "name": "apiFetch<T> Null Passthrough",
+      "type": "error",
+      "severity": "HIGH",
+      "file": "errors/apifetch-null-passthrough.md",
+      "triggers": [
+        "apiFetch",
+        "TypeError: Cannot read properties of undefined",
+        ".map",
+        ".reduce",
+        "204",
+        "empty body"
+      ],
+      "solution": null,
+      "summary": "apiFetch<T> returns null at runtime for 204/empty responses despite typing T. Nulls flow into array operations and crash the renderer."
+    },
+    {
+      "id": "schema-rename-drift",
+      "name": "Schema Rename Drift",
+      "type": "error",
+      "severity": "MEDIUM",
+      "file": "errors/schema-rename-drift.md",
+      "triggers": [
+        "column does not exist",
+        ".select(",
+        "42703",
+        "rename",
+        "migration",
+        "schema drift"
+      ],
+      "solution": null,
+      "summary": "Column rename leaves stragglers in .select() string literals that don't typecheck. Sweep every literal reference after a rename."
+    },
+    {
+      "id": "status-endpoint-sequential-io",
+      "name": "Status Endpoint Sequential I/O",
+      "type": "error",
+      "severity": "HIGH",
+      "file": "errors/status-endpoint-sequential-io.md",
+      "triggers": [
+        "/api/admin/*/status",
+        "/api/*/health",
+        "fetchWithPolicy",
+        "UPSTREAM_TIMEOUT",
+        "did not complete within retry policy",
+        "504"
+      ],
+      "solution": null,
+      "summary": "Status/health endpoints with 10+ sequential DB queries exceed the upstream timeout. Cache at the source with double-checked locking and degrade gracefully at the proxy."
+    },
+    {
+      "id": "guess-and-edit-debugging",
+      "name": "Guess-and-Edit Debugging",
+      "type": "process",
+      "severity": "CRITICAL",
+      "file": "debugging-philosophy.md",
+      "triggers": [
+        "debug",
+        "bug",
+        "broken",
+        "not working",
+        "failing",
+        "regression",
+        "unexpected behavior",
+        "root cause",
+        "disappearing",
+        "intermittent"
+      ],
+      "solution": "debugging-philosophy.md",
+      "summary": "Never edit product code before localizing the fault to a layer boundary with observed evidence; walk DB->API->state->DOM, instrument the first divergence, stop after 2 failed hypotheses"
+    }
+  ],
+  "solutions": [
+    {
+      "id": "domcontentloaded-pattern",
+      "name": "DOMContentLoaded Navigation Pattern",
+      "file": "solutions/domcontentloaded-pattern.md",
+      "solves": [
+        "networkidle-timeout"
+      ],
+      "summary": "Use domcontentloaded and element selectors instead of networkidle"
+    },
+    {
+      "id": "auth-fixture-pattern",
+      "name": "Universal Auth Fixture Pattern",
+      "file": "solutions/auth-fixture-pattern.md",
+      "solves": [
+        "auth-fixture-missing"
+      ],
+      "summary": "Create and use auth fixture for all API tests"
+    },
+    {
+      "id": "verification-gate-pattern",
+      "name": "Verification Gate Pattern",
+      "file": "solutions/verification-gate-pattern.md",
+      "solves": [
+        "premature-completion"
+      ],
+      "summary": "Use enforce-gates.ts to generate checksums before claiming completion"
+    },
+    {
+      "id": "assert-non-nil-uuid",
+      "name": "assertNonNilUuid Helper",
+      "file": "solutions/assert-non-nil-uuid.md",
+      "solves": [
+        "nil-uuid-cascade"
+      ],
+      "summary": "Shared guardrail that rejects the nil UUID at the top of every UUID-param API route handler"
+    },
+    {
+      "id": "error-message-fidelity",
+      "name": "Error Message Fidelity",
+      "file": "solutions/error-message-fidelity.md",
+      "solves": [
+        "generic-error-swallow"
+      ],
+      "summary": "Two-layer fix: asGuardrailError handles plain-object errors; throw sites interpolate the underlying error message"
+    },
+    {
+      "id": "postgrest-fk-disambiguation",
+      "name": "PostgREST FK Disambiguation",
+      "file": "solutions/postgrest-fk-disambiguation.md",
+      "solves": [
+        "postgrest-embed-ambiguity"
+      ],
+      "summary": "Use !fk_name hints for multi-FK embeds; rename columns with spaces to snake_case"
+    },
+    {
+      "id": "telemetry-suppress-list",
+      "name": "Telemetry Suppress-List",
+      "file": "solutions/telemetry-suppress-list.md",
+      "solves": [
+        "telemetry-noise-classification"
+      ],
+      "summary": "Two-layer suppress-list (server withApiGuardrails + client reportApiFailure) keeps expected behaviors out of /errors"
+    }
+  ],
+  "injectionRules": {
+    "description": "Rules for auto-injecting patterns into agent prompts",
+    "matchAny": true,
+    "maxPatternsPerPrompt": 5,
+    "priorityOrder": [
+      "CRITICAL",
+      "HIGH",
+      "MEDIUM",
+      "LOW"
+    ]
+  },
+  "usage": {
+    "forAgents": "Read relevant patterns before starting work. Match task keywords against trigger arrays.",
+    "forHumans": "Review patterns when debugging recurring issues.",
+    "forAutomation": "Parse index.json to inject patterns into agent prompts based on triggers."
+  }
+}

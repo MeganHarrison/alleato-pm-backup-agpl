@@ -1,0 +1,31 @@
+{
+  "status": "PASS",
+  "taskId": "EXAMPLE-VERIFICATION",
+  "evidence": {
+    "screenshots": ["scripts/verification/fixtures/evidence/starting.png", "scripts/verification/fixtures/evidence/completed.png", "scripts/verification/fixtures/evidence/result.png"],
+    "videos": ["scripts/verification/fixtures/evidence/session.webm"],
+    "actionLog": ["scripts/verification/fixtures/evidence/action-log.txt"],
+    "databaseReadback": ["scripts/verification/fixtures/evidence/database-readback.json"],
+    "reloadProof": ["scripts/verification/fixtures/evidence/reload-proof.txt"],
+    "negativePath": ["scripts/verification/fixtures/evidence/negative-path.txt"],
+    "visualReview": ["scripts/verification/fixtures/evidence/visual-review.md"],
+    "regressionTest": ["scripts/verification/fixtures/evidence/regression-test.txt"]
+  },
+  "claims": {
+    "starting-state": { "screenshots": ["scripts/verification/fixtures/evidence/starting.png"] },
+    "completed-form": { "screenshots": ["scripts/verification/fixtures/evidence/completed.png"] },
+    "result-state": { "screenshots": ["scripts/verification/fixtures/evidence/result.png"] },
+    "database-persistence": { "databaseReadback": ["scripts/verification/fixtures/evidence/database-readback.json"] },
+    "reload-prefill": { "reloadProof": ["scripts/verification/fixtures/evidence/reload-proof.txt"] },
+    "negative-path": { "negativePath": ["scripts/verification/fixtures/evidence/negative-path.txt"] },
+    "visual-desktop": { "visualReview": ["scripts/verification/fixtures/evidence/visual-review.md"] },
+    "visual-mobile": { "visualReview": ["scripts/verification/fixtures/evidence/visual-review.md"] },
+    "regression": { "regressionTest": ["scripts/verification/fixtures/evidence/regression-test.txt"] }
+  },
+  "independentReview": {
+    "reviewer": "fixture-evidence-judge",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-14T16:00:00Z",
+    "artifact": "scripts/verification/fixtures/evidence/visual-review.md"
+  }
+}

@@ -1,0 +1,60 @@
+#!/usr/bin/env sh
+
+# Project and system map freshness gate
+# If staged changes add/remove/rename a UI route (page.tsx), an API route
+# (route.ts), or an AI tool (lib/ai/tools), the generated surface inventory at
+# docs/architecture/PROJECT-MAP.md must be regenerated and staged too. The
+# cross-layer SYSTEM-MAP must also be regenerated whenever one of its inputs
+# changes. A stale map is worse than none — it lies to the next agent session.
+#
+# Regenerate with: npm run map:project
+
+STAGED=$(git diff --cached --name-only --diff-filter=ACMRD)
+
+if [ -z "$STAGED" ]; then
+  exit 0
+fi
+
+# Only these paths change the map's contents.
+SURFACE=$(echo "$STAGED" | grep -E '^frontend/src/app/.*/(page\.tsx|route\.ts)$|^frontend/src/lib/ai/tools/.*\.ts$|^frontend/src/lib/app-surface/page-descriptions\.json$' || true)
+
+if [ -z "$SURFACE" ]; then
+  SYSTEM_INPUT=$(echo "$STAGED" | grep -E '^(AGENTS\.md|CONTEXT\.md|docs/architecture/(ALLEATO-SYSTEM-MAP\.md|AI-READABLE-CODEBASE\.md|PROJECT-MAP\.md|TABLE-LIST\.md|tables\.yaml)|docs/architecture/generated/system-map\.json|scripts/dev-tools/generate-(project|db-inventory|system-map)\.mjs|package\.json)$' || true)
+  if [ -z "$SYSTEM_INPUT" ]; then
+    exit 0
+  fi
+else
+  node scripts/dev-tools/generate-project-map.mjs --check-only
+  if [ $? -ne 0 ]; then
+    echo ""
+    echo "Staged changes added/removed routes or AI tools but PROJECT-MAP.md is stale."
+    echo "Run: npm run map:project && git add docs/architecture/PROJECT-MAP.md"
+    exit 1
+  fi
+
+  echo "✅ Project map gate — surface inventory is current."
+fi
+
+node scripts/dev-tools/generate-system-map.mjs --check-only
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "Staged architecture inputs changed but SYSTEM-MAP.md is stale."
+  echo "Run: npm run map:system && git add docs/architecture/SYSTEM-MAP.md docs/architecture/generated/system-map.json"
+  exit 1
+fi
+
+echo "✅ System map gate — cross-layer inventory is current."
+
+# Generated docs-site Reference pages (🟢) derive from the same surface. Verify
+# they're current too. The script no-ops if the docs site (a symlink to the
+# alleato-os repo) isn't checked out, so this is safe on CI / fresh clones.
+# Note: those pages live in the alleato-os repo and are committed there.
+node scripts/dev-tools/generate-docs-reference.mjs --check-only
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "Docs-site Reference pages are stale relative to the code."
+  echo "Run: npm run docs:reference   (then commit them in the alleato-os repo)"
+  exit 1
+fi
+
+exit 0

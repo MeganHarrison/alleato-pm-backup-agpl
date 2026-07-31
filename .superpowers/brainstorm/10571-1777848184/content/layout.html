@@ -1,0 +1,213 @@
+<h2>How should the agent hierarchy be laid out?</h2>
+<p class="subtitle">Chief Strategist leads 5 specialists. Pick the page structure.</p>
+
+<div class="cards">
+
+  <!-- Option A: Org Tree -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#f9fafb; border-radius:8px; padding:20px; font-family:system-ui;">
+        <!-- Strategist at top -->
+        <div style="text-align:center; margin-bottom:8px;">
+          <div style="display:inline-flex; align-items:center; gap:10px; background:white; border:1px solid #e5e7eb; border-radius:10px; padding:10px 18px; box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+            <div style="width:36px;height:36px;border-radius:50%;overflow:hidden;flex-shrink:0;">
+              <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=80&h=80&fit=crop&crop=face" style="width:100%;height:100%;object-fit:cover;">
+            </div>
+            <div style="text-align:left;">
+              <div style="font-weight:700;font-size:12px;color:#111;">⚡ Chief Strategist</div>
+              <div style="font-size:10px;color:#6b7280;">Orchestrator</div>
+            </div>
+          </div>
+        </div>
+        <!-- Connector line -->
+        <div style="display:flex;justify-content:center;">
+          <div style="width:1px;height:14px;background:#d1d5db;"></div>
+        </div>
+        <div style="display:flex;justify-content:center;gap:0;">
+          <div style="width:72%;height:1px;background:#d1d5db;"></div>
+        </div>
+        <!-- 5 specialists -->
+        <div style="display:flex;gap:6px;justify-content:center;margin-top:0;">
+          <div style="display:flex;flex-direction:column;align-items:center;">
+            <div style="width:1px;height:12px;background:#d1d5db;"></div>
+            <div style="background:white;border:1px solid #e5e7eb;border-radius:8px;padding:8px;text-align:center;width:56px;">
+              <div style="width:28px;height:28px;border-radius:50%;overflow:hidden;margin:0 auto 4px;">
+                <img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=60&h=60&fit=crop&crop=face" style="width:100%;height:100%;object-fit:cover;">
+              </div>
+              <div style="font-size:8px;font-weight:600;color:#111;">💰 CFO</div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;">
+            <div style="width:1px;height:12px;background:#d1d5db;"></div>
+            <div style="background:white;border:1px solid #e5e7eb;border-radius:8px;padding:8px;text-align:center;width:56px;">
+              <div style="width:28px;height:28px;border-radius:50%;overflow:hidden;margin:0 auto 4px;">
+                <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=60&h=60&fit=crop&crop=face" style="width:100%;height:100%;object-fit:cover;">
+              </div>
+              <div style="font-size:8px;font-weight:600;color:#111;">🏗️ COO</div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;">
+            <div style="width:1px;height:12px;background:#d1d5db;"></div>
+            <div style="background:white;border:1px solid #e5e7eb;border-radius:8px;padding:8px;text-align:center;width:56px;">
+              <div style="width:28px;height:28px;border-radius:50%;overflow:hidden;margin:0 auto 4px;">
+                <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=60&h=60&fit=crop&crop=face" style="width:100%;height:100%;object-fit:cover;">
+              </div>
+              <div style="font-size:8px;font-weight:600;color:#111;">🛡️ CRO</div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;">
+            <div style="width:1px;height:12px;background:#d1d5db;"></div>
+            <div style="background:white;border:1px solid #e5e7eb;border-radius:8px;padding:8px;text-align:center;width:56px;">
+              <div style="width:28px;height:28px;border-radius:50%;overflow:hidden;margin:0 auto 4px;">
+                <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&h=60&fit=crop&crop=face" style="width:100%;height:100%;object-fit:cover;">
+              </div>
+              <div style="font-size:8px;font-weight:600;color:#111;">👥 CHRO</div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;">
+            <div style="width:1px;height:12px;background:#d1d5db;"></div>
+            <div style="background:white;border:1px solid #e5e7eb;border-radius:8px;padding:8px;text-align:center;width:56px;">
+              <div style="width:28px;height:28px;border-radius:50%;overflow:hidden;margin:0 auto 4px;">
+                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop&crop=face" style="width:100%;height:100%;object-fit:cover;">
+              </div>
+              <div style="font-size:8px;font-weight:600;color:#111;">🤝 VP BD</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Org Tree</h3>
+      <p>Traditional org chart with connecting lines. Strategist at top, 5 specialists branching below. Very clear hierarchy, familiar format.</p>
+    </div>
+  </div>
+
+  <!-- Option B: Hero + Grid -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#f9fafb; border-radius:8px; padding:16px; font-family:system-ui;">
+        <!-- Strategist hero card -->
+        <div style="background:white;border:1px solid #e5e7eb;border-radius:10px;padding:12px;display:flex;align-items:center;gap:12px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+          <div style="width:48px;height:48px;border-radius:50%;overflow:hidden;flex-shrink:0;">
+            <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=100&h=100&fit=crop&crop=face" style="width:100%;height:100%;object-fit:cover;">
+          </div>
+          <div>
+            <div style="font-size:9px;color:#6b7280;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px;">Lead Agent</div>
+            <div style="font-weight:700;font-size:13px;color:#111;">⚡ Chief Strategist</div>
+            <div style="font-size:10px;color:#6b7280;margin-top:1px;">Orchestrates all specialists · Routes every query</div>
+          </div>
+          <div style="margin-left:auto;background:#f3f4f6;border-radius:20px;padding:3px 10px;font-size:9px;font-weight:600;color:#374151;">PRIMARY</div>
+        </div>
+        <!-- 5-col mini grid -->
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;">
+          <div style="background:white;border:1px solid #e5e7eb;border-radius:8px;padding:8px;text-align:center;">
+            <div style="width:32px;height:32px;border-radius:50%;overflow:hidden;margin:0 auto 5px;">
+              <img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=64&h=64&fit=crop&crop=face" style="width:100%;height:100%;object-fit:cover;">
+            </div>
+            <div style="font-size:8px;font-weight:700;color:#111;">💰</div>
+            <div style="font-size:8px;color:#374151;font-weight:600;">CFO</div>
+            <div style="font-size:7px;color:#9ca3af;margin-top:2px;">Finance</div>
+          </div>
+          <div style="background:white;border:1px solid #e5e7eb;border-radius:8px;padding:8px;text-align:center;">
+            <div style="width:32px;height:32px;border-radius:50%;overflow:hidden;margin:0 auto 5px;">
+              <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64&h=64&fit=crop&crop=face" style="width:100%;height:100%;object-fit:cover;">
+            </div>
+            <div style="font-size:8px;font-weight:700;color:#111;">🏗️</div>
+            <div style="font-size:8px;color:#374151;font-weight:600;">COO</div>
+            <div style="font-size:7px;color:#9ca3af;margin-top:2px;">Ops</div>
+          </div>
+          <div style="background:white;border:1px solid #e5e7eb;border-radius:8px;padding:8px;text-align:center;">
+            <div style="width:32px;height:32px;border-radius:50%;overflow:hidden;margin:0 auto 5px;">
+              <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=64&h=64&fit=crop&crop=face" style="width:100%;height:100%;object-fit:cover;">
+            </div>
+            <div style="font-size:8px;font-weight:700;color:#111;">🛡️</div>
+            <div style="font-size:8px;color:#374151;font-weight:600;">CRO</div>
+            <div style="font-size:7px;color:#9ca3af;margin-top:2px;">Risk</div>
+          </div>
+          <div style="background:white;border:1px solid #e5e7eb;border-radius:8px;padding:8px;text-align:center;">
+            <div style="width:32px;height:32px;border-radius:50%;overflow:hidden;margin:0 auto 5px;">
+              <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=64&h=64&fit=crop&crop=face" style="width:100%;height:100%;object-fit:cover;">
+            </div>
+            <div style="font-size:8px;font-weight:700;color:#111;">👥</div>
+            <div style="font-size:8px;color:#374151;font-weight:600;">CHRO</div>
+            <div style="font-size:7px;color:#9ca3af;margin-top:2px;">People</div>
+          </div>
+          <div style="background:white;border:1px solid #e5e7eb;border-radius:8px;padding:8px;text-align:center;">
+            <div style="width:32px;height:32px;border-radius:50%;overflow:hidden;margin:0 auto 5px;">
+              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=64&h=64&fit=crop&crop=face" style="width:100%;height:100%;object-fit:cover;">
+            </div>
+            <div style="font-size:8px;font-weight:700;color:#111;">🤝</div>
+            <div style="font-size:8px;color:#374151;font-weight:600;">VP BD</div>
+            <div style="font-size:7px;color:#9ca3af;margin-top:2px;">Growth</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Hero + Grid</h3>
+      <p>Strategist gets a full-width hero card at the top. 5 specialists in a compact grid below. Clean hierarchy without tree lines.</p>
+    </div>
+  </div>
+
+  <!-- Option C: Full Cards Grid (all equal) -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#f9fafb; border-radius:8px; padding:16px; font-family:system-ui;">
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+          <!-- Strategist spans full row -->
+          <div style="grid-column:1/-1;background:white;border:2px solid #e5e7eb;border-radius:10px;padding:12px;display:flex;align-items:center;gap:12px;">
+            <div style="width:44px;height:44px;border-radius:50%;overflow:hidden;flex-shrink:0;">
+              <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=90&h=90&fit=crop&crop=face" style="width:100%;height:100%;object-fit:cover;">
+            </div>
+            <div>
+              <div style="font-size:9px;color:#6b7280;text-transform:uppercase;letter-spacing:0.08em;">Lead · Orchestrator</div>
+              <div style="font-weight:700;font-size:13px;color:#111;">⚡ Chief Strategist</div>
+            </div>
+          </div>
+          <!-- 3 specialists top row -->
+          <div style="background:white;border:1px solid #e5e7eb;border-radius:10px;padding:10px;">
+            <div style="width:36px;height:36px;border-radius:50%;overflow:hidden;margin-bottom:8px;">
+              <img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=72&h=72&fit=crop&crop=face" style="width:100%;height:100%;object-fit:cover;">
+            </div>
+            <div style="font-weight:700;font-size:10px;color:#111;">💰 CFO</div>
+            <div style="font-size:9px;color:#6b7280;margin-top:2px;">Financial Intelligence</div>
+          </div>
+          <div style="background:white;border:1px solid #e5e7eb;border-radius:10px;padding:10px;">
+            <div style="width:36px;height:36px;border-radius:50%;overflow:hidden;margin-bottom:8px;">
+              <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=72&h=72&fit=crop&crop=face" style="width:100%;height:100%;object-fit:cover;">
+            </div>
+            <div style="font-weight:700;font-size:10px;color:#111;">🏗️ COO</div>
+            <div style="font-size:9px;color:#6b7280;margin-top:2px;">Operations</div>
+          </div>
+          <div style="background:white;border:1px solid #e5e7eb;border-radius:10px;padding:10px;">
+            <div style="width:36px;height:36px;border-radius:50%;overflow:hidden;margin-bottom:8px;">
+              <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=72&h=72&fit=crop&crop=face" style="width:100%;height:100%;object-fit:cover;">
+            </div>
+            <div style="font-weight:700;font-size:10px;color:#111;">🛡️ CRO</div>
+            <div style="font-size:9px;color:#6b7280;margin-top:2px;">Risk</div>
+          </div>
+          <!-- 2 specialists bottom -->
+          <div style="background:white;border:1px solid #e5e7eb;border-radius:10px;padding:10px;">
+            <div style="width:36px;height:36px;border-radius:50%;overflow:hidden;margin-bottom:8px;">
+              <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=72&h=72&fit=crop&crop=face" style="width:100%;height:100%;object-fit:cover;">
+            </div>
+            <div style="font-weight:700;font-size:10px;color:#111;">👥 CHRO</div>
+            <div style="font-size:9px;color:#6b7280;margin-top:2px;">People & Capacity</div>
+          </div>
+          <div style="background:white;border:1px solid #e5e7eb;border-radius:10px;padding:10px;">
+            <div style="width:36px;height:36px;border-radius:50%;overflow:hidden;margin-bottom:8px;">
+              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=72&h=72&fit=crop&crop=face" style="width:100%;height:100%;object-fit:cover;">
+            </div>
+            <div style="font-weight:700;font-size:10px;color:#111;">🤝 VP BD</div>
+            <div style="font-size:9px;color:#6b7280;margin-top:2px;">Business Dev</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Full Card Grid</h3>
+      <p>Strategist spans full width at top, 5 specialists in a 3+2 card grid below. Each card gets a photo, name, and role. Clean and scannable.</p>
+    </div>
+  </div>
+
+</div>

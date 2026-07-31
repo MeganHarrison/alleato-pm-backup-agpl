@@ -1,0 +1,954 @@
+# NOTE: not blueprint-linked; live config is managed via Render API
+# Render deployment configuration for Alleato-Procore
+# This file should be in the repository root for Render to auto-detect
+services:
+  - type: cron
+    name: alleato-source-sync-health
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    schedule: "*/30 * * * *"
+    dockerCommand: >-
+      python3 scripts/run_source_sync_health_recompute.py
+    envVars:
+      - key: PYTHONPATH
+        value: /app:/app/src:/app/src/services
+      - key: PYTHONUNBUFFERED
+        value: 1
+      - key: APP_DB_PRESSURE_GUARD_REQUIRED
+        value: "true"
+      - key: DATABASE_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      # get_supabase_client() hard-requires this (no legacy-key fallback since
+      # #98/36472fc45). This service went without it declared here entirely,
+      # so every run raised RuntimeError and exited 1 — see incident 2026-07-24.
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+
+  - type: cron
+    name: alleato-teams-channel-sync
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    schedule: "10 * * * *"
+    dockerCommand: >-
+      timeout 25m python3 scripts/run_graph_teams_channel_sync.py
+    envVars:
+      - key: PYTHONPATH
+        value: /app:/app/src:/app/src/services
+      - key: PYTHONUNBUFFERED
+        value: 1
+      - key: APP_DB_PRESSURE_GUARD_REQUIRED
+        value: "false"
+      - key: DATABASE_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: RAG_SUPABASE_URL
+        sync: false
+      - key: RAG_SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: RAG_DATABASE_WRITES_ENABLED
+        value: "true"
+      - key: RAG_DATABASE_READS_ENABLED
+        value: "true"
+      - key: GRAPH_DELTA_MAX_PAGES
+        value: "3"
+      - key: GRAPH_DELTA_MAX_ITEMS
+        value: "250"
+      - key: TEAMS_CHANNEL_SYNC_MAX_CHANNELS
+        value: "3"
+      - key: MICROSOFT_CLIENT_ID
+        sync: false
+      - key: MICROSOFT_CLIENT_SECRET
+        sync: false
+      - key: MICROSOFT_TENANT_ID
+        sync: false
+
+  - type: cron
+    name: alleato-teams-dm-sync
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    schedule: "40 * * * *"
+    dockerCommand: >-
+      timeout 10m python3 scripts/run_graph_teams_dm_sync.py
+    envVars:
+      - key: PYTHONPATH
+        value: /app:/app/src:/app/src/services
+      - key: PYTHONUNBUFFERED
+        value: 1
+      - key: APP_DB_PRESSURE_GUARD_REQUIRED
+        value: "false"
+      - key: DATABASE_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: RAG_SUPABASE_URL
+        sync: false
+      - key: RAG_SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: RAG_DATABASE_WRITES_ENABLED
+        value: "true"
+      - key: RAG_DATABASE_READS_ENABLED
+        value: "true"
+      - key: GRAPH_DELTA_MAX_PAGES
+        value: "3"
+      - key: GRAPH_DELTA_MAX_ITEMS
+        value: "250"
+      - key: MICROSOFT_CLIENT_ID
+        sync: false
+      - key: MICROSOFT_CLIENT_SECRET
+        sync: false
+      - key: MICROSOFT_TENANT_ID
+        sync: false
+      - key: MICROSOFT_SYNC_USERS
+        sync: false
+      - key: TEAMS_DM_SYNC_MAX_USERS
+        value: "1"
+      - key: TEAMS_DM_EXPORT_PAGE_SIZE
+        value: "25"
+      - key: TEAMS_DM_EXPORT_MAX_PAGES
+        value: "2"
+
+  # Runs Outlook/SharePoint sync every 2 hours, staggered away from
+  # Teams-only crons. Embedding is capped at 25 documents per run.
+  - type: cron
+    name: alleato-graph-sync
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    schedule: "20 */2 * * *"
+    dockerCommand: >-
+      timeout 25m python3 scripts/run_graph_sync.py
+    envVars:
+      - key: PYTHONPATH
+        value: /app:/app/src:/app/src/services
+      - key: PYTHONUNBUFFERED
+        value: 1
+      - key: APP_DB_PRESSURE_GUARD_REQUIRED
+        value: "true"
+      - key: DATABASE_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: RAG_SUPABASE_URL
+        sync: false
+      - key: RAG_SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: RAG_DATABASE_WRITES_ENABLED
+        value: "true"
+      - key: RAG_DATABASE_READS_ENABLED
+        value: "true"
+      - key: MICROSOFT_CLIENT_ID
+        sync: false
+      - key: MICROSOFT_CLIENT_SECRET
+        sync: false
+      - key: MICROSOFT_TENANT_ID
+        sync: false
+      - key: MICROSOFT_SYNC_USERS
+        sync: false
+      - key: OUTLOOK_SYNC_ALWAYS_INCLUDE_USERS
+        value: bclymer@alleatogroup.com
+      - key: OUTLOOK_SYNC_MAX_USERS
+        value: "2"
+      - key: SHAREPOINT_SYNC_MAX_FOLDERS
+        value: "2"
+      - key: INTELLIGENCE_OPERATING_SYNTHESIS_ENABLED
+        # graph-sync can't project L2 to PM APP; skip the operating-read LLM synthesis here (daily sweep owns it).
+        value: "false"
+      - key: GRAPH_SYNC_ENABLED
+        value: "true"
+      - key: GRAPH_SYNC_OUTLOOK
+        value: "true"
+      - key: GRAPH_SYNC_TEAMS
+        value: "false"
+      - key: GRAPH_SYNC_TEAMS_DM
+        value: "false"
+      - key: GRAPH_SYNC_ONEDRIVE
+        value: "false"
+      - key: GRAPH_SYNC_SHAREPOINT
+        value: "true"
+      - key: GRAPH_EMBEDDING_LIMIT
+        value: "25"
+      - key: RAG_PIPELINE_WORKFLOW_URL
+        value: https://projects.alleatogroup.com/api/rag-pipeline/process
+      - key: RAG_PIPELINE_WORKFLOW_SECRET
+        sync: false
+
+  # Syncs new Fireflies meeting transcripts every 30 minutes.
+  # Replaced the former APScheduler-based Fireflies sync that was disabled
+  # when DISABLE_SCHEDULER=true was set on alleato-backend. Without this cron,
+  # new meetings only get ingested when manually triggered.
+  - type: cron
+    name: alleato-fireflies-sync
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    schedule: "15 * * * *"
+    dockerCommand: >-
+      timeout 20m python3 scripts/run_fireflies_sync.py
+    envVars:
+      - key: PYTHONPATH
+        value: /app:/app/src:/app/src/services
+      - key: PYTHONUNBUFFERED
+        value: 1
+      - key: APP_DB_PRESSURE_GUARD_REQUIRED
+        value: "false"
+      - key: ALLOW_PM_APP_FINAL_PROJECTIONS
+        value: "true"
+      - key: PM_APP_PROJECTION_MAX_TOTAL_ROWS
+        value: "50"
+      - key: DATABASE_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: RAG_SUPABASE_URL
+        sync: false
+      - key: RAG_SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: RAG_DATABASE_WRITES_ENABLED
+        value: "true"
+      - key: RAG_DATABASE_READS_ENABLED
+        value: "true"
+      - key: FIREFLIES_API_KEY
+        sync: false
+      - key: AI_GATEWAY_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: RAG_PIPELINE_WORKFLOW_URL
+        value: https://projects.alleatogroup.com/api/rag-pipeline/process
+      - key: RAG_PIPELINE_WORKFLOW_SECRET
+        sync: false
+
+  # Daily email triage digest — 7:00 AM ET (12:00 UTC). Queries yesterday's
+  # outlook_email_intake grouped by triage_action and sends a summary Teams DM
+  # so Brandon starts the day with a clear picture of inbox activity.
+  - type: cron
+    name: alleato-email-digest
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    schedule: "0 12 * * *"
+    dockerCommand: >-
+      timeout 5m python3 src/scripts/run_email_digest.py
+    envVars:
+      - key: PYTHONPATH
+        value: /app:/app/src:/app/src/services
+      - key: PYTHONUNBUFFERED
+        value: 1
+      - key: APP_DB_PRESSURE_GUARD_REQUIRED
+        value: "false"
+      - key: DATABASE_URL
+        sync: false
+      - key: MICROSOFT_EXECUTIVE_ASSISTANT_MAILBOX
+        sync: false
+      - key: MICROSOFT_EXECUTIVE_ASSISTANT_TEAMS_USER_ID
+        sync: false
+      - key: NOTIFICATION_SERVICE_KEY
+        sync: false
+      - key: NEXT_PUBLIC_APP_URL
+        value: "https://projects.alleatogroup.com"
+      - key: SUPABASE_URL
+        sync: false
+      # get_outlook_intake_read_client() falls back to get_supabase_client(),
+      # which hard-requires this (no legacy-key fallback since #98/36472fc45).
+      # Missing here caused RuntimeError on every run — see incident 2026-07-24.
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+
+  # Ensures Microsoft Graph webhook subscriptions exist and are not near expiry.
+  # Mail subscriptions last 48 hours — this runs every 6 hours so they are
+  # renewed with 42 hours of headroom before the 6-hour renew_within_hours cutoff.
+  # Without this cron, subscriptions expire silently and real-time email
+  # notifications stop firing; the system falls back to the 2-hour polling cron.
+  - type: cron
+    name: alleato-graph-subscription-reconcile
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    schedule: "0 */6 * * *"
+    dockerCommand: >-
+      timeout 5m python3 src/scripts/run_graph_subscription_reconcile.py
+    envVars:
+      - key: PYTHONPATH
+        value: /app:/app/src:/app/src/services
+      - key: PYTHONUNBUFFERED
+        value: 1
+      - key: APP_DB_PRESSURE_GUARD_REQUIRED
+        value: "false"
+      - key: DATABASE_URL
+        sync: false
+      - key: MICROSOFT_CLIENT_ID
+        sync: false
+      - key: MICROSOFT_CLIENT_SECRET
+        sync: false
+      - key: MICROSOFT_TENANT_ID
+        sync: false
+      - key: MICROSOFT_SYNC_USERS
+        sync: false
+      - key: GRAPH_SUBSCRIBE_OUTLOOK
+        value: "true"
+      - key: GRAPH_SUBSCRIBE_OUTLOOK_SCOPE
+        value: "inbox"
+      - key: GRAPH_WEBHOOK_NOTIFICATION_URL
+        sync: false
+      - key: GRAPH_WEBHOOK_CLIENT_STATE
+        sync: false
+      - key: RAG_SUPABASE_URL
+        sync: false
+      - key: RAG_SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: RAG_DATABASE_WRITES_ENABLED
+        value: "true"
+      - key: RAG_DATABASE_READS_ENABLED
+        value: "true"
+
+  # Drains queued Outlook mailbox deltas created by Graph webhook notifications.
+  # This is the real-time freshness path between subscription notifications and
+  # the heavier 2-hour `alleato-graph-sync` polling cron. Without this owner,
+  # webhook notifications can queue `graph_sync_state.sync_status=webhook_pending`
+  # rows that never get processed because the backend web service runs with
+  # `DISABLE_SCHEDULER=true`.
+  - type: cron
+    name: alleato-graph-webhook-drain
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    schedule: "*/3 * * * *"
+    dockerCommand: >-
+      timeout 5m python3 scripts/run_graph_webhook_drain.py
+    envVars:
+      - key: PYTHONPATH
+        value: /app:/app/src:/app/src/services
+      - key: PYTHONUNBUFFERED
+        value: 1
+      - key: APP_DB_PRESSURE_GUARD_REQUIRED
+        value: "false"
+      - key: DATABASE_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: RAG_SUPABASE_URL
+        sync: false
+      - key: RAG_SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: RAG_DATABASE_WRITES_ENABLED
+        value: "true"
+      - key: RAG_DATABASE_READS_ENABLED
+        value: "true"
+      - key: MICROSOFT_CLIENT_ID
+        sync: false
+      - key: MICROSOFT_CLIENT_SECRET
+        sync: false
+      - key: MICROSOFT_TENANT_ID
+        sync: false
+      - key: GRAPH_SYNC_ENABLED
+        value: "true"
+      - key: GRAPH_WEBHOOK_DRAIN_ENABLED
+        value: "true"
+      - key: GRAPH_WEBHOOK_DRAIN_MAX_MAILBOXES
+        value: "3"
+
+  - type: cron
+    name: alleato-microsoft-executive-assistant-check
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    schedule: "*/15 * * * *"
+    dockerCommand: >-
+      timeout 10m python3 src/scripts/run_microsoft_executive_assistant_check.py
+    envVars:
+      - key: PYTHONPATH
+        value: /app:/app/src:/app/src/services
+      - key: PYTHONUNBUFFERED
+        value: 1
+      - key: APP_DB_PRESSURE_GUARD_REQUIRED
+        value: "false"
+      - key: DATABASE_URL
+        sync: false
+      - key: MICROSOFT_EXECUTIVE_ASSISTANT_SCHEDULED_ENABLED
+        value: "true"
+      - key: MICROSOFT_EXECUTIVE_ASSISTANT_MAX_MESSAGES
+        value: "25"
+      - key: DEEP_AGENTS_MICROSOFT_EXECUTIVE_ASSISTANT_ENABLED
+        value: "true"
+      - key: PIPELINE_MODEL_MICROSOFT_EXECUTIVE_ASSISTANT
+        value: gpt-5.5
+      - key: AI_GATEWAY_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: MICROSOFT_CLIENT_ID
+        sync: false
+      - key: MICROSOFT_CLIENT_SECRET
+        sync: false
+      - key: MICROSOFT_TENANT_ID
+        sync: false
+      - key: MICROSOFT_EXECUTIVE_ASSISTANT_MAILBOX
+        sync: false
+      - key: MICROSOFT_EXECUTIVE_ASSISTANT_TEAMS_USER_ID
+        sync: false
+      - key: MICROSOFT_EXECUTIVE_ASSISTANT_AUTO_DRAFT
+        value: "false"
+      - key: MICROSOFT_EXECUTIVE_ASSISTANT_MAILBOX_MUTATIONS_ENABLED
+        value: "false"
+      - key: MICROSOFT_EXECUTIVE_ASSISTANT_AUTO_TEAMS_ALERT
+        value: "true"
+      - key: NOTIFICATION_SERVICE_KEY
+        sync: false
+      - key: NEXT_PUBLIC_APP_URL
+        value: "https://projects.alleatogroup.com"
+      - key: SUPABASE_URL
+        sync: false
+      - key: RAG_SUPABASE_URL
+        sync: false
+      - key: RAG_SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+
+  # Reads the shared RFI reply mailbox every 15 minutes and writes
+  # rfi_responses rows for any subcontractor email replies (email channel).
+  # Idempotent: keyed on Graph message id so re-reads never double-insert.
+  - type: cron
+    name: alleato-rfi-email-ingest
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    schedule: "*/15 * * * *"
+    dockerCommand: >-
+      timeout 5m python3 -m src.services.rfis.email_ingestion
+    envVars:
+      - key: PYTHONPATH
+        value: /app:/app/src:/app/src/services
+      - key: PYTHONUNBUFFERED
+        value: 1
+      - key: APP_DB_PRESSURE_GUARD_REQUIRED
+        value: "false"
+      - key: DATABASE_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      # get_supabase_client() hard-requires this (no legacy-key fallback since
+      # #98/36472fc45). Missing here caused RuntimeError on every run — see
+      # incident 2026-07-24.
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: MICROSOFT_CLIENT_ID
+        sync: false
+      - key: MICROSOFT_CLIENT_SECRET
+        sync: false
+      - key: MICROSOFT_TENANT_ID
+        sync: false
+      - key: RFI_REPLY_MAILBOX
+        sync: false
+
+  # Runs RAG meeting vectorization health check daily at noon UTC.
+  # Replaces the former GitHub Actions workflow — no Actions minutes consumed.
+  # Posts to SLACK_WEBHOOK_URL on failure.
+  - type: cron
+    name: alleato-rag-health
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    schedule: "15 12 * * *"
+    dockerCommand: python3 -m src.services.health.rag_meeting_health
+    envVars:
+      - key: PYTHONPATH
+        value: /app:/app/src:/app/src/services
+      - key: PYTHONUNBUFFERED
+        value: 1
+      - key: APP_DB_PRESSURE_GUARD_REQUIRED
+        value: "false"
+      - key: DATABASE_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: RAG_SUPABASE_URL
+        sync: false
+      - key: RAG_SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: RAG_DATABASE_READS_ENABLED
+        value: "true"
+      - key: AI_GATEWAY_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: SLACK_WEBHOOK_URL
+        sync: false
+
+  # Project intelligence narrative staleness check — daily at 8:30 AM UTC (30min
+  # after the project synthesis sweep completes at 7:00 AM). Monitors
+  # project_current_state and intelligence_packets freshness. Alerts if either
+  # is older than 2 days (default; override with PROJECT_INTELLIGENCE_STALENESS_CHECK_DAYS).
+  # Incident #759: silent staleness for 2+ weeks with no signal.
+  - type: cron
+    name: alleato-project-intelligence-staleness-check
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    schedule: "30 8 * * *"
+    dockerCommand: python3 -m src.services.health.project_intelligence_staleness_check
+    envVars:
+      - key: PYTHONPATH
+        value: /app:/app/src:/app/src/services
+      - key: PYTHONUNBUFFERED
+        value: 1
+      - key: APP_DB_PRESSURE_GUARD_REQUIRED
+        value: "false"
+      - key: PROJECT_INTELLIGENCE_STALENESS_CHECK_DAYS
+        value: "2"
+      - key: DATABASE_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      # get_supabase_client() hard-requires this (no legacy-key fallback since
+      # #98/36472fc45). Missing here caused RuntimeError on every run — see
+      # incident 2026-07-24.
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SLACK_WEBHOOK_URL
+        sync: false
+      - key: NOTIFICATION_SERVICE_KEY
+        sync: false
+      - key: NEXT_PUBLIC_APP_URL
+        sync: false
+
+  # Backend AI provider canary. The intelligence pipeline (meeting extraction
+  # and project synthesis) must not swallow LLM failures into empty
+  # results, so an OpenAI quota/auth outage is invisible — it looked like "no
+  # signal" for ~5 days ending 2026-06-14 (memory: incident-openai-quota-
+  # backend-ai-down). This issues a cheap 1-token completion every 2 hours and
+  # exits non-zero + posts to SLACK_WEBHOOK_URL on insufficient_quota / 401 /
+  # rate_limit, so a billing/key outage surfaces within hours, not days.
+  - type: cron
+    name: alleato-ai-provider-health
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    # Hourly (was every 2h) so a quota/billing outage is caught within the hour,
+    # not after half a day of burn.
+    schedule: "20 * * * *"
+    dockerCommand: python3 -m src.services.health.ai_provider_health
+    envVars:
+      - key: PYTHONPATH
+        value: /app:/app/src:/app/src/services
+      - key: PYTHONUNBUFFERED
+        value: 1
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: APP_DB_PRESSURE_GUARD_REQUIRED
+        value: "false"
+      - key: DATABASE_URL
+        sync: false
+      # Slack incoming webhook (set via Render API 2026-06-14). Secondary record.
+      - key: SLACK_WEBHOOK_URL
+        sync: false
+      # Teams DM alert (primary — the channel the owner actually watches). The
+      # health check POSTs to {NEXT_PUBLIC_APP_URL}/api/bot/proactive/teams with
+      # NOTIFICATION_SERVICE_KEY. Secrets live in Render only.
+      - key: NEXT_PUBLIC_APP_URL
+        sync: false
+      - key: NOTIFICATION_SERVICE_KEY
+        sync: false
+      - key: AI_HEALTH_ALERT_TEAMS_USER_ID
+        sync: false
+
+  # Checks source freshness, embedding backlog, compiler backlog, and persisted
+  # alerts for every RAG source multiple times per day.
+  - type: cron
+    name: alleato-source-rag-health
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    schedule: "*/5 * * * *"
+    dockerCommand: python3 -m src.services.health.source_rag_health
+    envVars:
+      - key: PYTHONPATH
+        value: /app:/app/src:/app/src/services
+      - key: PYTHONUNBUFFERED
+        value: 1
+      - key: APP_DB_PRESSURE_GUARD_REQUIRED
+        value: "false"
+      - key: DATABASE_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: RAG_SUPABASE_URL
+        sync: false
+      - key: RAG_SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: RAG_DATABASE_READS_ENABLED
+        value: "true"
+      - key: NEXT_PUBLIC_APP_URL
+        sync: false
+      - key: NOTIFICATION_SERVICE_KEY
+        sync: false
+      - key: RAG_HEALTH_ALERT_TEAMS_USER_ID
+        sync: false
+      - key: RAG_HEALTH_REMEDIATION_WEBHOOK_URL
+        sync: false
+      - key: RAG_HEALTH_REMEDIATION_WEBHOOK_TOKEN
+        sync: false
+
+  # Outcome-based pipeline alerting. Reads the source_sync_runs ledger every 15
+  # minutes and DMs the owner on Teams the moment any source goes dark (>=2
+  # failed runs with no success in the window). This is the alert that did NOT
+  # exist during the 2026-06-23 incident, when graph embedding failed 25/25
+  # every run for 36h+ with zero notification. Throttled to re-nag at most every
+  # 6h while a source stays down; resolves silently on recovery.
+  - type: cron
+    name: alleato-pipeline-alert
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    schedule: "*/15 * * * *"
+    dockerCommand: python3 -m src.services.health.pipeline_alert_notifier
+    envVars:
+      - key: PYTHONPATH
+        value: /app:/app/src:/app/src/services
+      - key: PYTHONUNBUFFERED
+        value: 1
+      - key: APP_DB_PRESSURE_GUARD_REQUIRED
+        value: "false"
+      - key: DATABASE_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: RAG_SUPABASE_URL
+        sync: false
+      - key: RAG_SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: RAG_DATABASE_READS_ENABLED
+        value: "true"
+      - key: RAG_DATABASE_WRITES_ENABLED
+        value: "true"
+      - key: NEXT_PUBLIC_APP_URL
+        sync: false
+      - key: NOTIFICATION_SERVICE_KEY
+        sync: false
+      - key: AI_HEALTH_ALERT_TEAMS_USER_ID
+        sync: false
+
+  # Project Intelligence domain-packet projection. The shared backend Project
+  # Intelligence runner is the only scheduled executable; this service selects
+  # the domain-packets policy and keeps its independent cadence.
+  # communications about a single business function (accounting, operations,
+  # business development, people & talent) into an intelligence_packets row
+  # plus recurring-issue insight_cards. Powers the AI assistant's
+  # getDomainIntelligence tool for questions like "what's going on with
+  # accounting?". Runs 4×/day, staggered 30m after the project-level
+  # packet refresh cron so domain compilation reads the freshest source data.
+  - type: cron
+    name: alleato-domain-packet-compiler
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    schedule: "30 2,9,15,21 * * *"
+    dockerCommand: >-
+      python3 -m src.services.project_intelligence.runner domain-packets --lookback-days 60 --doc-limit 150
+    envVars:
+      - key: PYTHONPATH
+        value: /app:/app/src:/app/src/services
+      - key: PYTHONUNBUFFERED
+        value: 1
+      - key: APP_DB_PRESSURE_GUARD_REQUIRED
+        value: "true"
+      - key: DATABASE_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: AI_GATEWAY_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: ALLOW_PM_APP_FINAL_PROJECTIONS
+        value: "true"
+      - key: PM_APP_PROJECTION_MAX_TOTAL_ROWS
+        value: "200"
+      - key: DOMAIN_PACKET_LOOKBACK_DAYS
+        value: "60"
+      - key: DOMAIN_PACKET_DOC_LIMIT
+        value: "150"
+      - key: DOMAIN_PACKET_MAX_STALE_UPDATES_PER_TARGET
+        value: "10"
+      - key: DOMAIN_PACKET_MODEL
+        value: "gpt-5.4-mini"
+
+  # Project Intelligence communications/current-state projection — DAILY
+  # BACKSTOP. The shared runner owns process receipts and exit behavior; this
+  # service selects the project-sweep policy. The PRIMARY path is now
+  # event-driven: synthesize_new_comms_since() runs inline at the end of every
+  # graph-sync, turning newly-ingested email/Teams docs into cards + L2 synthesis
+  # in the same cycle they arrive. This once-daily sweep is the safety net: it
+  # covers ALL active projects (no first-10 cap) and re-checks for anything the
+  # inline path missed. Cheap by construction — the candidate-based skip means
+  # already-processed docs cost nothing, and the empty-delta L2 guard means
+  # unchanged projects cost nothing. (Was every 2h, which blindly re-scanned the
+  # same first 10 projects and re-ran L2 on quiet projects — both fixed.)
+  - type: cron
+    name: alleato-project-synthesis-sweep
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    schedule: "0 7 * * *"
+    dockerCommand: >-
+      python3 -m src.services.project_intelligence.runner project-sweep
+    envVars:
+      - key: PYTHONPATH
+        value: /app:/app/src:/app/src/services
+      - key: PYTHONUNBUFFERED
+        value: 1
+      - key: APP_DB_PRESSURE_GUARD_REQUIRED
+        value: "true"
+      - key: ALLOW_PM_APP_FINAL_PROJECTIONS
+        value: "true"
+      - key: PM_APP_PROJECTION_MAX_TOTAL_ROWS
+        value: "100"
+      - key: DATABASE_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: RAG_SUPABASE_URL
+        sync: false
+      - key: RAG_SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: SYNTHESIS_SWEEP_MAX_PROJECTS
+        value: "200"
+      - key: SYNTHESIS_SWEEP_MAX_EXTRACTIONS
+        value: "25"
+      - key: SYNTHESIS_SWEEP_SINCE_DAYS
+        value: "14"
+
+  # Render evaluates cron expressions in UTC. Both UTC hours are scheduled so
+  # the wrapper can select exactly 06:00 America/New_York across EDT and EST.
+  # The second invocation exits as an explicit outside-schedule skip. This job
+  # generates the canonical intelligence_packets artifact; Teams delivery
+  # remains separately gated and is not enabled here.
+  - type: cron
+    name: alleato-daily-executive-brief-0600-et
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile.executive-brief
+    dockerContext: .
+    schedule: "*/15 10-13 * * 1-5"
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: RAG_DATABASE_URL
+        sync: false
+      - key: AI_GATEWAY_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: EXECUTIVE_DAILY_BRIEF_SCHEDULE
+        value: weekday-0600-et
+      - key: EXECUTIVE_DAILY_BRIEF_TARGET_TIMEZONE
+        value: America/New_York
+      - key: EXECUTIVE_DAILY_BRIEF_TARGET_LOCAL_TIME
+        value: "06:00"
+      - key: EXECUTIVE_DAILY_BRIEF_TARGET_WEEKDAYS
+        value: "1,2,3,4,5"
+
+  - type: web
+    name: alleato-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: PYTHONPATH
+        value: /app:/app/src:/app/src/services:/app/src/workers
+      - key: PYTHONUNBUFFERED
+        value: 1
+      - key: APP_DB_PRESSURE_GUARD_REQUIRED
+        value: "false"
+      - key: ALLOW_PM_APP_FINAL_PROJECTIONS
+        value: "true"
+      - key: PM_APP_PROJECTION_MAX_TOTAL_ROWS
+        value: "50"
+      - key: ALLEATO_SYSTEM_MCP_ENABLED
+        value: "true"
+      - key: ALLEATO_SYSTEM_MCP_BEARER_TOKEN
+        sync: false
+      # The web service should only serve API traffic. Background sync jobs run
+      # as explicit Render cron services so they can be suspended/throttled.
+      - key: BACKEND_API_ONLY
+        value: "true"
+      - key: DISABLE_SCHEDULER
+        value: "true"
+      # Acumatica imports are manual-only. Keep this explicit so a future
+      # scheduler refactor cannot revive the legacy in-process job by default.
+      - key: ACUMATICA_FINANCIAL_SYNC_ENABLED
+        value: "false"
+      - key: GRAPH_API_INGESTION_ENABLED
+        value: "false"
+      - key: GRAPH_SYNC_ENABLED
+        value: "false"
+      - key: GRAPH_SUBSCRIPTIONS_ENABLED
+        value: "auto"
+      - key: GRAPH_WEBHOOK_DRAIN_ENABLED
+        value: "auto"
+      - key: GRAPH_SYNC_OUTLOOK
+        value: "false"
+      - key: GRAPH_SYNC_TEAMS
+        value: "false"
+      - key: GRAPH_SYNC_TEAMS_DM
+        value: "false"
+      - key: GRAPH_SYNC_ONEDRIVE
+        value: "false"
+      - key: INTELLIGENCE_COMPILER_ENABLED
+        value: "false"
+      - key: SOURCE_SYNC_HEALTH_RECOMPUTE_ENABLED
+        value: "false"
+      - key: FIREFLIES_PIPELINE_BACKLOG_ENABLED
+        value: "false"
+      - key: TASK_EXTRACTION_ENABLED
+        value: "false"
+      # Deep full-transcript meeting extraction (Stage 3). Enabled in prod via the
+      # Render API 2026-06-10; declared here so a Blueprint sync keeps it on.
+      - key: DEEP_EXTRACTION_ENABLED
+        value: "true"
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: AI_GATEWAY_API_KEY
+        sync: false
+      - key: RAG_PIPELINE_WORKFLOW_URL
+        value: https://projects.alleatogroup.com/api/rag-pipeline/process
+      - key: RAG_PIPELINE_WORKFLOW_SECRET
+        sync: false
+      # Backend Sentry DSN (set via Render API 2026-06-14). init_sentry() in
+      # src/services/sentry_monitoring.py reads SENTRY_BACKEND_DSN || SENTRY_DSN;
+      # without it backend exceptions go uncaptured — which is how the OpenAI
+      # quota outage stayed invisible. Declared here so a Blueprint sync keeps it.
+      - key: SENTRY_BACKEND_DSN
+        sync: false
+      - key: TAVILY_API_KEY
+        sync: false
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: POSTHOG_API_KEY
+        sync: false
+      - key: POSTHOG_HOST
+        value: https://us.i.posthog.com
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      # The ~28 get_supabase_client() call sites across src/api/main.py hard-require
+      # this (no legacy-key fallback since #98/36472fc45) — documented here for
+      # blueprint parity even though live Render config is managed separately.
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: RAG_SUPABASE_URL
+        sync: false
+      - key: RAG_SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: RAG_DATABASE_WRITES_ENABLED
+        value: "true"
+      - key: RAG_DATABASE_READS_ENABLED
+        value: "true"
+      - key: USE_UNIFIED_AGENT
+        value: true
+      - key: DEEP_AGENTS_RESEARCH_ENABLED
+        value: true
+      - key: DEEP_AGENTS_RESEARCH_MODEL
+        value: gpt-5.5
+      - key: DEEP_AGENTS_APP_EXPERT_ENABLED
+        value: true
+      - key: DEEP_AGENTS_APP_EXPERT_MODEL
+        value: gpt-5.4-mini
+      - key: DEEP_AGENTS_MICROSOFT_EXECUTIVE_ASSISTANT_ENABLED
+        value: true
+      - key: PIPELINE_MODEL_MICROSOFT_EXECUTIVE_ASSISTANT
+        value: gpt-5.5
+      - key: MICROSOFT_EXECUTIVE_ASSISTANT_WEBHOOK_ENABLED
+        value: "true"
+      - key: MICROSOFT_EXECUTIVE_ASSISTANT_EVENT_MAX_MESSAGES
+        value: "10"
+      - key: MICROSOFT_EXECUTIVE_ASSISTANT_MAILBOX
+        sync: false
+      - key: MICROSOFT_EXECUTIVE_ASSISTANT_TEAMS_USER_ID
+        sync: false
+      - key: MICROSOFT_EXECUTIVE_ASSISTANT_AUTO_DRAFT
+        value: "false"
+      - key: MICROSOFT_EXECUTIVE_ASSISTANT_MAILBOX_MUTATIONS_ENABLED
+        value: "false"
+      - key: MICROSOFT_EXECUTIVE_ASSISTANT_AUTO_TEAMS_ALERT
+        value: "true"
+      - key: MICROSOFT_CLIENT_ID
+        sync: false
+      - key: MICROSOFT_CLIENT_SECRET
+        sync: false
+      - key: MICROSOFT_TENANT_ID
+        sync: false
+      - key: NOTIFICATION_SERVICE_KEY
+        sync: false
+      - key: DEEP_AGENTS_CONTENT_BUILDER_ENABLED
+        value: true
+      - key: DEEP_AGENTS_CONTENT_BUILDER_MODEL
+        value: gpt-5.4-mini
+      - key: CONTENT_BUILDER_IMAGE_MODEL
+        value: gemini-2.5-flash-image
+      - key: DEEP_AGENTS_DOCS_RESEARCH_ENABLED
+        value: true
+      - key: DEEP_AGENTS_DOCS_RESEARCH_MODEL
+        value: gpt-5.4-mini
+      - key: LANGCHAIN_DOCS_MCP_URL
+        value: https://docs.langchain.com/mcp
+      - key: DEEP_AGENTS_LLM_WIKI_ENABLED
+        value: true
+      - key: DEEP_AGENTS_LLM_WIKI_MODEL
+        value: gpt-5.4-mini
+      # Deep-agent filesystem artifacts (LLM wiki / deep-research archive, docs
+      # research, content builder) MUST live on the persistent disk below — not
+      # /tmp — or every redeploy wipes saved "research and past work".
+      - key: LLM_WIKI_OUTPUT_ROOT
+        value: /data/llm-wiki
+      - key: DOCS_RESEARCH_OUTPUT_ROOT
+        value: /data/docs-research
+      - key: CONTENT_BUILDER_OUTPUT_ROOT
+        value: /data/content-builder
+      - key: DEEP_AGENTS_MEMORY_ENABLED
+        value: true
+      - key: DEEP_AGENTS_STANDALONE_TOOLS_ENABLED
+        value: true
+      - key: DEEP_AGENTS_SQL_TOOLS_ENABLED
+        value: true
+      - key: DEEP_AGENTS_ACUMATICA_TOOLS_ENABLED
+        value: true
+      - key: DEEP_AGENTS_DRAFT_TOOLS_ENABLED
+        value: true
+      - key: DEEP_AGENTS_SUBAGENTS_ENABLED
+        value: true
+      - key: DATABASE_URL
+        sync: false
+      - key: ADMIN_API_KEY
+        sync: false
+      - key: FRONTEND_CORS_ORIGINS
+        value: https://alleato-procore.vercel.app,https://www.alleato-procore.vercel.app,https://alleato-backend-rbnj.onrender.com
+    # Persistent disk for deep-agent artifacts. A disk pins the service to a
+    # single instance and switches deploys to recreate (acceptable for this API).
+    disk:
+      name: deep-agents-data
+      mountPath: /data
+      sizeGB: 1

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Alleato Design Doctrine"
+  short_description: "Legacy alias that routes Alleato UI doctrine work into impeccable"
+  default_prompt: "Use $alleato-design-doctrine as a compatibility alias, then route the task through $impeccable with the Alleato doctrine overlay."

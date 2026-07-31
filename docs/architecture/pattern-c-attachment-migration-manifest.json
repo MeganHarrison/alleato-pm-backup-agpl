@@ -1,0 +1,237 @@
+{
+  "purpose": "Execution manifest for migrating legacy PURT/entity attachment tables to Pattern C document_metadata plus junction tables.",
+  "last_verified_at": "2026-05-18",
+  "source_of_truth_skill": ".codex/skills/pattern-c-attachment-migration/SKILL.md",
+  "closeout": {
+    "status": "complete",
+    "drop_migration": "supabase/migrations/20260524030000_drop_legacy_pattern_c_attachment_tables.sql",
+    "verified_checks": [
+      "npm run db:migrations:verify-applied -- supabase/migrations/20260524030000_drop_legacy_pattern_c_attachment_tables.sql",
+      "npm run db:inventory -- --check-only",
+      "node scripts/audit-pattern-c-attachments.mjs"
+    ],
+    "dropped_legacy_tables": [
+      "attachments",
+      "cco_attachments",
+      "pcco_attachments",
+      "prime_contract_pco_attachments",
+      "invoice_attachments",
+      "change_event_attachments",
+      "submittal_attachments",
+      "subcontract_attachments",
+      "purchase_order_attachments"
+    ]
+  },
+  "global_guards": [
+    "Run live counts before each migration slice; do not trust stale docs.",
+    "Backfill document_metadata before inserting junction rows.",
+    "Use deterministic document_metadata ids from the legacy attachment id.",
+    "Do not drop a legacy table until code references are zero and live reconciliation passes.",
+    "Do not leave a legacy writer paired with a Pattern C reader."
+  ],
+  "current_shared_pattern_c_routes": {
+    "upload": "frontend/src/app/api/document-picker/upload/route.ts",
+    "linked": "frontend/src/app/api/document-picker/linked/route.ts",
+    "attach": "frontend/src/app/api/document-picker/attach/route.ts",
+    "types": "frontend/src/app/api/document-picker/types/route.ts",
+    "component": "frontend/src/components/ds/document-picker.tsx"
+  },
+  "legacy_tables": [
+    {
+      "legacy_table": "attachments",
+      "legacy_entity_column": "attached_to_table",
+      "legacy_entity_id_column": "attached_to_id",
+      "legacy_file_name_column": "file_name",
+      "legacy_url_column": "url",
+      "storage_bucket": "project-files",
+      "deterministic_id_prefix": "att-",
+      "known_live_count_2026_05_18": 29,
+      "known_backfilled_2026_05_18": {
+        "subcontract_documents": 12,
+        "purchase_order_documents": 1,
+        "prime_contract_documents": 3
+      },
+      "known_unmigrated_note": "Rows with NULL attached_to_table were preserved as project-level document_metadata + project_documents_v2 links during closeout.",
+      "targets": [
+        {
+          "legacy_entity_value": "commitments",
+          "target_entity_type": "commitment",
+          "target_junction_tables": [
+            "subcontract_documents",
+            "purchase_order_documents"
+          ],
+          "target_fk_columns": [
+            "subcontract_id",
+            "purchase_order_id"
+          ],
+          "parent_tables": [
+            "subcontracts",
+            "purchase_orders"
+          ],
+          "route_surfaces": [
+            "frontend/src/app/(main)/[projectId]/commitments/new/page.tsx",
+            "frontend/src/app/(main)/[projectId]/commitments/[commitmentId]/edit/page.tsx"
+          ],
+          "status": "converted_and_legacy_table_dropped"
+        },
+        {
+          "legacy_entity_value": "prime_contracts",
+          "target_entity_type": "prime_contract",
+          "target_junction_tables": [
+            "prime_contract_documents"
+          ],
+          "target_fk_columns": [
+            "prime_contract_id"
+          ],
+          "parent_tables": [
+            "prime_contracts"
+          ],
+          "route_surfaces": [
+            "frontend/src/app/api/projects/[projectId]/contracts/[contractId]/attachments/route.ts",
+            "frontend/src/app/api/projects/[projectId]/contracts/[contractId]/attachments/[attachmentId]/route.ts",
+            "frontend/src/app/api/projects/[projectId]/contracts/[contractId]/attachments/[attachmentId]/download/route.ts"
+          ],
+          "status": "converted_and_legacy_table_dropped"
+        }
+      ]
+    },
+    {
+      "legacy_table": "change_event_attachments",
+      "legacy_entity_id_column": "change_event_id",
+      "legacy_file_name_column": "file_name",
+      "legacy_file_path_column": "file_path",
+      "legacy_file_size_column": "file_size",
+      "legacy_mime_type_column": "mime_type",
+      "storage_bucket": "project-files",
+      "deterministic_id_prefix": "cea-",
+      "known_live_count_2026_05_18": 2,
+      "known_backfilled_2026_05_18": {
+        "change_event_documents": 2
+      },
+      "target_entity_type": "change_event",
+      "target_junction_table": "change_event_documents",
+      "target_fk_column": "change_event_id",
+      "parent_table": "change_events",
+      "route_surfaces": [
+        "frontend/src/app/api/projects/[projectId]/change-events/[changeEventId]/attachments/route.ts",
+        "frontend/src/app/api/projects/[projectId]/change-events/[changeEventId]/attachments/[attachmentId]/route.ts",
+        "frontend/src/app/api/projects/[projectId]/change-events/[changeEventId]/attachments/[attachmentId]/download/route.ts"
+      ],
+      "component_surfaces": [
+        "frontend/src/components/change-events/ChangeEventAttachmentsSection.tsx"
+      ],
+      "status": "converted_and_legacy_table_dropped"
+    },
+    {
+      "legacy_table": "submittal_attachments",
+      "legacy_entity_id_column": "submittal_id",
+      "legacy_file_name_column": "file_name",
+      "legacy_file_url_column": "file_url",
+      "legacy_file_size_column": "file_size",
+      "legacy_mime_type_column": "content_type",
+      "storage_bucket": "project-files",
+      "deterministic_id_prefix": "sa-",
+      "known_live_count_2026_05_18": 1,
+      "known_backfilled_2026_05_18": {
+        "submittal_doc_links": 1
+      },
+      "target_entity_type": "submittal",
+      "target_junction_table": "submittal_doc_links",
+      "target_fk_column": "submittal_id",
+      "parent_table": "submittals",
+      "route_surfaces": [
+        "frontend/src/app/api/projects/[projectId]/submittals/[submittalId]/attachments/route.ts",
+        "frontend/src/app/api/projects/[projectId]/submittals/[submittalId]/route.ts"
+      ],
+      "component_surfaces": [
+        "frontend/src/hooks/use-submittals.ts"
+      ],
+      "status": "converted_and_legacy_table_dropped"
+    },
+    {
+      "legacy_table": "cco_attachments",
+      "legacy_entity_id_column": "cco_id",
+      "storage_bucket": "project-files",
+      "deterministic_id_prefix": "cco-att-",
+      "known_live_count_2026_05_18": 0,
+      "target_entity_type": "commitment_change_order",
+      "target_junction_table": "commitment_change_order_documents",
+      "target_fk_column": "commitment_change_order_id",
+      "route_surfaces": [
+        "frontend/src/app/api/projects/[projectId]/commitment-change-orders/[commitmentCoId]/attachments/route.ts",
+        "frontend/src/app/api/projects/[projectId]/commitment-change-orders/[commitmentCoId]/attachments/[attachmentId]/route.ts"
+      ],
+      "status": "converted_and_legacy_table_dropped"
+    },
+    {
+      "legacy_table": "pcco_attachments",
+      "legacy_entity_id_column": "pcco_id",
+      "storage_bucket": "project-files",
+      "deterministic_id_prefix": "pcco-att-",
+      "known_live_count_2026_05_18": 0,
+      "target_entity_type": "prime_contract_change_order",
+      "target_junction_table": "prime_contract_change_order_documents",
+      "target_fk_column": "prime_contract_change_order_id",
+      "route_surfaces": [
+        "frontend/src/app/api/projects/[projectId]/prime-contract-change-orders/[primeCoId]/attachments/route.ts",
+        "frontend/src/app/api/projects/[projectId]/prime-contract-change-orders/[primeCoId]/attachments/[attachmentId]/route.ts"
+      ],
+      "status": "converted_and_legacy_table_dropped"
+    },
+    {
+      "legacy_table": "prime_contract_pco_attachments",
+      "legacy_entity_id_column": "pco_id",
+      "storage_bucket": "project-files",
+      "deterministic_id_prefix": "pcpco-att-",
+      "known_live_count_2026_05_18": 0,
+      "target_entity_type": "prime_contract_pco",
+      "target_junction_table": "prime_contract_pco_documents",
+      "target_fk_column": "pco_id",
+      "route_surfaces": [
+        "frontend/src/app/api/projects/[projectId]/prime-contract-pcos/[pcoId]/route.ts"
+      ],
+      "status": "converted_and_legacy_table_dropped"
+    },
+    {
+      "legacy_table": "invoice_attachments",
+      "legacy_entity_id_column": "owner_invoice_id",
+      "secondary_entity_id_column": "subcontractor_invoice_id",
+      "storage_bucket": "invoice-attachments",
+      "deterministic_id_prefix": "inv-att-",
+      "known_live_count_2026_05_18": 0,
+      "target_entity_type": "invoice",
+      "target_junction_table": "owner_invoice_documents",
+      "target_fk_column": "owner_invoice_id",
+      "secondary_target_entity_type": "subcontractor_invoice",
+      "secondary_target_junction_table": "subcontractor_invoice_documents",
+      "secondary_target_fk_column": "subcontractor_invoice_id",
+      "route_surfaces": [
+        "frontend/src/app/api/projects/[projectId]/invoicing/owner/[invoiceId]/attachments/route.ts",
+        "frontend/src/app/api/projects/[projectId]/invoicing/owner/[invoiceId]/attachments/[attachmentId]/route.ts"
+      ],
+      "status": "converted_and_legacy_table_dropped"
+    },
+    {
+      "legacy_table": "subcontract_attachments",
+      "legacy_entity_id_column": "subcontract_id",
+      "storage_bucket": "project-files",
+      "deterministic_id_prefix": "sub-att-",
+      "known_live_count_2026_05_18": 0,
+      "target_entity_type": "subcontract",
+      "target_junction_table": "subcontract_documents",
+      "target_fk_column": "subcontract_id",
+      "status": "legacy_table_dropped_after_view_rewrite"
+    },
+    {
+      "legacy_table": "purchase_order_attachments",
+      "legacy_entity_id_column": "purchase_order_id",
+      "storage_bucket": "project-files",
+      "deterministic_id_prefix": "po-att-",
+      "known_live_count_2026_05_18": 0,
+      "target_entity_type": "purchase_order",
+      "target_junction_table": "purchase_order_documents",
+      "target_fk_column": "purchase_order_id",
+      "status": "legacy_table_dropped_after_reference_check"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "contractVersion": 1,
+  "taskId": "AAI-1032",
+  "feature": "Project Intelligence runner ownership boundary",
+  "route": "Render cron / Project Intelligence runtime",
+  "flows": [{"name":"Canonical scheduled entrypoint","steps":["Inspect Docker cron command","Import the canonical runner","Run ownership and scheduler regression tests"],"expectedOutcome":"Production enters through project-intelligence/runner, the former functional runner file is absent, and invalid noncanonical or maintenance targets fail loudly."}],
+  "requiredEvidence": ["summary", "actionLog", "visualReview", "regressionTest"],
+  "visual": {"viewports":["desktop"],"checks":["Before/after ownership graph is viewable","Remaining parallel owners are explicitly labeled as follow-on work"]},
+  "independentReview": {"required": true},
+  "claims": [
+    {"id":"canonical-runner","description":"The scheduled Docker entrypoint is project-intelligence/runner","evidence":[{"key":"regressionTest","min":1},{"key":"actionLog","min":1}]},
+    {"id":"failure-loudly","description":"Legacy runner and maintenance targets fail with actionable ownership errors","evidence":[{"key":"regressionTest","min":1}]},
+    {"id":"remaining-debt-visible","description":"The architecture report names the still-open compiler and backend projection migrations","evidence":[{"key":"summary","min":1},{"key":"visualReview","min":1}]}
+  ]
+}

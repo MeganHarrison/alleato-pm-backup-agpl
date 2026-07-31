@@ -1,0 +1,67 @@
+---
+title: Proactive AI Alerts
+description: The platform automatically flags budget variance, overdue RFIs, late tasks, and stale change events so issues surface before you have to look for them.
+audience: client
+visibility: published
+module: intelligence
+category: AI & Intelligence
+tags: [alerts, proactive, budget-variance, rfi, schedule, cron, daily-flags]
+featured: false
+client_visible: true
+ai_visible: true
+order: 630
+related_routes:
+  - /[projectId]/intelligence
+related_actions: []
+---
+
+# Proactive AI Alerts
+
+The platform runs a daily check across all active projects and automatically creates insight cards for issues that cross defined thresholds. You do not need to set up alerts or monitors — the system flags problems for you.
+
+## What Gets Flagged
+
+### Budget Variance
+
+Triggered when a project's forecast exceeds the revised budget by more than 10%.
+
+The alert includes the project name, the current variance amount, and the percentage over budget.
+
+### Overdue RFIs
+
+Triggered when an open RFI has passed its due date.
+
+The alert includes the RFI number, subject, the number of days past due, and who the ball is currently in court with.
+
+### Late Schedule Tasks
+
+Triggered when an incomplete task has passed its finish date. Milestone tasks marked as critical are flagged immediately with no grace period.
+
+### Stale Change Events
+
+Triggered when an unresolved change event has been open for more than 7 days. Events open for more than 30 days are flagged as critical.
+
+## Where to See Alerts
+
+Alerts appear as insight cards in **Project Intelligence**:
+
+1. Select the project.
+2. Open **Intelligence** from the sidebar.
+3. Alerts show under the **Risk** and **Financial Exposure** insight card types with the date they were created and the evidence behind them.
+
+The AI assistant also surfaces active alerts when you ask for a project update. Ask "What do I need to know about Vermillion Rise today?" and it will include any flagged alerts in the response.
+
+## Deduplication
+
+The system avoids creating duplicate alerts. If the same issue was already flagged today, it is not reflagged until the original alert is resolved or a new day begins.
+
+## Resolving an Alert
+
+Mark an alert resolved from the Project Intelligence page once the underlying issue has been addressed. Resolved alerts are archived and no longer surface in the active view.
+
+## Related Articles
+
+- [Project Intelligence](/help/articles/project-intelligence)
+- [AI Assistant Overview](/help/articles/ai-assistant-overview)
+- [Budget Overview](/help/articles/budget-overview)
+- [RFIs](/help/articles/rfis)

@@ -1,0 +1,78 @@
+{
+  "status": "PASS",
+  "taskId": "AI-ASSISTANT-SCOPE-ROOT-CAUSE-0722",
+  "evidence": {
+    "screenshots": [
+      "docs/ops/evidence/2026-07-22-ai-assistant-project-scope-root-cause/local-desktop-scoped-result.png",
+      "docs/ops/evidence/2026-07-22-ai-assistant-project-scope-root-cause/local-desktop-recovery-answer.png",
+      "docs/ops/evidence/2026-07-22-ai-assistant-project-scope-root-cause/local-desktop-sticky-scope-stop.png",
+      "docs/ops/evidence/2026-07-22-ai-assistant-project-scope-root-cause/local-mobile-project-picker.png",
+      "docs/ops/evidence/2026-07-22-ai-assistant-project-scope-root-cause/local-mobile-project-selected.png",
+      "docs/ops/evidence/2026-07-22-ai-assistant-project-scope-root-cause/production-desktop-scope-stop.png",
+      "docs/ops/evidence/2026-07-22-ai-assistant-project-scope-root-cause/production-desktop-scoped-result.png",
+      "docs/ops/evidence/2026-07-22-ai-assistant-project-scope-root-cause/production-desktop-scoped-insights.png",
+      "docs/ops/evidence/2026-07-22-ai-assistant-project-scope-root-cause/production-mobile-project-picker.png",
+      "docs/ops/evidence/2026-07-22-ai-assistant-project-scope-root-cause/production-mobile-project-selected.png"
+    ],
+    "actionLog": [
+      "docs/ops/evidence/2026-07-22-ai-assistant-project-scope-root-cause/verification.md"
+    ],
+    "summary": [
+      "docs/ops/evidence/2026-07-22-ai-assistant-project-scope-root-cause/verification.md"
+    ],
+    "negativePath": [
+      "docs/ops/evidence/2026-07-22-ai-assistant-project-scope-root-cause/local-desktop-sticky-scope-stop.png",
+      "docs/ops/evidence/2026-07-22-ai-assistant-project-scope-root-cause/production-desktop-scope-stop.png"
+    ],
+    "visualReview": [
+      "docs/ops/evidence/2026-07-22-ai-assistant-project-scope-root-cause/verification.md"
+    ],
+    "regressionTest": [
+      "docs/ops/evidence/2026-07-22-ai-assistant-project-scope-root-cause/verification.md"
+    ]
+  },
+  "claims": {
+    "missing-scope-stop": {
+      "negativePath": [
+        "docs/ops/evidence/2026-07-22-ai-assistant-project-scope-root-cause/local-desktop-sticky-scope-stop.png",
+        "docs/ops/evidence/2026-07-22-ai-assistant-project-scope-root-cause/production-desktop-scope-stop.png"
+      ],
+      "summary": [
+        "docs/ops/evidence/2026-07-22-ai-assistant-project-scope-root-cause/verification.md"
+      ]
+    },
+    "selected-scope-preserved": {
+      "summary": [
+        "docs/ops/evidence/2026-07-22-ai-assistant-project-scope-root-cause/verification.md"
+      ],
+      "screenshots": [
+        "docs/ops/evidence/2026-07-22-ai-assistant-project-scope-root-cause/local-desktop-scoped-result.png",
+        "docs/ops/evidence/2026-07-22-ai-assistant-project-scope-root-cause/local-desktop-recovery-answer.png",
+        "docs/ops/evidence/2026-07-22-ai-assistant-project-scope-root-cause/production-desktop-scoped-result.png",
+        "docs/ops/evidence/2026-07-22-ai-assistant-project-scope-root-cause/production-desktop-scoped-insights.png"
+      ]
+    },
+    "portal-pointer-interaction": {
+      "visualReview": [
+        "docs/ops/evidence/2026-07-22-ai-assistant-project-scope-root-cause/verification.md"
+      ],
+      "screenshots": [
+        "docs/ops/evidence/2026-07-22-ai-assistant-project-scope-root-cause/local-mobile-project-picker.png",
+        "docs/ops/evidence/2026-07-22-ai-assistant-project-scope-root-cause/local-mobile-project-selected.png",
+        "docs/ops/evidence/2026-07-22-ai-assistant-project-scope-root-cause/production-mobile-project-picker.png",
+        "docs/ops/evidence/2026-07-22-ai-assistant-project-scope-root-cause/production-mobile-project-selected.png"
+      ]
+    },
+    "scope-regression-guard": {
+      "regressionTest": [
+        "docs/ops/evidence/2026-07-22-ai-assistant-project-scope-root-cause/verification.md"
+      ]
+    }
+  },
+  "independentReview": {
+    "reviewer": "ai_scope_independent_review and ai_scope_recovery_review",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-22T14:26:55Z",
+    "artifact": "docs/ops/evidence/2026-07-22-ai-assistant-project-scope-root-cause/independent-review.md"
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "contractVersion": 1,
+  "taskId": "AAI-1280-EVE-AUTH",
+  "riskLevel": "high",
+  "feature": "Deployed app-to-Eve authentication boundary",
+  "route": "/api/ai-assistant/eve/proxy/eve/v1/session",
+  "flows": [
+    {
+      "name": "Authenticated Eve start and stream",
+      "steps": [
+        "Create and sign in a temporary real Supabase user",
+        "Start Eve through the deployed backup application",
+        "Stream the delegated Eve session",
+        "Require turn.completed",
+        "Remove all temporary data"
+      ],
+      "expectedOutcome": "Start returns 202, stream returns 200 with turn.completed, and cleanup completes"
+    }
+  ],
+  "requiredEvidence": [
+    "deploymentReadback",
+    "deployedLifecycle",
+    "cleanupReadback",
+    "negativePath",
+    "regressionTest",
+    "independentReview"
+  ],
+  "visual": {
+    "viewports": [],
+    "checks": []
+  },
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "deployments-ready",
+      "description": "Both reviewed source trees reached Ready in their production Vercel projects",
+      "evidence": [
+        {
+          "key": "deploymentReadback",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "deployed-lifecycle",
+      "description": "A real authenticated user completed Eve start and stream",
+      "evidence": [
+        {
+          "key": "deployedLifecycle",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "cleanup",
+      "description": "Temporary user and application data were removed",
+      "evidence": [
+        {
+          "key": "cleanupReadback",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "negative-path",
+      "description": "Invalid identity, proxy origin, and caller token override fail closed",
+      "evidence": [
+        {
+          "key": "negativePath",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "regression",
+      "description": "Focused proxy, Eve auth/tool, type, and sole-runtime checks pass",
+      "evidence": [
+        {
+          "key": "regressionTest",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "independent-review",
+      "description": "An independent reviewer approves correctness and security",
+      "evidence": [
+        {
+          "key": "independentReview",
+          "min": 1
+        }
+      ]
+    }
+  ]
+}

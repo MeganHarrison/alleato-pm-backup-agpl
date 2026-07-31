@@ -1,0 +1,70 @@
+name: Backlog item
+description: Add a unit of dev work (build / fix / test / audit / improve) to the ranked backlog.
+title: "<area>: <short imperative summary>"
+labels:
+  - state:backlog
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The single ranked backlog. See `docs/ops/BACKLOG-SYSTEM.md` for the schema.
+        Use the `codex-fix` template instead for a constrained frontend bug you want a bot to auto-fix.
+
+        ⚠️ **These dropdowns write to the issue body only — they do NOT set labels.**
+        After filing, add the matching `type:*` and `priority:*` labels (and `needs-megan`
+        if it's blocked on Megan) via the label picker, or the item will be invisible to the
+        ranked queries in `BACKLOG-SYSTEM.md`. (A label-sync Action will automate this once
+        CI is re-enabled — see the GitHub Actions billing issue.)
+  - type: dropdown
+    id: type
+    attributes:
+      label: Type
+      description: Pick exactly one. Add the matching `type:*` label after filing.
+      options:
+        - "fix — a bug; something should work and doesn't"
+        - "build — new feature/page/guardrail that doesn't exist yet"
+        - "test — add or repair coverage / seed data / E2E"
+        - "audit — investigate & verify (parity, security, FK, UI, perf, dead code)"
+        - "improve — refactor, debt, polish, DX; works today, make it better"
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Pick one. Add the matching `priority:*` label after filing (see the note above).
+      options:
+        - high
+        - medium
+        - low
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Outcome
+      description: What is true when this is done? State the observable result, not the task.
+      placeholder: The apiFetch wrapper throws on a 204/empty body when the caller's type forbids null, so no component silently receives null.
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context / where it lives
+      description: Files, routes, tables, prior art, or the source (error group, parity gap, feedback item, WORKING_CONTEXT follow-up).
+    validations:
+      required: false
+  - type: textarea
+    id: guardrail
+    attributes:
+      label: Recurrence guardrail
+      description: Per CLAUDE.md Core Principles — what test / validation / monitor stops this class of problem from recurring? (Required for fixes.)
+    validations:
+      required: false
+  - type: checkboxes
+    id: needs_megan
+    attributes:
+      label: Blocked on Megan?
+      options:
+        - label: This needs a decision, approval, secret value, or judgment only Megan can give — add the `needs-megan` label.
+          required: false

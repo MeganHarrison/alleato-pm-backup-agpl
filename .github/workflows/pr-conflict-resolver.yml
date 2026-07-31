@@ -1,0 +1,163 @@
+name: PR Conflict Resolver
+
+# Kills the manual loop of "notice the PR is conflicted → ask an agent to resolve →
+# come back → click merge". Whenever main moves (the only thing that creates
+# conflicts), this scans open PRs, and for each newly-CONFLICTING one merges main
+# into the branch — Claude resolves the conflict hunks — and pushes. If the PR
+# already has auto-merge armed, it then lands on green checks with zero touches.
+#
+# Safety posture:
+#   - Resolution preserves BOTH sides' intents; Claude never drops either side.
+#   - If any conflict marker survives, the run FAILS LOUDLY: no push, the PR gets
+#     `autofix:needs-human` + an explanatory comment (no silent half-merges).
+#   - Opt-out per PR with the `no-auto-resolve` label. Draft PRs are skipped.
+#   - Max 3 PRs per run; per-PR concurrency prevents stacked resolutions.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: pr-conflict-resolver
+  cancel-in-progress: false
+
+jobs:
+  find-conflicts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pull-requests: read
+    outputs:
+      prs: ${{ steps.scan.outputs.prs }}
+    steps:
+      - name: Scan open PRs for conflicts
+        id: scan
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const open = await github.paginate(github.rest.pulls.list, {
+              owner, repo, state: "open", per_page: 100,
+            });
+
+            const candidates = open.filter((pr) =>
+              !pr.draft &&
+              !pr.labels.some((l) => ["no-auto-resolve", "autofix:needs-human"].includes(l.name)),
+            );
+
+            // GitHub computes mergeability lazily; fetching the PR triggers the
+            // computation, so poll a few times before trusting `mergeable`.
+            const conflicted = [];
+            for (const pr of candidates) {
+              let mergeable = null;
+              for (let attempt = 0; attempt < 4 && mergeable === null; attempt++) {
+                const { data } = await github.rest.pulls.get({ owner, repo, pull_number: pr.number });
+                mergeable = data.mergeable; // true | false | null (computing)
+                if (mergeable === null) await new Promise((r) => setTimeout(r, 5000));
+              }
+              if (mergeable === false) {
+                conflicted.push({ number: pr.number, ref: pr.head.ref });
+              }
+              if (conflicted.length >= 3) break; // cost cap per run
+            }
+
+            core.setOutput("prs", JSON.stringify(conflicted));
+            core.info(`Conflicted PRs this run: ${conflicted.map((p) => "#" + p.number).join(", ") || "none"}`);
+
+  resolve:
+    needs: find-conflicts
+    if: needs.find-conflicts.outputs.prs != '[]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      max-parallel: 1
+      fail-fast: false
+      matrix:
+        pr: ${{ fromJSON(needs.find-conflicts.outputs.prs) }}
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      id-token: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      PR_NUMBER: ${{ matrix.pr.number }}
+      HEAD_REF: ${{ matrix.pr.ref }}
+    steps:
+      - name: Check out PR branch
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ matrix.pr.ref }}
+          fetch-depth: 0
+          token: ${{ secrets.AUTOFIX_GITHUB_TOKEN }}
+
+      - name: Merge main; detect conflict hunks
+        id: merge
+        shell: bash
+        run: |
+          git config user.name "MeganHarrison"
+          git config user.email "109628141+MeganHarrison@users.noreply.github.com"
+          git fetch origin main
+
+          if git merge origin/main --no-edit; then
+            echo "clean=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "clean=false" >> "$GITHUB_OUTPUT"
+            git diff --name-only --diff-filter=U > /tmp/conflicted-files.txt
+            echo "Conflicted files:" && cat /tmp/conflicted-files.txt
+          fi
+
+      - name: Resolve conflicts with Claude
+        if: steps.merge.outputs.clean == 'false'
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            You are resolving an in-progress git merge of origin/main into the branch
+            of PR #${{ matrix.pr.number }} in ${{ github.repository }}. The merge has
+            already been started in the workspace; the conflicted file list is in
+            /tmp/conflicted-files.txt and each file contains standard conflict markers.
+
+            For each conflict hunk:
+            - Read enough of both sides' recent commits (`git log --oneline HEAD -10`,
+              `git log --oneline origin/main -10`, `git diff`) to understand each
+              side's intent.
+            - Preserve BOTH intents. Never drop either side's change. For append-style
+              docs (WORKING_CONTEXT.md, dated "Last verified" ledger entries, changelog
+              sections) keep both entries, branch-side first.
+            - Where the two sides genuinely contradict, prefer origin/main's version of
+              shared/production code and keep the PR's version of code the PR itself
+              introduced; note any such trade-off in the file only if a comment already
+              exists there — do not add new commentary.
+            - Do NOT invent new behavior, do not refactor, do not expand scope.
+            - Remove every conflict marker. Stage nothing; do not commit or push —
+              the workflow verifies and commits.
+
+            When resolution requires regenerating a lockfile or generated artifact,
+            regenerate it with the repo's own command rather than hand-editing.
+          claude_args: |
+            --allowedTools "Edit,MultiEdit,Write,Read,Glob,Grep,LS,Bash(pnpm:*),Bash(npm run:*),Bash(node:*),Bash(npx:*),Bash(ls:*),Bash(cat:*),Bash(grep:*),Bash(rg:*),Bash(git diff:*),Bash(git log:*),Bash(git status:*),Bash(git show:*)"
+
+      - name: Verify, commit, push
+        shell: bash
+        run: |
+          # Any surviving conflict marker in a conflicted file = unresolved;
+          # fail loudly, never push half a merge. (Scoped to the files git
+          # reported as conflicted so doc underlines can't false-positive.)
+          if [ "${{ steps.merge.outputs.clean }}" = "false" ] && \
+             xargs -a /tmp/conflicted-files.txt grep -ln -E '^(<{7} |={7}$|>{7} )' 2>/dev/null | grep -q .; then
+            gh pr edit "$PR_NUMBER" --repo "${{ github.repository }}" --add-label "autofix:needs-human"
+            gh pr comment "$PR_NUMBER" --repo "${{ github.repository }}" --body \
+              "**Conflict resolver could not fully resolve this PR's conflicts.** Conflict markers remain, so nothing was pushed. Labeled \`autofix:needs-human\` — resolve manually, then remove the label."
+            exit 1
+          fi
+
+          if [ "${{ steps.merge.outputs.clean }}" = "false" ]; then
+            git add -A
+            git commit -m "Merge origin/main: auto-resolve conflicts (pr-conflict-resolver)"
+          fi
+
+          git push origin "HEAD:$HEAD_REF"
+          gh pr comment "$PR_NUMBER" --repo "${{ github.repository }}" --body \
+            "**Conflicts with \`main\` auto-resolved** and the branch updated. If auto-merge is armed, this PR now lands once required checks pass — no action needed."

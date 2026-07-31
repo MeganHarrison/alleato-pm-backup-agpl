@@ -1,0 +1,97 @@
+name: Autofix Frontend Bug
+description: Request an automated fix attempt (Codex or Claude Code) for a constrained frontend bug.
+title: "[Autofix]: "
+labels:
+  - bug
+  - area:frontend
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form only for focused frontend bugs that can be validated by CI.
+
+        Automation starts when a maintainer (or the triage bot) adds the `autofix` label
+        (engine chosen by the `AUTOFIX_ENGINE` repo variable), or an explicit
+        `codex:fix` / `claude:fix` label.
+  - type: dropdown
+    id: automation_scope
+    attributes:
+      label: Automation scope
+      description: First version is intentionally narrow.
+      options:
+        - Frontend
+    validations:
+      required: true
+  - type: textarea
+    id: problem_statement
+    attributes:
+      label: Problem statement
+      description: Describe the current bug as observed by a user or developer.
+      placeholder: Saving a prime contract line item throws a generic error and leaves the form in a pending state.
+    validations:
+      required: true
+  - type: textarea
+    id: expected_behavior
+    attributes:
+      label: Expected behavior
+      description: State the expected result after the fix.
+      placeholder: Saving should either succeed or fail loudly with a field-level error and no pending state hang.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Provide exact repro steps or the failing test path.
+      placeholder: |
+        1. Open `/projects/123/prime-contracts/configure`
+        2. Add a line item with an empty amount
+        3. Click Save
+        4. Observe the broken state
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Acceptance criteria
+      description: List the observable pass conditions.
+      placeholder: |
+        - Save no longer hangs
+        - Validation error is specific
+        - Existing valid submissions still succeed
+        - A guardrail test or validation was added
+    validations:
+      required: true
+  - type: textarea
+    id: allowed_edit_paths
+    attributes:
+      label: Allowed edit paths
+      description: Keep this narrow. Only `frontend/src/**` and `frontend/tests/**` are supported.
+      value: |
+        frontend/src/
+        frontend/tests/
+    validations:
+      required: true
+  - type: dropdown
+    id: required_guardrail
+    attributes:
+      label: Required guardrail
+      description: Every automated fix must add at least one recurrence guardrail.
+      options:
+        - Test coverage
+        - Validation tightening
+        - Shared abstraction improvement
+        - Failure-mode documentation
+    validations:
+      required: true
+  - type: checkboxes
+    id: acknowledgements
+    attributes:
+      label: Acknowledgements
+      options:
+        - label: This issue is frontend-only and does not require schema changes, secrets, or production access.
+          required: true
+        - label: I understand the agent will open a PR (auto-reviewed and auto-merged when checks pass) only if fixed validation passes.
+          required: true
+        - label: I understand the agent will comment with blockers instead of forcing a bad PR.
+          required: true

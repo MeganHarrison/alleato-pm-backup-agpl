@@ -1,0 +1,64 @@
+---
+title: Drawings
+description: Upload, version, and organize construction drawings with sets, areas, and revisions.
+audience: client
+visibility: published
+module: drawings
+category: Documents & Drawings
+tags: [drawings, sets, revisions, versioning]
+featured: true
+client_visible: true
+ai_visible: true
+order: 300
+related_routes:
+  - /[projectId]/drawings
+  - /[projectId]/drawings/sets
+  - /[projectId]/drawings/revisions-report
+related_actions: []
+---
+
+# Drawings
+
+The Drawings tool is the source of truth for every construction drawing on the project. Use it to upload new sheets, track revisions, organize by area or discipline, and view drawings in the built-in viewer.
+
+## Open Drawings
+
+1. Select the project.
+2. Open **Drawings** from the sidebar.
+3. The drawing log lists every sheet with number, title, current revision, area, and discipline.
+
+## Upload Drawings
+
+1. Select **Upload Drawings**.
+2. Drag and drop PDF files. Multi-sheet PDFs are split automatically.
+3. The system parses each sheet's drawing number, title, and revision from the title block.
+4. Review the parsed metadata and correct any errors.
+5. Confirm the upload.
+
+## Sets
+
+A drawing **Set** is a snapshot of drawings issued together (for example: "100% CD Set", "Permit Set", "Issued for Construction").
+
+1. Open **Sets** from the Drawings sidebar.
+2. Select **Create Set**, name it, and assign drawings to the set.
+3. Sets preserve which revision was current at issue time.
+
+## Revisions
+
+When a new revision of a sheet is uploaded:
+
+- The previous revision moves to history.
+- The new revision becomes current.
+- The **Revisions Report** logs every change with date and uploader.
+
+Open the **Revisions Report** to see what changed across a period or set.
+
+## Recycle Bin
+
+Deleted drawings move to the Recycle Bin and can be restored within the retention window. After that, they are permanently removed.
+
+## Related Articles
+
+- [Drawing Viewer and Annotations](/help/articles/drawings-viewer)
+- [Specifications](/help/articles/specifications)
+- [Documents](/help/articles/documents)

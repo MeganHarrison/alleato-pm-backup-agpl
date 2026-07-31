@@ -1,0 +1,56 @@
+---
+title: Microsoft Outlook Integration
+description: Sync incoming Microsoft 365 emails into project records with attachment search.
+audience: client
+visibility: published
+module: integrations
+category: Integrations
+tags: [outlook, microsoft-365, email, sync]
+featured: false
+client_visible: true
+ai_visible: true
+order: 1000
+related_routes:
+  - /settings/integrations
+  - /[projectId]/emails
+related_actions: []
+---
+
+# Microsoft Outlook Integration
+
+Alleato OS connects to Microsoft 365 to sync incoming emails directly into project records. Once configured, emails are auto-assigned to the correct project, attachments are indexed, and the AI assistant can use email content as evidence.
+
+## How It Works
+
+- The integration reads incoming mail from your Microsoft 365 mailbox.
+- Each email is matched to a project by subject, sender, recipients, and thread history.
+- Matched emails appear in the project's [Emails](/help/articles/outlook-integration) tool.
+- Unmatched or ambiguous emails go to an intake queue for manual assignment.
+
+## Connect Your Mailbox
+
+1. Open **Settings** > **Integrations**.
+2. Select **Connect Microsoft 365**.
+3. Sign in with your Microsoft account and approve the requested permissions.
+4. The first sync runs in the background.
+
+## Attachment Indexing
+
+Attachment text content (PDFs, Word, Excel) is extracted and made searchable. Search for terms inside attachments from the project's email tool or the global search.
+
+## Reassign an Email
+
+If an email is mis-assigned to the wrong project:
+
+1. Open the email.
+2. Select **Reassign**.
+3. Choose the correct project or mark as unrelated.
+
+## Privacy
+
+The integration only reads your inbox; it does not send mail on your behalf. Your individual mailbox is visible only to you and to admins with the appropriate audit permissions.
+
+## Related Articles
+
+- [Emails](/help/articles/outlook-integration)
+- [Microsoft Teams Integration](/help/articles/teams-integration)

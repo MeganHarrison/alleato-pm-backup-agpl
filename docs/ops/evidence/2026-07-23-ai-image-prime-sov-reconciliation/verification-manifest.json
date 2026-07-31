@@ -1,0 +1,77 @@
+{
+  "contractVersion": 1,
+  "taskId": "LOCAL-AI-IMAGE-SOV-2026-07-23",
+  "riskLevel": "high",
+  "feature": "Alleato AI screenshot-to-Prime-SOV reconciliation",
+  "route": "/ai",
+  "flows": [
+    {
+      "name": "Image-backed Prime Contract SOV preview",
+      "steps": [
+        "Submit a supported screenshot with Prime Contract SOV cost codes and amounts",
+        "Keep the screenshot available to a text-only follow-up in the active conversation",
+        "Resolve omitted cost type only from one exact project cost-code and amount match",
+        "Return a no-write Prime Contract SOV preview",
+        "Require the exact stored preview token and explicit user confirmation before the atomic write"
+      ],
+      "expectedOutcome": "The assistant reads the screenshot, stays on the conversational action-tool path, and produces a safe SOV preview without guessing or making an unconfirmed write."
+    }
+  ],
+  "requiredEvidence": [
+    "summary",
+    "actionLog",
+    "negativePath",
+    "regressionTest"
+  ],
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "vision-conversation-boundary",
+      "description": "Supported images are validated, forwarded to the model, and remain attachment-aware for active-conversation follow-ups.",
+      "evidence": [
+        {
+          "key": "summary",
+          "min": 1
+        },
+        {
+          "key": "regressionTest",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "sov-budget-reconciliation",
+      "description": "Missing cost type resolves only from one exact active project budget-code and amount match.",
+      "evidence": [
+        {
+          "key": "actionLog",
+          "min": 1
+        },
+        {
+          "key": "negativePath",
+          "min": 1
+        },
+        {
+          "key": "regressionTest",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "financial-write-safety",
+      "description": "Ambiguous and missing matches block, while writes retain preview-token, explicit-confirmation, permission, draft-only, audit, stale-state, and atomic RPC gates.",
+      "evidence": [
+        {
+          "key": "negativePath",
+          "min": 1
+        },
+        {
+          "key": "regressionTest",
+          "min": 1
+        }
+      ]
+    }
+  ]
+}

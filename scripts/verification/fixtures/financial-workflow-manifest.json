@@ -1,0 +1,30 @@
+{
+  "contractVersion": 1,
+  "taskId": "QA-FINANCIAL-2026-07-14",
+  "feature": "Canonical financial workflow verification",
+  "route": "/876",
+  "flows": [
+    {
+      "name": "Project to invoice financial chain",
+      "steps": ["Budget", "Prime contract and SOV", "Commitment", "Change event", "Change order", "Invoice"],
+      "expectedOutcome": "Each downstream financial surface can locate and preserve the upstream record and totals"
+    }
+  ],
+  "requiredEvidence": ["summary", "screenshots", "databaseReadback", "reloadProof", "negativePath", "regressionTest"],
+  "visual": {"viewports": ["desktop", "mobile"]},
+  "independentReview": {"required": true},
+  "claims": [
+    {
+      "id": "financial-chain",
+      "description": "The exercised financial chain is verified with runtime, persistence, reload, negative-path, and regression evidence",
+      "evidence": [
+        {"key": "summary", "min": 1},
+        {"key": "screenshots", "min": 1},
+        {"key": "databaseReadback", "min": 1},
+        {"key": "reloadProof", "min": 1},
+        {"key": "negativePath", "min": 1},
+        {"key": "regressionTest", "min": 1}
+      ]
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "status": "PASS",
+  "taskId": "LOCAL-2026-07-21-SCHEDULE-PHASE2-RECONCILE",
+  "evidence": {
+    "summary": [
+      "docs/ops/tasks/2026-07-21-schedule-phase2-reconcile.md"
+    ],
+    "databaseReadback": [
+      "docs/ops/tasks/2026-07-21-schedule-phase2-reconcile.md",
+      "supabase/migrations/20260722020000_reconcile_schedule_project_calendars.sql",
+      "supabase/migrations/20260722021500_harden_schedule_dependency_boundary.sql"
+    ],
+    "negativePath": [
+      "frontend/src/app/api/projects/[projectId]/scheduling/tasks/[taskId]/dependencies/__tests__/route.test.ts",
+      "frontend/src/components/scheduling/__tests__/calendar-settings-dialog.test.tsx"
+    ],
+    "visualReview": [
+      "docs/ops/verification/schedule-phase2-independent-review.md",
+      "docs/ops/verification/schedule-phase2-calendar-desktop.png"
+    ],
+    "regressionTest": [
+      "frontend/src/app/api/projects/[projectId]/scheduling/calendar/__tests__/route.test.ts",
+      "frontend/src/components/scheduling/__tests__/calendar-settings-dialog.test.tsx",
+      "frontend/src/app/api/projects/[projectId]/scheduling/tasks/[taskId]/dependencies/__tests__/route.test.ts",
+      "frontend/src/components/scheduling/__tests__/task-dependencies-editor.test.tsx",
+      "frontend/src/lib/scheduling/__tests__/schedule-impact-preview.test.ts"
+    ]
+  },
+  "claims": {
+    "calendar-reason-roundtrip": {
+      "regressionTest": [
+        "frontend/src/app/api/projects/[projectId]/scheduling/calendar/__tests__/route.test.ts",
+        "frontend/src/components/scheduling/__tests__/calendar-settings-dialog.test.tsx"
+      ]
+    },
+    "bounded-lead-lag": {
+      "regressionTest": [
+        "frontend/src/app/api/projects/[projectId]/scheduling/tasks/[taskId]/dependencies/__tests__/route.test.ts",
+        "frontend/src/components/scheduling/__tests__/task-dependencies-editor.test.tsx",
+        "frontend/src/lib/scheduling/__tests__/schedule-impact-preview.test.ts"
+      ],
+      "negativePath": [
+        "frontend/src/app/api/projects/[projectId]/scheduling/tasks/[taskId]/dependencies/__tests__/route.test.ts"
+      ]
+    },
+    "forward-only-reconciliation": {
+      "databaseReadback": [
+        "docs/ops/tasks/2026-07-21-schedule-phase2-reconcile.md",
+        "supabase/migrations/20260722020000_reconcile_schedule_project_calendars.sql"
+      ]
+    },
+    "governed-failure-boundary": {
+      "databaseReadback": [
+        "docs/ops/tasks/2026-07-21-schedule-phase2-reconcile.md",
+        "supabase/migrations/20260722021500_harden_schedule_dependency_boundary.sql"
+      ],
+      "negativePath": [
+        "frontend/src/app/api/projects/[projectId]/scheduling/tasks/[taskId]/dependencies/__tests__/route.test.ts",
+        "frontend/src/components/scheduling/__tests__/calendar-settings-dialog.test.tsx"
+      ],
+      "regressionTest": [
+        "frontend/src/app/api/projects/[projectId]/scheduling/calendar/__tests__/route.test.ts",
+        "frontend/src/components/scheduling/__tests__/calendar-settings-dialog.test.tsx"
+      ]
+    },
+    "responsive-accessible-controls": {
+      "visualReview": [
+        "docs/ops/verification/schedule-phase2-independent-review.md",
+        "docs/ops/verification/schedule-phase2-calendar-desktop.png"
+      ]
+    }
+  },
+  "independentReview": {
+    "reviewer": "Codex independent reviewer /root/schedule_phase2_review",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-21T23:51:35-04:00",
+    "artifact": "docs/ops/verification/schedule-phase2-independent-review.md"
+  }
+}

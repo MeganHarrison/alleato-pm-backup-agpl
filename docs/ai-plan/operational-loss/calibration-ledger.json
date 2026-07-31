@@ -1,0 +1,157 @@
+{
+  "schemaVersion": 1,
+  "window": {
+    "since": "2026-01-15T00:00:00.000Z",
+    "until": "2026-07-15T00:00:00.000Z"
+  },
+  "exclusionLedger": "docs/ops/evidence/2026-07-14-historical-outlook-attribution-adjudication/ledger.json",
+  "episodes": [
+    {
+      "id": "ole-superior-in-rack-fitment-2026-07",
+      "kind": "failure",
+      "projectId": 178,
+      "projectName": "Superior Beverage Exotec",
+      "workflow": "In-rack sprinkler design release and field readiness",
+      "pattern": "rework",
+      "startedOn": "2026-07-08",
+      "endedOn": null,
+      "expectedState": "Exotec-accepted fitment and design constraints are resolved before fabrication, release, or field dependence.",
+      "firstBreakdown": "Field work and released design were already dependent on a configuration Exotec said could not fit the racks.",
+      "trigger": "Exotec reviewed the installed/released configuration against rack constraints.",
+      "contributingConditions": ["Acceptance criteria were not closed before downstream commitment", "Related McLane design lessons were not converted into a release gate"],
+      "consequences": ["Design rebuild", "Open field-fitment risk", "Additional coordination and approval work"],
+      "impacts": [
+        { "dimension": "productivity", "status": "confirmed", "value": null, "unit": null, "method": "Source confirms redesign work; hours are not yet measured." },
+        { "dimension": "money", "status": "unknown", "value": null, "unit": "USD", "method": "No source-backed cost value has been reconciled." }
+      ],
+      "roles": ["design coordination", "sprinkler delivery", "equipment vendor", "field execution"],
+      "earliestSignal": "The earlier McLane thread documented the rear-upright and support-elevation constraints before the Superior breakdown surfaced.",
+      "resolution": "Open: rebuild the design against the named Exotec standard and close all fitment comments.",
+      "preventability": "high",
+      "confidence": { "occurrence": "high", "consequence": "medium", "causal": "medium" },
+      "evidence": [
+        {
+          "documentId": "outlook_AAMkADAwNzg3ZTA5LTJmMWEtNDczNi04ODcxLTk1MTA1ODhmYmIyNABGAAAAAAAU1WTKtGciQa9go1eRAG9JBwD__y9hPlJRRYxFT5QN_MgoAAAAAAEMAAD__y9hPlJRRYxFT5QN_MgoAARN0EBEAAA=",
+          "expectedProjectId": 178,
+          "occurredOn": "2026-07-13",
+          "grade": "A",
+          "supports": ["occurrence", "consequence"],
+          "note": "Corrected Superior mailbox copy; the false Uniqlo episode is not used."
+        }
+      ],
+      "review": { "status": "seed_reviewed", "reviewer": "Codex S147", "reviewedOn": "2026-07-14", "notes": "Occurrence is confirmed; financial and schedule burden remain unquantified." }
+    },
+    {
+      "id": "ole-mclane-rear-upright-resolution-2026-07",
+      "kind": "healthy_counterexample",
+      "projectId": 879,
+      "projectName": "McLane Jazz, Utah",
+      "workflow": "In-rack sprinkler design acceptance",
+      "pattern": "missing_information",
+      "startedOn": "2026-07-08",
+      "endedOn": "2026-07-09",
+      "expectedState": "Vendor constraints are resolved and accepted before field installation details are finalized.",
+      "firstBreakdown": "Support elevation and allowable upright locations required clarification.",
+      "trigger": "The design team surfaced the rear-upright-only constraint and bending-moment concern.",
+      "contributingConditions": ["Equipment geometry constrained usable support locations"],
+      "consequences": ["Clarification was closed with an accepted configuration", "No schedule impact was stated in the source chain"],
+      "impacts": [
+        { "dimension": "schedule", "status": "confirmed", "value": 0, "unit": "stated impacted days", "method": "No schedule impact is stated; this is not proof of zero internal effort." }
+      ],
+      "roles": ["design coordination", "equipment vendor", "installation team"],
+      "earliestSignal": "Support elevation and nine-millimeter upright-hole constraints were raised before final installation acceptance.",
+      "resolution": "Alleato and Exotec accepted the standard rear-upright vertical support and bracket orientation.",
+      "preventability": "unknown",
+      "confidence": { "occurrence": "high", "consequence": "medium", "causal": "low" },
+      "evidence": [
+        {
+          "documentId": "outlook_AAMkADk2MTgxYzJhLTUzZjctNDIzZS05ZDkxLTg2NTcyNTRiOWRhYQBGAAAAAAC44Z9cGTA6SKuHAQ6MZsBABwDEL6z4g2_XQZJZM15izKp5AAAAAAEMAADEL6z4g2_XQZJZM15izKp5AAEpYUDcAAA=",
+          "expectedProjectId": 879,
+          "occurredOn": "2026-07-09",
+          "grade": "A",
+          "supports": ["occurrence", "resolution", "counterexample"],
+          "note": "Consistently attributed McLane source showing accepted rear-upright configuration."
+        }
+      ],
+      "review": { "status": "seed_reviewed", "reviewer": "Codex S147", "reviewedOn": "2026-07-14", "notes": "Retained to learn which early clarification controls distinguish resolution from downstream rework." }
+    },
+    {
+      "id": "ole-ulta-ac1-readiness-stop-2026-06",
+      "kind": "failure",
+      "projectId": 761,
+      "projectName": "Ulta Beauty Fresno",
+      "workflow": "Trade mobilization and startup readiness",
+      "pattern": "ownership_handoff",
+      "startedOn": "2026-06-26",
+      "endedOn": null,
+      "expectedState": "Client decisions, prerequisite work, and startup direction are closed before trade mobilization.",
+      "firstBreakdown": "ACCO pulled manpower and later did not mobilize because direction and owner decisions remained unresolved.",
+      "trigger": "Unresolved duct-sock/startup direction reached the planned work window.",
+      "contributingConditions": ["Decision ownership remained external at the mobilization boundary", "Communication handoff was changing during active startup coordination"],
+      "consequences": ["Manpower pullback", "No-show at planned startup", "Stop-work direction pending an Ulta decision"],
+      "impacts": [
+        { "dimension": "schedule", "status": "confirmed", "value": null, "unit": "days", "method": "Sources confirm startup risk and a missed mobilization; exact delay duration is not reconciled." },
+        { "dimension": "money", "status": "unknown", "value": null, "unit": "USD", "method": "Remobilization or idle-cost amount is not source-backed yet." }
+      ],
+      "roles": ["project management", "client decision owner", "mechanical trade", "site coordination"],
+      "earliestSignal": "ACCO had already pulled manpower pending direction before the missed mobilization was reported.",
+      "resolution": "Partially recovered when ACCO agreed to prepare the plenum; later stop-work messaging shows the decision path was not fully closed.",
+      "preventability": "medium",
+      "confidence": { "occurrence": "high", "consequence": "high", "causal": "medium" },
+      "evidence": [
+        {
+          "documentId": "outlook_AAMkAGMxYzliZjNlLTA0NWMtNGRhOS05NTQ2LTQ1NjExNDk1N2Y0NQBGAAAAAADrd1V375-HRoiO2Tl_R0q5BwArbjWw6PNIQpcQAs78r3haAAAAAAEMAAArbjWw6PNIQpcQAs78r3haAAGEvm-TAAA=",
+          "expectedProjectId": 761,
+          "occurredOn": "2026-06-26",
+          "grade": "A",
+          "supports": ["occurrence", "causal"],
+          "note": "Email documents manpower pullback and recovery attempt around AC-1 startup."
+        },
+        {
+          "documentId": "teamsdm_4ebcf74f0f650a96_2026-06-29",
+          "expectedProjectId": null,
+          "occurredOn": "2026-06-29",
+          "grade": "A",
+          "supports": ["occurrence", "consequence"],
+          "note": "Teams source explicitly records the missed mobilization and stop-work instruction; it is unassigned and therefore cannot independently prove project identity."
+        }
+      ],
+      "review": { "status": "seed_reviewed", "reviewer": "Codex S147", "reviewedOn": "2026-07-14", "notes": "Cross-source occurrence is strong; exact remobilization cost and final delay remain unknown." }
+    },
+    {
+      "id": "ole-gpc-material-constraint-2026-07",
+      "kind": "failure",
+      "projectId": 90,
+      "projectName": "Alleato Internal Operations / GPC discussion",
+      "workflow": "Sprinkler material readiness and forward planning",
+      "pattern": "procurement_lead_time",
+      "startedOn": "2026-07-13",
+      "endedOn": null,
+      "expectedState": "Material constraints are tied to a written look-ahead schedule with required-on-site dates before crews depend on them.",
+      "firstBreakdown": "The huddle identified backordered K16 heads and a need to source roughly 900 scarce U-bolts while GPC was already described as delayed.",
+      "trigger": "Near-term branch-line work encountered unresolved material availability.",
+      "contributingConditions": ["Written schedules were still being requested", "Supplier scarcity and backorder status were active"],
+      "consequences": ["Emergency local sourcing and overnight logistics", "Resequencing pressure", "Existing project delay remained exposed"],
+      "impacts": [
+        { "dimension": "energy", "status": "confirmed", "value": null, "unit": null, "method": "Source assigns emergency procurement and coordination work; effort hours are unknown." },
+        { "dimension": "schedule", "status": "confirmed", "value": null, "unit": "days", "method": "Meeting states GPC is delayed but does not isolate material-attributable days." }
+      ],
+      "roles": ["sprinkler operations", "procurement", "project management", "supplier"],
+      "earliestSignal": "Written schedule and material availability were both unresolved before the emergency sourcing action was assigned.",
+      "resolution": "Open: confirm K16 shipment timing, allocate available K22 heads, and source U-bolts locally or by courier.",
+      "preventability": "medium",
+      "confidence": { "occurrence": "high", "consequence": "medium", "causal": "low" },
+      "evidence": [
+        {
+          "documentId": "01KXBR15A22C0WFQQ2GR0BR8MZ",
+          "expectedProjectId": 90,
+          "occurredOn": "2026-07-13",
+          "grade": "A",
+          "supports": ["occurrence", "consequence"],
+          "note": "Fireflies morning huddle contains the material quantities, backorder, schedule request, and GPC delay statements."
+        }
+      ],
+      "review": { "status": "seed_reviewed", "reviewer": "Codex S147", "reviewedOn": "2026-07-14", "notes": "Project 90 is the canonical source attribution, but the episode remains company-level until a canonical GPC project mapping is proven." }
+    }
+  ]
+}

@@ -1,0 +1,199 @@
+{
+  "name": "create-prime-contract-bare",
+  "base": "http://localhost:3000",
+  "startPath": "/1142/directory",
+  "viewport": { "width": 1440, "height": 900 },
+  "frame": false,
+  "bareFootage": true,
+  "tighten": { "maxDwell": 1.7, "minFreeze": 1.3 },
+  "warm": [
+    "/1142/directory",
+    "/1142/prime-contracts",
+    "/1142/prime-contracts/new"
+  ],
+  "steps": [
+    { "required": true, "expectText": "Project Directory", "hold": 1800 },
+    {
+      "required": true,
+      "click": "button:has-text(\"440 West Inc.\")",
+      "timeout": 45000,
+      "expectText": "Contacts (0)",
+      "hold": 1800
+    },
+    {
+      "required": true,
+      "zoom": "[role=\"dialog\"] section:first-of-type",
+      "expectTexts": ["440 West Inc.", "Status", "active", "Address", "440 S. Gulfview Blvd, Suite 203", "City", "Clearwater", "State", "Florida", "Postal Code", "33767"],
+      "hold": 2200
+    },
+    {
+      "required": true,
+      "zoom": "[role=\"dialog\"] section:has-text(\"Contacts\")",
+      "expectText": "Contacts",
+      "hold": 2100
+    },
+    {
+      "required": true,
+      "click": "[role=\"dialog\"] button:has-text(\"Add from company directory\")",
+      "expectText": "Create new person",
+      "hold": 1700
+    },
+    {
+      "required": true,
+      "click": "button:has-text(\"Create new person\")",
+      "expectText": "New Contact",
+      "hold": 1100
+    },
+    {
+      "required": true,
+      "type": { "selector": "input[placeholder=\"Enter first name\"]", "text": "Owner" }
+    },
+    {
+      "required": true,
+      "type": { "selector": "input[placeholder=\"Enter last name\"]", "text": "Billing" }
+    },
+    {
+      "required": true,
+      "type": { "selector": "input[placeholder=\"email@example.com\"]", "text": "billing@owner-example.com" }
+    },
+    {
+      "required": true,
+      "type": { "selector": "input[placeholder=\"(555) 123-4567\"]", "text": "(317) 555-0100" }
+    },
+    {
+      "required": true,
+      "type": { "selector": "input[placeholder=\"Project Manager\"]", "text": "Accounts Payable" }
+    },
+    {
+      "required": true,
+      "zoom": "[role=\"dialog\"]:has-text(\"New Contact\")",
+      "expectTexts": ["New Contact", "440 West Inc."],
+      "hold": 2300
+    },
+    {
+      "required": true,
+      "goto": "/1142/prime-contracts/new",
+      "expectText": "General Information",
+      "hold": 1800
+    },
+    {
+      "required": true,
+      "type": { "selector": "input[name=\"number\"]", "text": "PC-DEMO-2026-001" }
+    },
+    {
+      "required": true,
+      "type": {
+        "selector": "input[name=\"title\"]",
+        "text": "Owner Contract - Interior Renovation"
+      }
+    },
+    {
+      "required": true,
+      "click": "button:has-text(\"Select company\")",
+      "expectText": "440 West Inc.",
+      "hold": 1000
+    },
+    {
+      "required": true,
+      "click": "[role=\"option\"]:has-text(\"440 West Inc.\")",
+      "hold": 1000
+    },
+    {
+      "required": true,
+      "click": "button:has-text(\"Draft\")",
+      "expectText": "Approved",
+      "hold": 900
+    },
+    {
+      "required": true,
+      "click": "[role=\"option\"]:has-text(\"Approved\")",
+      "hold": 1000
+    },
+    {
+      "required": true,
+      "type": { "selector": "input[name=\"defaultRetainage\"]", "text": "10" }
+    },
+    {
+      "required": true,
+      "type": {
+        "selector": "[contenteditable=\"true\"][data-placeholder^=\"Enter contract description\"]",
+        "text": "Owner agreement for the interior renovation, including general conditions, demolition, framing, drywall, finishes, closeout, and turnover."
+      }
+    },
+    { "required": true, "zoom": "text=Attachments", "hold": 2000 },
+    {
+      "required": true,
+      "date": { "label": "Start Date", "value": "2026-08-03" },
+      "hold": 1200
+    },
+    {
+      "required": true,
+      "date": { "label": "Estimated Completion Date", "value": "2026-12-18" },
+      "hold": 1500
+    },
+    {
+      "required": true,
+      "click": "button:has-text(\"Import from Estimate\")",
+      "expectText": "Import Excel SOV",
+      "hold": 1400
+    },
+    {
+      "required": true,
+      "upload": {
+        "selector": "[role=\"dialog\"] input[type=\"file\"]",
+        "path": "../../../../docs/ops/evidence/2026-07-20-prime-contract-chat-workbook-e2e/prime-contract-chat-valid-estimate.xlsx",
+        "settle": 2500
+      },
+      "hold": 1600
+    },
+    {
+      "required": true,
+      "zoom": "[role=\"dialog\"] table",
+      "timeout": 45000,
+      "expectVisible": "[role=\"dialog\"] table tbody tr",
+      "expectTexts": [
+        "01-3120",
+        "Vice President",
+        "$1,250.00",
+        "Mapped",
+        "01-3126",
+        "Pre-construction - Pre-construction services",
+        "$2,750.25",
+        "2 selected, $4,000.25"
+      ],
+      "hold": 2400
+    },
+    {
+      "required": true,
+      "click": "[role=\"dialog\"] button:has-text(\"Import\")",
+      "timeout": 45000,
+      "expectVisible": "[data-testid=\"sov-line-0\"]",
+      "hold": 1800
+    },
+    {
+      "required": true,
+      "zoom": "[data-testid=\"sov-table\"]",
+      "expectTexts": ["01-3120.R", "Vice President", "$1,250.00", "01-3126.R", "$2,750.25", "$4,000.25"],
+      "hold": 2200
+    },
+    {
+      "required": true,
+      "type": {
+        "selector": "[contenteditable=\"true\"][data-placeholder^=\"Enter what is included\"]",
+        "text": "General conditions; demolition; framing; drywall; finishes; permits; closeout documents; and owner turnover."
+      }
+    },
+    {
+      "required": true,
+      "type": {
+        "selector": "[contenteditable=\"true\"][data-placeholder^=\"Enter what is excluded\"]",
+        "text": "Owner-furnished equipment; loose furniture; specialty AV; utility fees; and work outside the executed contract exhibits."
+      }
+    },
+    {
+      "required": true,
+      "zoom": "button:has-text(\"Create Prime Contract\")",
+      "hold": 2800
+    }
+  ]
+}

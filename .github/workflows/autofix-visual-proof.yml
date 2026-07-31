@@ -1,0 +1,342 @@
+name: Autofix Visual Proof
+
+# Closes the "here's what I implemented, with proof" loop for the autofix lane
+# (VISUAL-PROOF-GATE.md): when Vercel finishes the preview deployment of an
+# autofix/* PR branch, this workflow signs in to the preview as the app's test
+# user (same auth pattern as frontend/tests/auth.setup.ts), screenshots the
+# route(s) named in the source issue's Reproduction section (desktop + mobile),
+# and posts the screenshots as a PR comment.
+#
+# Screenshots are hosted in the Supabase Storage bucket `autofix-proof` (public
+# bucket, unguessable per-run path) because raw images from a private repo do
+# not render inline in GitHub comments.
+#
+# Vercel deployment protection is crossed with the project's "Protection Bypass
+# for Automation" secret (VERCEL_AUTOMATION_BYPASS_SECRET).
+#
+# Failure is loud, never silent: if capture fails, the PR still gets a comment
+# saying visual proof FAILED and why, with a link to the run.
+
+on:
+  deployment_status:
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "PR number to capture proof for"
+        required: true
+      preview_url:
+        description: "Preview deployment URL (https origin)"
+        required: true
+
+concurrency:
+  group: autofix-visual-proof-${{ github.event.deployment.sha || github.event.inputs.pr_number }}
+  cancel-in-progress: true
+
+jobs:
+  proof:
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (
+        github.event.deployment_status.state == 'success' &&
+        startsWith(github.event.deployment.environment, 'Preview')
+      )
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+    steps:
+      - name: Resolve autofix PR, issue, and proof routes
+        id: resolve
+        uses: actions/github-script@v7
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_PR_NUMBER: ${{ github.event.inputs.pr_number }}
+          INPUT_PREVIEW_URL: ${{ github.event.inputs.preview_url }}
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            let pr = null;
+            let previewUrl = "";
+
+            if (process.env.EVENT_NAME === "workflow_dispatch") {
+              const { data } = await github.rest.pulls.get({
+                owner,
+                repo,
+                pull_number: Number(process.env.INPUT_PR_NUMBER),
+              });
+              pr = data;
+              previewUrl = process.env.INPUT_PREVIEW_URL;
+            } else {
+              const sha = context.payload.deployment.sha;
+              previewUrl = context.payload.deployment_status.environment_url || "";
+              const { data: prs } = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+                owner,
+                repo,
+                commit_sha: sha,
+              });
+              pr = prs.find(
+                (candidate) =>
+                  candidate.state === "open" &&
+                  (candidate.head.ref.startsWith("autofix/") ||
+                    (candidate.labels || []).some((label) => label.name === "automated-pr")),
+              ) ?? null;
+            }
+
+            if (!pr) {
+              core.info("Deployment is not for an open autofix PR — nothing to do.");
+              core.setOutput("skip", "true");
+              return;
+            }
+            if (!previewUrl) {
+              core.setFailed(`No preview URL available for PR #${pr.number} — cannot capture visual proof.`);
+              return;
+            }
+
+            // Source issue: "Resolves #N" in the PR body, or the branch name.
+            const bodyMatch = (pr.body || "").match(/(?:resolves|closes|fixes)\s+#(\d+)/i);
+            const branchMatch = pr.head.ref.match(/^autofix\/issue-(\d+)-/);
+            const issueNumber = bodyMatch ? Number(bodyMatch[1]) : branchMatch ? Number(branchMatch[1]) : null;
+
+            // Routes come from the issue's Reproduction section (issue-template
+            // lane) or Location section (admin-feedback lane).
+            let routeSourceText = "";
+            let routeSourceLabel = "";
+            if (issueNumber) {
+              try {
+                const { data: issue } = await github.rest.issues.get({
+                  owner,
+                  repo,
+                  issue_number: issueNumber,
+                });
+                const issueBody = (issue.body || "").replace(/<!--[\s\S]*?-->/g, "");
+                const repro = issueBody.match(/### Reproduction\s*([\s\S]*?)(?=\n### |$)/i);
+                const location = issueBody.match(/## Location\s*([\s\S]*?)(?=\n## |$)/i);
+                routeSourceText = [repro?.[1] ?? "", location?.[1] ?? ""].join("\n").trim();
+                routeSourceLabel = `issue #${issueNumber}`;
+              } catch (error) {
+                core.warning(`Could not read issue #${issueNumber}: ${error.message}`);
+              }
+            }
+            if (!routeSourceText) {
+              // Fall back to the PR body itself (summaries often name the route).
+              routeSourceText = pr.body || "";
+              routeSourceLabel = "PR body";
+            }
+
+            const candidates = [];
+            for (const match of routeSourceText.matchAll(/https?:\/\/[^\s`"'<>)\]]+/g)) {
+              try {
+                const url = new URL(match[0]);
+                // Only app hosts — prose links (docs, claude.com, GitHub) are not proof routes.
+                if (/(^|\.)alleatogroup\.com$|\.vercel\.app$|^localhost$/.test(url.hostname)) {
+                  candidates.push(url.pathname);
+                }
+              } catch {
+                // Malformed URL in prose — skip it.
+              }
+            }
+            for (const match of routeSourceText.matchAll(/(?:^|[\s`"'(])(\/[a-zA-Z0-9][a-zA-Z0-9\-_/]*)/g)) {
+              candidates.push(match[1]);
+            }
+
+            const routes = [
+              ...new Set(
+                candidates
+                  .map((route) => route.replace(/\/+$/, "") || "/")
+                  .filter(
+                    (route) =>
+                      !route.includes(".") &&
+                      !route.includes("[") &&
+                      !route.startsWith("/api/") &&
+                      !route.startsWith("/auth/"),
+                  ),
+              ),
+            ].slice(0, 3);
+
+            let routeNote = "";
+            if (routes.length === 0) {
+              routes.push("/");
+              routeNote = `No app routes found in ${routeSourceLabel} — capturing the dashboard as a smoke-level proof.`;
+            }
+
+            core.info(`PR #${pr.number} · preview ${previewUrl} · routes ${JSON.stringify(routes)}`);
+            core.setOutput("skip", "false");
+            core.setOutput("pr_number", String(pr.number));
+            core.setOutput("issue_number", issueNumber ? String(issueNumber) : "");
+            core.setOutput("preview_url", previewUrl);
+            core.setOutput("routes", JSON.stringify(routes));
+            core.setOutput("route_note", routeNote);
+
+      - name: Check out repository
+        if: steps.resolve.outputs.skip == 'false'
+        uses: actions/checkout@v6
+        with:
+          # Check out the deployed commit so the capture tooling matches the
+          # preview being screenshotted (autofix branches are cut from main, so
+          # they carry these scripts). workflow_dispatch falls back to the
+          # dispatched ref's head.
+          ref: ${{ github.event.deployment.sha || github.sha }}
+
+      - name: Set up pnpm
+        if: steps.resolve.outputs.skip == 'false'
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.13.1
+
+      - name: Set up Node.js
+        if: steps.resolve.outputs.skip == 'false'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install frontend dependencies
+        if: steps.resolve.outputs.skip == 'false'
+        run: pnpm --dir frontend install --frozen-lockfile
+
+      - name: Install Playwright Chromium
+        if: steps.resolve.outputs.skip == 'false'
+        run: pnpm --dir frontend exec playwright install --with-deps chromium
+
+      - name: Capture screenshots on the preview deployment
+        if: steps.resolve.outputs.skip == 'false'
+        id: capture
+        continue-on-error: true
+        env:
+          PREVIEW_URL: ${{ steps.resolve.outputs.preview_url }}
+          PROOF_ROUTES: ${{ steps.resolve.outputs.routes }}
+          PROOF_OUTPUT_DIR: ${{ runner.temp }}/proof-output
+          TEST_USER_1: ${{ secrets.TEST_USER_1 }}
+          TEST_PASSWORD_1: ${{ secrets.TEST_PASSWORD_1 }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+        run: node scripts/autofix/capture-visual-proof.mjs
+
+      - name: Upload screenshots to Supabase Storage
+        if: steps.resolve.outputs.skip == 'false'
+        id: upload
+        continue-on-error: true
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          PROOF_OUTPUT_DIR: ${{ runner.temp }}/proof-output
+          PROOF_UPLOAD_PREFIX: pr-${{ steps.resolve.outputs.pr_number }}
+        run: node scripts/autofix/upload-proof-assets.mjs
+
+      - name: Upload screenshots as run artifact
+        if: steps.resolve.outputs.skip == 'false'
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-proof-pr-${{ steps.resolve.outputs.pr_number }}
+          path: ${{ runner.temp }}/proof-output/
+          if-no-files-found: ignore
+
+      - name: Post visual proof comment on the PR
+        if: steps.resolve.outputs.skip == 'false'
+        uses: actions/github-script@v7
+        env:
+          PR_NUMBER: ${{ steps.resolve.outputs.pr_number }}
+          ISSUE_NUMBER: ${{ steps.resolve.outputs.issue_number }}
+          PREVIEW_URL: ${{ steps.resolve.outputs.preview_url }}
+          ROUTE_NOTE: ${{ steps.resolve.outputs.route_note }}
+          CAPTURE_OUTCOME: ${{ steps.capture.outcome }}
+          UPLOAD_OUTCOME: ${{ steps.upload.outcome }}
+          PROOF_OUTPUT_DIR: ${{ runner.temp }}/proof-output
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        with:
+          script: |
+            const fs = require("fs");
+            const path = require("path");
+
+            const prNumber = Number(process.env.PR_NUMBER);
+            let manifest = null;
+            try {
+              manifest = JSON.parse(
+                fs.readFileSync(path.join(process.env.PROOF_OUTPUT_DIR, "manifest.json"), "utf-8"),
+              );
+            } catch {
+              // No manifest at all — the capture died before writing one.
+            }
+
+            const lines = ["## 📸 Visual proof — preview deployment", ""];
+            const sourceNote = process.env.ISSUE_NUMBER
+              ? `routes from issue #${process.env.ISSUE_NUMBER}`
+              : "routes from the PR body";
+            lines.push(`Preview: ${process.env.PREVIEW_URL} (${sourceNote})`);
+            if (process.env.ROUTE_NOTE) lines.push("", `> ${process.env.ROUTE_NOTE}`);
+            lines.push("");
+
+            const entries = manifest?.routes ?? [];
+            const captured = entries.filter((entry) => entry.ok);
+            const failed = entries.filter((entry) => !entry.ok);
+
+            const byRoute = new Map();
+            for (const entry of captured) {
+              if (!byRoute.has(entry.route)) byRoute.set(entry.route, []);
+              byRoute.get(entry.route).push(entry);
+            }
+
+            for (const [route, shots] of byRoute) {
+              lines.push(`### \`${route}\``, "");
+              const warning = shots.find((shot) => shot.warning)?.warning;
+              if (warning) lines.push(`> ⚠️ ${warning}`, "");
+              for (const shot of shots) {
+                if (shot.publicUrl) {
+                  if (shot.viewport === "desktop") {
+                    lines.push(`![${route} desktop](${shot.publicUrl})`, "");
+                  } else {
+                    lines.push(
+                      "<details><summary>📱 mobile</summary>",
+                      "",
+                      `<img src="${shot.publicUrl}" width="375" alt="${route} mobile" />`,
+                      "",
+                      "</details>",
+                      "",
+                    );
+                  }
+                } else {
+                  lines.push(`- \`${shot.file}\` captured (image hosting failed — see the run artifact).`);
+                }
+              }
+            }
+
+            const isFailure =
+              process.env.CAPTURE_OUTCOME !== "success" ||
+              failed.length > 0 ||
+              captured.length === 0 ||
+              manifest?.fatalError;
+
+            if (isFailure) {
+              lines.push("### ⚠️ Visual proof incomplete", "");
+              if (manifest?.fatalError) lines.push(`- Fatal: ${manifest.fatalError}`);
+              for (const entry of failed) {
+                lines.push(`- \`${entry.route}\` [${entry.viewport}]: ${entry.error}`);
+              }
+              if (!manifest) lines.push("- The capture script produced no manifest — see the run logs.");
+              lines.push(
+                "",
+                `Per VISUAL-PROOF-GATE.md this PR should not be treated as verified until proof exists. [Workflow run](${process.env.RUN_URL})`,
+              );
+            } else {
+              lines.push(
+                `Captured automatically from the Vercel preview as the app test user · [run](${process.env.RUN_URL})`,
+              );
+              if (process.env.UPLOAD_OUTCOME !== "success") {
+                lines.push("", "> Image hosting failed — screenshots are in the run artifact instead.");
+              }
+            }
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body: lines.join("\n"),
+            });
+
+            if (isFailure) {
+              core.setFailed("Visual proof capture did not fully succeed — see the PR comment.");
+            }

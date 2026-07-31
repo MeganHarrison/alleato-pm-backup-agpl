@@ -1,0 +1,48 @@
+diff --git a/dist/index.js b/dist/index.js
+index 07036659fc11b8a3c9d300536631056ec3f58297..98b882ed9d56a64bc73a62c44603624dde2d9239 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -9611,6 +9611,9 @@ function PageFeedbackToolbarCSS({
+         editPopupRef.current?.shake();
+         return;
+       }
++      if (isInteractive && !settings.blockInteractions) {
++        return;
++      }
+       e.preventDefault();
+       const elementUnder = deepElementFromPoint(e.clientX, e.clientY);
+       if (!elementUnder) return;
+@@ -9743,7 +9746,8 @@ function PageFeedbackToolbarCSS({
+         "SUB",
+         "SUP"
+       ]);
+-      if (textTags.has(target.tagName) || target.isContentEditable) {
++      const focusableTags = /* @__PURE__ */ new Set(["INPUT", "TEXTAREA", "SELECT"]);
++      if (textTags.has(target.tagName) || target.isContentEditable || focusableTags.has(target.tagName)) {
+         return;
+       }
+       e.preventDefault();
+diff --git a/dist/index.mjs b/dist/index.mjs
+index b6662bd6b8bcc9555e22a4d1a0de99198e0c11b5..2cb337c4395301fea4dc6278f9c7b2f22a64d2f7 100644
+--- a/dist/index.mjs
++++ b/dist/index.mjs
+@@ -9527,6 +9527,9 @@ function PageFeedbackToolbarCSS({
+         editPopupRef.current?.shake();
+         return;
+       }
++      if (isInteractive && !settings.blockInteractions) {
++        return;
++      }
+       e.preventDefault();
+       const elementUnder = deepElementFromPoint(e.clientX, e.clientY);
+       if (!elementUnder) return;
+@@ -9659,7 +9662,8 @@ function PageFeedbackToolbarCSS({
+         "SUB",
+         "SUP"
+       ]);
+-      if (textTags.has(target.tagName) || target.isContentEditable) {
++      const focusableTags = /* @__PURE__ */ new Set(["INPUT", "TEXTAREA", "SELECT"]);
++      if (textTags.has(target.tagName) || target.isContentEditable || focusableTags.has(target.tagName)) {
+         return;
+       }
+       e.preventDefault();

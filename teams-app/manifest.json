@@ -1,0 +1,58 @@
+{
+  "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.17/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.17",
+  "version": "1.0.0",
+  "id": "e7af03cc-fe26-4e4d-bf63-425733fdb905",
+  "developer": {
+    "name": "Alleato Group",
+    "websiteUrl": "https://projects.alleatogroup.com",
+    "privacyUrl": "https://projects.alleatogroup.com/privacy",
+    "termsOfUseUrl": "https://projects.alleatogroup.com/terms"
+  },
+  "name": {
+    "short": "Archon",
+    "full": "Archon AI Assistant"
+  },
+  "description": {
+    "short": "Ask Archon about your projects",
+    "full": "Archon is your AI-powered construction project intelligence assistant. Ask about budgets, change orders, commitments, RFIs, submittals, and more — directly in Teams."
+  },
+  "icons": {
+    "color": "color.png",
+    "outline": "outline.png"
+  },
+  "accentColor": "#1a1a2e",
+  "bots": [
+    {
+      "botId": "e7af03cc-fe26-4e4d-bf63-425733fdb905",
+      "scopes": ["personal", "team", "groupchat"],
+      "supportsFiles": false,
+      "isNotificationOnly": false,
+      "commandLists": [
+        {
+          "scopes": ["personal", "team", "groupchat"],
+          "commands": [
+            {
+              "title": "Budget summary",
+              "description": "Get a budget summary for a project"
+            },
+            {
+              "title": "Open change orders",
+              "description": "List open change orders"
+            },
+            {
+              "title": "link",
+              "description": "Link your Alleato account (link <code>)"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "permissions": ["identity", "messageTeamMembers"],
+  "validDomains": ["projects.alleatogroup.com"],
+  "webApplicationInfo": {
+    "id": "e7af03cc-fe26-4e4d-bf63-425733fdb905",
+    "resource": "https://projects.alleatogroup.com"
+  }
+}

@@ -1,0 +1,160 @@
+{
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(npm run dev*)",
+      "Bash(npm run build*)",
+      "Bash(npm run lint*)",
+      "Bash(npm run typecheck*)",
+      "Bash(npm run db:types)",
+      "Bash(npm run db:push)",
+      "Bash(npx tsc --noEmit*)",
+      "Bash(npx playwright test*)",
+      "Bash(npx supabase gen types*)",
+      "Bash(agent-browser *)",
+      "Bash(pkill -f \"next dev\")",
+      "Bash(rm -rf .next)",
+      "Bash(/Users/meganharrison/Documents/alleato-pm/.claude/form-gauntlet/commitments/STATUS.md:*)",
+      "Bash(mkdir -p /Users/meganharrison/Documents/alleato-pm/.claude/form-gauntlet/commitments/forms/create_subcontract/attempt-1)",
+      "Bash(cp /Users/meganharrison/Documents/alleato-pm/.claude/form-gauntlet/commitments/DISCOVERY.md /Users/meganharrison/Documents/alleato-pm/.claude/form-gauntlet/commitments/forms/create_subcontract/spec.md)",
+      "mcp__playwright-test__generator_setup_page",
+      "Read(//tmp/**)",
+      "Read(//private/tmp/**)",
+      "Bash(node -e \":*)",
+      "Bash(find /Users/meganharrison/Documents/alleato-pm/frontend/src/components/budget -name *.tsx)",
+      "Bash(find /Users/meganharrison/Documents/alleato-pm/frontend/src/components/tables -name *.tsx)",
+      "Bash(find /Users/meganharrison/Documents/alleato-pm/frontend/src/components/layout -name *.tsx)",
+      "Bash(grep -r \"bg-white\\\\|bg-black\\\\|bg-gray\\\\|text-gray\\\\|border-gray\\\\|text-neutral\\\\|bg-neutral\\\\|bg-orange\\\\|text-orange\\\\|bg-slate\\\\|text-slate\" /Users/meganharrison/Documents/alleato-pm/frontend/src/components --include=*.tsx --include=*.ts)",
+      "Bash(grep -r \"p-\\\\[.*px\\\\]\\\\|m-\\\\[.*px\\\\]\\\\|gap-\\\\[.*px\\\\]\\\\|w-\\\\[.*px\\\\]\\\\|h-\\\\[.*px\\\\]\" /Users/meganharrison/Documents/alleato-pm/frontend/src/components --include=*.tsx --include=*.ts)",
+      "Bash(grep -r \"shadow-md\\\\|shadow-lg\\\\|shadow-xl\\\\|shadow-2xl\" /Users/meganharrison/Documents/alleato-pm/frontend/src/components --include=*.tsx --include=*.ts)",
+      "Bash(node -e \"console.log\\(require.resolve\\(''playwright''\\)\\)\")",
+      "Bash(node /tmp/form-gauntlet-subcontract.js)",
+      "Bash(NODE_PATH=./node_modules node /tmp/form-gauntlet-subcontract.js)",
+      "Bash(NODE_PATH=./node_modules node -e ':*)",
+      "mcp__claude_ai_Supabase__execute_sql",
+      "mcp__plugin_chrome-devtools-mcp_chrome-devtools__navigate_page",
+      "Bash(mkdir -p /Users/meganharrison/Documents/alleato-pm/docs/roadmap)",
+      "Bash(mv /Users/meganharrison/Documents/alleato-pm/ROADMAP.md /Users/meganharrison/Documents/alleato-pm/docs/roadmap/ROADMAP.md)",
+      "Bash(mv /Users/meganharrison/Documents/alleato-pm/HANDOFF.md /Users/meganharrison/Documents/alleato-pm/docs/roadmap/HANDOFF.md)",
+      "mcp__claude_ai_Supabase__apply_migration",
+      "Bash(cp /tmp/test-root-guard.md ./TEST_SCRATCH.md)",
+      "Bash(git add:*)",
+      "Bash(grep -E \"^[^/]+\\\\.\\(md|js|ts|py|sh|html\\)$\")",
+      "Skill(github-commands:commit-push-pr)",
+      "Skill(github-commands:commit-push-pr:*)"
+    ],
+    "additionalDirectories": [
+      "/Users/meganharrison/Documents/alleato-pm/.claude/form-gauntlet/commitments/forms/create_subcontract",
+      "/Users/meganharrison/Documents/alleato-pm/.claude/form-gauntlet/commitments/forms/create_subcontract/attempt-3"
+    ]
+  },
+  "model": "sonnet",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "HOOK=\"${CLAUDE_PROJECT_DIR:-$PWD}/scripts/hooks/debugging-gate-reminder.mjs\"; [ -f \"$HOOK\" ] && node \"$HOOK\" || exit 0",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if echo \"$TOOL_INPUT\" | python3 -c \"import sys,json; d=json.load(sys.stdin); f=d.get('file_path',''); exit(0 if f.endswith('page.tsx') else 1)\" 2>/dev/null; then SKILL=\"${CLAUDE_PROJECT_DIR:-$PWD}/.claude/skills/create-page/SKILL.md\"; [ -f \"$SKILL\" ] && echo \"=== create-page skill injected ===\"  && cat \"$SKILL\"; fi"
+          },
+          {
+            "type": "command",
+            "command": "HOOK=\"${CLAUDE_PROJECT_DIR:-$PWD}/.claude/hooks/verify-feature-gate.py\"; [ -f \"$HOOK\" ] && echo \"$TOOL_INPUT\" | python3 \"$HOOK\" || exit 0"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "HOOK=\"${CLAUDE_PROJECT_DIR:-$PWD}/.claude/hooks/verify-feature-gate.py\"; [ -f \"$HOOK\" ] && echo \"$TOOL_INPUT\" | python3 \"$HOOK\" || exit 0"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if echo \"$TOOL_INPUT\" | grep -q 'supabase/migrations'; then echo '\u26a0\ufe0f Migration file changed \u2014 run `npm run db:types` to regenerate database types'; fi"
+          }
+        ]
+      },
+      {
+        "matcher": "Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "HOOK=\"${CLAUDE_PROJECT_DIR:-$PWD}/.claude/hooks/verify-feature-gate.py\"; [ -f \"$HOOK\" ] && CLAUDE_HOOK_EVENT=PostToolUse echo \"$TOOL_INPUT\" | CLAUDE_HOOK_EVENT=PostToolUse python3 \"$HOOK\" || exit 0"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -n \"$ALLEATO_REFLECT_LOCK\" ] && exit 0; D=\"${CLAUDE_PROJECT_DIR:-$PWD}/claude-memory-compiler-main\"; [ -d \"$D\" ] && uv run --directory \"$D\" python hooks/session-start.py || exit 0",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -n \"$ALLEATO_REFLECT_LOCK\" ] && exit 0; D=\"${CLAUDE_PROJECT_DIR:-$PWD}/claude-memory-compiler-main\"; [ -d \"$D\" ] && uv run --directory \"$D\" python hooks/pre-compact.py || exit 0",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -n \"$ALLEATO_REFLECT_LOCK\" ] && exit 0; D=\"${CLAUDE_PROJECT_DIR:-$PWD}/claude-memory-compiler-main\"; [ -d \"$D\" ] && uv run --directory \"$D\" python hooks/session-end.py || exit 0",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -n \"$ALLEATO_REFLECT_LOCK\" ] && exit 0; H=\"${CLAUDE_PROJECT_DIR:-$PWD}/scripts/hooks/reflect-claude-md.mjs\"; [ -f \"$H\" ] && setsid node \"$H\" >/dev/null 2>&1 < /dev/null & exit 0",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

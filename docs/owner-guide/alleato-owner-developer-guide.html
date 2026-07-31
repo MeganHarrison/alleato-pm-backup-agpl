@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Alleato PM | Owner’s Guide</title>
+  <meta name="description" content="A visual, plain-English guide to GitHub, Vercel, Render, Supabase, pull requests, and making changes with Claude Code Desktop." />
+  <style>
+    :root {
+      --ink:#292826; --muted:#6b665f; --paper:#fbfaf7; --white:#fff;
+      --orange:#e38327; --orange-deep:#bd5e15; --orange-soft:#f8eadb;
+      --line:#e7e0d6; --charcoal:#30302f; --github:#24292f;
+      --vercel:#111; --supabase:#2f9e75; --render:#6551c7; --claude:#c96f3b;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:#e7e2da;color:var(--ink);font-family:"Avenir Next","Helvetica Neue",Arial,sans-serif;font-size:15px;line-height:1.5;font-feature-settings:"kern" 1,"liga" 1,"calt" 1;-webkit-font-smoothing:antialiased}
+    .document{width:8.5in;margin:28px auto;box-shadow:0 22px 70px rgba(52,44,34,.13)}
+    .page{position:relative;width:8.5in;min-height:11in;padding:.58in .66in .56in;overflow:hidden;background:var(--paper);page-break-after:always}
+    .page:last-child{page-break-after:auto}
+    .page::after{content:attr(data-page);position:absolute;right:.66in;bottom:.27in;color:#958d83;font-size:9px;font-weight:800;letter-spacing:.16em}
+    .cover{display:flex;flex-direction:column;justify-content:space-between;padding:.68in;color:white;background:#292826}
+    .cover::after,.dark::after{color:rgba(255,255,255,.55)}
+    .logo{width:280px;padding:0;background:transparent}
+    .logo img{display:block;width:100%}
+    .eyebrow,.section-label{color:var(--orange);font-size:10px;font-weight:900;letter-spacing:.17em;text-transform:uppercase}
+    .section-label{display:flex;align-items:center;gap:10px;margin-bottom:16px;color:var(--orange-deep)}
+    .section-label::before{content:"";width:29px;height:2px;background:var(--orange)}
+    h1,h2{font-family:inherit;font-weight:600;letter-spacing:-.035em}
+    h1{max-width:6.55in;margin:0;font-size:48px;line-height:1.06}
+    h2{max-width:6.4in;margin:0 0 14px;font-size:32px;line-height:1.14}
+    h3{margin:0 0 5px;font-size:14px;line-height:1.25}
+    p{margin:0 0 12px}
+    .cover .dek{max-width:5.7in;margin:25px 0 0;color:rgba(255,255,255,.78);font-size:18px}
+    .cover-meta{display:flex;justify-content:space-between;align-items:flex-end;padding-top:18px;border-top:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.68);font-size:11px}
+    .cover-meta strong{display:block;color:white;font-size:13px}
+    .lead{max-width:6.55in;color:#514d48;font-size:16px;line-height:1.55}
+    .small{color:var(--muted);font-size:11px}
+    .callout{margin:17px 0;padding:15px 18px;border-top:1px solid rgba(189,94,21,.34);background:var(--orange-soft);font-size:13px}
+    .callout strong{display:block;margin-bottom:3px}
+    .dark{color:white;background:radial-gradient(circle at 90% 8%,rgba(227,131,39,.2),transparent 34%),var(--charcoal)}
+    .dark h2{color:white}
+    .dark .lead{color:rgba(255,255,255,.7)}
+
+    /* System overview */
+    .architecture-map{margin-top:22px;padding:20px 26px;background:#f3f0eb}
+    .system-art-page{display:grid;place-items:center;padding:.48in;background:#f3f0eb}
+    .system-art{width:100%;margin:0}
+    .system-art img{display:block;width:100%;height:auto}
+    .platform-node{display:grid;grid-template-columns:54px 1fr auto;gap:14px;align-items:center;padding:14px 18px;color:var(--ink);background:#fdfcf9;text-decoration:none;box-shadow:0 1px 0 rgba(51,47,43,.08);transition:transform .15s ease-out,box-shadow .15s ease-out}
+    .platform-node:hover{transform:translateY(-2px);box-shadow:0 7px 18px rgba(51,47,43,.09)}
+    .platform-node:focus-visible{outline:3px solid rgba(227,131,39,.45);outline-offset:3px}
+    .platform-node .platform-logo{width:42px;height:42px;object-fit:contain}
+    .platform-node.supabase .platform-logo{width:36px;height:40px}
+    .platform-node strong{display:block;font-size:17px;font-weight:600;letter-spacing:-.02em}
+    .platform-node .role{display:block;margin-top:2px;color:var(--orange-deep);font-size:11px;font-weight:700}
+    .platform-node .description{display:block;max-width:45ch;margin-top:5px;color:var(--muted);font-size:9px;line-height:1.45}
+    .platform-node .open-link{color:var(--muted);font-size:9px;font-weight:700;text-align:right}
+    .architecture-source{width:76%;margin:0 auto}
+    .runtime-pair{display:grid;grid-template-columns:1fr 1fr;gap:44px}
+    .runtime-pair .platform-node{grid-template-columns:54px 1fr}
+    .runtime-pair .open-link{grid-column:2;justify-self:start;margin-top:-7px;text-align:left}
+    .architecture-database{width:76%;margin:0 auto}
+    .system-branch,.system-merge{position:relative;height:56px}
+    .system-branch::before,.system-merge::before{content:"";position:absolute;left:50%;width:1px;background:#9b948b;transform:translateX(-50%)}
+    .system-branch::before{top:0;height:26px}.system-merge::before{bottom:0;height:26px}
+    .system-branch::after,.system-merge::after{content:"";position:absolute;left:25%;right:25%;height:1px;background:#9b948b}
+    .system-branch::after{top:26px}.system-merge::after{bottom:26px}
+    .branch-leg{position:absolute;width:1px;height:30px;background:#9b948b}
+    .system-branch .branch-leg{top:26px}.system-merge .branch-leg{bottom:26px}
+    .branch-leg.left{left:25%}.branch-leg.right{right:25%}
+    .flow-label{position:absolute;z-index:1;left:50%;top:50%;padding:3px 8px;color:var(--muted);background:#f3f0eb;font-size:8px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;transform:translate(-50%,-50%)}
+
+    /* Claude flow */
+    .claude-workspace{margin-top:18px}
+    .claude-figure{position:relative;margin:0;overflow:hidden;border:1px solid rgba(255,255,255,.16);background:white}
+    .claude-figure img{display:block;width:100%;height:auto}
+    .screen-marker{position:absolute;display:grid;place-items:center;width:26px;height:26px;border:3px solid white;border-radius:50%;color:white;background:var(--orange-deep);box-shadow:0 2px 8px rgba(0,0,0,.28);font-size:9px;font-weight:900}
+    .screen-marker.new-session{left:8.2%;top:8.4%}
+    .screen-marker.project-source{left:35.2%;top:84.4%}
+    .desktop-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:11px}
+    .desktop-step{display:grid;grid-template-columns:28px 1fr;gap:8px;align-items:start;min-height:69px;padding:10px;background:rgba(255,255,255,.08)}
+    .desktop-step span{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;color:white;background:var(--orange-deep);font-size:8px;font-weight:900}
+    .desktop-step strong{display:block;color:white;font-size:10px}.desktop-step em{display:block;margin-top:2px;color:rgba(255,255,255,.62);font-size:8px;line-height:1.4;font-style:normal}
+    .prompt-template{margin-top:15px;padding:14px 16px;border-top:1px solid rgba(227,131,39,.55);color:var(--ink);background:white;font-size:10px}
+    .prompt-template strong{display:block;margin-bottom:4px;color:var(--orange-deep);font-size:11px}
+
+    .source-note{position:absolute;left:.66in;bottom:.25in;color:#938b82;font-size:7px}.dark .source-note{color:rgba(255,255,255,.45)}
+
+    @media screen and (max-width:850px){body{background:var(--paper)}.document{width:100%;margin:0;box-shadow:none}.page{width:100%;min-height:0;padding:38px 24px 54px}.cover{min-height:100vh}.logo{width:min(280px,70vw)}.system-art-page{padding:24px 0}.architecture-map{padding:18px 14px}.architecture-source,.architecture-database{width:100%}.runtime-pair{grid-template-columns:1fr;gap:12px}.system-branch,.system-merge{height:38px}.system-branch::after,.system-merge::after,.branch-leg{display:none}.system-branch::before,.system-merge::before{height:38px}.flow-label{white-space:nowrap}.platform-node{grid-template-columns:44px 1fr}.platform-node .open-link{grid-column:2;text-align:left}.desktop-steps{grid-template-columns:1fr}.source-note{position:static;margin-top:30px}}
+    @media print{@page{size:Letter;margin:0}body{background:white;print-color-adjust:exact;-webkit-print-color-adjust:exact}.document{margin:0;box-shadow:none}.page{height:10.99in;min-height:10.99in;overflow:hidden;break-inside:avoid;break-after:page}}
+  </style>
+</head>
+<body>
+  <main class="document">
+    <section class="page cover" data-page="01">
+      <div class="logo"><img src="../../frontend/public/Alleato-Group-Logo_Light.png" alt="Alleato Group" /></div>
+      <div>
+        <p class="eyebrow">Owner’s Guide</p>
+        <h1>How the Codebase Works</h1>
+        <p class="dek">A simple guide to GitHub, Vercel, Render, and Supabase, plus how to use Claude Code to make changes.</p>
+      </div>
+      <div class="cover-meta"><div><strong>Prepared for Brandon Clymer</strong>CEO, Alleato Group</div><div style="text-align:right"><strong>July 13, 2026</strong>Owner reference guide</div></div>
+    </section>
+
+    <section class="page system-art-page" data-page="02">
+      <figure class="system-art">
+        <img src="assets/alleato-platform-architecture.png" alt="How the Alleato platform works together: GitHub deploys approved code to Vercel and Render, which use Supabase for shared data, authentication, and files." />
+      </figure>
+    </section>
+
+    <section class="page" data-page="03">
+      <div class="section-label">What each platform controls</div>
+      <h2>The same system, with direct links and plain-English detail.</h2>
+      <p class="lead">Select any platform to open the Alleato account page in a new tab.</p>
+      <div class="architecture-map">
+        <a class="platform-node architecture-source" href="https://github.com/The-Alleato-Group/project-management" target="_blank" rel="noopener noreferrer" aria-label="Open the Alleato project in GitHub">
+          <img class="platform-logo" src="../../frontend/public/brand/github.svg" alt="GitHub" />
+          <span><strong>GitHub</strong><span class="role">Source of truth and codebase home</span><span class="description">Stores the application code, documents every change, supports pull-request review, and provides a reliable history of the product.</span></span>
+          <span class="open-link">Open repository ↗</span>
+        </a>
+        <div class="system-branch"><i class="branch-leg left"></i><i class="branch-leg right"></i><span class="flow-label">approved code deploys</span></div>
+        <div class="runtime-pair">
+          <a class="platform-node" href="https://vercel.com/the-alleato-group/project-management-agent" target="_blank" rel="noopener noreferrer" aria-label="Open the Alleato Vercel project">
+            <img class="platform-logo" src="../../frontend/public/brand/vercel.svg" alt="Vercel" />
+            <span><strong>Vercel</strong><span class="role">Frontend and user-facing application</span><span class="description">Hosts the pages, forms, tables, navigation, preview deployments, and the production website people use in their browser.</span></span>
+            <span class="open-link">Open project ↗</span>
+          </a>
+          <a class="platform-node" href="https://dashboard.render.com/web/srv-d8271ohj2pic739klb7g" target="_blank" rel="noopener noreferrer" aria-label="Open the Alleato backend service in Render">
+            <img class="platform-logo" src="../../frontend/public/brand/render.svg" alt="Render" />
+            <span><strong>Render</strong><span class="role">Backend functionality</span><span class="description">Runs integrations, scheduled jobs, document processing, OCR, data syncing, and other work behind the application.</span></span>
+            <span class="open-link">Open service ↗</span>
+          </a>
+        </div>
+        <div class="system-merge"><i class="branch-leg left"></i><i class="branch-leg right"></i><span class="flow-label">reads and writes data</span></div>
+        <a class="platform-node architecture-database supabase" href="https://supabase.com/dashboard/project/lgveqfnpkxvzbnnwuled" target="_blank" rel="noopener noreferrer" aria-label="Open the Alleato Supabase database project">
+          <img class="platform-logo" src="../../frontend/public/brand/supabase.svg" alt="Supabase" />
+          <span><strong>Supabase</strong><span class="role">Database</span><span class="description">Stores project records, financial data, users, permissions, uploaded files, and the data used by search and AI features.</span></span>
+          <span class="open-link">Open database ↗</span>
+        </a>
+      </div>
+      <div class="source-note">Platform names and logos are trademarks of their respective owners. Vercel and its design marks are trademarks of Vercel, Inc. or its affiliates.</div>
+    </section>
+
+    <section class="page dark" data-page="04">
+      <div class="section-label">Claude Code Desktop</div>
+      <h2>Describe the result. Let Claude inspect the project before it changes anything.</h2>
+      <p class="lead">Start a Code session, select where the project lives, then describe the outcome you want. You remain the approver.</p>
+      <div class="claude-workspace">
+        <figure class="claude-figure">
+          <img src="assets/claude-code-desktop.png" alt="Claude Code Desktop showing the Code workspace, New session action, and the selected local project folder" />
+          <span class="screen-marker new-session" aria-hidden="true">1</span>
+          <span class="screen-marker project-source" aria-hidden="true">2</span>
+        </figure>
+        <div class="desktop-steps">
+          <div class="desktop-step"><span>1</span><div><strong>Start a Code session</strong><em>Open Code, then select New session.</em></div></div>
+          <div class="desktop-step"><span>2</span><div><strong>Select the project</strong><em>Cloud: choose the GitHub repository. Local: choose the folder containing the code.</em></div></div>
+          <div class="desktop-step"><span>3</span><div><strong>Confirm the location</strong><em>Check the repository or folder and the active branch shown above the prompt.</em></div></div>
+          <div class="desktop-step"><span>4</span><div><strong>Describe the outcome</strong><em>Say what should change, who it helps, and what success looks like.</em></div></div>
+          <div class="desktop-step"><span>5</span><div><strong>Review and test</strong><em>Inspect Claude’s plan, the changed files, screenshots, and test results.</em></div></div>
+          <div class="desktop-step"><span>6</span><div><strong>Create the GitHub change</strong><em>Commit, push, and open a pull request when the work is ready.</em></div></div>
+        </div>
+      </div>
+      <div class="prompt-template"><strong>A useful prompt formula</strong>“For [type of user], improve [specific workflow] so they can [business outcome]. First inspect the existing implementation and project rules. Show me your plan, test the real workflow, and report what changed, what passed, what remains, and any risks.”</div>
+      <div class="source-note">Claude Code Desktop availability and workflow verified against Anthropic Help Center documentation, July 2026.</div>
+    </section>
+
+  </main>
+</body>
+</html>

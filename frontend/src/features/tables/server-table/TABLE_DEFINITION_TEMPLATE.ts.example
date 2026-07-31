@@ -1,0 +1,116 @@
+import { apiFetch } from "@/lib/api-client";
+import type { FilterValue } from "@/components/tables/unified";
+import type { ServerTableDefinition } from "@/features/tables/server-table";
+
+type ExampleRow = {
+  id: string;
+  title: string | null;
+  status: string | null;
+  created_at: string | null;
+};
+
+type ExampleFilterState = {
+  status: FilterValue;
+  created_from: FilterValue;
+  created_to: FilterValue;
+};
+
+const exampleColumns = [
+  { id: "title", label: "Title", alwaysVisible: true },
+  { id: "status", label: "Status", defaultVisible: true },
+  { id: "created_at", label: "Created", defaultVisible: true },
+];
+
+const exampleFilters = [
+  {
+    id: "status",
+    label: "Status",
+    type: "select" as const,
+    options: [
+      { value: "open", label: "Open" },
+      { value: "closed", label: "Closed" },
+    ],
+  },
+  {
+    id: "created",
+    label: "Created",
+    type: "dateRange" as const,
+  },
+];
+
+export const exampleTableDefinition: ServerTableDefinition<
+  ExampleRow,
+  ExampleFilterState
+> = {
+  entityKey: "example-rows",
+  allowedViews: ["table", "card", "list"],
+  defaultView: "table",
+  defaultPerPage: 25,
+  defaultSortBy: "created_at",
+  defaultSortDirection: "desc",
+  searchPlaceholder: "Search example rows...",
+  columns: exampleColumns,
+  defaultVisibleColumns: ["title", "status", "created_at"],
+  filters: exampleFilters,
+  defaultFilters: {
+    status: undefined,
+    created_from: undefined,
+    created_to: undefined,
+  },
+  parseFiltersFromSearchParams(searchParams) {
+    return {
+      status: searchParams.get("status") ?? undefined,
+      created_from: searchParams.get("created_from") ?? undefined,
+      created_to: searchParams.get("created_to") ?? undefined,
+    };
+  },
+  serializeFiltersToSearchParams(filters) {
+    return {
+      status: typeof filters.status === "string" ? filters.status : null,
+      created_from:
+        typeof filters.created_from === "string" ? filters.created_from : null,
+      created_to:
+        typeof filters.created_to === "string" ? filters.created_to : null,
+    };
+  },
+  async fetchPage(query) {
+    const params = new URLSearchParams();
+
+    if (query.search.trim()) params.set("search", query.search.trim());
+    if (typeof query.filters.status === "string" && query.filters.status) {
+      params.set("status", query.filters.status);
+    }
+    if (
+      typeof query.filters.created_from === "string" &&
+      query.filters.created_from
+    ) {
+      params.set("created_from", query.filters.created_from);
+    }
+    if (
+      typeof query.filters.created_to === "string" &&
+      query.filters.created_to
+    ) {
+      params.set("created_to", query.filters.created_to);
+    }
+
+    params.set("page", String(query.page));
+    params.set("per_page", String(query.perPage));
+
+    if (query.sortBy) {
+      params.set("sort", query.sortBy);
+      params.set("sort_dir", query.sortDirection);
+    }
+
+    const result = await apiFetch<{
+      rows?: ExampleRow[];
+      total?: number;
+      total_pages?: number;
+    }>(`/api/example-rows?${params.toString()}`, { cache: "no-store" });
+
+    return {
+      items: result.rows ?? [],
+      total: result.total ?? result.rows?.length ?? 0,
+      totalPages: result.total_pages ?? 1,
+    };
+  },
+};

@@ -1,0 +1,19 @@
+{
+  "name": "adversarial-harness",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "bun run index.ts",
+    "run:file": "bun run index.ts --file"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^6.0.2"
+  },
+  "dependencies": {
+    "@openai/codex-sdk": "^0.117.0"
+  }
+}

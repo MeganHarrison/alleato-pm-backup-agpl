@@ -1,0 +1,18 @@
+Command:
+pytest -q backend/tests/test_project_assignment.py backend/tests/test_project_inference.py backend/tests/test_communication_project_backfill.py backend/tests/test_outlook_intake.py
+
+Result:
+49 passed, 22 warnings in 0.26s
+
+Changed-boundary checks:
+- Archived project query/rule/contact/cache exclusion
+- Warmed project-cache refresh after archival
+- Typed project-or-Business-Area invariant
+- Existing historical assignment preservation
+- Live mapping conversion behavior
+- Graph confidence threshold and fail-closed mapping error
+- Existing communication backfill and Outlook intake compatibility
+
+Additional checks:
+- python3 -m py_compile: passed
+- git diff --check: passed

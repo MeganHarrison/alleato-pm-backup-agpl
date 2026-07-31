@@ -1,0 +1,440 @@
+{
+  "audit_date": "2026-03-07",
+  "scope": "full",
+  "philosophy": "Every element on a page must justify its presence. Ask: What does the user need to know? What might they want to do? How can we communicate this cleanly? Space is expensive real estate.",
+  "violations": [
+    {
+      "id": "V001",
+      "severity": "critical",
+      "category": "legacy_layout_pattern",
+      "file": "frontend/src/app/(main)/[projectId]/home/page-tools-grid.tsx",
+      "line": 31,
+      "description": "Home page uses deprecated AppShell wrapper instead of standard layout system. Renders a completely different chrome and navigation experience from all other pages.",
+      "fix": "Migrate to standard ProjectPageHeader + PageContainer pattern, remove AppShell. Connect to the project context via useProject() hook."
+    },
+    {
+      "id": "V002",
+      "severity": "critical",
+      "category": "legacy_layout_pattern",
+      "file": "frontend/src/app/(main)/[projectId]/home/page-test.tsx",
+      "line": 16,
+      "description": "Test page uses deprecated AppShell wrapper. Even dev/test pages must use correct patterns.",
+      "fix": "Delete this file or migrate to standard pattern."
+    },
+    {
+      "id": "V003",
+      "severity": "critical",
+      "category": "legacy_layout_pattern",
+      "file": "frontend/src/app/(main)/[projectId]/daily-log/page.tsx",
+      "line": 81,
+      "description": "Daily Log uses deprecated TableLayout + GenericDataTable pattern instead of UnifiedTablePage. Produces inconsistent UI: no proper header, no search/filter toolbar, no view switching, no tabs.",
+      "fix": "Migrate to UnifiedTablePage with ProjectPageHeader. GenericDataTable is a legacy adapter pattern."
+    },
+    {
+      "id": "V004",
+      "severity": "critical",
+      "category": "wrong_header_order",
+      "file": "frontend/src/app/(main)/pipeline/page.tsx",
+      "line": 230,
+      "description": "PageContainer wraps ProjectPageHeader - the header is INSIDE the container. Correct pattern is: <><ProjectPageHeader/><PageContainer>content</PageContainer></>.",
+      "fix": "Move PageContainer to wrap only the page content, not the header."
+    },
+    {
+      "id": "V005",
+      "severity": "high",
+      "category": "non_standard_header",
+      "file": "frontend/src/app/(main)/[projectId]/budget/setup/page.tsx",
+      "line": 258,
+      "description": "Budget Setup page uses a bespoke Container+Stack header instead of ProjectPageHeader. Custom inline 'border-b bg-background' header with manual back button, title, and actions.",
+      "fix": "Replace custom header with ProjectPageHeader. Use router.back() for back navigation via a secondary action button. Wrap content in PageContainer."
+    },
+    {
+      "id": "V006",
+      "severity": "high",
+      "category": "visual_noise_unnecessary_elements",
+      "file": "frontend/src/app/(main)/[projectId]/drawings/areas/page.tsx",
+      "line": 115,
+      "description": "Three individual stat Cards ('Total Areas', 'Total Drawings', 'Root Areas') add visual weight without justifying their space. These are low-value metadata, not actionable insights. The 'Selected Area Details' card at bottom duplicates info already visible in the selector.",
+      "fix": "Replace 3 stat cards with KpiRow from @/components/ds. Remove 'Selected Area Details' panel - it's redundant when the selector is visible. Only show data the user needs to act."
+    },
+    {
+      "id": "V007",
+      "severity": "high",
+      "category": "visual_noise_unnecessary_elements",
+      "file": "frontend/src/app/(main)/[projectId]/drawings/board/page.tsx",
+      "line": 214,
+      "description": "Three individual stat Cards at top of Drawings Board ('Total drawings', 'Field ready', 'Under review') add visual noise above the actual kanban board. User came to see the board, not these counts (which are already visible as column badges on the board itself).",
+      "fix": "Remove the stats grid entirely - the column headers already show counts. If metrics are needed, use a compact KpiRow inline with the header actions, not a separate card grid."
+    },
+    {
+      "id": "V008",
+      "severity": "high",
+      "category": "visual_noise_unnecessary_elements",
+      "file": "frontend/src/app/(main)/pipeline/page.tsx",
+      "line": 389,
+      "description": "Pipeline page has a 'Pipeline Status Guide' card at the bottom that explains what each badge color means. This is developer documentation masquerading as UI. Users operating the pipeline already know what 'Embedded' or 'Error' means.",
+      "fix": "Remove the Status Guide card entirely. If hover tooltips are needed for badge meanings, add them to the badge component. Don't explain your UI with a legend card."
+    },
+    {
+      "id": "V009",
+      "severity": "high",
+      "category": "visual_noise_unnecessary_elements",
+      "file": "frontend/src/app/(main)/[projectId]/photos/page.tsx",
+      "line": 120,
+      "description": "Storage metadata card ('Storage bucket', folder path, image count, total size) is developer-centric information. A project manager viewing photos does not need to know the Supabase bucket name or folder path. This card adds visual clutter before the actual content.",
+      "fix": "Remove the storage metadata Card. Show count and size inline in the header or as a subtle text line below the header title. Never expose internal implementation details (bucket names, folder paths) in the user-facing UI."
+    },
+    {
+      "id": "V010",
+      "severity": "high",
+      "category": "non_standard_filter_pattern",
+      "file": "frontend/src/app/(main)/[projectId]/specifications/page.tsx",
+      "line": 69,
+      "description": "Specifications page uses a Card-wrapped filter section with a custom Search Input and Select dropdowns, then renders SpecificationListTable separately with custom pagination. Does not use UnifiedTablePage pattern. Results in: Card border around filters (visual noise), non-standard search/filter UX, inconsistent pagination controls.",
+      "fix": "Migrate to UnifiedTablePage. Move search/filter/pagination into the toolbar prop. Remove Card wrapper around filters. This eliminates the border noise and makes the page consistent with all other list pages."
+    },
+    {
+      "id": "V011",
+      "severity": "high",
+      "category": "header_action_violation",
+      "file": "frontend/src/app/(main)/[projectId]/rfis/rfis-client.tsx",
+      "line": 168,
+      "description": "Export button (Download icon) in the header actions area alongside Create RFI button. Per design system: header actions should ONLY contain the primary create/add action. Export belongs in the toolbar.",
+      "fix": "Remove the Export DropdownMenu from header actions. Add export functionality via toolbar's onExport prop and features.enableExport = true."
+    },
+    {
+      "id": "V012",
+      "severity": "high",
+      "category": "header_action_violation",
+      "file": "frontend/src/app/(main)/[projectId]/commitments/page.tsx",
+      "line": 299,
+      "description": "Export button in header actions alongside Create dropdown. Header should only have the primary action (Create dropdown). Export is a secondary action that belongs in the toolbar.",
+      "fix": "Remove Export Button+DropdownMenu from header actions. Use toolbar's onExport prop or pass the ExportDialog trigger via toolbar customization."
+    },
+    {
+      "id": "V013",
+      "severity": "high",
+      "category": "header_action_violation",
+      "file": "frontend/src/app/(main)/[projectId]/submittals/page.tsx",
+      "line": 204,
+      "description": "Export DropdownMenu in header actions alongside Add Submittal button. Same violation as RFIs and Commitments.",
+      "fix": "Remove Export DropdownMenu from header actions. Export belongs in the toolbar."
+    },
+    {
+      "id": "V014",
+      "severity": "high",
+      "category": "hardcoded_colors",
+      "file": "frontend/src/app/(main)/[projectId]/home/hero-metrics.tsx",
+      "line": 45,
+      "description": "Uses raw Tailwind color classes: text-neutral-200, text-neutral-500, text-neutral-900, text-neutral-600, text-neutral-400, border-neutral-200. Also uses non-standard text-brand and hover:border-brand classes. Design system requires semantic tokens only.",
+      "fix": "Replace: neutral-500 → text-muted-foreground, neutral-900 → text-foreground, neutral-600 → text-muted-foreground, border-neutral-200 → border-border, text-brand → text-primary, hover:border-brand → hover:border-primary. shadow-md → shadow-sm (only xs/sm allowed)."
+    },
+    {
+      "id": "V015",
+      "severity": "high",
+      "category": "hardcoded_colors",
+      "file": "frontend/src/app/(main)/[projectId]/drawings/board/page.tsx",
+      "line": 57,
+      "description": "Column accent styles use raw Tailwind color classes: bg-emerald-50 border-emerald-200, bg-amber-50 border-amber-200. Also uses bg-white (hardcoded) in the item count badge. These violate the design token system.",
+      "fix": "Use semantic variants or add design token mappings: Approved → bg-success/5 border-success/20, Under Review → bg-warning/5 border-warning/20, Superseded → bg-muted/30 border-border. Replace bg-white with bg-background."
+    },
+    {
+      "id": "V016",
+      "severity": "high",
+      "category": "hardcoded_colors",
+      "file": "frontend/src/app/(main)/pipeline/page.tsx",
+      "line": 259,
+      "description": "Uses hardcoded colors: ring-blue-500 ring-opacity-50, bg-blue-500, bg-purple-100 text-purple-800. Also uses dynamic class construction text-${config.color}-600 which BREAKS in Tailwind production builds (tree-shaking removes unused classes). This is a runtime bug.",
+      "fix": "Replace dynamic classes with explicit mappings. Remove ring-blue-500 → use ring-primary. bg-blue-500 → bg-primary. bg-purple-100 text-purple-800 → use StatusBadge or bg-muted. For phase icons, use explicit color mapping objects instead of template literals."
+    },
+    {
+      "id": "V017",
+      "severity": "medium",
+      "category": "documents_placeholder",
+      "file": "frontend/src/app/(main)/[projectId]/documents/page.tsx",
+      "line": 17,
+      "description": "Documents page renders a Card with 'Coming soon' text inside a PageContainer. A Card border around placeholder text is visual noise. The page exists but has no content.",
+      "fix": "Replace Card+text with EmptyState from @/components/ds. EmptyState provides the correct pattern: icon, title, description. Remove the Card wrapper."
+    },
+    {
+      "id": "V018",
+      "severity": "medium",
+      "category": "typescript_violation",
+      "file": "frontend/src/app/(main)/[projectId]/specifications/page.tsx",
+      "line": 119,
+      "description": "Uses `any` type: areas?.map((area: any) => (...). TypeScript requires explicit types - use the actual DrawingArea type or import the correct type from specifications types.",
+      "fix": "Import the area type and replace `any` with the correct type. The hook useSpecificationAreas should return a typed array."
+    },
+    {
+      "id": "V019",
+      "severity": "medium",
+      "category": "visual_noise_unnecessary_elements",
+      "file": "frontend/src/app/(main)/[projectId]/drawings/areas/page.tsx",
+      "line": 174,
+      "description": "The 'Selected Area Details' section appears below the area selector when an area is clicked. It shows: Name, Description, Drawings count, Sort Order, and a 'View Drawings' button. Sort Order is internal metadata users don't need. The entire panel duplicates information already visible.",
+      "fix": "Remove the Selected Area Details panel entirely. The area name/description are visible in the selector. The 'View Drawings' link should be an affordance on the area card itself, not in a separate panel below."
+    },
+    {
+      "id": "V020",
+      "severity": "medium",
+      "category": "visual_noise_unnecessary_elements",
+      "file": "frontend/src/app/(main)/[projectId]/home/page-tools-grid.tsx",
+      "line": 37,
+      "description": "Home page uses bg-muted as full-page background with bg-background for the header section. This creates a two-tone page background that adds visual weight. The tools grid, project info, activity feed are in nested Card components inside the muted background.",
+      "fix": "As part of the AppShell migration, remove the bg-muted full-page background. Use bg-background consistently. Cards already provide visual separation."
+    },
+    {
+      "id": "V021",
+      "severity": "medium",
+      "category": "global_header_noise",
+      "file": "frontend/src/components/layout/global-header.tsx",
+      "line": 63,
+      "description": "Global header has an 'Apps / Select an App' dropdown that currently does nothing (DropdownMenuItems have no handlers). Also has 'Favorites' button with no functionality. Non-functional UI elements are clutter - they set false expectations.",
+      "fix": "Either implement these features or remove them. A disabled/unimplemented button is worse than no button. For now, remove the non-functional Apps dropdown and Favorites button."
+    },
+    {
+      "id": "V022",
+      "severity": "medium",
+      "category": "global_header_noise",
+      "file": "frontend/src/components/layout/global-header.tsx",
+      "line": 35,
+      "description": "Global header label still says 'PROCORE' (line 52: <span className='font-semibold text-sm hidden sm:inline'>PROCORE</span>). This is the competitor's brand name, not Alleato.",
+      "fix": "Replace 'PROCORE' with 'ALLEATO' or remove the text label next to the logo entirely."
+    },
+    {
+      "id": "V023",
+      "severity": "low",
+      "category": "empty_export",
+      "file": "frontend/src/app/(main)/[projectId]/rfis/rfis-client.tsx",
+      "line": 187,
+      "description": "Export dropdown has CSV and PDF DropdownMenuItems with no onClick handlers. Non-functional UI.",
+      "fix": "Either implement CSV/PDF export or remove the export dropdown until it works. A broken export is worse than no export."
+    },
+    {
+      "id": "V024",
+      "severity": "low",
+      "category": "empty_export",
+      "file": "frontend/src/app/(main)/[projectId]/submittals/page.tsx",
+      "line": 220,
+      "description": "Export DropdownMenu has CSV, PDF, Excel items with no onClick handlers. Features.enableExport = false confirms this isn't wired up.",
+      "fix": "Remove the export dropdown from actions area. If/when export is implemented, use the toolbar onExport pattern."
+    },
+    {
+      "id": "V025",
+      "severity": "low",
+      "category": "description_passed_but_suppressed",
+      "file": "multiple",
+      "line": null,
+      "description": "PageHeader globally suppresses the description prop (page-header-unified.tsx:101-102). Many pages pass descriptions that never render. This is harmless but indicates pages don't know descriptions are suppressed. UnifiedTablePage may or may not suppress it depending on its implementation.",
+      "fix": "Document this behavior. Remove description props from pages if they are globally suppressed, to avoid future confusion."
+    },
+    {
+      "id": "V026",
+      "severity": "medium",
+      "category": "component-consistency",
+      "file": "frontend/src/app/(admin)/procore-docs/page.tsx",
+      "line": 308,
+      "description": "titleContent prop renders a custom <h1> + Sparkles badge + description paragraph, bypassing PageShell's native eyebrow and description props. This diverges the page title style from every other page and locks the badge/description into hand-rolled markup that won't update when PageHeader gets a style change.",
+      "fix": "Pass the Sparkles badge via PageShell's eyebrow prop. Pass the description via the description prop. Remove the custom <h1> from titleContent — PageShell renders its own. Remove the titleContent prop entirely or use it only if truly custom layout is needed.",
+      "status": "fixed"
+    },
+    {
+      "id": "V027",
+      "severity": "medium",
+      "category": "spacing-scale",
+      "file": "frontend/src/app/(admin)/procore-docs/page.tsx",
+      "line": 436,
+      "description": "Hero card Button uses p-5 (20px) — off the 8px grid.",
+      "fix": "Change p-5 → p-4 or p-6.",
+      "status": "fixed"
+    },
+    {
+      "id": "V028",
+      "severity": "low",
+      "category": "spacing-scale",
+      "file": "frontend/src/app/(admin)/procore-docs/page.tsx",
+      "line": 447,
+      "description": "ChevronRight icon uses top-5 absolute position — off the 8px grid.",
+      "fix": "Change top-5 → top-4 or top-6.",
+      "status": "fixed"
+    },
+    {
+      "id": "V029",
+      "severity": "high",
+      "category": "component-consistency",
+      "file": "frontend/src/app/(admin)/procore-docs/page.tsx",
+      "line": 455,
+      "description": "Raw <h2> used as section heading: <h2 className=\"text-lg font-semibold text-foreground mb-6\">Tools</h2>. Violates rule 1.1.",
+      "fix": "import { SectionRuleHeading } from '@/components/layout/spacing'; replace with <SectionRuleHeading label=\"Tools\" />. Remove mb-6 from callsite — spacing is owned by the component.",
+      "status": "fixed"
+    },
+    {
+      "id": "V030",
+      "severity": "high",
+      "category": "component-consistency",
+      "file": "frontend/src/app/(admin)/procore-docs/page.tsx",
+      "line": 496,
+      "description": "Raw <h2> used as dynamic article-list section heading, paired with an article count. Violates rule 1.1. The count pairing also matches the SectionHeader ds component exactly.",
+      "fix": "import { SectionHeader } from '@/components/ds/section-header'; replace the heading+count block with <SectionHeader label={isSearching ? `Results for \"${searchTerm}\"` : selectedCategory} count={articles.length} />.",
+      "status": "fixed"
+    },
+    {
+      "id": "V031",
+      "severity": "high",
+      "category": "component-consistency",
+      "file": "frontend/src/app/(admin)/procore-docs/page.tsx",
+      "line": 532,
+      "description": "Hand-rolled empty state: <div className=\"py-16 text-center\"> with icon div + two <p> tags for 'No articles found'. Violates rule 1.2.",
+      "fix": "import { EmptyState } from '@/components/ds'; replace entire block with: <EmptyState icon={FileText} title=\"No articles found\" description={isSearching ? 'Try a broader phrase or browse by category.' : 'Select a category to explore the documentation.'} />",
+      "status": "fixed"
+    },
+    {
+      "id": "V032",
+      "severity": "medium",
+      "category": "layout",
+      "file": "frontend/src/app/(admin)/procore-docs/page.tsx",
+      "line": 436,
+      "description": "Hero card Button has border border-border/50 with hover:border-border — a decorative hover-reveal border on a navigation card. Violates rule 5.1.",
+      "fix": "Remove border border-border/50 and hover:border-border. Change bg-background → bg-card. Use hover:bg-muted/60 to convey interactivity without a border stroke.",
+      "status": "fixed"
+    },
+    {
+      "id": "V033",
+      "severity": "low",
+      "category": "layout",
+      "file": "frontend/src/app/(admin)/procore-docs/page.tsx",
+      "line": 595,
+      "description": "SheetHeader has border-b — decorative divider inside sheet. Violates rule 5.1.",
+      "fix": "Remove border-b. Use bg-muted/30 on the SheetHeader or rely on padding alone for visual separation.",
+      "status": "fixed"
+    },
+    {
+      "id": "V034",
+      "severity": "low",
+      "category": "layout",
+      "file": "frontend/src/app/(admin)/procore-docs/page.tsx",
+      "line": 696,
+      "description": "Chat input container has border-t — decorative divider. Violates rule 5.1.",
+      "fix": "Remove border-t. The padding + bg-muted/20 background is sufficient to separate the input from messages.",
+      "status": "fixed"
+    },
+    {
+      "id": "V035",
+      "severity": "medium",
+      "category": "spacing-ownership",
+      "file": "frontend/src/app/(admin)/procore-docs/[...slug]/page.tsx",
+      "line": 55,
+      "description": "Multiple direct PageShell children carry individual mb-4/mb-6/mb-8 margins while PageShell's content variant wraps children in space-y-8. The manual margins stack additively with space-y-8's mt-8, creating irregular, unpredictable gaps. Violates rule 2.2.",
+      "fix": "Remove mb-4 from Breadcrumb (line 55), mb-6 from the nav row div (line 88), mb-4 from the meta div (line 107), mb-8 from the description p (line 127). The space-y-8 parent controls all rhythm.",
+      "status": "fixed"
+    },
+    {
+      "id": "V036",
+      "severity": "low",
+      "category": "layout",
+      "file": "frontend/src/app/(admin)/procore-docs/[...slug]/page.tsx",
+      "line": 151,
+      "description": "Tags section has border-t border-border as a decorative divider. Violates rule 5.1.",
+      "fix": "Remove border-t border-border. The spacing already signals a content break.",
+      "status": "fixed"
+    },
+    {
+      "id": "V037",
+      "severity": "high",
+      "category": "component-consistency",
+      "file": "frontend/src/app/(admin)/feedback-inbox/page.tsx",
+      "line": 2020,
+      "description": "Hand-rolled empty state for the feedback list: raw div+CheckCircle2+p+p pattern instead of <EmptyState>. Violates rule 1.2.",
+      "fix": "import { EmptyState } from '@/components/ds'; replace with <EmptyState icon={<CheckCircle2 />} title=\"No feedback items\" description={...} />",
+      "status": "fixed"
+    },
+    {
+      "id": "V038",
+      "severity": "medium",
+      "category": "component-consistency",
+      "file": "frontend/src/app/(admin)/feedback-inbox/page.tsx",
+      "line": 737,
+      "description": "Three hand-rolled inline empty states using raw <p> tags: 'No comments yet' (line 737), 'No GitHub comments yet' (line 845), 'No tool matched' (line 1427). Each should use <EmptyState>. Violates rule 1.2.",
+      "fix": "Replace each <p> with <EmptyState icon={...} title=\"...\" description=\"...\" />.",
+      "status": "fixed"
+    },
+    {
+      "id": "V039",
+      "severity": "medium",
+      "category": "typography",
+      "file": "frontend/src/app/(admin)/feedback-inbox/page.tsx",
+      "line": 288,
+      "description": "Pervasive use of arbitrary font sizes: text-[11px], text-[10px], text-[13px], text-[9px]. Violates rule 4.1.",
+      "fix": "text-[11px] → text-xs, text-[13px] → text-sm, text-[10px] → text-xs, text-[9px] → text-xs.",
+      "status": "fixed"
+    },
+    {
+      "id": "V040",
+      "severity": "medium",
+      "category": "spacing-scale",
+      "file": "frontend/src/app/(admin)/feedback-inbox/page.tsx",
+      "line": 522,
+      "description": "Off-grid spacing: p-2.5, py-2.5, px-2.5, gap-2.5 (~15 occurrences). 10px violates the 8px grid. Violates rule 6.",
+      "fix": "gap-2.5 → gap-2, py-2.5 → py-2, px-2.5 → px-3.",
+      "status": "fixed"
+    },
+    {
+      "id": "V041",
+      "severity": "medium",
+      "category": "layout",
+      "file": "frontend/src/app/(admin)/feedback-inbox/page.tsx",
+      "line": 1367,
+      "description": "Tool context block uses border border-border + bg-muted/30 — decorative border redundant when tonal bg provides containment. Violates rule 5.1.",
+      "fix": "Remove border border-border. Keep bg-muted/40 rounded-md p-3.",
+      "status": "fixed"
+    }
+  ],
+  "summary": {
+    "total_violations": 30,
+    "by_severity": {
+      "critical": 4,
+      "high": 12,
+      "medium": 6,
+      "low": 3
+    },
+    "by_category": {
+      "legacy_layout_pattern": 3,
+      "visual_noise_unnecessary_elements": 7,
+      "header_action_violation": 3,
+      "hardcoded_colors": 3,
+      "non_standard_filter_pattern": 1,
+      "non_standard_header": 1,
+      "wrong_header_order": 1,
+      "global_header_noise": 2,
+      "typescript_violation": 1,
+      "documents_placeholder": 1,
+      "empty_export": 2,
+      "description_passed_but_suppressed": 1
+    },
+    "pages_with_violations": [
+      "home/page-tools-grid.tsx (critical)",
+      "home/page-test.tsx (critical)",
+      "daily-log/page.tsx (critical)",
+      "pipeline/page.tsx (critical + high)",
+      "budget/setup/page.tsx (high)",
+      "drawings/areas/page.tsx (high + medium)",
+      "drawings/board/page.tsx (high + high)",
+      "specifications/page.tsx (high + medium)",
+      "rfis/rfis-client.tsx (high + low)",
+      "commitments/page.tsx (high)",
+      "submittals/page.tsx (high + low)",
+      "home/hero-metrics.tsx (high)",
+      "documents/page.tsx (medium)",
+      "layout/global-header.tsx (medium + medium)"
+    ],
+    "pages_passing": [
+      "change-events/page.tsx",
+      "invoicing/page.tsx",
+      "change-orders/page.tsx",
+      "rfis/rfis-client.tsx (structure only)",
+      "photos/page.tsx (structure only - has content violation)",
+      "drawings/board/page.tsx (structure only - has violations)",
+      "drawings/areas/page.tsx (structure only - has violations)"
+    ]
+  }
+}

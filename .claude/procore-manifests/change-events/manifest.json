@@ -1,0 +1,959 @@
+{
+  "feature": "change-events",
+  "featureName": "Change Events",
+  "capturedAt": "2026-03-22T10:03:16.499Z",
+  "states": {
+    "list": {
+      "id": "list",
+      "description": "Change Events list view",
+      "url": "https://us02.procore.com/webclients/host/companies/562949953443325/projects/562949954728542/tools/change-events/events",
+      "columnGroups": [
+        {
+          "label": "Change Event",
+          "columns": [
+            "Status",
+            "Scope",
+            "Type",
+            "Change Reason",
+            "Origin"
+          ],
+          "colspan": 5
+        },
+        {
+          "label": "Revenue",
+          "columns": [
+            "Prime PCO",
+            "Prime PCO Title"
+          ],
+          "colspan": 2
+        },
+        {
+          "label": "Cost",
+          "columns": [
+            "Cost ROM",
+            "RFQ Title",
+            "Commitment",
+            "Commitment Title"
+          ],
+          "colspan": 4
+        }
+      ],
+      "columns": [
+        {
+          "label": "Status",
+          "columnGroup": "Change Event"
+        },
+        {
+          "label": "Scope",
+          "columnGroup": "Change Event"
+        },
+        {
+          "label": "Type",
+          "columnGroup": "Change Event"
+        },
+        {
+          "label": "Change Reason",
+          "columnGroup": "Change Event"
+        },
+        {
+          "label": "Origin",
+          "columnGroup": "Change Event"
+        },
+        {
+          "label": "Prime PCO",
+          "columnGroup": "Revenue"
+        },
+        {
+          "label": "Prime PCO Title",
+          "columnGroup": "Revenue"
+        },
+        {
+          "label": "Cost ROM",
+          "columnGroup": "Cost"
+        },
+        {
+          "label": "RFQ Title",
+          "columnGroup": "Cost"
+        },
+        {
+          "label": "Commitment",
+          "columnGroup": "Cost"
+        },
+        {
+          "label": "Commitment Title",
+          "columnGroup": "Cost"
+        }
+      ],
+      "toolbarActions": [
+        {
+          "label": "Alleato Group24-104 - Goodwill Bart",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Project ToolsChange Events",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "What RFIs are due in the next 7 days?CmdK",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "AppsSelect an App",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Support & Feedback",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Announcements",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "BC",
+          "type": "dropdown",
+          "variant": "default"
+        }
+      ],
+      "filters": [
+        {
+          "label": "Change Event",
+          "type": "filter-group",
+          "options": []
+        },
+        {
+          "label": "Detail",
+          "type": "filter-group",
+          "options": []
+        },
+        {
+          "label": "Revenue",
+          "type": "filter-group",
+          "options": []
+        },
+        {
+          "label": "Cost",
+          "type": "filter-group",
+          "options": []
+        },
+        {
+          "label": "Over/Under",
+          "type": "filter-group",
+          "options": []
+        },
+        {
+          "label": "Budget",
+          "type": "filter-group",
+          "options": []
+        },
+        {
+          "label": "Budget Code Segments",
+          "type": "filter-group",
+          "options": []
+        }
+      ],
+      "rowActions": [],
+      "autoRows": [],
+      "formSections": [],
+      "tabs": [],
+      "headerFields": [],
+      "screenshot": "screenshots/list.png",
+      "_capture_note": "",
+      "domFile": "dom/list.html"
+    },
+    "create-form": {
+      "id": "create-form",
+      "description": "Create Change Event form/modal",
+      "url": "https://us02.procore.com/webclients/host/companies/562949953443325/projects/562949954728542/tools/change-events/events/new",
+      "columnGroups": [
+        {
+          "label": "Detail",
+          "columns": [
+            "Budget Code",
+            "Description",
+            "Vendor",
+            "Contract",
+            "Unit of Measure"
+          ],
+          "colspan": 5
+        },
+        {
+          "label": "Revenue",
+          "columns": [
+            "Quantity",
+            "Unit Cost",
+            "Revenue ROM"
+          ],
+          "colspan": 3
+        },
+        {
+          "label": "Cost",
+          "columns": [
+            "Quantity",
+            "Unit Cost",
+            "Cost ROM",
+            "Non-Committed Cost"
+          ],
+          "colspan": 4
+        }
+      ],
+      "columns": [
+        {
+          "label": "Budget Code",
+          "columnGroup": "Detail"
+        },
+        {
+          "label": "Description",
+          "columnGroup": "Detail"
+        },
+        {
+          "label": "Vendor",
+          "columnGroup": "Detail"
+        },
+        {
+          "label": "Contract",
+          "columnGroup": "Detail"
+        },
+        {
+          "label": "Unit of Measure",
+          "columnGroup": "Detail"
+        },
+        {
+          "label": "Quantity",
+          "columnGroup": "Revenue"
+        },
+        {
+          "label": "Unit Cost",
+          "columnGroup": "Revenue"
+        },
+        {
+          "label": "Revenue ROM",
+          "columnGroup": "Revenue"
+        },
+        {
+          "label": "Quantity",
+          "columnGroup": "Cost"
+        },
+        {
+          "label": "Unit Cost",
+          "columnGroup": "Cost"
+        },
+        {
+          "label": "Cost ROM",
+          "columnGroup": "Cost"
+        },
+        {
+          "label": "Non-Committed Cost",
+          "columnGroup": "Cost"
+        }
+      ],
+      "toolbarActions": [
+        {
+          "label": "Bold",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "Italic",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "Underline",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "Strikethrough",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "Align left",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "Align center",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "Align right",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "Decrease indent",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "Increase indent",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "Cut",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "Paste",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "Paste as text",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "12pt",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Undo",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "Redo",
+          "type": "button",
+          "variant": "default"
+        }
+      ],
+      "filters": [],
+      "rowActions": [],
+      "autoRows": [],
+      "formSections": [
+        {
+          "title": "General Information",
+          "fields": [
+            {
+              "name": "number",
+              "label": "Number",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "title",
+              "label": "Title",
+              "type": "text",
+              "required": false,
+              "placeholder": "Enter Title",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "status",
+              "label": "Status",
+              "type": "select",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "Open",
+              "helpText": ""
+            },
+            {
+              "name": "eventOrigin",
+              "label": "Origin",
+              "type": "select",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "Select Origin",
+              "helpText": ""
+            },
+            {
+              "name": "changeType",
+              "label": "Type",
+              "type": "select",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "Allowance",
+              "helpText": ""
+            },
+            {
+              "name": "changeReason",
+              "label": "Change Reason",
+              "type": "select",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "Select Reason",
+              "helpText": ""
+            },
+            {
+              "name": "scope",
+              "label": "Scope",
+              "type": "select",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "TBD",
+              "helpText": ""
+            },
+            {
+              "name": "sourceOfRevenueRom",
+              "label": "Line Item Revenue Source",
+              "type": "select",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "Match Revenue to Latest Cost",
+              "helpText": ""
+            },
+            {
+              "name": "primeContractForEstimates",
+              "label": "Prime Contract for Markup Estimates",
+              "type": "select",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "1 - Goodwill Bart",
+              "helpText": ""
+            },
+            {
+              "name": "description",
+              "label": "Description",
+              "type": "richtext",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "attachments",
+              "label": "Attachments",
+              "type": "file",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            }
+          ]
+        },
+        {
+          "title": "Line Items",
+          "fields": [],
+          "_isTable": true
+        }
+      ],
+      "tabs": [],
+      "headerFields": [],
+      "screenshot": "screenshots/create-form.png",
+      "_capture_note": "",
+      "domFile": "dom/create-form.html"
+    },
+    "detail": {
+      "id": "detail",
+      "description": "Change Event detail / show page",
+      "url": "",
+      "columnGroups": [],
+      "columns": [],
+      "toolbarActions": [],
+      "filters": [],
+      "rowActions": [],
+      "autoRows": [],
+      "formSections": [],
+      "tabs": [],
+      "headerFields": [],
+      "screenshot": "screenshots/detail.png",
+      "_capture_note": ""
+    },
+    "detail-add-to-dropdown": {
+      "id": "detail-add-to-dropdown",
+      "description": "Change Event detail — \"Add to\" dropdown (Prime Contract COs, Budget)",
+      "url": "https://us02.procore.com/webclients/host/companies/562949953443325/projects/562949954728542/tools/change-events/events/562949956502307",
+      "columnGroups": [
+        {
+          "label": "Detail",
+          "columns": [
+            "Budget Code"
+          ],
+          "colspan": 1
+        },
+        {
+          "label": "Detail",
+          "columns": [
+            "Description",
+            "Vendor",
+            "Contract",
+            "Unit of Measure"
+          ],
+          "colspan": 4
+        },
+        {
+          "label": "Revenue",
+          "columns": [
+            "Quantity",
+            "Unit Cost",
+            "Revenue ROM",
+            "Prime PCO",
+            "Latest Price"
+          ],
+          "colspan": 5
+        }
+      ],
+      "columns": [
+        {
+          "label": "Budget Code",
+          "columnGroup": "Detail"
+        },
+        {
+          "label": "Description",
+          "columnGroup": "Detail"
+        },
+        {
+          "label": "Vendor",
+          "columnGroup": "Detail"
+        },
+        {
+          "label": "Contract",
+          "columnGroup": "Detail"
+        },
+        {
+          "label": "Unit of Measure",
+          "columnGroup": "Detail"
+        },
+        {
+          "label": "Quantity",
+          "columnGroup": "Revenue"
+        },
+        {
+          "label": "Unit Cost",
+          "columnGroup": "Revenue"
+        },
+        {
+          "label": "Revenue ROM",
+          "columnGroup": "Revenue"
+        },
+        {
+          "label": "Prime PCO",
+          "columnGroup": "Revenue"
+        },
+        {
+          "label": "Latest Price",
+          "columnGroup": "Revenue"
+        }
+      ],
+      "toolbarActions": [
+        {
+          "label": "Alleato Group24-104 - Goodwill Bart",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Project ToolsChange Events",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "AppsSelect an App",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Support & Feedback",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Announcements",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "BC",
+          "type": "dropdown",
+          "variant": "default"
+        }
+      ],
+      "filters": [],
+      "rowActions": [],
+      "autoRows": [],
+      "formSections": [
+        {
+          "title": "General Information",
+          "fields": [
+            {
+              "name": "number",
+              "label": "Number",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "title",
+              "label": "Title",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "status",
+              "label": "Status",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "eventOrigin",
+              "label": "Origin",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "changeType",
+              "label": "Type",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "changeReason",
+              "label": "Change Reason",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "scope",
+              "label": "Scope",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "sourceOfRevenueRom",
+              "label": "Line Item Revenue Source",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "primeContractForEstimates",
+              "label": "Prime Contract for Markup Estimates",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "description",
+              "label": "Description",
+              "type": "richtext",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "attachments",
+              "label": "Attachments",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            }
+          ]
+        },
+        {
+          "title": "Line Items",
+          "fields": [],
+          "_isTable": true
+        }
+      ],
+      "tabs": [],
+      "headerFields": [],
+      "screenshot": "screenshots/detail-add-to-dropdown.png",
+      "_capture_note": "",
+      "domFile": "dom/detail-add-to-dropdown.html"
+    },
+    "detail-send-rfqs": {
+      "id": "detail-send-rfqs",
+      "description": "Change Event detail — Send Requests for Quote modal",
+      "url": "https://us02.procore.com/webclients/host/companies/562949953443325/projects/562949954728542/tools/change-events/events/562949956502307",
+      "columnGroups": [
+        {
+          "label": "Detail",
+          "columns": [
+            "Budget Code"
+          ],
+          "colspan": 1
+        },
+        {
+          "label": "Detail",
+          "columns": [
+            "Description",
+            "Vendor",
+            "Contract",
+            "Unit of Measure"
+          ],
+          "colspan": 4
+        },
+        {
+          "label": "Revenue",
+          "columns": [
+            "Quantity",
+            "Unit Cost",
+            "Revenue ROM",
+            "Prime PCO",
+            "Latest Price"
+          ],
+          "colspan": 5
+        }
+      ],
+      "columns": [
+        {
+          "label": "Budget Code",
+          "columnGroup": "Detail"
+        },
+        {
+          "label": "Description",
+          "columnGroup": "Detail"
+        },
+        {
+          "label": "Vendor",
+          "columnGroup": "Detail"
+        },
+        {
+          "label": "Contract",
+          "columnGroup": "Detail"
+        },
+        {
+          "label": "Unit of Measure",
+          "columnGroup": "Detail"
+        },
+        {
+          "label": "Quantity",
+          "columnGroup": "Revenue"
+        },
+        {
+          "label": "Unit Cost",
+          "columnGroup": "Revenue"
+        },
+        {
+          "label": "Revenue ROM",
+          "columnGroup": "Revenue"
+        },
+        {
+          "label": "Prime PCO",
+          "columnGroup": "Revenue"
+        },
+        {
+          "label": "Latest Price",
+          "columnGroup": "Revenue"
+        }
+      ],
+      "toolbarActions": [
+        {
+          "label": "Alleato Group24-104 - Goodwill Bart",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Project ToolsChange Events",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "AppsSelect an App",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Support & Feedback",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Announcements",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "BC",
+          "type": "dropdown",
+          "variant": "default"
+        }
+      ],
+      "filters": [],
+      "rowActions": [],
+      "autoRows": [],
+      "formSections": [
+        {
+          "title": "General Information",
+          "fields": [
+            {
+              "name": "number",
+              "label": "Number",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "title",
+              "label": "Title",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "status",
+              "label": "Status",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "eventOrigin",
+              "label": "Origin",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "changeType",
+              "label": "Type",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "changeReason",
+              "label": "Change Reason",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "scope",
+              "label": "Scope",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "sourceOfRevenueRom",
+              "label": "Line Item Revenue Source",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "primeContractForEstimates",
+              "label": "Prime Contract for Markup Estimates",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "description",
+              "label": "Description",
+              "type": "richtext",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            },
+            {
+              "name": "attachments",
+              "label": "Attachments",
+              "type": "text",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            }
+          ]
+        },
+        {
+          "title": "Line Items",
+          "fields": [],
+          "_isTable": true
+        }
+      ],
+      "tabs": [],
+      "headerFields": [],
+      "screenshot": "screenshots/detail-send-rfqs.png",
+      "_capture_note": "",
+      "domFile": "dom/detail-send-rfqs.html"
+    }
+  }
+}

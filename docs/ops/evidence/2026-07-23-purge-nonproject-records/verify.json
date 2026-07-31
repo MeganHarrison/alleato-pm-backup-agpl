@@ -1,0 +1,111 @@
+{
+  "status": "VERIFY_PASS",
+  "generatedAt": "2026-07-23T16:21:14.500Z",
+  "taskId": "LOCAL-2026-07-23-PURGE-NONPROJECTS",
+  "manifestDigest": "bc4c7e2f7e568012508168a67368d57cb82d659056c9948da779f3e2a9857cf2",
+  "targets": [
+    {
+      "name": "26-125 GW Excel Playground",
+      "projectId": 1146,
+      "jobNumber": "26-125",
+      "acumaticaProjectId": "26125"
+    },
+    {
+      "name": "Alleato Office Remodel",
+      "projectId": 1096,
+      "jobNumber": "26-124",
+      "acumaticaProjectId": "26124"
+    },
+    {
+      "name": "ArcEdge",
+      "projectId": 88,
+      "jobNumber": null,
+      "acumaticaProjectId": null
+    },
+    {
+      "name": "Eye Surgeons of Indiana",
+      "projectId": 1033,
+      "jobNumber": null,
+      "acumaticaProjectId": null
+    },
+    {
+      "name": "NEXCOM SEDC",
+      "projectId": 1014,
+      "jobNumber": "26-120",
+      "acumaticaProjectId": "26120"
+    },
+    {
+      "name": "Park Collective",
+      "projectId": 1097,
+      "jobNumber": null,
+      "acumaticaProjectId": null
+    },
+    {
+      "name": "QA Financials 2026-07-09",
+      "projectId": 1141,
+      "jobNumber": "QA-0709",
+      "acumaticaProjectId": null
+    }
+  ],
+  "verification": {
+    "remainingProjectRows": [],
+    "remainingAppNonAuditReferences": [],
+    "remainingRagProjectReferences": [],
+    "remainingStorageObjects": [],
+    "retainedAppAuditReferences": [
+      {
+        "schema": "public",
+        "table": "ai_tool_write_audits",
+        "column": "project_id",
+        "referencesProjects": false,
+        "deleteRule": "NONE",
+        "rows": [
+          {
+            "projectId": 1141,
+            "count": 4
+          }
+        ],
+        "total": 4
+      },
+      {
+        "schema": "public",
+        "table": "projects_audit",
+        "column": "project_id",
+        "referencesProjects": false,
+        "deleteRule": "NONE",
+        "rows": [
+          {
+            "projectId": 1014,
+            "count": 125
+          },
+          {
+            "projectId": 1033,
+            "count": 71
+          },
+          {
+            "projectId": 1096,
+            "count": 31
+          },
+          {
+            "projectId": 1097,
+            "count": 52
+          },
+          {
+            "projectId": 1141,
+            "count": 4
+          },
+          {
+            "projectId": 1146,
+            "count": 10
+          },
+          {
+            "projectId": 88,
+            "count": 236
+          }
+        ],
+        "total": 529
+      }
+    ]
+  },
+  "note": "The apply artifact separately records the committed zero-count readback for the exact RAG document IDs and their indirect chunk/job references."
+}

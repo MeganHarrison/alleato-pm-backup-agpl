@@ -1,0 +1,37 @@
+{
+  "contractVersion": 1,
+  "taskId": "QA-FINANCIAL-2026-07-14",
+  "status": "INCONCLUSIVE",
+  "reason": "Cross-surface change-event/change-order mismatch, non-actionable Change Events creation controls, and blocked auth setup regression prevent an end-to-end PASS.",
+  "summary": "Read-path browser QA reached all financial routes, but the Change Events creation path was not actionable, Change Events showed 0 rows while Change Orders showed a Draft PCO for CE 001, no write/readback was exercised, and the targeted regression was blocked by auth setup timeout on /tasks.",
+  "evidence": {
+    "summary": ["scripts/verification/fixtures/evidence/financial-workflow-summary.md"],
+    "screenshots": [
+      "tests/agent-browser-runs/2026-07-14-financial-workflow/budget-initial.png",
+      "tests/agent-browser-runs/2026-07-14-financial-workflow/prime-contracts.png",
+      "tests/agent-browser-runs/2026-07-14-financial-workflow/commitments-after-wait.png",
+      "tests/agent-browser-runs/2026-07-14-financial-workflow/commitments-mobile.png",
+      "tests/agent-browser-runs/2026-07-14-financial-workflow/change-events-after-wait.png",
+      "tests/agent-browser-runs/2026-07-14-financial-workflow/change-orders.png",
+      "tests/agent-browser-runs/2026-07-14-financial-workflow/invoicing-reload.png"
+    ],
+    "databaseReadback": ["Read-only persisted rows and totals recorded in financial-workflow-summary.md; no write claim made."],
+    "reloadProof": ["tests/agent-browser-runs/2026-07-14-financial-workflow/invoicing-reload.png"],
+    "negativePath": ["Change Events creation controls attempted without data submission; no form or validation surfaced."],
+    "regressionTest": ["scripts/verification/fixtures/evidence/financial-workflow-regression.txt"]
+  },
+  "claims": {
+    "financial-chain": {
+      "status": "INCONCLUSIVE",
+      "reason": "Cross-surface change-event/change-order mismatch and blocked regression/auth setup prevent an end-to-end PASS."
+    }
+  },
+  "independentReview": {
+    "required": true,
+    "status": "APPROVED_FOR_INCONCLUSIVE",
+    "decision": "APPROVED",
+    "reviewer": "Independent Codex sub-agent",
+    "threadId": "019f6170-dd0e-7fd0-9394-c18971208512",
+    "artifact": "scripts/verification/fixtures/evidence/financial-workflow-independent-review.md"
+  }
+}

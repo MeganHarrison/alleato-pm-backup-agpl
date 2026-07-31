@@ -1,0 +1,45 @@
+{
+  "contractVersion": 1,
+  "taskId": "AAI-1146",
+  "feature": "Procore-parity billing period management",
+  "route": "/{projectId}/invoices?tab=billing-periods",
+  "flows": [
+    {
+      "name": "Create the next manual billing period",
+      "steps": ["Capture the existing open period", "Enter From, To, and Due Date", "Create", "Reload the canonical route and read back the database"],
+      "expectedOutcome": "The new period is Open, the previous period is Closed, and all dates persist"
+    },
+    {
+      "name": "Edit and reopen a billing period",
+      "steps": ["Edit period dates", "Set the selected period to Open", "Reload", "Read back all project periods"],
+      "expectedOutcome": "The edited values persist and exactly one project period is Open"
+    },
+    {
+      "name": "Reject invalid or duplicate periods",
+      "steps": ["Submit invalid date ordering", "Submit an existing date range"],
+      "expectedOutcome": "The UI presents actionable errors and no invalid row is persisted"
+    },
+    {
+      "name": "Configure automatic periods",
+      "steps": ["Save Monthly", "Save Weekly", "Save Never", "Reload/read back each configuration"],
+      "expectedOutcome": "Automatic configuration persists through the canonical server owner with documented semantics"
+    }
+  ],
+  "requiredEvidence": ["screenshots", "videos", "actionLog", "databaseReadback", "reloadProof", "negativePath", "visualReview", "regressionTest"],
+  "visual": {
+    "viewports": ["desktop", "tablet", "mobile"],
+    "checks": ["No overflow", "One primary create action", "Dates and status are scannable", "Errors and recovery are visible", "No nested cards or page-level wrapper border"]
+  },
+  "independentReview": { "required": true },
+  "claims": [
+    { "id": "starting-state", "description": "The starting open-period state is captured", "evidence": [{ "key": "screenshots", "min": 1 }] },
+    { "id": "completed-form", "description": "The completed manual or automatic setup is captured before submit", "evidence": [{ "key": "screenshots", "min": 1 }] },
+    { "id": "result-state", "description": "The new open period and automatically closed previous period are captured", "evidence": [{ "key": "screenshots", "min": 1 }] },
+    { "id": "database-persistence", "description": "Dates, status, configuration, and the one-open invariant are verified in the database", "evidence": [{ "key": "databaseReadback", "min": 1 }] },
+    { "id": "reload-prefill", "description": "Reload and edit values are verified", "evidence": [{ "key": "reloadProof", "min": 1 }] },
+    { "id": "negative-path", "description": "Invalid and duplicate date-range behavior is verified", "evidence": [{ "key": "negativePath", "min": 1 }] },
+    { "id": "visual-desktop", "description": "Desktop and tablet visual review is complete", "evidence": [{ "key": "visualReview", "min": 1 }] },
+    { "id": "visual-mobile", "description": "Mobile visual review is complete", "evidence": [{ "key": "visualReview", "min": 1 }] },
+    { "id": "regression", "description": "Durable API/domain regression tests cover the invariants", "evidence": [{ "key": "regressionTest", "min": 1 }] }
+  ]
+}

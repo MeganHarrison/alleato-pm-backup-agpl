@@ -1,0 +1,71 @@
+{
+  "contractVersion": 1,
+  "taskId": "AAI-1148",
+  "feature": "Owner invoice billing-period prefill prototype",
+  "route": "/knowledge/app/prototype/owner-invoice-prefill",
+  "flows": [
+    {
+      "name": "Understand and preview prefill",
+      "steps": [
+        "Select a billing period",
+        "Enable cost prefill",
+        "Inspect included and excluded source records",
+        "Enable retainage and backup",
+        "Create the non-persisted draft preview",
+        "Reset and correct the selected options"
+      ],
+      "expectedOutcome": "The SOV, retainage, attachments, and source lineage respond deterministically to the selected creation-time options"
+    }
+  ],
+  "requiredEvidence": [
+    "screenshots",
+    "actionLog",
+    "negativePath",
+    "visualReview",
+    "regressionTest"
+  ],
+  "visual": {
+    "viewports": ["desktop", "tablet", "mobile"],
+    "checks": [
+      "No horizontal page overflow",
+      "Primary action is visible and usable",
+      "Option dependency and error states are legible",
+      "No nested cards, stat cards, or duplicate primary actions"
+    ]
+  },
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "starting-state",
+      "description": "The non-persisting starting state is captured",
+      "evidence": [{ "key": "screenshots", "min": 1 }]
+    },
+    {
+      "id": "option-dependency",
+      "description": "Retainage cannot remain enabled when cost prefill is off",
+      "evidence": [{ "key": "negativePath", "min": 1 }]
+    },
+    {
+      "id": "source-lineage",
+      "description": "Included and excluded source records and reasons are inspectable",
+      "evidence": [{ "key": "screenshots", "min": 1 }]
+    },
+    {
+      "id": "result-state",
+      "description": "The non-persisted draft preview result is captured",
+      "evidence": [{ "key": "screenshots", "min": 1 }]
+    },
+    {
+      "id": "visual-responsive",
+      "description": "Desktop, tablet, and mobile visual review is complete",
+      "evidence": [{ "key": "visualReview", "min": 3 }]
+    },
+    {
+      "id": "regression",
+      "description": "Deterministic eligibility and option behavior has focused coverage",
+      "evidence": [{ "key": "regressionTest", "min": 1 }]
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "contractVersion": 1,
+  "taskId": "ALL-11",
+  "riskLevel": "high",
+  "feature": "Alleato Brain typed routing foundation",
+  "route": "backend/ingestion/ProjectAssigner",
+  "flows": [
+    {
+      "name": "Resolve a safe ingestion destination",
+      "steps": [
+        "Load active projects and attribution signals",
+        "Reject archived or unavailable project targets",
+        "Convert mapped internal-container projects to one Business Area target",
+        "Apply the Graph ingestion confidence threshold"
+      ],
+      "expectedOutcome": "A record resolves to one project, one Business Area, or no target; it never resolves to an archived project or both target types"
+    }
+  ],
+  "requiredEvidence": [
+    "actionLog",
+    "summary",
+    "databaseReadback",
+    "negativePath",
+    "regressionTest"
+  ],
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "archived-project-exclusion",
+      "description": "Archived projects are excluded across project, rule, contact, and cached-signal paths",
+      "evidence": [
+        {
+          "key": "regressionTest",
+          "min": 1
+        },
+        {
+          "key": "negativePath",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "typed-target-xor",
+      "description": "Typed assignment returns a project or Business Area but never both",
+      "evidence": [
+        {
+          "key": "regressionTest",
+          "min": 1
+        },
+        {
+          "key": "negativePath",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "live-business-area-map",
+      "description": "All five live container-project mappings match the approved Brain branches",
+      "evidence": [
+        {
+          "key": "databaseReadback",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "graph-adapter",
+      "description": "The shared Microsoft Graph adapter preserves typed targets, thresholds low-confidence results, and fails closed on mapping errors",
+      "evidence": [
+        {
+          "key": "regressionTest",
+          "min": 1
+        }
+      ]
+    }
+  ]
+}

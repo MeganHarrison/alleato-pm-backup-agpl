@@ -1,0 +1,32 @@
+{
+  "contractVersion": 1,
+  "riskLevel": "high",
+  "taskId": "SHAREPOINT-AUTO-RECOVERY-0722",
+  "feature": "SharePoint delta-batch automatic recovery",
+  "route": "backend Graph sync worker",
+  "flows": [
+    {
+      "name": "Recover a failed SharePoint delta item",
+      "steps": [
+        "A SharePoint file download fails after Graph returns the delta batch",
+        "Record the failed item and preserve the prior delta cursor",
+        "Run the next scheduled Graph sync"
+      ],
+      "expectedOutcome": "The failed delta batch is retried automatically, successful documents remain idempotent, and operations receive an internal warning with the exact failed-item count."
+    }
+  ],
+  "requiredEvidence": ["regressionTest", "databaseReadback", "actionLog"],
+  "independentReview": { "required": true },
+  "claims": [
+    {
+      "id": "cursor-preservation",
+      "description": "Failed SharePoint file processing and folder-level exceptions retain the prior delta cursor.",
+      "evidence": [{ "key": "regressionTest", "min": 1 }]
+    },
+    {
+      "id": "failure-accounting",
+      "description": "The source-sync run ledger records failed files and scheduled recovery without exposing raw failures on client pages.",
+      "evidence": [{ "key": "regressionTest", "min": 1 }, { "key": "databaseReadback", "min": 1 }]
+    }
+  ]
+}

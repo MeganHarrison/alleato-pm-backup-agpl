@@ -1,0 +1,67 @@
+{
+  "status": "PASS",
+  "taskId": "chat-history-duplicate-conversations-20260722",
+  "evidence": {
+    "screenshots": [
+      "docs/ops/evidence/2026-07-22-chat-history-duplicate-conversations/start-history.png",
+      "docs/ops/evidence/2026-07-22-chat-history-duplicate-conversations/after-new-chat.png",
+      "docs/ops/evidence/2026-07-22-chat-history-duplicate-conversations/after-first-message.png"
+    ],
+    "actionLog": [
+      "docs/ops/evidence/2026-07-22-chat-history-duplicate-conversations/action-log.md"
+    ],
+    "databaseReadback": [
+      "docs/ops/evidence/2026-07-22-chat-history-duplicate-conversations/database-readback.json"
+    ],
+    "negativePath": [
+      "docs/ops/evidence/2026-07-22-chat-history-duplicate-conversations/database-readback.json"
+    ],
+    "visualReview": [
+      "docs/ops/evidence/2026-07-22-chat-history-duplicate-conversations/independent-review.md"
+    ],
+    "regressionTest": [
+      "docs/ops/evidence/2026-07-22-chat-history-duplicate-conversations/regression-test.txt"
+    ]
+  },
+  "claims": {
+    "new-chat-side-effect-free": {
+      "screenshots": [
+        "docs/ops/evidence/2026-07-22-chat-history-duplicate-conversations/start-history.png",
+        "docs/ops/evidence/2026-07-22-chat-history-duplicate-conversations/after-new-chat.png"
+      ],
+      "databaseReadback": [
+        "docs/ops/evidence/2026-07-22-chat-history-duplicate-conversations/database-readback.json"
+      ],
+      "negativePath": [
+        "docs/ops/evidence/2026-07-22-chat-history-duplicate-conversations/database-readback.json"
+      ]
+    },
+    "first-message-single-create": {
+      "screenshots": [
+        "docs/ops/evidence/2026-07-22-chat-history-duplicate-conversations/after-first-message.png"
+      ],
+      "databaseReadback": [
+        "docs/ops/evidence/2026-07-22-chat-history-duplicate-conversations/database-readback.json"
+      ],
+      "actionLog": [
+        "docs/ops/evidence/2026-07-22-chat-history-duplicate-conversations/action-log.md"
+      ]
+    },
+    "concurrent-creation-guard": {
+      "regressionTest": [
+        "docs/ops/evidence/2026-07-22-chat-history-duplicate-conversations/regression-test.txt"
+      ]
+    },
+    "noise-gate": {
+      "visualReview": [
+        "docs/ops/evidence/2026-07-22-chat-history-duplicate-conversations/independent-review.md"
+      ]
+    }
+  },
+  "independentReview": {
+    "reviewer": "review_chat_dupe",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-22T17:20:00Z",
+    "artifact": "docs/ops/evidence/2026-07-22-chat-history-duplicate-conversations/independent-review.md"
+  }
+}

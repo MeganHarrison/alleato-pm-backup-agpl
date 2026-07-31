@@ -1,0 +1,113 @@
+{
+  "taskId": "LOCAL-2026-07-23-PURGE-NONPROJECTS-BATCH-2",
+  "targets": [
+    {
+      "name": "Uturum Aut",
+      "projectId": 1026,
+      "jobNumber": "24-737",
+      "acumaticaProjectId": null
+    },
+    {
+      "name": "Union Collective",
+      "projectId": 1009,
+      "jobNumber": "26-119",
+      "acumaticaProjectId": "26119"
+    },
+    {
+      "name": "Ulta Beauty Sprinkler/Electrical",
+      "projectId": 800,
+      "jobNumber": "22-101",
+      "acumaticaProjectId": "22101"
+    },
+    {
+      "name": "Test-Zaryll-04-09-2026",
+      "projectId": 889,
+      "jobNumber": "99-001",
+      "acumaticaProjectId": null
+    },
+    {
+      "name": "Test July 2026",
+      "projectId": 1142,
+      "jobNumber": "22-1234",
+      "acumaticaProjectId": null
+    },
+    {
+      "name": "Tesla Collision Center",
+      "projectId": 1098,
+      "jobNumber": null,
+      "acumaticaProjectId": null
+    },
+    {
+      "name": "Temporary project code for Forza Cincinnati project - since we don't have the job in Procore yet.",
+      "projectId": 825,
+      "jobNumber": "2401A",
+      "acumaticaProjectId": "2401A"
+    },
+    {
+      "name": "Tampa Event",
+      "projectId": 91,
+      "jobNumber": null,
+      "acumaticaProjectId": null
+    },
+    {
+      "name": "Seminole Collective",
+      "projectId": 98,
+      "jobNumber": null,
+      "acumaticaProjectId": null
+    },
+    {
+      "name": "Radial Miami",
+      "projectId": 68,
+      "jobNumber": null,
+      "acumaticaProjectId": null
+    },
+    {
+      "name": "Radial Fort Vill",
+      "projectId": 886,
+      "jobNumber": "27-101",
+      "acumaticaProjectId": null
+    },
+    {
+      "name": "Port Collective",
+      "projectId": 34,
+      "jobNumber": "25-107",
+      "acumaticaProjectId": "25107"
+    },
+    {
+      "name": "Playmakers",
+      "projectId": 1067,
+      "jobNumber": "26-123",
+      "acumaticaProjectId": "26123"
+    },
+    {
+      "name": "McLane Salt Lake City",
+      "projectId": 753,
+      "jobNumber": null,
+      "acumaticaProjectId": null
+    },
+    {
+      "name": "Goodwill Brookville Road",
+      "projectId": 877,
+      "jobNumber": "26-114",
+      "acumaticaProjectId": "26114"
+    },
+    {
+      "name": "Exol Morrisville",
+      "projectId": 876,
+      "jobNumber": "26-116",
+      "acumaticaProjectId": "26116"
+    },
+    {
+      "name": "Champaign Ace Addition",
+      "projectId": 1008,
+      "jobNumber": "26-118",
+      "acumaticaProjectId": "26118"
+    },
+    {
+      "name": "440 West Condominium",
+      "projectId": 1102,
+      "jobNumber": "50-000",
+      "acumaticaProjectId": null
+    }
+  ]
+}

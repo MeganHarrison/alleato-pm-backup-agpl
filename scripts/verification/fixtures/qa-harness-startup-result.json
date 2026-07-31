@@ -1,0 +1,20 @@
+{
+  "status": "PASS",
+  "taskId": "QA-HARNESS-2026-07-14",
+  "evidence": {
+    "summary": ["scripts/verification/fixtures/evidence/qa-harness-summary.md"],
+    "regressionTest": ["scripts/verification/fixtures/evidence/qa-harness-regression.txt"]
+  },
+  "claims": {
+    "startup-and-smoke": {
+      "summary": ["scripts/verification/fixtures/evidence/qa-harness-summary.md"],
+      "regressionTest": ["scripts/verification/fixtures/evidence/qa-harness-regression.txt"]
+    }
+  },
+  "independentReview": {
+    "reviewer": "Erdos",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-14T17:00:15Z",
+    "artifact": "scripts/verification/fixtures/evidence/qa-harness-independent-review.md"
+  }
+}

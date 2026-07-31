@@ -1,0 +1,26 @@
+{
+  "status": "PASS",
+  "observedStatus": "PASS",
+  "taskId": "SHAREPOINT-AUTO-RECOVERY-0722",
+  "evidence": {
+    "regressionTest": ["docs/ops/evidence/2026-07-22-sharepoint-auto-recovery/static-checks.md"],
+    "databaseReadback": ["docs/ops/evidence/2026-07-22-sharepoint-auto-recovery/static-checks.md"],
+    "actionLog": ["docs/ops/handoffs/2026-07-22-SROOT-sharepoint-auto-recovery.md"],
+    "independentReview": ["docs/ops/evidence/2026-07-22-sharepoint-auto-recovery/independent-review.md"]
+  },
+  "claims": {
+    "cursor-preservation": {
+      "regressionTest": ["docs/ops/evidence/2026-07-22-sharepoint-auto-recovery/static-checks.md"]
+    },
+    "failure-accounting": {
+      "regressionTest": ["docs/ops/evidence/2026-07-22-sharepoint-auto-recovery/static-checks.md"],
+      "databaseReadback": ["docs/ops/evidence/2026-07-22-sharepoint-auto-recovery/static-checks.md"]
+    }
+  },
+  "independentReview": {
+    "reviewer": "Codex reviewer agent",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-22T00:00:00Z",
+    "artifact": "docs/ops/evidence/2026-07-22-sharepoint-auto-recovery/independent-review.md"
+  }
+}

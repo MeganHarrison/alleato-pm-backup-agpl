@@ -1,0 +1,65 @@
+{
+  "status": "PASS",
+  "taskId": "LOCAL-2026-07-23-PURGE-NONPROJECTS-BATCH-2",
+  "evidence": {
+    "summary": [
+      "docs/ops/evidence/2026-07-23-purge-nonproject-records-batch-2/verification.md"
+    ],
+    "actionLog": [
+      "docs/ops/evidence/2026-07-23-purge-nonproject-records-batch-2/verification.md"
+    ],
+    "databaseReadback": [
+      "docs/ops/evidence/2026-07-23-purge-nonproject-records-batch-2/storage-delete.json",
+      "docs/ops/evidence/2026-07-23-purge-nonproject-records-batch-2/apply.json",
+      "docs/ops/evidence/2026-07-23-purge-nonproject-records-batch-2/verify.json"
+    ],
+    "negativePath": [
+      "docs/ops/evidence/2026-07-23-purge-nonproject-records-batch-2/verification.md"
+    ],
+    "regressionTest": [
+      "docs/ops/evidence/2026-07-23-purge-nonproject-records-batch-2/verification.md"
+    ]
+  },
+  "claims": {
+    "exact-target-binding": {
+      "actionLog": [
+        "docs/ops/evidence/2026-07-23-purge-nonproject-records-batch-2/verification.md"
+      ],
+      "regressionTest": [
+        "docs/ops/evidence/2026-07-23-purge-nonproject-records-batch-2/verification.md"
+      ]
+    },
+    "complete-project-purge": {
+      "databaseReadback": [
+        "docs/ops/evidence/2026-07-23-purge-nonproject-records-batch-2/storage-delete.json",
+        "docs/ops/evidence/2026-07-23-purge-nonproject-records-batch-2/apply.json",
+        "docs/ops/evidence/2026-07-23-purge-nonproject-records-batch-2/verify.json"
+      ],
+      "summary": [
+        "docs/ops/evidence/2026-07-23-purge-nonproject-records-batch-2/verification.md"
+      ]
+    },
+    "fails-closed": {
+      "negativePath": [
+        "docs/ops/evidence/2026-07-23-purge-nonproject-records-batch-2/verification.md"
+      ],
+      "regressionTest": [
+        "docs/ops/evidence/2026-07-23-purge-nonproject-records-batch-2/verification.md"
+      ]
+    },
+    "shared-and-audit-preservation": {
+      "databaseReadback": [
+        "docs/ops/evidence/2026-07-23-purge-nonproject-records-batch-2/verify.json"
+      ],
+      "summary": [
+        "docs/ops/evidence/2026-07-23-purge-nonproject-records-batch-2/verification.md"
+      ]
+    }
+  },
+  "independentReview": {
+    "reviewer": "/root/review_project_purge_batch_2/review_project_purge_batch_2b",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-23T17:05:03Z",
+    "artifact": "docs/ops/evidence/2026-07-23-purge-nonproject-records-batch-2/independent-review.md"
+  }
+}

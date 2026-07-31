@@ -1,0 +1,26 @@
+{
+  "contractVersion": 1,
+  "taskId": "QA-HARNESS-2026-07-14",
+  "feature": "Canonical QA harness startup contract",
+  "route": "/876/documents",
+  "flows": [
+    {
+      "name": "Start and authenticate local QA",
+      "steps": ["Start the managed frontend", "Verify the protected route", "Run the Documents smoke flow"],
+      "expectedOutcome": "The harness starts on the canonical port and reaches the authenticated Documents route"
+    }
+  ],
+  "requiredEvidence": ["summary", "regressionTest"],
+  "visual": {"viewports": ["desktop", "mobile"]},
+  "independentReview": {"required": true},
+  "claims": [
+    {
+      "id": "startup-and-smoke",
+      "description": "Canonical startup, auth, and browser smoke pass",
+      "evidence": [
+        {"key": "summary", "min": 1},
+        {"key": "regressionTest", "min": 1}
+      ]
+    }
+  ]
+}

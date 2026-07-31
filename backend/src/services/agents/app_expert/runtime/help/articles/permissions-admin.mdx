@@ -1,0 +1,140 @@
+---
+title: Permissions and Access Control
+description: Configure role-based permissions, page access, capability flags, and per-user overrides.
+audience: admin
+visibility: published
+module: permissions
+category: Settings & Administration
+tags: [permissions, admin, roles, capabilities, audit]
+featured: false
+client_visible: false
+ai_visible: false
+order: 910
+related_routes:
+  - /[projectId]/admin
+related_actions:
+  - assign_permissions
+  - update_permission_template
+---
+
+# Permissions and Access Control
+
+Alleato uses a layered permission model. Project access, role templates,
+module permissions, page access, and granular capability flags each answer a
+different question.
+
+- **Project access** answers whether a person can open a project.
+- **Permission roles/templates** answer what baseline access that person has.
+- **Module permissions** answer what the role can do inside tools such as
+  Budget, Documents, RFIs, or Change Orders.
+- **Page access** answers which permission roles can open a specific page.
+- **Granular flags and overrides** answer whether a sensitive action is allowed
+  for a specific person.
+
+Do not treat module permissions and page access as the same control. A role may
+qualify for a page because it has the required module level, but explicit page
+access is controlled from Site Map.
+
+## Manage User And Role Access
+
+Use [User Management](/help/articles/user-management) to create users, assign
+company roles, assign project roles, and manage granular exceptions.
+
+## Permission Roles And Templates
+
+Permission roles are stored as permission templates. A template sets a baseline
+access level for each module. Common roles include Admin, Project Manager,
+Superintendent, and subcontractor/client roles. The actual available role list
+comes from the permission templates configured in the app.
+
+Each module permission uses this hierarchy:
+
+- **None** — no module access.
+- **Read** — view records.
+- **Write** — create and edit records.
+- **Admin** — full module control, including administrative actions where the
+  tool supports them.
+
+Project-specific role assignment lives on the user's active project membership.
+Company-level templates can provide a fallback when a project-specific template
+is not assigned. Runtime resolution prefers the project template first, then the
+company template.
+
+## Page Access
+
+Use **Site Map** to review and update page access.
+
+The Site Map access table has two different role columns:
+
+- **Allowed Roles** is the explicit page-level allowlist. Updating this column
+  controls which permission roles can open that page.
+- **Roles That Qualify** is a read-only diagnostic. It shows which roles satisfy
+  the current module/level requirement, but it is not the page access control.
+
+When a page has an explicit role allowlist, the project page guard checks the
+current user's active permission template against that allowlist. App
+admins/developers can bypass the page-role allowlist after project access is
+confirmed. The owner account can see every project.
+
+If a page has no explicit role policy, it keeps the inherited requirement
+behavior: project membership, admin/developer checks, and module-level guards
+continue to control access.
+
+## Route Requirement Metadata
+
+The older page-access metadata still matters, but it is not the same as the
+page-role allowlist.
+
+- `app_page_access_policies` stores route requirement metadata such as required
+  access level and required permission module.
+- `app_page_role_access_policies` and
+  `app_page_role_access_policy_templates` store explicit page-to-role access.
+
+Use requirement metadata to audit whether a page should require project
+membership, module read/write/admin, app admin, or developer access. Use
+Allowed Roles when the question is, "Which project roles can open this page?"
+
+## Per-User Module Overrides
+
+After applying a template, override specific modules for a user without changing
+the template:
+
+1. Open the user's permission record.
+2. Select the module (Budget, RFIs, etc.).
+3. Choose a different access level (None, Read, Write, Admin).
+4. Save the override.
+
+## Capability Flags
+
+Capability flags control sensitive actions independently of module access:
+
+- **approve_change_orders**
+- **approve_invoices**
+- **bulk_edit_subcontractor_invoice_status**
+- **create_budget_modifications**
+- **create_change_events**
+- **edit_own_ssov**
+- **manage_project_directory**
+- **view_accounting**
+- **view_executive_briefing**
+- **view_private_commitments**
+
+These are configured on templates and can also be allowed or denied through
+granular user overrides.
+
+## API And Data Guardrails
+
+API routes should use the shared project permission helpers, such as
+`verifyProjectAccess` and `verifyProjectPermission`, instead of duplicating
+permission checks. Project pages go through the project layout guard, which now
+also enforces explicit page-role policies.
+
+## Audit Log
+
+The Audit Log records every permission change with timestamp, actor, target user, and what changed. Use it to investigate access changes or for compliance reviews.
+
+## Related Articles
+
+- [Manage User Access](/help/articles/manage-permissions)
+- [Understand Permissions And Visibility](/help/articles/app-permissions-and-visibility)
+- [Create or Invite a User](/help/articles/create-or-invite-a-user)

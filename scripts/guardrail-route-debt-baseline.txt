@@ -1,0 +1,4 @@
+# Baseline technical debt list for API routes that do not yet use withApiGuardrails.
+# These are intentionally excluded due to streaming, webhooks, or proxy patterns
+# that are incompatible with the withApiGuardrails wrapper.
+# Each line must be a route file path.

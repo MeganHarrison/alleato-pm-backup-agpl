@@ -1,0 +1,3452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Premium UI Design (Light) — Visual Reference for AI Agents</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ============================================
+     LIGHT MODE DESIGN SYSTEM — KEY DIFFERENCES FROM DARK
+     
+     1. Elevation goes LIGHTER (white panels float above gray bg)
+     2. Shadows are CRITICAL — they replace dark mode's depth contrast
+     3. Text opacity values shift (55% secondary, 35% tertiary)
+     4. Borders are rgba(0,0,0,x) — must be more visible on white
+     5. Status/accent colors need more saturation to hold against white
+     6. Code blocks invert: very light bg + dark syntax
+  ============================================ */
+  :root {
+    /* Surfaces — elevation goes LIGHTER, not darker */
+    --bg:        #f0f0f3;   /* Page canvas — cool gray, NOT pure white */
+    --surface-1: #ffffff;   /* Sidebar, panels — white = elevated off canvas */
+    --surface-2: #f8f8fb;   /* Subtle nested backgrounds */
+    --surface-3: #ededf0;   /* Hover states, selected rows */
+    --surface-4: #e2e2e6;   /* Active controls, pressed states */
+
+    /* Borders — dark-on-light, requires more opacity than light-on-dark */
+    --border:        rgba(0, 0, 0, 0.07);
+    --border-strong: rgba(0, 0, 0, 0.13);
+
+    /* Text — opacity tiers, dark-on-light */
+    --text-1: rgba(0, 0, 0, 0.88);   /* Headings, values, active labels */
+    --text-2: rgba(0, 0, 0, 0.55);   /* Body, descriptions */
+    --text-3: rgba(0, 0, 0, 0.38);   /* Eyebrows, captions, meta */
+    --text-4: rgba(0, 0, 0, 0.22);   /* Placeholders, disabled */
+
+    /* Accent — slightly deeper than dark mode for white contrast */
+    --accent:        #5b21b6;
+    --accent-mid:    #7c3aed;
+    --accent-subtle: rgba(91, 33, 182, 0.07);
+    --accent-border: rgba(91, 33, 182, 0.20);
+
+    /* Status — more saturated for legibility on white */
+    --green:        #16a34a;
+    --green-subtle: rgba(22, 163, 74, 0.08);
+    --red:          #dc2626;
+    --red-subtle:   rgba(220, 38, 38, 0.08);
+    --amber:        #d97706;
+    --amber-subtle: rgba(217, 119, 6, 0.08);
+    --blue:         #2563eb;
+    --blue-subtle:  rgba(37, 99, 235, 0.08);
+
+    /* Shadows — FAR more important in light mode */
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04);
+    --shadow-lg: 0 10px 15px rgba(0,0,0,0.07), 0 4px 6px rgba(0,0,0,0.04);
+
+    --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+    --font-mono: 'Geist Mono', monospace;
+    --r-sm: 4px;
+    --r-md: 6px;
+    --r-lg: 8px;
+    --r-xl: 12px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text-1);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ============================================
+     LAYOUT SHELL
+  ============================================ */
+  .shell { display: flex; min-height: 100vh; }
+
+  .sidenav {
+    width: 220px;
+    flex-shrink: 0;
+    background: var(--surface-1);
+    border-right: 1px solid var(--border);
+    padding: 24px 8px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    /* Light mode: sidebar uses shadow to float off bg */
+    box-shadow: 1px 0 0 var(--border), var(--shadow-sm);
+  }
+
+  .sidenav-logo {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    padding: 0 8px;
+    margin-bottom: 24px;
+  }
+
+  .sidenav-badge {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: var(--accent-subtle);
+    color: var(--accent);
+    border: 1px solid var(--accent-border);
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+
+  .sidenav-section { margin-bottom: 24px; }
+
+  .sidenav-section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-4);
+    padding: 0 8px;
+    margin-bottom: 4px;
+    margin-top: 16px;
+  }
+
+  .sidenav a {
+    display: block;
+    padding: 5px 8px;
+    border-radius: var(--r-md);
+    font-size: 13px;
+    color: var(--text-3);
+    text-decoration: none;
+    transition: all 0.1s;
+  }
+
+  .sidenav a:hover {
+    background: var(--surface-3);
+    color: var(--text-1);
+  }
+
+  .main {
+    flex: 1;
+    min-width: 0;
+    padding: 48px 56px;
+    max-width: 1100px;
+  }
+
+  /* ============================================
+     PAGE HEADER
+  ============================================ */
+  .page-eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+
+  .page-title {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--text-1);
+    line-height: 1.1;
+    margin-bottom: 12px;
+  }
+
+  .page-desc {
+    font-size: 15px;
+    color: var(--text-2);
+    line-height: 1.7;
+    max-width: 600px;
+    margin-bottom: 48px;
+  }
+
+  .mode-callout {
+    background: var(--accent-subtle);
+    border: 1px solid var(--accent-border);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--r-lg);
+    padding: 14px 18px;
+    font-size: 13px;
+    color: var(--text-2);
+    line-height: 1.6;
+    margin-bottom: 56px;
+  }
+
+  .mode-callout strong { color: var(--text-1); }
+
+  /* ============================================
+     SECTION STRUCTURE
+  ============================================ */
+  .section { margin-bottom: 72px; }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 32px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-num {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-4);
+    width: 24px;
+    flex-shrink: 0;
+  }
+
+  .section-title {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--text-1);
+  }
+
+  .section-subtitle {
+    font-size: 13px;
+    color: var(--text-3);
+    margin-top: 4px;
+  }
+
+  /* ============================================
+     COMPARE BLOCKS
+  ============================================ */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    border-radius: var(--r-xl);
+    overflow: hidden;
+    margin-bottom: 24px;
+    /* Light mode: subtle shadow on the container */
+    box-shadow: var(--shadow-sm);
+  }
+
+  .compare-pane {
+    background: var(--surface-1);
+    padding: 24px;
+  }
+
+  .compare-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+
+  .compare-label.wrong { color: var(--red); background: var(--red-subtle); }
+  .compare-label.right { color: var(--green); background: var(--green-subtle); }
+
+  .compare-note {
+    font-size: 12px;
+    color: var(--text-3);
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    line-height: 1.6;
+  }
+
+  /* ============================================
+     CODE BLOCK — inverted for light mode
+  ============================================ */
+  .code-block {
+    background: #1e1e2e;   /* dark code block on light page */
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: var(--r-lg);
+    padding: 20px 24px;
+    margin-top: 16px;
+    overflow-x: auto;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .code-block pre {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: rgba(255,255,255,0.6);
+    line-height: 1.7;
+    white-space: pre;
+  }
+
+  .code-block .tok-prop    { color: #7dd3fc; }
+  .code-block .tok-val     { color: #86efac; }
+  .code-block .tok-comment { color: rgba(255,255,255,0.3); }
+  .code-block .tok-class   { color: #c4b5fd; }
+  .code-block .tok-string  { color: #fca5a5; }
+
+  /* ============================================
+     CALLOUT
+  ============================================ */
+  .callout {
+    background: var(--accent-subtle);
+    border: 1px solid var(--accent-border);
+    border-radius: var(--r-lg);
+    padding: 14px 18px;
+    font-size: 13px;
+    color: var(--text-2);
+    line-height: 1.6;
+    margin: 20px 0;
+  }
+
+  .callout strong { color: var(--text-1); }
+
+  /* ============================================
+     ELEVATION STRIP
+  ============================================ */
+  .elevation-strip {
+    display: flex;
+    gap: 1px;
+    background: var(--border);
+    border-radius: var(--r-xl);
+    overflow: hidden;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .elevation-cell {
+    flex: 1;
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  /* Light mode elevation: panels go LIGHTER, not darker */
+  .elevation-cell:nth-child(1) { background: #f0f0f3; }
+  .elevation-cell:nth-child(2) { background: #ffffff; }
+  .elevation-cell:nth-child(3) { background: #f8f8fb; }
+  .elevation-cell:nth-child(4) { background: #ededf0; }
+  .elevation-cell:nth-child(5) { background: #e2e2e6; }
+
+  .elevation-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .elevation-value {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-4);
+  }
+
+  .elevation-use {
+    font-size: 11px;
+    color: var(--text-3);
+    margin-top: 4px;
+    line-height: 1.5;
+  }
+
+  /* ============================================
+     TYPOGRAPHY DEMO
+  ============================================ */
+  .typo-demo {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: var(--r-xl);
+    padding: 32px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .typo-eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    margin-bottom: 8px;
+  }
+
+  .typo-h1 {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--text-1);
+    line-height: 1.1;
+    margin-bottom: 4px;
+  }
+
+  .typo-h2 {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--text-1);
+    margin-bottom: 4px;
+  }
+
+  .typo-h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-1);
+    margin-bottom: 4px;
+  }
+
+  .typo-body {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--text-2);
+    line-height: 1.6;
+    margin-bottom: 4px;
+  }
+
+  .typo-caption {
+    font-size: 12px;
+    color: var(--text-3);
+    line-height: 1.5;
+  }
+
+  .typo-row {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .typo-row:last-child { border-bottom: none; }
+
+  .typo-spec {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-4);
+    width: 140px;
+    flex-shrink: 0;
+    line-height: 1.6;
+  }
+
+  /* ============================================
+     WHITESPACE DEMO
+  ============================================ */
+  .whitespace-demo {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    border-radius: var(--r-xl);
+    overflow: hidden;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .ws-bad { background: var(--surface-1); padding: 16px; }
+
+  .ws-bad-section {
+    background: var(--surface-2);
+    border: 1px solid var(--border-strong);
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 8px;
+  }
+
+  .ws-bad-title { font-size: 12px; font-weight: 600; color: var(--text-2); margin-bottom: 4px; }
+  .ws-bad-body  { font-size: 12px; color: var(--text-3); }
+
+  .ws-good { background: var(--surface-1); padding: 24px; }
+
+  .ws-good-section { margin-bottom: 32px; }
+  .ws-good-section:last-child { margin-bottom: 0; }
+
+  .ws-good-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    margin-bottom: 12px;
+  }
+
+  .ws-good-items { margin-top: 10px; }
+
+  .ws-good-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--text-2);
+  }
+
+  .ws-good-item:last-child { border-bottom: none; }
+
+  .ws-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--text-4);
+    flex-shrink: 0;
+  }
+
+  /* ============================================
+     BENTO GRID
+  ============================================ */
+  .bento-demo {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border-radius: var(--r-xl);
+    overflow: hidden;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow-md);
+  }
+
+  .bento-cell { background: var(--surface-1); padding: 24px; min-height: 100px; }
+  .bento-cell.hero       { grid-column: span 5; min-height: 140px; }
+  .bento-cell.wide       { grid-column: span 4; }
+  .bento-cell.narrow     { grid-column: span 3; }
+  .bento-cell.full       { grid-column: span 12; padding: 20px 24px; min-height: auto; }
+  .bento-cell.two-thirds { grid-column: span 8; }
+  .bento-cell.one-third  { grid-column: span 4; }
+
+  .bento-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    margin-bottom: 8px;
+  }
+
+  .bento-metric {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--text-1);
+    line-height: 1;
+  }
+
+  .bento-sub  { font-size: 12px; color: var(--text-3); margin-top: 6px; }
+
+  .bento-delta {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 4px;
+    margin-top: 8px;
+  }
+
+  .bento-delta.up   { color: var(--green); background: var(--green-subtle); }
+  .bento-delta.down { color: var(--red);   background: var(--red-subtle); }
+
+  .mini-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 40px;
+    margin-top: 12px;
+  }
+
+  .mini-bar {
+    flex: 1;
+    background: rgba(91,33,182,0.18);
+    border-radius: 2px 2px 0 0;
+    transition: background 0.15s;
+  }
+
+  .mini-bar:hover  { background: rgba(91,33,182,0.4); }
+  .mini-bar.active { background: var(--accent); }
+
+  .spark-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .spark-row:last-child { border-bottom: none; }
+  .spark-name { font-size: 13px; color: var(--text-2); }
+  .spark-val  { font-size: 13px; font-weight: 600; color: var(--text-1); font-family: var(--font-mono); }
+
+  /* ============================================
+     ACCENT BARS
+  ============================================ */
+  .accent-demo {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .accent-card-left {
+    background: var(--surface-1);
+    border-radius: var(--r-lg);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent-mid);
+    padding: 16px 20px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .accent-card-top {
+    background: var(--surface-1);
+    border-radius: var(--r-lg);
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--green);
+    padding: 16px 20px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .accent-card-bg {
+    background: var(--accent-subtle);
+    border-radius: var(--r-lg);
+    border: 1px solid var(--accent-border);
+    padding: 16px 20px;
+  }
+
+  .accent-card-warn {
+    background: var(--amber-subtle);
+    border-radius: var(--r-lg);
+    border: 1px solid rgba(217,119,6,0.22);
+    padding: 16px 20px;
+  }
+
+  .accent-card-title { font-size: 13px; font-weight: 600; color: var(--text-1); margin-bottom: 4px; }
+  .accent-card-body  { font-size: 12px; color: var(--text-3); line-height: 1.5; }
+
+  .accent-tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 3px;
+    margin-bottom: 8px;
+  }
+
+  .accent-tag.purple { color: var(--accent); background: var(--accent-subtle); border: 1px solid var(--accent-border); }
+  .accent-tag.green  { color: var(--green);  background: var(--green-subtle);  border: 1px solid rgba(22,163,74,0.18); }
+  .accent-tag.amber  { color: var(--amber);  background: var(--amber-subtle);  border: 1px solid rgba(217,119,6,0.18); }
+
+  /* ============================================
+     KPI BLOCKS
+  ============================================ */
+  .kpi-wrong-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .kpi-wrong-card {
+    background: var(--surface-2);
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    padding: 16px;
+  }
+
+  .kpi-wrong-label { font-size: 12px; color: var(--text-3); margin-bottom: 6px; }
+  .kpi-wrong-value { font-size: 22px; font-weight: 700; color: var(--text-1); }
+
+  .kpi-right-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border-radius: var(--r-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+  }
+
+  .kpi-right-cell { background: var(--surface-1); padding: 24px; }
+
+  .kpi-eyebrow {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    margin-bottom: 12px;
+  }
+
+  .kpi-metric-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+
+  .kpi-value {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--text-1);
+    line-height: 1;
+  }
+
+  .kpi-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 4px;
+    margin-bottom: 2px;
+  }
+
+  .kpi-badge.up   { color: var(--green); background: var(--green-subtle); }
+  .kpi-badge.down { color: var(--red);   background: var(--red-subtle); }
+  .kpi-context    { font-size: 11px; color: var(--text-3); }
+
+  /* ============================================
+     TABLES
+  ============================================ */
+  .table-wrong {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .table-wrong th {
+    background: var(--surface-3);
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 700;
+    color: var(--text-1);
+    border: 1px solid var(--border-strong);
+    font-size: 13px;
+  }
+
+  .table-wrong td {
+    padding: 12px 16px;
+    color: var(--text-2);
+    border: 1px solid var(--border-strong);
+  }
+
+  .table-right {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .table-right thead th {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    padding: 0 16px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  .table-right tbody td {
+    padding: 10px 16px;
+    color: var(--text-2);
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+
+  .table-right tbody tr:last-child td { border-bottom: none; }
+
+  .table-right tbody tr:hover td { background: var(--surface-3); }
+
+  .table-right tbody td:first-child {
+    color: var(--text-1);
+    font-weight: 500;
+  }
+
+  .status-dot {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+  }
+
+  .status-dot::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .status-dot.live::before    { background: var(--green); }
+  .status-dot.pending::before { background: var(--amber); }
+  .status-dot.inactive::before { background: var(--text-4); }
+
+  /* ============================================
+     INVERTED PYRAMID LAYOUT
+  ============================================ */
+  .pyramid-demo {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: var(--r-xl);
+    overflow: hidden;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow-md);
+  }
+
+  .pyramid-header {
+    padding: 24px 28px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    background: var(--surface-1);
+  }
+
+  .pyramid-title    { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; color: var(--text-1); }
+  .pyramid-subtitle { font-size: 13px; color: var(--text-3); margin-top: 2px; }
+
+  .pyramid-cta {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: var(--r-md);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: var(--font-sans);
+    flex-shrink: 0;
+    margin-top: 2px;
+    box-shadow: 0 1px 2px rgba(91,33,182,0.3);
+  }
+
+  .pyramid-kpis {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .pyramid-kpi { background: var(--surface-1); padding: 20px 24px; }
+
+  .pyramid-kpi-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    margin-bottom: 8px;
+  }
+
+  .pyramid-kpi-val {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--text-1);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .pyramid-kpi-sub { font-size: 11px; color: var(--text-3); }
+
+  .pyramid-mid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .pyramid-chart-area { background: var(--surface-1); padding: 24px; min-height: 120px; }
+  .pyramid-chart-title { font-size: 12px; font-weight: 600; color: var(--text-2); margin-bottom: 16px; }
+  .pyramid-panel { background: var(--surface-2); padding: 24px; }
+  .pyramid-panel-title { font-size: 12px; font-weight: 600; color: var(--text-2); margin-bottom: 12px; }
+
+  .bar-chart-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .bar-chart-label {
+    font-size: 11px;
+    color: var(--text-3);
+    width: 56px;
+    flex-shrink: 0;
+    text-align: right;
+  }
+
+  .bar-chart-track {
+    flex: 1;
+    height: 6px;
+    background: var(--surface-3);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .bar-chart-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: var(--accent-mid);
+    opacity: 0.7;
+  }
+
+  .bar-chart-val {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-2);
+    font-family: var(--font-mono);
+    width: 36px;
+  }
+
+  .activity-item {
+    display: flex;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .activity-item:last-child { border-bottom: none; }
+
+  .activity-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent-mid);
+    flex-shrink: 0;
+    margin-top: 5px;
+  }
+
+  .activity-text { font-size: 12px; color: var(--text-3); line-height: 1.5; }
+  .activity-text strong { color: var(--text-2); font-weight: 500; }
+
+  .pyramid-table-area { background: var(--surface-1); }
+
+  .pyramid-table-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .pyramid-table-title  { font-size: 12px; font-weight: 600; color: var(--text-2); }
+  .pyramid-table-action { font-size: 12px; color: var(--accent); cursor: pointer; font-weight: 500; }
+
+  /* ============================================
+     SETTINGS LAYOUT
+  ============================================ */
+  .settings-demo {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: var(--r-xl);
+    overflow: hidden;
+    margin-bottom: 16px;
+    max-width: 640px;
+    box-shadow: var(--shadow-md);
+  }
+
+  .settings-section {
+    padding: 28px 32px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .settings-section:last-child { border-bottom: none; }
+
+  .settings-section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-1);
+    margin-bottom: 4px;
+  }
+
+  .settings-section-desc {
+    font-size: 12px;
+    color: var(--text-3);
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+
+  .settings-field { margin-bottom: 16px; }
+  .settings-field:last-child { margin-bottom: 0; }
+
+  .settings-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-2);
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  .settings-input {
+    width: 100%;
+    background: var(--surface-1);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-md);
+    padding: 8px 12px;
+    font-size: 13px;
+    color: var(--text-1);
+    font-family: var(--font-sans);
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+
+  .settings-input:focus {
+    border-color: var(--accent-mid);
+    box-shadow: 0 0 0 3px rgba(91,33,182,0.1), 0 1px 2px rgba(0,0,0,0.04);
+  }
+
+  .settings-toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+  }
+
+  .settings-toggle-label { font-size: 13px; color: var(--text-2); }
+  .settings-toggle-sub   { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+
+  .toggle {
+    width: 36px;
+    height: 20px;
+    background: var(--surface-4);
+    border-radius: 10px;
+    position: relative;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.15s;
+    border: 1px solid var(--border-strong);
+  }
+
+  .toggle.on { background: var(--accent-mid); border-color: var(--accent-mid); }
+
+  .toggle::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 14px;
+    height: 14px;
+    background: white;
+    border-radius: 50%;
+    transition: left 0.15s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+
+  .toggle.on::after { left: 18px; }
+
+  .settings-divider { height: 1px; background: var(--border); margin: 10px 0; }
+
+  .settings-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 16px 32px;
+    background: var(--surface-2);
+    border-top: 1px solid var(--border);
+  }
+
+  .btn-ghost {
+    padding: 7px 14px;
+    border-radius: var(--r-md);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-2);
+    background: transparent;
+    border: 1px solid var(--border-strong);
+    cursor: pointer;
+    font-family: var(--font-sans);
+    transition: all 0.1s;
+  }
+
+  .btn-ghost:hover { background: var(--surface-3); color: var(--text-1); }
+
+  .btn-primary {
+    padding: 7px 14px;
+    border-radius: var(--r-md);
+    font-size: 13px;
+    font-weight: 600;
+    color: white;
+    background: var(--accent);
+    border: none;
+    cursor: pointer;
+    font-family: var(--font-sans);
+    box-shadow: 0 1px 2px rgba(91,33,182,0.25);
+    transition: opacity 0.1s, box-shadow 0.1s;
+  }
+
+  .btn-primary:hover {
+    opacity: 0.88;
+    box-shadow: 0 2px 4px rgba(91,33,182,0.3);
+  }
+
+  .btn-danger {
+    padding: 7px 14px;
+    border-radius: var(--r-md);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--red);
+    background: var(--red-subtle);
+    border: 1px solid rgba(220,38,38,0.2);
+    cursor: pointer;
+    font-family: var(--font-sans);
+  }
+
+  /* ============================================
+     NAVIGATION DEMO
+  ============================================ */
+  .nav-demo {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 1px;
+    background: var(--border);
+    border-radius: var(--r-xl);
+    overflow: hidden;
+    min-height: 380px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow-md);
+  }
+
+  .nav-sidebar { background: var(--surface-1); padding: 16px 8px; }
+
+  .nav-workspace {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    border-radius: var(--r-md);
+    margin-bottom: 20px;
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+
+  .nav-workspace:hover { background: var(--surface-3); }
+
+  .nav-ws-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    background: var(--accent);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: white;
+  }
+
+  .nav-ws-name { font-size: 13px; font-weight: 600; color: var(--text-1); }
+  .nav-ws-role { font-size: 11px; color: var(--text-3); }
+
+  .nav-section-header {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-4);
+    padding: 0 8px;
+    margin-bottom: 3px;
+    margin-top: 20px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: var(--r-md);
+    font-size: 13px;
+    color: var(--text-3);
+    cursor: pointer;
+    transition: all 0.1s;
+  }
+
+  .nav-item:hover { background: var(--surface-3); color: var(--text-1); }
+
+  .nav-item.active {
+    background: var(--accent-subtle);
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .nav-icon { width: 14px; height: 14px; opacity: 0.5; flex-shrink: 0; }
+  .nav-item.active .nav-icon { opacity: 1; color: var(--accent); }
+
+  .nav-count {
+    margin-left: auto;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    background: var(--surface-3);
+    padding: 1px 6px;
+    border-radius: 4px;
+    color: var(--text-3);
+    border: 1px solid var(--border);
+  }
+
+  .nav-item.active .nav-count {
+    background: var(--accent-subtle);
+    color: var(--accent);
+    border-color: var(--accent-border);
+  }
+
+  .nav-content { background: var(--surface-2); padding: 24px 28px; }
+
+  .nav-content-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-content-title { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; color: var(--text-1); }
+
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-3);
+    margin-bottom: 4px;
+  }
+
+  .breadcrumb span { color: var(--text-2); }
+
+  /* ============================================
+     SPACING RULER
+  ============================================ */
+  .spacing-ruler { display: flex; flex-direction: column; gap: 4px; margin-bottom: 16px; }
+
+  .spacing-row { display: flex; align-items: center; gap: 16px; }
+
+  .spacing-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-4);
+    width: 72px;
+    flex-shrink: 0;
+    text-align: right;
+  }
+
+  .spacing-block {
+    background: var(--accent-mid);
+    height: 8px;
+    border-radius: 2px;
+    opacity: 0.5;
+  }
+
+  .spacing-use { font-size: 12px; color: var(--text-3); margin-left: 4px; }
+
+  /* ============================================
+     INTERACTIVE STATES
+  ============================================ */
+  .states-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .state-item { text-align: center; }
+
+  .state-btn {
+    display: block;
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: var(--r-md);
+    font-size: 12px;
+    font-weight: 500;
+    font-family: var(--font-sans);
+    cursor: pointer;
+    margin-bottom: 8px;
+    transition: all 0.1s;
+  }
+
+  .state-btn.default {
+    background: var(--surface-1);
+    color: var(--text-2);
+    border: 1px solid var(--border-strong);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .state-btn.hover-state {
+    background: var(--surface-3);
+    color: var(--text-1);
+    border: 1px solid var(--border-strong);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+  }
+
+  .state-btn.active-state {
+    background: var(--accent);
+    color: white;
+    border: 1px solid transparent;
+    box-shadow: 0 1px 3px rgba(91,33,182,0.35);
+  }
+
+  .state-btn.focus-state {
+    background: var(--surface-1);
+    color: var(--text-1);
+    border: 1px solid var(--accent-mid);
+    box-shadow: 0 0 0 3px rgba(91,33,182,0.12), var(--shadow-sm);
+    outline: none;
+  }
+
+  .state-btn.disabled-state {
+    background: var(--surface-2);
+    color: var(--text-4);
+    border: 1px solid var(--border);
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .state-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-4);
+  }
+
+  /* ============================================
+     COLOR SWATCHES
+  ============================================ */
+  .color-row {
+    display: flex;
+    gap: 1px;
+    background: var(--border);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .color-swatch {
+    flex: 1;
+    padding: 16px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .swatch-preview {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    margin-bottom: 4px;
+    border: 1px solid rgba(0,0,0,0.08);
+  }
+
+  .swatch-name  { font-size: 11px; font-weight: 600; color: var(--text-2); }
+  .swatch-value { font-family: var(--font-mono); font-size: 10px; color: var(--text-4); }
+  .swatch-use   { font-size: 10px; color: var(--text-3); line-height: 1.4; }
+
+  /* ============================================
+     EMPTY STATES
+  ============================================ */
+  .empty-compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    border-radius: var(--r-xl);
+    overflow: hidden;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .empty-bad {
+    background: var(--surface-1);
+    padding: 40px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .empty-bad p { font-size: 13px; color: var(--text-3); }
+
+  .empty-good {
+    background: var(--surface-1);
+    padding: 40px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 12px;
+  }
+
+  .empty-icon-bg {
+    width: 48px;
+    height: 48px;
+    background: var(--accent-subtle);
+    border-radius: 12px;
+    border: 1px solid var(--accent-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    margin-bottom: 4px;
+  }
+
+  .empty-title  { font-size: 15px; font-weight: 600; color: var(--text-1); }
+  .empty-desc   { font-size: 13px; color: var(--text-3); line-height: 1.6; max-width: 240px; }
+
+  .empty-action {
+    margin-top: 4px;
+    padding: 8px 16px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: var(--r-md);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: var(--font-sans);
+    box-shadow: 0 1px 2px rgba(91,33,182,0.25);
+  }
+
+  /* ============================================
+     MASTER / DETAIL
+  ============================================ */
+  .master-detail {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 1px;
+    background: var(--border);
+    border-radius: var(--r-xl);
+    overflow: hidden;
+    min-height: 320px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow-md);
+  }
+
+  .master-pane { background: var(--surface-1); }
+
+  .master-search { padding: 12px 16px; border-bottom: 1px solid var(--border); }
+
+  .master-search-input {
+    width: 100%;
+    background: var(--surface-2);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-md);
+    padding: 6px 10px;
+    font-size: 12px;
+    color: var(--text-2);
+    font-family: var(--font-sans);
+    outline: none;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.04);
+  }
+
+  .master-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+
+  .master-item:hover { background: var(--surface-3); }
+
+  .master-item.selected {
+    background: var(--accent-subtle);
+    border-left: 2px solid var(--accent-mid);
+  }
+
+  .master-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: white;
+  }
+
+  .master-info { flex: 1; min-width: 0; }
+  .master-name { font-size: 13px; font-weight: 500; color: var(--text-1); }
+  .master-meta { font-size: 11px; color: var(--text-3); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .detail-pane { background: var(--surface-2); padding: 28px; }
+
+  .detail-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .detail-title { font-size: 18px; font-weight: 600; letter-spacing: -0.02em; color: var(--text-1); }
+  .detail-sub   { font-size: 13px; color: var(--text-3); margin-top: 4px; }
+
+  .detail-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    color: var(--green);
+    background: var(--green-subtle);
+    border: 1px solid rgba(22,163,74,0.2);
+  }
+
+  .detail-props {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .detail-prop-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    margin-bottom: 4px;
+  }
+
+  .detail-prop-val { font-size: 13px; color: var(--text-2); }
+
+  /* ============================================
+     SHADOW SHOWCASE (light-mode-specific section)
+  ============================================ */
+  .shadow-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-bottom: 16px;
+  }
+
+  .shadow-card {
+    background: var(--surface-1);
+    border-radius: var(--r-lg);
+    padding: 20px;
+    border: 1px solid var(--border);
+  }
+
+  .shadow-card.none   { box-shadow: none; }
+  .shadow-card.sm     { box-shadow: var(--shadow-sm); }
+  .shadow-card.md     { box-shadow: var(--shadow-md); }
+  .shadow-card.lg     { box-shadow: var(--shadow-lg); border: 1px solid rgba(0,0,0,0.06); }
+
+  .shadow-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    margin-bottom: 4px;
+  }
+
+  .shadow-use { font-size: 12px; color: var(--text-3); line-height: 1.5; margin-top: 8px; }
+
+  .shadow-val { font-family: var(--font-mono); font-size: 10px; color: var(--text-4); }
+
+  /* ============================================
+     DIVIDERS DEMO
+  ============================================ */
+  .divider-demo {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: var(--r-xl);
+    padding: 32px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .divider-section {
+    padding: 24px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .divider-section:first-child { padding-top: 0; }
+  .divider-section:last-child  { border-bottom: none; padding-bottom: 0; }
+
+
+  /* ============================================
+     SHARED BUTTON COMPONENTS (reused in demos)
+  ============================================ */
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px; background: var(--accent-mid); color: white;
+    border: none; border-radius: var(--r-md); font-size: 13px; font-weight: 600;
+    font-family: var(--font-sans); cursor: pointer; transition: all 0.1s; letter-spacing: -0.01em;
+  }
+  .btn-primary:hover { background: var(--accent); box-shadow: 0 2px 8px rgba(124,58,237,0.3); }
+  .btn-primary.sm { padding: 6px 12px; font-size: 12px; }
+
+  .btn-ghost {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px; background: var(--surface-1); color: var(--text-2);
+    border: 1px solid var(--border-strong); border-radius: var(--r-md);
+    font-size: 13px; font-weight: 500; font-family: var(--font-sans);
+    cursor: pointer; transition: all 0.1s; box-shadow: var(--shadow-sm);
+  }
+  .btn-ghost:hover { background: var(--surface-3); color: var(--text-1); }
+  .btn-ghost.sm { padding: 6px 12px; font-size: 12px; }
+
+  .btn-danger {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px; background: var(--red); color: white;
+    border: none; border-radius: var(--r-md); font-size: 13px; font-weight: 600;
+    font-family: var(--font-sans); cursor: pointer; transition: all 0.1s;
+  }
+  .btn-danger:hover { background: #b91c1c; }
+  .btn-danger.sm { padding: 6px 12px; font-size: 12px; }
+
+  /* ============================================
+     MODALS
+  ============================================ */
+  .modal-demo-area {
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: var(--r-xl); padding: 40px 32px;
+    text-align: center; margin-bottom: 16px;
+    min-height: 200px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 12px;
+    position: relative; overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+  .modal-demo-hint { font-size: 12px; color: var(--text-3); }
+
+  .modal-bg {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0.38); backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.2s; z-index: 20;
+  }
+  .modal-bg.open { opacity: 1; pointer-events: auto; }
+
+  .modal-dialog {
+    background: var(--surface-1);
+    border-radius: var(--r-xl);
+    box-shadow: 0 24px 64px rgba(0,0,0,0.22), 0 8px 20px rgba(0,0,0,0.12);
+    width: 380px; max-width: 90%; overflow: hidden;
+    border: 1px solid var(--border);
+    transform: scale(0.94) translateY(10px); opacity: 0;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .modal-bg.open .modal-dialog { transform: scale(1) translateY(0); opacity: 1; }
+
+  .modal-header {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    gap: 12px; padding: 20px 20px 0;
+  }
+  .modal-icon-wrap {
+    width: 36px; height: 36px; border-radius: var(--r-lg);
+    background: var(--accent-subtle); border: 1px solid var(--accent-border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+  }
+  .modal-icon-wrap.danger { background: var(--red-subtle); border-color: rgba(220,38,38,0.2); }
+  .modal-icon-wrap.warning { background: var(--amber-subtle); border-color: rgba(217,119,6,0.2); }
+
+  .modal-title { font-size: 15px; font-weight: 600; color: var(--text-1); letter-spacing: -0.01em; line-height: 1.3; margin-bottom: 3px; }
+  .modal-subtitle { font-size: 12px; color: var(--text-3); line-height: 1.5; }
+
+  .modal-close-btn {
+    width: 28px; height: 28px; border-radius: var(--r-md);
+    border: 1px solid var(--border); background: var(--surface-1);
+    color: var(--text-3); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-family: var(--font-sans); flex-shrink: 0;
+    transition: all 0.1s; box-shadow: var(--shadow-sm);
+    line-height: 1;
+  }
+  .modal-close-btn:hover { background: var(--surface-3); color: var(--text-1); }
+
+  .modal-body { padding: 14px 20px; font-size: 13px; color: var(--text-2); line-height: 1.7; }
+
+  .modal-divider { height: 1px; background: var(--border); margin: 0 20px; }
+
+  .modal-footer {
+    padding: 14px 20px;
+    display: flex; align-items: center; justify-content: flex-end; gap: 8px;
+  }
+
+  /* Static modal display panes */
+  .modal-static-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;
+  }
+  .modal-static-scene {
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: var(--r-xl); padding: 24px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: var(--shadow-sm); min-height: 260px; position: relative; overflow: hidden;
+  }
+  .modal-static-scene .modal-dialog { transform: none; opacity: 1; position: relative; z-index: 2; }
+  .modal-static-scene .overlay-blur {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0.3); backdrop-filter: blur(3px); z-index: 1;
+  }
+  .modal-static-scene .page-shimmer {
+    position: absolute; inset: 0;
+    background: var(--surface-2);
+    display: flex; flex-direction: column; gap: 8px; padding: 16px;
+  }
+  .page-shimmer-row {
+    height: 12px; background: var(--surface-3); border-radius: 4px; opacity: 0.5;
+  }
+
+  /* ============================================
+     FORMS & INPUTS
+  ============================================ */
+  .form-showcase {
+    background: var(--surface-1); border: 1px solid var(--border);
+    border-radius: var(--r-xl); padding: 28px;
+    box-shadow: var(--shadow-sm); margin-bottom: 16px;
+  }
+  .form-showcase-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--text-3); margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border);
+  }
+  .form-group { margin-bottom: 18px; }
+  .form-group:last-child { margin-bottom: 0; }
+
+  .form-label {
+    display: flex; align-items: center; gap: 4px;
+    font-size: 12px; font-weight: 600; color: var(--text-1);
+    margin-bottom: 5px; letter-spacing: 0.01em;
+  }
+  .form-label .req { color: var(--red); }
+  .form-label .opt { color: var(--text-4); font-weight: 400; font-size: 11px; }
+
+  .form-input {
+    width: 100%; padding: 8px 12px;
+    background: var(--surface-1); border: 1px solid var(--border-strong);
+    border-radius: var(--r-md); font-size: 13px; font-family: var(--font-sans);
+    color: var(--text-1); outline: none;
+    transition: border-color 0.1s, box-shadow 0.1s;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04); -webkit-appearance: none;
+  }
+  .form-input::placeholder { color: var(--text-4); }
+  .form-input:hover { border-color: rgba(0,0,0,0.2); }
+  .form-input:focus {
+    border-color: var(--accent-mid);
+    box-shadow: 0 0 0 3px rgba(124,58,237,0.12), 0 1px 2px rgba(0,0,0,0.04);
+  }
+  .form-input.is-error { border-color: var(--red); box-shadow: 0 0 0 3px rgba(220,38,38,0.10); }
+  .form-input.is-success { border-color: var(--green); box-shadow: 0 0 0 3px rgba(22,163,74,0.10); }
+
+  .form-input-wrap { position: relative; }
+  .input-icon-left {
+    position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+    font-size: 14px; color: var(--text-4); pointer-events: none;
+  }
+  .input-icon-right {
+    position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+    font-size: 11px; color: var(--text-4); pointer-events: none;
+    font-family: var(--font-mono);
+  }
+  .form-input.has-icon-left { padding-left: 32px; }
+  .form-input.has-icon-right { padding-right: 40px; }
+
+  .form-hint { font-size: 11px; color: var(--text-3); margin-top: 5px; line-height: 1.5; }
+  .form-error-msg {
+    font-size: 11px; color: var(--red); margin-top: 5px;
+    display: flex; align-items: center; gap: 4px;
+  }
+
+  .form-select {
+    width: 100%; padding: 8px 32px 8px 12px;
+    background: var(--surface-1); border: 1px solid var(--border-strong);
+    border-radius: var(--r-md); font-size: 13px; font-family: var(--font-sans);
+    color: var(--text-1); outline: none; -webkit-appearance: none; appearance: none;
+    cursor: pointer; transition: border-color 0.1s, box-shadow 0.1s;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='rgba%280%2C0%2C0%2C0.35%29' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 10px center;
+  }
+  .form-select:focus { border-color: var(--accent-mid); box-shadow: 0 0 0 3px rgba(124,58,237,0.12); }
+
+  .form-textarea {
+    width: 100%; padding: 10px 12px;
+    background: var(--surface-1); border: 1px solid var(--border-strong);
+    border-radius: var(--r-md); font-size: 13px; font-family: var(--font-sans);
+    color: var(--text-1); outline: none; resize: vertical; min-height: 80px;
+    transition: border-color 0.1s, box-shadow 0.1s;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04); line-height: 1.6;
+  }
+  .form-textarea::placeholder { color: var(--text-4); }
+  .form-textarea:focus { border-color: var(--accent-mid); box-shadow: 0 0 0 3px rgba(124,58,237,0.12); }
+
+  .form-checkbox-row { display: flex; align-items: flex-start; gap: 10px; padding: 6px 0; }
+
+  .form-checkbox {
+    width: 16px; height: 16px; border-radius: 4px; border: 1px solid var(--border-strong);
+    background: var(--surface-1); cursor: pointer; flex-shrink: 0; margin-top: 1px;
+    -webkit-appearance: none; appearance: none; position: relative;
+    transition: all 0.1s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  }
+  .form-checkbox:checked { background: var(--accent-mid); border-color: var(--accent-mid); }
+  .form-checkbox:checked::after {
+    content: ''; position: absolute; left: 4px; top: 1px;
+    width: 6px; height: 9px; border: 2px solid white;
+    border-top: none; border-left: none; transform: rotate(45deg);
+  }
+  .form-checkbox:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(124,58,237,0.15); }
+
+  .form-radio {
+    width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--border-strong);
+    background: var(--surface-1); cursor: pointer; flex-shrink: 0; margin-top: 1px;
+    -webkit-appearance: none; appearance: none; position: relative; transition: all 0.15s;
+  }
+  .form-radio:checked { border-color: var(--accent-mid); border-width: 4px; }
+  .form-check-label { font-size: 13px; color: var(--text-1); line-height: 1.4; cursor: pointer; }
+  .form-check-desc { font-size: 11px; color: var(--text-3); margin-top: 1px; }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .form-section-divider { height: 1px; background: var(--border); margin: 20px 0; }
+  .form-section-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--text-3); margin-bottom: 14px;
+  }
+
+  /* Input group (inline prefix/suffix) */
+  .input-group { display: flex; }
+  .input-group-prefix, .input-group-suffix {
+    display: flex; align-items: center; padding: 0 10px;
+    background: var(--surface-2); border: 1px solid var(--border-strong);
+    font-size: 12px; color: var(--text-3); white-space: nowrap;
+  }
+  .input-group-prefix { border-right: none; border-radius: var(--r-md) 0 0 var(--r-md); }
+  .input-group-suffix { border-left: none; border-radius: 0 var(--r-md) var(--r-md) 0; }
+  .input-group .form-input { border-radius: 0; flex: 1; }
+
+  /* ============================================
+     SHEETS / DRAWERS
+  ============================================ */
+  .sheet-demo-wrap {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;
+  }
+  .sheet-container {
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: var(--r-xl); overflow: hidden; height: 420px;
+    position: relative; box-shadow: var(--shadow-sm);
+  }
+  .sheet-mock-page { padding: 14px; height: 100%; overflow: hidden; }
+  .sheet-page-header {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  }
+  .sheet-page-title { font-size: 11px; font-weight: 600; color: var(--text-1); }
+  .sheet-page-rows { display: flex; flex-direction: column; gap: 4px; }
+  .sheet-page-row {
+    height: 22px; background: var(--surface-1); border-radius: 4px;
+    border: 1px solid var(--border); opacity: 0.6;
+  }
+  .sheet-scrim {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0.32); backdrop-filter: blur(2px); z-index: 10;
+  }
+  .sheet-panel {
+    position: absolute; top: 0; right: 0; bottom: 0; width: 64%;
+    background: var(--surface-1);
+    box-shadow: -10px 0 32px rgba(0,0,0,0.14), -2px 0 8px rgba(0,0,0,0.07);
+    display: flex; flex-direction: column;
+    border-left: 1px solid var(--border); z-index: 11;
+  }
+  .sheet-panel.bottom-sheet {
+    top: auto; left: 0; right: 0; width: 100%; height: 58%;
+    box-shadow: 0 -10px 32px rgba(0,0,0,0.14);
+    border-left: none; border-top: 1px solid var(--border);
+  }
+  .sheet-panel-header {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    padding: 12px 14px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+  }
+  .sheet-panel-title { font-size: 12px; font-weight: 600; color: var(--text-1); }
+  .sheet-close-btn {
+    width: 22px; height: 22px; border-radius: var(--r-sm);
+    background: var(--surface-3); border: none; color: var(--text-3);
+    cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-sans); transition: all 0.1s; line-height: 1;
+  }
+  .sheet-close-btn:hover { background: var(--surface-4); color: var(--text-1); }
+  .sheet-panel-body { flex: 1; overflow-y: auto; padding: 12px 14px; }
+  .sheet-field { margin-bottom: 10px; }
+  .sheet-field-label {
+    font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--text-3); margin-bottom: 3px;
+  }
+  .sheet-field-value { font-size: 11px; color: var(--text-1); }
+  .sheet-field-value.mono { font-family: var(--font-mono); font-size: 10px; }
+  .sheet-divider { height: 1px; background: var(--border); margin: 10px 0; }
+  .sheet-panel-footer {
+    padding: 10px 14px; border-top: 1px solid var(--border);
+    display: flex; gap: 6px; flex-shrink: 0;
+  }
+  .sheet-drag-handle {
+    width: 32px; height: 3px; background: var(--text-4);
+    border-radius: 2px; margin: 8px auto 4px;
+  }
+
+  /* ============================================
+     TOGGLES & SWITCHES
+  ============================================ */
+  .toggle-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 12px; margin-bottom: 16px;
+  }
+  .toggle-cell {
+    background: var(--surface-1); border: 1px solid var(--border);
+    border-radius: var(--r-lg); padding: 18px 14px;
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    box-shadow: var(--shadow-sm);
+  }
+  .toggle-cell-label { font-size: 11px; color: var(--text-3); font-weight: 600; letter-spacing: 0.02em; }
+
+  .toggle-track {
+    width: 38px; height: 22px; border-radius: 11px;
+    background: var(--surface-4); border: 1px solid var(--border-strong);
+    position: relative; cursor: pointer; transition: all 0.2s; flex-shrink: 0;
+  }
+  .toggle-track.on { background: var(--accent-mid); border-color: var(--accent-mid); }
+  .toggle-track.on-green { background: var(--green); border-color: var(--green); }
+  .toggle-track.disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .toggle-thumb {
+    position: absolute; top: 3px; left: 3px;
+    width: 14px; height: 14px; border-radius: 50%;
+    background: white;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.22), 0 1px 2px rgba(0,0,0,0.12);
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .toggle-track.on .toggle-thumb,
+  .toggle-track.on-green .toggle-thumb { transform: translateX(16px); }
+
+  .toggle-row-list {
+    background: var(--surface-1); border: 1px solid var(--border);
+    border-radius: var(--r-xl); overflow: hidden; box-shadow: var(--shadow-sm); margin-bottom: 16px;
+  }
+  .toggle-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: 14px 20px; border-bottom: 1px solid var(--border);
+    transition: background 0.1s; cursor: pointer;
+  }
+  .toggle-row:last-child { border-bottom: none; }
+  .toggle-row:hover { background: var(--surface-2); }
+  .toggle-row-info { flex: 1; }
+  .toggle-row-title { font-size: 13px; font-weight: 500; color: var(--text-1); margin-bottom: 1px; }
+  .toggle-row-desc { font-size: 11px; color: var(--text-3); }
+
+  /* ============================================
+     ACCORDIONS
+  ============================================ */
+  .accordion-list {
+    background: var(--surface-1); border: 1px solid var(--border);
+    border-radius: var(--r-xl); overflow: hidden; box-shadow: var(--shadow-sm); margin-bottom: 16px;
+  }
+  .accordion-item { border-bottom: 1px solid var(--border); }
+  .accordion-item:last-child { border-bottom: none; }
+
+  .accordion-trigger {
+    width: 100%; display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; padding: 15px 20px; background: none; border: none;
+    cursor: pointer; font-family: var(--font-sans); font-size: 13px; font-weight: 600;
+    color: var(--text-1); text-align: left; transition: background 0.1s;
+  }
+  .accordion-trigger:hover { background: var(--surface-2); }
+  .accordion-trigger-left { display: flex; align-items: center; gap: 12px; }
+
+  .accordion-icon-wrap {
+    width: 28px; height: 28px; border-radius: var(--r-md);
+    display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0;
+  }
+  .accordion-icon-wrap.purple { background: var(--accent-subtle); border: 1px solid var(--accent-border); }
+  .accordion-icon-wrap.green  { background: var(--green-subtle);  border: 1px solid rgba(22,163,74,0.18); }
+  .accordion-icon-wrap.blue   { background: var(--blue-subtle);   border: 1px solid rgba(37,99,235,0.18); }
+  .accordion-icon-wrap.amber  { background: var(--amber-subtle);  border: 1px solid rgba(217,119,6,0.18); }
+
+  .accordion-chevron-icon {
+    width: 16px; height: 16px; flex-shrink: 0; color: var(--text-4);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .accordion-item.open .accordion-chevron-icon { transform: rotate(180deg); }
+
+  .accordion-body { max-height: 0; overflow: hidden; transition: max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
+  .accordion-item.open .accordion-body { max-height: 400px; }
+
+  .accordion-content {
+    padding: 0 20px 18px 60px; font-size: 13px;
+    color: var(--text-2); line-height: 1.75;
+  }
+  .accordion-content-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 20px 18px 60px;
+  }
+  .acc-stat { }
+  .acc-stat-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-3); margin-bottom: 4px; }
+  .acc-stat-value { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; color: var(--text-1); }
+  .acc-stat-sub { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+
+  /* ============================================
+     DROPDOWNS & COMMAND PALETTE
+  ============================================ */
+  .dropdown-showcase {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 16px;
+  }
+  .dropdown-scene {
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: var(--r-xl); padding: 20px;
+    display: flex; flex-direction: column; gap: 10px;
+    box-shadow: var(--shadow-sm);
+  }
+  .dropdown-scene-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-3); margin-bottom: 4px; }
+
+  .dropdown-menu {
+    background: var(--surface-1); border: 1px solid rgba(0,0,0,0.09);
+    border-radius: var(--r-lg);
+    box-shadow: 0 10px 28px rgba(0,0,0,0.10), 0 4px 10px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04);
+    overflow: hidden; padding: 4px;
+  }
+  .dropdown-section { }
+  .dropdown-section-label {
+    font-size: 9px; font-weight: 700; letter-spacing: 0.10em; text-transform: uppercase;
+    color: var(--text-4); padding: 6px 10px 3px;
+  }
+  .dropdown-item {
+    display: flex; align-items: center; gap: 8px; padding: 6px 10px;
+    border-radius: var(--r-sm); font-size: 13px; color: var(--text-2);
+    cursor: pointer; transition: all 0.1s; text-decoration: none; user-select: none;
+  }
+  .dropdown-item:hover { background: var(--surface-3); color: var(--text-1); }
+  .dropdown-item.active { background: var(--accent-subtle); color: var(--accent); }
+  .dropdown-item.danger:hover { background: var(--red-subtle); color: var(--red); }
+  .dropdown-item-icon { font-size: 13px; width: 16px; text-align: center; flex-shrink: 0; }
+  .dropdown-item-desc { font-size: 11px; color: var(--text-3); margin-top: 1px; }
+  .dropdown-item-body { flex: 1; }
+  .dropdown-item-name { font-size: 13px; color: var(--text-1); font-weight: 500; }
+  .dropdown-shortcut {
+    margin-left: auto; font-size: 10px; font-family: var(--font-mono); color: var(--text-4);
+    background: var(--surface-3); padding: 1px 5px; border-radius: 3px; border: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .dropdown-separator { height: 1px; background: var(--border); margin: 4px 0; }
+
+  .command-palette {
+    background: var(--surface-1); border: 1px solid rgba(0,0,0,0.09);
+    border-radius: var(--r-xl);
+    box-shadow: 0 20px 56px rgba(0,0,0,0.18), 0 8px 20px rgba(0,0,0,0.10);
+    overflow: hidden; width: 100%;
+  }
+  .command-search {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 16px; border-bottom: 1px solid var(--border);
+  }
+  .command-search-icon { font-size: 16px; color: var(--text-4); flex-shrink: 0; }
+  .command-search-input {
+    flex: 1; border: none; background: none; font-size: 14px;
+    font-family: var(--font-sans); color: var(--text-1); outline: none;
+  }
+  .command-search-input::placeholder { color: var(--text-4); }
+  .command-kbd {
+    font-size: 10px; font-family: var(--font-mono); color: var(--text-4);
+    background: var(--surface-3); border: 1px solid var(--border);
+    padding: 2px 6px; border-radius: 4px;
+  }
+  .command-results { padding: 6px; max-height: 220px; overflow-y: auto; }
+  .command-group-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase;
+    color: var(--text-4); padding: 6px 8px 3px; margin-top: 4px;
+  }
+  .command-item {
+    display: flex; align-items: center; gap: 10px; padding: 7px 8px;
+    border-radius: var(--r-md); font-size: 13px; color: var(--text-2);
+    cursor: pointer; transition: all 0.1s;
+  }
+  .command-item:hover, .command-item.sel { background: var(--accent-subtle); color: var(--accent); }
+  .command-item-icon {
+    width: 24px; height: 24px; border-radius: var(--r-sm);
+    background: var(--surface-3); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0;
+  }
+  .command-item.sel .command-item-icon { background: var(--accent-subtle); border-color: var(--accent-border); }
+  .command-item-meta { margin-left: auto; font-size: 11px; color: var(--text-4); }
+  .command-footer {
+    display: flex; align-items: center; gap: 14px; padding: 8px 14px;
+    border-top: 1px solid var(--border); background: var(--surface-2);
+  }
+  .command-hint { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-4); }
+
+  /* ============================================
+     TOAST NOTIFICATIONS
+  ============================================ */
+  .toast-stack-demo {
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: var(--r-xl); padding: 20px;
+    display: flex; flex-direction: column; gap: 8px;
+    box-shadow: var(--shadow-sm); margin-bottom: 16px;
+  }
+  .toast {
+    display: flex; align-items: flex-start; gap: 11px;
+    padding: 12px 14px; border-radius: var(--r-lg);
+    background: var(--surface-1);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.05), 0 0 0 1px rgba(0,0,0,0.05);
+    position: relative; overflow: hidden;
+  }
+  .toast-icon {
+    width: 20px; height: 20px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; flex-shrink: 0; margin-top: 1px;
+  }
+  .toast-success .toast-icon { background: var(--green-subtle); color: var(--green); border: 1px solid rgba(22,163,74,0.22); }
+  .toast-error   .toast-icon { background: var(--red-subtle);   color: var(--red);   border: 1px solid rgba(220,38,38,0.22); }
+  .toast-warning .toast-icon { background: var(--amber-subtle); color: var(--amber); border: 1px solid rgba(217,119,6,0.22); }
+  .toast-info    .toast-icon { background: var(--blue-subtle);  color: var(--blue);  border: 1px solid rgba(37,99,235,0.22); }
+
+  .toast-body { flex: 1; }
+  .toast-title { font-size: 13px; font-weight: 600; color: var(--text-1); margin-bottom: 2px; }
+  .toast-msg   { font-size: 12px; color: var(--text-3); line-height: 1.5; }
+
+  .toast-action {
+    font-size: 12px; font-weight: 600; color: var(--accent-mid);
+    background: none; border: none; cursor: pointer; padding: 0;
+    font-family: var(--font-sans); transition: color 0.1s; white-space: nowrap; align-self: center;
+  }
+  .toast-dismiss {
+    width: 20px; height: 20px; border-radius: var(--r-sm); background: none;
+    border: none; color: var(--text-4); cursor: pointer; font-size: 15px;
+    font-family: var(--font-sans); display: flex; align-items: center; justify-content: center;
+    transition: all 0.1s; flex-shrink: 0; line-height: 1;
+  }
+  .toast-dismiss:hover { background: var(--surface-3); color: var(--text-1); }
+
+  .toast-progress-bar {
+    position: absolute; bottom: 0; left: 0; height: 2px; border-radius: 0;
+  }
+  .toast-success .toast-progress-bar { background: var(--green); width: 55%; }
+  .toast-error   .toast-progress-bar { background: var(--red); width: 20%; }
+  .toast-warning .toast-progress-bar { background: var(--amber); width: 70%; }
+
+  /* ============================================
+     TABS
+  ============================================ */
+  .tabs-showcase { margin-bottom: 16px; }
+
+  .tab-bar-underline {
+    display: flex; align-items: center;
+    border-bottom: 1px solid var(--border);
+  }
+  .tab-underline {
+    padding: 10px 16px; font-size: 13px; font-weight: 500; color: var(--text-3);
+    cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px;
+    transition: all 0.15s; display: flex; align-items: center; gap: 6px; white-space: nowrap;
+  }
+  .tab-underline:hover { color: var(--text-1); }
+  .tab-underline.active { color: var(--text-1); border-bottom-color: var(--accent-mid); font-weight: 600; }
+
+  .tab-count-badge {
+    font-size: 10px; font-weight: 700; padding: 1px 5px;
+    border-radius: 3px; background: var(--surface-3); color: var(--text-3);
+  }
+  .tab-underline.active .tab-count-badge { background: var(--accent-subtle); color: var(--accent); }
+
+  .tab-panel {
+    background: var(--surface-1); border: 1px solid var(--border);
+    border-top: none; border-radius: 0 0 var(--r-lg) var(--r-lg);
+    padding: 20px; box-shadow: var(--shadow-sm);
+  }
+  .tab-panel-content { font-size: 13px; color: var(--text-2); line-height: 1.7; }
+
+  .tab-bar-pills {
+    display: flex; align-items: center; gap: 4px;
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: var(--r-lg); padding: 3px; width: fit-content; margin-bottom: 16px;
+  }
+  .tab-pill {
+    padding: 6px 14px; font-size: 12px; font-weight: 500; color: var(--text-3);
+    cursor: pointer; border-radius: var(--r-md); transition: all 0.1s;
+  }
+  .tab-pill:hover { color: var(--text-1); background: var(--surface-3); }
+  .tab-pill.active {
+    background: var(--surface-1); color: var(--text-1); font-weight: 600;
+    box-shadow: var(--shadow-sm); border: 1px solid var(--border);
+  }
+
+  /* Vertical tabs */
+  .tabs-vertical { display: flex; gap: 0; border: 1px solid var(--border); border-radius: var(--r-xl); overflow: hidden; box-shadow: var(--shadow-sm); }
+  .tab-sidebar { width: 160px; flex-shrink: 0; background: var(--surface-2); border-right: 1px solid var(--border); padding: 8px; }
+  .tab-side-item {
+    display: flex; align-items: center; gap: 8px; padding: 8px 10px;
+    border-radius: var(--r-md); font-size: 12px; font-weight: 500; color: var(--text-3);
+    cursor: pointer; transition: all 0.1s; margin-bottom: 2px;
+  }
+  .tab-side-item:hover { background: var(--surface-3); color: var(--text-1); }
+  .tab-side-item.active { background: var(--surface-1); color: var(--text-1); box-shadow: var(--shadow-sm); font-weight: 600; }
+  .tab-side-icon { font-size: 14px; }
+  .tab-vertical-panel { flex: 1; background: var(--surface-1); padding: 20px; }
+
+  /* ============================================
+     BADGES & PILLS
+  ============================================ */
+  .badge-collections { display: flex; flex-direction: column; gap: 20px; margin-bottom: 16px; }
+  .badge-row-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--text-3); margin-bottom: 8px;
+  }
+  .badge-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.01em;
+    padding: 2px 8px; border-radius: 4px; line-height: 1.6; white-space: nowrap;
+  }
+  .badge.sm { font-size: 10px; padding: 1px 6px; }
+  .badge.lg { font-size: 12px; padding: 4px 10px; border-radius: 5px; }
+  .badge.pill { border-radius: 100px; }
+
+  .badge.neutral { color: var(--text-2); background: var(--surface-3); border: 1px solid var(--border-strong); }
+  .badge.purple  { color: var(--accent); background: var(--accent-subtle); border: 1px solid var(--accent-border); }
+  .badge.green   { color: var(--green);  background: var(--green-subtle);  border: 1px solid rgba(22,163,74,0.18); }
+  .badge.red     { color: var(--red);    background: var(--red-subtle);    border: 1px solid rgba(220,38,38,0.18); }
+  .badge.amber   { color: var(--amber);  background: var(--amber-subtle);  border: 1px solid rgba(217,119,6,0.18); }
+  .badge.blue    { color: var(--blue);   background: var(--blue-subtle);   border: 1px solid rgba(37,99,235,0.18); }
+  .badge.filled-green  { color: white; background: var(--green);  border: none; }
+  .badge.filled-red    { color: white; background: var(--red);    border: none; }
+  .badge.filled-purple { color: white; background: var(--accent-mid); border: none; }
+
+  .badge-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; opacity: 0.8; }
+
+  /* Notification badge (number on icon) */
+  .notif-badge-wrap { position: relative; display: inline-flex; }
+  .notif-badge {
+    position: absolute; top: -4px; right: -6px;
+    min-width: 16px; height: 16px; border-radius: 100px;
+    background: var(--red); color: white; font-size: 9px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    padding: 0 4px; border: 2px solid var(--bg);
+  }
+  .icon-btn-demo {
+    width: 34px; height: 34px; border-radius: var(--r-md);
+    background: var(--surface-1); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; box-shadow: var(--shadow-sm);
+  }
+
+  /* ============================================
+     PROGRESS & SKELETONS
+  ============================================ */
+  .progress-showcase {
+    background: var(--surface-1); border: 1px solid var(--border);
+    border-radius: var(--r-xl); padding: 24px;
+    box-shadow: var(--shadow-sm); margin-bottom: 16px;
+  }
+  .progress-item { margin-bottom: 18px; }
+  .progress-item:last-child { margin-bottom: 0; }
+  .progress-header {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 7px;
+  }
+  .progress-label { font-size: 12px; font-weight: 600; color: var(--text-1); }
+  .progress-value { font-size: 12px; color: var(--text-3); font-family: var(--font-mono); }
+  .progress-track { width: 100%; height: 6px; background: var(--surface-3); border-radius: 3px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 3px; background: var(--accent-mid); }
+  .progress-fill.green { background: var(--green); }
+  .progress-fill.amber { background: var(--amber); }
+  .progress-fill.red   { background: var(--red); }
+  .progress-fill.stripe {
+    background: repeating-linear-gradient(-45deg, var(--accent-mid), var(--accent-mid) 5px, rgba(91,33,182,0.4) 5px, rgba(91,33,182,0.4) 10px);
+    background-size: 14px 14px; animation: progress-stripe 0.8s linear infinite;
+  }
+  @keyframes progress-stripe { to { background-position: 14px 0; } }
+
+  .progress-track.thick { height: 10px; border-radius: 5px; }
+  .progress-track.thin  { height: 3px; border-radius: 2px; }
+
+  .progress-segmented {
+    display: flex; gap: 2px; height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 6px;
+  }
+  .seg { flex: 1; }
+  .seg:first-child { border-radius: 4px 0 0 4px; }
+  .seg:last-child  { border-radius: 0 4px 4px 0; }
+
+  .progress-step-row {
+    display: flex; align-items: center; gap: 0; margin-bottom: 16px;
+  }
+  .progress-step {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; flex-shrink: 0; position: relative; z-index: 1;
+  }
+  .progress-step.done { background: var(--accent-mid); color: white; }
+  .progress-step.current { background: var(--surface-1); color: var(--accent-mid); border: 2px solid var(--accent-mid); box-shadow: 0 0 0 3px rgba(124,58,237,0.12); }
+  .progress-step.todo { background: var(--surface-3); color: var(--text-4); border: 1px solid var(--border); }
+  .progress-step-line { flex: 1; height: 2px; background: var(--border); }
+  .progress-step-line.done { background: var(--accent-mid); }
+
+  /* Spinners */
+  .spinner-row { display: flex; align-items: center; gap: 20px; margin-bottom: 16px; flex-wrap: wrap; }
+  .spinner {
+    border-radius: 50%; border-style: solid; border-color: var(--surface-4);
+    border-top-color: var(--accent-mid); animation: spin 0.7s linear infinite;
+  }
+  .spinner.sm  { width: 14px; height: 14px; border-width: 1.5px; }
+  .spinner.md  { width: 20px; height: 20px; border-width: 2px; }
+  .spinner.lg  { width: 28px; height: 28px; border-width: 2.5px; }
+  .spinner.green { border-top-color: var(--green); }
+  .spinner.red   { border-top-color: var(--red); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Skeletons */
+  .skeleton-card {
+    background: var(--surface-1); border: 1px solid var(--border);
+    border-radius: var(--r-xl); padding: 20px; box-shadow: var(--shadow-sm); margin-bottom: 8px;
+  }
+  .skeleton-header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .skeleton-lines { display: flex; flex-direction: column; gap: 8px; }
+
+  .skel {
+    background: linear-gradient(90deg, var(--surface-3) 0%, var(--surface-4) 50%, var(--surface-3) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.6s ease-in-out infinite; border-radius: var(--r-sm);
+  }
+  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+  .skel-circle { border-radius: 50%; }
+  .skel-avatar { width: 40px; height: 40px; flex-shrink: 0; }
+  .skel-line   { height: 10px; }
+  .skel-block  { height: 80px; border-radius: var(--r-md); }
+  .skel-tag    { height: 20px; width: 60px; border-radius: 100px; }
+
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- SIDENAV -->
+  <nav class="sidenav">
+    <div class="sidenav-logo">Design Reference <span class="sidenav-badge">Light</span></div>
+
+    <div class="sidenav-section">
+      <div class="sidenav-section-label">Hierarchy</div>
+      <a href="#elevation">Surface Elevation</a>
+      <a href="#shadows">Shadows ✦ Light Only</a>
+      <a href="#typography">Typography Scale</a>
+      <a href="#whitespace">Whitespace</a>
+      <a href="#bento">Bento Grid</a>
+      <a href="#dividers">Dividers</a>
+      <a href="#accents">Accent Bars</a>
+    </div>
+
+    <div class="sidenav-section">
+      <div class="sidenav-section-label">Layouts</div>
+      <a href="#inverted-pyramid">Inverted Pyramid</a>
+      <a href="#master-detail">Master / Detail</a>
+      <a href="#settings-pattern">Settings Page</a>
+      <a href="#nav-pattern">Navigation</a>
+    </div>
+
+    <div class="sidenav-section">
+      <div class="sidenav-section-label">Components</div>
+      <a href="#kpi">KPI Blocks</a>
+      <a href="#tables">Data Tables</a>
+      <a href="#states">Interactive States</a>
+      <a href="#empty">Empty States</a>
+    </div>
+
+    <div class="sidenav-section">
+      <div class="sidenav-section-label">Foundations</div>
+      <a href="#spacing">Spacing System</a>
+      <a href="#colors">Color System</a>
+    </div>
+
+    <div class="sidenav-section">
+      <div class="sidenav-section-label">Overlays</div>
+      <a href="#modals">Modals</a>
+      <a href="#sheets">Sheets / Drawers</a>
+      <a href="#toasts">Toast Alerts</a>
+    </div>
+
+    <div class="sidenav-section">
+      <div class="sidenav-section-label">Controls</div>
+      <a href="#forms">Forms & Inputs</a>
+      <a href="#toggles">Toggles & Switches</a>
+      <a href="#accordions">Accordions</a>
+      <a href="#dropdowns">Dropdowns</a>
+      <a href="#tabs">Tabs</a>
+    </div>
+
+    <div class="sidenav-section">
+      <div class="sidenav-section-label">Indicators</div>
+      <a href="#badges">Badges & Pills</a>
+      <a href="#progress">Progress & Skeletons</a>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+    <div class="page-eyebrow">Visual Reference — Light Mode</div>
+    <h1 class="page-title">Premium Light UI<br>Examples for AI Agents</h1>
+    <p class="page-desc">The same 16 hierarchy techniques and layout patterns — recalibrated for light mode. Different rules, different traps, different wins.</p>
+
+    <div class="mode-callout">
+      <strong>Light mode is not dark mode inverted.</strong> Four key differences: (1) Elevation goes <em>lighter</em> — white panels float above a gray canvas, not the other way around. (2) Shadows carry the depth work that dark contrast does in dark mode — use them deliberately. (3) Text opacity values shift: secondary is 55% (not 65%), tertiary is 35% (not 40%). (4) Status and accent colors need to be slightly more saturated to hold against white backgrounds.
+    </div>
+
+    <!-- ==========================================
+         SECTION 1: SURFACE ELEVATION
+    =========================================== -->
+    <section class="section" id="elevation">
+      <div class="section-header">
+        <span class="section-num">01</span>
+        <div>
+          <div class="section-title">Surface Elevation — Light Mode</div>
+          <div class="section-subtitle">White is elevated. The page canvas is slightly gray. Panels float above it.</div>
+        </div>
+      </div>
+
+      <div class="callout">
+        <strong>Critical inversion:</strong> In dark mode, deeper = darker. In light mode, elevated = whiter. Your sidebar and cards should be #ffffff — the background behind them is the gray. This is how Notion, Linear light, and Vercel light all work.
+      </div>
+
+      <div class="elevation-strip">
+        <div class="elevation-cell">
+          <div class="elevation-label">Layer 0 — Canvas</div>
+          <div class="elevation-value">#f0f0f3</div>
+          <div class="elevation-use">Page background. Cool gray — never pure white. Everything sits on top of this.</div>
+        </div>
+        <div class="elevation-cell" style="border:1px solid rgba(0,0,0,0.05);">
+          <div class="elevation-label">Layer 1 — Panels</div>
+          <div class="elevation-value">#ffffff</div>
+          <div class="elevation-use">Sidebar, cards, modals. Pure white = visually elevated off the canvas.</div>
+        </div>
+        <div class="elevation-cell">
+          <div class="elevation-label">Layer 2 — Nested</div>
+          <div class="elevation-value">#f8f8fb</div>
+          <div class="elevation-use">Backgrounds within panels. Slightly gray = recessed from white.</div>
+        </div>
+        <div class="elevation-cell">
+          <div class="elevation-label">Layer 3 — Active</div>
+          <div class="elevation-value">#ededf0</div>
+          <div class="elevation-use">Hover states, selected rows, focused regions.</div>
+        </div>
+        <div class="elevation-cell">
+          <div class="elevation-label">Layer 4 — Controls</div>
+          <div class="elevation-value">#e2e2e6</div>
+          <div class="elevation-use">Input backgrounds, pressed states, active toggles.</div>
+        </div>
+      </div>
+
+      <div class="compare-grid">
+        <div class="compare-pane">
+          <div class="compare-label wrong">✗ Wrong — white page, gray cards</div>
+          <div style="background:#ffffff;border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:8px;">
+            <div style="background:#f3f4f6;border:1px solid #e5e7eb;border-radius:6px;padding:14px;">
+              <div style="font-size:12px;font-weight:600;color:rgba(0,0,0,0.7);margin-bottom:3px;">Metric Card</div>
+              <div style="font-size:11px;color:rgba(0,0,0,0.4);">Gray card on white page — reversed elevation</div>
+            </div>
+            <div style="background:#f3f4f6;border:1px solid #e5e7eb;border-radius:6px;padding:14px;">
+              <div style="font-size:12px;font-weight:600;color:rgba(0,0,0,0.7);margin-bottom:3px;">Another Card</div>
+              <div style="font-size:11px;color:rgba(0,0,0,0.4);">Cards appear to sink below the page</div>
+            </div>
+          </div>
+          <div class="compare-note">Gray cards on white feels depressed, not elevated. The depth reads backwards — content looks like it's recessed into the page rather than floating above it.</div>
+        </div>
+        <div class="compare-pane">
+          <div class="compare-label right">✓ Right — gray canvas, white panels</div>
+          <div style="background:#f0f0f3;border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:8px;">
+            <div style="background:#ffffff;border:1px solid rgba(0,0,0,0.06);border-radius:6px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);">
+              <div style="font-size:12px;font-weight:600;color:rgba(0,0,0,0.85);margin-bottom:3px;">Metric Card</div>
+              <div style="font-size:11px;color:rgba(0,0,0,0.4);">White card floats above gray canvas</div>
+            </div>
+            <div style="background:#ffffff;border:1px solid rgba(0,0,0,0.06);border-radius:6px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);">
+              <div style="font-size:12px;font-weight:600;color:rgba(0,0,0,0.85);margin-bottom:3px;">Another Card</div>
+              <div style="font-size:11px;color:rgba(0,0,0,0.4);">Shadow reinforces the lifted depth</div>
+            </div>
+          </div>
+          <div class="compare-note">White panels on a gray canvas read as elevated. The subtle shadow reinforces that depth. This is the pattern Notion, Linear, Supabase, and Vercel all use.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         SECTION 2: SHADOWS (Light-Mode Exclusive)
+    =========================================== -->
+    <section class="section" id="shadows">
+      <div class="section-header">
+        <span class="section-num">02</span>
+        <div>
+          <div class="section-title">Shadow System ✦ Light Mode Exclusive</div>
+          <div class="section-subtitle">Shadows do the depth work that contrast does in dark mode. This section doesn't exist in dark mode.</div>
+        </div>
+      </div>
+
+      <div class="callout">
+        <strong>The rule:</strong> In light mode, shadows are not decorative — they are structural. A white card on a gray background with no shadow reads as flat. The same card with <code style="font-family:var(--font-mono);font-size:11px;background:rgba(0,0,0,0.05);padding:2px 5px;border-radius:3px;">shadow-sm</code> reads as elevated. Always use at minimum <code style="font-family:var(--font-mono);font-size:11px;background:rgba(0,0,0,0.05);padding:2px 5px;border-radius:3px;">shadow-sm</code> on white surface components.
+      </div>
+
+      <div class="shadow-grid">
+        <div class="state-item">
+          <div class="shadow-card none" style="min-height:90px;">
+            <div class="shadow-label">None</div>
+            <div class="shadow-val">no shadow</div>
+            <div class="shadow-use">Only for elements already inside a raised container. Never for standalone panels.</div>
+          </div>
+        </div>
+        <div class="state-item">
+          <div class="shadow-card sm" style="min-height:90px;">
+            <div class="shadow-label">Shadow SM</div>
+            <div class="shadow-val">0 1px 2px rgba(0,0,0,.06)<br>0 1px 3px rgba(0,0,0,.04)</div>
+            <div class="shadow-use">Default for all white surface panels, cards, inputs, nav items.</div>
+          </div>
+        </div>
+        <div class="state-item">
+          <div class="shadow-card md" style="min-height:90px;">
+            <div class="shadow-label">Shadow MD</div>
+            <div class="shadow-val">0 4px 6px rgba(0,0,0,.06)<br>0 2px 4px rgba(0,0,0,.04)</div>
+            <div class="shadow-use">Dropdowns, popovers, bento cells, KPI blocks, active cards.</div>
+          </div>
+        </div>
+        <div class="state-item">
+          <div class="shadow-card lg" style="min-height:90px;">
+            <div class="shadow-label">Shadow LG</div>
+            <div class="shadow-val">0 10px 15px rgba(0,0,0,.07)<br>0 4px 6px rgba(0,0,0,.04)</div>
+            <div class="shadow-use">Modals, command palettes, large overlays. Reduce border opacity when using this.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="compare-grid">
+        <div class="compare-pane">
+          <div class="compare-label wrong">✗ No shadows = flat, dead UI</div>
+          <div style="background:#f0f0f3;padding:16px;border-radius:8px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <div style="background:#fff;border:1px solid rgba(0,0,0,0.07);border-radius:6px;padding:16px;">
+                <div style="font-size:10px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:rgba(0,0,0,0.35);margin-bottom:6px;">Revenue</div>
+                <div style="font-size:22px;font-weight:700;color:rgba(0,0,0,0.88);">$248k</div>
+              </div>
+              <div style="background:#fff;border:1px solid rgba(0,0,0,0.07);border-radius:6px;padding:16px;">
+                <div style="font-size:10px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:rgba(0,0,0,0.35);margin-bottom:6px;">Users</div>
+                <div style="font-size:22px;font-weight:700;color:rgba(0,0,0,0.88);">14,821</div>
+              </div>
+            </div>
+          </div>
+          <div class="compare-note">Border-only cards on gray background. They're technically correct in color but feel stamped flat onto the page — no depth, no lift, no hierarchy.</div>
+        </div>
+        <div class="compare-pane">
+          <div class="compare-label right">✓ Shadow-sm gives them life</div>
+          <div style="background:#f0f0f3;padding:16px;border-radius:8px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <div style="background:#fff;border:1px solid rgba(0,0,0,0.06);border-radius:6px;padding:16px;box-shadow:0 1px 2px rgba(0,0,0,.06),0 1px 3px rgba(0,0,0,.04);">
+                <div style="font-size:10px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:rgba(0,0,0,0.35);margin-bottom:6px;">Revenue</div>
+                <div style="font-size:22px;font-weight:700;color:rgba(0,0,0,0.88);">$248k</div>
+              </div>
+              <div style="background:#fff;border:1px solid rgba(0,0,0,0.06);border-radius:6px;padding:16px;box-shadow:0 1px 2px rgba(0,0,0,.06),0 1px 3px rgba(0,0,0,.04);">
+                <div style="font-size:10px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:rgba(0,0,0,0.35);margin-bottom:6px;">Users</div>
+                <div style="font-size:22px;font-weight:700;color:rgba(0,0,0,0.88);">14,821</div>
+              </div>
+            </div>
+          </div>
+          <div class="compare-note">Same color system, same borders — but <code style="font-family:var(--font-mono);font-size:10px;">shadow-sm</code> added. The cards now float. Depth is immediately readable.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         SECTION 3: TYPOGRAPHY HIERARCHY
+    =========================================== -->
+    <section class="section" id="typography">
+      <div class="section-header">
+        <span class="section-num">03</span>
+        <div>
+          <div class="section-title">Typography Hierarchy — Light Mode</div>
+          <div class="section-subtitle">Text opacity values shift down in light mode. Secondary is 55%, not 65%.</div>
+        </div>
+      </div>
+
+      <div class="typo-demo">
+        <div class="typo-row">
+          <div class="typo-spec">11px / 700<br>0.08em tracking<br>uppercase<br>rgba(0,0,0,0.38)</div>
+          <div><div class="typo-eyebrow">Section Label / Eyebrow</div></div>
+        </div>
+        <div class="typo-row">
+          <div class="typo-spec">32px / 700<br>-0.03em tracking<br>lh: 1.1<br>rgba(0,0,0,0.88)</div>
+          <div><div class="typo-h1">Page Title or Hero Number</div></div>
+        </div>
+        <div class="typo-row">
+          <div class="typo-spec">20px / 600<br>-0.02em tracking<br>lh: 1.2<br>rgba(0,0,0,0.88)</div>
+          <div><div class="typo-h2">Section Heading</div></div>
+        </div>
+        <div class="typo-row">
+          <div class="typo-spec">14px / 600<br>0em tracking<br>lh: 1.4<br>rgba(0,0,0,0.88)</div>
+          <div><div class="typo-h3">Subsection / Component Title</div></div>
+        </div>
+        <div class="typo-row">
+          <div class="typo-spec">14px / 400<br>0em tracking<br>lh: 1.6<br>rgba(0,0,0,0.55)</div>
+          <div><div class="typo-body">Body text. 55% opacity dark-on-light (not 65% as in dark mode). The eye adjusts — 55% on white provides the same perceived contrast as 65% on near-black.</div></div>
+        </div>
+        <div class="typo-row">
+          <div class="typo-spec">12px / 400<br>0em tracking<br>lh: 1.5<br>rgba(0,0,0,0.38)</div>
+          <div><div class="typo-caption">Caption text, timestamps, metadata. 38% opacity — clearly tertiary, never competes with body copy.</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         SECTION 4: WHITESPACE
+    =========================================== -->
+    <section class="section" id="whitespace">
+      <div class="section-header">
+        <span class="section-num">04</span>
+        <div>
+          <div class="section-title">Whitespace as Dividers</div>
+          <div class="section-subtitle">Same principle as dark mode — space communicates grouping, borders signal interactivity</div>
+        </div>
+      </div>
+
+      <div class="whitespace-demo">
+        <div class="ws-bad">
+          <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--red);margin-bottom:12px;">✗ Card everything</div>
+          <div class="ws-bad-section">
+            <div class="ws-bad-title">Profile</div>
+            <div class="ws-bad-body">User information and preferences</div>
+          </div>
+          <div class="ws-bad-section">
+            <div class="ws-bad-title">Notifications</div>
+            <div class="ws-bad-body">Manage your alert settings</div>
+          </div>
+          <div class="ws-bad-section">
+            <div class="ws-bad-title">Security</div>
+            <div class="ws-bad-body">Password and 2FA settings</div>
+          </div>
+          <div class="ws-bad-section">
+            <div class="ws-bad-title">Billing</div>
+            <div class="ws-bad-body">Subscription and payment</div>
+          </div>
+        </div>
+        <div class="ws-good">
+          <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--green);margin-bottom:16px;">✓ Space creates groups</div>
+          <div class="ws-good-section">
+            <div class="ws-good-title">Profile</div>
+            <div class="ws-good-items">
+              <div class="ws-good-item"><div class="ws-dot"></div>Display name and avatar</div>
+              <div class="ws-good-item"><div class="ws-dot"></div>Email preferences</div>
+            </div>
+          </div>
+          <div class="ws-good-section">
+            <div class="ws-good-title">Security</div>
+            <div class="ws-good-items">
+              <div class="ws-good-item"><div class="ws-dot"></div>Change password</div>
+              <div class="ws-good-item"><div class="ws-dot"></div>Two-factor authentication</div>
+            </div>
+          </div>
+          <div class="ws-good-section" style="margin-bottom:0;">
+            <div class="ws-good-title">Billing</div>
+            <div class="ws-good-items">
+              <div class="ws-good-item"><div class="ws-dot"></div>Subscription plan</div>
+              <div class="ws-good-item" style="border:none;"><div class="ws-dot"></div>Payment methods</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         SECTION 5: BENTO GRID
+    =========================================== -->
+    <section class="section" id="bento">
+      <div class="section-header">
+        <span class="section-num">05</span>
+        <div>
+          <div class="section-title">Bento Grid — Light Mode</div>
+          <div class="section-subtitle">Same 1px gap technique — but the gap color uses dark border, not light</div>
+        </div>
+      </div>
+
+      <div class="bento-demo">
+        <div class="bento-cell hero">
+          <div class="bento-label">Total Revenue</div>
+          <div class="bento-metric">$248,391</div>
+          <div class="bento-delta up">↑ 18.4% vs last month</div>
+          <div class="bento-sub">Updated 2 minutes ago</div>
+        </div>
+        <div class="bento-cell wide">
+          <div class="bento-label">Active Projects</div>
+          <div class="bento-metric">47</div>
+          <div class="bento-delta up">↑ 3 new this week</div>
+          <div class="mini-chart">
+            <div class="mini-bar" style="height:30%"></div>
+            <div class="mini-bar" style="height:45%"></div>
+            <div class="mini-bar" style="height:60%"></div>
+            <div class="mini-bar" style="height:40%"></div>
+            <div class="mini-bar" style="height:70%"></div>
+            <div class="mini-bar" style="height:55%"></div>
+            <div class="mini-bar active" style="height:85%"></div>
+          </div>
+        </div>
+        <div class="bento-cell narrow">
+          <div class="bento-label">Churn Rate</div>
+          <div class="bento-metric">2.1%</div>
+          <div class="bento-delta down">↓ 0.4%</div>
+        </div>
+        <div class="bento-cell two-thirds" style="padding-bottom:20px;">
+          <div class="bento-label" style="margin-bottom:16px;">Revenue by Channel</div>
+          <div class="bar-chart-row"><div class="bar-chart-label">Direct</div><div class="bar-chart-track"><div class="bar-chart-fill" style="width:82%"></div></div><div class="bar-chart-val">$82k</div></div>
+          <div class="bar-chart-row"><div class="bar-chart-label">Organic</div><div class="bar-chart-track"><div class="bar-chart-fill" style="width:64%"></div></div><div class="bar-chart-val">$64k</div></div>
+          <div class="bar-chart-row"><div class="bar-chart-label">Referral</div><div class="bar-chart-track"><div class="bar-chart-fill" style="width:47%"></div></div><div class="bar-chart-val">$47k</div></div>
+          <div class="bar-chart-row"><div class="bar-chart-label">Paid</div><div class="bar-chart-track"><div class="bar-chart-fill" style="width:38%"></div></div><div class="bar-chart-val">$38k</div></div>
+          <div class="bar-chart-row"><div class="bar-chart-label">Social</div><div class="bar-chart-track"><div class="bar-chart-fill" style="width:22%"></div></div><div class="bar-chart-val">$22k</div></div>
+        </div>
+        <div class="bento-cell one-third">
+          <div class="bento-label" style="margin-bottom:12px;">Top Accounts</div>
+          <div class="spark-row"><span class="spark-name">Alleato Group</span><span class="spark-val">$42k</span></div>
+          <div class="spark-row"><span class="spark-name">Acme Corp</span><span class="spark-val">$31k</span></div>
+          <div class="spark-row"><span class="spark-name">Horizon LLC</span><span class="spark-val">$28k</span></div>
+          <div class="spark-row"><span class="spark-name">Meridian Co</span><span class="spark-val">$19k</span></div>
+        </div>
+        <div class="bento-cell full" style="background:var(--surface-2);">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-3);">Recent Transactions</div>
+            <div style="font-size:12px;color:var(--accent);cursor:pointer;font-weight:500;">View all →</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         SECTION 6: DIVIDERS
+    =========================================== -->
+    <section class="section" id="dividers">
+      <div class="section-header">
+        <span class="section-num">06</span>
+        <div>
+          <div class="section-title">Dividers — Light Mode</div>
+          <div class="section-subtitle">rgba(0,0,0,0.07) — needs slightly more opacity than dark mode to stay visible on white</div>
+        </div>
+      </div>
+
+      <div class="compare-grid">
+        <div class="compare-pane">
+          <div class="compare-label wrong">✗ Heavy or zero — both wrong</div>
+          <div style="display:flex;flex-direction:column;gap:0;">
+            <div style="padding:16px;border-bottom:2px solid rgba(0,0,0,0.3);">
+              <div style="font-size:12px;font-weight:600;color:var(--text-1);">Section A</div>
+              <div style="font-size:12px;color:var(--text-3);margin-top:3px;">Heavy border — too dominant</div>
+            </div>
+            <div style="padding:16px;border-bottom:2px solid rgba(0,0,0,0.3);">
+              <div style="font-size:12px;font-weight:600;color:var(--text-1);">Section B</div>
+              <div style="font-size:12px;color:var(--text-3);margin-top:3px;">Borders overpower content</div>
+            </div>
+            <div style="padding:16px;">
+              <div style="font-size:12px;font-weight:600;color:var(--text-1);">Section C</div>
+            </div>
+          </div>
+          <div class="compare-note">At 30% opacity, borders draw more attention than the content. In light mode, even 15% is often too heavy for structural dividers.</div>
+        </div>
+        <div class="compare-pane">
+          <div class="compare-label right">✓ 7% opacity — barely there, perfectly readable</div>
+          <div class="divider-demo" style="padding:20px;margin:0;border:none;background:transparent;box-shadow:none;">
+            <div class="divider-section">
+              <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-3);margin-bottom:8px;">Profile Settings</div>
+              <div style="font-size:13px;color:var(--text-2);">Display name, avatar, and personal info</div>
+            </div>
+            <div class="divider-section">
+              <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-3);margin-bottom:8px;">Notifications</div>
+              <div style="font-size:13px;color:var(--text-2);">Email alerts and in-app preferences</div>
+            </div>
+            <div class="divider-section">
+              <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-3);margin-bottom:8px;">Security</div>
+              <div style="font-size:13px;color:var(--text-2);">Password, sessions, and 2FA</div>
+            </div>
+          </div>
+          <div class="compare-note">rgba(0,0,0,0.07) creates a barely-there line that implies separation without drawing the eye. The label + spacing above it does the real work.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         SECTION 7: ACCENT BARS
+    =========================================== -->
+    <section class="section" id="accents">
+      <div class="section-header">
+        <span class="section-num">07</span>
+        <div>
+          <div class="section-title">Accent & Indicator Bars — Light Mode</div>
+          <div class="section-subtitle">Same pattern — but status colors need more saturation to hold against white</div>
+        </div>
+      </div>
+
+      <div class="accent-demo">
+        <div class="accent-card-left">
+          <div class="accent-tag purple">Active</div>
+          <div class="accent-card-title">Left border accent</div>
+          <div class="accent-card-body">3px solid accent. The card behind it is white with shadow-sm. Border provides category or active state signal without overwhelming the content.</div>
+        </div>
+        <div class="accent-card-top">
+          <div class="accent-tag green">Healthy</div>
+          <div class="accent-card-title">Top status stripe</div>
+          <div class="accent-card-body">2px solid green on top. Green needs to be #16a34a (not #22c55e) in light mode — the darker shade holds better contrast against white backgrounds.</div>
+        </div>
+        <div class="accent-card-bg">
+          <div class="accent-tag purple">Info</div>
+          <div class="accent-card-title">Tinted background callout</div>
+          <div class="accent-card-body">7% opacity accent background with 20% border. These subtler values work because the text color itself carries the accent — the bg just reinforces it.</div>
+        </div>
+        <div class="accent-card-warn">
+          <div class="accent-tag amber">Warning</div>
+          <div class="accent-card-title">Warning callout</div>
+          <div class="accent-card-body">Amber at #d97706 (not #f59e0b). Darker tone maintains contrast ratio on white. Always include an explicit label — color alone is never enough.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         LAYOUT: INVERTED PYRAMID
+    =========================================== -->
+    <section class="section" id="inverted-pyramid">
+      <div class="section-header">
+        <span class="section-num">08</span>
+        <div>
+          <div class="section-title">Inverted Pyramid Layout</div>
+          <div class="section-subtitle">The interior panels alternate between white and surface-2 to reinforce the depth hierarchy</div>
+        </div>
+      </div>
+
+      <div class="pyramid-demo">
+        <div class="pyramid-header">
+          <div>
+            <div class="pyramid-title">Analytics Overview</div>
+            <div class="pyramid-subtitle">November 2024 · Updated 4 minutes ago</div>
+          </div>
+          <button class="pyramid-cta">Export Report</button>
+        </div>
+        <div class="pyramid-kpis">
+          <div class="pyramid-kpi">
+            <div class="pyramid-kpi-label">Monthly Revenue</div>
+            <div class="pyramid-kpi-val">$248k</div>
+            <div style="display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:2px 7px;border-radius:4px;color:var(--green);background:var(--green-subtle);margin-bottom:4px;">↑ 18.4%</div>
+            <div class="pyramid-kpi-sub">vs $209k last month</div>
+          </div>
+          <div class="pyramid-kpi">
+            <div class="pyramid-kpi-label">Active Users</div>
+            <div class="pyramid-kpi-val">14,821</div>
+            <div style="display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:2px 7px;border-radius:4px;color:var(--green);background:var(--green-subtle);margin-bottom:4px;">↑ 6.2%</div>
+            <div class="pyramid-kpi-sub">2,847 active today</div>
+          </div>
+          <div class="pyramid-kpi">
+            <div class="pyramid-kpi-label">Avg. Session</div>
+            <div class="pyramid-kpi-val">4m 31s</div>
+            <div style="display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:2px 7px;border-radius:4px;color:var(--red);background:var(--red-subtle);margin-bottom:4px;">↓ 0.8%</div>
+            <div class="pyramid-kpi-sub">vs 4m 35s last month</div>
+          </div>
+          <div class="pyramid-kpi">
+            <div class="pyramid-kpi-label">Conversion</div>
+            <div class="pyramid-kpi-val">3.82%</div>
+            <div style="display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:2px 7px;border-radius:4px;color:var(--green);background:var(--green-subtle);margin-bottom:4px;">↑ 0.3pp</div>
+            <div class="pyramid-kpi-sub">Target: 4.0%</div>
+          </div>
+        </div>
+        <div class="pyramid-mid">
+          <div class="pyramid-chart-area">
+            <div class="pyramid-chart-title">Revenue by Source</div>
+            <div class="bar-chart-row"><div class="bar-chart-label">Enterprise</div><div class="bar-chart-track"><div class="bar-chart-fill" style="width:72%"></div></div><div class="bar-chart-val">$178k</div></div>
+            <div class="bar-chart-row"><div class="bar-chart-label">SMB</div><div class="bar-chart-track"><div class="bar-chart-fill" style="width:44%"></div></div><div class="bar-chart-val">$109k</div></div>
+            <div class="bar-chart-row"><div class="bar-chart-label">Self-serve</div><div class="bar-chart-track"><div class="bar-chart-fill" style="width:25%"></div></div><div class="bar-chart-val">$62k</div></div>
+          </div>
+          <div class="pyramid-panel">
+            <div class="pyramid-panel-title">Recent Activity</div>
+            <div class="activity-item">
+              <div class="activity-dot"></div>
+              <div class="activity-text"><strong>Alleato Group</strong> upgraded to Enterprise</div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot" style="background:var(--green)"></div>
+              <div class="activity-text"><strong>3 new signups</strong> from referral campaign</div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-dot" style="background:var(--amber)"></div>
+              <div class="activity-text"><strong>API latency</strong> spike at 14:32</div>
+            </div>
+          </div>
+        </div>
+        <div class="pyramid-table-area">
+          <div class="pyramid-table-header">
+            <div class="pyramid-table-title">Top Accounts by Revenue</div>
+            <div class="pyramid-table-action">View all accounts →</div>
+          </div>
+          <table class="table-right" style="width:100%;">
+            <thead>
+              <tr>
+                <th style="padding:0 24px 10px;">Account</th>
+                <th>MRR</th>
+                <th>Plan</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td style="padding:10px 24px;">Alleato Group</td><td>$12,400</td><td style="color:var(--text-3);">Enterprise</td><td><span class="status-dot live">Active</span></td></tr>
+              <tr><td style="padding:10px 24px;">Meridian Labs</td><td>$8,200</td><td style="color:var(--text-3);">Growth</td><td><span class="status-dot live">Active</span></td></tr>
+              <tr><td style="padding:10px 24px;">Apex Systems</td><td>$6,800</td><td style="color:var(--text-3);">Growth</td><td><span class="status-dot pending">Trial</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         LAYOUT: MASTER / DETAIL
+    =========================================== -->
+    <section class="section" id="master-detail">
+      <div class="section-header">
+        <span class="section-num">09</span>
+        <div>
+          <div class="section-title">Master / Detail Split</div>
+          <div class="section-subtitle">Left panel white, right detail panel surface-2 — using elevation difference instead of a heavy border</div>
+        </div>
+      </div>
+
+      <div class="master-detail">
+        <div class="master-pane">
+          <div class="master-search">
+            <input class="master-search-input" placeholder="Search projects…">
+          </div>
+          <div class="master-item selected">
+            <div class="master-avatar" style="background:#5b21b6;">AG</div>
+            <div class="master-info">
+              <div class="master-name">Alleato Group</div>
+              <div class="master-meta">Construction Dashboard · Active</div>
+            </div>
+          </div>
+          <div class="master-item">
+            <div class="master-avatar" style="background:#0284c7;">NS</div>
+            <div class="master-info">
+              <div class="master-name">Nutrition Solutions</div>
+              <div class="master-meta">AI Chat Integration · Active</div>
+            </div>
+          </div>
+          <div class="master-item">
+            <div class="master-avatar" style="background:#16a34a;">OC</div>
+            <div class="master-info">
+              <div class="master-name">OpenClaw Deploy</div>
+              <div class="master-meta">Agent Pipeline · In Progress</div>
+            </div>
+          </div>
+          <div class="master-item">
+            <div class="master-avatar" style="background:#d97706;">MH</div>
+            <div class="master-info">
+              <div class="master-name">Megan Harrison LLC</div>
+              <div class="master-meta">Internal Tooling · Staging</div>
+            </div>
+          </div>
+        </div>
+        <div class="detail-pane">
+          <div class="detail-header">
+            <div>
+              <div class="detail-title">Alleato Group</div>
+              <div class="detail-sub">Construction · Enterprise Plan · Since Jan 2024</div>
+            </div>
+            <div class="detail-badge">Active</div>
+          </div>
+          <div class="detail-props">
+            <div>
+              <div class="detail-prop-label">Monthly Revenue</div>
+              <div class="detail-prop-val">$12,400</div>
+            </div>
+            <div>
+              <div class="detail-prop-label">Primary Contact</div>
+              <div class="detail-prop-val">James R. · james@alleato.com</div>
+            </div>
+            <div>
+              <div class="detail-prop-label">Last Activity</div>
+              <div class="detail-prop-val">2 hours ago</div>
+            </div>
+            <div>
+              <div class="detail-prop-label">Stack</div>
+              <div class="detail-prop-val">Next.js · Supabase · OpenAI</div>
+            </div>
+          </div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-3);margin-bottom:12px;">Recent Milestones</div>
+          <div class="activity-item">
+            <div class="activity-dot" style="background:var(--green)"></div>
+            <div class="activity-text"><strong>RAG pipeline deployed</strong> to production — Fireflies integration live</div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot"></div>
+            <div class="activity-text"><strong>Meeting transcript ingestion</strong> complete — 240 docs indexed</div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot" style="background:var(--amber)"></div>
+            <div class="activity-text"><strong>Cloudflare Worker</strong> rate limit issue — under investigation</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         LAYOUT: SETTINGS
+    =========================================== -->
+    <section class="section" id="settings-pattern">
+      <div class="section-header">
+        <span class="section-num">10</span>
+        <div>
+          <div class="section-title">Settings Page Pattern</div>
+          <div class="section-subtitle">White panel on gray canvas. Footer uses surface-2 tint to anchor the save action.</div>
+        </div>
+      </div>
+
+      <div class="settings-demo">
+        <div class="settings-section">
+          <div class="settings-section-title">General</div>
+          <div class="settings-section-desc">Basic account information and workspace preferences.</div>
+          <div class="settings-field">
+            <label class="settings-label">Display Name</label>
+            <input class="settings-input" value="Megan Harrison" type="text">
+          </div>
+          <div class="settings-field">
+            <label class="settings-label">Email Address</label>
+            <input class="settings-input" value="megan@meganharrison.llc" type="email">
+          </div>
+        </div>
+        <div class="settings-section">
+          <div class="settings-section-title">Notifications</div>
+          <div class="settings-section-desc">Control when and how you receive alerts.</div>
+          <div class="settings-toggle-row">
+            <div>
+              <div class="settings-toggle-label">Email digests</div>
+              <div class="settings-toggle-sub">Weekly summary of activity</div>
+            </div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="settings-divider"></div>
+          <div class="settings-toggle-row">
+            <div>
+              <div class="settings-toggle-label">Deployment alerts</div>
+              <div class="settings-toggle-sub">Notify when builds fail or succeed</div>
+            </div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="settings-divider"></div>
+          <div class="settings-toggle-row">
+            <div>
+              <div class="settings-toggle-label">Marketing emails</div>
+              <div class="settings-toggle-sub">Product updates and announcements</div>
+            </div>
+            <div class="toggle" onclick="this.classList.toggle('on')"></div>
+          </div>
+        </div>
+        <div class="settings-section">
+          <div class="settings-section-title">Danger Zone</div>
+          <div class="settings-section-desc">Irreversible actions. Proceed with caution.</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;">
+            <div>
+              <div style="font-size:13px;color:var(--text-2);">Delete workspace</div>
+              <div style="font-size:12px;color:var(--text-3);margin-top:2px;">Permanently removes all data.</div>
+            </div>
+            <button class="btn-danger">Delete workspace</button>
+          </div>
+        </div>
+        <div class="settings-footer">
+          <button class="btn-ghost">Cancel</button>
+          <button class="btn-primary">Save changes</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         LAYOUT: NAVIGATION
+    =========================================== -->
+    <section class="section" id="nav-pattern">
+      <div class="section-header">
+        <span class="section-num">11</span>
+        <div>
+          <div class="section-title">Navigation Sidebar — Light Mode</div>
+          <div class="section-subtitle">Active items use accent-tinted background — not a filled color block</div>
+        </div>
+      </div>
+
+      <div class="nav-demo">
+        <div class="nav-sidebar">
+          <div class="nav-workspace">
+            <div class="nav-ws-icon">M</div>
+            <div>
+              <div class="nav-ws-name">Megan Harrison LLC</div>
+              <div class="nav-ws-role">Admin · Pro plan</div>
+            </div>
+          </div>
+          <div class="nav-section-header">Main</div>
+          <div class="nav-item active">
+            <svg class="nav-icon" viewBox="0 0 14 14" fill="currentColor"><rect x="1" y="1" width="5" height="5" rx="1"/><rect x="8" y="1" width="5" height="5" rx="1"/><rect x="1" y="8" width="5" height="5" rx="1"/><rect x="8" y="8" width="5" height="5" rx="1"/></svg>
+            Dashboard
+          </div>
+          <div class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5.5"/><path d="M7 4v3l2 1.5"/></svg>
+            Activity
+            <span class="nav-count">12</span>
+          </div>
+          <div class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 2h10v8H2z"/><path d="M5 12h4"/><path d="M7 10v2"/></svg>
+            Projects
+          </div>
+          <div class="nav-section-header">Workspace</div>
+          <div class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 1l1.5 3 3.5.5-2.5 2.5.6 3.5L7 9l-3.1 1.5.6-3.5L2 4.5 5.5 4z"/></svg>
+            Integrations
+          </div>
+          <div class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="4.5" r="2.5"/><path d="M1.5 12c0-2.5 2.5-4 5.5-4s5.5 1.5 5.5 4"/></svg>
+            Team
+            <span class="nav-count">3</span>
+          </div>
+          <div class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="2.5"/><path d="M7 1v2M7 11v2M1 7h2M11 7h2"/></svg>
+            Settings
+          </div>
+        </div>
+        <div class="nav-content">
+          <div class="nav-content-header">
+            <div>
+              <div class="breadcrumb">Workspace <span style="opacity:0.4">›</span> <span>Dashboard</span></div>
+              <div class="nav-content-title" style="margin-top:4px;">Dashboard</div>
+            </div>
+            <button class="btn-primary" style="font-size:12px;padding:6px 12px;">+ New Project</button>
+          </div>
+          <div style="font-size:13px;color:var(--text-3);line-height:1.6;">
+            Note how the active nav item uses <strong style="color:var(--text-2);">accent-tinted background + accent text color</strong> — not a solid filled block. This keeps the sidebar feeling light and scannable instead of visually heavy.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         COMPONENT: KPI BLOCKS
+    =========================================== -->
+    <section class="section" id="kpi">
+      <div class="section-header">
+        <span class="section-num">12</span>
+        <div>
+          <div class="section-title">KPI / Metric Blocks — Light Mode</div>
+          <div class="section-subtitle">Same anatomy, but the container gets shadow-md to float off the canvas</div>
+        </div>
+      </div>
+
+      <div class="compare-grid">
+        <div class="compare-pane">
+          <div class="compare-label wrong">✗ Lazy metric cards</div>
+          <div class="kpi-wrong-grid">
+            <div class="kpi-wrong-card">
+              <div class="kpi-wrong-label">Revenue</div>
+              <div class="kpi-wrong-value">$248k</div>
+            </div>
+            <div class="kpi-wrong-card">
+              <div class="kpi-wrong-label">Users</div>
+              <div class="kpi-wrong-value">14,821</div>
+            </div>
+            <div class="kpi-wrong-card">
+              <div class="kpi-wrong-label">Conv.</div>
+              <div class="kpi-wrong-value">3.82%</div>
+            </div>
+          </div>
+          <div class="compare-note">No shadow, no delta, no context. Gray cards on white look depressed. The numbers have no meaning without comparison data.</div>
+        </div>
+        <div class="compare-pane">
+          <div class="compare-label right">✓ Full-context with shadow</div>
+          <div class="kpi-right-grid">
+            <div class="kpi-right-cell">
+              <div class="kpi-eyebrow">Revenue</div>
+              <div class="kpi-metric-row">
+                <div class="kpi-value">$248k</div>
+                <div class="kpi-badge up">↑ 18%</div>
+              </div>
+              <div class="kpi-context">vs $209k last month</div>
+            </div>
+            <div class="kpi-right-cell">
+              <div class="kpi-eyebrow">Active Users</div>
+              <div class="kpi-metric-row">
+                <div class="kpi-value">14,821</div>
+                <div class="kpi-badge up">↑ 6.2%</div>
+              </div>
+              <div class="kpi-context">2,847 today</div>
+            </div>
+            <div class="kpi-right-cell">
+              <div class="kpi-eyebrow">Conversion</div>
+              <div class="kpi-metric-row">
+                <div class="kpi-value">3.82%</div>
+                <div class="kpi-badge down">↓ 0.1pp</div>
+              </div>
+              <div class="kpi-context">Target: 4.0%</div>
+            </div>
+          </div>
+          <div class="compare-note">White cells with shadow-md. Three text tiers per cell. The 1px gap grid reads as a unified lifted panel, not three separate cards.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         COMPONENT: DATA TABLES
+    =========================================== -->
+    <section class="section" id="tables">
+      <div class="section-header">
+        <span class="section-num">13</span>
+        <div>
+          <div class="section-title">Data Tables — Light Mode</div>
+          <div class="section-subtitle">Row hover uses surface-3 instead of rgba white — cleaner on light backgrounds</div>
+        </div>
+      </div>
+
+      <div class="compare-grid">
+        <div class="compare-pane">
+          <div class="compare-label wrong">✗ Grid borders everywhere</div>
+          <table class="table-wrong" style="width:100%">
+            <thead>
+              <tr>
+                <th>Name</th><th>Status</th><th>Revenue</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Alleato Group</td><td>Active</td><td>$12,400</td></tr>
+              <tr><td>Meridian Labs</td><td>Active</td><td>$8,200</td></tr>
+              <tr><td>Apex Systems</td><td>Trial</td><td>$6,800</td></tr>
+            </tbody>
+          </table>
+          <div class="compare-note">On a light background, full cell borders make the table look like Excel. The grid lines compete with the content.</div>
+        </div>
+        <div class="compare-pane">
+          <div class="compare-label right">✓ Premium table style</div>
+          <table class="table-right" style="width:100%">
+            <thead>
+              <tr>
+                <th>Account</th><th>Status</th><th>MRR</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Alleato Group</td>
+                <td><span class="status-dot live">Active</span></td>
+                <td style="font-family:var(--font-mono);font-size:12px;color:var(--text-2);">$12,400</td>
+              </tr>
+              <tr>
+                <td>Meridian Labs</td>
+                <td><span class="status-dot live">Active</span></td>
+                <td style="font-family:var(--font-mono);font-size:12px;color:var(--text-2);">$8,200</td>
+              </tr>
+              <tr>
+                <td>Apex Systems</td>
+                <td><span class="status-dot pending">Trial</span></td>
+                <td style="font-family:var(--font-mono);font-size:12px;color:var(--text-2);">$6,800</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="compare-note">10px uppercase headers, horizontal-only dividers, status dots, monospace numbers. Hover uses surface-3 (#ededf0) — a real color, not rgba on white.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         COMPONENT: INTERACTIVE STATES
+    =========================================== -->
+    <section class="section" id="states">
+      <div class="section-header">
+        <span class="section-num">14</span>
+        <div>
+          <div class="section-title">Interactive States — Light Mode</div>
+          <div class="section-subtitle">Hover elevates the shadow. Focus uses a colored ring. Active fills with accent.</div>
+        </div>
+      </div>
+
+      <div class="states-grid">
+        <div class="state-item">
+          <button class="state-btn default">Button</button>
+          <div class="state-label">Default</div>
+        </div>
+        <div class="state-item">
+          <button class="state-btn hover-state">Button</button>
+          <div class="state-label">Hover</div>
+        </div>
+        <div class="state-item">
+          <button class="state-btn active-state">Button</button>
+          <div class="state-label">Active</div>
+        </div>
+        <div class="state-item">
+          <button class="state-btn focus-state">Button</button>
+          <div class="state-label">Focus</div>
+        </div>
+        <div class="state-item">
+          <button class="state-btn disabled-state" disabled>Button</button>
+          <div class="state-label">Disabled</div>
+        </div>
+      </div>
+
+      <div class="code-block">
+        <pre><span class="tok-comment">/* Light mode: hover increases shadow, not just background */</span>
+<span class="tok-class">.btn</span> {
+  <span class="tok-prop">background</span>: <span class="tok-val">var(--surface-1)</span>;         <span class="tok-comment">/* white */</span>
+  <span class="tok-prop">border</span>: <span class="tok-val">1px solid var(--border-strong)</span>;
+  <span class="tok-prop">box-shadow</span>: <span class="tok-val">var(--shadow-sm)</span>;        <span class="tok-comment">/* always present */</span>
+}
+<span class="tok-class">.btn:hover</span> {
+  <span class="tok-prop">background</span>: <span class="tok-val">var(--surface-3)</span>;         <span class="tok-comment">/* #ededf0 */</span>
+  <span class="tok-prop">box-shadow</span>: <span class="tok-val">0 2px 4px rgba(0,0,0,.08)</span>;
+}
+<span class="tok-class">.btn:focus-visible</span> {
+  <span class="tok-prop">border-color</span>: <span class="tok-val">var(--accent-mid)</span>;
+  <span class="tok-prop">box-shadow</span>: <span class="tok-val">0 0 0 3px rgba(91,33,182,.12), var(--shadow-sm)</span>;
+}</pre>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         COMPONENT: EMPTY STATES
+    =========================================== -->
+    <section class="section" id="empty">
+      <div class="section-header">
+        <span class="section-num">15</span>
+        <div>
+          <div class="section-title">Empty States</div>
+          <div class="section-subtitle">Icon background uses accent-subtle — carries the brand color into the empty state</div>
+        </div>
+      </div>
+
+      <div class="empty-compare">
+        <div class="empty-bad">
+          <div class="compare-label wrong" style="margin-bottom:16px;">✗ Wrong</div>
+          <p>No data available.</p>
+        </div>
+        <div class="empty-good">
+          <div class="compare-label right" style="margin-bottom:8px;">✓ Right</div>
+          <div class="empty-icon-bg">📊</div>
+          <div class="empty-title">No projects yet</div>
+          <div class="empty-desc">Create your first project to start tracking metrics and managing your team's work.</div>
+          <button class="empty-action">Create project</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         FOUNDATION: SPACING
+    =========================================== -->
+    <section class="section" id="spacing">
+      <div class="section-header">
+        <span class="section-num">16</span>
+        <div>
+          <div class="section-title">Spacing System</div>
+          <div class="section-subtitle">Identical to dark mode — the 8pt grid is universal</div>
+        </div>
+      </div>
+
+      <div class="spacing-ruler">
+        <div class="spacing-row"><div class="spacing-label">4px</div><div class="spacing-block" style="width:4px;"></div><div class="spacing-use">Icon-to-label, badge padding, micro gaps</div></div>
+        <div class="spacing-row"><div class="spacing-label">8px</div><div class="spacing-block" style="width:8px;"></div><div class="spacing-use">Tight inline spacing, icon margins</div></div>
+        <div class="spacing-row"><div class="spacing-label">12px</div><div class="spacing-block" style="width:12px;"></div><div class="spacing-use">Compact form fields, small component internals</div></div>
+        <div class="spacing-row"><div class="spacing-label">16px</div><div class="spacing-block" style="width:16px;"></div><div class="spacing-use">Standard padding — buttons, inputs, nav items</div></div>
+        <div class="spacing-row"><div class="spacing-label">24px</div><div class="spacing-block" style="width:24px;"></div><div class="spacing-use">Card/panel internal padding — default</div></div>
+        <div class="spacing-row"><div class="spacing-label">32px</div><div class="spacing-block" style="width:32px;"></div><div class="spacing-use">Between related groups within a section</div></div>
+        <div class="spacing-row"><div class="spacing-label">48px</div><div class="spacing-block" style="width:48px;"></div><div class="spacing-use">Between major sections on a page</div></div>
+        <div class="spacing-row"><div class="spacing-label">64px</div><div class="spacing-block" style="width:64px;"></div><div class="spacing-use">Page top/bottom padding, hero sections</div></div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         FOUNDATION: COLORS
+    =========================================== -->
+    <section class="section" id="colors">
+      <div class="section-header">
+        <span class="section-num">17</span>
+        <div>
+          <div class="section-title">Color System — Light Mode</div>
+          <div class="section-subtitle">All opacity values reference rgba(0,0,0,x). Status colors are darker/more saturated than dark mode equivalents.</div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:20px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-3);margin-bottom:12px;">Text Colors — dark on white</div>
+        <div class="color-row">
+          <div class="color-swatch" style="background:var(--surface-1);">
+            <div class="swatch-preview" style="background:rgba(0,0,0,0.88);"></div>
+            <div class="swatch-name">Primary</div>
+            <div class="swatch-value">rgba(0,0,0,0.88)</div>
+            <div class="swatch-use">Headings, values, active labels</div>
+          </div>
+          <div class="color-swatch" style="background:var(--surface-1);">
+            <div class="swatch-preview" style="background:rgba(0,0,0,0.55);"></div>
+            <div class="swatch-name">Secondary</div>
+            <div class="swatch-value">rgba(0,0,0,0.55)</div>
+            <div class="swatch-use">Body text, descriptions. 55%, not 65%.</div>
+          </div>
+          <div class="color-swatch" style="background:var(--surface-1);">
+            <div class="swatch-preview" style="background:rgba(0,0,0,0.38);"></div>
+            <div class="swatch-name">Tertiary</div>
+            <div class="swatch-value">rgba(0,0,0,0.38)</div>
+            <div class="swatch-use">Eyebrows, captions, section labels</div>
+          </div>
+          <div class="color-swatch" style="background:var(--surface-1);">
+            <div class="swatch-preview" style="background:rgba(0,0,0,0.22);"></div>
+            <div class="swatch-name">Disabled</div>
+            <div class="swatch-value">rgba(0,0,0,0.22)</div>
+            <div class="swatch-use">Placeholders, truly inactive elements</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-3);margin-bottom:12px;">Status Colors — more saturated for white contrast</div>
+        <div class="color-row">
+          <div class="color-swatch" style="background:var(--surface-1);">
+            <div class="swatch-preview" style="background:#16a34a;"></div>
+            <div class="swatch-name">Success</div>
+            <div class="swatch-value">#16a34a (not #22c55e)</div>
+            <div class="swatch-use">Darker green holds against white backgrounds</div>
+          </div>
+          <div class="color-swatch" style="background:var(--surface-1);">
+            <div class="swatch-preview" style="background:#d97706;"></div>
+            <div class="swatch-name">Warning</div>
+            <div class="swatch-value">#d97706 (not #f59e0b)</div>
+            <div class="swatch-use">Darker amber — lighter would wash out</div>
+          </div>
+          <div class="color-swatch" style="background:var(--surface-1);">
+            <div class="swatch-preview" style="background:#dc2626;"></div>
+            <div class="swatch-name">Error</div>
+            <div class="swatch-value">#dc2626 (not #ef4444)</div>
+            <div class="swatch-use">Darker red — better contrast ratio on white</div>
+          </div>
+          <div class="color-swatch" style="background:var(--surface-1);">
+            <div class="swatch-preview" style="background:#5b21b6;"></div>
+            <div class="swatch-name">Accent</div>
+            <div class="swatch-value">#5b21b6 (not #7c3aed)</div>
+            <div class="swatch-use">Deeper purple — maintains AA contrast on white</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout" style="margin-top:24px;">
+        <strong>The saturation rule:</strong> Light mode status colors should be 1–2 shades darker than their dark mode equivalents. What reads clearly as #22c55e on a dark background needs to be #16a34a to maintain the same visual weight on white. Always verify WCAG AA contrast ratios (4.5:1 for normal text).
+      </div>
+    </section>
+
+  </main>
+</div>
+</body>
+</html>

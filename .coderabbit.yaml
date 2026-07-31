@@ -1,0 +1,18 @@
+# CodeRabbit configuration
+#
+# Claude Code is this repo's single automated PR reviewer (see
+# .github/workflows/pr-review-comprehensive.yml). CodeRabbit's automatic reviews
+# are DISABLED to avoid redundant, overlapping bot comments on every PR.
+#
+# CodeRabbit stays installed and can still be invoked on demand by commenting
+# `@coderabbitai review` on a specific PR if a second opinion is ever wanted.
+reviews:
+  # Do not auto-review PRs.
+  auto_review:
+    enabled: false
+  # Suppress the "review skipped / review limit reached" status comments.
+  review_status: false
+  # No high-level walkthrough/summary comment.
+  high_level_summary: false
+  # Don't post the poem/summary auto-comment.
+  poem: false

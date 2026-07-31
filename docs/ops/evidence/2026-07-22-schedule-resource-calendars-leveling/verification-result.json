@@ -1,0 +1,77 @@
+{
+  "status": "PASS",
+  "taskId": "ALL-5",
+  "evidence": {
+    "screenshots": [
+      "docs/ops/evidence/2026-07-22-schedule-resource-calendars-leveling/schedule-project-capacity-desktop.png",
+      "docs/ops/evidence/2026-07-22-schedule-resource-calendars-leveling/schedule-project-capacity-mobile.png"
+    ],
+    "actionLog": [
+      "docs/ops/evidence/2026-07-22-schedule-resource-calendars-leveling/verification.md"
+    ],
+    "summary": [
+      "docs/ops/evidence/2026-07-22-schedule-resource-calendars-leveling/verification.md"
+    ],
+    "negativePath": [
+      "docs/ops/evidence/2026-07-22-schedule-resource-calendars-leveling/mutation-probes.sql",
+      "docs/ops/evidence/2026-07-22-schedule-resource-calendars-leveling/verification.md"
+    ],
+    "visualReview": [
+      "docs/ops/evidence/2026-07-22-schedule-resource-calendars-leveling/verification.md"
+    ],
+    "regressionTest": [
+      "docs/ops/evidence/2026-07-22-schedule-resource-calendars-leveling/verification.md"
+    ],
+    "database": [
+      "docs/ops/evidence/2026-07-22-schedule-resource-calendars-leveling/schema-readback.sql",
+      "docs/ops/evidence/2026-07-22-schedule-resource-calendars-leveling/mutation-probes.sql",
+      "docs/ops/evidence/2026-07-22-schedule-resource-calendars-leveling/cleanup-readback.sql"
+    ]
+  },
+  "claims": {
+    "atomic-capacity-cas": {
+      "database": [
+        "docs/ops/evidence/2026-07-22-schedule-resource-calendars-leveling/schema-readback.sql",
+        "docs/ops/evidence/2026-07-22-schedule-resource-calendars-leveling/mutation-probes.sql"
+      ],
+      "regressionTest": [
+        "docs/ops/evidence/2026-07-22-schedule-resource-calendars-leveling/verification.md"
+      ]
+    },
+    "coherent-capacity-model": {
+      "summary": [
+        "docs/ops/evidence/2026-07-22-schedule-resource-calendars-leveling/verification.md"
+      ],
+      "database": [
+        "docs/ops/evidence/2026-07-22-schedule-resource-calendars-leveling/schema-readback.sql"
+      ],
+      "regressionTest": [
+        "docs/ops/evidence/2026-07-22-schedule-resource-calendars-leveling/verification.md"
+      ]
+    },
+    "preview-never-writes": {
+      "negativePath": [
+        "docs/ops/evidence/2026-07-22-schedule-resource-calendars-leveling/verification.md"
+      ],
+      "screenshots": [
+        "docs/ops/evidence/2026-07-22-schedule-resource-calendars-leveling/schedule-project-capacity-desktop.png",
+        "docs/ops/evidence/2026-07-22-schedule-resource-calendars-leveling/schedule-project-capacity-mobile.png"
+      ],
+      "regressionTest": [
+        "docs/ops/evidence/2026-07-22-schedule-resource-calendars-leveling/verification.md"
+      ]
+    },
+    "immutable-capacity-revisions": {
+      "database": [
+        "docs/ops/evidence/2026-07-22-schedule-resource-calendars-leveling/schema-readback.sql",
+        "docs/ops/evidence/2026-07-22-schedule-resource-calendars-leveling/mutation-probes.sql"
+      ]
+    }
+  },
+  "independentReview": {
+    "reviewer": "phase4a_code_review, phase3_react_review, and phase4a_db_final",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-22T19:50:52Z",
+    "artifact": "docs/ops/evidence/2026-07-22-schedule-resource-calendars-leveling/independent-review.md"
+  }
+}

@@ -1,0 +1,1495 @@
+{
+  "schema_version": 1,
+  "last_reviewed": "2026-07-30",
+  "failures": [
+    {
+      "id": "ai.chat-research-contract-drift",
+      "title": "Requested AI chat sources disappear across routing projections",
+      "status": "active",
+      "maturity": "detectable",
+      "canonical_owner": "Chat-turn research contract and per-source Research receipts",
+      "symptoms": [
+        "The assistant says it could not search a source the user explicitly requested even though a direct reader exists.",
+        "The retrieval plan names meetings, email, or Teams but the live tool set omits the corresponding reader.",
+        "A specialist provider or credit failure is reported as if the underlying source were unavailable.",
+        "The answer claims complete mixed-source research without a receipt for every requested source.",
+        "A required multi-stage reader repeatedly times out at a universal external-source ceiling even though the same reader completes when retried."
+        ,"FMDS vector chunks, tables, and figures report different revision identities during one research turn."
+      ],
+      "affected_paths": [
+        "frontend/src/lib/ai/retrieval/**",
+        "frontend/src/lib/ai/orchestrator.ts",
+        "frontend/src/lib/ai/fmds-tool-policy.ts",
+        "frontend/src/app/api/ai-assistant/chat/handler-v2.ts"
+      ],
+      "root_cause": "Requested-source policy, including execution budgets and corpus revision selection, was independently reconstructed in planning, prefetch, tool composition, FMDS filtering, prompt instructions, trace, and citations. A universal 3000 ms external timeout ignored the meeting reader's embedding, dual-search, and metadata stages and abandoned valid results. The first source-specific correction remained shallow because broadening one source into three queries did not scale its aggregate budget with the declared workload. FMDS structured evidence independently selected latest revisions instead of consuming the vector search's selected revision.",
+      "detection_gap": "Focused tests proved individual modules and failure-loud behavior but did not require every essential source to complete on the exact live prompt, assert source-specific execution budgets, or assert that aggregate budget scales when the contract expands one source into multiple searches.",
+      "first_checks": [
+        {
+          "command": "cd frontend && pnpm exec jest --runInBand --runTestsByPath src/lib/ai/retrieval/__tests__/research-contract.test.ts src/lib/ai/__tests__/mixed-source-research-seam.test.ts",
+          "expected": "One typed contract projects the exact requested source readers and produces a terminal receipt for every required source."
+        },
+        {
+          "command": "rg -n \"FMDS_COMMUNICATION_TOOL_NAMES|includeMicrosoftSourceReadTools|detectCommunicationResearchSources\" frontend/src/lib/ai frontend/src/app/api/ai-assistant/chat",
+          "expected": "No matches; source/tool mappings have one owner."
+        }
+      ],
+      "prevention": "Compile requested research once; keep reader identity, bounded per-query execution budget, workload-derived aggregate timeout, corpus revision identity, tool visibility, prompt obligations, and receipt projections in the same registry; pass the selected revision explicitly to every structured-evidence adapter; persist terminal per-source receipts; suppress redundant live readers after successful prefetch; reject both complete-coverage and task-completion claims while an essential requested reader is non-successful.",
+      "guardrail": {
+        "kind": "interface_contract_test",
+        "status": "active",
+        "command": "cd frontend && pnpm exec jest --runInBand --runTestsByPath src/lib/ai/retrieval/__tests__/research-contract.test.ts src/lib/ai/__tests__/mixed-source-research-seam.test.ts",
+        "evidence": "docs/ops/evidence/2026-07-22-aai-1248-chat-turn-research-contract/verification.md"
+      },
+      "incidents": [
+        {
+          "date": "2026-07-22",
+          "task": "AAI-1244",
+          "summary": "A mixed Alleato process plus FMDS request planned communication research, but downstream tool composition exposed only FMDS evidence; an interim specialist path then failed on provider credit."
+        },
+        {
+          "date": "2026-07-22",
+          "task": "AAI-1248",
+          "summary": "The distributed exception was replaced with one Chat-turn research contract and receipt guardrail; reopening proved failure-loud behavior was insufficient until query-count-scaled budgets completed the primary meetings receipt."
+        }
+      ],
+      "promotion": {
+        "required": false
+      }
+    },
+    {
+      "id": "ai.project-context-silent-broadening",
+      "title": "Selected-project requests silently broaden to organization-wide retrieval",
+      "status": "active",
+      "maturity": "prevented",
+      "canonical_owner": "AI retrieval planner project-scope preflight and global assistant overlay layer",
+      "symptoms": [
+        "A request about this project returns meetings, messages, or files from unrelated projects.",
+        "The trace records selectedProjectId null while the answer claims project-specific evidence.",
+        "The global assistant project picker opens but its portaled options cannot receive pointer input.",
+        "A project-relative meeting request scans the organization corpus and appears to hang for more than a minute.",
+        "After selecting a project, resending the stopped question says no meetings even though the project has attributable meeting rows."
+      ],
+      "affected_paths": [
+        "frontend/src/lib/ai/retrieval/planner.ts",
+        "frontend/src/app/api/ai-assistant/chat/handler-v2.ts",
+        "frontend/src/components/ai-assistant/global-ai-widget.tsx",
+        "frontend/src/components/ui/popover.tsx",
+        "frontend/src/app/globals.css"
+      ],
+      "root_cause": "The retrieval planner treated a missing selectedProjectId as permission to search all authorized projects even when the request used a selected-project reference. Independently, the global AI panel used a near-maximum z-index while Radix popovers retained their default z-50 portal layer, so the panel intercepted project-option clicks and the missing context could not be corrected in the UI. After correction, the first resend containing cite was misclassified as a follow-up to the deterministic scope-stop response, which let semantic collection planning replace the canonical selected-project recent-meetings reader.",
+      "detection_gap": "Prior checks asserted transport field wiring and successful retrieval independently but never exercised a real project-picker click, asserted the request body project id, rejected project-relative language when that id was absent, or ran the select-and-resend recovery sequence. Response quality rewarded cited evidence without validating that the retrieved scope matched the requested scope.",
+      "first_checks": [
+        {
+          "command": "cd frontend && pnpm exec jest --runInBand --runTestsByPath src/lib/ai/retrieval/__tests__/planner.test.ts src/lib/ai/retrieval/__tests__/collection-planner.test.ts src/app/api/ai-assistant/chat/__tests__/project-scope-required.test.ts src/components/ai-assistant/__tests__/global-ai-widget-overlay.test.ts",
+          "expected": "Project-relative requests without selectedProjectId stop before retrieval, selected scope is preserved when present, and every assistant popover portal is above the fixed widget panel."
+        },
+        {
+          "command": "agent-browser --session ai-assistant-scope open https://projects.alleatogroup.com",
+          "expected": "The project picker accepts a click, exposes the selected project name, and the resulting trace records the exact selectedProjectId instead of null."
+        }
+      ],
+      "prevention": "Treat deictic project scope as a required input, persist a deterministic scope-required stop before any retrieval, expose the selected project in accessible composer state, make the shared popover primitive inherit the global widget overlay layer through React context, treat the first resend after that stop as a fresh scoped request rather than a follow-up to an empty answer, and derive direct-source trace ownership from the typed reader kind.",
+      "guardrail": {
+        "kind": "scope_and_overlay_contract",
+        "status": "active",
+        "command": "cd frontend && pnpm exec jest --runInBand --runTestsByPath src/lib/ai/retrieval/__tests__/planner.test.ts src/lib/ai/retrieval/__tests__/collection-planner.test.ts src/app/api/ai-assistant/chat/__tests__/project-scope-required.test.ts src/components/ai-assistant/__tests__/global-ai-widget-overlay.test.ts",
+        "evidence": "docs/ops/evidence/2026-07-22-ai-assistant-project-scope-root-cause/verification.md"
+      },
+      "incidents": [
+        {
+          "date": "2026-07-22",
+          "task": "AI-ASSISTANT-SCOPE-ROOT-CAUSE-0722",
+          "summary": "Production traces showed selectedProjectId null, 1,938 meetings enumerated, 104 seconds in meeting collection analysis, and citations from unrelated projects after the project picker click was intercepted by the widget panel."
+        }
+      ],
+      "promotion": {
+        "required": false
+      }
+    },
+    {
+      "id": "ingestion.outlook-conversation-project-drift",
+      "title": "One Outlook conversation carries conflicting project assignments",
+      "status": "active",
+      "maturity": "detectable",
+      "canonical_owner": "Outlook intake attribution and conversation compiler",
+      "symptoms": [
+        "Copies of one Outlook conversation appear under different projects.",
+        "A low-confidence company-domain match overrides earlier high-confidence thread evidence.",
+        "Deep Read creates a task for a project not named by the cited source conversation."
+      ],
+      "affected_paths": [
+        "backend/src/services/integrations/microsoft_graph/outlook.py",
+        "backend/src/services/integrations/microsoft_graph/outlook_attribution.py",
+        "backend/src/services/integrations/microsoft_graph/outlook_conversations.py",
+        "scripts/verify/verify_outlook_conversation_attribution_consistency.mjs"
+      ],
+      "root_cause": "Outlook messages were attributed independently by mailbox and message, propagated document assignments were treated as authoritative, and the conversation compiler silently selected the last non-null project.",
+      "detection_gap": "No exact-message or mailbox-conversation consistency verifier ran before project-specific Deep Read synthesis and task creation.",
+      "first_checks": [
+        {
+          "command": "node scripts/verify/verify_outlook_conversation_attribution_consistency.mjs --since 2026-01-15T00:00:00.000Z",
+          "expected": "The verifier exits non-zero and identifies every exact-message or mailbox-conversation identity carrying multiple project IDs."
+        },
+        {
+          "command": "cd backend && pytest -q tests/test_outlook_attribution.py tests/test_outlook_conversations.py",
+          "expected": "Consensus excludes propagated assignments and conversation compilation fails loudly on conflicting project IDs."
+        }
+      ],
+      "prevention": "Reuse only independent high-confidence attribution as conversation consensus, preserve exact-message identity across mailboxes, fail compilation on conflicting project IDs, and block longitudinal pattern counting until conflicts are adjudicated.",
+      "guardrail": {
+        "kind": "source_attribution_contract",
+        "status": "active",
+        "command": "node scripts/verify/verify_outlook_conversation_attribution_consistency.mjs --since 2026-01-15T00:00:00.000Z",
+        "evidence": "docs/ops/evidence/2026-07-14-outlook-conversation-attribution-repair/REPORT.md"
+      },
+      "incidents": [
+        {
+          "date": "2026-07-14",
+          "task": "AAI-1066",
+          "summary": "Seven Superior Sprinklers rows were split between Superior and Uniqlo, producing a false Uniqlo task; source, retrieval, and Deep Read outputs were repaired and regenerated."
+        }
+      ],
+      "promotion": {
+        "required": false
+      }
+    },
+    {
+      "id": "ingestion.archived-project-routing",
+      "title": "Automatic attribution routes new content into archived projects",
+      "status": "active",
+      "maturity": "prevented",
+      "canonical_owner": "ProjectAssigner active-project and attribution-rule loaders",
+      "symptoms": [
+        "A newly ingested meeting, email, Teams message, or file receives the ID of an archived project.",
+        "Archiving a project removes it from project navigation but new searchable records continue accumulating under it.",
+        "An active attribution rule still assigns its project after that project is archived."
+      ],
+      "affected_paths": [
+        "backend/src/services/ingestion/project_assignment.py",
+        "backend/tests/test_project_assignment.py",
+        "backend/src/services/integrations/microsoft_graph/**",
+        "backend/src/services/ingestion/communication_project_backfill.py"
+      ],
+      "root_cause": "The canonical project loader did not select or filter the projects.archived flag, while the attribution-rule and project-contact loaders independently accepted every project_id they received.",
+      "detection_gap": "Project-assignment tests covered title, aliases, contacts, domains, and explicit rules but never asserted that archived projects and still-active rules targeting them were globally ineligible.",
+      "first_checks": [
+        {
+          "command": "pytest -q backend/tests/test_project_assignment.py",
+          "expected": "Archived project-name, active-rule, and contact fixtures remain unassigned while active-project attribution still passes."
+        },
+        {
+          "command": "node scripts/ops/learning-registry.mjs lookup --symptom \"archived project receives new automatic attribution\" --files backend/src/services/ingestion/project_assignment.py",
+          "expected": "This fingerprint and the canonical ProjectAssigner loader owner are returned before any downstream caller-specific exclusion is proposed."
+        }
+      ],
+      "prevention": "Filter projects.archived=false at the canonical query boundary, revalidate project, attribution-rule, and contact-signal caches against the active-project set on every read, log stale targets specifically, and forbid downstream source-specific archive exclusions.",
+      "guardrail": {
+        "kind": "routing_contract_test",
+        "status": "active",
+        "command": "pytest -q backend/tests/test_project_assignment.py backend/tests/test_communication_project_backfill.py backend/tests/test_outlook_intake.py",
+        "evidence": "docs/ops/evidence/2026-07-23-alleato-brain-archived-routing-guard/runtime-localization.md"
+      },
+      "incidents": [
+        {
+          "date": "2026-07-23",
+          "task": "ALL-11",
+          "summary": "Production project 1015 Varsity Brands was archived but retained two active title rules; the live fixture was assigned to 1015 at 0.985 confidence until the canonical loader guard was added."
+        }
+      ],
+      "promotion": {
+        "required": false
+      }
+    },
+    {
+      "id": "architecture.canonical-collaboration-owner-drift",
+      "title": "Retired collaboration runtime remains active beside the canonical owner",
+      "status": "active",
+      "maturity": "prevented",
+      "canonical_owner": "Velt comments plus first-party collaboration notifications",
+      "symptoms": [
+        "Comment controls work on one route and fail on another.",
+        "Velt and Liveblocks providers, routes, packages, or environment keys coexist.",
+        "A comments fix replaces the provider without checking all active entry points."
+      ],
+      "affected_paths": [
+        "frontend/src/components/velt/**",
+        "frontend/src/components/collaboration/**",
+        "frontend/src/app/api/liveblocks/**",
+        "frontend/package.json",
+        "scripts/audits/check-repo-control.mjs"
+      ],
+      "root_cause": "Canonical ownership was documented but enforcement only checked obsolete filenames, allowing Liveblocks to survive under other active paths.",
+      "detection_gap": "No repository-wide runtime, route, package, helper, and environment-key ownership check existed.",
+      "first_checks": [
+        {
+          "command": "node scripts/audits/check-repo-control.mjs --liveblocks-only",
+          "expected": "No active Liveblocks runtime, dependency, route, helper, or environment reference."
+        },
+        {
+          "command": "rg -n \"liveblocks|Liveblocks|@liveblocks\" frontend/src frontend/package.json frontend/pnpm-lock.yaml",
+          "expected": "No matches in active frontend code or dependencies."
+        }
+      ],
+      "prevention": "Keep Velt as the sole comment runtime and fail repository control when a retired Liveblocks surface is reintroduced.",
+      "guardrail": {
+        "kind": "contract_gate",
+        "status": "active",
+        "command": "node scripts/audits/check-repo-control.mjs --liveblocks-only",
+        "evidence": "docs/ops/tasks/2026-07-13-remove-liveblocks-runtime.md"
+      },
+      "incidents": [
+        {
+          "date": "2026-07-11",
+          "task": "git-history-comments-runtime-flip",
+          "summary": "Velt was removed for Liveblocks and then reactivated when the replacement path did not work."
+        },
+        {
+          "date": "2026-07-13",
+          "task": "docs/ops/tasks/2026-07-13-remove-liveblocks-runtime.md",
+          "summary": "Remaining Liveblocks runtime and provider paths were removed and repository control was broadened."
+        }
+      ],
+      "promotion": {
+        "required": false
+      }
+    },
+    {
+      "id": "frontend.viewer-capability-regression",
+      "title": "Viewer replacement ships before every existing capability has an observable contract",
+      "status": "active",
+      "maturity": "detectable",
+      "canonical_owner": "Canonical drawings viewer route and shared PDF.js Express viewer components",
+      "symptoms": [
+        "Zoom, rotate, link, comment, or annotation controls render but do nothing.",
+        "Annotation state and API responses are correct while rendered SVG annotation nodes disappear from the DOM.",
+        "The same action appears in multiple rails or panels.",
+        "A migration passes static checks but requires repeated browser follow-ups."
+      ],
+      "affected_paths": [
+        "frontend/src/app/(main)/[projectId]/drawings/viewer/[drawingId]/**",
+        "frontend/src/components/drawings/PdfjsExpressDrawingViewer.tsx",
+        "frontend/src/components/drawings/PdfjsExpressMarkupOverlay.tsx",
+        "frontend/src/components/velt/annotation-sanitizer.ts",
+        "frontend/src/app/api/projects/[projectId]/drawings/[drawingId]/pdf-proxy/route.ts",
+        "docs/ops/tasks/*drawings*tracker*.md",
+        "frontend/tests/e2e/drawings/drawings-viewer-capability-contract.spec.ts",
+        "frontend/config/playwright/playwright.config.drawings-capability.ts"
+      ],
+      "root_cause": "The viewer migration began before the legacy capability inventory became the acceptance contract; the vendor lifecycle and embedded-viewer boundary had no executable owner. A global Velt sanitizer also claimed the generic data-annotation-id namespace and removed product-owned drawing SVG nodes as malformed Velt annotations.",
+      "detection_gap": "Static and component checks did not exercise the vendor request sequence, repeated mount cleanup, rendered geometry with global collaboration tooling active, responsive reachability, and full user-visible control matrix.",
+      "first_checks": [
+        {
+          "command": "cd frontend && pnpm exec playwright test --config config/playwright/playwright.config.drawings-capability.ts",
+          "expected": "The canonical authenticated viewer passes its retained control, navigation, runtime-error, zoom/rotate, and responsive reachability contracts."
+        },
+        {
+          "command": "cd frontend && npm run test:unit -- --runInBand --runTestsByPath src/components/velt/__tests__/annotation-sanitizer.test.ts src/components/drawings/__tests__/PdfjsExpressMarkupOverlay.object-editing.unit.test.tsx",
+          "expected": "The global sanitizer leaves product-owned annotation DOM intact while object editing preserves canonical IDs, geometry, rollback, and deletion behavior."
+        },
+        {
+          "command": "rg -n \"Current status|Implemented - needs verification|Partial|Regression risk\" docs/ops/tasks/2026-07-13-drawings-tool-annotation-feature-tracker.md",
+          "expected": "Unverified or partial viewer capabilities are visible before implementation is called complete."
+        },
+        {
+          "command": "node scripts/ops/learning-registry.mjs lookup --files frontend/src/components/drawings/PdfjsExpressDrawingViewer.tsx",
+          "expected": "This failure fingerprint and the canonical viewer owner are returned."
+        }
+      ],
+      "prevention": "Run the deterministic browser contract with collaboration tooling enabled for every retained viewer control; scope global DOM observers to explicit owner namespaces; and keep focused unit guards for sanitizer ownership, PDF HEAD metadata, and vendor mount cleanup before migration closeout.",
+      "guardrail": {
+        "kind": "browser_contract",
+        "status": "active",
+        "command": "cd frontend && pnpm exec playwright test --config config/playwright/playwright.config.drawings-capability.ts",
+        "evidence": "docs/ops/evidence/2026-07-13-drawings-capability-contract/REPORT.md"
+      },
+      "incidents": [
+        {
+          "date": "2026-07-10",
+          "task": "git-history-drawings-annotation-followups",
+          "summary": "Drawing annotation, commenting, linking, and zoom behavior required multiple corrective commits."
+        },
+        {
+          "date": "2026-07-13",
+          "task": "docs/ops/tasks/2026-07-13-drawings-viewer-controls-followup.md",
+          "summary": "Zoom and rotate APIs plus duplicated rail controls required a focused repair and browser measurement."
+        },
+        {
+          "date": "2026-07-13",
+          "task": "AAI-1061",
+          "summary": "The executable capability contract exposed HMR-only navigation instability and mobile header actions rendered outside the viewport; mobile actions were consolidated into a reachable overflow menu."
+        },
+        {
+          "date": "2026-07-14",
+          "task": "AAI-1059",
+          "summary": "A controlled DOM-boundary comparison proved the Velt sanitizer was deleting drawing SVG nodes through a generic attribute collision; ownership was namespaced and guarded by focused plus full-tooling browser tests."
+        }
+      ],
+      "promotion": {
+        "required": false
+      }
+    },
+    {
+      "id": "operations.provider-runtime-drift",
+      "title": "Live provider configuration diverges from the repository deployment contract",
+      "status": "active",
+      "maturity": "prevented",
+      "canonical_owner": "render.yaml and backend/Dockerfile for alleato-backend",
+      "symptoms": [
+        "A backend deploy attempts to run Node or a frontend command.",
+        "Provider health and deployment behavior disagree.",
+        "A code commit is blamed before the live service definition is read back."
+      ],
+      "affected_paths": [
+        "render.yaml",
+        "backend/Dockerfile",
+        "scripts/verify/verify-render-backend-runtime-contract.mjs",
+        "scripts/predeploy-quality-gate.sh",
+        "scripts/postdeploy-verify.sh"
+      ],
+      "root_cause": "The live Render service was changed to a Node runtime with a non-backend start command while the repository still defined a Docker backend.",
+      "detection_gap": "Deployment checks validated repository configuration but did not compare it with effective live provider state.",
+      "first_checks": [
+        {
+          "command": "npm run verify:render-backend-runtime",
+          "expected": "Live runtime, Docker context, Dockerfile, health path, and commands match render.yaml."
+        },
+        {
+          "command": "render services --output json",
+          "expected": "alleato-backend reports Docker runtime and the backend health path."
+        }
+      ],
+      "prevention": "Compare the live Render service definition with the repository contract in predeploy and postdeploy verification.",
+      "guardrail": {
+        "kind": "live_contract_gate",
+        "status": "active",
+        "command": "npm run verify:render-backend-runtime",
+        "evidence": "docs/ops/tasks/2026-07-13-render-backend-runtime-drift.md"
+      },
+      "incidents": [
+        {
+          "date": "2026-07-13",
+          "task": "docs/ops/tasks/2026-07-13-render-backend-runtime-drift.md",
+          "summary": "alleato-backend drifted from Docker to Node and attempted to start .lintstagedrc.js."
+        }
+      ],
+      "promotion": {
+        "required": false
+      }
+    },
+    {
+      "id": "database.duplicate-migration-version",
+      "title": "Multiple Supabase migrations share one timestamp version",
+      "status": "active",
+      "maturity": "prevented",
+      "canonical_owner": "Supabase migration files, linked remote ledger, and live schema contract",
+      "symptoms": [
+        "Migration verification is ambiguous or reports mismatched Local and Remote versions.",
+        "Two files begin with the same fourteen-digit timestamp.",
+        "Schema effects are live even though the migration ledger cannot identify both changes."
+      ],
+      "affected_paths": [
+        "supabase/migrations/**",
+        "scripts/ops/check-supabase-migration-ledger.mjs"
+      ],
+      "root_cause": "Independently created migrations reused the same timestamp version and were both published before collision detection.",
+      "detection_gap": "Version uniqueness was not enforced at migration creation or before publication.",
+      "first_checks": [
+        {
+          "command": "npm run db:migrations:verify-clean",
+          "expected": "Every local migration version is unique and the linked remote ledger is reconcilable."
+        },
+        {
+          "command": "find supabase/migrations -type f -name \"*.sql\" | sed 's#.*/##' | cut -c1-14 | sort | uniq -d",
+          "expected": "No duplicate version is printed."
+        }
+      ],
+      "prevention": "Enforce unique local versions and verify local files, the remote ledger, and live schema effects together.",
+      "guardrail": {
+        "kind": "migration_gate",
+        "status": "active",
+        "command": "npm run db:migrations:verify-clean",
+        "evidence": "docs/ops/tasks/2026-07-13-duplicate-migration-version-repair.md"
+      },
+      "incidents": [
+        {
+          "date": "2026-07-13",
+          "task": "docs/ops/tasks/2026-07-13-duplicate-migration-version-repair.md",
+          "summary": "Two July 9 migrations shared version 20260709120000 and required chronology plus ledger repair."
+        }
+      ],
+      "promotion": {
+        "required": false
+      }
+    },
+    {
+      "id": "reliability.side-effect-before-durable-ledger",
+      "title": "External notification is delivered before throttle or attempt state is durable",
+      "status": "active",
+      "maturity": "prevented",
+      "canonical_owner": "Pipeline alert notifier and project synthesis operating-record projection",
+      "symptoms": [
+        "The same Teams alert repeats on every scheduler interval.",
+        "External delivery returns success while the alert ledger write failed.",
+        "Optional extraction prevents critical narrative or current-state writes."
+      ],
+      "affected_paths": [
+        "backend/src/services/health/pipeline_alert_notifier.py",
+        "backend/src/services/intelligence/project_synthesizer.py",
+        "backend/tests/test_pipeline_alert_notifier.py",
+        "backend/tests/test_project_synthesizer_budget.py"
+      ],
+      "root_cause": "Teams delivery was not conditional on a successful throttle-ledger write, and optional extraction consumed the projection budget before critical writes.",
+      "detection_gap": "HTTP delivery success was treated as workflow success without ledger and output readback.",
+      "first_checks": [
+        {
+          "command": "pytest backend/tests/test_pipeline_alert_notifier.py backend/tests/test_project_synthesizer_budget.py -q",
+          "expected": "Failed ledger writes block delivery and critical narrative writes survive bounded extraction."
+        },
+        {
+          "command": "npm run rag:stats -- 7",
+          "expected": "Source health and project narrative freshness are reported separately."
+        }
+      ],
+      "prevention": "Persist control state before external side effects, reserve critical projections before optional work, and verify final database state.",
+      "guardrail": {
+        "kind": "transactional_contract_test",
+        "status": "active",
+        "command": "pytest backend/tests/test_pipeline_alert_notifier.py backend/tests/test_project_synthesizer_budget.py -q",
+        "evidence": "docs/ops/tasks/2026-07-13-rag-teams-alert-repair.md"
+      },
+      "incidents": [
+        {
+          "date": "2026-07-13",
+          "task": "docs/ops/tasks/2026-07-13-rag-teams-alert-repair.md",
+          "summary": "RLS blocked alert-ledger persistence while Teams delivery continued and synthesis critical writes starved behind extraction."
+        }
+      ],
+      "promotion": {
+        "required": false
+      }
+    },
+    {
+      "id": "data.status-green-content-unusable",
+      "title": "Pipeline status is green while canonical content is empty or unusable",
+      "status": "active",
+      "maturity": "prevented",
+      "canonical_owner": "Parser-hydrated rag_document_metadata content and real-record review verifier",
+      "symptoms": [
+        "Records report complete or embedded but retrieval returns no useful text.",
+        "Synthetic fixtures pass while imported production records produce partial reviews.",
+        "A later upsert overwrites richer canonical data with empty adapter fields."
+      ],
+      "affected_paths": [
+        "backend/src/services/pipeline/document_parser.py",
+        "backend/src/services/pipeline/embedder.py",
+        "backend/tests/test_document_low_content_pipeline.py",
+        "scripts/verify/verify_submittal_document_text_coverage.mjs"
+      ],
+      "root_cause": "Embedder finalization repopulated canonical RAG metadata from empty application-table fields and erased parser-hydrated text.",
+      "detection_gap": "Completion flags and synthetic proof were checked without representative imported-record content usability.",
+      "first_checks": [
+        {
+          "command": "pytest backend/tests/test_document_low_content_pipeline.py -q",
+          "expected": "App-empty and RAG-present documents retain canonical parser text."
+        },
+        {
+          "command": "node scripts/verify/verify_submittal_document_text_coverage.mjs --submittal-id <id> --json",
+          "expected": "Every linked review document has usable canonical text and metadata."
+        }
+      ],
+      "prevention": "Preserve richer canonical content during later projections and require representative real-record coverage verification.",
+      "guardrail": {
+        "kind": "content_integrity_test",
+        "status": "active",
+        "command": "pytest backend/tests/test_document_low_content_pipeline.py -q",
+        "evidence": "docs/ops/tasks/2026-07-10-submittal-ai-review-validation.md"
+      },
+      "incidents": [
+        {
+          "date": "2026-07-10",
+          "task": "docs/ops/tasks/2026-07-10-submittal-ai-review-validation.md",
+          "summary": "Two imported PDFs were complete and embedded but had zero searchable metadata text until reprocessing."
+        }
+      ],
+      "promotion": {
+        "required": false
+      }
+    },
+    {
+      "id": "build.silent-compiler-stall",
+      "title": "Production compiler emits no progress and consumes the deployment window silently",
+      "status": "active",
+      "maturity": "prevented",
+      "canonical_owner": "frontend/scripts/build/run-production-build.mjs",
+      "symptoms": [
+        "Build logs stop at Creating an optimized production build.",
+        "Turbopack fallback reaches webpack and then becomes silent again.",
+        "The only visible result is an eventual generic deployment failure.",
+        "A high-memory retry with NEXT_DIST_DIR=.next-dev-<port> grows generated trace output by multiple gigabytes."
+      ],
+      "affected_paths": [
+        "frontend/scripts/build/run-production-build.mjs",
+        "frontend/scripts/build/build-output-boundary.mjs",
+        "frontend/next.config.ts",
+        "frontend/tsconfig.json",
+        "scripts/dev/start-frontend-clean.sh"
+      ],
+      "root_cause": "The build runner previously bounded compiler silence but accepted port-scoped NEXT_DIST_DIR and NEXT_TSCONFIG_PATH values. Next's production trace engine hard-codes its generated server-chunk ignore to .next, so a .next-dev-<port> production build bypassed that ignore, over-traced generated chunks, and exhausted memory. Concurrent dev servers also wrote their generated type paths into the tracked production tsconfig.",
+      "detection_gap": "Child-process exit and output silence were bounded, but the runner did not validate the production dist/tsconfig boundary, monitor output size, reject nested generated trees, or isolate dev route types from the tracked tsconfig.",
+      "first_checks": [
+        {
+          "command": "node --check frontend/scripts/build/run-production-build.mjs",
+          "expected": "The build runner syntax is valid before deployment."
+        },
+        {
+          "command": "rg -n \"SILENCE_TIMEOUT|silent\" frontend/scripts/build/run-production-build.mjs",
+          "expected": "Both Turbopack and webpack have explicit silence handling."
+        },
+        {
+          "command": "node --test frontend/scripts/build/__tests__/build-output-boundary.test.mjs",
+          "expected": "Production rejects leaked dev output, live growth is bounded, nested dist trees fail, and dev tsconfig output is isolated."
+        }
+      ],
+      "prevention": "Keep custom dist and tsconfig paths development-only, pin production to .next and tsconfig.json, isolate each dev port in an ignored tsconfig, terminate output above the configured size limit, and reject nested Next.js dist trees after every canonical production build.",
+      "guardrail": {
+        "kind": "build_output_boundary",
+        "status": "active",
+        "command": "node --test frontend/scripts/build/__tests__/build-output-boundary.test.mjs",
+        "evidence": "docs/ops/evidence/2026-07-13-next-build-output-recursion/REPORT.md"
+      },
+      "incidents": [
+        {
+          "date": "2026-07-12",
+          "task": "docs/ops/tasks/2026-07-12-vercel-build-stall-fallback.md",
+          "summary": "Turbopack stopped emitting output and required a bounded fallback."
+        },
+        {
+          "date": "2026-07-12",
+          "task": "docs/ops/tasks/2026-07-12-webpack-build-stall-fail-loud.md",
+          "summary": "Webpack also stopped emitting output after the fallback began."
+        },
+        {
+          "date": "2026-07-13",
+          "task": "docs/ops/tasks/2026-07-13-next-build-output-recursion.md",
+          "summary": "A leaked port-scoped dist bypassed Next's .next chunk ignore, while dev servers repeatedly polluted the production tsconfig; production/dev boundaries and output-growth guards were added."
+        }
+      ],
+      "promotion": {
+        "required": false
+      }
+    },
+    {
+      "id": "architecture.operational-loss-subjective-recurrence",
+      "title": "Operational-loss recurrence is inferred from narrative instead of packet-linked evidence",
+      "status": "active",
+      "maturity": "diagnosable",
+      "canonical_owner": "Daily Brief packet occurrence consumer and recurring-issues evidence model",
+      "symptoms": [
+        "Daily prevention findings are visible in prose but cannot be reconciled to a stable occurrence.",
+        "Rerunning or replacing a Daily Brief can inflate or obscure recurrence counts.",
+        "Leadership cannot distinguish confirmed recurrence from review-gated inference."
+      ],
+      "affected_paths": [
+        "frontend/src/lib/daily-briefs/**",
+        "project-intelligence/core/compile-daily-executive-brief.mjs",
+        "docs/ai-plan/operational-loss/**",
+        "supabase/migrations/*operational_loss*"
+      ],
+      "root_cause": "Daily narrative findings were not retained as packet-linked, evidence-calibrated occurrences with stable identity and review state.",
+      "detection_gap": "No system-owned occurrence ledger or packet-specific recurrence verifier existed after a Daily Brief was published.",
+      "first_checks": [
+        {
+          "command": "rg -n \"recurring_issues|recurring_issue_evidence|operational.loss|needs_review\" frontend/src scripts supabase/migrations docs/ai-plan/operational-loss",
+          "expected": "The canonical recurring-issue owner, packet lineage, and review-state contract are identified before adding another tracker."
+        },
+        {
+          "command": "npm run db:migrations:verify-applied -- supabase/migrations/20260714090000_daily_brief_operational_loss_occurrences.sql",
+          "expected": "The occurrence-lineage migration is present in both local and remote migration ledgers before database-backed behavior is called complete."
+        }
+      ],
+      "prevention": "Reuse recurring_issues as the master pattern, write immutable packet-to-occurrence lineage idempotently, require source evidence and review state, and exclude unsupported findings from confirmed totals.",
+      "guardrail": {
+        "kind": "evidence_calibration_contract",
+        "status": "active",
+        "command": "npm run db:migrations:verify-applied -- supabase/migrations/20260714090000_daily_brief_operational_loss_occurrences.sql",
+        "evidence": "docs/ai-plan/operational-loss/episode-contract.schema.json"
+      },
+      "incidents": [
+        {
+          "date": "2026-07-14",
+          "task": "AAI-1071",
+          "summary": "The Daily Brief operational-loss tracker work identified that prevention analysis remained Markdown-only and had no packet-linked recurrence ledger."
+        }
+      ],
+      "promotion": {
+        "required": true,
+        "owner": "Codex S148",
+        "next_action": "Complete the consumer, migration ledger verification, and browser-visible leadership table evidence."
+      }
+    },
+    {
+      "id": "process.claimed-verification-without-runtime-evidence",
+      "title": "Verification is claimed without a complete runtime evidence contract",
+      "status": "active",
+      "maturity": "prevented",
+      "canonical_owner": "Versioned verification manifest, evidence validator, and closeout gate",
+      "symptoms": [
+        "A sub-agent reports PASS while persistence, reload, negative-path, or visual evidence is missing.",
+        "A review queue accepts a result without an independent evidence judge.",
+        "A changed verification artifact is not linked to the handoff that owns it."
+      ],
+      "affected_paths": [
+        "scripts/verification/**",
+        "scripts/ops/codex-finish.mjs",
+        "scripts/ops/check-review-queue-verification.mjs",
+        "docs/ops/tasks/**",
+        "docs/ops/handoffs/**"
+      ],
+      "root_cause": "Evidence requirements were prose-only and closeout did not bind a PASS claim to a complete manifest, independent review, task identity, and changed-artifact owner.",
+      "detection_gap": "No deterministic validator or publication gate rejected incomplete, contradictory, unreviewed, or orphaned verification evidence.",
+      "first_checks": [
+        {
+          "command": "npm run verify:contract -- --manifest <manifest> --result <result> --require-pass",
+          "expected": "The result is PASS, every declared artifact exists, claims are satisfied, and independent approval is present."
+        },
+        {
+          "command": "npm run verify:review-queue -- --strict --changed-from <base-ref>",
+          "expected": "Every changed verification artifact resolves to a task handoff and every Required handoff has a contract-valid PASS."
+        }
+      ],
+      "prevention": "Use the versioned manifest/result contract, require independent evidence-judge approval, bind task IDs through the task file and handoff, reject orphaned changed artifacts, and run the contract from codex:finish and CI.",
+      "guardrail": {
+        "kind": "verification_contract_gate",
+        "status": "active",
+        "command": "npm run verify:review-queue -- --strict --changed-from <base-ref>",
+        "evidence": "scripts/verification/fixtures/evidence/aai-1073-independent-review.md"
+      },
+      "incidents": [
+        {
+          "date": "2026-07-14",
+          "task": "AAI-1073",
+          "summary": "Independent adversarial reviews found false-acceptance paths in evidence binding, closeout status handling, task identity, and changed-artifact ownership; the contract and regression suite now reject them."
+        }
+      ],
+      "promotion": {
+        "required": false
+      }
+    },
+    {
+      "id": "ai-chat-turn-persistence-drift",
+      "title": "Special chat paths bypass the canonical persistence seam",
+      "status": "active",
+      "maturity": "prevented",
+      "canonical_owner": "frontend chat-history writer and handler-v2 request-bound persistence adapter",
+      "symptoms": [
+        "A visible AI response has no faithful chat_history record.",
+        "A specialist or deterministic path writes chat_history directly.",
+        "A database persistence failure is ignored after a response is shown."
+      ],
+      "affected_paths": [
+        "frontend/src/app/api/ai-assistant/chat/chat-history-writer.ts",
+        "frontend/src/app/api/ai-assistant/chat/handler-v2.ts",
+        "frontend/src/app/api/ai-assistant/chat/__tests__/chat-turn-persistence-seam.test.ts"
+      ],
+      "root_cause": "More than twenty specialized handler branches owned their own chat_history inserts and metadata shapes, including a Deep Agents fast-response helper outside the main request-bound writer.",
+      "detection_gap": "The existing writer seam covered only some paths; no static contract rejected direct inserts in handler-v2 or asserted bound session/user identity.",
+      "first_checks": [
+        {
+          "command": "cd frontend && npm run test:unit -- --runInBand --runTestsByPath src/app/api/ai-assistant/chat/__tests__/chat-history-writer.test.ts src/app/api/ai-assistant/chat/__tests__/chat-turn-persistence-seam.test.ts",
+          "expected": "The persistence seam and loud database failure contract pass, and handler-v2 has no direct chat_history insert."
+        },
+        {
+          "command": "rg -n 'from\\(\"chat_history\"\\)\\.insert' frontend/src/app/api/ai-assistant/chat/handler-v2.ts",
+          "expected": "No matches; handler-v2 may read chat_history but all writes use ChatHistoryWriter."
+        }
+      ],
+      "prevention": "Bind session and user identity in ChatHistoryWriter, make required writes throw labeled failures, and keep a regression test that blocks direct handler inserts including Deep Agents fast paths.",
+      "guardrail": {
+        "kind": "persistence_seam_contract",
+        "status": "active",
+        "command": "cd frontend && npm run test:unit -- --runInBand --runTestsByPath src/app/api/ai-assistant/chat/__tests__/chat-turn-persistence-seam.test.ts",
+        "evidence": "docs/ops/evidence/2026-07-17-deepen-ai-chat-turn/verification.md"
+      },
+      "incidents": [
+        {
+          "date": "2026-07-17",
+          "task": "AI-ARCH-01",
+          "summary": "The AI chat architecture review found direct chat-history writes across special paths, creating drift between displayed responses and replayable turn records."
+        }
+      ],
+      "promotion": {
+        "required": false
+      }
+    },
+    {
+      "id": "accounting.dashboard-margin-owner-drift",
+      "title": "Accounting dashboard margin bypasses the canonical WIP owner",
+      "status": "active",
+      "maturity": "prevented",
+      "canonical_owner": "frontend/src/lib/accounting/wip-portfolio.ts",
+      "symptoms": [
+        "Project margin shows an Unnamed project or technical non-project code as a leading bar.",
+        "Credit memos increase billed revenue instead of reducing it.",
+        "Dashboard margin differs from the canonical WIP report because revenue and cost use different record populations."
+      ],
+      "affected_paths": [
+        "frontend/src/app/api/accounting/dashboard/route.ts",
+        "frontend/src/lib/accounting/wip-portfolio.ts",
+        "frontend/src/app/api/accounting/dashboard/__tests__/accounting-margin-source.test.ts",
+        "frontend/src/app/(admin)/accounting/page.tsx"
+      ],
+      "root_cause": "The Accounting dashboard reimplemented project margin by adding unsigned AR invoice amounts and subtracting only open AP bills, despite the WIP service being documented as the shared owner. That admitted non-project code X and compared inconsistent populations.",
+      "detection_gap": "Presentation tests covered human-safe labels but did not assert the financial owner, credit-memo sign convention, project-only population, or shared margin basis.",
+      "first_checks": [
+        {
+          "command": "cd frontend && npm run test:unit -- --runInBand --runTestsByPath src/app/api/accounting/dashboard/__tests__/accounting-margin-source.test.ts",
+          "expected": "The dashboard route delegates margin to buildWipPortfolio and contains no parallel projectCostsResult/costByProject aggregation."
+        },
+        {
+          "command": "node scripts/ops/learning-registry.mjs lookup --symptom \"Accounting project margin chart includes non-project X\" --files frontend/src/app/api/accounting/dashboard/route.ts frontend/src/lib/accounting/wip-portfolio.ts",
+          "expected": "This failure fingerprint and the canonical WIP owner are returned before editing."
+        }
+      ],
+      "prevention": "Keep buildWipPortfolio as the single project-margin owner, preserve signed billed-to-date and costs-to-date mapping, and require route ownership plus exact-route chart-label evidence before Accounting margin changes close.",
+      "guardrail": {
+        "kind": "canonical_owner_contract",
+        "status": "active",
+        "command": "cd frontend && npm run test:unit -- --runInBand --runTestsByPath src/app/api/accounting/dashboard/__tests__/accounting-margin-source.test.ts",
+        "evidence": "docs/ops/evidence/2026-07-17-accounting-margin-source/summary.md"
+      },
+      "incidents": [
+        {
+          "date": "2026-07-17",
+          "task": "AAI-1157",
+          "summary": "The Accounting chart exposed non-project X as an $84.47M Unnamed project because the dashboard bypassed WIP ownership, treated credit memos as positive, and subtracted only open AP bills."
+        }
+      ],
+      "promotion": {
+        "required": false
+      }
+    },
+    {
+      "id": "ai.collection-analysis-source-free-fallback",
+      "title": "Collection analysis falls through to source-free chat",
+      "status": "active",
+      "maturity": "prevented",
+      "canonical_owner": "Semantic collection planner, meeting collection executor, and evidence-gated synthesis path",
+      "symptoms": [
+        "A request to analyze every matching record produces a conversational answer with zero planned sources.",
+        "Meeting analysis reports insights without auditable meeting IDs, transcript coverage, or per-record failures.",
+        "MCP discovery or empty tool activity raises response quality despite zero source-bearing records."
+      ],
+      "affected_paths": [
+        "frontend/src/lib/ai/retrieval/collection-planner.ts",
+        "frontend/src/lib/ai/retrieval/meeting-collection.ts",
+        "frontend/src/lib/ai/retrieval/collection-synthesis.ts",
+        "frontend/src/app/api/ai-assistant/chat/handler-v2.ts",
+        "frontend/src/lib/ai/score-response-quality.ts"
+      ],
+      "root_cause": "Natural-language collection requests were routed by phrase-oriented synchronous intent rules. Unrecognized wording fell into a source-free conversational plan, and tool-count scoring treated discovery activity as evidence even when no records were retrieved.",
+      "detection_gap": "No executable contract required typed corpus scope, complete enumeration, full-transcript retrieval, explicit matched/retrieved/failed counts, or refusal of incomplete synthesis.",
+      "first_checks": [
+        {
+          "command": "cd frontend && pnpm exec jest --runInBand --runTestsByPath src/lib/ai/retrieval/__tests__/collection-planner.test.ts src/lib/ai/retrieval/__tests__/meeting-collection.test.ts src/lib/ai/retrieval/__tests__/collection-synthesis.test.ts src/lib/meetings/__tests__/transcript-content.test.ts src/lib/ai/tools/read/__tests__/meeting-details-transcript.test.ts src/lib/ai/__tests__/score-response-quality.test.ts",
+          "expected": "Varied wording compiles to the same typed collection contract, exhaustive discovery does not become a keyword gate, incomplete collections block synthesis without breaking ordinary meeting details, and discovery-only traces receive no success bonus."
+        },
+        {
+          "command": "rg -n 'collection_analysis|meetingCollection|failClosedOnIncompleteCollection' frontend/src/app/api/ai-assistant/chat/handler-v2.ts frontend/src/lib/ai/retrieval",
+          "expected": "The handler uses the shared semantic collection plan and persists explicit collection coverage before returning an answer."
+        }
+      ],
+      "prevention": "Compile collection intent semantically into a typed plan, enumerate the authorized corpus independently of inferred keywords for exhaustive requests, require canonical full transcripts for every selected record, fail closed on incomplete coverage, and score only meaningful evidence-bearing work.",
+      "guardrail": {
+        "kind": "collection_evidence_contract",
+        "status": "active",
+        "command": "cd frontend && pnpm exec jest --runInBand --runTestsByPath src/lib/ai/retrieval/__tests__/collection-planner.test.ts src/lib/ai/retrieval/__tests__/meeting-collection.test.ts src/lib/ai/retrieval/__tests__/collection-synthesis.test.ts src/lib/meetings/__tests__/transcript-content.test.ts src/lib/ai/tools/read/__tests__/meeting-details-transcript.test.ts src/lib/ai/__tests__/score-response-quality.test.ts",
+        "evidence": "docs/ops/tasks/2026-07-18-ai-collection-analysis.md"
+      },
+      "incidents": [
+        {
+          "date": "2026-07-18",
+          "task": "AAI-1166",
+          "summary": "An exhaustive annual-review analysis entered conversational_fallback with zero sources, then later detailed answers were treated as successful despite missing auditable transcript coverage."
+        }
+      ],
+      "promotion": {
+        "required": false
+      }
+    },
+    {
+      "id": "ai.collection-analysis-advisor-contract-drift",
+      "title": "Source-complete collection analysis returns a robotic retrieval report",
+      "status": "active",
+      "maturity": "detectable",
+      "canonical_owner": "Typed collection executive-advisor synthesis and direct-response quality trace",
+      "symptoms": [
+        "A source-complete collection answer opens with retrieval counts or processing telemetry instead of an executive judgment.",
+        "The answer catalogs categories with repeated sentence structures but does not prioritize consequences or concrete leadership action.",
+        "Response quality is green or medium because evidence and tool activity exist even though the prose is not decision-useful."
+      ],
+      "affected_paths": [
+        "frontend/src/lib/ai/retrieval/collection-synthesis.ts",
+        "frontend/src/app/api/ai-assistant/chat/handler-v2.ts",
+        "frontend/src/lib/ai/langfuse-trace.ts"
+      ],
+      "root_cause": "The final collection synthesis prompt encoded a coverage-first retrieval report and delegated the entire prose shape to free-form generation without a typed advisory contract.",
+      "detection_gap": "Generic response quality measured whether output was non-empty and source-bearing, but not whether it contained a prioritized thesis, business implications, actionable decisions, natural executive voice, or non-repetitive structure.",
+      "first_checks": [
+        {
+          "command": "cd frontend && pnpm exec jest --runInBand --runTestsByPath src/lib/ai/retrieval/__tests__/collection-synthesis.test.ts src/lib/ai/__tests__/langfuse-trace-quality.test.ts",
+          "expected": "The typed advisor schema, deterministic coverage footer, source-ID validation, semantic retry, repeated-opening rejection, and explicit trace score all pass."
+        },
+        {
+          "command": "rg -n 'COLLECTION_ADVISOR_CONTRACT_VERSION|advisorContract|What I would do next|qualityScore' frontend/src/lib/ai/retrieval/collection-synthesis.ts frontend/src/app/api/ai-assistant/chat/handler-v2.ts frontend/src/lib/ai/langfuse-trace.ts",
+          "expected": "One shared advisor contract owns answer structure, metadata, and trace quality; no coverage-first free-form report instruction remains."
+        }
+      ],
+      "prevention": "Require typed thesis, priority, implication, action, caveat, and evidence-ID fields; render canonical citations and coverage deterministically; reject duplicate structures; semantically judge executive usefulness with one bounded correction; and persist the contract score to chat metadata and Langfuse.",
+      "guardrail": {
+        "kind": "collection_advisor_contract",
+        "status": "active",
+        "command": "cd frontend && pnpm exec jest --runInBand --runTestsByPath src/lib/ai/retrieval/__tests__/collection-synthesis.test.ts src/lib/ai/__tests__/langfuse-trace-quality.test.ts",
+        "evidence": "docs/ops/tasks/2026-07-18-executive-advisor-collection-synthesis.md"
+      },
+      "incidents": [
+        {
+          "date": "2026-07-18",
+          "task": "AAI-1182",
+          "summary": "The exact annual-review prompt retrieved a complete review corpus with no failures but persisted a telemetry-first category report; generic trace quality did not detect the answer was not advisory."
+        }
+      ],
+      "promotion": {
+        "required": false
+      }
+    },
+    {
+      "id": "process.passive-incident-memory",
+      "title": "Incident lessons exist as prose but are absent from the next task execution path",
+      "status": "active",
+      "maturity": "detectable",
+      "canonical_owner": "docs/ops/learning registry and task incident-learning contract",
+      "symptoms": [
+        "Investigations repeat the same discovery commands used in a recent task.",
+        "Canonical ownership is documented but the next task chooses another owner.",
+        "Completed task files contain evidence but no searchable failure fingerprint."
+      ],
+      "affected_paths": [
+        "docs/ops/tasks/**",
+        "docs/ops/handoffs/**",
+        "docs/ops/learning/**",
+        "scripts/ops/learning-registry.mjs",
+        "scripts/ops/codex-finish.mjs"
+      ],
+      "root_cause": "Free-form incident records are fragmented and no startup lookup or closeout validation connects them to later work.",
+      "detection_gap": "The repo enforced task creation and evidence but not structured lesson extraction, retrieval, maturity, or fingerprint linkage.",
+      "first_checks": [
+        {
+          "command": "node scripts/ops/learning-registry.mjs lookup --symptom \"same problem again\"",
+          "expected": "Relevant recurring failure fingerprints and first diagnostic checks are returned."
+        },
+        {
+          "command": "node scripts/ops/learning-registry.mjs audit --staged",
+          "expected": "Registry schema and staged task fingerprint references are valid."
+        }
+      ],
+      "prevention": "Require structured failure fingerprints for significant incidents and validate registry linkage during task publication.",
+      "guardrail": {
+        "kind": "process_contract_gate",
+        "status": "active",
+        "command": "node scripts/ops/learning-registry.mjs audit --staged",
+        "evidence": "docs/ops/tasks/2026-07-13-recurring-failure-learning-loop.md"
+      },
+      "incidents": [
+        {
+          "date": "2026-07-13",
+          "task": "docs/ops/tasks/2026-07-13-recurring-failure-learning-loop.md",
+          "summary": "Audit found hundreds of task records but inconsistent root-cause, detection-gap, and prevention structure with no automatic retrieval."
+        }
+      ],
+      "promotion": {
+        "required": false
+      }
+    },
+    {
+      "id": "intelligence.daily-brief-premature-success",
+      "title": "Daily Brief is labeled current before the complete intelligence run is proven",
+      "status": "active",
+      "maturity": "prevented",
+      "canonical_owner": "Scheduled Daily Brief Executive Intelligence Run contract",
+      "symptoms": [
+        "A Daily Brief packet is fresh/current while project intelligence is stale or missing.",
+        "High-volume source days silently stop at a fixed query limit.",
+        "A rejected project projection appears only as a counter in a successful consumer summary."
+      ],
+      "affected_paths": [
+        "project-intelligence/core/compile-daily-executive-brief.mjs",
+        "project-intelligence/ingestion/daily-source-corpus.mjs",
+        "project-intelligence/projections/daily-deep-read-consumers.mjs",
+        "project-intelligence/runner/run-scheduled-daily-executive-brief.mjs"
+      ],
+      "root_cause": "Packet publication, source completeness, and downstream projection success were separate best-effort steps; packet existence was incorrectly treated as workflow completion.",
+      "detection_gap": "The scheduler checked only packet existence and compiler version, source enumeration had a 1500-row cap, model inputs truncated source content, and rejected projection outcomes did not fail the run.",
+      "first_checks": [
+        {
+          "command": "node --test project-intelligence/ingestion/__tests__/daily-source-corpus.test.mjs project-intelligence/runner/__tests__/run-scheduled-daily-executive-brief.test.mjs",
+          "expected": "Pagination, zero-truncation, rejected-projection, and completed-run publication contracts pass."
+        },
+        {
+          "command": "node project-intelligence/runner/run-scheduled-daily-executive-brief.mjs --force --regenerate",
+          "expected": "The command exits successfully only with a fresh current packet whose runContract.status is completed."
+        }
+      ],
+      "prevention": "Enumerate one stable Daily Source Corpus with count-backed pagination, account for every model-input character, stage the packet, fail any rejected or missing projection read-back, and promote current only after a completed run receipt exists.",
+      "guardrail": {
+        "kind": "fail_closed_run_contract",
+        "status": "active",
+        "command": "node --test project-intelligence/ingestion/__tests__/daily-source-corpus.test.mjs project-intelligence/runner/__tests__/run-scheduled-daily-executive-brief.test.mjs",
+        "evidence": "docs/ops/tasks/2026-07-20-daily-brief-run-contract.md"
+      },
+      "incidents": [
+        {
+          "date": "2026-07-20",
+          "task": "AAI-1214",
+          "summary": "Production investigation found a current Daily Brief packet despite stale project intelligence, capped source enumeration, truncated model inputs, and non-failing projection rejections."
+        }
+      ],
+      "promotion": {
+        "required": false
+      }
+    },
+    {
+      "id": "architecture.canonical-daily-brief-route-owner-drift",
+      "title": "Individual Daily Brief routes render the landing-page summary instead of the full report",
+      "status": "active",
+      "maturity": "prevented",
+      "canonical_owner": "Daily Brief landing and individual artifact route ownership contract",
+      "symptoms": [
+        "A /daily-briefs/[briefId] page shows the designed hero, count pills, contents rail, or Executive Attention workflow.",
+        "A historical brief hides most of the persisted executive narrative behind a simplified summary composition.",
+        "The Daily Brief landing page and individual artifact page are visually and structurally identical."
+      ],
+      "affected_paths": [
+        "frontend/src/app/daily-brief/page.tsx",
+        "frontend/src/app/(tables)/daily-briefs/[briefId]/page.tsx",
+        "frontend/src/features/daily-briefs/brief-markdown.tsx"
+      ],
+      "root_cause": "The individual artifact route imported the landing-page ExecutiveBriefView and converted a route-specific presentation preference into a shared rendering contract.",
+      "detection_gap": "Visual checks rejected raw Markdown artifacts but did not assert that the landing route owns the summary template and the parameterized detail route owns the full persisted report.",
+      "first_checks": [
+        {
+          "command": "rg -n 'ExecutiveBriefView|BriefMarkdown|briefMarkdown' 'frontend/src/app/(tables)/daily-briefs/[briefId]/page.tsx' frontend/src/app/daily-brief/page.tsx",
+          "expected": "The landing route uses ExecutiveBriefView; the parameterized detail route uses BriefMarkdown with packet.briefMarkdown and does not import ExecutiveBriefView."
+        },
+        {
+          "command": "cd frontend && pnpm exec jest --runInBand --runTestsByPath 'src/app/(tables)/daily-briefs/__tests__/route-ownership.test.ts' src/lib/daily-briefs/__tests__/source-links.test.ts",
+          "expected": "The route ownership contract passes and fails if the designed summary template is reintroduced on [briefId]."
+        }
+      ],
+      "prevention": "Keep the designed executive summary composition exclusive to /daily-brief and enforce complete persisted Markdown rendering on every /daily-briefs/[briefId] artifact route.",
+      "guardrail": {
+        "kind": "route_ownership_contract",
+        "status": "active",
+        "command": "cd frontend && pnpm exec jest --runInBand --runTestsByPath 'src/app/(tables)/daily-briefs/__tests__/route-ownership.test.ts' src/lib/daily-briefs/__tests__/source-links.test.ts",
+        "evidence": "docs/ops/tasks/2026-07-20-daily-brief-detail-full-report.md"
+      },
+      "incidents": [
+        {
+          "date": "2026-07-20",
+          "task": "AAI-1212",
+          "summary": "Production individual Daily Brief routes rendered the landing-page summary composition after a well-intended raw-Markdown visual repair conflated two distinct route responsibilities."
+        }
+      ],
+      "promotion": {
+        "required": false
+      }
+    },
+    {
+      "id": "session.checkout-ownership-drift",
+      "title": "Concurrent sessions share an unowned dirty checkout",
+      "status": "active",
+      "maturity": "prevented",
+      "canonical_owner": "Isolated mutating session workspace lifecycle",
+      "symptoms": [
+        "The canonical checkout remains on a stale task branch with unrelated dirty files.",
+        "A session cannot safely switch to main because another worktree owns the branch.",
+        "Stashes, untracked worktrees, or branch cleanup are proposed before the dirty files have a named owner.",
+        "Every session stops because stale untracked evidence has no owner even though no writer lease or open file handle exists.",
+        "A second task reuses a session label, clears an active lease, and stages or commits another task's shared checkout."
+      ],
+      "affected_paths": [
+        "AGENTS.md",
+        "scripts/ops/checkout-session-gate.mjs",
+        "scripts/ops/__tests__/checkout-session-gate.test.mjs",
+        "scripts/ops/isolated-session-workspace.mjs",
+        "scripts/ops/__tests__/isolated-session-workspace.test.mjs"
+      ],
+      "root_cause": "Parallel sessions were permitted to make uncommitted changes in one checkout while other sessions used unmanaged worktrees and branches, so no single owner could publish or safely recover the shared state.",
+      "detection_gap": "The first gate detected dirty baselines but supplied no stale-artifact recovery. Its later path-scoped form still detected conflicts only after mutation, shared one Git index, and trusted a reusable session label instead of the actual Codex task identity.",
+      "first_checks": [
+        {
+          "command": "node scripts/ops/checkout-session-gate.mjs status",
+          "expected": "The command reports the canonical path, branch, dirty-path count, and current lease; any unsafe state exits non-zero without mutating files."
+        },
+        {
+          "command": "node --test scripts/ops/__tests__/checkout-session-gate.test.mjs",
+          "expected": "Quarantine preserves stale untracked work while rejecting active, tracked, fresh, broad, outside, ignored, symbolic-link, and open-handle paths."
+        },
+        {
+          "command": "node --test scripts/ops/__tests__/isolated-session-workspace.test.mjs",
+          "expected": "Non-overlapping tasks receive independent worktrees and indexes; overlap, identity spoofing, and dirty handoffs fail loudly."
+        }
+      ],
+      "prevention": "Keep canonical main integration-only and use hashed exact-path quarantine for genuinely ownerless stale artifacts. Give every mutating task an external expiring worktree and branch bound to CODEX_THREAD_ID, reject overlapping ownership, and hand off only committed exact revisions through a durable manifest and Git bundle.",
+      "guardrail": {
+        "kind": "isolated_session_workspace",
+        "status": "active",
+        "command": "node --test scripts/ops/__tests__/isolated-session-workspace.test.mjs",
+        "evidence": "docs/ops/tasks/2026-07-21-checkout-orphan-recovery.md"
+      },
+      "incidents": [
+        {
+          "date": "2026-07-21",
+          "task": "AAI-1232",
+          "summary": "The canonical checkout remained on the deleted accounting-dashboard branch with mixed edits while main was held by a temporary FMDS worktree."
+        },
+        {
+          "date": "2026-07-21",
+          "task": "AAI-1239",
+          "summary": "Two stale ASRS screenshots first deadlocked AAI-1237 and were preserved in hashed quarantine. Then another task reused S211, recovered the live lease, and committed through the shared checkout while its owner was still working."
+        }
+      ],
+      "promotion": {
+        "required": false
+      }
+    },
+    {
+      "id": "architecture.project-intelligence-runtime-ownership-drift",
+      "title": "Project Intelligence runtime ownership remains split after the canonical workflow is documented",
+      "status": "active",
+      "maturity": "detectable",
+      "canonical_owner": "project-intelligence/runner plus explicit core/projection/maintenance seams",
+      "symptoms": [
+        "The scheduled Daily Brief Docker image invokes a root scripts/intelligence runner.",
+        "Backend project synthesis and domain packet compilation are scheduled as separate intelligence owners.",
+        "Manual backfill or repair tools sit beside production runtime code and can be mistaken for cron targets."
+      ],
+      "affected_paths": [
+        "project-intelligence/**",
+        "scripts/intelligence/**",
+        "backend/src/services/intelligence/**",
+        "backend/Dockerfile.executive-brief",
+        "render.yaml"
+      ],
+      "root_cause": "The canonical Project Intelligence artifact and run contract were documented without an executable module boundary, so compiler, scheduler, projection, and maintenance ownership remained distributed across runtimes.",
+      "detection_gap": "Architecture review was prose/tree-based and did not assert the production Docker command, Render cron ownership, or a forbidden maintenance target.",
+      "first_checks": [
+        {
+          "command": "node --test project-intelligence/runner/__tests__/ownership-contract.test.mjs",
+          "expected": "The canonical runner is accepted and legacy or maintenance scheduling fails loudly."
+        },
+        {
+          "command": "rg -n \"CMD|project-intelligence/runner|run-scheduled-daily-executive-brief\" backend/Dockerfile.executive-brief render.yaml package.json",
+          "expected": "The production Docker command and operator command enter through project-intelligence/runner."
+        }
+      ],
+      "prevention": "Make project-intelligence/runner the only canonical Daily Brief entrypoint, keep compatibility internals explicitly labeled, require ownership-contract tests, and create independently owned follow-on issues before migrating large compiler/projection modules.",
+      "guardrail": {
+        "kind": "project_intelligence_ownership_contract",
+        "status": "active",
+        "command": "node --test project-intelligence/runner/__tests__/ownership-contract.test.mjs",
+        "evidence": "docs/ops/evidence/2026-07-22-project-intelligence-architecture/verification-result.json"
+      },
+      "incidents": [
+        {
+          "date": "2026-07-22",
+          "task": "AAI-1032",
+          "summary": "Architecture review confirmed the scheduled Daily Brief still entered through root scripts while backend intelligence jobs remained separately scheduled."
+        }
+      ],
+      "promotion": {
+        "required": true,
+        "target_issue": "AAI-1249 and AAI-1250"
+      }
+    },
+    {
+      "id": "rag.native-coverage-hides-structured-gaps",
+      "title": "Native PDF vector coverage hides missing approved structured evidence",
+      "status": "active",
+      "maturity": "prevented",
+      "canonical_owner": "Dedicated ASRS FMDS revision-scoped embedding and retrieval contract",
+      "symptoms": [
+        "The FMDS revision reports 100 percent vector coverage while reviewed tables or figures are absent from retrieval.",
+        "Chat associates a table or figure by page proximity without exact source, candidate, and approval-event identity.",
+        "Unreviewed extraction candidates can appear authoritative beside native PDF text."
+      ],
+      "affected_paths": [
+        "infrastructure/asrs-supabase/supabase/migrations/*fmds_structured*",
+        "scripts/asrs/embed_reviewed_fmds_structures.py",
+        "scripts/asrs/verify_fmds0834.py",
+        "frontend/src/lib/fmds/fmds-chat.server.ts",
+        "frontend/src/app/api/ai-assistant/chat/handler-v2.ts"
+      ],
+      "root_cause": "FMDS embedding coverage counted only native fmds_chunks while reviewed visual structures lived in a separate approval workflow, and retrieval exposed page context without exact structured-source provenance.",
+      "detection_gap": "No source-level reviewed-versus-embedded coverage view, approved-only write guard, or exact structured identity existed in the retrieval response.",
+      "first_checks": [
+        {
+          "command": "python3 scripts/asrs/verify_fmds0834.py --require-structured-coverage",
+          "expected": "Every reviewed table and figure has an embedded structured chunk, all native pages/chunks remain covered, and active retrieval excludes staging revisions."
+        },
+        {
+          "command": "cd frontend && npm run test:unit -- --runInBand --runTestsByPath src/lib/fmds/__tests__/fmds-chat.server.test.ts",
+          "expected": "Revision mixing and missing exact structured identity fail loudly while reviewed table and figure matches retain source, candidate, and review-event provenance."
+        }
+      ],
+      "prevention": "Count native and approved structured coverage separately, reject unreviewed or unattributed structured writes in the database, preserve immutable source/candidate/review identity, and require exact-source combined retrieval tests before activation.",
+      "guardrail": {
+        "kind": "approved_structured_coverage_contract",
+        "status": "active",
+        "command": "python3 scripts/asrs/verify_fmds0834.py --require-structured-coverage",
+        "evidence": "docs/ops/evidence/2026-07-20-fmds-structured-rag-embeddings/verification.json"
+      },
+      "incidents": [
+        {
+          "date": "2026-07-20",
+          "task": "AAI-1231",
+          "summary": "FMDS0834 showed 225 of 225 native chunks embedded while reviewed table and figure structures had no vector representation or exact-source retrieval identity."
+        }
+      ],
+      "promotion": {
+        "required": false
+      }
+    },
+    {
+      "id": "ai.feedback-write-project-briefing-collision",
+      "title": "Feedback confirmation is answered with a project briefing",
+      "status": "active",
+      "maturity": "prevented",
+      "canonical_owner": "Typed feedback-write intent and conversational action-tool plan",
+      "symptoms": [
+        "A user accepts the assistant's offer to log a feature gap, but receives a Hard Facts project briefing.",
+        "The chat says feedback can be logged, yet no admin feedback record or GitHub issue is created.",
+        "Confirmation wording containing missed is interpreted as a request to read missed tasks."
+      ],
+      "affected_paths": [
+        "frontend/src/lib/ai/intent-router.ts",
+        "frontend/src/lib/ai/retrieval/planner.ts",
+        "frontend/src/lib/ai/__tests__/intent-router.test.ts",
+        "frontend/src/lib/ai/retrieval/__tests__/planner.test.ts"
+      ],
+      "root_cause": "The broad task-followup classifier treated the word missed in an explicit feature-gap confirmation as a task-read request. The packet-first planner then returned a deterministic project briefing before submitFeedback could run.",
+      "detection_gap": "No regression combined transcript-derived confirmation wording, prior assistant context, and a selected project.",
+      "first_checks": [
+        {
+          "command": "cd frontend && npm.cmd run test:unit -- --runInBand --runTestsByPath src/lib/ai/__tests__/intent-router.test.ts src/lib/ai/retrieval/__tests__/planner.test.ts",
+          "expected": "Explicit bug and feature-gap submissions classify as feedback_write and plan a source-free conversational action-tool loop even with prior history and a selected project."
+        },
+        {
+          "command": "rg -n 'feedback_write|feedback_write_request|submitFeedback' frontend/src/lib/ai/intent-router.ts frontend/src/lib/ai/retrieval/planner.ts frontend/src/lib/ai/tools/write/misc-write-tools.ts",
+          "expected": "One typed feedback-write route reaches the existing preview-first submitFeedback action without a packet-first branch."
+        }
+      ],
+      "prevention": "Classify explicit feedback submissions before task-read keywords, plan them directly to the conversational tool loop, and preserve the exact failed transcript wording in tests.",
+      "guardrail": {
+        "kind": "feedback_write_routing_contract",
+        "status": "active",
+        "command": "cd frontend && npm.cmd run test:unit -- --runInBand --runTestsByPath src/lib/ai/__tests__/intent-router.test.ts src/lib/ai/retrieval/__tests__/planner.test.ts",
+        "evidence": "docs/ops/tasks/2026-07-22-ai-feedback-routing-prime-sov.md"
+      },
+      "incidents": [
+        {
+          "date": "2026-07-22",
+          "task": "LOCAL-AI-SOV-2026-07-22",
+          "summary": "The Nexcom chat accepted a request to log the missing Prime Contract SOV edit capability but returned the standard project briefing and created no tracked feedback item."
+        }
+      ],
+      "promotion": {
+        "required": false
+      }
+    },
+    {
+      "id": "intelligence.sharepoint-project-attribution-drift",
+      "title": "Project Intelligence publishes a source under the wrong project despite SharePoint job evidence",
+      "status": "active",
+      "maturity": "prevented",
+      "canonical_owner": "Project Intelligence SharePoint attribution evidence gate",
+      "symptoms": [
+        "A Daily Brief attributes a meeting or email to a project that the source never names.",
+        "A proposal or estimate folder identifies a different job number or location than the published project.",
+        "Similar scope such as a hotel or food hall is treated as proof that two developments are the same project.",
+        "A source title names an unregistered development but retains an unrelated registered project_id."
+      ],
+      "affected_paths": [
+        "project-intelligence/core/project-attribution-evidence.mjs",
+        "project-intelligence/core/compile-daily-executive-brief.mjs",
+        "project-intelligence/ingestion/daily-source-corpus.mjs",
+        "project-intelligence/core/executive-synthesis.mjs"
+      ],
+      "root_cause": "The compiler trusted upstream project_id and used only an exact source-title project-name backstop. It did not consult authoritative SharePoint job folders, proposals, estimates, job numbers, locations, or source URLs before synthesis.",
+      "detection_gap": "Full-source, citation, and publication receipts proved that every source was read but never proved that each source belonged to the asserted project. The first attribution gate also trusted the model not to merge correct source labels back into a wrong project during synthesis.",
+      "first_checks": [
+        {
+          "command": "node --test project-intelligence/core/__tests__/project-attribution-evidence.test.mjs",
+          "expected": "Port, Union, and Space Coast fixtures prove folder parsing, evidence-backed reassignment, de-attribution, source labels, and unavailable-evidence failures."
+        },
+        {
+          "command": "node project-intelligence/core/compile-daily-executive-brief.mjs --date YYYY-MM-DD --sources-only --no-write --evidence-dir tmp/sharepoint-attribution",
+          "expected": "The source manifest has a complete SharePoint attribution receipt and no disputed source retains the wrong project_id."
+        }
+      ],
+      "prevention": "Enumerate SharePoint 04 - Estimate and 05 - Proposal evidence before model input, reconcile folder job identity with the project registry, de-attribute unsupported assignments, preserve unregistered labels, pass a sourceProjectIndex into synthesis, deterministically reject merged headings or cross-project citations, and stop publication when either evidence or synthesis attribution is unsafe.",
+      "guardrail": {
+        "kind": "sharepoint_attribution_contract",
+        "status": "active",
+        "command": "node --test project-intelligence/core/__tests__/project-attribution-evidence.test.mjs",
+        "evidence": "docs/ops/evidence/2026-07-22-sharepoint-attribution-evidence/"
+      },
+      "incidents": [
+        {
+          "date": "2026-07-22",
+          "task": "AAI-1263",
+          "summary": "Space Coast Town Center in West Melbourne, Florida was published as Port Collective even though Port's SharePoint proposal identifies job 25-107 in Savannah, Georgia and Union's identifies job 26-119 in Union, Kentucky."
+        }
+      ],
+      "promotion": {
+        "required": false
+      }
+    },
+    {
+      "id": "ai.chat-approval-boundary-drift",
+      "title": "AI chat write approval is split across unsigned and bypassable paths",
+      "status": "active",
+      "maturity": "prevented",
+      "canonical_owner": "AI SDK stream-level signed approval and server-side assistant surface capability",
+      "symptoms": [
+        "A compact read-only assistant receives write or delivery tools it cannot safely render.",
+        "A preview button sends confirmed=true as plain text and a handler executes the write without an AI SDK approval response.",
+        "Tool-level needsApproval metadata and stream-level approval disagree about which call requires approval.",
+        "The server and @ai-sdk/react resolve different ai package versions, so the browser drops a server-issued signature before automatic resume.",
+        "Changing the approved tool name, call ID, or input does not fail closed."
+      ],
+      "affected_paths": [
+        "frontend/src/app/api/ai-assistant/chat/handler-v2.ts",
+        "frontend/src/lib/ai/tool-approval-policy.ts",
+        "frontend/src/lib/ai/tools/**",
+        "frontend/src/components/ask-alleato/**",
+        "scripts/verify/verify_ai_chat_architecture.mjs"
+      ],
+      "root_cause": "Write authorization was independently owned by legacy confirmed flags, tool-level needsApproval metadata, client-generated confirmation text, and a deterministic handler branch. The compact surface declared no server-enforced capability, runtime-discovered artifact tools sat outside registry-derived approval, and the installed React AI runtime could lag the server runtime and discard signed approval data.",
+      "detection_gap": "Tests called executors directly or used the server AI runtime, and the architecture verifier scanned only the old monolithic action-tools file. It did not exercise the actual React approval implementation, compare installed AI runtime versions, discover split write modules or MCP artifact tools, or validate compact-surface exposure.",
+      "first_checks": [
+        {
+          "command": "cd frontend && pnpm exec tsx --test scripts/ai/__tests__/tool-approval-roundtrip.test.mjs",
+          "expected": "Approve executes the exact signed call once, deny executes nothing, and altered input, tool name, or call ID fails closed."
+        },
+        {
+          "command": "npm run rag:verify:chat-architecture",
+          "expected": "The canonical stream wires the registry policy and shared secret, Ask Alleato excludes action and artifact-write tools, no direct confirmed-text execution path exists, and no AI tool contains needsApproval metadata."
+        }
+      ],
+      "prevention": "Keep write and delivery capability in the shared registry, bind exact mutating calls with the AI SDK approval secret, derive tool exposure from server-owned routes, fail closed on unknown surfaces or missing secret, delete deterministic confirmed-text execution, compare the server and React resolved AI runtimes, and block predeploy on the architecture verifier.",
+      "guardrail": {
+        "kind": "signed_ai_tool_approval_and_surface_contract",
+        "status": "active",
+        "command": "npm run rag:verify:chat-architecture",
+        "evidence": "docs/ops/tasks/2026-07-17-ai-sdk-tool-approval-hardening-proof/verification.md"
+      },
+      "incidents": [
+        {
+          "date": "2026-07-22",
+          "task": "AAI-1150",
+          "summary": "Forensic ownership audit found one production chat handler with a direct confirmed-text change-event write bypass, unsigned stream approval, legacy tool metadata, and a compact client whose requested surface was ignored server-side. Live browser proof then found server ai@7.0.31 versus React ai@7.0.15; the older client dropped the approval signature until the frozen dependency graph was installed."
+        }
+      ],
+      "promotion": {
+        "required": false
+      }
+    },
+    {
+      "id": "eve.cross-project-user-token-forwarding",
+      "title": "Separate Eve deployment rejects an app-authenticated user",
+      "status": "active",
+      "maturity": "prevented",
+      "canonical_owner": "Next.js Eve proxy and Eve proxy-secret-gated user-token authentication",
+      "symptoms": [
+        "The application accepts a signed-in user and creates a durable turn, but the separate Eve deployment returns HTTP 401.",
+        "Aligning ALLEATO_EVE_PROXY_SECRET on both Vercel projects does not change the HTTP 401.",
+        "Local direct bearer-authentication tests pass while the deployed cross-project lifecycle fails."
+      ],
+      "affected_paths": [
+        "frontend/src/app/api/ai-assistant/eve/proxy/[...path]/eve-proxy.ts",
+        "frontend/src/app/api/ai-assistant/eve/proxy/[...path]/__tests__/eve-proxy.test.ts",
+        "agents/alleato-assistant/agent/lib/auth.ts",
+        "agents/alleato-assistant/tests/auth.test.ts"
+      ],
+      "root_cause": "The app relied on ambient browser Authorization surviving as the user-identity contract across separate Vercel projects even though the app had already authenticated that request. The downstream Eve boundary therefore had no explicit proxy-owned token channel.",
+      "detection_gap": "Unit tests exercised app authentication and Eve bearer authentication independently but did not require a real signed-in user to cross the deployed app-to-Eve hop.",
+      "first_checks": [
+        {
+          "command": "npm --prefix frontend run test:unit -- --runInBand --runTestsByPath \"src/app/api/ai-assistant/eve/proxy/[...path]/__tests__/eve-proxy.test.ts\"",
+          "expected": "Authorization is stripped, the authenticated token is bound to the internal proxy header, caller override is rejected, and POST/stream contracts pass."
+        },
+        {
+          "command": "pnpm --dir agents/alleato-assistant test:auth",
+          "expected": "Eve validates the shared proxy secret before the internal token and preserves user, durable-turn, surface, project, and tool authorization."
+        }
+      ],
+      "prevention": "After app authentication, strip ambient Authorization and inject one caller-nonforwardable x-alleato-user-access-token header. Validate ALLEATO_EVE_PROXY_SECRET before trusting it, retain explicit Supabase and durable-turn authorization, and require a real temporary-user lifecycle against both deployed Vercel projects before release.",
+      "guardrail": {
+        "kind": "deployed_authentication_contract",
+        "status": "active",
+        "command": "npm --prefix frontend run test:unit -- --runInBand --runTestsByPath \"src/app/api/ai-assistant/eve/proxy/[...path]/__tests__/eve-proxy.test.ts\" && pnpm --dir agents/alleato-assistant test:auth",
+        "evidence": "docs/ops/tasks/2026-07-29-eve-proxy-auth-boundary.md"
+      },
+      "incidents": [
+        {
+          "date": "2026-07-29",
+          "task": "AAI-1280",
+          "summary": "A temporary real Supabase user authenticated through the deployed app and created a durable turn, but the separate Eve deployment returned HTTP 401 until identity was moved to the proxy-secret-gated internal token contract."
+        }
+      ],
+      "promotion": {
+        "required": false
+      }
+    },
+    {
+      "id": "eve-parallel-runtime-retention",
+      "title": "Eve migration leaves a second executable assistant runtime in place",
+      "status": "active",
+      "maturity": "prevented",
+      "canonical_owner": "agents/alleato-assistant and the Eve-only source guard",
+      "symptoms": [
+        "The /ai surface can select or fall back to a legacy generation handler.",
+        "Executive specialist agents, bot-core, orchestrator, or canary/parity code remain executable beside Eve.",
+        "Local verification passes one runtime while users reach another."
+      ],
+      "affected_paths": [
+        "agents/alleato-assistant",
+        "frontend/src/app/api/ai-assistant",
+        "frontend/src/components/ai-assistant",
+        "frontend/src/components/ask-alleato",
+        "frontend/src/lib/ai",
+        "scripts/verify/verify_eve_only_runtime.mjs"
+      ],
+      "root_cause": "The earlier migration added Eve as a comparison runtime while preserving the complete legacy generation graph, leaving ownership and failure recovery ambiguous.",
+      "detection_gap": "Completion checks proved Eve could run but did not reject fallback handlers, runtime selectors, duplicate agents, or obsolete route namespaces.",
+      "first_checks": [
+        {
+          "command": "npm run verify:eve-only-runtime",
+          "expected": "Exactly one canonical generation owner exists and every retired runtime, route, selector, and parity scaffold is absent."
+        },
+        {
+          "command": "pnpm --dir agents/alleato-assistant typecheck",
+          "expected": "The sole Eve agent compiles."
+        }
+      ],
+      "prevention": "Keep /ai and Ask Alleato on the shared Eve proxy, reject reintroduction of retired owners at source level, and require authenticated agent-browser proof with real tool data before release.",
+      "guardrail": {
+        "kind": "sole_eve_runtime_contract",
+        "status": "active",
+        "command": "npm run verify:eve-only-runtime",
+        "evidence": "docs/ops/tasks/AAI-1265-EVE-ONLY.md"
+      },
+      "incidents": [
+        {
+          "date": "2026-07-28",
+          "task": "AAI-1265",
+          "summary": "Atomic cutover deleted the legacy handler, runtime selector, executive agents, orchestrator, bot core, duplicate Eve lab, and comparison scaffolding, then verified the published main route through Eve."
+        }
+      ],
+      "promotion": {
+        "required": false
+      }
+    },
+    {
+      "id": "deployment.vercel-generated-route-limit",
+      "title": "Vercel compiles successfully but rejects the deployment for too many generated routes",
+      "status": "active",
+      "maturity": "prevented",
+      "canonical_owner": "Production route exclusions and source-route budget",
+      "symptoms": [
+        "The Next.js production build completes, then the deployment fails during Deploying outputs.",
+        "Vercel reports too_many_routes from process-and-upload-routes.",
+        "Adding one App Router page can move the deployment from Ready to over the 2,048 generated-route ceiling."
+      ],
+      "affected_paths": [
+        "frontend/scripts/build/nonprod-routes.json",
+        "frontend/scripts/build/check-nonprod-routes.mjs",
+        "scripts/dev-tools/generate-project-map.mjs",
+        "frontend/src/lib/app-surface/app-surface.generated.json"
+      ],
+      "root_cause": "The production application had reached Vercel's 2,048 generated-route ceiling while internal demos, prototypes, galleries, and test surfaces were still shipped. One additional schedule page produced the first 2,051-route failure; later schedule APIs raised the count to 2,060.",
+      "detection_gap": "Route conflict checks counted source files but did not enforce a production route budget, and the build-output verifier checked bytes and nested dist directories but could not see Vercel's post-build generated-route expansion.",
+      "first_checks": [
+        {
+          "command": "npm run verify:nonprod-routes",
+          "expected": "The manifest is valid, production source-route files do not exceed the locked budget, and excluded pages are absent from findAppPage."
+        },
+        {
+          "command": "vercel inspect <deployment-url> --scope the-alleato-group --json",
+          "expected": "The exact main deployment is Ready; if it fails, read the Vercel deployment API errorCode and errorMessage before changing product code."
+        }
+      ],
+      "prevention": "Exclude genuine non-production route files during the production build, lock the current production source-route count so every new route requires consolidation or an explicit exclusion, and remove excluded pages from the Assistant's production route index.",
+      "guardrail": {
+        "kind": "production_route_budget",
+        "status": "active",
+        "command": "npm run verify:nonprod-routes",
+        "evidence": "docs/ops/tasks/2026-07-17-ai-sdk-tool-approval-hardening-proof/verification.md"
+      },
+      "incidents": [
+        {
+          "date": "2026-07-22",
+          "task": "AAI-1150",
+          "summary": "Deployment dpl_5mHWNn4p9SoghzZtWKWA5bQt6QHV compiled successfully and then failed because Vercel received 2,060 generated routes against its 2,048 limit."
+        }
+      ],
+      "promotion": {
+        "required": false
+      }
+    },
+    {
+      "id": "tooling.playwright-runtime-drift",
+      "title": "Playwright MCP process loads two physical test runtimes",
+      "status": "active",
+      "maturity": "prevented",
+      "canonical_owner": "Guarded .mcp.json bootstrap and the frontend Playwright installation",
+      "symptoms": [
+        "Playwright exits before browser setup with Playwright Test did not expect test() to be called here.",
+        "A root Playwright Test command loads frontend seed or config modules from a different @playwright/test runtime.",
+        "Browser setup never starts even though the affected spec and fixtures are valid."
+      ],
+      "affected_paths": [
+        ".mcp.json",
+        "frontend/package.json",
+        "frontend/pnpm-lock.yaml",
+        "scripts/verify/verify-playwright-runtime-alignment.mjs"
+      ],
+      "root_cause": "The root Playwright Test runner resolved version 1.58.2 while frontend seed and config imports resolved frontend @playwright/test/playwright version 1.58.1, so two Playwright Test runtimes loaded in one process and rejected test() before browser setup.",
+      "detection_gap": "The MCP bootstrap did not declare one package-installation owner or compare the physical Playwright paths resolved by the frontend runner and its test imports.",
+      "first_checks": [
+        {
+          "command": "node scripts/verify/verify-playwright-runtime-alignment.mjs",
+          "expected": "The MCP bootstrap is guarded and frontend direct and @playwright/test imports resolve one physical Playwright runtime."
+        }
+      ],
+      "prevention": "Start the MCP server through the frontend Playwright installation and make its startup preflight fail before browser setup if configuration or physical module ownership drifts.",
+      "guardrail": {
+        "kind": "playwright_runtime_alignment_contract",
+        "status": "active",
+        "command": "node scripts/verify/verify-playwright-runtime-alignment.mjs",
+        "evidence": "docs/ops/tasks/AAI-1265-playwright-adapter.md"
+      },
+      "incidents": [
+        {
+          "date": "2026-07-30",
+          "task": "AAI-1265",
+          "summary": "The root Playwright Test 1.58.2 runner loaded frontend Playwright 1.58.1 through seed and config imports, triggering the test() runtime guard before browser setup."
+        }
+      ],
+      "promotion": {
+        "required": false
+      }
+    }
+  ]
+}

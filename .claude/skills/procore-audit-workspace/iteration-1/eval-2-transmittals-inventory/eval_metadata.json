@@ -1,0 +1,13 @@
+{
+  "eval_id": 2,
+  "eval_name": "transmittals-inventory",
+  "prompt": "We're about to start building the transmittals tool. Before we begin, can you audit what Procore has for transmittals so we know exactly what we need to build? I need a complete inventory of pages, forms, table columns, statuses, and workflows.",
+  "assertions": [
+    {"id": "finds-transmittals-crawler", "text": "Agent identifies and locates the transmittals crawler script", "type": "presence"},
+    {"id": "identifies-not-built", "text": "Agent recognizes transmittals is not yet implemented in Alleato PM", "type": "correctness"},
+    {"id": "complete-inventory", "text": "Output includes inventory of pages, forms, table columns, statuses, and workflows", "type": "format"},
+    {"id": "database-schema", "text": "Output includes database schema requirements for new tables/columns", "type": "presence"},
+    {"id": "greenfield-tasks", "text": "Task list reflects building from scratch with comprehensive implementation steps", "type": "quality"},
+    {"id": "output-saved", "text": "Report saved as a markdown file in the outputs directory", "type": "correctness"}
+  ]
+}

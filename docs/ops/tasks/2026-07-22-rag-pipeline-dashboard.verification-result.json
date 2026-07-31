@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "observedStatus": "PASS",
+  "taskId": "AAI-1261",
+  "evidence": {
+    "screenshots": ["/tmp/aai-1261-dashboard-desktop.png", "/tmp/aai-1261-dashboard-mobile-final.png"],
+    "regressionTest": ["docs/ops/evidence/2026-07-22-rag-pipeline-dashboard/static-checks.md"],
+    "visualReview": ["docs/ops/evidence/2026-07-22-rag-pipeline-dashboard/visual-review.md"]
+  },
+  "claims": {
+    "source-backed-counts": { "regressionTest": ["docs/ops/evidence/2026-07-22-rag-pipeline-dashboard/static-checks.md"] },
+    "responsive-drilldown": { "screenshots": ["/tmp/aai-1261-dashboard-desktop.png", "/tmp/aai-1261-dashboard-mobile-final.png"], "visualReview": ["docs/ops/evidence/2026-07-22-rag-pipeline-dashboard/visual-review.md"] }
+  },
+  "independentReview": { "reviewer": "agent-browser visual review", "decision": "APPROVED", "reviewedAt": "2026-07-22T00:00:00Z", "artifact": "docs/ops/evidence/2026-07-22-rag-pipeline-dashboard/visual-review.md" }
+}

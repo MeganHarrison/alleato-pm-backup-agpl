@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "last_reviewed": "2026-07-18",
+  "entries": [
+    {
+      "id": "copy.ai-collection-answers-must-advise-before-reporting-evidence",
+      "title": "AI collection answers must advise before reporting evidence",
+      "status": "active",
+      "category": "copy",
+      "source": "codex_conversation",
+      "normalized_rule": "Collection-analysis answers must lead with a concise, decision-relevant point of view; prioritize the few signals that matter most; explain business implications; recommend concrete leadership action; and place retrieval coverage in a quiet footer instead of opening with process telemetry.",
+      "rationale": "A source-complete answer can still be unusable when it behaves like a retrieval report. Executive users need judgment, consequences, and action before provenance detail.",
+      "tags": [
+        "ai-assistant",
+        "executive-advisor",
+        "conversation",
+        "copy",
+        "quality-gate"
+      ],
+      "applies_to": [
+        "frontend/src/lib/ai/retrieval/**",
+        "frontend/src/app/api/ai-assistant/**",
+        "frontend/src/components/ai-assistant/**"
+      ],
+      "anti_patterns": [
+        "Open with counts and processing details, then catalog generic categories using repeated sentence templates."
+      ],
+      "preferred_patterns": [
+        "Lead with the most consequential evidence-backed judgment, explain why it matters, recommend a short action sequence, and close with a compact evidence-basis note."
+      ],
+      "user_quotes": [
+        "Are you freaking serious? This is awful... it sounds like a robot not an executive advisor."
+      ],
+      "first_checks": [
+        {
+          "command": "node scripts/ops/frontend-feedback-ledger.mjs lookup --text \"AI collection answers must advise before reporting evidence\"",
+          "expected": "The new conversation-derived frontend rule is returned for future frontend work."
+        }
+      ],
+      "incidents": [
+        {
+          "date": "2026-07-18",
+          "source": "Codex conversation",
+          "summary": "Are you freaking serious? This is awful... it sounds like a robot not an executive advisor.",
+          "evidence": [
+            "frontend/src/lib/ai/retrieval/collection-synthesis.ts:1",
+            "frontend/src/lib/ai/retrieval/__tests__/collection-synthesis.test.ts:1"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "copy.short-view-all-cta",
+      "title": "Use short direct 'View all' CTA copy",
+      "status": "active",
+      "category": "copy",
+      "source": "codex_conversation",
+      "normalized_rule": "For secondary see-more links, use the shortest direct CTA label possible. Do not append entity names, hidden-count phrases, or explanatory fragments when the destination already provides that context.",
+      "rationale": "Extra nouns and counts add noise without improving comprehension, confidence, or the next action.",
+      "tags": [
+        "copy",
+        "cta",
+        "brevity",
+        "noise-gate"
+      ],
+      "applies_to": [
+        "frontend/src/app/**",
+        "frontend/src/components/**",
+        "frontend/src/features/**"
+      ],
+      "anti_patterns": [
+        "View all subcontractors, 18 more",
+        "View all subcontractors 18 more",
+        "View all <entity>, <count> more"
+      ],
+      "preferred_patterns": [
+        "View all"
+      ],
+      "user_quotes": [
+        "This is way too wordy: \"View all subcontractors 18 more\" Change this to \"View all\"."
+      ],
+      "first_checks": [
+        {
+          "command": "rg -n \"View all .*more|View all [A-Za-z].*→\" frontend/src",
+          "expected": "Review candidate secondary CTA copy and prefer the shortest direct label."
+        },
+        {
+          "command": "node scripts/ops/frontend-feedback-ledger.mjs lookup --text \"view all too wordy\" --files frontend/src/app/(main)/[projectId]/home/project-command-center.tsx",
+          "expected": "This rule should be returned for frontend copy review on the project home route."
+        }
+      ],
+      "incidents": [
+        {
+          "date": "2026-07-13",
+          "source": "Codex conversation",
+          "summary": "User flagged the project-home CTA copy as too wordy and asked for the shorter canonical label.",
+          "evidence": [
+            "docs/ops/tasks/2026-07-13-conversation-frontend-feedback-ledger.md"
+          ]
+        }
+      ]
+    }
+  ]
+}

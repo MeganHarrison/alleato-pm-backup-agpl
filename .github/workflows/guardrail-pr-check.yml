@@ -1,0 +1,53 @@
+name: Guardrail PR Check
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  guardrails:
+    runs-on: ubuntu-latest
+    env:
+      GUARDRAIL_BASE_REF: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || format('{0}^', github.sha) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Guardrail route coverage (changed files only)
+        env:
+          GUARDRAIL_ENFORCE_RAW_ERRORS: "true"
+        run: node scripts/check-changed-route-guardrails.mjs
+
+      - name: Guardrail full-route debt gate
+        env:
+          GUARDRAIL_SCOPE: all
+        run: node scripts/check-changed-route-guardrails.mjs
+
+      - name: Guardrail no-new-any type debt
+        run: node scripts/check-no-new-any.mjs
+
+      - name: Guardrail review-queue evidence contracts
+        run: |
+          if [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
+            REF="origin/${GITHUB_BASE_REF}"
+          else
+            REF="${GITHUB_SHA}^"
+          fi
+          npm run verify:review-queue -- --strict --changed-from "${REF}"
+
+      - name: Architecture map freshness
+        run: |
+          # generate-system-map.mjs requires js-yaml; this workflow runs
+          # scripts straight from checkout with no dependency install, so
+          # install just that one package (no lockfile/package.json changes).
+          npm install --no-save --ignore-scripts js-yaml
+          npm run map:project -- --check-only
+          npm run map:system -- --check-only

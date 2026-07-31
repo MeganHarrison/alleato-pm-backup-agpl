@@ -1,0 +1,35 @@
+#!/usr/bin/env sh
+
+# RAG architecture docs freshness gate — structural half.
+# The message-dependent half (RAG-path detection + [skip-rag-docs] token check)
+# lives in .husky/commit-msg instead: pre-commit runs BEFORE git writes the
+# final commit message anywhere on disk (COMMIT_EDITMSG still holds the
+# *previous* commit's message at this point), so a token check here can never
+# see the message being created via `git commit -m`. Only the tables.yaml /
+# TABLE-LIST.md consistency check — which doesn't depend on the message —
+# stays here.
+#
+# See: .claude/rules/RAG-DOCS-GATE.md
+
+STAGED=$(git diff --cached --name-only --diff-filter=ACMR)
+
+if [ -z "$STAGED" ]; then
+  exit 0
+fi
+
+YAML_DOC=$(echo "$STAGED" | grep -E '^docs/architecture/tables\.yaml$' || true)
+LIST_DOC=$(echo "$STAGED" | grep -E '^docs/architecture/TABLE-LIST\.md$' || true)
+
+# If tables.yaml changed, TABLE-LIST.md (the regenerated artifact) must also be staged.
+if [ -n "$YAML_DOC" ] && [ -z "$LIST_DOC" ]; then
+  echo ""
+  echo "❌ RAG DOCS GATE — tables.yaml is staged but TABLE-LIST.md is not."
+  echo ""
+  echo "   tables.yaml is the source; TABLE-LIST.md is regenerated from it."
+  echo "   Run: npm run db:inventory"
+  echo "   Then: git add docs/architecture/TABLE-LIST.md && git commit ..."
+  echo ""
+  exit 1
+fi
+
+exit 0

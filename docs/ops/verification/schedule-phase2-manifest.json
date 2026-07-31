@@ -1,0 +1,109 @@
+{
+  "contractVersion": 1,
+  "taskId": "LOCAL-2026-07-21-SCHEDULE-PHASE2-RECONCILE",
+  "feature": "Canonical schedule calendar reasons and bounded dependency lead or lag",
+  "route": "/{projectId}/schedule",
+  "flows": [
+    {
+      "name": "Edit a named project-calendar exception",
+      "steps": [
+        "Load the canonical project calendar",
+        "Open an existing dated exception",
+        "Edit or add its optional reason",
+        "Save through replace_project_schedule_calendar",
+        "Reload the editor"
+      ],
+      "expectedOutcome": "The exception date, working status, and optional reason are returned by the API and prefilled on edit"
+    },
+    {
+      "name": "Create or edit dependency lead time",
+      "steps": [
+        "Choose a predecessor and relationship type",
+        "Enter a negative whole-number lead within the one-year bound",
+        "Save the dependency",
+        "Calculate schedule impact"
+      ],
+      "expectedOutcome": "The negative value persists as lag_days, is labeled as lead, and affects all four relationship calculations"
+    },
+    {
+      "name": "Reconcile duplicate calendar objects safely",
+      "steps": [
+        "Confirm duplicate tables contain no rows",
+        "Apply the forward cleanup migration",
+        "Read back canonical row counts, duplicate object absence, and migration ledger status"
+      ],
+      "expectedOutcome": "Canonical calendar data is unchanged and the empty duplicate tables and RPC are removed"
+    },
+    {
+      "name": "Fail closed on unavailable calendar or unauthorized dependency writes",
+      "steps": [
+        "Reject anonymous dependency table access and scope authenticated access to project membership",
+        "Enforce dependency lag and cycle invariants in the database",
+        "Simulate a calendar load or save rejection",
+        "Keep calendar editing disabled until a successful retry and preserve the open dialog on save rejection"
+      ],
+      "expectedOutcome": "Direct dependency bypasses fail and calendar failures cannot overwrite the saved configuration with a fallback"
+    }
+  ],
+  "requiredEvidence": [
+    "summary",
+    "databaseReadback",
+    "negativePath",
+    "visualReview",
+    "regressionTest"
+  ],
+  "visual": {
+    "viewports": [
+      "desktop",
+      "mobile"
+    ],
+    "checks": [
+      "Calendar reason input remains labeled and usable in the responsive dialog grid",
+      "Lead or lag helper text and validation are visible and actionable",
+      "No new raw controls bypass the design system"
+    ]
+  },
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "calendar-reason-roundtrip",
+      "description": "Named calendar exceptions round-trip through the canonical API and reopen with their reason",
+      "evidence": [
+        { "key": "regressionTest", "min": 2 }
+      ]
+    },
+    {
+      "id": "bounded-lead-lag",
+      "description": "Create and edit accept -365 through 365 while all four relationship types calculate negative lead",
+      "evidence": [
+        { "key": "regressionTest", "min": 3 },
+        { "key": "negativePath", "min": 1 }
+      ]
+    },
+    {
+      "id": "forward-only-reconciliation",
+      "description": "Cleanup fails on duplicate data and preserves the canonical calendar row",
+      "evidence": [
+        { "key": "databaseReadback", "min": 2 }
+      ]
+    },
+    {
+      "id": "governed-failure-boundary",
+      "description": "Project-scoped dependency RLS and database invariants prevent direct bypasses while calendar errors fail closed",
+      "evidence": [
+        { "key": "databaseReadback", "min": 2 },
+        { "key": "negativePath", "min": 2 },
+        { "key": "regressionTest", "min": 2 }
+      ]
+    },
+    {
+      "id": "responsive-accessible-controls",
+      "description": "The calendar reason and lead or lag controls use labeled design-system components with responsive layout",
+      "evidence": [
+        { "key": "visualReview", "min": 1 }
+      ]
+    }
+  ]
+}

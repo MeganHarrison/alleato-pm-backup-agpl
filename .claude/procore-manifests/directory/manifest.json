@@ -1,0 +1,252 @@
+{
+  "feature": "directory",
+  "featureName": "Directory",
+  "capturedAt": "2026-04-07T14:14:28.155Z",
+  "states": {
+    "list": {
+      "id": "list",
+      "description": "Directory list view",
+      "url": "https://us02.procore.com/webclients/host/companies/562949953443325/projects/562949954728542/tools/directory/users",
+      "columnGroups": [
+        {
+          "label": "",
+          "columns": [
+            "Name",
+            "Email Address",
+            "Cell Phone",
+            "Job Title",
+            "Address",
+            "Company",
+            "ERP",
+            "Connected Status",
+            "Permissions Template (Assigned)",
+            "Type",
+            "Actions"
+          ],
+          "colspan": 11
+        }
+      ],
+      "columns": [
+        {
+          "label": "Name",
+          "columnGroup": null
+        },
+        {
+          "label": "Email Address",
+          "columnGroup": null
+        },
+        {
+          "label": "Cell Phone",
+          "columnGroup": null
+        },
+        {
+          "label": "Job Title",
+          "columnGroup": null
+        },
+        {
+          "label": "Address",
+          "columnGroup": null
+        },
+        {
+          "label": "Company",
+          "columnGroup": null
+        },
+        {
+          "label": "ERP",
+          "columnGroup": null
+        },
+        {
+          "label": "Connected Status",
+          "columnGroup": null
+        },
+        {
+          "label": "Permissions Template (Assigned)",
+          "columnGroup": null
+        },
+        {
+          "label": "Type",
+          "columnGroup": null
+        },
+        {
+          "label": "Actions",
+          "columnGroup": null
+        }
+      ],
+      "toolbarActions": [
+        {
+          "label": "Alleato Group24-104 - Goodwill Bart",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Project ToolsDirectory",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Who was the med gas service transmittal sent to? CmdK",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "AppsSelect an App",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Support & Feedback",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Announcements",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "BC",
+          "type": "dropdown",
+          "variant": "default"
+        }
+      ],
+      "filters": [],
+      "rowActions": [],
+      "autoRows": [],
+      "formSections": [],
+      "tabs": [],
+      "headerFields": [],
+      "screenshot": "screenshots/list.png",
+      "_capture_note": "",
+      "domFile": "dom/list.html"
+    },
+    "create-form": {
+      "id": "create-form",
+      "description": "Add Person/Company form",
+      "url": "https://us02.procore.com/webclients/host/companies/562949953443325/projects/562949954728542/tools/directory/users",
+      "columnGroups": [
+        {
+          "label": "",
+          "columns": [
+            "Name",
+            "Email Address",
+            "Cell Phone",
+            "Job Title",
+            "Address",
+            "Company",
+            "ERP",
+            "Connected Status",
+            "Permissions Template (Assigned)",
+            "Type",
+            "Actions"
+          ],
+          "colspan": 11
+        }
+      ],
+      "columns": [
+        {
+          "label": "Name",
+          "columnGroup": null
+        },
+        {
+          "label": "Email Address",
+          "columnGroup": null
+        },
+        {
+          "label": "Cell Phone",
+          "columnGroup": null
+        },
+        {
+          "label": "Job Title",
+          "columnGroup": null
+        },
+        {
+          "label": "Address",
+          "columnGroup": null
+        },
+        {
+          "label": "Company",
+          "columnGroup": null
+        },
+        {
+          "label": "ERP",
+          "columnGroup": null
+        },
+        {
+          "label": "Connected Status",
+          "columnGroup": null
+        },
+        {
+          "label": "Permissions Template (Assigned)",
+          "columnGroup": null
+        },
+        {
+          "label": "Type",
+          "columnGroup": null
+        },
+        {
+          "label": "Actions",
+          "columnGroup": null
+        }
+      ],
+      "toolbarActions": [
+        {
+          "label": "Alleato Group24-104 - Goodwill Bart",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Project ToolsDirectory",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Which RFI relates to the ATS pad?CmdK",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "AppsSelect an App",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Support & Feedback",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Announcements",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "BC",
+          "type": "dropdown",
+          "variant": "default"
+        }
+      ],
+      "filters": [],
+      "rowActions": [
+        {
+          "label": "Add User"
+        },
+        {
+          "label": "Add Company"
+        },
+        {
+          "label": "Add Distribution Group"
+        },
+        {
+          "label": "Bulk Add"
+        }
+      ],
+      "autoRows": [],
+      "formSections": [],
+      "tabs": [],
+      "headerFields": [],
+      "screenshot": "screenshots/create-form.png",
+      "_capture_note": "",
+      "domFile": "dom/create-form.html"
+    }
+  }
+}

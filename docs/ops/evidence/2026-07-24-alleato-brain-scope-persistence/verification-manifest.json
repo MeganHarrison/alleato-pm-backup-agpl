@@ -1,0 +1,20 @@
+{
+  "contractVersion": 1,
+  "taskId": "ALL-11-SCOPE-PERSISTENCE",
+  "riskLevel": "high",
+  "feature": "Exact document scope persistence",
+  "route": "SupabaseRagStore.set_document_scope",
+  "flows": [
+    {
+      "name": "Move a document to a Business Area",
+      "steps": [
+        "Clear project_id in the app catalog",
+        "Set business_area_id in the app catalog",
+        "Clear RAG project_id and set RAG Business Area source metadata"
+      ],
+      "expectedOutcome": "Both databases carry exactly one identical authorization scope"
+    }
+  ],
+  "requiredEvidence": ["regressionTest", "independentReview"],
+  "independentReview": { "required": true }
+}

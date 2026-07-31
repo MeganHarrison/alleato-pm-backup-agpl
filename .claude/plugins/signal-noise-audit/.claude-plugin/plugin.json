@@ -1,0 +1,5 @@
+{
+  "name": "signal-noise-audit",
+  "version": "1.0.0",
+  "description": "Audit and fix visual noise in the UI — redundant labels, decorative borders, over-explained controls, nested cards, and other violations of the Signal Over Noise principle."
+}

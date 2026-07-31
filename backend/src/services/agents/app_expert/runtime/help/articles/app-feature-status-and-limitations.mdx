@@ -1,0 +1,49 @@
+---
+title: Understand Feature Status
+description: Learn how Alleato PM distinguishes live, partial, planned, blocked, and inactive app behavior.
+audience: client
+visibility: published
+module: app-expert
+category: AI Assistant
+tags: [feature-status, limitations, app-expert, ai-assistant]
+featured: false
+client_visible: true
+ai_visible: true
+order: 34
+related_routes:
+  - /ai
+  - /docs
+related_actions: []
+---
+
+# Understand Feature Status
+
+Some Alleato PM workflows are fully live, some are partially implemented, and
+some are planned but not yet available as assistant actions. Ask Alleato should
+be direct about those differences.
+
+## Status Language
+
+- **Live** means the workflow is available in the app today.
+- **Partially implemented** means part of the workflow exists, but a step,
+  action, permission, or verification path is still missing.
+- **Planned** means the intended workflow is documented but not built yet.
+- **Blocked** means the workflow depends on a missing credential, provider,
+  permission, migration, or product decision.
+- **Deprecated** means an older route, table, or workflow should not be treated
+  as the current source of truth.
+
+## What Ask Alleato Should Do
+
+When you ask whether the app can do something, Ask Alleato should check curated
+help docs, the generated feature registry, related actions, known limitations,
+and source references before answering.
+
+If the answer is not fully known, the assistant should say what it checked and
+what remains uncertain instead of guessing.
+
+## Current Boundary
+
+Ask Alleato can guide you to app workflows and explain known action status. It
+must not claim that it performed a write action. Eve's current production bridge
+is read-only; users complete writes through the normal authenticated app pages.

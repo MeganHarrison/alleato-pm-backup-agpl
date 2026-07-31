@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alito — Change Process Flow</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f1117; color: #e2e8f0; min-height: 100vh; padding: 32px 24px; }
+
+  h1 { font-size: 22px; font-weight: 700; color: #f8fafc; letter-spacing: -0.3px; margin-bottom: 4px; }
+  .subtitle { font-size: 13px; color: #64748b; margin-bottom: 36px; }
+
+  .flow-wrapper { display: flex; flex-direction: column; gap: 0; max-width: 960px; margin: 0 auto; }
+
+  /* Stage label */
+  .stage-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: #475569;
+    margin-bottom: 8px;
+    margin-top: 28px;
+  }
+
+  /* Row of nodes */
+  .row { display: flex; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+  .row.centered { justify-content: center; }
+
+  /* Arrow connector */
+  .arrow-down {
+    width: 2px;
+    height: 28px;
+    background: linear-gradient(to bottom, #334155, #475569);
+    margin: 0 auto;
+    position: relative;
+  }
+  .arrow-down::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: -4px;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 7px solid #475569;
+  }
+
+  .arrow-split {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+  .split-line {
+    display: flex;
+    gap: 0;
+    align-items: flex-start;
+    justify-content: center;
+  }
+  .split-branch {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 16px;
+    position: relative;
+  }
+  .split-branch .branch-label {
+    font-size: 10px;
+    color: #64748b;
+    margin-bottom: 6px;
+    font-style: italic;
+  }
+  .horiz-line {
+    height: 2px;
+    background: #334155;
+    flex: 1;
+    margin-top: 14px;
+  }
+
+  /* Node cards */
+  .node {
+    border-radius: 10px;
+    padding: 14px 18px;
+    position: relative;
+    min-width: 160px;
+    max-width: 220px;
+    flex: 1;
+  }
+  .node .node-title { font-size: 13px; font-weight: 600; line-height: 1.3; margin-bottom: 4px; }
+  .node .node-sub { font-size: 11px; color: #94a3b8; line-height: 1.5; }
+  .node .badge {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-top: 6px;
+  }
+
+  /* Node color variants */
+  .node.trigger    { background: #1e293b; border: 1px solid #2563eb; }
+  .node.trigger .node-title { color: #60a5fa; }
+  .node.trigger .badge { background: #1e3a5f; color: #60a5fa; }
+
+  .node.event      { background: #1e293b; border: 1px solid #7c3aed; }
+  .node.event .node-title { color: #a78bfa; }
+  .node.event .badge { background: #2e1065; color: #a78bfa; }
+
+  .node.process    { background: #1e293b; border: 1px solid #0891b2; }
+  .node.process .node-title { color: #38bdf8; }
+  .node.process .badge { background: #0c4a6e; color: #38bdf8; }
+
+  .node.decision   { background: #1e293b; border: 1px solid #d97706; border-radius: 10px; }
+  .node.decision .node-title { color: #fbbf24; }
+  .node.decision .badge { background: #451a03; color: #fbbf24; }
+
+  .node.pco        { background: #1e293b; border: 1px solid #059669; }
+  .node.pco .node-title { color: #34d399; }
+  .node.pco .badge { background: #022c22; color: #34d399; }
+
+  .node.revision   { background: #1e293b; border: 1px solid #dc2626; border-style: dashed; }
+  .node.revision .node-title { color: #f87171; }
+  .node.revision .badge { background: #450a0a; color: #f87171; }
+
+  .node.co         { background: #1e293b; border: 1px solid #16a34a; }
+  .node.co .node-title { color: #4ade80; }
+  .node.co .badge { background: #052e16; color: #4ade80; }
+
+  .node.executed   { background: #14532d; border: 1px solid #4ade80; }
+  .node.executed .node-title { color: #bbf7d0; }
+  .node.executed .badge { background: #052e16; color: #4ade80; }
+
+  .node.impact     { background: #1e293b; border: 1px solid #e879f9; }
+  .node.impact .node-title { color: #e879f9; }
+  .node.impact .badge { background: #3b0764; color: #e879f9; }
+
+  .node.notify     { background: #1e293b; border: 1px solid #f59e0b; }
+  .node.notify .node-title { color: #fbbf24; }
+  .node.notify .badge { background: #451a03; color: #fbbf24; }
+
+  /* Decision diamond shape */
+  .diamond-wrap { display: flex; flex-direction: column; align-items: center; }
+  .diamond {
+    width: 140px;
+    height: 140px;
+    background: #1e293b;
+    border: 1.5px solid #d97706;
+    transform: rotate(45deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .diamond-inner {
+    transform: rotate(-45deg);
+    text-align: center;
+    padding: 8px;
+  }
+  .diamond-inner .node-title { font-size: 12px; font-weight: 600; color: #fbbf24; }
+  .diamond-inner .node-sub { font-size: 10px; color: #94a3b8; margin-top: 3px; }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid #1e293b;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #94a3b8; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+
+  /* Revision loop callout */
+  .loop-callout {
+    background: #1a0a0a;
+    border: 1px dashed #dc2626;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 11px;
+    color: #f87171;
+    max-width: 320px;
+    margin: 8px auto;
+    text-align: center;
+  }
+
+  /* connector label */
+  .conn-label {
+    font-size: 10px;
+    color: #64748b;
+    text-align: center;
+    margin: 2px 0;
+    font-style: italic;
+  }
+
+  /* Section divider */
+  .divider {
+    border: none;
+    border-top: 1px solid #1e293b;
+    margin: 12px 0;
+  }
+
+  /* Role pill */
+  .role-pill {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 20px;
+    margin-top: 5px;
+    letter-spacing: 0.5px;
+  }
+  .role-super { background: #1e3a5f; color: #93c5fd; }
+  .role-pm    { background: #1a2e1a; color: #86efac; }
+  .role-client { background: #2d1b00; color: #fcd34d; }
+
+  /* Full page layout */
+  .page-grid {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 32px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .sidebar { display: flex; flex-direction: column; gap: 16px; }
+  .sidebar-card {
+    background: #1e293b;
+    border-radius: 10px;
+    padding: 16px;
+    border: 1px solid #334155;
+  }
+  .sidebar-card h3 { font-size: 11px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: #64748b; margin-bottom: 12px; }
+  .sidebar-card ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .sidebar-card ul li { font-size: 12px; color: #cbd5e1; padding-left: 12px; position: relative; line-height: 1.4; }
+  .sidebar-card ul li::before { content: '→'; position: absolute; left: 0; color: #475569; }
+
+  .status-chip {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 20px;
+    margin: 2px 2px 0 0;
+  }
+  .s-draft   { background: #1e293b; color: #64748b; border: 1px solid #334155; }
+  .s-open    { background: #1e3a5f; color: #60a5fa; border: 1px solid #2563eb; }
+  .s-sub     { background: #1a2e4a; color: #38bdf8; border: 1px solid #0891b2; }
+  .s-rev     { background: #450a0a; color: #f87171; border: 1px solid #dc2626; }
+  .s-appr    { background: #052e16; color: #4ade80; border: 1px solid #16a34a; }
+  .s-exec    { background: #14532d; color: #bbf7d0; border: 1px solid #4ade80; }
+</style>
+</head>
+<body>
+
+<div style="max-width: 1100px; margin: 0 auto;">
+  <h1>Alito — Change Process Flow</h1>
+  <p class="subtitle">Commercial Construction · Design-Build · v1.0 · Phase 2 Revamped Architecture</p>
+
+  <div class="page-grid">
+
+    <!-- MAIN FLOW -->
+    <div class="flow-wrapper">
+
+      <!-- STAGE 0: TRIGGERS -->
+      <div class="stage-label">Stage 0 — Trigger</div>
+      <div class="row">
+        <div class="node trigger">
+          <div class="node-title">📋 Client Request</div>
+          <div class="node-sub">External change to scope<br>Maps to prime contract</div>
+          <span class="badge">External</span>
+          <br><span class="role-pill role-client">Client</span>
+        </div>
+        <div class="node trigger">
+          <div class="node-title">🔧 Internal Trigger</div>
+          <div class="node-sub">Error · Efficiency idea · Weather delay · Safety incident · Value engineering</div>
+          <span class="badge">Internal</span>
+          <br><span class="role-pill role-super">Super</span> <span class="role-pill role-pm">PM</span>
+        </div>
+      </div>
+
+      <div class="arrow-down" style="margin: 10px auto;"></div>
+
+      <!-- STAGE 1: CHANGE EVENT -->
+      <div class="stage-label">Stage 1 — Change Event</div>
+      <div class="row">
+        <div class="node event">
+          <div class="node-title">⚡ Change Event Created</div>
+          <div class="node-sub">
+            Type tagged · Description · Date/time stamped<br>
+            <strong>Linked documents:</strong> RFI · Email · Submittal · Text · Photo
+          </div>
+          <span class="badge">Created by Super or PM</span>
+        </div>
+      </div>
+      <div class="conn-label">↓ &nbsp; PM reviews one or more change events</div>
+
+      <!-- STAGE 2: PM ACTION -->
+      <div class="stage-label">Stage 2 — PM Promotes to PCO</div>
+      <div class="row">
+        <div class="node process">
+          <div class="node-title">👤 PM Action Required</div>
+          <div class="node-sub">
+            Review change events<br>
+            Group related events → single PCO<br>
+            Or create individual PCO
+          </div>
+          <span class="badge">PM Level Minimum</span>
+          <br><span class="role-pill role-pm">PM</span>
+        </div>
+        <div class="node notify">
+          <div class="node-title">🔔 Leadership Notified</div>
+          <div class="node-sub">
+            Email → VP + distribution group<br>
+            Project dashboard panel updated<br>
+            Login notification queued<br>
+            Executive dashboard updated
+          </div>
+          <span class="badge">Auto-fires on PCO creation</span>
+        </div>
+      </div>
+
+      <div class="arrow-down" style="margin: 10px auto;"></div>
+
+      <!-- RFQ SUBPROCESS -->
+      <div class="stage-label">Stage 2b — RFQ Subprocess (Conditional)</div>
+      <div class="row">
+        <div class="node decision">
+          <div class="node-title">RFQ Needed?</div>
+          <div class="node-sub">Does pricing need to be sourced from a sub or supplier before building the PCO?</div>
+        </div>
+      </div>
+      <div class="row" style="margin-top: 8px;">
+        <div style="display:flex; flex-direction:column; align-items:center; flex:1;">
+          <div class="conn-label">Yes — Ideal client-initiated flow</div>
+          <div class="node process" style="width:100%">
+            <div class="node-title">📤 Send RFQ to Sub/Supplier</div>
+            <div class="node-sub">Request for Quote issued<br>Sub returns pricing</div>
+            <span class="badge">Pricing Returned → PCO Built with Actuals</span>
+          </div>
+        </div>
+        <div style="display:flex; flex-direction:column; align-items:center; flex:1;">
+          <div class="conn-label">No — Parallel or internal flow</div>
+          <div class="node process" style="width:100%">
+            <div class="node-title">⚡ Build PCO with Estimates</div>
+            <div class="node-sub">PCO created with estimated pricing<br>Commitment COs can run in parallel</div>
+            <span class="badge">Real-world flexibility mode</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="arrow-down" style="margin: 10px auto;"></div>
+
+      <!-- STAGE 3: PCO -->
+      <div class="stage-label">Stage 3 — Potential Change Order (PCO)</div>
+      <div class="row">
+        <div class="node pco">
+          <div class="node-title">📄 PCO Submitted to Client</div>
+          <div class="node-sub">
+            Full documentation attached<br>
+            Role-based views: Client (simplified) · PM (full) · Leadership (headline)
+          </div>
+          <div style="margin-top: 6px;">
+            <span class="status-chip s-draft">Draft</span>
+            <span class="status-chip s-sub">Submitted</span>
+            <span class="status-chip s-open">Under Review</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CLIENT DECISION -->
+      <div class="conn-label" style="margin: 10px 0;">↓ &nbsp; Client responds</div>
+      <div class="row">
+        <div class="node decision">
+          <div class="node-title">Client Decision</div>
+          <div class="node-sub">All or nothing — no partial approvals. Interdependent line items (material + labor) stay together.</div>
+          <span class="role-pill role-client">Client</span>
+        </div>
+      </div>
+
+      <!-- APPROVED PATH -->
+      <div class="row" style="margin-top: 8px; align-items: flex-start;">
+        <div style="display:flex; flex-direction:column; align-items:center; flex:1;">
+          <div class="conn-label">✓ Approved</div>
+          <div class="arrow-down"></div>
+        </div>
+        <div style="display:flex; flex-direction:column; align-items:center; flex:1;">
+          <div class="conn-label">↩ Revision Requested</div>
+          <div class="node revision" style="width: 100%;">
+            <div class="node-title">🔄 PCO Revision Created</div>
+            <div class="node-sub">
+              New version: v2, v3...<br>
+              Same entity — never voided<br>
+              Full history preserved<br>
+              Looks like new PCO to client but linked underneath
+            </div>
+            <div style="margin-top: 6px;">
+              <span class="status-chip s-rev">Revision v2</span>
+            </div>
+          </div>
+          <div class="conn-label" style="margin-top: 6px;">↑ loops back to Submitted</div>
+        </div>
+      </div>
+
+      <div class="arrow-down" style="margin: 4px auto;"></div>
+
+      <!-- STAGE 4: OFFICIAL CO -->
+      <div class="stage-label">Stage 4 — Official Change Order</div>
+      <div class="row">
+        <div class="node co">
+          <div class="node-title">📑 Prime Contract CO</div>
+          <div class="node-sub">
+            With client · Against prime contract<br>
+            Inherits all PCO documentation
+          </div>
+          <div style="margin-top: 6px;">
+            <span class="status-chip s-sub">Pending Signatures</span>
+          </div>
+        </div>
+        <div class="node co">
+          <div class="node-title">📑 Commitment CO(s)</div>
+          <div class="node-sub">
+            One per sub or PO affected<br>
+            Created after approval OR in parallel<br>
+            Finalized on prime execution
+          </div>
+          <div style="margin-top: 6px;">
+            <span class="status-chip s-sub">Pending Signatures</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="conn-label" style="margin: 8px 0;">↓ &nbsp; All signatures collected</div>
+
+      <div class="row centered">
+        <div class="node executed">
+          <div class="node-title">✅ Fully Executed Change Order</div>
+          <div class="node-sub">Prime CO + all Commitment COs signed<br>Closed and locked in record</div>
+          <span class="status-chip s-exec">Executed</span>
+        </div>
+      </div>
+
+      <div class="arrow-down" style="margin: 10px auto;"></div>
+
+      <!-- STAGE 5: IMPACT LAYER -->
+      <div class="stage-label">Stage 5 — Impact + Annotation Layer</div>
+      <div class="row">
+        <div class="node impact">
+          <div class="node-title">💰 Financial Impact</div>
+          <div class="node-sub">Net +/- dollar amount<br>Tracked from PCO stage onward</div>
+        </div>
+        <div class="node impact">
+          <div class="node-title">📅 Schedule Impact</div>
+          <div class="node-sub">Days added or removed<br>Linked to project timeline</div>
+        </div>
+        <div class="node impact">
+          <div class="node-title">📝 Root Cause</div>
+          <div class="node-sub">Auto-generated summary<br>Editable by PM</div>
+        </div>
+        <div class="node impact">
+          <div class="node-title">🏷️ Team Annotation</div>
+          <div class="node-sub">Positive / Negative / Lesson Learned<br>Feeds AI training layer<br>Pattern detection over time</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+
+      <div class="sidebar-card">
+        <h3>Status States</h3>
+        <ul>
+          <li><strong>Change Event:</strong> Draft → Open → Grouped</li>
+          <li><strong>PCO:</strong> Draft → Submitted → Under Review → Approved / Revision</li>
+          <li><strong>Official CO:</strong> Draft → Pending Signatures → Fully Executed</li>
+        </ul>
+      </div>
+
+      <div class="sidebar-card">
+        <h3>Role Permissions</h3>
+        <ul>
+          <li><span class="role-pill role-super">Super</span> Can create Change Events only</li>
+          <li><span class="role-pill role-pm">PM</span> Can create PCOs, send to client, manage revisions</li>
+          <li>PM action auto-notifies VP + leadership group</li>
+          <li><span class="role-pill role-client">Client</span> Sees simplified view, approves or requests revision</li>
+          <li>Leadership sees headline view on dashboard and at login</li>
+        </ul>
+      </div>
+
+      <div class="sidebar-card">
+        <h3>What's Never Lost</h3>
+        <ul>
+          <li>Change Events are permanent — never deleted</li>
+          <li>PCO revisions are versioned, never voided</li>
+          <li>All linked documents persist across lifecycle</li>
+          <li>Full comment + notification history preserved</li>
+        </ul>
+      </div>
+
+      <div class="sidebar-card">
+        <h3>Key Design Rules</h3>
+        <ul>
+          <li>No partial approvals — all or nothing</li>
+          <li>Multiple change events can group into one PCO</li>
+          <li>Sub COs can run parallel to prime approval in real-world mode</li>
+          <li>Role-based views control information density</li>
+          <li>Every step links to source documents</li>
+        </ul>
+      </div>
+
+      <div class="sidebar-card">
+        <h3>Notification Triggers</h3>
+        <ul>
+          <li>PCO created → email to VP + distribution</li>
+          <li>PCO created → project dashboard panel</li>
+          <li>PCO created → login notification queue</li>
+          <li>Client approves/rejects → PM notified</li>
+          <li>RFQ pricing returned → PM notified</li>
+          <li>CO fully executed → leadership + PM</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- LEGEND -->
+  <div class="legend" style="max-width: 1100px; margin: 40px auto 0;">
+    <div class="legend-item"><div class="legend-dot" style="background:#2563eb;"></div> Trigger</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#7c3aed;"></div> Change Event</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#0891b2;"></div> Process Step</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#d97706;"></div> Decision Point</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#059669;"></div> Potential CO</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#dc2626; opacity: 0.7;"></div> Revision Loop</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#16a34a;"></div> Official CO</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#e879f9;"></div> Impact Layer</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#f59e0b;"></div> Notifications</div>
+  </div>
+
+  <p style="font-size: 11px; color: #334155; text-align: center; margin-top: 24px;">Alito Construction Management · Change Process Architecture · Phase 2 Revamped Flow</p>
+</div>
+
+</body>
+</html>

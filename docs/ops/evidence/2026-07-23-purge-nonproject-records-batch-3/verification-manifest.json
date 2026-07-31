@@ -1,0 +1,60 @@
+{
+  "contractVersion": 1,
+  "taskId": "LOCAL-2026-07-23-PURGE-NONPROJECTS-BATCH-3",
+  "riskLevel": "high",
+  "feature": "Guarded purge of two additional non-project records",
+  "route": "Production PM database, AI/RAG database, and Supabase Storage",
+  "flows": [
+    {
+      "name": "Normalized exact-target purge",
+      "steps": [
+        "Resolve both targets using trimmed exact names and bound IDs",
+        "Rehearse the complete database deletion and roll it back",
+        "Delete reviewed exact storage files",
+        "Apply with manifest-bound confirmation",
+        "Replay exact RAG document IDs from the apply receipt"
+      ],
+      "expectedOutcome": "Both projects and all project-owned data are absent with zero active residue"
+    }
+  ],
+  "requiredEvidence": [
+    "summary",
+    "actionLog",
+    "databaseReadback",
+    "negativePath",
+    "regressionTest"
+  ],
+  "visual": {
+    "viewports": [],
+    "checks": []
+  },
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "exact-target-binding",
+      "description": "Both intended projects are uniquely bound despite harmless trailing database whitespace",
+      "evidence": [
+        { "key": "actionLog", "min": 1 },
+        { "key": "regressionTest", "min": 1 }
+      ]
+    },
+    {
+      "id": "complete-project-purge",
+      "description": "Projects, meetings, PM data, RAG knowledge, and exact storage files were deleted",
+      "evidence": [
+        { "key": "databaseReadback", "min": 3 },
+        { "key": "summary", "min": 1 }
+      ]
+    },
+    {
+      "id": "fails-closed",
+      "description": "Ambiguous names, identity drift, wrong confirmation, and receipt residue stop loudly",
+      "evidence": [
+        { "key": "negativePath", "min": 1 },
+        { "key": "regressionTest", "min": 1 }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+name: Design System Guardrails
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  design-system-guardrails:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Setup pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.13.1 --activate
+
+      - name: Install dependencies
+        run: pnpm --dir frontend install --frozen-lockfile
+
+      - name: Determine base ref
+        id: base
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            # No --depth here: a shallow fetch grafts the base tip with no parents,
+            # so merge-base fails whenever the base branch has advanced past the
+            # PR's merge point (checkout above is already fetch-depth: 0).
+            git fetch origin "${{ github.base_ref }}"
+            BASE_REF="$(git merge-base HEAD "origin/${{ github.base_ref }}")"
+          else
+            BASE_REF="${{ github.event.before }}"
+            if [[ -z "$BASE_REF" || "$BASE_REF" == "0000000000000000000000000000000000000000" ]]; then
+              BASE_REF="$(git rev-parse --verify HEAD~1)"
+            fi
+          fi
+          echo "base_ref=$BASE_REF" >> "$GITHUB_OUTPUT"
+          echo "Using base ref: $BASE_REF"
+
+      - name: Block new design-system disables
+        run: pnpm --dir frontend run design:no-new-disables -- "${{ steps.base.outputs.base_ref }}"
+
+      - name: Block new changed-file form violations
+        run: pnpm --dir frontend run design:no-new-form-violations -- "${{ steps.base.outputs.base_ref }}"
+
+      - name: Enforce design lint ratchet
+        run: pnpm --dir frontend run design:ratchet
+
+      - name: Enforce form-field standards
+        run: pnpm --dir frontend run audit:forms

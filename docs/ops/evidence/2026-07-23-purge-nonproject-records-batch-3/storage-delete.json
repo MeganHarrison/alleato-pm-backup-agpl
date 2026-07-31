@@ -1,0 +1,31 @@
+{
+  "status": "STORAGE_DELETE_PASS",
+  "taskId": "LOCAL-2026-07-23-PURGE-NONPROJECTS-BATCH-3",
+  "manifestDigest": "1073ebe83e4bb27aa601175db1f2671e4b2aa50bb07ffe31e1b2d4ca35c89c07",
+  "sourceDryRun": "docs/ops/evidence/2026-07-23-purge-nonproject-records-batch-3/dry-run.json",
+  "sourceDryRunSha256": "be41c5e7f4e882dfd4ffb61bdebbf577d8803959ac8759d103afdf452a73a39b",
+  "candidatePathSetSha256": "b2525f34d34eb6bbb63ed15dedc51f8863d7424e68809b30357851fa28809677",
+  "operationWindow": {
+    "afterDryRunGeneratedAt": "2026-07-23T17:15:08.882Z",
+    "beforeApplyGeneratedAt": "2026-07-23T17:16:20.452Z"
+  },
+  "reviewedCandidates": {
+    "objects": 122,
+    "bytes": 62855536,
+    "buckets": {
+      "project-files": 122
+    },
+    "scope": "Only exact project-ID folder prefixes for IDs 178 and 58"
+  },
+  "storageApiResult": {
+    "requestedObjects": 122,
+    "successfulBatches": 2,
+    "batchSize": 100,
+    "errors": 0,
+    "commandStatus": "STORAGE_DELETE_PASS"
+  },
+  "postDeleteReadback": {
+    "remainingObjects": 0,
+    "remainingBytes": 0
+  }
+}

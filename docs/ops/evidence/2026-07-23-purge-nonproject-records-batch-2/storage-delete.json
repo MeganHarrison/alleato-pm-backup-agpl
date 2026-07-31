@@ -1,0 +1,32 @@
+{
+  "status": "STORAGE_DELETE_PASS",
+  "taskId": "LOCAL-2026-07-23-PURGE-NONPROJECTS-BATCH-2",
+  "manifestDigest": "c8af64d4321261de6b6ce23115c1d18ff4a79f370482dbb87ec035695e64798e",
+  "sourceDryRun": "docs/ops/evidence/2026-07-23-purge-nonproject-records-batch-2/dry-run.json",
+  "sourceDryRunSha256": "7abbd49a4d0659b1d40cfcd41005ab2abba7771b881faafec66ebd7f08cce416",
+  "candidatePathSetSha256": "4260b0a9e72fe1fa34d3a40392327c4b7f099b418271ec27c6e506ce2d04979b",
+  "operationWindow": {
+    "afterDryRunGeneratedAt": "2026-07-23T16:44:59.285Z",
+    "beforeApplyGeneratedAt": "2026-07-23T16:49:26.788Z"
+  },
+  "reviewedCandidates": {
+    "objects": 485,
+    "bytes": 412936884,
+    "buckets": {
+      "project-files": 485
+    },
+    "scope": "Only exact <projectId>/, projects/<projectId>/, or project/<projectId>/ prefixes for the eighteen manifest IDs"
+  },
+  "storageApiResult": {
+    "requestedObjects": 485,
+    "successfulBatches": 5,
+    "batchSize": 100,
+    "errors": 0,
+    "commandStatus": "STORAGE_DELETE_PASS"
+  },
+  "postDeleteReadback": {
+    "remainingObjects": 0,
+    "remainingBytes": 0
+  },
+  "note": "This receipt records the successful Supabase Storage API response observed between the committed dry-run inventory and the database apply. The subsequent apply and receipt-bound verifier both independently found zero exact project-folder storage objects."
+}

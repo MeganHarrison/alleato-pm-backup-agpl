@@ -1,0 +1,80 @@
+{
+  "contractVersion": 1,
+  "taskId": "chat-history-duplicate-conversations-20260722",
+  "riskLevel": "high",
+  "feature": "Alleato AI conversation creation lifecycle",
+  "route": "/ai",
+  "flows": [
+    {
+      "name": "Start a blank chat",
+      "steps": [
+        "Open Chat history",
+        "Read the active conversation count",
+        "Click New chat",
+        "Read the active conversation count again"
+      ],
+      "expectedOutcome": "New chat resets the UI without persisting a placeholder conversation"
+    },
+    {
+      "name": "Submit the first message",
+      "steps": [
+        "Submit one controlled first message",
+        "Wait for the assistant response",
+        "Read back the exact session from the database"
+      ],
+      "expectedOutcome": "Exactly one conversation and one matching user message are persisted"
+    }
+  ],
+  "requiredEvidence": [
+    "screenshots",
+    "actionLog",
+    "databaseReadback",
+    "negativePath",
+    "visualReview",
+    "regressionTest"
+  ],
+  "visual": {
+    "viewports": ["desktop"],
+    "checks": [
+      "Existing Chat history and composer hierarchy is unchanged",
+      "No new visual container, helper panel, or duplicate action is introduced"
+    ]
+  },
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "new-chat-side-effect-free",
+      "description": "New chat changes local UI state without creating a conversation row",
+      "evidence": [
+        { "key": "screenshots", "min": 2 },
+        { "key": "databaseReadback", "min": 1 },
+        { "key": "negativePath", "min": 1 }
+      ]
+    },
+    {
+      "id": "first-message-single-create",
+      "description": "The first submitted message creates one conversation and one matching user row",
+      "evidence": [
+        { "key": "screenshots", "min": 1 },
+        { "key": "databaseReadback", "min": 1 },
+        { "key": "actionLog", "min": 1 }
+      ]
+    },
+    {
+      "id": "concurrent-creation-guard",
+      "description": "Concurrent creation attempts are coalesced and New chat is pending-guarded",
+      "evidence": [
+        { "key": "regressionTest", "min": 1 }
+      ]
+    },
+    {
+      "id": "noise-gate",
+      "description": "The repair introduces no additional product noise",
+      "evidence": [
+        { "key": "visualReview", "min": 1 }
+      ]
+    }
+  ]
+}

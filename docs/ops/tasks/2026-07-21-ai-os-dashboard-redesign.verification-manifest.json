@@ -1,0 +1,31 @@
+{
+  "contractVersion": 1,
+  "taskId": "local-ai-os-dashboard-redesign",
+  "feature": "AI Operating System dashboard redesign",
+  "route": "/ai-dashboard/ai-os",
+  "flows": [
+    {
+      "name": "Executive operating review",
+      "steps": ["Authenticate locally", "Open /ai-dashboard/ai-os", "Inspect system health and the immediate planning surface", "Inspect the responsive mobile layout"],
+      "expectedOutcome": "System health is followed immediately by the active operating backlog, while supporting intelligence is visually subordinate and the page does not overflow on mobile."
+    }
+  ],
+  "requiredEvidence": ["screenshots", "visualReview", "regressionTest"],
+  "visual": {
+    "viewports": ["desktop", "mobile"],
+    "checks": ["Charcoal module surfaces are visible", "Operating backlog follows health", "Navigation labels group by executive, AI operations, and financial control", "Mobile page has no horizontal overflow"]
+  },
+  "independentReview": { "required": true },
+  "claims": [
+    {
+      "id": "operating-priority",
+      "description": "The operating backlog is the first planning surface after system health.",
+      "evidence": [{ "key": "screenshots", "min": 2 }, { "key": "visualReview", "min": 1 }]
+    },
+    {
+      "id": "responsive-charcoal-hierarchy",
+      "description": "The dashboard uses dimensional charcoal modules and retains a mobile-safe layout.",
+      "evidence": [{ "key": "screenshots", "min": 2 }, { "key": "regressionTest", "min": 1 }]
+    }
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "contractVersion": 1,
+  "taskId": "ALL-5",
+  "riskLevel": "high",
+  "feature": "Schedule Phase 4B project resource calendars and preview-only leveling",
+  "route": "/:projectId/schedule",
+  "flows": [
+    {
+      "name": "Project capacity profile replacement",
+      "steps": [
+        "Open the canonical schedule resource panel",
+        "Edit sparse weekday and dated capacity facts for an existing resource",
+        "Save through compare-and-swap and reload the canonical profile"
+      ],
+      "expectedOutcome": "The complete valid profile is replaced atomically while stale, unauthorized, malformed, inactive, and cross-project writes fail specifically"
+    },
+    {
+      "name": "Preview-only resource leveling",
+      "steps": [
+        "Load bounded project capacity",
+        "Run the deterministic leveling preview",
+        "Compare every task scheduling field before and after"
+      ],
+      "expectedOutcome": "The preview exposes proposed delays and diagnostics without persisting any task field"
+    }
+  ],
+  "requiredEvidence": [
+    "screenshots",
+    "actionLog",
+    "summary",
+    "negativePath",
+    "visualReview",
+    "regressionTest",
+    "database"
+  ],
+  "visual": {
+    "viewports": ["desktop", "mobile"],
+    "checks": [
+      "Project capacity remains progressively disclosed on the canonical schedule page",
+      "Capacity scope is labeled as project-specific",
+      "Leveling is labeled preview-only and exposes no Apply action",
+      "Errors and unresolved diagnostics remain visible"
+    ]
+  },
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "atomic-capacity-cas",
+      "description": "A resource capacity profile is replaced atomically with stale-editor protection",
+      "evidence": [
+        { "key": "database", "min": 2 },
+        { "key": "regressionTest", "min": 1 }
+      ]
+    },
+    {
+      "id": "coherent-capacity-model",
+      "description": "Allocation and leveling use one precedence contract and one coherent database read snapshot",
+      "evidence": [
+        { "key": "summary", "min": 1 },
+        { "key": "database", "min": 1 },
+        { "key": "regressionTest", "min": 1 }
+      ]
+    },
+    {
+      "id": "preview-never-writes",
+      "description": "Resource leveling proposes delay-only dates and never mutates schedule tasks",
+      "evidence": [
+        { "key": "negativePath", "min": 1 },
+        { "key": "screenshots", "min": 2 },
+        { "key": "regressionTest", "min": 1 }
+      ]
+    },
+    {
+      "id": "immutable-capacity-revisions",
+      "description": "New revisions capture immutable complete resource-capacity context with explicit legacy provenance",
+      "evidence": [
+        { "key": "database", "min": 2 }
+      ]
+    }
+  ]
+}

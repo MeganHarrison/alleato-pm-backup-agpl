@@ -1,0 +1,6 @@
+node_modules/
+.eve/
+.workflow-data/
+.vercel/
+.output/
+*.log

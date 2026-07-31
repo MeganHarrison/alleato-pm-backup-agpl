@@ -1,0 +1,282 @@
+{
+  "feature": "documents",
+  "featureName": "Documents",
+  "capturedAt": "2026-04-07T14:12:33.277Z",
+  "states": {
+    "list": {
+      "id": "list",
+      "description": "Documents list view",
+      "url": "https://us02.procore.com/webclients/host/companies/562949953443325/projects/562949954728542/tools/documents",
+      "columnGroups": [
+        {
+          "label": "",
+          "columns": [
+            "NameSortable column",
+            "Created On / Latest VersionSortable column"
+          ],
+          "colspan": 2
+        }
+      ],
+      "columns": [
+        {
+          "label": "NameSortable column",
+          "columnGroup": null
+        },
+        {
+          "label": "Created On / Latest VersionSortable column",
+          "columnGroup": null
+        }
+      ],
+      "toolbarActions": [
+        {
+          "label": "Alleato Group24-104 - Goodwill Bart",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Project ToolsDocuments",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "AppsSelect an App",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Support & Feedback",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Announcements",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "BC",
+          "type": "dropdown",
+          "variant": "default"
+        }
+      ],
+      "filters": [],
+      "rowActions": [],
+      "autoRows": [],
+      "formSections": [
+        {
+          "title": "",
+          "fields": [
+            {
+              "name": "how_much_do_i_have_in_change_orders_with_jr_construction?",
+              "label": "How much do I have in change orders with JR Construction?",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "cmdk",
+              "label": "CmdK",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "bc",
+              "label": "BC",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "help",
+              "label": "Help",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "new",
+              "label": "New",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "name",
+              "label": "Name",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "created_on_/_latest_version",
+              "label": "Created On / Latest Version",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            }
+          ]
+        }
+      ],
+      "tabs": [],
+      "headerFields": [],
+      "screenshot": "screenshots/list.png",
+      "_capture_note": "",
+      "domFile": "dom/list.html"
+    },
+    "upload-form": {
+      "id": "upload-form",
+      "description": "Upload Document form",
+      "url": "https://us02.procore.com/webclients/host/companies/562949953443325/projects/562949954728542/tools/documents",
+      "columnGroups": [
+        {
+          "label": "",
+          "columns": [
+            "NameSortable column",
+            "Created On / Latest VersionSortable column"
+          ],
+          "colspan": 2
+        }
+      ],
+      "columns": [
+        {
+          "label": "NameSortable column",
+          "columnGroup": null
+        },
+        {
+          "label": "Created On / Latest VersionSortable column",
+          "columnGroup": null
+        }
+      ],
+      "toolbarActions": [
+        {
+          "label": "Alleato Group24-104 - Goodwill Bart",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Project ToolsDocuments",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Are there any RFIs that reference engine exhaust?CmdK",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "AppsSelect an App",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Support & Feedback",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Announcements",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "BC",
+          "type": "dropdown",
+          "variant": "default"
+        }
+      ],
+      "filters": [],
+      "rowActions": [],
+      "autoRows": [],
+      "formSections": [
+        {
+          "title": "",
+          "fields": [
+            {
+              "name": "are_there_any_rfis_that_reference_engine_exhaust?",
+              "label": "Are there any RFIs that reference engine exhaust?",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "cmdk",
+              "label": "CmdK",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "bc",
+              "label": "BC",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "help",
+              "label": "Help",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "new",
+              "label": "New",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "name",
+              "label": "Name",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            },
+            {
+              "name": "created_on_/_latest_version",
+              "label": "Created On / Latest Version",
+              "type": "custom",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "helpText": ""
+            }
+          ]
+        }
+      ],
+      "tabs": [],
+      "headerFields": [],
+      "screenshot": "screenshots/upload-form.png",
+      "_capture_note": "",
+      "domFile": "dom/upload-form.html"
+    }
+  }
+}

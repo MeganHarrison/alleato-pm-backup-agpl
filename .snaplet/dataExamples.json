@@ -1,0 +1,3727 @@
+[
+  {
+    "input": "public prospects title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public prospects status",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "drizzle drizzle_migrations hash",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public drizzle_migrations hash",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public ai_analysis_jobs job_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public ai_analysis_jobs model_version",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public ai_analysis_jobs error_message",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public ai_insights insight_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public ai_insights severity",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public ai_insights title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public ai_insights description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public ai_insights source_meetings",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public ai_insights meeting_name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public ai_insights project_name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public ai_insights assigned_to",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public ai_insights business_impact",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public ai_insights assignee",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public ai_insights stakeholders_affected",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public ai_insights urgency_indicators",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public ai_insights exact_quotes_text",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public ai_models name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public ai_models version",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public ai_models model_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public ai_models description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public ai_tasks title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public ai_tasks description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public ai_tasks assignee",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public app_users email",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public app_users password_hash",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public app_users full_name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public app_users avatar_url",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public app_users name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public archon_code_examples url",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public archon_code_examples content",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public archon_code_examples summary",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public archon_crawled_pages url",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public archon_crawled_pages content",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public archon_document_versions field_name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public archon_document_versions change_summary",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public archon_document_versions document_id",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public archon_project_sources source_id",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public archon_project_sources notes",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public archon_projects title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public archon_projects github_repo",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public archon_prompts prompt_name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public archon_prompts prompt",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public archon_prompts description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public archon_settings key",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public archon_settings value",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public archon_settings encrypted_value",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public archon_settings category",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public archon_settings description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public archon_sources source_id",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public archon_sources summary",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public archon_sources title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public archon_tasks title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public archon_tasks feature",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public archon_tasks archived_by",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public asrs_blocks block_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public asrs_blocks source_text",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public asrs_blocks html",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public asrs_configurations config_name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public asrs_configurations asrs_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public asrs_configurations container_types",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public asrs_configurations typical_applications",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public asrs_decision_matrix asrs_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public asrs_decision_matrix container_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public asrs_decision_matrix sprinkler_numbering",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public asrs_decision_matrix title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public asrs_logic_cards clause_id",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public asrs_logic_cards purpose",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public asrs_logic_cards related_table_ids",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public asrs_logic_cards related_figure_ids",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public asrs_protection_rules asrs_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public asrs_protection_rules container_wall",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public asrs_protection_rules container_material",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public asrs_protection_rules container_top",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public asrs_protection_rules commodity_class",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public asrs_protection_rules sprinkler_scheme",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public asrs_protection_rules notes",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public asrs_sections number",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public asrs_sections title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public asrs_sections slug",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public attachments attached_to_table",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public attachments attached_to_id",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public attachments file_name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public attachments url",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public briefing_runs status",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public briefing_runs input_doc_ids",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public briefing_runs error",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public budget_codes description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public budget_items cost_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public budget_items parent_cost_code",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public budget_items uom",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public budget_items calculation_method",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public budget_line_items description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public budget_line_items uom",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public budget_line_items calculation_method",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public budget_modifications description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public budget_snapshots snapshot_name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public budget_snapshots description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public change_event_line_items cost_code",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public change_event_line_items description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public change_event_line_items uom",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public change_events event_number",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public change_events title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public change_events reason",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public change_events scope",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public change_events status",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public change_events notes",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public change_order_approvals role",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public change_order_approvals decision",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public change_order_approvals comment",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public change_order_line_items description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public change_order_line_items uom",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public change_order_lines description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public change_order_lines unit",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public change_order_lines cost_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public change_orders co_number",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public change_orders title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public change_orders description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public chat_history role",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public chat_history content",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public chat_messages role",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public chat_messages content",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public chat_sessions title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public chat_thread_attachment_files storage_path",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public chat_thread_attachment_files thread_id",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public chat_thread_attachment_files filename",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public chat_thread_attachment_files mime_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public chat_thread_attachments id",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public chat_thread_attachments filename",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public chat_thread_attachments mime_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public chat_thread_feedback item_ids",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public chat_thread_feedback feedback",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public chat_thread_items id",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public chat_thread_items item_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public chat_threads id",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public chats id",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public chunks content",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public chunks document_title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public clients name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public clients status",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public clients code",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public code_examples url",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public code_examples content",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public code_examples summary",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public commitment_changes status",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public commitments status",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public companies name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public companies website",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public companies address",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public companies state",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public companies city",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public companies title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public companies notes",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public contacts first_name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public contacts last_name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public contacts email",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public contacts phone",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public contacts birthday",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public contacts notes",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public contacts job_title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public contacts department",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public contacts address",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public contacts city",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public contacts state",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public contacts zip",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public contacts country",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public contacts type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public contacts company_name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public contracts contract_number",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public contracts title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public contracts status",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public contracts erp_status",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public contracts notes",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public conversations session_id",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public conversations title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public cost_code_division_updates_audit new_title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public cost_code_division_updates_audit changed_by",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public cost_code_divisions code",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public cost_code_divisions title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public cost_code_divisions name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public cost_code_types code",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public cost_code_types description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public cost_code_types category",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public cost_codes id",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public cost_codes division_title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public cost_codes description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public cost_factors factor_name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public cost_factors factor_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public cost_factors unit_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public cost_forecasts notes",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public crawled_pages url",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public crawled_pages content",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public daily_log_equipment equipment_name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public daily_log_equipment notes",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public daily_log_manpower trade",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public daily_log_notes category",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public daily_log_notes description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public daily_recaps recap_text",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public daily_recaps recap_html",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public decisions description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public decisions rationale",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public decisions owner_name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public decisions owner_email",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public decisions impact",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public design_recommendations recommendation_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public design_recommendations description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public design_recommendations priority_level",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public design_recommendations implementation_effort",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public direct_cost_line_items description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public direct_cost_line_items vendor_name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public direct_cost_line_items invoice_number",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public direct_cost_line_items cost_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public direct_costs description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public direct_costs cost_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public discrepancies discrepancy_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public discrepancies severity",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public discrepancies title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public discrepancies description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public discrepancies spec_requirement",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public discrepancies submittal_content",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public discrepancies suggested_resolution",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public discrepancies ai_model_version",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public document_chunks chunk_id",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public document_chunks document_id",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public document_chunks text",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public document_chunks content_hash",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public document_executive_summaries executive_summary",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public document_insights insight_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public document_insights title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public document_insights description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public document_insights doc_title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public document_insights severity",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public document_insights business_impact",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public document_insights assignee",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public document_insights urgency_indicators",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public document_insights source_meetings",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public document_insights dependencies",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public document_insights stakeholders_affected",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public document_insights exact_quotes",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public document_insights project_name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public document_metadata id",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public document_metadata title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public document_metadata url",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public document_metadata type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public document_metadata source",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public document_metadata content",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public document_metadata summary",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public document_metadata participants",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public document_metadata tags",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public document_metadata category",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public document_metadata fireflies_id",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public document_metadata fireflies_link",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public document_metadata project",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public document_metadata bullet_points",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public document_metadata action_items",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public document_metadata overview",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public document_metadata description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public document_metadata status",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public document_metadata content_hash",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public document_metadata participants_array",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public document_metadata audio",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public document_metadata video",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "private document_processing_queue error",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public documents title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public documents source",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public documents content",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public documents fireflies_id",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public documents project",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public documents url",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public employees first_name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public employees last_name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public employees email",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public employees phone",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public employees department",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public employees salery",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public employees job_title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public employees supervisor_name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public employees photo",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public erp_sync_log erp_system",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public erp_sync_log sync_status",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public files id",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public files content",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public files url",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public files status",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public financial_contracts contract_number",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public financial_contracts contract_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public financial_contracts title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public financial_contracts description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fireflies_ingestion_jobs fireflies_id",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fireflies_ingestion_jobs error_message",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_blocks id",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_blocks block_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_blocks source_text",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_blocks html",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_blocks inline_tables",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_cost_factors component_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_cost_factors factor_name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_cost_factors unit_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_documents title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_documents filename",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_documents content",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_documents document_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_documents related_table_ids",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_documents source",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_documents processing_notes",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_form_submissions session_id",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_form_submissions matched_table_ids",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_global_figures title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_global_figures clean_caption",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_global_figures normalized_summary",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_global_figures figure_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_global_figures asrs_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_global_figures container_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_global_figures applicable_commodities",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_global_figures special_conditions",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_global_figures callouts_labels",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_global_figures axis_titles",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_global_figures axis_units",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_global_figures footnotes",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_global_figures section_reference",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_global_figures search_keywords",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_global_figures section_references",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_global_figures image",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_global_tables table_id",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_global_tables title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_global_tables asrs_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_global_tables system_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_global_tables protection_scheme",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_global_tables aisle_width_requirements",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_global_tables special_conditions",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_global_tables section_references",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_global_tables container_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_global_tables image",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_optimization_rules rule_name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_optimization_rules description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_optimization_rules implementation_difficulty",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_optimization_suggestions suggestion_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_optimization_suggestions title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_optimization_suggestions description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_optimization_suggestions implementation_effort",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_optimization_suggestions risk_level",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_optimization_suggestions technical_justification",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_optimization_suggestions applicable_codes",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_sections id",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_sections number",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_sections title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_sections slug",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_sections section_path",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_sections breadcrumb_display",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_sprinkler_configs k_factor_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_sprinkler_configs orientation",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_sprinkler_configs response_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_sprinkler_configs coverage_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_sprinkler_configs special_conditions",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_sprinkler_configs notes",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_table_vectors content_text",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_table_vectors content_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_text_chunks clause_id",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_text_chunks section_path",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_text_chunks raw_text",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_text_chunks chunk_summary",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_text_chunks search_keywords",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_text_chunks topics",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_text_chunks extracted_requirements",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_text_chunks compliance_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_text_chunks related_tables",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_text_chunks related_sections",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_text_chunks cost_impact",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public fm_text_chunks savings_opportunities",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public groups name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public ingestion_jobs fireflies_id",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public ingestion_jobs error",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public ingestion_jobs content_hash",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public initiatives name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public initiatives description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public initiatives category",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public initiatives owner",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public initiatives team_members",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public initiatives stakeholders",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public initiatives keywords",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public initiatives aliases",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public initiatives notes",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public initiatives documentation_links",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "auth instances raw_base_config",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public issues title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public issues description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public issues reported_by",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public issues notes",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public meeting_segments title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public meeting_segments summary",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public memories content",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public messages message_data",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "pgmq meta queue_name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public nods_page path",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public nods_page checksum",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public nods_page type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public nods_page source",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public nods_page_section content",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public nods_page_section slug",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public nods_page_section heading",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public notes title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public notes body",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "auth oauth_authorizations authorization_id",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "auth oauth_authorizations redirect_uri",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "auth oauth_authorizations scope",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "auth oauth_authorizations state",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "auth oauth_authorizations resource",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "auth oauth_authorizations code_challenge",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "auth oauth_authorizations authorization_code",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "auth oauth_authorizations nonce",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "auth oauth_client_states provider_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "auth oauth_client_states code_verifier",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "auth oauth_clients client_secret_hash",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "auth oauth_clients redirect_uris",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "auth oauth_clients grant_types",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "auth oauth_clients client_name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "auth oauth_clients client_uri",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "auth oauth_clients logo_uri",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "auth oauth_consents scopes",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "auth one_time_tokens token_hash",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "auth one_time_tokens relates_to",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public opportunities description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public opportunities type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public opportunities owner_name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public opportunities owner_email",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public opportunities next_step",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public optimization_rules description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public owner_invoice_line_items description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public owner_invoice_line_items category",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public owner_invoices invoice_number",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public owner_invoices status",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public parts id",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public parts message_id",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public parts type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public parts text_text",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public parts reasoning_text",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public parts file_media_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public parts file_filename",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public parts file_url",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public parts source_url_source_id",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public parts source_url_url",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public parts source_url_title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public parts source_document_source_id",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public parts source_document_media_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public parts source_document_title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public parts source_document_filename",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public parts tool_tool_call_id",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public parts tool_state",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public parts tool_error_text",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public parts data_weather_id",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public parts data_weather_location",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public parts data_weather_weather",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public payment_transactions method",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public payment_transactions reference_number",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public pcco_line_items cost_code",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public pcco_line_items description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public pcco_line_items uom",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public pco_line_items cost_code",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public pco_line_items description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public pco_line_items uom",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public pending_budget_changes description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public pending_budget_changes status",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public prime_contract_change_orders pcco_number",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public prime_contract_change_orders title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public prime_contract_change_orders status",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public prime_contract_sovs cost_code",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public prime_contract_sovs description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public prime_contract_sovs uom",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public prime_potential_change_orders pco_number",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public prime_potential_change_orders title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public prime_potential_change_orders status",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public prime_potential_change_orders reason",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public prime_potential_change_orders scope",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public prime_potential_change_orders notes",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public processing_queue job_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public processing_queue error_message",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public procore_capture_sessions capture_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public procore_capture_sessions notes",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public procore_components component_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public procore_components component_name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public procore_components local_path",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public procore_components storage_path",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public procore_components content",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public procore_features name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public procore_features description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public procore_features complexity",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public procore_features ai_enhancement_notes",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public procore_modules name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public procore_modules display_name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public procore_modules category",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public procore_modules app_path",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public procore_modules docs_url",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public procore_modules complexity",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public procore_modules priority",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public procore_modules notes",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public procore_modules rebuild_notes",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public procore_screenshots name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public procore_screenshots category",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public procore_screenshots subcategory",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public procore_screenshots source_url",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public procore_screenshots page_title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public procore_screenshots fullpage_path",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public procore_screenshots viewport_path",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public procore_screenshots fullpage_storage_path",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public procore_screenshots viewport_storage_path",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public procore_screenshots description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public profiles username",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public profiles full_name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public profiles avatar_url",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public profiles website",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public project name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public project job_number",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public project address",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public project onedrive",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public project phase",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public project state",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public project category",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public project client",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public project summary",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public project health_status",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public project access",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public project erp_system",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public project erp_sync_status",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public project type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public project project_number",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public project keywords",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public project work_scope",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public project project_sector",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public project delivery_method",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public project name_code",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public project_briefings briefing_content",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public project_briefings source_documents",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public project_briefings generated_by",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public project_directory role",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public project_insights summary",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public project_insights severity",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public project_members access",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public project_resources title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public project_resources description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public project_resources type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public project_tasks task_description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public project_tasks assigned_to",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public project_tasks priority",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public project_tasks status",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public project_users role",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public projects name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public projects job_number",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public projects address",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public projects onedrive",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public projects phase",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public projects state",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public projects category",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public projects current_phase",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public projects client",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public projects summary",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public projects health_status",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public projects access",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public projects erp_system",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public projects erp_sync_status",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public projects type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public projects project_number",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public projects keywords",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public projects work_scope",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public projects project_sector",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public projects delivery_method",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public projects name_code",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public projects_audit operation",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public projects_audit changed_columns",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public prospects company_name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public prospects contact_name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public prospects contact_title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public prospects contact_email",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public prospects contact_phone",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public prospects lead_source",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public prospects referral_contact",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public prospects industry",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public prospects project_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public prospects assigned_to",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public prospects notes",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public prospects tags",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public prospects ai_summary",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public qto_items cost_code",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public qto_items division",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public qto_items item_code",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public qto_items description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public qto_items unit",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public qto_items source_reference",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public qtos title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public qtos notes",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public rag_pipeline_state pipeline_id",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public rag_pipeline_state pipeline_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public requests user_query",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public review_comments comment",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public reviews review_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public reviews decision",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public reviews comments",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public rfis subject",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public rfis question",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public rfis rfi_manager",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public rfis received_from",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public rfis assignees",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public rfis distribution_list",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public rfis ball_in_court",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public rfis responsible_contractor",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public rfis specification",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public rfis location",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public rfis sub_job",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public rfis cost_code",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public rfis rfi_stage",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public rfis schedule_impact",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public rfis cost_impact",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public rfis reference",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public rfis created_by",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public risks description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public risks category",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public risks likelihood",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public risks impact",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public risks owner_name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public risks owner_email",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public risks mitigation_plan",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public schedule_progress_updates notes",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public schedule_resources resource_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public schedule_resources role",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public schedule_resources unit_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public schedule_tasks name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public schedule_tasks description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public schedule_tasks task_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public schedule_tasks predecessor_ids",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public sources source_id",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public sources summary",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public sov_line_items description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public sov_line_items cost_code_id",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public specifications section_number",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public specifications section_title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public specifications division",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public specifications document_url",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public specifications content",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public specifications keywords",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public specifications ai_summary",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public sub_jobs code",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public sub_jobs name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public sub_jobs description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractor_contacts name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractor_contacts title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractor_contacts email",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractor_contacts phone",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractor_contacts mobile_phone",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractor_contacts contact_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractor_contacts notes",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractor_documents document_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractor_documents document_name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractor_documents file_url",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractor_projects project_name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractor_projects notes",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractors company_name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractors legal_business_name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractors dba_name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractors company_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractors tax_id",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractors primary_contact_name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractors primary_contact_title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractors primary_contact_email",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractors primary_contact_phone",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractors secondary_contact_name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractors secondary_contact_email",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractors secondary_contact_phone",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractors address_line_1",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractors address_line_2",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractors city",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractors state_province",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractors postal_code",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractors specialties",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractors service_areas",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractors annual_revenue_range",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractors nfpa_certifications",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractors sprinkler_contractor_license",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractors max_project_size",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractors preferred_project_types",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractors credit_rating",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractors preferred_payment_terms",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractors hourly_rates_range",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractors project_management_software",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractors cad_software_proficiency",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractors digital_collaboration_tools",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractors quality_certifications",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractors tier_level",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractors internal_notes",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractors strengths",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractors weaknesses",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractors special_requirements",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractors emergency_contact_name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractors emergency_contact_phone",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public subcontractors emergency_contact_relationship",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public submittal_analytics_events event_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public submittal_analytics_events session_id",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public submittal_analytics_events user_agent",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public submittal_documents document_name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public submittal_documents document_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public submittal_documents file_url",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public submittal_documents mime_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public submittal_documents extracted_text",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public submittal_history action",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public submittal_history description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public submittal_history previous_status",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public submittal_history new_status",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public submittal_notifications notification_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public submittal_notifications title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public submittal_notifications message",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public submittal_performance_metrics metric_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public submittal_performance_metrics metric_name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public submittal_performance_metrics unit",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public submittal_types name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public submittal_types category",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public submittal_types description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public submittal_types required_documents",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public submittals submittal_number",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public submittals title",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public submittals description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public submittals submitter_company",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public sync_status error_message",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public tasks description",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public tasks assignee_name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public tasks assignee_email",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public tasks priority",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public todos task",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public user_profiles email",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public user_profiles full_name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public user_projects user_email",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public user_projects project_name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public user_projects company_name",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public user_projects contact_phone",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "auth users aud",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "auth users role",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "auth users email",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "auth users encrypted_password",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "auth users confirmation_token",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "auth users recovery_token",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "auth users email_change_token_new",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "auth users email_change",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public users email",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "public vertical_markup markup_type",
+    "examples": [],
+    "description": ""
+  },
+  {
+    "input": "extensions wrappers_fdw_stats fdw_name",
+    "examples": [],
+    "description": ""
+  }
+]

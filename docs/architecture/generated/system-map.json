@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "purpose": "Navigation index for AI agents. Detailed inventories remain authoritative in their source files.",
+  "generatedBy": "npm run map:system",
+  "layers": [
+    {
+      "id": "rules",
+      "owner": "AGENTS.md",
+      "role": "Repository rules, verification gates, and ownership boundaries."
+    },
+    {
+      "id": "domain",
+      "owner": "CONTEXT.md",
+      "role": "Canonical domain vocabulary and invariants."
+    },
+    {
+      "id": "runtime",
+      "owner": "docs/architecture/ALLEATO-SYSTEM-MAP.md",
+      "role": "Frontend, backend, Supabase, and AI runtime boundaries."
+    },
+    {
+      "id": "surface",
+      "owner": "docs/architecture/PROJECT-MAP.md",
+      "role": "Generated pages, APIs, and AI tools."
+    },
+    {
+      "id": "database",
+      "owner": "docs/architecture/tables.yaml",
+      "role": "Curated table meaning, ownership, gotchas, and relationships."
+    },
+    {
+      "id": "database-generated",
+      "owner": "docs/architecture/TABLE-LIST.md",
+      "role": "Generated live database inventory and schema facts."
+    },
+    {
+      "id": "guide",
+      "owner": "docs/architecture/AI-READABLE-CODEBASE.md",
+      "role": "How agents load context and how maintainers update it."
+    }
+  ],
+  "counts": {
+    "routes": 366,
+    "apiEndpoints": 787,
+    "aiTools": 113,
+    "tables": 534,
+    "mainTables": 510,
+    "ragTables": 24
+  },
+  "commands": [
+    "npm run map:project",
+    "npm run db:inventory",
+    "npm run map:system",
+    "npm run map:system -- --check-only",
+    "npm run db:types",
+    "npm run db:types:check",
+    "npm run check:routes"
+  ]
+}

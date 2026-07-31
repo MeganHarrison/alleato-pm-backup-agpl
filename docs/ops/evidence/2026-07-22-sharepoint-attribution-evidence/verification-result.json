@@ -1,0 +1,35 @@
+{
+  "status": "PASS",
+  "taskId": "AAI-1263",
+  "evidence": {
+    "summary": ["docs/ops/evidence/2026-07-22-sharepoint-attribution-evidence/verification.md"],
+    "actionLog": ["docs/ops/evidence/2026-07-22-sharepoint-attribution-evidence/verification.md"],
+    "databaseReadback": ["docs/ops/evidence/2026-07-22-sharepoint-attribution-evidence/verification.md"],
+    "negativePath": ["docs/ops/evidence/2026-07-22-sharepoint-attribution-evidence/verification.md"],
+    "regressionTest": ["docs/ops/evidence/2026-07-22-sharepoint-attribution-evidence/verification.md"]
+  },
+  "claims": {
+    "sharepoint-identity": {
+      "databaseReadback": ["docs/ops/evidence/2026-07-22-sharepoint-attribution-evidence/verification.md"],
+      "regressionTest": ["docs/ops/evidence/2026-07-22-sharepoint-attribution-evidence/verification.md"]
+    },
+    "fail-closed-attribution": {
+      "negativePath": ["docs/ops/evidence/2026-07-22-sharepoint-attribution-evidence/verification.md"],
+      "regressionTest": ["docs/ops/evidence/2026-07-22-sharepoint-attribution-evidence/verification.md"]
+    },
+    "complete-current-packet": {
+      "databaseReadback": ["docs/ops/evidence/2026-07-22-sharepoint-attribution-evidence/verification.md"],
+      "actionLog": ["docs/ops/evidence/2026-07-22-sharepoint-attribution-evidence/verification.md"]
+    },
+    "space-coast-not-port": {
+      "databaseReadback": ["docs/ops/evidence/2026-07-22-sharepoint-attribution-evidence/verification.md"],
+      "summary": ["docs/ops/evidence/2026-07-22-sharepoint-attribution-evidence/verification.md"]
+    }
+  },
+  "independentReview": {
+    "reviewer": "sharepoint_attribution_review",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-22T18:17:00Z",
+    "artifact": "docs/ops/evidence/2026-07-22-sharepoint-attribution-evidence/independent-review.md"
+  }
+}

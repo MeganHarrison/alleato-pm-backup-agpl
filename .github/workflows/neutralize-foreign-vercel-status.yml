@@ -1,0 +1,45 @@
+# Neutralizes the perpetually-failing "Vercel – alleato-pm" commit status.
+#
+# That status is posted by vercel[bot] for a project on the external `alleato-group`
+# Vercel team, which we do not own or have login access to. Its deployment fails by
+# design (Hobby-plan crons it can't run), so every commit gets a red X. The check is
+# NOT required and never blocks a merge — it is pure visual noise from a foreign account.
+#
+# We cannot delete it at the source (needs the alleato-group login) and we cannot revoke
+# the app at the GitHub level without also killing the WORKING "Vercel – alleato-hub"
+# check (same vercel[bot] installation). The one lever we control: GitHub shows the most
+# recent status per context as the live one, so we post our own success for that exact
+# context AFTER vercel[bot] posts its failure. Ours wins → the red X turns green.
+#
+# The success we post is transparent: its description says it's an external deployment,
+# not this repo's CI — so this is neutralization, not a fake pass of our own code.
+#
+# Trigger note: `status` workflows only run from the file on the DEFAULT branch, so this
+# takes effect once merged to main (it cannot be previewed from the PR branch).
+name: Neutralize foreign Vercel alleato-pm status
+
+on:
+  status: {}
+
+permissions:
+  statuses: write
+
+jobs:
+  override:
+    # Fast-exit for the ~99% of status events that aren't the target: only act on a
+    # FAILURE for the exact "Vercel – alleato-pm" context (en-dash U+2013) from vercel[bot].
+    if: >-
+      github.event.state == 'failure' &&
+      github.event.context == 'Vercel – alleato-pm' &&
+      github.event.sender.login == 'vercel[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post overriding success status
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SHA: ${{ github.event.sha }}
+        run: |
+          gh api "repos/${GITHUB_REPOSITORY}/statuses/${SHA}" \
+            -f state=success \
+            -f context='Vercel – alleato-pm' \
+            -f description='External alleato-group deployment — not this repo'"'"'s CI. Neutralized.'

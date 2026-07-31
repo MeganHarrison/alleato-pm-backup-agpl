@@ -1,0 +1,42 @@
+{
+  "contractVersion": 1,
+  "taskId": "AI-COLLECTION-ROUTING-0722",
+  "riskLevel": "high",
+  "feature": "Daily activity retrieval routing",
+  "route": "/api/ai-assistant/chat",
+  "flows": [
+    {
+      "name": "Route broad yesterday activity and explicit meeting collection prompts",
+      "steps": [
+        "Plan a broad daily activity question containing yesterday",
+        "Verify the executive route is retained without meeting collection",
+        "Plan an explicit meeting-transcript source lookup",
+        "Verify the exhaustive meeting collection route is retained"
+      ],
+      "expectedOutcome": "Broad daily activity questions do not become meeting-only searches, while explicit meeting transcript collection remains exhaustive."
+    }
+  ],
+  "requiredEvidence": ["actionLog", "regressionTest", "visualReview"],
+  "visual": {
+    "viewports": ["server"],
+    "checks": ["Not applicable: retrieval route has no rendered UI change"]
+  },
+  "independentReview": { "required": true },
+  "claims": [
+    {
+      "id": "daily-route-precedence",
+      "description": "A broad yesterday activity question keeps the executive route and does not invoke meeting collection.",
+      "evidence": [{ "key": "regressionTest", "min": 1 }]
+    },
+    {
+      "id": "meeting-collection-preserved",
+      "description": "An explicit meeting-transcript lookup still enters exhaustive collection analysis.",
+      "evidence": [{ "key": "regressionTest", "min": 1 }]
+    },
+    {
+      "id": "independent-review",
+      "description": "Independent review approves the route boundary and regression coverage.",
+      "evidence": [{ "key": "visualReview", "min": 1 }]
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "contractVersion": 1,
+  "taskId": "LOCAL-2026-07-22-DISABLE-AUTO-SYNCS",
+  "riskLevel": "high",
+  "feature": "Manual-only Acumatica and JobPlanner imports",
+  "route": "Render cron and GitHub Actions",
+  "flows": [
+    {
+      "name": "Reject an unconfirmed Acumatica import",
+      "steps": [
+        "Invoke the deployed Acumatica entrypoint without manual confirmations",
+        "Observe process termination before provider or database initialization"
+      ],
+      "expectedOutcome": "No automatic Acumatica import can write data"
+    },
+    {
+      "name": "Keep JobPlanner dispatch-only",
+      "steps": [
+        "Inspect the main workflow event contract",
+        "Verify only workflow_dispatch remains",
+        "Require an explicit yes input and both runtime confirmations"
+      ],
+      "expectedOutcome": "JobPlanner cannot start from a time-based event"
+    }
+  ],
+  "requiredEvidence": [
+    "summary",
+    "actionLog",
+    "negativePath",
+    "regressionTest"
+  ],
+  "visual": {
+    "viewports": [],
+    "checks": []
+  },
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "acumatica-fails-closed",
+      "description": "Acumatica has no source scheduler owner and its direct entrypoint rejects unconfirmed execution before initialization",
+      "evidence": [
+        { "key": "negativePath", "min": 1 },
+        { "key": "regressionTest", "min": 1 }
+      ]
+    },
+    {
+      "id": "jobplanner-dispatch-only",
+      "description": "JobPlanner has no schedule event and requires a deliberate confirmed manual dispatch",
+      "evidence": [
+        { "key": "actionLog", "min": 1 },
+        { "key": "regressionTest", "min": 1 }
+      ]
+    },
+    {
+      "id": "user-facing-copy-is-manual-only",
+      "description": "Frontend contracts and product copy do not claim automatic Acumatica synchronization",
+      "evidence": [
+        { "key": "summary", "min": 1 }
+      ]
+    }
+  ]
+}

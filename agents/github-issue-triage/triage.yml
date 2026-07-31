@@ -1,0 +1,28 @@
+labels:
+  - name: "bug"
+    description: Fixes a defect, regression, or otherwise unintended behavior.
+  - name: "documentation"
+    description: Changes only docs, README, code comments, or other documentation.
+  - name: "enhancement"
+    description: Adds or improves a user-facing capability.
+  - name: "dependencies"
+    description: Adds, removes, or upgrades dependencies; lockfile or vendored-dependency changes.
+  - name: "refactor"
+    description: Restructures code without changing behavior or adding a capability.
+
+risk:
+  levels: [low, medium, high]
+  signals:
+    high:
+      - Touches auth, sessions, payments, or other security-sensitive paths.
+      - Database migrations or schema changes.
+      - Changes to deploy, provider, webhook, or release configuration.
+      - Deletes or rewrites a large amount of code.
+    medium:
+      - Changes shared modules or shared UI primitives.
+      - Adds a new external dependency.
+      - Touches more than around ten files.
+    low:
+      - Docs, tests, comments, or isolated narrow-scope changes.
+
+reviewers: []

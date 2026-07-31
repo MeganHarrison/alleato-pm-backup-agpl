@@ -1,0 +1,279 @@
+{
+  "feature": "direct-costs",
+  "featureName": "Direct Costs",
+  "capturedAt": "2026-04-07T14:02:25.885Z",
+  "states": {
+    "list": {
+      "id": "list",
+      "description": "Direct Costs list view",
+      "url": "https://us02.procore.com/webclients/host/companies/562949953443325/projects/562949954728542/tools/direct-costs/summary",
+      "columnGroups": [
+        {
+          "label": "",
+          "columns": [
+            "Date",
+            "Vendor",
+            "Type",
+            "Invoice #",
+            "Status",
+            "ERP Status",
+            "Received Date",
+            "Paid Date",
+            "Amount",
+            "Attachments"
+          ],
+          "colspan": 10
+        }
+      ],
+      "columns": [
+        {
+          "label": "Date",
+          "columnGroup": null
+        },
+        {
+          "label": "Vendor",
+          "columnGroup": null
+        },
+        {
+          "label": "Type",
+          "columnGroup": null
+        },
+        {
+          "label": "Invoice #",
+          "columnGroup": null
+        },
+        {
+          "label": "Status",
+          "columnGroup": null
+        },
+        {
+          "label": "ERP Status",
+          "columnGroup": null
+        },
+        {
+          "label": "Received Date",
+          "columnGroup": null
+        },
+        {
+          "label": "Paid Date",
+          "columnGroup": null
+        },
+        {
+          "label": "Amount",
+          "columnGroup": null
+        },
+        {
+          "label": "Attachments",
+          "columnGroup": null
+        }
+      ],
+      "toolbarActions": [
+        {
+          "label": "Alleato Group24-104 - Goodwill Bart",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Project ToolsDirect Costs",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "AppsSelect an App",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Support & Feedback",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Announcements",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "BC",
+          "type": "dropdown",
+          "variant": "default"
+        }
+      ],
+      "filters": [],
+      "rowActions": [],
+      "autoRows": [],
+      "formSections": [
+        {
+          "title": "",
+          "fields": [
+            {
+              "name": "react-aria9232531087-:r2i:",
+              "label": "Small",
+              "type": "radio",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            }
+          ]
+        }
+      ],
+      "tabs": [],
+      "headerFields": [],
+      "screenshot": "screenshots/list.png",
+      "_capture_note": "",
+      "domFile": "dom/list.html"
+    },
+    "create-form": {
+      "id": "create-form",
+      "description": "Create Direct Cost form",
+      "url": "https://us02.procore.com/webclients/host/companies/562949953443325/projects/562949954728542/tools/direct-costs/summary",
+      "columnGroups": [
+        {
+          "label": "",
+          "columns": [
+            "Date",
+            "Vendor",
+            "Type",
+            "Invoice #",
+            "Status",
+            "ERP Status",
+            "Received Date",
+            "Paid Date",
+            "Amount",
+            "Attachments"
+          ],
+          "colspan": 10
+        }
+      ],
+      "columns": [
+        {
+          "label": "Date",
+          "columnGroup": null
+        },
+        {
+          "label": "Vendor",
+          "columnGroup": null
+        },
+        {
+          "label": "Type",
+          "columnGroup": null
+        },
+        {
+          "label": "Invoice #",
+          "columnGroup": null
+        },
+        {
+          "label": "Status",
+          "columnGroup": null
+        },
+        {
+          "label": "ERP Status",
+          "columnGroup": null
+        },
+        {
+          "label": "Received Date",
+          "columnGroup": null
+        },
+        {
+          "label": "Paid Date",
+          "columnGroup": null
+        },
+        {
+          "label": "Amount",
+          "columnGroup": null
+        },
+        {
+          "label": "Attachments",
+          "columnGroup": null
+        }
+      ],
+      "toolbarActions": [
+        {
+          "label": "Alleato Group24-104 - Goodwill Bart",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Project ToolsDirect Costs",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Can you summarize the safety email?CmdK",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "AppsSelect an App",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Support & Feedback",
+          "type": "dropdown",
+          "variant": "default"
+        },
+        {
+          "label": "Announcements",
+          "type": "button",
+          "variant": "default"
+        },
+        {
+          "label": "BC",
+          "type": "dropdown",
+          "variant": "default"
+        }
+      ],
+      "filters": [],
+      "rowActions": [
+        {
+          "label": "Create Direct Cost"
+        },
+        {
+          "label": "Import Direct Cost"
+        }
+      ],
+      "autoRows": [],
+      "formSections": [
+        {
+          "title": "",
+          "fields": [
+            {
+              "name": "react-aria292457896-:r2i:",
+              "label": "Small",
+              "type": "radio",
+              "required": false,
+              "placeholder": "",
+              "options": [],
+              "currentValue": "",
+              "helpText": ""
+            }
+          ]
+        }
+      ],
+      "tabs": [],
+      "headerFields": [],
+      "screenshot": "screenshots/create-form.png",
+      "_capture_note": "",
+      "domFile": "dom/create-form.html"
+    },
+    "detail": {
+      "id": "detail",
+      "description": "Direct Cost detail page",
+      "url": "",
+      "columnGroups": [],
+      "columns": [],
+      "toolbarActions": [],
+      "filters": [],
+      "rowActions": [],
+      "autoRows": [],
+      "formSections": [],
+      "tabs": [],
+      "headerFields": [],
+      "screenshot": "screenshots/detail.png",
+      "_capture_note": ""
+    }
+  }
+}

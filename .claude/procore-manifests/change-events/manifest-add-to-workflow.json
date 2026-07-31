@@ -1,0 +1,26 @@
+{
+  "capturedAt": "2026-03-30T13:12:01.439Z",
+  "workflows": {
+    "add-to-dropdown": {
+      "description": "Add to dropdown options visible after selecting row(s)",
+      "trigger": "Check row checkbox → click \"Add to\" button",
+      "options": [
+        "CE Number - Title",
+        "Item Type"
+      ],
+      "screenshot": "screenshots/list-add-to-03-dropdown-open.png"
+    },
+    "prime-contract-pco-form": {
+      "description": "Form for creating a Prime Contract Potential Change Order from a Change Event",
+      "url": "https://us02.procore.com/webclients/host/companies/562949953443325/projects/562949955214671/tools/change-events/events",
+      "fields": [],
+      "screenshot": "screenshots/list-add-to-04-prime-contract-pco-form.png"
+    },
+    "commitment-co-form": {
+      "description": "Form for creating a Commitment Change Order from a Change Event",
+      "url": "https://us02.procore.com/webclients/host/companies/562949953443325/projects/562949955214671/tools/change-events/events",
+      "fields": [],
+      "screenshot": "screenshots/list-add-to-05b-commitment-co-form.png"
+    }
+  }
+}

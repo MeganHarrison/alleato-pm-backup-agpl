@@ -1,0 +1,15 @@
+#!/usr/bin/env sh
+
+# Run fast route-manifest checks before any push. Full typecheck/build and
+# dirty-worktree lint checks remain predeploy/CI responsibilities; they are
+# too expensive and too sensitive to unrelated local edits for every push.
+#
+# Main-only delivery (branch pushes hard-blocked, publish only via
+# `npm run codex:finish`) was enforced here and via the GitHub
+# `main-only remote delivery` ruleset from 2026-07-20 to 2026-07-23. Both were
+# reverted 2026-07-23 at the repo owner's explicit direction to allow multiple
+# agent tools (Codex, Claude Code, others) to publish via normal branch + PR.
+# See docs/ops/evidence/2026-07-23-multi-agent-delivery-revert/ for the record.
+
+npm run check:routes
+npm run verify:nonprod-routes

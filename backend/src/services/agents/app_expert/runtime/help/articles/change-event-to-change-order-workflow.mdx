@@ -1,0 +1,139 @@
+---
+title: Change Event to Change Order Workflow
+description: Follow a scope change from initial capture through owner-approved change order and budget update.
+audience: client
+visibility: published
+module: change-events
+category: Financial Tools
+tags: [change-events, change-orders, pco, approval-workflow, budget]
+featured: false
+client_visible: true
+ai_visible: true
+order: 930
+related_routes:
+  - /[projectId]/change-events
+  - /[projectId]/change-orders
+  - /[projectId]/change-management
+related_actions: []
+---
+
+# Change Event to Change Order Workflow
+
+Follow a scope change from initial capture through owner-approved change order and budget update.
+
+## Overview
+
+Every change to the project's scope, cost, or schedule starts as a **Change Event** and ends as an approved **Change Order**. The workflow has four stages:
+
+1. **Capture** — create a Change Event and price the work
+2. **Review** — get internal and owner approval on the Change Event
+3. **Convert** — generate a Change Order from the approved Change Event
+4. **Close** — obtain owner signature and watch the budget update
+
+---
+
+## Stage 1 — Capture the Change Event
+
+1. Open **Change Events** from the project sidebar.
+2. Select **Create Change Event**.
+3. Enter a **Title** and **Description** that clearly identifies the scope change.
+4. Set the **Type**:
+   - **Owner-Initiated** — the owner is requesting additional work
+   - **Field Condition** — unforeseen site condition
+   - **Design Change** — modification from the architect or engineer
+   - **Subcontractor PCO** — subcontractor-submitted potential change order
+5. Set the **Originator**, **Date**, and any **RFI** or **Drawing** references.
+6. Add cost line items: select the **Cost Code**, **Cost Type**, quantity, and unit cost.
+7. Attach supporting documents (photos, RFIs, markup drawings).
+8. Save the Change Event. Status is now **Open**.
+
+> If the change involves subcontractor pricing, collect their PCO before entering cost line items. The total on the Change Event should reflect your cost-to-owner estimate, not the sub's raw number.
+
+---
+
+## Stage 2 — Price and Internal Review
+
+1. Open the Change Event and review all line items.
+2. Add markup, overhead, and profit as separate line items if your contract requires it.
+3. When pricing is complete, change the status to **Pending**.
+4. Route internally for review. When your PM or project executive has signed off, advance to **In Review**.
+
+**In Review** means the Change Event is ready to present to the owner. No further cost edits should happen after this point without resetting to **Pending**.
+
+---
+
+## Stage 3 — Owner Approval
+
+1. Present the Change Event to the owner (share the PDF or direct link).
+2. If the owner approves verbally or in writing, set the status to **Approved**.
+3. If the owner requests revisions, set to **Pending**, revise pricing, and re-route.
+4. If the owner declines, set to **Rejected** or **Void**.
+
+Only **Approved** Change Events can be included in a Change Order.
+
+---
+
+## Stage 4 — Generate the Change Order
+
+1. Open **Change Orders** from the sidebar.
+2. Select **Create Change Order**.
+3. Select the **Approved Change Events** to bundle into this Change Order.
+   - Multiple Change Events can be grouped into a single CO.
+   - Each Change Event can only be used in one Change Order.
+4. Enter the **CO Number**, **Title**, **Description**, and **Effective Date**.
+5. Review the line items and total value pulled from the selected Change Events.
+6. Save as **Draft**.
+
+---
+
+## Stage 5 — Approve and Close the Change Order
+
+1. Open the Change Order draft.
+2. Select **Generate PDF** to produce the formatted change order with cover sheet, line items, and signature block.
+3. Send the PDF to the owner for countersignature.
+4. When signed, advance the status to **Approved**.
+
+Once the Change Order is **Approved**:
+- The amount flows into the **Approved Changes** column on the budget
+- The **Revised Budget** updates automatically on all affected cost codes
+- The prime contract total updates on the [Prime Contracts](/help/articles/prime-contracts) page
+
+---
+
+## Status Reference
+
+| Stage | Change Event Status | Change Order Status |
+|---|---|---|
+| Captured, not priced | Open | — |
+| Pricing in progress | Pending | — |
+| Ready for owner | In Review | — |
+| Owner approved | Approved | — |
+| CO being prepared | Approved | Draft |
+| CO with owner | Approved | Pending Owner Approval |
+| CO fully executed | Approved | Approved |
+| Declined | Rejected / Void | Rejected |
+
+---
+
+## Common Questions
+
+**Can I create a Change Order without a Change Event?**
+No. Change Orders must be generated from one or more Approved Change Events. This ensures every dollar in a CO is traceable to a specific scope item.
+
+**Can I edit a Change Event after it's Approved?**
+No. Reset the status to Pending, make your edits, then re-route through In Review and back to Approved.
+
+**What if the owner approves a partial amount?**
+Split the Change Event into two: one for the approved scope and one for the disputed scope. Approve only the first, and leave the second in review.
+
+**When does the budget update?**
+The budget updates when the Change Order reaches **Approved** status — not when the Change Event is approved.
+
+---
+
+## Related Articles
+
+- [Change Events](/help/articles/change-events)
+- [Change Orders](/help/articles/change-orders)
+- [Budget Overview](/help/articles/budget-overview)
+- [Prime Contracts](/help/articles/prime-contracts)

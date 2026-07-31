@@ -1,0 +1,443 @@
+{
+  "type": "AdaptiveCard",
+  "$schema": "https://adaptivecards.io/schemas/adaptive-card.json",
+  "version": "1.5",
+  "body": [
+    {
+      "type": "ColumnSet",
+      "columns": [
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "OAC Meeting — Union Collective",
+              "size": "Large",
+              "weight": "Bolder",
+              "wrap": true
+            },
+            {
+              "type": "TextBlock",
+              "text": "Tuesday, June 10, 2026 · 9:00 AM",
+              "size": "Small",
+              "isSubtle": true,
+              "spacing": "None",
+              "wrap": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "ColumnSet",
+      "spacing": "Small",
+      "columns": [
+        {
+          "type": "Column",
+          "width": "auto",
+          "verticalContentAlignment": "Center",
+          "items": [
+            {
+              "type": "Icon",
+              "name": "Clock",
+              "size": "xxSmall",
+              "color": "Default"
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "auto",
+          "spacing": "Small",
+          "verticalContentAlignment": "Center",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "45 min",
+              "size": "Small",
+              "isSubtle": true,
+              "wrap": false
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "auto",
+          "spacing": "Medium",
+          "verticalContentAlignment": "Center",
+          "items": [
+            {
+              "type": "Icon",
+              "name": "People",
+              "size": "xxSmall",
+              "color": "Default"
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "stretch",
+          "spacing": "Small",
+          "verticalContentAlignment": "Center",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "Brandon C., Sarah M., James O., Wei L.",
+              "size": "Small",
+              "isSubtle": true,
+              "wrap": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "spacing": "Medium",
+      "separator": true,
+      "items": [
+        {
+          "type": "ColumnSet",
+          "selectAction": {
+            "type": "Action.ToggleVisibility",
+            "targetElements": [
+              "decisions-body",
+              "decisions-chevron-down",
+              "decisions-chevron-up"
+            ]
+          },
+          "columns": [
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "Key Decisions",
+                  "weight": "Bolder",
+                  "wrap": true
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "auto",
+              "verticalContentAlignment": "Center",
+              "items": [
+                {
+                  "type": "Icon",
+                  "name": "ChevronDown",
+                  "size": "xSmall",
+                  "id": "decisions-chevron-down",
+                  "isVisible": false
+                },
+                {
+                  "type": "Icon",
+                  "name": "ChevronUp",
+                  "size": "xSmall",
+                  "id": "decisions-chevron-up"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Container",
+          "id": "decisions-body",
+          "spacing": "Small",
+          "items": [
+            {
+              "type": "FactSet",
+              "facts": [
+                {
+                  "title": "1.",
+                  "value": "Approved revised concrete pour schedule — Thursday start confirmed pending CO-047 sign-off."
+                },
+                {
+                  "title": "2.",
+                  "value": "Accepted steel connection submittal with conditions; engineer to provide revised calcs by Jun 13."
+                },
+                {
+                  "title": "3.",
+                  "value": "Value engineering option B selected for curtain wall — saves $55K, no impact to program."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "spacing": "Small",
+      "separator": true,
+      "items": [
+        {
+          "type": "ColumnSet",
+          "selectAction": {
+            "type": "Action.ToggleVisibility",
+            "targetElements": [
+              "actions-body",
+              "actions-chevron-down",
+              "actions-chevron-up"
+            ]
+          },
+          "columns": [
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "Action Items",
+                  "weight": "Bolder",
+                  "wrap": true
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "auto",
+              "verticalContentAlignment": "Center",
+              "items": [
+                {
+                  "type": "Icon",
+                  "name": "ChevronDown",
+                  "size": "xSmall",
+                  "id": "actions-chevron-down"
+                },
+                {
+                  "type": "Icon",
+                  "name": "ChevronUp",
+                  "size": "xSmall",
+                  "id": "actions-chevron-up",
+                  "isVisible": false
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Container",
+          "id": "actions-body",
+          "isVisible": false,
+          "spacing": "Small",
+          "items": [
+            {
+              "type": "ColumnSet",
+              "spacing": "None",
+              "columns": [
+                {
+                  "type": "Column",
+                  "width": "stretch",
+                  "items": [
+                    {
+                      "type": "TextBlock",
+                      "text": "Sign CO-047 and transmit to GC",
+                      "size": "Small",
+                      "weight": "Bolder",
+                      "wrap": true
+                    }
+                  ]
+                },
+                {
+                  "type": "Column",
+                  "width": "auto",
+                  "verticalContentAlignment": "Top",
+                  "items": [
+                    {
+                      "type": "TextBlock",
+                      "text": "Brandon C.",
+                      "size": "Small",
+                      "isSubtle": true,
+                      "horizontalAlignment": "Right",
+                      "wrap": false
+                    },
+                    {
+                      "type": "TextBlock",
+                      "text": "Today",
+                      "size": "Small",
+                      "color": "Attention",
+                      "weight": "Bolder",
+                      "horizontalAlignment": "Right",
+                      "spacing": "None",
+                      "wrap": false
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "ColumnSet",
+              "spacing": "Small",
+              "separator": true,
+              "columns": [
+                {
+                  "type": "Column",
+                  "width": "stretch",
+                  "items": [
+                    {
+                      "type": "TextBlock",
+                      "text": "Submit revised steel connection calcs",
+                      "size": "Small",
+                      "weight": "Bolder",
+                      "wrap": true
+                    }
+                  ]
+                },
+                {
+                  "type": "Column",
+                  "width": "auto",
+                  "verticalContentAlignment": "Top",
+                  "items": [
+                    {
+                      "type": "TextBlock",
+                      "text": "James O.",
+                      "size": "Small",
+                      "isSubtle": true,
+                      "horizontalAlignment": "Right",
+                      "wrap": false
+                    },
+                    {
+                      "type": "TextBlock",
+                      "text": "Jun 13",
+                      "size": "Small",
+                      "color": "Warning",
+                      "weight": "Bolder",
+                      "horizontalAlignment": "Right",
+                      "spacing": "None",
+                      "wrap": false
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "ColumnSet",
+              "spacing": "Small",
+              "separator": true,
+              "columns": [
+                {
+                  "type": "Column",
+                  "width": "stretch",
+                  "items": [
+                    {
+                      "type": "TextBlock",
+                      "text": "Issue curtain wall VE scope revision to A/E",
+                      "size": "Small",
+                      "weight": "Bolder",
+                      "wrap": true
+                    }
+                  ]
+                },
+                {
+                  "type": "Column",
+                  "width": "auto",
+                  "verticalContentAlignment": "Top",
+                  "items": [
+                    {
+                      "type": "TextBlock",
+                      "text": "Sarah M.",
+                      "size": "Small",
+                      "isSubtle": true,
+                      "horizontalAlignment": "Right",
+                      "wrap": false
+                    },
+                    {
+                      "type": "TextBlock",
+                      "text": "Jun 14",
+                      "size": "Small",
+                      "isSubtle": true,
+                      "horizontalAlignment": "Right",
+                      "spacing": "None",
+                      "wrap": false
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "ColumnSet",
+              "spacing": "Small",
+              "separator": true,
+              "columns": [
+                {
+                  "type": "Column",
+                  "width": "stretch",
+                  "items": [
+                    {
+                      "type": "TextBlock",
+                      "text": "Update project schedule for revised pour sequence",
+                      "size": "Small",
+                      "weight": "Bolder",
+                      "wrap": true
+                    }
+                  ]
+                },
+                {
+                  "type": "Column",
+                  "width": "auto",
+                  "verticalContentAlignment": "Top",
+                  "items": [
+                    {
+                      "type": "TextBlock",
+                      "text": "Wei L.",
+                      "size": "Small",
+                      "isSubtle": true,
+                      "horizontalAlignment": "Right",
+                      "wrap": false
+                    },
+                    {
+                      "type": "TextBlock",
+                      "text": "Jun 12",
+                      "size": "Small",
+                      "color": "Warning",
+                      "weight": "Bolder",
+                      "horizontalAlignment": "Right",
+                      "spacing": "None",
+                      "wrap": false
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "spacing": "Small",
+      "separator": true,
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "Next Steps",
+          "weight": "Bolder",
+          "wrap": true
+        },
+        {
+          "type": "TextBlock",
+          "text": "CO-047 must be signed today to preserve Thursday pour. Follow up with James if calcs slip past Jun 13 — that delays submittal approval by one week.",
+          "size": "Small",
+          "isSubtle": true,
+          "wrap": true,
+          "spacing": "Small"
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.OpenUrl",
+      "title": "View full recap",
+      "url": "https://projects.alleatogroup.com"
+    },
+    {
+      "type": "Action.OpenUrl",
+      "title": "Create follow-up task",
+      "url": "https://projects.alleatogroup.com"
+    }
+  ]
+}

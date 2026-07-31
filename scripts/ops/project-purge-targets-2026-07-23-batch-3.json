@@ -1,0 +1,17 @@
+{
+  "taskId": "LOCAL-2026-07-23-PURGE-NONPROJECTS-BATCH-3",
+  "targets": [
+    {
+      "name": "Superior Beverae Exotec",
+      "projectId": 178,
+      "jobNumber": "26-117",
+      "acumaticaProjectId": "26117"
+    },
+    {
+      "name": "Paradise Isle Geotech",
+      "projectId": 58,
+      "jobNumber": "26-101",
+      "acumaticaProjectId": "26101"
+    }
+  ]
+}

@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ConstructPrecision | Project Alpha Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-error-container": "#742410",
+                        "surface": "#f9f9f9",
+                        "error": "#9e422c",
+                        "tertiary-fixed": "#f6f3f2",
+                        "inverse-on-surface": "#9c9d9d",
+                        "tertiary-container": "#f6f3f2",
+                        "secondary-fixed": "#e2e2e6",
+                        "on-primary-container": "#7f4200",
+                        "outline": "#757c7d",
+                        "surface-container-highest": "#dde4e5",
+                        "secondary-fixed-dim": "#d3d4d8",
+                        "on-secondary-fixed-variant": "#5a5c5f",
+                        "primary": "#914c00",
+                        "surface-variant": "#dde4e5",
+                        "primary-fixed-dim": "#ffcaa3",
+                        "outline-variant": "#adb3b4",
+                        "error-dim": "#5c1202",
+                        "on-tertiary-container": "#5c5b5b",
+                        "error-container": "#fe8b70",
+                        "on-tertiary": "#fbf8f8",
+                        "surface-dim": "#d4dbdd",
+                        "tertiary-dim": "#545353",
+                        "surface-container-low": "#f2f4f4",
+                        "on-secondary-container": "#505255",
+                        "on-surface-variant": "#5a6061",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary": "#fff6f2",
+                        "on-background": "#2d3435",
+                        "surface-container": "#ebeeef",
+                        "on-error": "#fff7f6",
+                        "secondary-container": "#e2e2e6",
+                        "inverse-primary": "#fe9c47",
+                        "on-secondary-fixed": "#3d3f42",
+                        "primary-fixed": "#ffdcc4",
+                        "surface-container-high": "#e4e9ea",
+                        "on-tertiary-fixed": "#4a4949",
+                        "on-secondary": "#f8f9fc",
+                        "inverse-surface": "#0c0f0f",
+                        "on-tertiary-fixed-variant": "#676666",
+                        "surface-bright": "#f9f9f9",
+                        "primary-dim": "#804200",
+                        "on-primary-fixed": "#643200",
+                        "secondary-dim": "#515356",
+                        "secondary": "#5d5f62",
+                        "on-surface": "#2d3435",
+                        "tertiary": "#605f5f",
+                        "background": "#f9f9f9",
+                        "on-primary-fixed-variant": "#8d4a00",
+                        "surface-tint": "#914c00",
+                        "primary-container": "#ffdcc4",
+                        "tertiary-fixed-dim": "#e7e5e4"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body { font-family: 'Manrope', sans-serif; }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-background antialiased overflow-x-hidden">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 border-b border-slate-200/15 dark:border-slate-800/15 bg-white/70 backdrop-blur-xl flex justify-between items-center h-12 px-6 dark:bg-slate-900">
+<div class="flex items-center gap-8">
+<span class="text-lg font-bold tracking-tighter text-slate-900 dark:text-white uppercase">ConstructPrecision</span>
+<nav class="hidden md:flex gap-6 items-center h-full">
+<a class="font-manrope tracking-tight text-sm font-semibold uppercase text-[#DB802D] border-b-2 border-[#DB802D] pb-1" href="#">Projects</a>
+<a class="font-manrope tracking-tight text-sm font-semibold uppercase text-slate-500 hover:text-slate-900 transition-colors" href="#">Schedule</a>
+<a class="font-manrope tracking-tight text-sm font-semibold uppercase text-slate-500 hover:text-slate-900 transition-colors" href="#">Directory</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+<input class="bg-slate-100/50 border-none rounded-sm py-1.5 pl-8 pr-4 text-xs w-48 focus:ring-1 focus:ring-primary" placeholder="Global Search..." type="text"/>
+</div>
+<button class="p-1.5 hover:bg-slate-100/50 rounded-sm transition-all duration-150 ease-in-out scale-95">
+<span class="material-symbols-outlined text-slate-500" data-icon="notifications">notifications</span>
+</button>
+<button class="p-1.5 hover:bg-slate-100/50 rounded-sm transition-all duration-150 ease-in-out scale-95">
+<span class="material-symbols-outlined text-slate-500" data-icon="settings">settings</span>
+</button>
+<img alt="User Profile" class="w-8 h-8 rounded-full border border-white shadow-sm" data-alt="Close up portrait of a professional man" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfwSaTFf6JWoGwi9qhs2truLvyDlAzt3QzuIZp8izH8ct9z4qscTOOzizZu9xJ2nEcnlPfl3m9AD2_H5_XZxPeBFThtLjXeI8ZkLL9f4yoolXrqbo1YTe0mStA98w0sYsB5mNKnd19vcOjkkr86yZUFFxf8LJaOsJtg4qDm3U_PuTXj65oPGeiQKkc0xqxIJ5S83xbSJaqq1dOm6bqQ_akwmN1vw2dWrePaADqTcusz4WmqV9n9m1yUqXSJlkWR2ILWZdxfRjnU37u"/>
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-12 h-[calc(100vh-3rem)] w-64 z-40 border-r border-slate-200/15 bg-slate-50 flex flex-col py-4 overflow-y-auto hidden md:flex">
+<div class="px-6 mb-8">
+<div class="flex items-center gap-3 p-3 bg-white rounded-md border border-slate-100 shadow-sm">
+<div class="w-10 h-10 bg-slate-900 rounded flex items-center justify-center text-white">
+<span class="material-symbols-outlined" data-icon="construction">construction</span>
+</div>
+<div>
+<h3 class="font-manrope text-[13px] font-bold leading-none text-slate-900">Project Alpha</h3>
+<p class="font-manrope text-[11px] text-slate-500 mt-1">Site 402-B</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 space-y-1 px-3">
+<a class="text-slate-500 py-3 px-4 flex items-center gap-3 hover:bg-slate-100 transition-all font-manrope text-[11px] font-medium leading-none tracking-wide" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="payments">payments</span>
+                Financials
+            </a>
+<a class="text-slate-500 py-3 px-4 flex items-center gap-3 hover:bg-slate-100 transition-all font-manrope text-[11px] font-medium leading-none tracking-wide" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="construction">construction</span>
+                Field Management
+            </a>
+<a class="bg-slate-200 text-slate-900 font-bold border-l-4 border-[#DB802D] py-3 px-4 flex items-center gap-3 transition-all translate-x-1 duration-200 font-manrope text-[11px] leading-none tracking-wide" href="#">
+<span class="material-symbols-outlined text-lg text-[#DB802D]" data-icon="assignment">assignment</span>
+                Project Management
+            </a>
+<a class="text-slate-500 py-3 px-4 flex items-center gap-3 hover:bg-slate-100 transition-all font-manrope text-[11px] font-medium leading-none tracking-wide" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="group">group</span>
+                Resources
+            </a>
+<a class="text-slate-500 py-3 px-4 flex items-center gap-3 hover:bg-slate-100 transition-all font-manrope text-[11px] font-medium leading-none tracking-wide" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="settings_applications">settings_applications</span>
+                Admin
+            </a>
+</nav>
+<div class="px-6 py-4">
+<button class="w-full bg-slate-900 text-white py-2 px-4 rounded-sm flex items-center justify-center gap-2 hover:bg-slate-800 transition-colors text-[11px] font-bold tracking-wide">
+<span class="material-symbols-outlined text-sm" data-icon="auto_awesome">auto_awesome</span>
+                AI Insights
+            </button>
+</div>
+<div class="mt-auto border-t border-slate-200 px-3 py-4 space-y-1">
+<a class="text-slate-500 py-2 px-4 flex items-center gap-3 hover:bg-slate-100 transition-all font-manrope text-[11px]" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="help">help</span>
+                Support
+            </a>
+<a class="text-slate-500 py-2 px-4 flex items-center gap-3 hover:bg-slate-100 transition-all font-manrope text-[11px]" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="history">history</span>
+                Archive
+            </a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="md:ml-64 pt-12 min-h-screen">
+<div class="p-6 max-w-7xl mx-auto space-y-8">
+<!-- 1. Compact AI Hero -->
+<section class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+<div class="lg:col-span-2 rounded-sm p-5 flex flex-col justify-between relative overflow-hidden bg-white border border-slate-200 text-slate-900">
+<div class="relative z-10">
+<div class="flex items-center gap-2 mb-3 text-slate-500">
+<span class="material-symbols-outlined text-sm" data-icon="bolt">bolt</span>
+<span class="text-[10px] uppercase font-bold tracking-widest opacity-80">AI Risk Intelligence</span>
+</div>
+<h2 class="font-extrabold tracking-tight mb-4 text-[#DB802D] text-2xl">Critical Action Items Identified</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div class="bg-slate-50 p-3 rounded-sm border border-slate-100">
+<p class="text-[11px] font-bold text-slate-500 uppercase tracking-tighter">Budget Alert</p>
+<p class="text-sm font-semibold mt-1 text-slate-900">Budget Variance detected in Level 4 Pour (+8.2%)</p>
+</div>
+<div class="bg-slate-50 p-3 rounded-sm border border-slate-100">
+<p class="text-[11px] font-bold text-slate-500 uppercase tracking-tighter">Compliance Due</p>
+<p class="text-sm font-semibold mt-1 text-slate-900">3 Critical Submittals Due Today (HVAC &amp; Fire Safety)</p>
+</div></div>
+</div>
+<!-- Background Design Element -->
+</div>
+<div class="bg-surface-container-low border border-outline-variant/15 p-5 flex flex-col justify-center">
+<p class="text-[10px] uppercase font-bold text-slate-500 tracking-widest mb-1">Current Phase</p>
+<h3 class="text-3xl font-extrabold text-slate-900 tracking-tighter">Level 4 Structural</h3>
+<div class="mt-4 flex items-center gap-3">
+<div class="flex-1 h-1 bg-slate-200 rounded-full overflow-hidden">
+<div class="h-full bg-[#DB802D] w-[68%]"></div>
+</div>
+<span class="text-[11px] font-bold text-[#DB802D]">68% Complete</span>
+</div>
+</div>
+</section>
+<!-- 2. Recent Meetings & Schedule Snapshot (Asymmetric Grid) -->
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Recent Meetings (New Section) -->
+<div class="lg:col-span-8 space-y-6">
+<div class="flex items-center justify-between">
+<h4 class="font-headline text-lg font-bold tracking-tight text-slate-900">Recent Meeting Transcripts</h4>
+<button class="text-[11px] font-bold text-[#DB802D] hover:underline uppercase tracking-widest">View History</button>
+</div>
+<div class="space-y-4">
+<div class="bg-surface-container-lowest p-5 rounded-md flex flex-col md:flex-row gap-6 hover:shadow-sm transition-shadow">
+<div class="md:w-32 flex flex-col border-r border-slate-100 pr-4">
+<span class="text-xs font-bold text-slate-900">OCT 14, 2024</span>
+<span class="text-[10px] text-slate-400 mt-1 uppercase">09:00 AM</span>
+<span class="mt-auto bg-slate-100 text-[9px] font-bold px-2 py-1 rounded-sm w-fit uppercase">Technical</span>
+</div>
+<div class="flex-1">
+<h5 class="font-bold text-sm text-slate-900">Pre-Con #14: Approved Level 2 HVAC Rerouting</h5>
+<p class="text-xs text-slate-500 mt-2 leading-relaxed">Key Takeaway: Mechanical engineer confirmed reroute feasibility. Electrical contractor to update conduit plans by Friday. No impact to ceiling height.</p>
+<div class="mt-3 flex gap-2">
+<span class="text-[10px] px-2 py-0.5 border border-slate-100 rounded-full text-slate-600 flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]" data-icon="task_alt">task_alt</span> 3 Actions
+                                    </span>
+<span class="text-[10px] px-2 py-0.5 border border-slate-100 rounded-full text-slate-600 flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]" data-icon="play_circle">play_circle</span> Recording
+                                    </span>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-5 rounded-md flex flex-col md:flex-row gap-6 hover:shadow-sm transition-shadow">
+<div class="md:w-32 flex flex-col border-r border-slate-100 pr-4">
+<span class="text-xs font-bold text-slate-900">OCT 12, 2024</span>
+<span class="text-[10px] text-slate-400 mt-1 uppercase">02:30 PM</span>
+<span class="mt-auto bg-slate-100 text-[9px] font-bold px-2 py-1 rounded-sm w-fit uppercase">Field Audit</span>
+</div>
+<div class="flex-1">
+<h5 class="font-bold text-sm text-slate-900">Weekly Site Safety &amp; Walkthrough</h5>
+<p class="text-xs text-slate-500 mt-2 leading-relaxed">Discussion centered on scaffolding safety protocols for the south elevation. Logistics for concrete delivery confirmed for Wednesday morning.</p>
+<div class="mt-3 flex gap-2">
+<span class="text-[10px] px-2 py-0.5 border border-slate-100 rounded-full text-slate-600 flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]" data-icon="task_alt">task_alt</span> 1 Action
+                                    </span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Schedule Snapshot -->
+<div class="lg:col-span-4 space-y-6">
+<h4 class="font-headline text-lg font-bold tracking-tight text-slate-900">Critical Path</h4>
+<div class="bg-surface-container-lowest border border-slate-100 p-6 space-y-6">
+<div class="relative pl-6 border-l-2 border-slate-100">
+<div class="absolute -left-[5px] top-0 w-2 h-2 rounded-full bg-[#DB802D]"></div>
+<p class="text-[11px] font-bold text-[#DB802D] uppercase tracking-tighter">Next Milestone</p>
+<h6 class="text-sm font-bold text-slate-900 mt-1">Structural Steel Completion</h6>
+<p class="text-[10px] text-slate-400 mt-1">Oct 24, 2024 • Site A</p>
+</div>
+<div class="relative pl-6 border-l-2 border-slate-100">
+<div class="absolute -left-[5px] top-0 w-2 h-2 rounded-full bg-slate-300"></div>
+<p class="text-[11px] font-bold text-slate-400 uppercase tracking-tighter">Scheduled</p>
+<h6 class="text-sm font-bold text-slate-900 mt-1">Glass Curtain Wall Start</h6>
+<p class="text-[10px] text-slate-400 mt-1">Nov 02, 2024 • South Face</p>
+</div>
+<div class="relative pl-6 border-l-2 border-slate-100">
+<div class="absolute -left-[5px] top-0 w-2 h-2 rounded-full bg-slate-300"></div>
+<p class="text-[11px] font-bold text-slate-400 uppercase tracking-tighter">Scheduled</p>
+<h6 class="text-sm font-bold text-slate-900 mt-1">Level 1 Rough-In Finish</h6>
+<p class="text-[10px] text-slate-400 mt-1">Nov 15, 2024 • MEP</p>
+</div>
+<button class="w-full py-2 border border-slate-200 text-[11px] font-bold text-slate-600 hover:bg-slate-50 transition-all uppercase tracking-widest">Open Gantt View</button>
+</div>
+</div>
+</section>
+<!-- 3. Financial Health Module -->
+<section class="space-y-6">
+<div class="flex items-center gap-4">
+<h4 class="font-headline text-lg font-bold tracking-tight text-slate-900">Financial Performance</h4>
+<div class="h-px flex-1 bg-slate-100"></div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+<div class="bg-surface-container-lowest p-5 rounded-sm border border-slate-100/50">
+<p class="text-[11px] text-slate-500 font-bold uppercase tracking-widest">Total Committed</p>
+<div class="mt-2 flex items-baseline gap-2">
+<span class="text-2xl font-extrabold text-slate-900">$24.8M</span>
+<span class="text-[10px] font-bold text-green-600">+1.2%</span>
+</div>
+<div class="mt-4 h-1 w-full bg-slate-100 overflow-hidden">
+<div class="h-full bg-slate-900 w-[75%]"></div>
+</div>
+<p class="text-[9px] text-slate-400 mt-2 uppercase">75% of Estimated Budget</p>
+</div>
+<div class="bg-surface-container-lowest p-5 rounded-sm border border-slate-100/50">
+<p class="text-[11px] text-slate-500 font-bold uppercase tracking-widest">Pending Invoices</p>
+<div class="mt-2 flex items-baseline gap-2">
+<span class="text-2xl font-extrabold text-slate-900">$842k</span>
+<span class="text-[10px] font-bold text-[#DB802D]">6 High Priority</span>
+</div>
+<div class="mt-4 flex gap-1">
+<div class="flex-1 h-8 bg-slate-50 border-b-2 border-slate-200"></div>
+<div class="flex-1 h-12 bg-slate-50 border-b-2 border-slate-200"></div>
+<div class="flex-1 h-6 bg-slate-50 border-b-2 border-slate-200"></div>
+<div class="flex-1 h-10 bg-[#DB802D]/10 border-b-2 border-[#DB802D]"></div>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-5 rounded-sm border border-slate-100/50">
+<p class="text-[11px] text-slate-500 font-bold uppercase tracking-widest">Budget Variance</p>
+<div class="mt-2 flex items-baseline gap-2">
+<span class="text-2xl font-extrabold text-slate-900 text-error">-$124k</span>
+<span class="text-[10px] font-bold text-error">Alert</span>
+</div>
+<p class="text-xs text-slate-500 mt-4 leading-tight">Primarily driven by Structural Steel Escalation.</p>
+</div>
+<div class="bg-surface-container-lowest p-5 rounded-sm border border-slate-100/50">
+<p class="text-[11px] text-slate-500 font-bold uppercase tracking-widest">Buy-out Progress</p>
+<div class="mt-2 flex items-baseline gap-2">
+<span class="text-2xl font-extrabold text-slate-900">92%</span>
+</div>
+<div class="mt-4 flex -space-x-2">
+<div class="w-6 h-6 rounded-full border-2 border-white bg-slate-200 flex items-center justify-center text-[9px] font-bold">ME</div>
+<div class="w-6 h-6 rounded-full border-2 border-white bg-slate-200 flex items-center justify-center text-[9px] font-bold">EL</div>
+<div class="w-6 h-6 rounded-full border-2 border-white bg-slate-200 flex items-center justify-center text-[9px] font-bold">PL</div>
+<div class="w-6 h-6 rounded-full border-2 border-white bg-slate-100 flex items-center justify-center text-[9px] font-bold text-slate-400">+4</div>
+</div>
+<p class="text-[9px] text-slate-400 mt-2 uppercase">12 Subcontractors active</p>
+</div>
+</div>
+</section>
+<!-- 4. Field Activity & RFIs (Asymmetric Layout) -->
+<section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+<!-- Field Activity -->
+<div class="space-y-4">
+<h4 class="font-headline text-lg font-bold tracking-tight text-slate-900">Real-Time Field Activity</h4>
+<div class="grid grid-cols-2 gap-4">
+<div class="aspect-video bg-slate-200 overflow-hidden relative group">
+<img alt="Construction Site" class="w-full h-full object-cover" data-alt="High angle view of a construction foundation" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwVqeDBjvJ-zvCgP5SSvnA9KWUiui8CBhbSc1MfPOQfg0qmQ7sDt29E7uJ302crKcO6ZMxUhW_JEWaIjOIUwR_6aDemZOnWLpz7C9r0E1iBQ-6d_cJllkDONwxj9ArerIQSac9IIFXFQ-0q-AMSF8m7Sxy-vglVgR_rdvCPwFIPMEF50nGNy8erntPf74rtzb5tp4jyr_eZldUQeVFVSmjq5kXO_poLz_9EvIddMfoNldRmRRn3s_CpOwcRZH-A_YAiODT5rj0fnJ1"/>
+<div class="absolute inset-0 bg-slate-900/40 flex flex-col justify-end p-3">
+<span class="text-[10px] font-bold text-white uppercase tracking-widest">Main Lobby Pour</span>
+<span class="text-[9px] text-white/70">Live Feed • Site Camera 02</span>
+</div>
+</div>
+<div class="aspect-video bg-slate-200 overflow-hidden relative group">
+<img alt="Blueprints" class="w-full h-full object-cover" data-alt="Detailed architectural blueprints on a wooden table" src="https://lh3.googleusercontent.com/aida-public/AB6AXuALN_tjkbFh24-D6j_2Jp_CfxR5TORgmRstZK54SDoVEKMAEOQ3ON-y_5ndF0SAST9P_1h1s0BJGKXAkmG8EEN1YL_I3JON4pae0fx5Bxb3RcqW2v1-DCRC4TjzMcy5HJckhumyLOH8FUL8ZKz7JMHms49ugoHBeDeE8FKBik1kM3pXoEtnCSzxsb-L2Cz4L9ieaM_yUJKTlpx0-YDhEb64MvmTx3auJKFvZXB_KQXBjtUErTaWCXRUZ8LZLtMRVAg3_uVIo-0ioR96"/>
+<div class="absolute inset-0 bg-slate-900/40 flex flex-col justify-end p-3">
+<span class="text-[10px] font-bold text-white uppercase tracking-widest">Plan Revision v4.2</span>
+<span class="text-[9px] text-white/70">Updated 2h ago • MEP Overlay</span>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest border border-slate-100 p-4">
+<div class="flex items-center justify-between mb-4">
+<span class="text-xs font-bold text-slate-900">DAILY LOGS SUMMARY</span>
+<span class="text-[10px] text-slate-400">TODAY</span>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between items-center text-xs">
+<span class="text-slate-600">Total Personnel On-site</span>
+<span class="font-bold">42</span>
+</div>
+<div class="flex justify-between items-center text-xs">
+<span class="text-slate-600">Equipment Active</span>
+<span class="font-bold">8 Units</span>
+</div>
+<div class="flex justify-between items-center text-xs">
+<span class="text-slate-600">Weather Impact</span>
+<span class="text-green-600 font-bold">Clear / No Delays</span>
+</div>
+</div>
+</div>
+</div>
+<!-- RFIs & Submittals -->
+<div class="space-y-4">
+<h4 class="font-headline text-lg font-bold tracking-tight text-slate-900">RFIs &amp; Submittals</h4>
+<div class="bg-surface-container-lowest border border-slate-100 overflow-hidden">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-slate-50 border-b border-slate-100">
+<th class="py-3 px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">ID</th>
+<th class="py-3 px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Subject</th>
+<th class="py-3 px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Status</th>
+<th class="py-3 px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Due</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-50">
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="py-4 px-4 text-xs font-bold text-slate-900">RFI-402</td>
+<td class="py-4 px-4 text-xs text-slate-600">Foundation Rebar Clash</td>
+<td class="py-4 px-4">
+<span class="bg-error-container/20 text-error text-[9px] px-2 py-0.5 font-bold rounded-sm uppercase">Overdue</span>
+</td>
+<td class="py-4 px-4 text-xs text-slate-500">Oct 12</td>
+</tr>
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="py-4 px-4 text-xs font-bold text-slate-900">SUB-114</td>
+<td class="py-4 px-4 text-xs text-slate-600">Curtain Wall Glass Specs</td>
+<td class="py-4 px-4">
+<span class="bg-secondary-container/50 text-secondary text-[9px] px-2 py-0.5 font-bold rounded-sm uppercase">Review</span>
+</td>
+<td class="py-4 px-4 text-xs text-slate-500">Oct 16</td>
+</tr>
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="py-4 px-4 text-xs font-bold text-slate-900">RFI-405</td>
+<td class="py-4 px-4 text-xs text-slate-600">Lighting Control Layout</td>
+<td class="py-4 px-4">
+<span class="bg-primary-container/30 text-primary text-[9px] px-2 py-0.5 font-bold rounded-sm uppercase">Open</span>
+</td>
+<td class="py-4 px-4 text-xs text-slate-500">Oct 18</td>
+</tr>
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="py-4 px-4 text-xs font-bold text-slate-900">SUB-120</td>
+<td class="py-4 px-4 text-xs text-slate-600">Door Hardware Schedule</td>
+<td class="py-4 px-4">
+<span class="bg-primary-container/30 text-primary text-[9px] px-2 py-0.5 font-bold rounded-sm uppercase">Open</span>
+</td>
+<td class="py-4 px-4 text-xs text-slate-500">Oct 20</td>
+</tr>
+</tbody>
+</table>
+<div class="p-3 bg-slate-50 flex justify-center">
+<button class="text-[10px] font-bold text-slate-500 hover:text-slate-900 uppercase tracking-widest">View All Pending Items</button>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Contextual FAB (Only for main dash) -->
+<button class="fixed bottom-8 right-8 w-14 h-14 bg-[#DB802D] text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-105 transition-transform z-50">
+<span class="material-symbols-outlined text-3xl" data-icon="add">add</span>
+</button>
+</body></html>

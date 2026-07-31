@@ -1,0 +1,86 @@
+{
+  "manifest": {
+    "id": "change.change-create-event",
+    "title": "Create a change event",
+    "module": "change-management",
+    "slug": "change-create-event",
+    "description": "Document a potential scope, cost, or schedule change as a change event with priced line items, recording the workflow as screenshots, Markdown, and manifest data.",
+    "generatedAt": "2026-06-30T22:40:23.151Z",
+    "video": {
+      "file": "session.webm",
+      "mimeType": "video/webm"
+    },
+    "steps": [
+      {
+        "calloutSelector": "form, h1, [name=\"title\"]",
+        "expected": "The Create Change Event form opens.",
+        "instruction": "Select the project, open Change Events from the sidebar, and start a new change event to open the Create Change Event form.",
+        "screenshot": "screenshots/01-open-the-new-change-event-form.png",
+        "screenshotMode": "viewport",
+        "sourceUrl": "http://localhost:3001/1034/change-events/new",
+        "title": "Open the new change event form"
+      },
+      {
+        "calloutSelector": "[name=\"title\"], [name=\"description\"]",
+        "expected": "The change event is identified with a title, description, type, reason, and scope.",
+        "instruction": "Under General Information, leave Number to auto-generate (or set it), then enter a Title and Description that clearly identify the change. Set the Type, Change Reason, and Scope.",
+        "screenshot": "screenshots/02-fill-in-the-general-information.png",
+        "screenshotMode": "viewport",
+        "sourceUrl": "http://localhost:3001/1034/change-events/new",
+        "title": "Fill in the general information"
+      },
+      {
+        "calloutSelector": "text=Origin",
+        "expected": "The change event records where the change originated.",
+        "instruction": "Choose the Origin and, if applicable, the Origin Record to tie the change event back to its source (for example a related record).",
+        "screenshot": "screenshots/03-set-the-origin.png",
+        "screenshotMode": "viewport",
+        "sourceUrl": "http://localhost:3001/1034/change-events/new",
+        "title": "Set the origin"
+      },
+      {
+        "calloutSelector": "text=Expecting Revenue, text=Revenue Source",
+        "expected": "Revenue handling and markup basis are configured for the line items.",
+        "instruction": "Set Expecting Revenue and, when revenue is expected, the Line Item Revenue Source. If you are using markup, set the Prime Contract (markup basis) so markup is calculated against the right contract.",
+        "screenshot": "screenshots/04-set-revenue-handling.png",
+        "screenshotMode": "viewport",
+        "sourceUrl": "http://localhost:3001/1034/change-events/new",
+        "title": "Set revenue handling"
+      },
+      {
+        "calloutSelector": "text=Line Items, button:has-text(\"Add Line Item\")",
+        "expected": "Each line item has a budget code and pricing, and the total estimated value rolls up to the change event header.",
+        "instruction": "In the Line Items section, add a row for each change. Select the Budget Code, enter a Description, and enter the quantity and unit cost (and revenue values where applicable).",
+        "screenshot": "screenshots/05-add-cost-line-items.png",
+        "screenshotMode": "viewport",
+        "sourceUrl": "http://localhost:3001/1034/change-events/new",
+        "title": "Add cost line items"
+      },
+      {
+        "calloutSelector": "input[type=\"file\"], text=Attachments",
+        "expected": "Supporting documents are attached to the change event.",
+        "instruction": "In the Attachments section, upload supporting files such as drawings, RFIs, or photos.",
+        "screenshot": "screenshots/06-attach-supporting-documents.png",
+        "screenshotMode": "viewport",
+        "sourceUrl": "http://localhost:3001/1034/change-events/new",
+        "title": "Attach supporting documents"
+      },
+      {
+        "calloutSelector": "button:has-text(\"Create Change Event\")",
+        "expected": "The completed draft is ready to save without creating demo data.",
+        "instruction": "Select Create Change Event to save. The change event is created in Open status, ready for pricing review and approval. Tutorial runs default to preview mode unless submitWorkflow is true.",
+        "screenshot": "screenshots/07-save-the-change-event.png",
+        "screenshotMode": "viewport",
+        "sourceUrl": "http://localhost:3001/1034/change-events/new",
+        "title": "Save the change event"
+      }
+    ]
+  },
+  "sourceStatus": "blocked",
+  "blocker": "fetch failed while reading stored support-article corpus",
+  "fallbackSourceNotes": [
+    "Use the captured Alleato change-event form as the source of truth for the step order and visible fields.",
+    "Confirm the change event is complete enough for pricing review before saving it in Open status.",
+    "Attach only supporting records that help explain scope, cost, or schedule impact for this change."
+  ]
+}

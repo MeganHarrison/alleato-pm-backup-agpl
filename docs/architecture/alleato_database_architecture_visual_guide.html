@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Alleato Database Architecture Visual Guide</title>
+<style>
+:root {
+  --bg:#0b1020; --panel:#111833; --panel2:#151f3f; --ink:#eef3ff; --muted:#aab6d3; --line:#2a3764;
+  --blue:#7cc7ff; --green:#8ef0c2; --gold:#ffd166; --red:#ff7b91; --purple:#c6a3ff; --white:#fff;
+}
+*{box-sizing:border-box} body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;background:radial-gradient(circle at top left,#17224a 0,#0b1020 38%,#070b16 100%);color:var(--ink);line-height:1.55}
+a{color:var(--blue)} .wrap{max-width:1220px;margin:auto;padding:32px 24px 80px}
+.hero{padding:42px;border:1px solid var(--line);border-radius:28px;background:linear-gradient(135deg,rgba(124,199,255,.14),rgba(198,163,255,.09)),rgba(17,24,51,.78);box-shadow:0 30px 80px rgba(0,0,0,.35)}
+.eyebrow{color:var(--green);font-weight:800;text-transform:uppercase;letter-spacing:.12em;font-size:12px} h1{font-size:clamp(34px,5vw,66px);line-height:.95;margin:10px 0 18px;letter-spacing:-.04em} h2{font-size:32px;margin:58px 0 18px;letter-spacing:-.03em} h3{font-size:20px;margin:0 0 8px} p{color:var(--muted);margin:0 0 14px} .big{font-size:19px;max-width:840px;color:#d9e4ff}
+.nav{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px} .nav a{text-decoration:none;color:var(--ink);border:1px solid var(--line);background:rgba(255,255,255,.04);padding:10px 14px;border-radius:999px;font-size:14px}
+.grid{display:grid;gap:18px} .grid.two{grid-template-columns:repeat(2,minmax(0,1fr))} .grid.three{grid-template-columns:repeat(3,minmax(0,1fr))} @media(max-width:850px){.grid.two,.grid.three{grid-template-columns:1fr} .hero{padding:26px}}
+.card{border:1px solid var(--line);background:rgba(17,24,51,.82);border-radius:22px;padding:22px;box-shadow:0 18px 42px rgba(0,0,0,.25)} .card.soft{background:rgba(255,255,255,.045)}
+.kpi{font-size:34px;font-weight:900;letter-spacing:-.04em;color:var(--white)} .label{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.09em;font-weight:800}
+.badge{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:999px;padding:6px 10px;color:#dfe8ff;background:rgba(255,255,255,.045);font-size:13px;font-weight:700}
+.badge.green{border-color:rgba(142,240,194,.35);color:var(--green)} .badge.red{border-color:rgba(255,123,145,.35);color:var(--red)} .badge.gold{border-color:rgba(255,209,102,.35);color:var(--gold)}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:stretch} @media(max-width:850px){.split{grid-template-columns:1fr}}
+.db{position:relative;min-height:310px} .db h3{font-size:28px} .main{border-color:rgba(124,199,255,.45)} .rag{border-color:rgba(142,240,194,.45)} ul{margin:10px 0 0 20px;color:var(--muted)} li{margin:6px 0} code{background:rgba(255,255,255,.08);border:1px solid var(--line);border-radius:7px;padding:2px 6px;color:#d8e6ff}
+.flow{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;align-items:stretch;margin-top:16px} .step{position:relative;padding:16px;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.045);min-height:118px} .step:after{content:'→';position:absolute;right:-16px;top:42%;color:var(--gold);font-size:24px} .step:last-child:after{display:none} .step strong{display:block;color:var(--ink);font-size:15px;margin-bottom:5px} .step span{color:var(--muted);font-size:13px} @media(max-width:950px){.flow{grid-template-columns:1fr}.step:after{display:none}}
+.risk{border-left:4px solid var(--red)} .risk .num{width:30px;height:30px;border-radius:50%;display:inline-grid;place-items:center;background:rgba(255,123,145,.14);color:var(--red);font-weight:900;margin-right:10px}
+table{width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:rgba(17,24,51,.65)} th,td{text-align:left;border-bottom:1px solid var(--line);padding:12px 14px;vertical-align:top;font-size:14px} th{background:rgba(255,255,255,.06);color:#eaf1ff;text-transform:uppercase;letter-spacing:.08em;font-size:12px} tr:last-child td{border-bottom:none} td{color:var(--muted)}
+.timeline{border-left:2px solid var(--line);padding-left:22px} .tl{position:relative;margin:0 0 22px} .tl:before{content:'';position:absolute;left:-31px;top:3px;width:16px;height:16px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 6px rgba(255,209,102,.11)}
+.footer{margin-top:52px;color:var(--muted);font-size:13px;text-align:center}
+.callout{border:1px solid rgba(255,209,102,.35);background:rgba(255,209,102,.08);border-radius:22px;padding:20px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <div class="eyebrow">Verified architecture reference · May 15, 2026</div>
+    <h1>Alleato Database Architecture Visual Guide</h1>
+    <p class="big">A simplified, visual map of the two-database architecture, the document/RAG pipeline, Pipeline B intelligence layer, active table domains, cron jobs, and the highest-risk cleanup priorities.</p>
+    <div class="nav">
+      <a href="#split">MAIN vs RAG</a><a href="#pipeline">Document Pipeline</a><a href="#intelligence">Pipeline B</a><a href="#risks">Critical Risks</a><a href="#cron">Cron Schedule</a><a href="#inventory">Table Inventory</a><a href="#cleanup">Cleanup Plan</a>
+    </div>
+  </section>
+
+  <section id="split">
+    <h2>1. The Core Split: MAIN handles the business app. RAG handles heavy search.</h2>
+    <div class="split">
+      <div class="card db main">
+        <span class="badge">MAIN · PM APP</span>
+        <h3>Operational database</h3>
+        <p>Optimized for app queries, relational data, project workflows, financial records, user permissions, and intelligence outputs.</p>
+        <div class="grid two">
+          <div><div class="label">Project ID</div><code>lgveqfnpkxvzbnnwuled</code></div>
+          <div><div class="label">Env vars</div><code>SUPABASE_URL</code><br><code>SUPABASE_SERVICE_ROLE_KEY</code></div>
+        </div>
+        <ul>
+          <li><code>projects</code>, <code>tasks</code>, <code>companies</code>, <code>people</code></li>
+          <li><code>document_metadata</code> as the business catalog</li>
+          <li><code>insight_cards</code>, <code>intelligence_packets</code>, packet card joins</li>
+          <li>Financial tables, Acumatica mirrors, contracts, change events</li>
+        </ul>
+      </div>
+      <div class="card db rag">
+        <span class="badge green">RAG · AI Database</span>
+        <h3>Embedding/content database</h3>
+        <p>Optimized for vector search, large text reads, ingestion queues, and pipeline state. It is not a backup of MAIN.</p>
+        <div class="grid two">
+          <div><div class="label">Project ID</div><code>fqcvmfqldlewvbsuxdvz</code></div>
+          <div><div class="label">Env vars</div><code>RAG_SUPABASE_URL</code><br><code>RAG_SUPABASE_SERVICE_ROLE_KEY</code></div>
+        </div>
+        <ul>
+          <li><code>document_chunks</code> as the canonical vector store</li>
+          <li><code>rag_document_metadata</code> for content/raw text</li>
+          <li><code>source_intelligence_jobs</code>, <code>packet_refresh_jobs</code></li>
+          <li>Canonical pipeline queues and health snapshots</li>
+        </ul>
+      </div>
+    </div>
+    <div class="callout" style="margin-top:18px"><strong>Key mental model:</strong> MAIN answers “what does the app/business know?” RAG answers “what content should the AI retrieve and read?” Any tool needing both must use both clients.</div>
+  </section>
+
+  <section id="pipeline">
+    <h2>2. Document Pipeline: one ingestion event creates two complementary records</h2>
+    <div class="flow">
+      <div class="step"><strong>Source</strong><span>Outlook, Teams, Fireflies, OneDrive, uploads</span></div>
+      <div class="step"><strong>Dual-write</strong><span><code>upsert_document_metadata()</code> writes MAIN first, then RAG</span></div>
+      <div class="step"><strong>Parse</strong><span>Parser/financial parser creates structured chunks and meeting segments</span></div>
+      <div class="step"><strong>Embed</strong><span>Embeddings stored in canonical <code>RAG.document_chunks</code></span></div>
+      <div class="step"><strong>Retrieve</strong><span>AI tools search chunks, then hydrate metadata from MAIN when needed</span></div>
+    </div>
+    <div class="grid three" style="margin-top:18px">
+      <div class="card soft"><div class="kpi">36K+</div><div class="label">MAIN document metadata rows</div><p>Business catalog with source, project linkage, classifications, meeting fields, action items, decisions, sentiment, and storage references.</p></div>
+      <div class="card soft"><div class="kpi">36K+</div><div class="label">RAG metadata rows</div><p>Embedding catalog with content, raw text, content hash, parsing state, embedding status, and lifecycle timestamps.</p></div>
+      <div class="card soft"><div class="kpi">109K+</div><div class="label">RAG document chunks</div><p>The canonical vector store. The MAIN copy of document_chunks is stale and should not be used for production reads.</p></div>
+    </div>
+  </section>
+
+  <section id="intelligence">
+    <h2>3. Pipeline B: raw documents become durable business intelligence</h2>
+    <div class="flow">
+      <div class="step"><strong>Ingestion</strong><span>Document enters metadata and source job queue</span></div>
+      <div class="step"><strong>Source job</strong><span>Compiler claims <code>source_intelligence_jobs</code> from RAG</span></div>
+      <div class="step"><strong>Candidate</strong><span>Creates <code>source_signal_candidates</code>; weak attribution goes to review queue</span></div>
+      <div class="step"><strong>Insight card</strong><span>High-confidence signals become MAIN <code>insight_cards</code> with evidence</span></div>
+      <div class="step"><strong>Packet</strong><span><code>intelligence_packets</code> are refreshed for current briefings</span></div>
+    </div>
+    <div class="grid three" style="margin-top:18px">
+      <div class="card"><span class="badge gold">Trigger 1</span><h3>Event-driven</h3><p>Promotion of a high-confidence signal immediately enqueues a packet refresh job.</p></div>
+      <div class="card"><span class="badge gold">Trigger 2</span><h3>APScheduler</h3><p>FastAPI drains source jobs and packet refresh jobs every 10 minutes.</p></div>
+      <div class="card"><span class="badge gold">Trigger 3</span><h3>Render cron</h3><p>Four times daily, refresh jobs are enqueued for every active intelligence target.</p></div>
+    </div>
+  </section>
+
+  <section id="risks">
+    <h2>4. Critical risks that should be fixed before more feature work</h2>
+    <div class="grid two">
+      <div class="card risk"><h3><span class="num">1</span>`user_profiles` is empty but 123 code paths read it.</h3><p>Every permission check, admin gate, task author display, and shell route silently falls back to null/non-admin. Either RLS hides rows from the role used by the audit, or the table is genuinely empty. Either way: implicit privilege bug. <strong>Highest priority.</strong></p></div><div class="card risk"><h3><span class="num">2</span>`users_auth` has 1 row despite ~6 distinct insert paths.</h3><p>Most signups are not producing the auth↔people bridge row. Investigate the signup flow and `lib/supabase/auth-guard.ts`.</p></div><div class="card risk"><h3><span class="num">3</span>`acumatica_payment_applications` (183 rows) has NO writer in current code.</h3><p>Schema defined in migration `20260413000001`, frontend `arPaymentConfig` writes `acumatica_payments` only. If invoice-paid logic depends on this join table, it is silently degrading.</p></div><div class="card risk"><h3><span class="num">4</span>`acumatica_sync_runs` is empty despite having a writer at `acumatica_sync.py:408`.</h3><p>Likely a wrapping `try/except` is swallowing the insert, or `ACUMATICA_FINANCIAL_SYNC_ENABLED` is gating the call off. Sync runs are happening but not logged.</p></div><div class="card risk"><h3><span class="num">5</span>`documents` is legacy (12,471 rows) but the project-setup wizard still writes to it</h3><p>— parallel to `document_metadata`. Two indexes of project files exist; migrate or pick one.</p></div><div class="card risk"><h3><span class="num">6</span>MAIN copies of `document_chunks` (103K), `packet_refresh_jobs` (1,373), `source_signal_candidates` (6,670), `source_intelligence_jobs` (10,587) are stale orphans</h3><p>— RAG is the canonical destination after the migration. Truncate MAIN copies once verified.</p></div><div class="card risk"><h3><span class="num">7</span>Name-collision traps:</h3><p>- `subcontract_sov_items` (964 rows, live) vs `subcontractor_sov_items` (2 rows, dead).<br>   - `budget_mod_lines` (32 rows, live) vs `budget_modification_lines` (empty, dead).<br>   - `contract_change_orders` (commitment CCOs) vs `prime_contract_change_orders` (owner PCCOs) — name doesn&#x27;t reflect scope.<br>   - `chat_history` (live, 2908 rows) vs `chat_messages` / `chat_sessions` / `chats` / `messages` / `notes` (all dead).</p></div><div class="card risk"><h3><span class="num">8</span>Marketing vertical is entirely dormant</h3><p>(4 tables, 0 rows). `isCmoWeeklyContentWorkflowRequest` path in handler-v2 writes here but no production traffic.</p></div><div class="card risk"><h3><span class="num">9</span>AI learning pipeline is wired but unused.</h3><p>`ai_feedback_events`, `ai_learning_promotions`, `ai_retrieval_weights` are all empty despite having writer paths.</p></div><div class="card risk"><h3><span class="num">10</span>Photo system is fully wired (APIs, services, components) with zero data.</h3><p>Feature shipped but never adopted: `photos`, `photo_albums`, `photo_links`, `project_photos`, `observation_photos`, `daily_logs_project_photos_links`.<br><br>---</p></div>
+    </div>
+  </section>
+
+  <section id="cron">
+    <h2>5. Cron and scheduler map</h2>
+    <table><thead><tr><th>Cron / Scheduler</th><th>Schedule</th><th>Touches</th></tr></thead><tbody>
+      <tr><td>alleato-acumatica-financial-sync</td><td>0 0,7 * * *` (2×/day)</td><td>All `acumatica_*` mirrors → projected into `direct_costs`, `subcontracts`, `subcontract_sov_items`, `prime_contract_change_orders`, `contract_change_orders`, `commitment_payments`; updates `projects.acumatica_ap_synced_at</td></tr><tr><td>alleato-source-sync-health</td><td>*/30 * * * *</td><td>source_sync_health_snapshots`, `system_alerts</td></tr><tr><td>alleato-teams-channel-sync</td><td>10 * * * *` (hourly)</td><td>source_documents, `source_intelligence_jobs</td></tr><tr><td>alleato-teams-dm-sync</td><td>40 * * * *` (hourly)</td><td>source_documents, `source_intelligence_jobs</td></tr><tr><td>alleato-graph-sync</td><td>20 */2 * * *` (every 2h)</td><td>source_documents, embeddings, Teams compiler</td></tr><tr><td>alleato-daily-recap</td><td>30 9 * * *` (daily)</td><td>daily_recaps</td></tr><tr><td>alleato-task-extraction</td><td>0 7 * * *` (daily)</td><td>tasks</td></tr><tr><td>alleato-rag-health</td><td>15 12 * * *` (daily)</td><td>system_alerts</td></tr><tr><td>alleato-source-rag-health</td><td>5 */4 * * *` (every 4h)</td><td>system_alerts</td></tr><tr><td>**`alleato-packet-refresh-periodic`**</td><td>0 2,9,15,21 * * *` (4×/day)</td><td>Enqueues `packet_refresh_jobs` (RAG) for every active `intelligence_targets` row</td></tr><tr><td>alleato-executive-daily-brief-morning</td><td>0 11,12 * * 1-5</td><td>Generates `daily_recaps` + Teams delivery</td></tr><tr><td>alleato-executive-daily-brief-evening</td><td>0 22,23 * * 1-5</td><td>Same as above, evening cadence</td></tr><tr><td>**APScheduler in FastAPI (intelligence_compiler)**</td><td>every 10 min</td><td>Drains `source_intelligence_jobs` + `packet_refresh_jobs` → writes `insight_cards`, `insight_card_evidence`, `insight_card_targets`, `intelligence_packets`, `intelligence_packet_cards</td></tr><tr><td>**APScheduler in FastAPI (fireflies)**</td><td>per `scheduler.py:540</td><td>Polls Fireflies, enqueues `fireflies_ingestion_jobs</td></tr>
+    </tbody></table>
+  </section>
+
+  <section id="inventory">
+    <h2>6. RAG table inventory: what is canonical there</h2>
+    <table><thead><tr><th>Table</th><th>Rows</th><th>Live?</th><th>Notes</th></tr></thead><tbody>
+      <tr><td>document_chunks</td><td>109,171</td><td>✅ canonical</td><td>Vector store. MAIN copy (103K) is stale</td></tr><tr><td>rag_document_metadata</td><td>36,657</td><td>✅ live mirror</td><td>app_document_id` FK back to MAIN</td></tr><tr><td>fireflies_ingestion_jobs</td><td>27,230</td><td>✅ canonical</td><td>Meeting ingest queue</td></tr><tr><td>document_attribution_candidates</td><td>13,193</td><td>✅ canonical</td><td>Attribution review queue</td></tr><tr><td>source_intelligence_jobs</td><td>11,071</td><td>✅ canonical</td><td>Compiler job queue</td></tr><tr><td>source_signal_candidates</td><td>7,527</td><td>✅ canonical</td><td>Pre-promotion candidates</td></tr><tr><td>source_sync_runs</td><td>3,639</td><td>✅ canonical</td><td>Per-run audit log</td></tr><tr><td>packet_refresh_jobs</td><td>1,530</td><td>✅ canonical</td><td>Packet refresh queue</td></tr><tr><td>ingestion_jobs</td><td>436</td><td>✅ canonical</td><td>Generic ingest audit</td></tr><tr><td>source_sync_health_snapshots</td><td>330</td><td>✅ canonical</td><td>Sync health rollup</td></tr><tr><td>ingestion_dead_letter</td><td>empty</td><td>wired</td><td>DLQ for failed ingestions</td></tr><tr><td>rag_pipeline_state</td><td>empty</td><td>wired</td><td>Pipeline-state metadata</td></tr>
+    </tbody></table>
+  </section>
+
+  <section>
+    <h2>7. Active system domains, simplified</h2>
+    <div class="grid three">
+      <div class="card"><h3>Projects + People</h3><p>Core project records, companies, people, permission bridges, directories, and team membership.</p><span class="badge">MAIN</span></div>
+      <div class="card"><h3>Financial + Acumatica</h3><p>ERP mirrors project into direct costs, subcontracts, purchase orders, change orders, payments, and invoices.</p><span class="badge">MAIN</span></div>
+      <div class="card"><h3>Documents + Communications</h3><p>Outlook, Teams, Fireflies, OneDrive, project uploads, metadata catalogs, chunks, and transcript segments.</p><span class="badge">MAIN + RAG</span></div>
+      <div class="card"><h3>Intelligence Layer</h3><p>Compiler queues, source candidates, insight cards, evidence links, intelligence packets, and packet refresh jobs.</p><span class="badge green">MAIN + RAG</span></div>
+      <div class="card"><h3>Workflow</h3><p>Tasks, RFIs, submittals, schedule tasks, punch items, recurring issues, feature requests, and roadmap items.</p><span class="badge">MAIN</span></div>
+      <div class="card"><h3>Dormant / Legacy</h3><p>Large amount of dead schema exists. Some tables are empty; others are stale snapshots or historical parallel systems.</p><span class="badge red">Cleanup needed</span></div>
+    </div>
+  </section>
+
+  <section id="cleanup">
+    <h2>8. Cleanup plan: reduce the active surface area</h2>
+    <div class="timeline">
+      <div class="tl"><h3>First: fix privilege and identity bugs</h3><p><code>user_profiles</code> and <code>users_auth</code> are foundational. If those are wrong, permissions, shell routes, and admin access become unreliable.</p></div>
+      <div class="tl"><h3>Second: close the financial sync gaps</h3><p>Restore or remove reliance on <code>acumatica_payment_applications</code> and fix missing <code>acumatica_sync_runs</code> logging.</p></div>
+      <div class="tl"><h3>Third: remove stale duplicates</h3><p>After verification, truncate MAIN copies of canonical RAG tables like <code>document_chunks</code>, <code>packet_refresh_jobs</code>, <code>source_signal_candidates</code>, and <code>source_intelligence_jobs</code>.</p></div>
+      <div class="tl"><h3>Fourth: collapse legacy/dead schema</h3><p>Decide between <code>documents</code> and <code>document_metadata</code>, then drop dead chat, CO/PCO variants, dormant marketing, observation, daily log, and specification auxiliaries.</p></div>
+    </div>
+    <div class="callout" style="margin-top:20px"><strong>Outcome:</strong> the inventory estimates the true active surface is closer to ~85 tables, not 327. That is a huge reduction in cognitive load for agents and humans.</div>
+  </section>
+
+  <div class="footer">Generated from DATABASE-ARCHITECTURE.md and TABLE-INVENTORY.md · Designed for fast comprehension before migrations, AI tools, or cleanup work.</div>
+</div>
+</body>
+</html>

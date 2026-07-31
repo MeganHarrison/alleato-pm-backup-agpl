@@ -1,0 +1,240 @@
+/**
+ * ============================================================================
+ * POTENTIAL CHANGE ORDERS (PCO) API ROUTE (Collection-Level)
+ * ============================================================================
+ *
+ * GET  /api/projects/[projectId]/pcos - List PCOs with filters
+ * POST /api/projects/[projectId]/pcos - Create new PCO
+ *
+ * Schema Reference: potential_change_orders table
+ * - id: bigint (PK)
+ * - project_id: bigint (FK to projects)
+ * - number, title, description, type, status
+ * - current_version, estimated_value, approved_value
+ * - markup_percentage, schedule_impact_days, schedule_impact_description
+ * - rfq_required, rfq_status, annotation, annotation_note, root_cause
+ * - prime_change_order_id, created_by_id (uuid)
+ * - created_at, updated_at, submitted_at, approved_at
+ */
+
+import { withApiGuardrails } from "@/lib/guardrails/api";
+import { GuardrailError } from "@/lib/guardrails/errors";
+import { createClient, getApiRouteUser } from "@/lib/supabase/server";
+import { NextResponse } from "next/server";
+import { apiErrorResponse } from "@/lib/api-error";
+import { requirePermission } from "@/lib/permissions-guard";
+import { logger } from "@/lib/logger";
+import type { Json } from "@/types/database.types";
+
+interface RouteParams {
+  params: Promise<{ projectId: string }>;
+}
+
+/**
+ * GET /api/projects/[projectId]/pcos
+ * Returns list of PCOs for a project with optional filters
+ *
+ * Query Parameters:
+ * - status: Filter by status (DRAFT, SUBMITTED, APPROVED, REVISION_REQUESTED, VOID)
+ * - type: Filter by type
+ * - search: Search number/title/description
+ */
+export const GET = withApiGuardrails(
+  "projects/[projectId]/pcos#GET",
+  async ({ request, params }) => {
+  
+    const { projectId } = await params;
+    const numericProjectId = parseInt(projectId, 10);
+
+    if (isNaN(numericProjectId)) {
+      return NextResponse.json({ error: "Invalid project ID" }, { status: 400 });
+    }
+
+    const supabase = await createClient();
+    const user = await getApiRouteUser();
+
+    if (!user) {
+      throw new GuardrailError({
+        code: "AUTH_EXPIRED",
+        where: "projects/[projectId]/pcos#GET",
+        message: "Authentication required.",
+      });
+    }
+    const { searchParams } = new URL(request.url);
+
+    const status = searchParams.get("status");
+    const type = searchParams.get("type");
+    const search = searchParams.get("search");
+
+    let query = supabase
+      .from("potential_change_orders")
+      .select("*", { count: "exact" })
+      .eq("project_id", numericProjectId)
+      .order("created_at", { ascending: false });
+
+    if (status) {
+      query = query.eq("status", status);
+    }
+
+    if (type) {
+      query = query.eq("type", type);
+    }
+
+    if (search) {
+      // Sanitize to prevent PostgREST filter injection: allow only alphanumeric, spaces, hyphens, underscores
+      const sanitizedSearch = search.replace(/[^a-zA-Z0-9\s\-_]/g, "");
+      if (sanitizedSearch) {
+        query = query.or(
+          `number.ilike.%${sanitizedSearch}%,title.ilike.%${sanitizedSearch}%,description.ilike.%${sanitizedSearch}%`
+        );
+      }
+    }
+
+    const { data, error, count } = await query;
+
+    if (error) {
+      logger.error({ msg: "Failed to fetch PCOs:", error: error instanceof Error ? error.message : String(error) });
+      return apiErrorResponse(error);
+    }
+
+    // Batch-fetch change event and line item counts for these numeric PCOs.
+    // Both children are keyed by the bigint PCO id: pco_change_events and
+    // potential_change_order_line_items.
+    const pcoIdNumbers = (data || [])
+      .map((pco: Record<string, unknown>) => Number(pco.id))
+      .filter((n) => Number.isFinite(n));
+    const ceCountMap: Record<string, number> = {};
+    const liCountMap: Record<string, number> = {};
+
+    if (pcoIdNumbers.length > 0) {
+      const [ceResult, liResult] = await Promise.all([
+        supabase.from("pco_change_events").select("pco_id").in("pco_id", pcoIdNumbers),
+        supabase
+          .from("potential_change_order_line_items")
+          .select("pco_id")
+          .in("pco_id", pcoIdNumbers),
+      ]);
+
+      if (ceResult.data) {
+        for (const row of ceResult.data) {
+          const id = String(row.pco_id);
+          ceCountMap[id] = (ceCountMap[id] || 0) + 1;
+        }
+      }
+      if (liResult.data) {
+        for (const row of liResult.data) {
+          const id = String(row.pco_id);
+          liCountMap[id] = (liCountMap[id] || 0) + 1;
+        }
+      }
+    }
+
+    const pcos = (data || []).map((pco: Record<string, unknown>) => ({
+      ...pco,
+      changeEventsCount: ceCountMap[String(pco.id)] ?? 0,
+      lineItemsCount: liCountMap[String(pco.id)] ?? 0,
+    }));
+
+    return NextResponse.json({
+      data: pcos,
+      meta: { total: count || 0 },
+    });
+    },
+);
+
+/**
+ * POST /api/projects/[projectId]/pcos
+ * Creates a new PCO (number auto-generated by DB trigger)
+ *
+ * Request Body:
+ * - title (required): string
+ * - description?: string
+ * - type?: string
+ * - estimated_value?: number
+ * - markup_percentage?: number
+ * - schedule_impact_days?: number
+ * - schedule_impact_description?: string
+ * - rfq_required?: boolean
+ * - root_cause?: string
+ * - annotation?: string
+ * - annotation_note?: string
+ * - prime_change_order_id?: number
+ */
+export const POST = withApiGuardrails(
+  "projects/[projectId]/pcos#POST",
+  async ({ request, params }) => {
+  
+    const { projectId } = await params;
+    const numericProjectId = parseInt(projectId, 10);
+
+    if (isNaN(numericProjectId)) {
+      return NextResponse.json({ error: "Invalid project ID" }, { status: 400 });
+    }
+
+    const guard = await requirePermission(numericProjectId, "change_orders", "write");
+    if (guard.denied) return guard.response;
+
+    const supabase = await createClient();
+    const body = await request.json();
+
+    // Get current user
+    const user = await getApiRouteUser();
+    const authError = null as Error | null;
+
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: "Unauthorized", details: authError?.message },
+        { status: 401 }
+      );
+    }
+
+    if (!body.title || typeof body.title !== "string" || !body.title.trim()) {
+      return NextResponse.json(
+        { error: "Validation error", details: "title is required" },
+        { status: 400 }
+      );
+    }
+
+    // Atomic create: header + grouped change events + all line items are written
+    // in a single transaction by create_pco_with_lines, so a mid-write failure
+    // leaves no orphaned PCO, grouping, or line items behind.
+    const lineItems = Array.isArray(body.line_items)
+      ? body.line_items.map(
+          (li: {
+            description?: string;
+            quantity?: number;
+            uom?: string;
+            unit_cost?: number;
+            category?: string | null;
+            change_event_line_item_id?: string | null;
+          }) => ({
+            description: li.description ?? null,
+            quantity: li.quantity ?? 1,
+            uom: li.uom ?? null,
+            unit_cost: li.unit_cost ?? 0,
+            category: li.category ?? null,
+            change_event_line_item_id: li.change_event_line_item_id ?? null,
+          }),
+        )
+      : [];
+
+    const changeEventIds = Array.isArray(body.change_event_ids)
+      ? (body.change_event_ids as unknown[]).map((id) => String(id))
+      : [];
+
+    const { data, error } = await supabase.rpc("create_pco_with_lines", {
+      p_project_id: numericProjectId,
+      p_user_id: user.id,
+      p_header: body as Json,
+      p_change_event_ids: changeEventIds,
+      p_line_items: lineItems as Json,
+    });
+
+    if (error) {
+      logger.error({ msg: "Failed to create PCO:", error: error instanceof Error ? error.message : String(error) });
+      return apiErrorResponse(error);
+    }
+
+    return NextResponse.json(data, { status: 201 });
+    },
+);

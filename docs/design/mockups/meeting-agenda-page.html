@@ -1,0 +1,1003 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Meeting Agenda Mock-up</title>
+    <style>
+      :root {
+        --background: #fbfaf8;
+        --surface: #ffffff;
+        --muted: #f3f1ee;
+        --line: #dfd9d1;
+        --line-soft: #ece7e1;
+        --text: #211f1d;
+        --text-muted: #706a62;
+        --text-faint: #9a9288;
+        --primary: #b85f1f;
+        --primary-soft: #f7e8d9;
+        --success: #3f6f52;
+        --warning: #8f6424;
+        --danger: #9f3d33;
+        --focus: #d78235;
+        --radius: 8px;
+        color-scheme: light;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--background);
+        color: var(--text);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        font-size: 14px;
+        line-height: 1.45;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+      }
+
+      button {
+        min-height: 44px;
+      }
+
+      .page {
+        min-height: 100vh;
+        padding: 24px;
+      }
+
+      .shell {
+        max-width: 1440px;
+        margin: 0 auto;
+      }
+
+      .route {
+        margin-bottom: 14px;
+        color: var(--text-faint);
+        font-size: 12px;
+      }
+
+      .header {
+        display: grid;
+        gap: 16px;
+        padding-bottom: 18px;
+      }
+
+      .title-row {
+        display: grid;
+        gap: 14px;
+      }
+
+      .title-stack {
+        display: grid;
+        gap: 6px;
+      }
+
+      .title-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 14px;
+        color: var(--text-muted);
+        font-size: 13px;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        font-size: 22px;
+        font-weight: 650;
+        letter-spacing: 0;
+        line-height: 1.2;
+      }
+
+      h2 {
+        font-size: 16px;
+        font-weight: 650;
+      }
+
+      h3 {
+        font-size: 14px;
+        font-weight: 650;
+      }
+
+      .status-eyebrow {
+        color: var(--primary);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        line-height: 1;
+        text-transform: uppercase;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid transparent;
+        border-radius: 6px;
+        padding: 0 14px;
+        background: var(--primary);
+        color: #fffaf4;
+        font-weight: 650;
+        cursor: pointer;
+      }
+
+      .button.secondary {
+        background: transparent;
+        color: var(--text-muted);
+        border-color: var(--line);
+      }
+
+      .button.ghost {
+        background: transparent;
+        color: var(--text-muted);
+        padding: 0 8px;
+      }
+
+      .button.ghost-add {
+        gap: 6px;
+        border: 0;
+        background: transparent;
+        color: var(--text-muted);
+        padding: 0 8px;
+      }
+
+      .button.ghost-add:hover,
+      .add-row:hover {
+        color: var(--text);
+        background: var(--muted);
+      }
+
+      .plus-icon {
+        width: 14px;
+        height: 14px;
+        stroke: currentColor;
+      }
+
+      .tabs {
+        display: flex;
+        gap: 18px;
+        overflow-x: auto;
+        padding-top: 4px;
+      }
+
+      .tab {
+        min-height: 44px;
+        border: 0;
+        border-bottom: 2px solid transparent;
+        background: transparent;
+        color: var(--text-muted);
+        padding: 0 2px;
+        white-space: nowrap;
+        cursor: pointer;
+      }
+
+      .tab[aria-selected="true"] {
+        border-bottom-color: var(--primary);
+        color: var(--text);
+        font-weight: 650;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 24px;
+        padding-top: 24px;
+      }
+
+      .agenda {
+        min-width: 0;
+      }
+
+      .agenda-toolbar {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+        margin-bottom: 18px;
+      }
+
+      .mode-note {
+        color: var(--text-muted);
+        font-size: 13px;
+      }
+
+      .section {
+        display: grid;
+        gap: 6px;
+        padding: 12px 0 14px;
+        border-top: 1px solid var(--line-soft);
+      }
+
+      .section:first-of-type {
+        border-top: 0;
+        padding-top: 0;
+      }
+
+      .section-title {
+        display: grid;
+        grid-template-columns: auto auto minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .section-collapse {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 36px;
+        width: 36px;
+        border: 0;
+        border-radius: 6px;
+        background: transparent;
+        color: var(--text-muted);
+        cursor: pointer;
+      }
+
+      .section-collapse:hover {
+        background: var(--muted);
+        color: var(--text);
+      }
+
+      .collapse-icon {
+        width: 14px;
+        height: 14px;
+        stroke: currentColor;
+        transition: transform 120ms ease-out;
+      }
+
+      .section.collapsed .collapse-icon {
+        transform: rotate(-90deg);
+      }
+
+      .section-content {
+        display: grid;
+        gap: 0;
+      }
+
+      .section.collapsed .section-content {
+        display: none;
+      }
+
+      .section-number {
+        color: var(--primary);
+        font-weight: 700;
+      }
+
+      .section-title input {
+        min-width: 0;
+        border: 0;
+        background: transparent;
+        color: var(--text);
+        font-weight: 650;
+        outline: none;
+      }
+
+      .row-list {
+        display: grid;
+        gap: 0;
+      }
+
+      .agenda-row {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        gap: 8px;
+        padding: 8px 0;
+        border-top: 1px solid var(--line-soft);
+      }
+
+      .agenda-row:first-child {
+        border-top: 0;
+      }
+
+      .item-number {
+        width: 38px;
+        color: var(--text-faint);
+        font-variant-numeric: tabular-nums;
+        font-weight: 650;
+      }
+
+      .editable {
+        min-height: 24px;
+        border-radius: 4px;
+        outline: none;
+      }
+
+      .editable:focus,
+      input:focus,
+      select:focus,
+      textarea:focus,
+      button:focus-visible {
+        box-shadow: 0 0 0 2px var(--focus);
+      }
+
+      .item-title {
+        color: var(--text);
+        font-weight: 600;
+      }
+
+      .add-row {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        min-height: 36px;
+        justify-self: start;
+        border: 0;
+        border-radius: 6px;
+        background: transparent;
+        color: var(--text-muted);
+        padding: 0 8px;
+        cursor: pointer;
+      }
+
+      .action-items-main {
+        display: grid;
+        gap: 12px;
+        padding-top: 28px;
+      }
+
+      .action-items-header {
+        display: grid;
+        gap: 4px;
+      }
+
+      .action-items-list {
+        display: grid;
+        gap: 0;
+      }
+
+      .action-item-row {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        gap: 10px;
+        padding: 9px 0;
+        border-top: 1px solid var(--line-soft);
+      }
+
+      .action-item-row:first-child {
+        border-top: 0;
+      }
+
+      .action-item-title {
+        color: var(--text);
+        font-weight: 600;
+      }
+
+      .action-item-meta {
+        color: var(--text-faint);
+        font-size: 12px;
+      }
+
+      .action-item-state {
+        color: var(--text-muted);
+        font-size: 12px;
+        white-space: nowrap;
+      }
+
+      .rail {
+        display: grid;
+        align-content: start;
+        gap: 24px;
+        min-width: 0;
+      }
+
+      .rail-module {
+        display: grid;
+        gap: 10px;
+        padding-top: 16px;
+        border-top: 1px solid var(--line-soft);
+      }
+
+      .rail-module:first-child {
+        padding-top: 0;
+        border-top: 0;
+      }
+
+      .rail-title {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        color: var(--text);
+        font-size: 13px;
+        font-weight: 650;
+      }
+
+      .rail-list {
+        display: grid;
+        gap: 8px;
+      }
+
+      .check-row,
+      .quiet-row {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        align-items: start;
+        gap: 8px;
+        color: var(--text-muted);
+        font-size: 13px;
+      }
+
+      .quick-link {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 8px;
+        min-height: 30px;
+        color: var(--text-muted);
+        font-size: 13px;
+        text-decoration: none;
+      }
+
+      .quick-link:hover {
+        color: var(--text);
+      }
+
+      .check-row input {
+        width: 16px;
+        height: 16px;
+        margin-top: 2px;
+        accent-color: var(--primary);
+      }
+
+      .rail-meta {
+        color: var(--text-faint);
+        font-size: 12px;
+        white-space: nowrap;
+      }
+
+      .parking-input {
+        min-height: 40px;
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background: var(--surface);
+        color: var(--text);
+        padding: 0 10px;
+      }
+
+      .panel {
+        display: none;
+      }
+
+      .panel.active {
+        display: block;
+      }
+
+      .transcript {
+        display: grid;
+        gap: 18px;
+      }
+
+      .transcript-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 24px;
+      }
+
+      .moment-list {
+        display: grid;
+        gap: 14px;
+      }
+
+      .moment {
+        display: grid;
+        gap: 6px;
+        padding: 12px 0;
+        border-top: 1px solid var(--line-soft);
+      }
+
+      .moment:first-child {
+        border-top: 0;
+      }
+
+      .moment-time {
+        color: var(--text-faint);
+        font-size: 12px;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .moment-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .text-link {
+        min-height: 32px;
+        border: 0;
+        background: transparent;
+        color: var(--primary);
+        padding: 0;
+        cursor: pointer;
+      }
+
+      .source-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .source-table th,
+      .source-table td {
+        padding: 10px 8px;
+        border-bottom: 1px solid var(--line-soft);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      .source-table th {
+        color: var(--text-faint);
+        font-size: 11px;
+        font-weight: 650;
+        text-transform: uppercase;
+      }
+
+      .muted {
+        color: var(--text-muted);
+      }
+
+      .empty-state {
+        display: grid;
+        gap: 6px;
+        max-width: 520px;
+      }
+
+      @media (min-width: 700px) {
+        .agenda-toolbar {
+          grid-template-columns: minmax(0, 1fr) auto;
+          align-items: start;
+        }
+
+        .agenda-toolbar .button {
+          justify-self: end;
+        }
+      }
+
+      @media (min-width: 1040px) {
+        .page {
+          padding: 32px;
+        }
+
+        .layout {
+          grid-template-columns: minmax(0, 1fr) 320px;
+          gap: 40px;
+        }
+
+        .transcript-layout {
+          grid-template-columns: minmax(0, 1fr) 320px;
+        }
+      }
+
+      @media (max-width: 520px) {
+        .page {
+          padding: 16px;
+        }
+
+        h1 {
+          font-size: 20px;
+        }
+
+        .agenda-row {
+          grid-template-columns: minmax(0, 1fr);
+        }
+
+        .item-number {
+          width: auto;
+        }
+
+        .action-item-row {
+          grid-template-columns: minmax(0, 1fr);
+        }
+
+        .action-item-state {
+          white-space: normal;
+        }
+
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <div class="shell">
+        <div class="route">/25125/meetings/MTG-1042</div>
+        <header class="header">
+          <div class="title-row">
+            <div class="title-stack">
+              <span class="status-eyebrow" id="meeting-status">Agenda</span>
+              <h1>Goodwill Noblesville OAC Meeting</h1>
+              <div class="title-meta">
+                <span>Series 12</span>
+                <span>July 8, 2026, 10:00 AM</span>
+                <span>Goodwill Noblesville</span>
+              </div>
+            </div>
+          </div>
+
+          <nav class="tabs" aria-label="Meeting sections">
+            <button class="tab" data-tab="agenda" aria-selected="true">Agenda</button>
+            <button class="tab" data-tab="transcript" aria-selected="false">Transcript</button>
+            <button class="tab" data-tab="sources" aria-selected="false">Sources</button>
+            <button class="tab" data-tab="minutes" aria-selected="false">Minutes</button>
+          </nav>
+        </header>
+
+        <section class="panel active" id="agenda-panel">
+          <div class="layout">
+            <div class="agenda">
+              <div class="agenda-toolbar">
+                <div>
+                  <h2>Agenda</h2>
+                  <p class="mode-note">
+                    Inline rows are the primary surface. Prior history stays quiet until expanded.
+                  </p>
+                </div>
+                <button class="button ghost-add">
+                  <svg class="plus-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke-width="2" stroke-linecap="round">
+                    <path d="M12 5v14" />
+                    <path d="M5 12h14" />
+                  </svg>
+                  Add section
+                </button>
+              </div>
+
+              <section class="section">
+                <div class="section-title">
+                  <button class="section-collapse" type="button" data-section-toggle aria-expanded="true" aria-label="Collapse Budget and procurement">
+                    <svg class="collapse-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="m6 9 6 6 6-6" />
+                    </svg>
+                  </button>
+                  <span class="section-number">1</span>
+                  <input aria-label="Section title" value="Budget and procurement" />
+                  <button class="button ghost">History</button>
+                </div>
+                <div class="section-content">
+                  <div class="row-list">
+                    <article class="agenda-row">
+                      <div class="item-number">1.1</div>
+                      <div class="item-body">
+                        <div class="editable item-title" contenteditable="true">
+                          Review lighting package pricing and confirm VE option.
+                        </div>
+                      </div>
+                    </article>
+
+                    <article class="agenda-row">
+                      <div class="item-number">1.2</div>
+                      <div class="item-body">
+                        <div class="editable item-title" contenteditable="true">
+                          Confirm allowance drawdown against the latest owner directive.
+                        </div>
+                      </div>
+                    </article>
+                  </div>
+                  <button class="add-row">
+                    <svg class="plus-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke-width="2" stroke-linecap="round">
+                      <path d="M12 5v14" />
+                      <path d="M5 12h14" />
+                    </svg>
+                    Add item
+                  </button>
+                </div>
+              </section>
+
+              <section class="section">
+                <div class="section-title">
+                  <button class="section-collapse" type="button" data-section-toggle aria-expanded="true" aria-label="Collapse Schedule constraints">
+                    <svg class="collapse-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="m6 9 6 6 6-6" />
+                    </svg>
+                  </button>
+                  <span class="section-number">2</span>
+                  <input aria-label="Section title" value="Schedule constraints" />
+                  <button class="button ghost">History</button>
+                </div>
+                <div class="section-content">
+                  <div class="row-list">
+                    <article class="agenda-row">
+                      <div class="item-number">2.1</div>
+                      <div class="item-body">
+                        <div class="editable item-title" contenteditable="true">
+                          Resolve storefront lead time before the next lookahead is issued.
+                        </div>
+                      </div>
+                    </article>
+                  </div>
+                  <button class="add-row">
+                    <svg class="plus-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke-width="2" stroke-linecap="round">
+                      <path d="M12 5v14" />
+                      <path d="M5 12h14" />
+                    </svg>
+                    Add item
+                  </button>
+                </div>
+              </section>
+
+              <section class="action-items-main">
+                <div class="action-items-header">
+                  <h2>Action items</h2>
+                  <p class="mode-note">
+                    Populated from the prior meeting and open project tasks. Remove or add items as needed below.
+                  </p>
+                </div>
+                <div class="action-items-list">
+                  <article class="action-item-row">
+                    <span class="item-number">1.1</span>
+                    <div>
+                      <div class="editable action-item-title" contenteditable="true">Send revised lighting pricing.</div>
+                      <div class="action-item-meta">Brandon, yesterday: waiting on pricing.</div>
+                    </div>
+                    <span class="action-item-state">Open, due Jul 10</span>
+                  </article>
+                  <article class="action-item-row">
+                    <span class="item-number">2.1</span>
+                    <div>
+                      <div class="editable action-item-title" contenteditable="true">Confirm storefront lead time.</div>
+                      <div class="action-item-meta">Architect, yesterday: submittal returned.</div>
+                    </div>
+                    <span class="action-item-state">Open, due Jul 9</span>
+                  </article>
+                </div>
+                <button class="add-row">
+                  <svg class="plus-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke-width="2" stroke-linecap="round">
+                    <path d="M12 5v14" />
+                    <path d="M5 12h14" />
+                  </svg>
+                  Add item
+                </button>
+              </section>
+            </div>
+
+            <aside class="rail" aria-label="Meeting command rail">
+              <section class="rail-module">
+                <div class="rail-title">
+                  <span>Attendees</span>
+                  <span class="rail-meta">5 invited</span>
+                </div>
+                <div class="rail-list">
+                  <label class="check-row">
+                    <input type="checkbox" checked />
+                    <span>Brandon Harrison</span>
+                    <span class="rail-meta">PM</span>
+                  </label>
+                  <label class="check-row">
+                    <input type="checkbox" checked />
+                    <span>Megan Harrison</span>
+                    <span class="rail-meta">Admin</span>
+                  </label>
+                  <label class="check-row">
+                    <input type="checkbox" />
+                    <span>Architect</span>
+                    <span class="rail-meta">Guest</span>
+                  </label>
+                </div>
+              </section>
+
+              <section class="rail-module">
+                <div class="rail-title">
+                  <span>Quick links</span>
+                </div>
+                <div class="rail-list">
+                  <a class="quick-link" href="#">
+                    <span>Submittals</span>
+                    <span class="rail-meta">12 open</span>
+                  </a>
+                  <a class="quick-link" href="#">
+                    <span>RFIs</span>
+                    <span class="rail-meta">4 open</span>
+                  </a>
+                  <a class="quick-link" href="#">
+                    <span>Change events</span>
+                    <span class="rail-meta">7 active</span>
+                  </a>
+                  <a class="quick-link" href="#">
+                    <span>Change orders</span>
+                    <span class="rail-meta">3 pending</span>
+                  </a>
+                  <a class="quick-link" href="#">
+                    <span>Schedule</span>
+                    <span class="rail-meta">Lookahead</span>
+                  </a>
+                  <a class="quick-link" href="#">
+                    <span>Drawings</span>
+                    <span class="rail-meta">Latest set</span>
+                  </a>
+                  <a class="quick-link" href="#">
+                    <span>Commitments</span>
+                    <span class="rail-meta">Buyout</span>
+                  </a>
+                </div>
+              </section>
+
+              <section class="rail-module">
+                <div class="rail-title">
+                  <span>Decisions today</span>
+                  <span class="rail-meta">2</span>
+                </div>
+                <div class="rail-list">
+                  <div class="quiet-row">
+                    <span>1.2</span>
+                    <span>Use allowance balance before owner contingency.</span>
+                    <span></span>
+                  </div>
+                </div>
+              </section>
+
+              <section class="rail-module">
+                <div class="rail-title">
+                  <span>Parking lot</span>
+                </div>
+                <input class="parking-input" value="Owner signage package" />
+              </section>
+
+              <section class="rail-module">
+                <div class="rail-title">
+                  <span>Sources</span>
+                  <span class="rail-meta">4</span>
+                </div>
+                <div class="rail-list">
+                  <div class="quiet-row">
+                    <span></span>
+                    <span>Fireflies transcript</span>
+                    <span class="rail-meta">Live</span>
+                  </div>
+                  <div class="quiet-row">
+                    <span></span>
+                    <span>Lighting quote PDF</span>
+                    <span class="rail-meta">PDF</span>
+                  </div>
+                </div>
+              </section>
+            </aside>
+          </div>
+        </section>
+
+        <section class="panel" id="transcript-panel">
+          <div class="layout transcript-layout">
+            <div class="transcript">
+              <div>
+                <h2>Transcript</h2>
+                <p class="mode-note">
+                  Transcript stays first for historical meetings. Agenda is one tab away on the same detail route.
+                </p>
+              </div>
+              <div class="moment-list">
+                <article class="moment">
+                  <div class="moment-time">18:42</div>
+                  <p>
+                    Brandon: We are still waiting on the final lighting package price. I do not want to release the updated budget until that number is clean.
+                  </p>
+                  <div class="moment-actions">
+                    <button class="text-link">Link to 1.1</button>
+                    <button class="text-link">Create agenda item</button>
+                  </div>
+                </article>
+                <article class="moment">
+                  <div class="moment-time">27:05</div>
+                  <p>
+                    Megan: Storefront lead time is the critical path item for next week. We need a committed date before issuing the lookahead.
+                  </p>
+                  <div class="moment-actions">
+                    <button class="text-link">Link to 2.1</button>
+                    <button class="text-link">Create agenda item</button>
+                  </div>
+                </article>
+              </div>
+            </div>
+            <aside class="rail">
+              <section class="rail-module">
+                <div class="rail-title">
+                  <span>Agenda bridge</span>
+                </div>
+                <p class="muted">
+                  Structured agenda exists. The primary path is the Agenda tab, not a separate tool.
+                </p>
+                <button class="button secondary" data-switch-agenda>Agenda</button>
+              </section>
+              <section class="rail-module">
+                <div class="rail-title">
+                  <span>No agenda state</span>
+                </div>
+                <button class="button secondary">Create agenda from transcript</button>
+              </section>
+            </aside>
+          </div>
+        </section>
+
+        <section class="panel" id="sources-panel">
+          <div class="layout">
+            <div>
+              <h2>Sources</h2>
+              <table class="source-table" aria-label="Meeting sources">
+                <thead>
+                  <tr>
+                    <th>Source</th>
+                    <th>Linked to</th>
+                    <th>State</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Fireflies transcript</td>
+                    <td>1.1, 2.1</td>
+                    <td>Available</td>
+                  </tr>
+                  <tr>
+                    <td>Lighting quote PDF</td>
+                    <td>1.1</td>
+                    <td>Needs review</td>
+                  </tr>
+                  <tr>
+                    <td>Previous OAC minutes</td>
+                    <td>1.1, 1.2</td>
+                    <td>Collapsed by default</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" id="minutes-panel">
+          <div class="layout">
+            <div class="empty-state">
+              <h2>Minutes</h2>
+              <p class="mode-note">
+                Meeting minutes will populate after the meeting is complete.
+              </p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <script>
+      const tabs = Array.from(document.querySelectorAll(".tab"));
+      const panels = {
+        agenda: document.getElementById("agenda-panel"),
+        transcript: document.getElementById("transcript-panel"),
+        sources: document.getElementById("sources-panel"),
+        minutes: document.getElementById("minutes-panel"),
+      };
+
+      function selectTab(tabName) {
+        tabs.forEach((tab) => {
+          const active = tab.dataset.tab === tabName;
+          tab.setAttribute("aria-selected", String(active));
+        });
+        Object.entries(panels).forEach(([name, panel]) => {
+          panel.classList.toggle("active", name === tabName);
+        });
+      }
+
+      tabs.forEach((tab) => {
+        tab.addEventListener("click", () => selectTab(tab.dataset.tab));
+      });
+
+      document.querySelectorAll("[data-switch-agenda]").forEach((button) => {
+        button.addEventListener("click", () => selectTab("agenda"));
+      });
+
+      document.querySelectorAll("[data-section-toggle]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const section = button.closest(".section");
+          const collapsed = section.classList.toggle("collapsed");
+          button.setAttribute("aria-expanded", String(!collapsed));
+        });
+      });
+    </script>
+  </body>
+</html>

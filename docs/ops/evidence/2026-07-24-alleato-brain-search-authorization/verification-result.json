@@ -1,0 +1,58 @@
+{
+  "status": "PASS",
+  "taskId": "ALL-11",
+  "evidence": {
+    "actionLog": [
+      "docs/ops/evidence/2026-07-24-alleato-brain-search-authorization/action-log.md"
+    ],
+    "summary": [
+      "docs/ops/evidence/2026-07-24-alleato-brain-search-authorization/independent-review.md"
+    ],
+    "negativePath": [
+      "docs/ops/evidence/2026-07-24-alleato-brain-search-authorization/negative-path.md"
+    ],
+    "regressionTest": [
+      "docs/ops/evidence/2026-07-24-alleato-brain-search-authorization/regression-test.txt"
+    ]
+  },
+  "claims": {
+    "exact-branch-authorization": {
+      "regressionTest": [
+        "docs/ops/evidence/2026-07-24-alleato-brain-search-authorization/regression-test.txt"
+      ],
+      "negativePath": [
+        "docs/ops/evidence/2026-07-24-alleato-brain-search-authorization/negative-path.md"
+      ]
+    },
+    "finance-fail-closed": {
+      "regressionTest": [
+        "docs/ops/evidence/2026-07-24-alleato-brain-search-authorization/regression-test.txt"
+      ],
+      "negativePath": [
+        "docs/ops/evidence/2026-07-24-alleato-brain-search-authorization/negative-path.md"
+      ]
+    },
+    "communication-boundary": {
+      "regressionTest": [
+        "docs/ops/evidence/2026-07-24-alleato-brain-search-authorization/regression-test.txt"
+      ],
+      "negativePath": [
+        "docs/ops/evidence/2026-07-24-alleato-brain-search-authorization/negative-path.md"
+      ]
+    },
+    "loud-scope-failures": {
+      "regressionTest": [
+        "docs/ops/evidence/2026-07-24-alleato-brain-search-authorization/regression-test.txt"
+      ],
+      "negativePath": [
+        "docs/ops/evidence/2026-07-24-alleato-brain-search-authorization/negative-path.md"
+      ]
+    }
+  },
+  "independentReview": {
+    "reviewer": "/root/brain_search_review",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-24T03:20:00Z",
+    "artifact": "docs/ops/evidence/2026-07-24-alleato-brain-search-authorization/independent-review.md"
+  }
+}

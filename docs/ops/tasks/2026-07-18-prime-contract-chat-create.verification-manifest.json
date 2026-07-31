@@ -1,0 +1,46 @@
+{
+  "contractVersion": 1,
+  "taskId": "AAI-1160",
+  "feature": "Create Prime Contracts through AI Assistant chat",
+  "route": "/ai-assistant",
+  "flows": [
+    {
+      "name": "Manual SOV create",
+      "steps": ["Describe the Prime Contract and manual SOV rows", "Review the typed draft", "Approve the exact write plan", "Open the created Prime Contract"],
+      "expectedOutcome": "The contract and every manual SOV row persist and appear on the canonical detail route"
+    },
+    {
+      "name": "Budget-backed SOV create",
+      "steps": ["Request project budget as the SOV source", "Select eligible budget rows", "Review totals and unapplied markups", "Approve and open the contract"],
+      "expectedOutcome": "The created SOV rows preserve their canonical project budget-code relationships"
+    },
+    {
+      "name": "Workbook-backed SOV create",
+      "steps": ["Attach an estimate workbook", "Preview normalized rows", "Resolve unmatched budget codes", "Approve and open the contract"],
+      "expectedOutcome": "Only selected valid workbook rows persist through the canonical Prime Contract creation flow"
+    },
+    {
+      "name": "Failure and recovery",
+      "steps": ["Trigger a deterministic invalid, duplicate, permission, or partial-write state", "Observe the named cause", "Use the offered recovery action", "Reload the conversation"],
+      "expectedOutcome": "No silent or duplicate write occurs and the recovery state survives reload"
+    }
+  ],
+  "requiredEvidence": ["screenshots", "videos", "actionLog", "databaseReadback", "reloadProof", "negativePath", "visualReview", "regressionTest"],
+  "visual": {
+    "viewports": ["desktop", "tablet", "mobile"],
+    "checks": ["No horizontal overflow", "One primary approval action", "Draft source and validation are readable", "Failure and recovery states are explicit", "All mobile controls meet the 44px target"]
+  },
+  "independentReview": { "required": true },
+  "claims": [
+    { "id": "starting-state", "description": "The initiating chat request is captured", "evidence": [{ "key": "screenshots", "min": 1 }] },
+    { "id": "draft-state", "description": "The complete Prime Contract draft is captured before approval", "evidence": [{ "key": "screenshots", "min": 1 }] },
+    { "id": "approval-state", "description": "The exact write plan and explicit approval state are captured", "evidence": [{ "key": "screenshots", "min": 1 }] },
+    { "id": "result-state", "description": "The created contract receipt and canonical detail route are captured", "evidence": [{ "key": "screenshots", "min": 1 }] },
+    { "id": "database-persistence", "description": "Contract fields, SOV rows, and budget links are verified in the database", "evidence": [{ "key": "databaseReadback", "min": 1 }] },
+    { "id": "reload-proof", "description": "Conversation reload preserves the widget state", "evidence": [{ "key": "reloadProof", "min": 1 }] },
+    { "id": "negative-path", "description": "Validation, permission, duplicate, and partial-write recovery are verified", "evidence": [{ "key": "negativePath", "min": 1 }] },
+    { "id": "visual-desktop", "description": "Desktop visual review is complete", "evidence": [{ "key": "visualReview", "min": 1 }] },
+    { "id": "visual-mobile", "description": "Tablet and mobile visual review is complete", "evidence": [{ "key": "visualReview", "min": 2 }] },
+    { "id": "regression", "description": "Durable service, tool, widget, and journey regression tests exist", "evidence": [{ "key": "regressionTest", "min": 1 }] }
+  ]
+}

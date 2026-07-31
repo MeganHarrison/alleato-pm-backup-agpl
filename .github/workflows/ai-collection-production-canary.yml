@@ -1,0 +1,95 @@
+name: AI Collection Production Canary
+
+on:
+  schedule:
+    - cron: "30 11 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ai-collection-production-canary
+  cancel-in-progress: false
+
+jobs:
+  canary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DATABASE_URL: ${{ secrets.AI_EVAL_DATABASE_URL }}
+      AI_EVAL_SUPABASE_URL: ${{ secrets.AI_EVAL_SUPABASE_URL }}
+      AI_EVAL_SUPABASE_ANON_KEY: ${{ secrets.AI_EVAL_SUPABASE_ANON_KEY }}
+      AI_EVAL_SUPABASE_EMAIL: ${{ secrets.AI_EVAL_SUPABASE_EMAIL }}
+      AI_EVAL_SUPABASE_PASSWORD: ${{ secrets.AI_EVAL_SUPABASE_PASSWORD }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: "10.13.1"
+
+      - name: Validate configured canary secrets
+        shell: bash
+        run: |
+          required=(
+            DATABASE_URL
+            AI_EVAL_SUPABASE_URL
+            AI_EVAL_SUPABASE_ANON_KEY
+            AI_EVAL_SUPABASE_EMAIL
+            AI_EVAL_SUPABASE_PASSWORD
+          )
+          for name in "${required[@]}"; do
+            if [[ -z "${!name}" ]]; then
+              echo "Missing required canary secret: ${name}"
+              exit 1
+            fi
+          done
+
+      - name: Install verifier dependencies
+        # The root verifier only needs root dependencies. The workspace lock is
+        # currently blocked by an unrelated app-expert importer mismatch, so do
+        # not let that debt disable this production monitor or rewrite the lock.
+        run: pnpm install --ignore-workspace --lockfile=false --ignore-scripts
+
+      - name: Mark canary artifact boundary
+        shell: bash
+        run: touch "${RUNNER_TEMP}/collection-canary-start"
+
+      - name: Run semantic collection production canary
+        run: npm run rag:verify:collection-canary:prod
+
+      - name: Locate this run's artifacts
+        if: always()
+        id: canary-artifacts
+        shell: bash
+        run: |
+          run_dir=$(find docs/ai-plan/evals/runs \
+            -mindepth 1 -maxdepth 1 -type d \
+            -newer "${RUNNER_TEMP}/collection-canary-start" \
+            | sort | tail -n 1)
+          echo "run_dir=${run_dir}" >> "${GITHUB_OUTPUT}"
+          if [[ -f "${run_dir}/summary.md" ]]; then
+            cat "${run_dir}/summary.md" >> "${GITHUB_STEP_SUMMARY}"
+          elif [[ -n "${run_dir}" ]]; then
+            echo "The canary created ${run_dir}, but no summary was produced." >> "${GITHUB_STEP_SUMMARY}"
+          else
+            echo "No canary summary was produced." >> "${GITHUB_STEP_SUMMARY}"
+          fi
+
+      - name: Upload machine-readable canary artifacts
+        if: always() && steps.canary-artifacts.outputs.run_dir != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-collection-production-canary-${{ github.run_id }}
+          path: ${{ steps.canary-artifacts.outputs.run_dir }}
+          if-no-files-found: error
+          retention-days: 30

@@ -1,0 +1,81 @@
+{
+  "contractVersion": 1,
+  "taskId": "AI-ASSISTANT-SCOPE-ROOT-CAUSE-0722",
+  "riskLevel": "high",
+  "feature": "AI assistant selected-project scope boundary",
+  "route": "/",
+  "flows": [
+    {
+      "name": "Missing selected-project context",
+      "steps": [
+        "Open the global AI assistant without selecting a project",
+        "Ask a question about this project or this job",
+        "Ask an explicit contextual follow-up"
+      ],
+      "expectedOutcome": "Both turns stop before retrieval and instruct the user to select a project"
+    },
+    {
+      "name": "Selected-project meeting scope",
+      "steps": [
+        "Open the global assistant project picker",
+        "Select a project by pointer",
+        "Resend the stopped most-recent-meetings question",
+        "Read back the trace"
+      ],
+      "expectedOutcome": "The composer and trace carry the exact selected project ID, the resend uses the canonical recent-meetings reader, and no unrelated project evidence is substituted"
+    }
+  ],
+  "requiredEvidence": [
+    "screenshots",
+    "actionLog",
+    "summary",
+    "negativePath",
+    "visualReview",
+    "regressionTest"
+  ],
+  "visual": {
+    "viewports": ["desktop", "mobile"],
+    "checks": [
+      "Project options render above the fixed widget panel",
+      "Project option pointer selection succeeds",
+      "The selected project is exposed in accessible composer state",
+      "No new wrapper panel, duplicate action, or visual filler is introduced"
+    ]
+  },
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "missing-scope-stop",
+      "description": "Project-relative requests with no selected project stop before source retrieval",
+      "evidence": [
+        { "key": "negativePath", "min": 1 },
+        { "key": "summary", "min": 1 }
+      ]
+    },
+    {
+      "id": "selected-scope-preserved",
+      "description": "A selected project ID survives through retrieval and trace",
+      "evidence": [
+        { "key": "summary", "min": 1 },
+        { "key": "screenshots", "min": 1 }
+      ]
+    },
+    {
+      "id": "portal-pointer-interaction",
+      "description": "The global widget project picker accepts pointer selection on desktop and mobile",
+      "evidence": [
+        { "key": "visualReview", "min": 1 },
+        { "key": "screenshots", "min": 2 }
+      ]
+    },
+    {
+      "id": "scope-regression-guard",
+      "description": "Aliases, contextual follow-ups, scope-stop recovery, fresh-topic resets, and mixed-source research have durable regression tests",
+      "evidence": [
+        { "key": "regressionTest", "min": 1 }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "checkedAt": "2026-07-22T17:27:31Z",
+  "surface": "alleato_ai",
+  "startingActiveConversationCount": 360,
+  "afterNewChatActiveConversationCount": 360,
+  "afterFirstMessageActiveConversationCount": 361,
+  "createdSession": {
+    "conversationCount": 1,
+    "messageCount": 2,
+    "roles": ["user", "assistant"],
+    "matchingUserPromptCount": 1,
+    "title": "Reply with only OK. Verification token chat-dupe-2",
+    "createdAt": "2026-07-22T17:26:37.221311+00:00",
+    "lastMessageAt": "2026-07-22T17:27:30.285+00:00"
+  },
+  "cleanup": {
+    "method": "archive through authenticated conversation DELETE route",
+    "status": 200,
+    "finalActiveConversationCount": 360
+  }
+}

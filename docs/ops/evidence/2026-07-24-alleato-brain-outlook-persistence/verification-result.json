@@ -1,0 +1,60 @@
+{
+  "status": "PASS",
+  "taskId": "ALL-11",
+  "evidence": {
+    "actionLog": [
+      "docs/ops/evidence/2026-07-24-alleato-brain-outlook-persistence/action-log.md"
+    ],
+    "summary": [
+      "docs/ops/evidence/2026-07-24-alleato-brain-outlook-persistence/independent-review.md"
+    ],
+    "databaseReadback": [
+      "docs/ops/evidence/2026-07-24-alleato-brain-outlook-persistence/database-readback.json"
+    ],
+    "negativePath": [
+      "docs/ops/evidence/2026-07-24-alleato-brain-outlook-persistence/negative-path.md"
+    ],
+    "regressionTest": [
+      "docs/ops/evidence/2026-07-24-alleato-brain-outlook-persistence/regression-test.txt"
+    ]
+  },
+  "claims": {
+    "outlook-exact-scope": {
+      "regressionTest": [
+        "docs/ops/evidence/2026-07-24-alleato-brain-outlook-persistence/regression-test.txt"
+      ],
+      "negativePath": [
+        "docs/ops/evidence/2026-07-24-alleato-brain-outlook-persistence/negative-path.md"
+      ]
+    },
+    "historical-repair": {
+      "regressionTest": [
+        "docs/ops/evidence/2026-07-24-alleato-brain-outlook-persistence/regression-test.txt"
+      ]
+    },
+    "chunk-authorization-label": {
+      "regressionTest": [
+        "docs/ops/evidence/2026-07-24-alleato-brain-outlook-persistence/regression-test.txt"
+      ]
+    },
+    "live-branch-contract": {
+      "databaseReadback": [
+        "docs/ops/evidence/2026-07-24-alleato-brain-outlook-persistence/database-readback.json"
+      ]
+    },
+    "fail-closed-replay": {
+      "negativePath": [
+        "docs/ops/evidence/2026-07-24-alleato-brain-outlook-persistence/negative-path.md"
+      ],
+      "regressionTest": [
+        "docs/ops/evidence/2026-07-24-alleato-brain-outlook-persistence/regression-test.txt"
+      ]
+    }
+  },
+  "independentReview": {
+    "reviewer": "/root/outlook_branch_review",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-24T02:50:07Z",
+    "artifact": "docs/ops/evidence/2026-07-24-alleato-brain-outlook-persistence/independent-review.md"
+  }
+}

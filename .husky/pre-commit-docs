@@ -1,0 +1,58 @@
+#!/usr/bin/env sh
+
+# Documentation structure validation
+# This hook ensures all documentation follows DOCUMENTATION-STANDARDS.md
+
+echo "🔍 Validating documentation structure..."
+
+# Check if any documentation files are being committed
+STAGED_DOC_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep "^documentation/.*\.md$" || true)
+
+if [ -z "$STAGED_DOC_FILES" ]; then
+  # No documentation files staged, skip validation
+  exit 0
+fi
+
+# Check if any files are being added/modified in documentation root (not allowed)
+STAGED_ROOT_DOCS=$(git diff --cached --name-only --diff-filter=ACM | grep "^documentation/[^/]*\.md$" || true)
+
+if [ -n "$STAGED_ROOT_DOCS" ]; then
+  echo ""
+  echo "❌ ERROR: Documentation files found in /documentation root:"
+  echo ""
+  echo "$STAGED_ROOT_DOCS" | while read file; do
+    echo "  - $file"
+  done
+  echo ""
+  echo "📚 According to DOCUMENTATION-STANDARDS.md, documentation files must be placed in:"
+  echo "   - documentation/docs/[category]/ (for most documentation)"
+  echo "   - documentation/forms/ (for form-specific docs)"
+  echo "   - documentation/directory/ (for directory feature docs)"
+  echo ""
+  echo "Only meta-documentation files are allowed in /documentation root:"
+  echo "   - DOCUMENTATION-STANDARDS.md"
+  echo "   - DOCUMENTATION-QUICK-REFERENCE.md"
+  echo "   - INDEX.md"
+  echo "   - RULE-VIOLATION-LOG.md"
+  echo "   - SPACING-*.md"
+  echo "   - CLAUDE-CODE-PERMISSIONS-GUIDE.md"
+  echo ""
+  echo "Run '/doc-check' before creating documentation to ensure correct placement."
+  echo ""
+  exit 1
+fi
+
+# Run full documentation structure validation
+if command -v node >/dev/null 2>&1; then
+  node scripts/docs/validate-doc-structure.cjs
+  if [ $? -ne 0 ]; then
+    echo ""
+    echo "Fix the documentation structure issues above before committing."
+    echo "Run: node scripts/docs/validate-doc-structure.cjs"
+    echo ""
+    exit 1
+  fi
+fi
+
+echo "✅ Documentation structure is valid"
+exit 0

@@ -1,0 +1,607 @@
+/*
+ * Daily Executive Brief
+ *
+ * The canonical packet is a reading surface first and an action surface second.
+ * This stylesheet stays scoped under `.exec-brief` and uses only shared semantic
+ * tokens from the Alleato design system.
+ */
+
+.exec-brief {
+  --brief-paper: hsl(var(--background));
+  --brief-surface: hsl(var(--card));
+  --brief-ink: hsl(var(--foreground));
+  --brief-muted: hsl(var(--muted-foreground));
+  --brief-line: hsl(var(--border));
+  --brief-line-soft: hsl(var(--border) / 0.6);
+  --brief-accent: hsl(var(--primary));
+  --brief-critical: hsl(var(--destructive));
+  --brief-warning: hsl(var(--status-warning));
+  --brief-positive: hsl(var(--status-success));
+  --brief-mono:
+    var(--font-brief-mono), var(--font-mono), ui-monospace, monospace;
+  --brief-max: 1120px;
+
+  min-height: 100%;
+  background: var(--brief-paper);
+  color: var(--brief-ink);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.6;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+.exec-brief * {
+  box-sizing: border-box;
+}
+
+.exec-brief a {
+  color: var(--brief-accent);
+}
+
+.exec-brief :focus-visible {
+  border-radius: var(--radius-sm);
+  outline: 2px solid var(--brief-accent);
+  outline-offset: 3px;
+}
+
+/* Masthead */
+
+.exec-brief .masthead {
+  border-bottom: 1px solid var(--brief-line);
+  background: hsl(var(--muted) / 0.32);
+}
+
+.exec-brief .masthead__inner {
+  max-width: var(--brief-max);
+  margin: 0 auto;
+  padding: 46px 36px 38px;
+}
+
+.exec-brief .masthead__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 24px;
+  color: var(--brief-muted);
+  font-family: var(--brief-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.exec-brief .masthead__date {
+  margin: 26px 0 0;
+  color: var(--brief-ink);
+  font-size: clamp(2.5rem, 6vw, 4.35rem);
+  font-weight: 760;
+  letter-spacing: -0.055em;
+  line-height: 0.98;
+}
+
+.exec-brief .masthead__date small {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--brief-muted);
+  font-family: var(--brief-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.exec-brief .thesis {
+  max-width: 38ch;
+  margin: 24px 0 0;
+  font-size: clamp(1.25rem, 2.4vw, 1.75rem);
+  font-weight: 520;
+  letter-spacing: -0.022em;
+  line-height: 1.35;
+}
+
+.exec-brief .masthead__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px 28px;
+  margin-top: 34px;
+  padding-top: 18px;
+  border-top: 1px solid var(--brief-line-soft);
+}
+
+.exec-brief .coverage-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 24px;
+  color: var(--brief-muted);
+  font-size: 12px;
+}
+
+.exec-brief .coverage-summary span {
+  white-space: nowrap;
+}
+
+.exec-brief .coverage-summary b {
+  color: var(--brief-ink);
+  font-family: var(--brief-mono);
+  font-size: 13px;
+}
+
+.exec-brief .report-link {
+  font-size: 13px;
+  font-weight: 650;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
+/* Content hierarchy */
+
+.exec-brief .content {
+  max-width: var(--brief-max);
+  margin: 0 auto;
+  padding: 54px 36px 72px;
+}
+
+.exec-brief .brief-section,
+.exec-brief .brief-overview {
+  scroll-margin-top: 24px;
+  margin: 0 0 72px;
+}
+
+.exec-brief .section-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 24px;
+  padding-bottom: 13px;
+  border-bottom: 1px solid var(--brief-line);
+}
+
+.exec-brief .section-eyebrow {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--brief-muted);
+  font-family: var(--brief-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.exec-brief .section-title {
+  font-size: clamp(1.45rem, 3vw, 2rem);
+  font-weight: 720;
+  letter-spacing: -0.035em;
+  line-height: 1.15;
+}
+
+.exec-brief .section-meta {
+  padding-bottom: 2px;
+  color: var(--brief-muted);
+  font-family: var(--brief-mono);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.exec-brief .lead {
+  max-width: 54ch;
+  margin: 0;
+  font-size: clamp(1.25rem, 2.5vw, 1.65rem);
+  font-weight: 520;
+  letter-spacing: -0.02em;
+  line-height: 1.45;
+}
+
+.exec-brief .read-sub {
+  max-width: 72ch;
+  margin: 14px 0 0;
+  color: var(--brief-muted);
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+.exec-brief .watchouts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 32px;
+  margin-top: 30px;
+  border-top: 1px solid var(--brief-line);
+  border-bottom: 1px solid var(--brief-line);
+}
+
+.exec-brief .watchout {
+  min-width: 0;
+  padding: 18px 0;
+}
+
+.exec-brief .watchout:nth-child(n + 3) {
+  border-top: 1px solid var(--brief-line-soft);
+}
+
+.exec-brief .watchout > span {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--brief-warning);
+  font-family: var(--brief-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.exec-brief .watchout--critical > span {
+  color: var(--brief-critical);
+}
+
+.exec-brief .watchout--positive > span {
+  color: var(--brief-positive);
+}
+
+.exec-brief .watchout p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.exec-brief .assessment-copy {
+  max-width: 78ch;
+  margin-top: 34px;
+  padding-top: 28px;
+  border-top: 3px solid var(--brief-ink);
+}
+
+.exec-brief .assessment-copy p,
+.exec-brief .brief-narrative p,
+.exec-brief .brief-narrative li {
+  font-size: 1rem;
+  line-height: 1.8;
+}
+
+.exec-brief .assessment-copy > div,
+.exec-brief .brief-narrative > div {
+  display: grid;
+  gap: 14px;
+}
+
+/* Persisted narrative sections */
+
+.exec-brief .narrative-section {
+  max-width: 100%;
+}
+
+.exec-brief .brief-narrative {
+  max-width: 80ch;
+}
+
+.exec-brief .brief-narrative ul,
+.exec-brief .brief-narrative ol {
+  display: grid;
+  gap: 8px;
+}
+
+.exec-brief .brief-narrative li::marker {
+  color: var(--brief-accent);
+}
+
+.exec-brief .brief-narrative a {
+  text-underline-offset: 3px;
+}
+
+.exec-brief .priority-sections .narrative-section {
+  margin-bottom: 64px;
+  padding-left: 24px;
+  border-left: 4px solid var(--brief-accent);
+}
+
+.exec-brief .narrative-section--risk .section-heading {
+  border-bottom-color: hsl(var(--destructive) / 0.45);
+}
+
+.exec-brief .narrative-section--opportunity .section-heading {
+  border-bottom-color: hsl(var(--status-success) / 0.45);
+}
+
+.exec-brief .narrative-section--evidence {
+  padding-top: 28px;
+  border-top: 1px solid var(--brief-line);
+}
+
+/* Decision queue */
+
+.exec-brief .section-intro {
+  max-width: 66ch;
+  margin: -8px 0 24px;
+  color: var(--brief-muted);
+  font-size: 14px;
+}
+
+/* Recommended systems — the fix for each prevention finding. Hairline row
+   rules and spacing only: no card, no wrapper border, per the noise gate. */
+.exec-brief .recommended-systems {
+  border-top: 1px solid var(--brief-line);
+}
+
+.exec-brief .recommended-system {
+  padding: 26px 0;
+  border-bottom: 1px solid var(--brief-line);
+}
+
+.exec-brief .recommended-system.is-critical {
+  margin: 0 -18px;
+  padding: 26px 18px;
+  background: hsl(var(--destructive) / 0.035);
+}
+
+.exec-brief .recommended-system-problem {
+  margin-bottom: 14px;
+  font-size: 17px;
+  font-weight: 650;
+  letter-spacing: -0.015em;
+  line-height: 1.3;
+}
+
+.exec-brief .recommended-system-gap,
+.exec-brief .recommended-system-fix {
+  max-width: 74ch;
+  margin: 0 0 10px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.exec-brief .recommended-system-fix {
+  margin-bottom: 0;
+}
+
+.exec-brief .recommended-system-gap span,
+.exec-brief .recommended-system-fix span {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--brief-muted);
+  font-family: var(--brief-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.exec-brief .recommended-system-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin: 14px 0 0;
+  color: var(--brief-muted);
+  font-family: var(--brief-mono);
+  font-size: 11px;
+}
+
+.exec-brief .decisions {
+  border-top: 1px solid var(--brief-line);
+}
+
+.exec-brief .decision {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px 28px;
+  padding: 28px 0;
+  border-bottom: 1px solid var(--brief-line);
+}
+
+.exec-brief .decision.is-critical {
+  margin: 0 -18px;
+  padding: 28px 18px;
+  background: hsl(var(--destructive) / 0.035);
+}
+
+.exec-brief .decision__eyebrow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin-bottom: 8px;
+  color: var(--brief-muted);
+  font-family: var(--brief-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.exec-brief .decision__eyebrow span:first-child:not(:last-child) {
+  color: var(--brief-critical);
+}
+
+.exec-brief .decision__title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.exec-brief .decision__question {
+  max-width: 68ch;
+  margin: 8px 0 0;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.exec-brief .decision__context {
+  max-width: 72ch;
+  margin: 8px 0 0;
+  color: var(--brief-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.exec-brief .decision__due {
+  min-width: 104px;
+  text-align: right;
+}
+
+.exec-brief .decision__status {
+  color: var(--brief-muted);
+  font-family: var(--brief-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.exec-brief .due-when {
+  display: block;
+  margin-top: 6px;
+  color: var(--brief-muted);
+  font-size: 11px;
+}
+
+.exec-brief .decision__sources {
+  display: flex;
+  grid-column: 1 / -1;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 7px 12px;
+  color: var(--brief-muted);
+  font-size: 11px;
+}
+
+.exec-brief .decision__sources-label {
+  font-family: var(--brief-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.exec-brief .decision__sources a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.exec-brief .decision__sources em {
+  color: var(--brief-muted);
+  font-style: normal;
+}
+
+.exec-brief .decision__sources-missing {
+  color: var(--brief-critical);
+}
+
+.exec-brief .decision__action {
+  grid-column: 1 / -1;
+  margin-top: 2px;
+}
+
+/* Governance and footer */
+
+.exec-brief .brief-workflow {
+  margin-top: 84px;
+  padding-top: 40px;
+  border-top: 3px solid var(--brief-ink);
+}
+
+.exec-brief .brief-artifact {
+  margin-top: 36px;
+  padding-top: 24px;
+  border-top: 1px solid var(--brief-line);
+  color: var(--brief-muted);
+}
+
+.exec-brief .brief-footer {
+  display: flex;
+  max-width: var(--brief-max);
+  margin: 0 auto;
+  padding: 32px 36px 44px;
+  border-top: 1px solid var(--brief-line);
+  color: var(--brief-muted);
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.exec-brief .brief-footer > div,
+.exec-brief .brief-footer > p {
+  flex: 1 1 0;
+  margin: 0;
+}
+
+.exec-brief .brief-footer b,
+.exec-brief .brief-footer span {
+  display: block;
+}
+
+@media (max-width: 720px) {
+  .exec-brief .masthead__inner,
+  .exec-brief .content,
+  .exec-brief .brief-footer {
+    padding-right: 20px;
+    padding-left: 20px;
+  }
+
+  .exec-brief .masthead__inner {
+    padding-top: 30px;
+    padding-bottom: 30px;
+  }
+
+  .exec-brief .masthead__date {
+    margin-top: 22px;
+  }
+
+  .exec-brief .content {
+    padding-top: 40px;
+  }
+
+  .exec-brief .brief-section,
+  .exec-brief .brief-overview {
+    margin-bottom: 56px;
+  }
+
+  .exec-brief .watchouts {
+    grid-template-columns: 1fr;
+  }
+
+  .exec-brief .watchout:nth-child(n + 2) {
+    border-top: 1px solid var(--brief-line-soft);
+  }
+
+  .exec-brief .priority-sections .narrative-section {
+    padding-left: 16px;
+    border-left-width: 3px;
+  }
+
+  .exec-brief .decision {
+    grid-template-columns: 1fr;
+  }
+
+  .exec-brief .decision__due {
+    text-align: left;
+  }
+
+  .exec-brief .brief-footer {
+    display: grid;
+    gap: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .exec-brief *,
+  .exec-brief *::before,
+  .exec-brief *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media print {
+  .exec-brief .decision__action,
+  .exec-brief .brief-workflow,
+  .exec-brief .report-link {
+    display: none;
+  }
+
+  .exec-brief .brief-section,
+  .exec-brief .brief-overview,
+  .exec-brief .decision {
+    break-inside: avoid;
+  }
+}

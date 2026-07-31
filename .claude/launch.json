@@ -1,0 +1,26 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "alleato-frontend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "frontend",
+        "run",
+        "dev"
+      ],
+      "port": 3001,
+      "autoPort": true
+    },
+    {
+      "name": "innovation-lab",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": [
+        "-c",
+        "cd /Users/meganharrison/Documents/github/alleato-innovation-lab/frontend && pnpm exec next dev -p 3050"
+      ],
+      "port": 3050
+    }
+  ]
+}

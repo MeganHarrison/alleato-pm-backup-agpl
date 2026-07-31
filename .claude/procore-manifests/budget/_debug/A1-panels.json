@@ -1,0 +1,23 @@
+{
+  "trigger": {
+    "text": "$ 3,500.00",
+    "href": "",
+    "x": 803,
+    "y": 356
+  },
+  "newPanels": [
+    {
+      "tag": "DIV",
+      "id": "",
+      "cls": "StyledSplitViewCardAside-core-12_44_0__sc-9hrkda-2 cyGCRm StyledPanel-ehZDNB",
+      "role": null,
+      "ariaLabel": null,
+      "x": 827,
+      "y": 182,
+      "w": 540,
+      "h": 678,
+      "position": "absolute",
+      "zIndex": "2"
+    }
+  ]
+}

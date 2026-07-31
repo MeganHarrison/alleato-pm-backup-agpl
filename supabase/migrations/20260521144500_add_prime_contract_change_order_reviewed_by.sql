@@ -1,0 +1,2 @@
+alter table public.prime_contract_change_orders
+  add column if not exists reviewed_by text;

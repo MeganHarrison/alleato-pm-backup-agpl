@@ -1,0 +1,50 @@
+{
+  "contractVersion": 1,
+  "taskId": "AAI-1185",
+  "feature": "Workbook-backed Prime Contract creation through AI chat",
+  "route": "/ai",
+  "flows": [
+    {
+      "name": "Positive workbook-backed create",
+      "steps": [
+        "Select the active project context",
+        "Attach a canonical Alleato estimate workbook",
+        "Review exact mapped SOV rows and planned writes",
+        "Request and explicitly grant signed approval",
+        "Reload the receipt and open the canonical Prime Contract"
+      ],
+      "expectedOutcome": "Exactly one Prime Contract and two budget-code-linked SOV rows persist with the workbook total"
+    }
+  ],
+  "requiredEvidence": [
+    "screenshots",
+    "actionLog",
+    "databaseReadback",
+    "reloadProof",
+    "negativePath",
+    "visualReview",
+    "regressionTest"
+  ],
+  "visual": {
+    "viewports": ["desktop", "mobile"],
+    "checks": [
+      "No document-level horizontal overflow",
+      "One explicit approval action",
+      "Workbook source, rows, totals, and unapplied markups are readable",
+      "Created receipt links to the canonical detail route"
+    ]
+  },
+  "independentReview": { "required": true },
+  "claims": [
+    { "id": "draft-state", "description": "The mapped workbook draft is captured before approval", "evidence": [{ "key": "screenshots", "min": 1 }] },
+    { "id": "approval-state", "description": "The exact signed approval state is captured", "evidence": [{ "key": "screenshots", "min": 1 }] },
+    { "id": "result-state", "description": "The created receipt and canonical route are captured", "evidence": [{ "key": "screenshots", "min": 2 }] },
+    { "id": "database-persistence", "description": "Contract fields, SOV rows, totals, and budget-code links are verified", "evidence": [{ "key": "databaseReadback", "min": 1 }] },
+    { "id": "reload-proof", "description": "Conversation reload preserves the created receipt", "evidence": [{ "key": "reloadProof", "min": 1 }] },
+    { "id": "negative-path", "description": "Invalid runtime configuration fails loudly before a write", "evidence": [{ "key": "negativePath", "min": 1 }] },
+    { "id": "visual-desktop", "description": "Desktop visual review is complete", "evidence": [{ "key": "visualReview", "min": 1 }] },
+    { "id": "visual-mobile", "description": "Mobile visual review and overflow checks are complete", "evidence": [{ "key": "visualReview", "min": 1 }] },
+    { "id": "regression", "description": "Canonical parser, tool, approval, and chat seams pass regression tests", "evidence": [{ "key": "regressionTest", "min": 1 }] },
+    { "id": "runtime-config", "description": "The approval secret is configured in every Vercel target", "evidence": [{ "key": "actionLog", "min": 1 }] }
+  ]
+}

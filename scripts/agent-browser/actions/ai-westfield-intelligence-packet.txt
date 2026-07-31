@@ -1,0 +1,21 @@
+# One agent-browser command per line. The verification runner injects the session and loads .env.
+snapshot -i
+fill @e2 "$TEST_USER_1"
+fill @e4 "$TEST_PASSWORD_1"
+click @e6
+wait 6000
+eval "Array.from(document.querySelectorAll('button')).find((button) => /Close welcome|Continue/.test(button.textContent || ''))?.click()"
+wait 2000
+eval "Array.from(document.querySelectorAll('button')).find((button) => /Close welcome/.test(button.textContent || ''))?.click()"
+wait 1000
+snapshot -i
+click @e1
+wait 1000
+snapshot -i
+fill @e20 "What's the latest on Westfield Collective?"
+focus @e20
+press Enter
+wait 20000
+eval "if (!document.body.textContent?.includes('Current read:') || !document.body.textContent?.includes('Resolved target: Westfield Collective')) throw new Error('Westfield intelligence packet answer did not render')"
+get text body
+snapshot -i

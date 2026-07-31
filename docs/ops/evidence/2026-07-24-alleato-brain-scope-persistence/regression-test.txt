@@ -1,0 +1,11 @@
+Command:
+pytest -q backend/tests/test_business_area_embedder.py
+
+Result:
+6 passed, 9 unrelated deprecation warnings.
+
+Proved:
+- exact Business Area scope clears project scope in both databases
+- exact project scope clears Business Area metadata in both databases
+- dual scope is rejected
+- missing RAG replica is detected before either database is mutated

@@ -1,0 +1,72 @@
+#!/usr/bin/env sh
+
+# RAG architecture docs freshness gate — message-dependent half.
+# Runs at commit-msg time (not pre-commit) because this is the only hook
+# stage where the FINAL commit message is available on disk, regardless of
+# whether the commit was made with `-m`, an editor, or --amend. See
+# .husky/pre-commit-rag-docs for why a pre-commit check of COMMIT_EDITMSG
+# cannot see the current message.
+#
+# See: .claude/rules/RAG-DOCS-GATE.md
+
+MSG_FILE="$1"
+
+STAGED=$(git diff --cached --name-only --diff-filter=ACMR)
+
+if [ -z "$STAGED" ]; then
+  exit 0
+fi
+
+# Patterns that count as RAG-touching changes
+RAG_PATHS=$(echo "$STAGED" | grep -E '^(frontend/src/lib/ai/|backend/src/services/pipeline/|backend/src/services/integrations/microsoft_graph/|backend/src/services/intelligence/|alleato-ai/alleato_ai/tools/(rag|db|acumatica|recent|rerank)\.py|alleato-ai/alleato_ai/prompts/)' || true)
+
+# Migrations that touch RAG tables / RPCs
+RAG_MIGRATIONS=$(echo "$STAGED" | grep -E '^supabase/migrations/.*\.sql$' | xargs -I{} sh -c "grep -lEi 'document_chunks|document_metadata|rag_document_metadata|rag_pipeline_state|outlook_email_intake|document_user_access|document_group_access|search_document_chunks|search_all_knowledge|search_knowledge_base|acumatica_' {} 2>/dev/null" || true)
+
+if [ -z "$RAG_PATHS" ] && [ -z "$RAG_MIGRATIONS" ]; then
+  exit 0
+fi
+
+# A RAG-touching change is staged. Require updates to the two human-edited sources
+# (architecture doc + tables.yaml).
+DOCS_STAGED=$(echo "$STAGED" | grep -E '^docs/architecture/(AI-RAG-ARCHITECTURE\.md|tables\.yaml)$' || true)
+ARCH_DOC=$(echo "$DOCS_STAGED" | grep "AI-RAG-ARCHITECTURE.md" || true)
+YAML_DOC=$(echo "$DOCS_STAGED" | grep "tables.yaml" || true)
+
+# Check opt-out token in the actual commit message being created.
+if [ -f "$MSG_FILE" ] && grep -qE '\[skip-rag-docs\]' "$MSG_FILE"; then
+  echo "⚠️  [skip-rag-docs] token present — RAG docs freshness check bypassed."
+  echo "    If this change touched architecture or table state, you owe a follow-up commit."
+  exit 0
+fi
+
+if [ -z "$ARCH_DOC" ] && [ -z "$YAML_DOC" ]; then
+  echo ""
+  echo "❌ RAG DOCS GATE — staged changes touch RAG-related code:"
+  echo ""
+  [ -n "$RAG_PATHS" ] && echo "$RAG_PATHS" | sed 's/^/   • /'
+  [ -n "$RAG_MIGRATIONS" ] && echo "$RAG_MIGRATIONS" | sed 's/^/   • (migration) /'
+  echo ""
+  echo "   But neither of the human-edited sources was updated:"
+  echo "   ✗ docs/architecture/AI-RAG-ARCHITECTURE.md  (architecture narrative)"
+  echo "   ✗ docs/architecture/tables.yaml             (table metadata source)"
+  echo ""
+  echo "   At least one must be updated. Stale docs break the next agent session."
+  echo ""
+  echo "   What to do:"
+  echo "   1. Read .claude/rules/RAG-DOCS-GATE.md for what each artifact owns"
+  echo "   2. If you added/dropped/changed a table → edit tables.yaml,"
+  echo "      then run: npm run db:inventory  (regenerates TABLE-LIST.md)"
+  echo "   3. If you changed the architecture (tool count, agent, pipeline) →"
+  echo "      edit AI-RAG-ARCHITECTURE.md and bump 'Last verified: YYYY-MM-DD'"
+  echo "   4. For dated narrative/decisions, also append to TABLE-INVENTORY.md"
+  echo "   5. git add the changed files and re-commit"
+  echo ""
+  echo "   Genuine no-op for docs (rename a local var, typo, etc.)?"
+  echo "   Add [skip-rag-docs] to your commit subject line."
+  echo ""
+  exit 1
+fi
+
+echo "✅ RAG docs gate — architecture sources updated alongside RAG changes."
+exit 0

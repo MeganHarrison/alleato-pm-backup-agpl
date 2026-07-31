@@ -1,0 +1,62 @@
+{
+    "claudeCodeChat.permissions.yoloMode": true,
+    "favorites.resources": [
+        {
+            "filePath": "frontend/src/design-system/examples/premium-examples-light.html",
+            "group": "Default"
+        },
+        {
+            "filePath": "frontend/src/design-system/examples/premium-examples.html",
+            "group": "Default"
+        },
+        {
+            "filePath": "frontend/src/app/(main)/[projectId]/home/project-home-client.tsx",
+            "group": "Default"
+        },
+        {
+            "filePath": ".claude/commands/workflow/iterate_plan.md",
+            "group": "Default"
+        },
+        {
+            "filePath": ".claude/commands/feature-crawl.md",
+            "group": "Default"
+        },
+        {
+            "filePath": "_bmad-output/planning-artifacts/commitments/implementation",
+            "group": "Default"
+        },
+        {
+            "filePath": "frontend/src/components/direct-costs/DirectCostForm.tsx",
+            "group": "Default"
+        },
+        {
+            "filePath": "docs/design/design-inspiration/original-7f238f33228255d5d2a8b52982074cca.webp",
+            "group": "Default"
+        },
+        {
+            "filePath": "docs/project-overview",
+            "group": "Default"
+        },
+        {
+            "filePath": "docs/architecture/ai-rag-architecture.html",
+            "group": "Default"
+        },
+        {
+            "filePath": "docs/PRODUCT.md",
+            "group": "Default"
+        }
+    ],
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true,
+        "**/.gemini": true,
+        ".gemini": true
+    },
+    "explorerExclude.backup": {},
+    "markdown-pdf.convertOnSave": false,
+    "markdown-preview-enhanced.enableScriptExecution": false,
+    "markdown.extension.print.onFileSave": false
+}

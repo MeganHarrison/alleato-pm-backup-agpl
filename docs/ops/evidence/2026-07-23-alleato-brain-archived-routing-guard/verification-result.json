@@ -1,0 +1,55 @@
+{
+  "status": "PASS",
+  "taskId": "ALL-11",
+  "evidence": {
+    "actionLog": [
+      "docs/ops/evidence/2026-07-23-alleato-brain-archived-routing-guard/runtime-localization.md"
+    ],
+    "summary": [
+      "docs/ops/evidence/2026-07-23-alleato-brain-archived-routing-guard/independent-review.md"
+    ],
+    "databaseReadback": [
+      "docs/ops/evidence/2026-07-23-alleato-brain-archived-routing-guard/database-readback.json"
+    ],
+    "negativePath": [
+      "docs/ops/evidence/2026-07-23-alleato-brain-archived-routing-guard/negative-path.md"
+    ],
+    "regressionTest": [
+      "docs/ops/evidence/2026-07-23-alleato-brain-archived-routing-guard/regression-test.txt"
+    ]
+  },
+  "claims": {
+    "archived-project-exclusion": {
+      "regressionTest": [
+        "docs/ops/evidence/2026-07-23-alleato-brain-archived-routing-guard/regression-test.txt"
+      ],
+      "negativePath": [
+        "docs/ops/evidence/2026-07-23-alleato-brain-archived-routing-guard/negative-path.md"
+      ]
+    },
+    "typed-target-xor": {
+      "regressionTest": [
+        "docs/ops/evidence/2026-07-23-alleato-brain-archived-routing-guard/regression-test.txt"
+      ],
+      "negativePath": [
+        "docs/ops/evidence/2026-07-23-alleato-brain-archived-routing-guard/negative-path.md"
+      ]
+    },
+    "live-business-area-map": {
+      "databaseReadback": [
+        "docs/ops/evidence/2026-07-23-alleato-brain-archived-routing-guard/database-readback.json"
+      ]
+    },
+    "graph-adapter": {
+      "regressionTest": [
+        "docs/ops/evidence/2026-07-23-alleato-brain-archived-routing-guard/regression-test.txt"
+      ]
+    }
+  },
+  "independentReview": {
+    "reviewer": "/root/brain_routing_review",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-24T02:34:55Z",
+    "artifact": "docs/ops/evidence/2026-07-23-alleato-brain-archived-routing-guard/independent-review.md"
+  }
+}

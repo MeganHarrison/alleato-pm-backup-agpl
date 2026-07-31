@@ -1,0 +1,62 @@
+{
+  "status": "PASS",
+  "observedStatus": "PASS",
+  "taskId": "AAI-783 follow-up",
+  "evidence": {
+    "screenshots": [
+      "docs/ops/evidence/2026-07-21-prime-contract-training-video-update/Prime_Contract_Proof_01_Owner_Entity.png",
+      "docs/ops/evidence/2026-07-21-prime-contract-training-video-update/Prime_Contract_Proof_02_Invoice_Contact.png",
+      "docs/ops/evidence/2026-07-21-prime-contract-training-video-update/Prime_Contract_Proof_03_Contract_Dates.png",
+      "docs/ops/evidence/2026-07-21-prime-contract-training-video-update/Prime_Contract_Proof_04_SOV_Preview.png",
+      "docs/ops/evidence/2026-07-21-prime-contract-training-video-update/Prime_Contract_Proof_05_Imported_SOV.png",
+      "docs/ops/evidence/2026-07-21-prime-contract-training-video-update/Prime_Contract_Proof_06_Detailed_Scope.png"
+    ],
+    "actionLog": [
+      ".claude/skills/training-video/flows/create-prime-contract.json"
+    ],
+    "summary": [
+      "docs/ops/tasks/2026-07-21-prime-contract-training-video-update.md"
+    ],
+    "reloadProof": [
+      "docs/ops/evidence/2026-07-21-prime-contract-training-video-update/live-publication-verification.md"
+    ],
+    "visualReview": [
+      "docs/ops/evidence/2026-07-21-prime-contract-training-video-update/independent-review.md"
+    ],
+    "regressionTest": [
+      ".claude/skills/training-video/lib/__tests__/flow-validation.test.mjs"
+    ]
+  },
+  "claims": {
+    "complete-training-coverage": {
+      "screenshots": [
+        "docs/ops/evidence/2026-07-21-prime-contract-training-video-update/Prime_Contract_Proof_01_Owner_Entity.png",
+        "docs/ops/evidence/2026-07-21-prime-contract-training-video-update/Prime_Contract_Proof_02_Invoice_Contact.png",
+        "docs/ops/evidence/2026-07-21-prime-contract-training-video-update/Prime_Contract_Proof_03_Contract_Dates.png",
+        "docs/ops/evidence/2026-07-21-prime-contract-training-video-update/Prime_Contract_Proof_04_SOV_Preview.png",
+        "docs/ops/evidence/2026-07-21-prime-contract-training-video-update/Prime_Contract_Proof_05_Imported_SOV.png",
+        "docs/ops/evidence/2026-07-21-prime-contract-training-video-update/Prime_Contract_Proof_06_Detailed_Scope.png"
+      ],
+      "actionLog": [
+        ".claude/skills/training-video/flows/create-prime-contract.json"
+      ],
+      "summary": [
+        "docs/ops/tasks/2026-07-21-prime-contract-training-video-update.md"
+      ]
+    },
+    "published-artifact-integrity": {
+      "summary": [
+        "docs/ops/tasks/2026-07-21-prime-contract-training-video-update.md"
+      ],
+      "reloadProof": [
+        "docs/ops/evidence/2026-07-21-prime-contract-training-video-update/live-publication-verification.md"
+      ]
+    }
+  },
+  "independentReview": {
+    "reviewer": "Codex code-reviewer agent",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-22T02:36:36Z",
+    "artifact": "docs/ops/evidence/2026-07-21-prime-contract-training-video-update/independent-review.md"
+  }
+}

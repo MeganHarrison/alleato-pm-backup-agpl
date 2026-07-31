@@ -1,0 +1,30 @@
+{
+  "status": "INCONCLUSIVE",
+  "taskId": "QA-2026-07-15-drawings-annotation",
+  "reason": "The canonical viewer and persistence path passed for RFI, document, photo, punch item, coordination issue, and task. Live recheck also showed Submittal and Drawing selectors populate after query settlement. The mobile panel layout was repaired and rerun successfully. The result remains INCONCLUSIVE only because no independent sub-agent verifier or screenshot-in-comment review was available to approve closeout.",
+  "observedStatus": "INCONCLUSIVE",
+  "findings": [
+    {"id":"QA-DRAW-001","severity":"resolved","title":"Coordination Issue creation was metadata-only","firstFailingLayer":"UI-to-record boundary","evidence":"Initial API readback had entity_id=null; repaired live flow created issue #10 and persisted entity_id=10","ownerFiles":["frontend/src/components/drawings/LinkPinModal.tsx","frontend/src/hooks/use-coordination-issues.ts","frontend/src/app/api/projects/[projectId]/coordination-issues/route.ts"],"detectionGap":"No end-to-end acceptance test asserted a created coordination_issue entity id","prevention":"Keep the browser/database assertion that rejects null entity IDs","nextAction":"Independent verifier rerun"},
+    {"id":"QA-DRAW-002","severity":"resolved","title":"Task creation was metadata-only","firstFailingLayer":"UI-to-record boundary","evidence":"Initial API readback had entity_id=null; repaired live flow created task 38b886c2-6bdc-469c-8b64-0abead4949e2 and persisted matching entity_id","ownerFiles":["frontend/src/components/drawings/LinkPinModal.tsx","frontend/src/hooks/use-create-task.ts"],"detectionGap":"No end-to-end acceptance test asserted a created task entity id","prevention":"Keep the browser/database assertion that rejects null entity IDs","nextAction":"Independent verifier rerun"},
+    {"id":"QA-DRAW-003","severity":"cleared-on-recheck","title":"Submittal and Drawing selectors initially appeared empty","firstFailingLayer":"Client query settlement timing","evidence":"Live API returned HTTP 200 with records; after query settlement the modal showed 14 submittals and 61 drawings","ownerFiles":["frontend/src/components/drawings/LinkPinModal.tsx","frontend/src/hooks/use-submittals.ts","frontend/src/hooks/use-drawings.ts"],"detectionGap":"Initial snapshot was taken before the query settled","prevention":"Wait for explicit loading completion in browser QA and keep distinct loading/error/empty states","nextAction":"Add deterministic selector-ready assertions if this recurs"},
+    {"id":"QA-DRAW-004","severity":"resolved","title":"Links panel dominated mobile viewport","firstFailingLayer":"Responsive layout","evidence":"Before fix visual-mobile.png showed a narrow drawing sliver; after fix at 390px the panel overlays at 267px, canvas remains 334px wide, and scrollWidth remains 390px","ownerFiles":["frontend/src/app/(main)/[projectId]/drawings/viewer/[drawingId]/page.tsx"],"detectionGap":"No responsive acceptance check for simultaneous canvas and link-panel usability","prevention":"Keep the 390px DOM geometry assertion and mobile screenshot in the drawing QA contract","nextAction":"Independent visual review"}
+  ],
+  "evidence": {
+    "screenshots": [
+      "tests/agent-browser-runs/2026-07-15-drawings-annotation-qa/viewer-baseline.png",
+      "tests/agent-browser-runs/2026-07-15-drawings-annotation-qa/rfi-existing-linked.png",
+      "tests/agent-browser-runs/2026-07-15-drawings-annotation-qa/rfi-created-linked.png",
+      "tests/agent-browser-runs/2026-07-15-drawings-annotation-qa/reload-persistence.png",
+      "tests/agent-browser-runs/2026-07-15-drawings-annotation-qa/coordination-task-records-linked.png"
+    ],
+    "videos": [],
+    "snapshots": [],
+    "actionLog": ["tests/agent-browser-runs/2026-07-15-drawings-annotation-qa/action-log.txt"],
+    "summary": ["tests/agent-browser-runs/2026-07-15-drawings-annotation-qa/visual-review.md"],
+    "databaseReadback": ["tests/agent-browser-runs/2026-07-15-drawings-annotation-qa/database-readback.json"],
+    "reloadProof": ["tests/agent-browser-runs/2026-07-15-drawings-annotation-qa/reload-persistence.png"],
+    "negativePath": ["tests/agent-browser-runs/2026-07-15-drawings-annotation-qa/negative-path.txt"],
+    "visualReview": ["tests/agent-browser-runs/2026-07-15-drawings-annotation-qa/visual-review.md","tests/agent-browser-runs/2026-07-15-drawings-annotation-qa/visual-desktop.png","tests/agent-browser-runs/2026-07-15-drawings-annotation-qa/visual-tablet.png","tests/agent-browser-runs/2026-07-15-drawings-annotation-qa/visual-mobile.png","tests/agent-browser-runs/2026-07-15-drawings-annotation-qa/visual-mobile-after-overlay.png","tests/agent-browser-runs/2026-07-15-drawings-annotation-qa/visual-desktop-after-overlay.png"],
+    "regressionTest": ["tests/agent-browser-runs/2026-07-15-drawings-annotation-qa/regression-test.txt"]
+  }
+}

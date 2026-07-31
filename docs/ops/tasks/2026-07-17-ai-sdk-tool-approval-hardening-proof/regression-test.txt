@@ -1,0 +1,12 @@
+AAI-1150 regression evidence
+
+PASS: 7 focused Jest suites, 54 tests.
+PASS: 6 installed-AI-SDK roundtrip tests covering exact approve/automatic resume, deny/no execution, input tamper, call-id tamper, tool-name tamper, and UI signature preservation.
+PASS: npm run rag:verify:chat-architecture.
+PASS: npm run check:routes.
+PASS: targeted ESLint.
+PASS: frontend npm run typecheck:changed.
+PASS: predeploy shell syntax.
+PASS: learning registry audit, 25 fingerprints.
+
+The architecture verifier now reads the AI runtime resolved by the server and the separate runtime resolved from @ai-sdk/react. It fails if the versions differ because ai@7.0.15 drops approval signatures while ai@7.0.31 preserves them.

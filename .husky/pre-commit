@@ -1,0 +1,154 @@
+#!/usr/bin/env sh
+
+# Fast pre-commit: route check + root file guard + lint-staged only.
+# Full typecheck and unit tests run in CI.
+
+# ── Direct-commit-to-main guard (removed) ────────────────────────
+# This is the alleato-pm-backup repo: `main` is committed to directly and
+# pushed straight up (Vercel auto-deploys from it). There is no PR gate here,
+# so the original org-repo block on committing to main has been removed.
+
+# ── Root file guard ──────────────────────────────────────────────
+# Only these files are allowed at the project root. Everything else
+# (especially .md, .js, .ts, .py, .sh) must go in docs/, scripts/, etc.
+ALLOWED_ROOT="README.md|CLAUDE.md|AGENTS.md|CONTRIBUTING.md|CONTEXT.md|WORKING_CONTEXT.md|PRODUCT.md|DESIGN.md|CHANGELOG.md|LICENSE|LICENSE.md|.lintstagedrc.js"
+
+STRAY_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E "^[^/]+\.(md|js|jsx|ts|tsx|mjs|cjs|py|sh|html)$" | grep -Ev "^($ALLOWED_ROOT)$" || true)
+
+if [ -n "$STRAY_FILES" ]; then
+  echo ""
+  echo "ERROR: Files staged in the project root that belong elsewhere:"
+  echo ""
+  echo "$STRAY_FILES" | while read file; do
+    echo "  - $file"
+  done
+  echo ""
+  echo "Move them to the correct location:"
+  echo "  .md files   -> docs/"
+  echo "  .js/.jsx/.ts/.tsx/.mjs/.cjs -> scripts/ or frontend/src/"
+  echo "  .py/.sh     -> scripts/"
+  echo "  .html       -> docs/ or frontend/"
+  echo ""
+  echo "Allowed root files: $ALLOWED_ROOT"
+  echo ""
+  exit 1
+fi
+
+# ── Retired artifact guard ───────────────────────────────────────
+node scripts/audits/check-no-new-retired-artifacts.mjs --staged
+if [ $? -ne 0 ]; then
+  exit 1
+fi
+
+npm run check:routes
+if [ $? -ne 0 ]; then
+  echo "Route conflict found. Fix before committing."
+  exit 1
+fi
+
+npm run verify:nonprod-routes
+if [ $? -ne 0 ]; then
+  echo "Non-production route state is invalid. Fix before committing."
+  exit 1
+fi
+
+# ── Phantom-table guard ──────────────────────────────────────────
+# Block commits that introduce .from("table") calls against tables
+# not in the generated database.types.ts. See scripts/audits/.
+node scripts/audits/check-no-new-phantom-tables.mjs --staged
+if [ $? -ne 0 ]; then
+  echo "Phantom table reference found. Fix before committing."
+  exit 1
+fi
+
+# ── Phantom-table guard (docs) ───────────────────────────────────
+# Block staged Markdown that asserts a DB table not in database.types.ts.
+# Stale FK docs naming nonexistent tables (vendors, project_cost_codes)
+# self-propagate false "mismatches" to every agent session. See
+# scripts/audits/check-no-phantom-doc-tables.mjs.
+node scripts/audits/check-no-phantom-doc-tables.mjs --staged
+if [ $? -ne 0 ]; then
+  echo "Phantom table claim in docs. Fix before committing."
+  exit 1
+fi
+
+# ── PDF route tracing guard ──────────────────────────────────────
+# @sparticuz/chromium's binary blobs are read at runtime via a constructed
+# path, so Next.js output file tracing drops them. Any route rendering a PDF
+# must be force-included in next.config.ts's outputFileTracingIncludes or it
+# crashes ONLY in production. See scripts/audits/check-pdf-route-tracing.mjs.
+node scripts/audits/check-pdf-route-tracing.mjs
+if [ $? -ne 0 ]; then
+  echo "PDF route not force-traced in next.config.ts. Fix before committing."
+  exit 1
+fi
+
+# ── Cron route method guard ──────────────────────────────────────
+# Vercel triggers cron jobs with HTTP GET. A cron route that only exports
+# POST 405s on every scheduled run — silently (the request never reaches app
+# telemetry). Every path in frontend/vercel.json "crons" must export GET.
+node scripts/audits/check-cron-route-methods.mjs
+if [ $? -ne 0 ]; then
+  echo "Registered cron route missing GET export. Add 'export const GET = POST;'."
+  exit 1
+fi
+
+# ── Build crash guards ───────────────────────────────────────────
+# Prevent the two patterns that have caused production build failures:
+#   1. Server pages calling createServiceClient() without force-dynamic
+#      (Next.js tries to statically prerender them; env var missing in CI → crash)
+#   2. Module-level server client initialization
+#      (reads secret env var at import time → crash during next build)
+node scripts/check-server-prerender-safety.mjs
+if [ $? -ne 0 ]; then
+  echo "Server prerender safety violation found. Add 'export const dynamic = \"force-dynamic\"' to any page.tsx that calls createServiceClient()."
+  exit 1
+fi
+
+node scripts/check-no-module-level-server-init.mjs
+if [ $? -ne 0 ]; then
+  echo "Module-level server client initialization found. Use a lazy singleton getter instead."
+  exit 1
+fi
+
+# ── Intelligence SELECT * guard ──────────────────────────────────
+# Block .select("*") anywhere in backend/src/services/intelligence.
+# Unbounded compiler reads were the biggest legitimate load in the
+# 2026-07-02 PM APP saturation incident, and service_role now enforces
+# statement_timeout=30s. See scripts/audits/check-no-select-star-intelligence.mjs.
+node scripts/audits/check-no-select-star-intelligence.mjs
+if [ $? -ne 0 ]; then
+  echo "SELECT * in intelligence services. Use an explicit column list before committing."
+  exit 1
+fi
+
+# ── Broken symlink guard ─────────────────────────────────────────
+# Block staged symlinks that are dangling or use absolute paths.
+# These have repeatedly crashed the Claude Code Action skill scanner
+# (ENOENT statx) in CI. See scripts/audits/check-symlinks.mjs.
+node scripts/audits/check-symlinks.mjs
+if [ $? -ne 0 ]; then
+  echo "Broken symlink found. Fix before committing."
+  exit 1
+fi
+
+# ── RAG architecture docs freshness gate (structural half only) ──
+# Checks tables.yaml/TABLE-LIST.md consistency, which doesn't depend on the
+# commit message. The RAG-path + [skip-rag-docs] check lives in
+# .husky/commit-msg, since that's the only hook stage with the final
+# message on disk. See .claude/rules/RAG-DOCS-GATE.md.
+sh .husky/pre-commit-rag-docs
+if [ $? -ne 0 ]; then
+  exit 1
+fi
+
+# ── Project map freshness gate ───────────────────────────────────
+# If staged changes add/remove a UI route, API route, or AI tool, the
+# generated surface inventory (docs/architecture/PROJECT-MAP.md) must be
+# regenerated in the same commit. See scripts/dev-tools/generate-project-map.mjs.
+sh .husky/pre-commit-project-map
+if [ $? -ne 0 ]; then
+  exit 1
+fi
+
+npx lint-staged

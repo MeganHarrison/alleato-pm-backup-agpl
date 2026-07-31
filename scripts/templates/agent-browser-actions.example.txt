@@ -1,0 +1,14 @@
+# One agent-browser command per line (without the leading `agent-browser`)
+# The runner injects `--session <name>` automatically.
+# Refs change after navigation; re-run snapshot when the page changes.
+
+snapshot -i
+get url
+wait --load networkidle
+
+# Example interaction sequence:
+# click @e3
+# fill @e12 "test value"
+# press Enter
+# wait --load networkidle
+# snapshot -i

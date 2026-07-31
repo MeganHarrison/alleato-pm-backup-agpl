@@ -1,0 +1,5128 @@
+# Database Table Inventory — YAML Source
+# Human-authored metadata. Generator adds live SQL stats + codebase grep results.
+# Run: npm run db:inventory
+# DO NOT edit the generated file (db-inventory.generated.ts) by hand.
+
+tables:
+
+  # ─────────────────────────────────────────────────────────
+  # MIGRATION / INFRASTRUCTURE
+  # ─────────────────────────────────────────────────────────
+
+  - name: __drizzle_migrations
+    db: MAIN
+    domain: infrastructure
+    owner: system
+    status: live
+    purpose: "Drizzle ORM migration ledger. Tracks applied migrations."
+    relatedTables: []
+
+  - name: _prisma_migrations
+    db: MAIN
+    domain: infrastructure
+    owner: system
+    status: legacy
+    purpose: "Prisma migration ledger from prior ORM. Kept for historical record; Supabase migrations are authoritative."
+    relatedTables: []
+
+  # ─────────────────────────────────────────────────────────
+  # DOMAIN: PROJECTS, PEOPLE, COMPANIES, PERMISSIONS
+  # ─────────────────────────────────────────────────────────
+
+  - name: projects
+    db: MAIN
+    domain: projects
+    owner: core
+    status: live
+    purpose: "Master project record. Integer id is the FK target for nearly every project-scoped table. Acumatica sync AND manual API can both write — race conditions possible."
+    gotchas: "id is INTEGER (not UUID). Several columns are mostly null: address, city, state, client, current_phase. project_manager FK→people.id (uuid). team_members is uuid[]; stakeholders is JSONB."
+    relatedTables:
+      - projects_audit
+      - project_companies
+      - project_directory_memberships
+      - intelligence_targets
+      - intelligence_packets
+    notesForAi: "Use projects.id (integer) not projects.uuid when joining to other tables. Acumatica sync updates acumatica_project_id and synced_at fields."
+
+  - name: projects_audit
+    db: MAIN
+    domain: projects
+    owner: system
+    status: live
+    purpose: "Append-only audit trail of changes to the projects table. Written by a Postgres trigger only — no app code touches it directly."
+    gotchas: "Only useful via direct SQL. No UI. Cannot be queried via normal app routes."
+    relatedTables:
+      - projects
+
+  - name: projects_sync
+    db: MAIN
+    domain: projects
+    owner: unknown
+    status: dormant
+    purpose: "Leftover staging table from early project sync work. No code references found."
+    cleanupPriority: low
+    relatedTables: []
+
+  - name: project_companies
+    db: MAIN
+    domain: projects
+    owner: core
+    status: live
+    purpose: "Many-to-many join between projects and companies. company_type and status columns describe the relationship."
+    relatedTables:
+      - projects
+      - companies
+
+  - name: project_contact_references
+    db: MAIN
+    domain: projects
+    owner: pipeline
+    status: live
+    purpose: "Pipeline-internal contact references built during Graph email sync for project assignment. No UI. Rows accumulate uncontrolled."
+    gotchas: "Written by project_assignment.py every 30-min Graph sync. No cleanup/expiry mechanism. Row count grows unbounded."
+    relatedTables:
+      - projects
+
+  - name: project_documents
+    db: MAIN
+    domain: projects
+    owner: core
+    status: live
+    purpose: "Project-scoped uploaded + OneDrive/SharePoint-synced documents (full file inventory). Parallel to document_metadata (the AI-ready catalog). document_type is auto-derived from the source folder path."
+    gotchas: "document_type is set by trigger trg_project_documents_classify via classify_document_type(source_web_url) — folder-name based, number-agnostic. Do not set it manually for synced files. category is a generic source label ('OneDrive Document'); document_type is the meaningful construction type (psr, schedule, pay_app, submittal, etc.)."
+    notesForAi: "Holds the full categorized SharePoint/OneDrive file inventory (most files are NOT promoted into document_metadata). findProjectDocuments searches this in addition to document_metadata. Filter by document_type for PSR/schedule/pay_app/submittal/etc."
+    relatedTables:
+      - projects
+      - document_metadata
+      - document_type_taxonomy
+
+  - name: sop_backlog
+    db: MAIN
+    domain: documents
+    owner: accounting
+    status: live
+    purpose: "SAIS structured backlog for missing or lifecycle-managed accounting/finance SOP requirements. Placeholder records exist before a real SOP file is uploaded, then optionally link to document_metadata once the final SOP exists."
+    gotchas: "Do not create fake document_metadata rows for missing SOPs. Placeholder backlog rows are requirements, not uploaded files; AI retrieval must distinguish them from real documents."
+    relatedTables:
+      - document_metadata
+      - projects
+    notesForAi: "Use sop_backlog for questions about missing accounting/finance SOPs, documentation gaps, SOP priority, lifecycle state, owner, and linked-file status."
+
+  - name: project_emails
+    db: MAIN
+    domain: projects
+    owner: core
+    status: live
+    purpose: "Project-matched inbound emails plus outbound emails sent via the app. Distinct from outlook_email_intake (raw sync) and document_metadata (AI relevance)."
+    notesForAi: "Use project_emails for outbound + confirmed project-matched inbound. Use outlook_email_intake for all raw Outlook sync. Use document_chunks for semantic search."
+    relatedTables:
+      - projects
+      - outlook_email_intake
+      - document_metadata
+
+  - name: project_attribution_rules
+    db: MAIN
+    domain: projects
+    owner: pipeline
+    status: live
+    purpose: "Heuristic rules used by project_assignment.py to match incoming Graph emails/documents to projects. Auto-learned from confirmed attributions."
+    relatedTables:
+      - projects
+      - document_attribution_candidates
+
+  - name: project_budget_codes
+    db: MAIN
+    domain: financial
+    owner: core
+    status: live
+    purpose: "Per-project budget codes linking cost codes to budget lines. The dropdown source for budget code selection in forms."
+    gotchas: "FK-validation gate: budget_code_id FK→budget_lines but dropdown sources from project_cost_codes. Always resolve the ID mismatch in both read and write paths."
+    relatedTables:
+      - budget_lines
+      - cost_codes
+
+  - name: project_budget_settings
+    db: MAIN
+    domain: financial
+    owner: core
+    status: live-empty
+    purpose: "Per-project budget UI configuration. Schema exists, API routes exist, but no projects have settings saved yet."
+    relatedTables:
+      - projects
+
+  - name: project_directory_memberships
+    db: MAIN
+    domain: projects
+    owner: core
+    status: live
+    purpose: "Core M2M join between projects and directory members. Race-protected via onConflict upserts."
+    relatedTables:
+      - projects
+      - people
+      - companies
+
+  - name: project_progress_reports
+    db: MAIN
+    domain: projects
+    owner: core
+    status: live
+    purpose: "Weekly progress reports. Triggered by api/cron/progress-reports and user-triggered PDF email flow."
+    relatedTables:
+      - projects
+      - project_progress_report_photos
+
+  - name: project_progress_report_photos
+    db: MAIN
+    domain: projects
+    owner: core
+    status: live
+    purpose: "Photos attached to progress reports."
+    relatedTables:
+      - project_progress_reports
+
+  - name: project_photos
+    db: MAIN
+    domain: projects
+    owner: core
+    status: live-empty
+    purpose: "Photo feature — routes wired, never used in production."
+    relatedTables: []
+
+  - name: project_photos_punch_items_links
+    db: MAIN
+    domain: projects
+    owner: core
+    status: live-empty
+    purpose: "Link table joining project photos to punch items. Feature not yet adopted."
+    relatedTables:
+      - project_photos
+      - punch_items
+
+  - name: project_roles
+    db: MAIN
+    domain: projects
+    owner: core
+    status: live
+    purpose: "Project-specific role definitions managed via CRUD routes."
+    relatedTables:
+      - projects
+
+  - name: project_role_members
+    db: MAIN
+    domain: projects
+    owner: core
+    status: live-empty
+    purpose: "Intended for role-member assignments. Assignment goes through project_directory_memberships instead."
+    relatedTables:
+      - project_roles
+
+  - name: project_vendors
+    db: MAIN
+    domain: projects
+    owner: core
+    status: live
+    purpose: "User-managed vendor associations per project."
+    relatedTables:
+      - projects
+      - companies
+
+  - name: project_transmittals
+    db: MAIN
+    domain: projects
+    owner: core
+    status: live-empty
+    purpose: "Transmittals feature — routes wired, no data yet."
+    relatedTables:
+      - projects
+
+  - name: user_project_preferences
+    db: MAIN
+    domain: projects
+    owner: core
+    status: live-empty
+    purpose: "Per-user per-project UI preferences. Service exists, no rows saved."
+    relatedTables:
+      - projects
+
+  - name: user_project_roles
+    db: MAIN
+    domain: projects
+    owner: unknown
+    status: dormant
+    purpose: "Dormant. No writer or reader found in codebase."
+    relatedTables: []
+
+  - name: user_projects
+    db: MAIN
+    domain: projects
+    owner: unknown
+    status: dormant
+    purpose: "Dormant. No writer or reader found in codebase."
+    relatedTables: []
+
+  - name: project_notification_groups
+    db: MAIN
+    domain: projects
+    owner: unknown
+    status: dormant
+    purpose: "Dormant. No writer or reader found in codebase."
+    relatedTables: []
+
+  - name: project_briefings
+    db: MAIN
+    domain: intelligence
+    owner: unknown
+    status: dormant
+    purpose: "Dormant. NOT the same as intelligence_packets. No writer found."
+    gotchas: "Do not confuse with intelligence_packets, which is the live briefing store."
+    relatedTables:
+      - intelligence_packets
+
+  - name: project_resources
+    db: MAIN
+    domain: projects
+    owner: unknown
+    status: dormant
+    purpose: "Dormant. No writer or reader found in codebase."
+    relatedTables: []
+
+  # ─── Companies + People ───────────────────────────────────
+
+  - name: companies
+    db: MAIN
+    domain: directory
+    owner: core
+    status: live
+    purpose: "Master company directory — vendors, clients, subs, AND CRM prospects (2026-07-23). is_vendor flag drives Acumatica sync. FK target for vendor-related forms. lifecycle_stage (prospect/qualified/active) marks CRM maturity; PM surfaces must read via verified_companies view."
+    gotchas: "FK-validation gate: vendor dropdown sources from vendors view but FK targets companies table. ~50 read sites. CRM prospects share this table — filter lifecycle_stage='active' (or use verified_companies) in any PM-facing query."
+    relatedTables:
+      - project_companies
+      - people
+      - crm_deals
+      - company_qualification
+
+  - name: crm_pipeline_stages
+    db: MAIN
+    domain: crm
+    owner: core
+    status: live
+    purpose: "Ordered CRM deal pipeline stages (Lead → Won/Lost). Admin-managed lookup; terminal stages carry a won/lost outcome. Seeded 7 defaults 2026-07-23."
+    relatedTables:
+      - crm_deals
+
+  - name: crm_deals
+    db: MAIN
+    domain: crm
+    owner: core
+    status: live
+    purpose: "CRM opportunities. FK to shared identity tables (companies/people) — the CRM deliberately has NO parallel identity tables (decision 2026-07-23: conversion is a lifecycle_stage flip, never a row migration)."
+    gotchas: "company_id is ON DELETE RESTRICT — resolve deals before purging a company. owner_id/primary_contact_id point at people, not app_users."
+    relatedTables:
+      - companies
+      - people
+      - crm_pipeline_stages
+      - crm_activities
+
+  - name: crm_activities
+    db: MAIN
+    domain: crm
+    owner: core
+    status: live
+    purpose: "Manually logged CRM touchpoints (calls, follow-ups, notes) per company/deal/person."
+    gotchas: "Automated communication history (emails/meetings/Teams) is NOT copied here — it already resolves to companies/people via document_metadata. Do not duplicate it."
+    relatedTables:
+      - crm_deals
+      - companies
+
+  - name: company_qualification
+    db: MAIN
+    domain: crm
+    owner: core
+    status: live
+    purpose: "Vetting evidence per company (W-9, insurance, license; one row max per company). Completing qualification flips companies.lifecycle_stage to active — the company row never moves tables."
+    gotchas: "Qualification documents attach via the existing company_documents Pattern C junction, not columns here."
+    relatedTables:
+      - companies
+
+  - name: company_context
+    db: MAIN
+    domain: directory
+    owner: core
+    status: live-empty
+    purpose: "Admin singleton doc for company-level AI context. Not yet populated."
+    notesForAi: "When populated, use this as the authoritative company info source for AI tools."
+    relatedTables: []
+
+  - name: people
+    db: MAIN
+    domain: directory
+    owner: core
+    status: live
+    purpose: "Master person directory. UUID id. Bridged to auth via users_auth.auth_user_id."
+    relatedTables:
+      - users_auth
+      - project_directory_memberships
+
+  - name: person_company_templates
+    db: MAIN
+    domain: permissions
+    owner: core
+    status: live-empty
+    purpose: "Permission templates per person-company pair. Feature defined, no data."
+    relatedTables:
+      - people
+      - companies
+      - permission_templates
+
+  - name: vendor_contacts
+    db: MAIN
+    domain: directory
+    owner: unknown
+    status: live-empty
+    purpose: "UI tries to read vendor contacts. No writer found in codebase."
+    relatedTables:
+      - companies
+
+  # ─── Permissions + Auth ───────────────────────────────────
+
+  - name: users_auth
+    db: MAIN
+    domain: auth
+    owner: core
+    status: live
+    purpose: "Bridge between Supabase auth user (UUID) and people.id. Critical for all permission checks."
+    gotchas: "CRITICAL BUG: Only 1 row despite ~7 writer paths. Most signups not producing the bridge row. Silent privilege degradation for all users without a row."
+    relatedTables:
+      - people
+      - user_profiles
+
+  - name: user_profiles
+    db: MAIN
+    domain: auth
+    owner: core
+    status: live
+    purpose: "Per-user app flags: is_admin, is_developer, is_leadership, role. Read by 123+ code paths for permission checks and embedded into JWT claims by custom_access_token_hook."
+    gotchas: "Table is NOT empty (verified live 2026-07-23: 30+ rows with real is_admin values — the earlier 'appears empty' note was an RLS-masked read). is_leadership (added migration 20260723230000) gates leadership-restricted content (Annual Review meetings); it is INDEPENDENT of is_admin — an admin without is_leadership cannot read leadership-restricted rows."
+    relatedTables:
+      - people
+      - users_auth
+    notesForAi: "current_is_app_admin() and current_is_leadership() SQL helpers read this table inside RLS policies. ToolScope (frontend/src/lib/ai/tools/guardrails.ts) exposes isAdmin + isLeadership to AI tools."
+
+  - name: user_email_notifications
+    db: MAIN
+    domain: auth
+    owner: core
+    status: live-empty
+    purpose: "Email notification preferences per user. UI present, no rows."
+    relatedTables:
+      - people
+
+  - name: user_table_views
+    db: MAIN
+    domain: auth
+    owner: core
+    status: live
+    purpose: "Per-user named presets for UnifiedTablePage — captures visible columns, column order, sort, and filters. Lets PMs/testers save 'Quick view', 'Full detail', etc."
+    gotchas: "scope_key is project-agnostic (e.g. 'meetings'), not 'meetings-25125'. A view created on project A's meetings page applies on project B's. is_default is enforced one-per-(user_id, scope_key) via partial unique index."
+    relatedTables: []
+    notesForAi: "Written/read only by /api/table-views routes (route.ts + [viewId]/route.ts). RLS scopes to auth.uid()."
+
+  - name: user_directory_permissions
+    db: MAIN
+    domain: permissions
+    owner: core
+    status: live-empty
+    purpose: "Admin-only per-user directory permission overrides. No rows set."
+    relatedTables:
+      - people
+
+  - name: user_module_permissions
+    db: MAIN
+    domain: permissions
+    owner: core
+    status: live-empty
+    purpose: "Per-module tool access overrides per user. Same null-fallback bug as user_profiles."
+    relatedTables:
+      - people
+
+  - name: user_granular_permission_overrides
+    db: MAIN
+    domain: permissions
+    owner: core
+    status: live
+    purpose: "Fine-grained permission overrides. 4 active rows."
+    relatedTables:
+      - people
+
+  - name: user_schedule_notifications
+    db: MAIN
+    domain: auth
+    owner: core
+    status: live-empty
+    purpose: "Schedule notification preferences per user. UI present, no rows."
+    relatedTables:
+      - people
+
+  - name: permission_templates
+    db: MAIN
+    domain: permissions
+    owner: core
+    status: live
+    purpose: "11 active permission templates. Managed via admin UI at /permissions/templates."
+    relatedTables:
+      - person_company_templates
+
+  - name: permission_audit_log
+    db: MAIN
+    domain: permissions
+    owner: system
+    status: live
+    purpose: "Auto-written by lib/permissions.ts on permission changes. 7 rows."
+    relatedTables: []
+
+  - name: distribution_groups
+    db: MAIN
+    domain: permissions
+    owner: core
+    status: live-empty
+    purpose: "Distribution groups for notifications. Full CRUD service exists, no rows."
+    relatedTables:
+      - distribution_group_members
+
+  - name: distribution_group_members
+    db: MAIN
+    domain: permissions
+    owner: core
+    status: live-empty
+    purpose: "Members of distribution groups. No rows."
+    relatedTables:
+      - distribution_groups
+
+  - name: groups
+    db: MAIN
+    domain: permissions
+    owner: unknown
+    status: dormant
+    purpose: "Dormant. No active code references."
+    relatedTables: []
+
+  - name: group_members
+    db: MAIN
+    domain: permissions
+    owner: unknown
+    status: dormant
+    purpose: "Dormant. No active code references."
+    relatedTables: []
+
+  - name: organizations
+    db: MAIN
+    domain: auth
+    owner: unknown
+    status: dormant
+    purpose: "Multi-tenant infrastructure scaffolding. Not in use."
+    relatedTables:
+      - organization_members
+
+  - name: organization_members
+    db: MAIN
+    domain: auth
+    owner: unknown
+    status: dormant
+    purpose: "Multi-tenant infrastructure scaffolding. Not in use."
+    relatedTables:
+      - organizations
+
+  - name: app_roles
+    db: MAIN
+    domain: auth
+    owner: unknown
+    status: dormant
+    purpose: "Dormant role definitions."
+    relatedTables: []
+
+  - name: billing_invitations
+    db: MAIN
+    domain: auth
+    owner: unknown
+    status: dormant
+    purpose: "Dormant billing/invite infrastructure."
+    relatedTables: []
+
+  # ─── Bot identity ────────────────────────────────────────
+
+  - name: bot_user_mappings
+    db: MAIN
+    domain: communications
+    owner: core
+    status: live
+    purpose: "Maps (platform, platform_user_id) to supabase_user_id. Drives Teams and Telegram bot identity. 1 active row."
+    relatedTables:
+      - teams_conversation_refs
+
+  - name: teams_conversation_refs
+    db: MAIN
+    domain: communications
+    owner: core
+    status: live
+    purpose: "Per-user proactive Teams thread cache. Upserted on every inbound Teams message so the bot can reply in the same thread."
+    relatedTables:
+      - bot_user_mappings
+
+  - name: telegram_link_codes
+    db: MAIN
+    domain: communications
+    owner: core
+    status: live-empty
+    purpose: "Short-lived link codes for Telegram bot↔account linking. Empty = no in-progress flows."
+    relatedTables: []
+
+  - name: teams_link_codes
+    db: MAIN
+    domain: communications
+    owner: core
+    status: live-empty
+    purpose: "Short-lived link codes for Teams bot↔account linking. Empty = no in-progress flows."
+    relatedTables: []
+
+  - name: bot_debug_log
+    db: MAIN
+    domain: communications
+    owner: core
+    status: live
+    purpose: "Observability log for Teams bot. 336 rows. Written by teams-chat.ts. Not read in app."
+    relatedTables: []
+
+  # ─────────────────────────────────────────────────────────
+  # DOMAIN: FINANCIAL / ACUMATICA / CONTRACTS
+  # ─────────────────────────────────────────────────────────
+
+  - name: acumatica_ap_bills
+    db: MAIN
+    domain: financial
+    owner: sync
+    status: live
+    purpose: "Acumatica AP bills mirror. 6,399 rows. Source for direct_costs projection. Updated 2×/day by Render cron."
+    relatedTables:
+      - acumatica_ap_bill_lines
+      - direct_costs
+      - projects
+    notesForAi: "Do not write manually. acumatica_document_key is the upsert key."
+
+  - name: finance_spend_classification_rules
+    db: MAIN
+    domain: financial
+    owner: accounting
+    status: live
+    purpose: "SAIS classification layer for accounting/finance overhead spend. Read with acumatica_ap_bills to produce trailing monthly spend by category/vendor while excluding project costs, reversals, refunds, duplicates, zero-dollar adjustments, and unclassified AP noise."
+    gotchas: "Raw Acumatica AP bills remain sync-owned. Broad keyword rules such as PAYROLL, TAX, CPA, LEGAL, and COMPLIANCE are disabled by default until reviewed so spend rollups do not over-count unrelated AP rows."
+    relatedTables:
+      - acumatica_ap_bills
+    notesForAi: "Use this table for finance overhead classification; do not infer finance spend from raw AP bills or document search alone."
+
+  - name: acumatica_ap_bill_lines
+    db: MAIN
+    domain: financial
+    owner: sync
+    status: live
+    purpose: "Line items for acumatica_ap_bills. 4,016 rows. Delete+reinsert per sync cycle."
+    gotchas: "Delete+reinsert on every sync. Do not reference rows by id across sync cycles."
+    relatedTables:
+      - acumatica_ap_bills
+
+  - name: acumatica_accounts
+    db: MAIN
+    domain: financial
+    owner: sync
+    status: live
+    purpose: "Chart of accounts mirror from Acumatica. 154 rows. Frontend-only sync (mirror-sync.ts). No app reads."
+    relatedTables: []
+
+  - name: acumatica_ar_invoices
+    db: MAIN
+    domain: financial
+    owner: sync
+    status: live
+    purpose: "Acumatica AR invoices mirror. 464 rows. Read by accounting invoices, dashboard, WIP, global invoices API."
+    relatedTables:
+      - acumatica_ar_invoice_lines
+      - acumatica_customers
+
+  - name: acumatica_ar_invoice_lines
+    db: MAIN
+    domain: financial
+    owner: sync
+    status: live
+    purpose: "Line items for acumatica_ar_invoices. 1,922 rows."
+    relatedTables:
+      - acumatica_ar_invoices
+
+  - name: acumatica_change_orders
+    db: MAIN
+    domain: financial
+    owner: sync
+    status: live
+    purpose: "Acumatica change orders mirror. 4,069 rows. Projects into both prime_contract_change_orders and contract_change_orders via status mapping."
+    relatedTables:
+      - prime_contract_change_orders
+      - contract_change_orders
+
+  - name: acumatica_checks
+    db: MAIN
+    domain: financial
+    owner: sync
+    status: live
+    purpose: "Acumatica checks mirror. 2,775 rows. Projects into commitment_payments. Also flips paid flag on subcontractor_invoices when matching check found."
+    relatedTables:
+      - commitment_payments
+      - subcontractor_invoices
+
+  - name: acumatica_customers
+    db: MAIN
+    domain: financial
+    owner: sync
+    status: live
+    purpose: "Acumatica customers mirror. 58 rows. Frontend-only sync. Used to backfill customer_name on acumatica_ar_invoices."
+    relatedTables:
+      - acumatica_ar_invoices
+
+  - name: acumatica_payments
+    db: MAIN
+    domain: financial
+    owner: sync
+    status: live
+    purpose: "Acumatica payments mirror. 368 rows. Read by accounting/payments and accounting/invoices paid logic."
+    relatedTables: []
+
+  - name: acumatica_payment_applications
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: live
+    purpose: "Join table for payment applications. 183 rows."
+    gotchas: "CRITICAL: No writer found in current code. Schema defined in migration 20260413000001. Rows from historical/manual load. If invoice-paid logic depends on this join table, it is silently degrading."
+    cleanupPriority: high
+    relatedTables:
+      - acumatica_payments
+
+  - name: acumatica_project_budgets
+    db: MAIN
+    domain: financial
+    owner: sync
+    status: live
+    purpose: "Acumatica project budgets mirror. 6,172 rows. Read by accounting/wip route only."
+    relatedTables:
+      - projects
+
+  - name: acumatica_projects
+    db: MAIN
+    domain: financial
+    owner: sync
+    status: live
+    purpose: "Acumatica projects mirror. 87 rows. Also upserts matching rows in the projects table on sync."
+    relatedTables:
+      - projects
+
+  - name: acumatica_project_tasks
+    db: MAIN
+    domain: financial
+    owner: sync
+    status: live
+    purpose: "Acumatica project tasks mirror. 99 rows. Frontend-only sync. Used for accounting cross-references."
+    relatedTables:
+      - acumatica_projects
+
+  - name: acumatica_purchase_orders
+    db: MAIN
+    domain: financial
+    owner: sync
+    status: live
+    purpose: "Acumatica purchase orders mirror. 204 rows. Projects into purchase_orders."
+    relatedTables:
+      - purchase_orders
+
+  - name: acumatica_subcontracts
+    db: MAIN
+    domain: financial
+    owner: sync
+    status: live
+    purpose: "Acumatica subcontracts mirror. 718 rows. Projects into subcontracts and subcontract_sov_items."
+    relatedTables:
+      - subcontracts
+      - subcontract_sov_items
+
+  - name: acumatica_sync_state
+    db: MAIN
+    domain: financial
+    owner: sync
+    status: live
+    purpose: "Cursor state for Acumatica sync. 25 rows. Read before each sync to determine where to resume."
+    relatedTables: []
+
+  - name: acumatica_sync_runs
+    db: MAIN
+    domain: financial
+    owner: sync
+    status: live-empty
+    purpose: "Audit log of Acumatica sync runs. Writer exists at acumatica_sync.py:408 but no rows recorded."
+    gotchas: "CRITICAL: Empty despite writer. Likely exception path or ACUMATICA_FINANCIAL_SYNC_ENABLED env flag is off. Investigate _record_sync_run."
+    relatedTables: []
+
+  - name: reconciliation_runs
+    db: MAIN
+    domain: financial
+    owner: sync
+    status: live-empty
+    purpose: "Job Planner to Acumatica reconciliation run ledger. Tracks scan status, finding counts, and dollars at risk."
+    gotchas: "RLS is enabled with service-role access only. Treat as operational triage state, not user-authored financial source data."
+    relatedTables:
+      - reconciliation_findings
+
+  - name: reconciliation_findings
+    db: MAIN
+    domain: financial
+    owner: sync
+    status: live-empty
+    purpose: "Current and historical reconciliation findings between Job Planner project records and Acumatica mirrors."
+    gotchas: "fingerprint is the primary key. review_status tracks triage; is_active distinguishes current findings from resolved/stale findings."
+    relatedTables:
+      - reconciliation_runs
+      - projects
+
+  - name: acumatica_outbound_audit_logs
+    db: MAIN
+    domain: financial
+    owner: sync
+    status: live-empty
+    purpose: "Audit log for outbound Acumatica exports. Writer exists but never triggered in production."
+    relatedTables: []
+
+  - name: erp_sync_log
+    db: MAIN
+    domain: financial
+    owner: sync
+    status: live
+    purpose: "Frontend-initiated Acumatica sync audit log. 51 rows. Written by the frontend cron route, not the backend Python sync."
+    relatedTables: []
+
+  # ─── Budget ──────────────────────────────────────────────
+
+  - name: budget_lines
+    db: MAIN
+    domain: financial
+    owner: core
+    status: live
+    purpose: "Per-project budget line items. Core operational budget table. 564 rows. Every budget change is mirrored to budget_line_history via Postgres trigger."
+    gotchas: "budget_code_id FK→budget_lines but dropdown sources from project_cost_codes (FORM-FK-VALIDATION-GATE). All history via trigger not app code."
+    relatedTables:
+      - budget_line_history
+      - budget_modifications
+      - project_budget_codes
+    notesForAi: "Primary source for project budget data. Join with project_budget_codes for cost code names."
+
+  - name: budget_line_history
+    db: MAIN
+    domain: financial
+    owner: system
+    status: live
+    purpose: "Immutable audit history for budget_lines. 1,696 rows. Written by Postgres trigger only — never by app code."
+    relatedTables:
+      - budget_lines
+
+  - name: budget_modifications
+    db: MAIN
+    domain: financial
+    owner: core
+    status: live
+    purpose: "Budget revision documents. 22 rows. Formal modification records with associated line deltas in budget_mod_lines."
+    relatedTables:
+      - budget_mod_lines
+      - projects
+
+  - name: budget_mod_lines
+    db: MAIN
+    domain: financial
+    owner: core
+    status: live
+    purpose: "Line-level deltas for budget modifications. 32 rows. The live table (not budget_modification_lines which is empty)."
+    gotchas: "Name collision: budget_modification_lines (with full 'ation') is the empty dead twin. budget_mod_lines is live."
+    relatedTables:
+      - budget_modifications
+
+  - name: budget_modification_lines
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dead
+    purpose: "Dead twin of budget_mod_lines. Empty. Drop candidate."
+    cleanupPriority: low
+    relatedTables:
+      - budget_modifications
+
+  - name: budget_changes
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dead
+    purpose: "Older budget change mechanism predating budget_modifications. 1 row. Effectively dead."
+    cleanupPriority: low
+    relatedTables: []
+
+  - name: budget_views
+    db: MAIN
+    domain: financial
+    owner: core
+    status: live
+    purpose: "UI column-layout state for budget views. 63 rows."
+    relatedTables:
+      - budget_view_columns
+
+  - name: budget_view_columns
+    db: MAIN
+    domain: financial
+    owner: core
+    status: live
+    purpose: "Column definitions for budget view layouts. 312 rows."
+    relatedTables:
+      - budget_views
+
+  - name: cost_codes
+    db: MAIN
+    domain: financial
+    owner: core
+    status: live
+    purpose: "Global master cost code table. 310 rows. Referenced by budget lines and project budget codes."
+    relatedTables:
+      - cost_code_divisions
+      - cost_code_types
+      - project_budget_codes
+
+  - name: cost_code_divisions
+    db: MAIN
+    domain: financial
+    owner: core
+    status: live
+    purpose: "Cost code division groupings. 40 rows."
+    relatedTables:
+      - cost_codes
+
+  - name: cost_code_types
+    db: MAIN
+    domain: financial
+    owner: core
+    status: live
+    purpose: "Cost code type classifications. 6 rows."
+    relatedTables:
+      - cost_codes
+
+  - name: budget_forecast_line_items
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dormant
+    purpose: "Dormant budget forecasting. No active writers."
+    relatedTables: []
+
+  - name: budget_line_forecasts
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dormant
+    purpose: "Dormant budget line forecasts."
+    relatedTables: []
+
+  - name: budget_line_item_history
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dormant
+    purpose: "Dormant. Likely superseded by budget_line_history (trigger-driven)."
+    relatedTables: []
+
+  - name: budget_snapshots
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dormant
+    purpose: "Dormant budget snapshot mechanism."
+    relatedTables: []
+
+  - name: cost_factors
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dormant
+    purpose: "Dormant cost factor table."
+    relatedTables: []
+
+  - name: cost_forecasts
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dormant
+    purpose: "Dormant cost forecast table."
+    relatedTables: []
+
+  - name: cost_code_division_updates_audit
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dormant
+    purpose: "Dormant audit table for cost code division changes."
+    relatedTables: []
+
+  # ─── Direct costs ────────────────────────────────────────
+
+  - name: direct_costs
+    db: MAIN
+    domain: financial
+    owner: sync
+    status: live
+    purpose: "Domain projection of acumatica_ap_bills. 6,555 rows. Project-attributed AP charges. acumatica_document_key is the upsert key — do not edit manually."
+    relatedTables:
+      - direct_cost_line_items
+      - acumatica_ap_bills
+    notesForAi: "Primary source for direct cost data. Join with direct_cost_line_items for line-level detail."
+
+  - name: direct_cost_line_items
+    db: MAIN
+    domain: financial
+    owner: sync
+    status: live
+    purpose: "Line items for direct_costs. 8,436 rows. Delete+reinsert per sync cycle."
+    gotchas: "Delete+reinsert on every sync. Do not reference rows by id across sync cycles."
+    relatedTables:
+      - direct_costs
+
+  # ─── Subcontracts + Commitments ─────────────────────────
+
+  - name: billing_periods
+    db: MAIN
+    domain: financial
+    owner: core
+    status: live
+    purpose: "Project invoice-cycle source of truth. The Invoices Billing Periods tab manages From, To, Due Date, and Open/Closed state through atomic transition RPCs."
+    gotchas: "At most one period may be open per project. Creating or reopening a period closes the prior open row atomically. Exact project/date ranges are unique, and linked invoice/payment history prevents deletion. Historical rows may have null due_date until source reconciliation is complete."
+    relatedTables:
+      - invoicing_settings
+      - owner_invoices
+      - subcontractor_invoices
+      - prime_contract_payment_applications
+      - contract_payments
+      - billing_invitations
+      - acumatica_ar_invoices
+    notesForAi: "Use /api/projects/[projectId]/invoicing/billing-periods and save_billing_period_atomic. Do not write billing_periods directly or recreate the legacy /billing-periods owner."
+
+  - name: invoicing_settings
+    db: MAIN
+    domain: financial
+    owner: core
+    status: live
+    purpose: "Per-project invoicing defaults and the canonical Monthly, Weekly, or Never automatic billing-period schedule configuration."
+    gotchas: "Automatic dates are immutable schedule anchors plus an occurrence cursor; every occurrence is derived from the original anchors to avoid month-end drift. The first billing period must be created manually."
+    relatedTables:
+      - billing_periods
+      - projects
+    notesForAi: "Use configure_automatic_billing_periods for automatic schedule changes and generate_automatic_billing_periods for the daily idempotent generator."
+
+  - name: subcontracts
+    db: MAIN
+    domain: financial
+    owner: core
+    status: live
+    purpose: "Subcontract records. 398 rows. Written by Acumatica sync and UI routes. Audited via Postgres trigger to commitment_audit_log."
+    relatedTables:
+      - subcontract_sov_items
+      - subcontractor_invoices
+      - commitment_audit_log
+
+  - name: subcontract_sov_items
+    db: MAIN
+    domain: financial
+    owner: sync
+    status: live
+    purpose: "Schedule of Values line items for subcontracts. 964 rows. Source for subcontractor invoicing."
+    gotchas: "Name collision: subcontractor_sov_items (2 rows) is the near-dead sibling. This is the live table."
+    relatedTables:
+      - subcontracts
+      - subcontractor_invoices
+
+  - name: subcontractor_sov_items
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dead
+    purpose: "Near-dead sibling of subcontract_sov_items. 2 rows. Used for subcontractor-portal submissions. Verify usage before dropping."
+    cleanupPriority: medium
+    relatedTables:
+      - subcontracts
+
+  - name: subcontractor_sov_submissions
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dormant
+    purpose: "Subcontractor SOV submission tracking. Dormant."
+    relatedTables: []
+
+  - name: subcontractor_invoices
+    db: MAIN
+    domain: financial
+    owner: core
+    status: live
+    purpose: "Subcontractor pay applications. 2,433 rows. Full state machine UI. Acumatica sync flips paid flag when matching check found."
+    gotchas: "Only 12 line items for 2,433 invoices — legacy invoices imported header-only. Line-item granularity not guaranteed for historical data."
+    relatedTables:
+      - subcontractor_invoice_line_items
+      - subcontractor_invoice_audit_log
+      - subcontracts
+
+  - name: subcontractor_invoice_line_items
+    db: MAIN
+    domain: financial
+    owner: core
+    status: live
+    purpose: "Line items for subcontractor_invoices. Only 12 rows — legacy invoices are header-only."
+    relatedTables:
+      - subcontractor_invoices
+
+  - name: subcontractor_invoice_audit_log
+    db: MAIN
+    domain: financial
+    owner: core
+    status: live
+    purpose: "App-level audit log for subcontractor invoice state changes. 2,444 rows. Hand-rolled inserts scattered across invoice routes — no DB trigger backstop."
+    gotchas: "No DB trigger. Missing inserts in some code paths mean silent audit gaps."
+    relatedTables:
+      - subcontractor_invoices
+
+  - name: commitment_audit_log
+    db: MAIN
+    domain: financial
+    owner: system
+    status: live
+    purpose: "Postgres trigger-driven audit covering subcontracts and purchase_orders mutations. 852 rows."
+    relatedTables:
+      - subcontracts
+      - purchase_orders
+
+  - name: commitment_payments
+    db: MAIN
+    domain: financial
+    owner: sync
+    status: live
+    purpose: "Mirror of relevant acumatica_checks. 2,775 rows. Only backend Python sync writes."
+    relatedTables:
+      - acumatica_checks
+      - subcontracts
+
+  - name: commitment_pcos
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dormant
+    purpose: "Dormant commitment PCO tracking."
+    relatedTables: []
+
+  - name: commitment_related_items
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dormant
+    purpose: "Dormant commitment related items."
+    relatedTables: []
+
+  - name: commitment_change_order_lines
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dormant
+    purpose: "Commitment change order line items. Not clearly mapped in inventory."
+    relatedTables:
+      - contract_change_orders
+
+  # ─── Prime contracts + change orders ─────────────────────
+
+  - name: prime_contracts
+    db: MAIN
+    domain: financial
+    owner: core
+    status: live
+    purpose: "Owner contracts. 21 rows. Routes live under /api/projects/[projectId]/contracts (NOT /prime-contracts)."
+    gotchas: "API routes are at /contracts not /prime-contracts. Bootstrap creates one only when project has owner info."
+    relatedTables:
+      - prime_contract_change_orders
+      - prime_contract_payments
+      - projects
+
+  - name: prime_contract_change_orders
+    db: MAIN
+    domain: financial
+    owner: core
+    status: live
+    purpose: "Owner-side change orders. 142 rows. Projected from acumatica_change_orders via status mapping."
+    relatedTables:
+      - prime_contracts
+      - acumatica_change_orders
+
+  - name: prime_contract_payments
+    db: MAIN
+    domain: financial
+    owner: core
+    status: live
+    purpose: "Owner payment records. 26 rows. Most owner payments tracked via acumatica_payments + invoice join instead."
+    relatedTables:
+      - prime_contracts
+
+  - name: prime_contract_change_order_related_items
+    db: MAIN
+    domain: financial
+    owner: core
+    status: live
+    purpose: "Related item links for prime contract change orders. 1 row."
+    relatedTables:
+      - prime_contract_change_orders
+
+  - name: prime_contract_project_settings
+    db: MAIN
+    domain: financial
+    owner: core
+    status: live
+    purpose: "Per-project prime contract settings. 1 row."
+    relatedTables:
+      - prime_contracts
+
+  - name: contract_change_orders
+    db: MAIN
+    domain: financial
+    owner: core
+    status: live
+    purpose: "Commitment-side change orders (subcontracts/POs). 140 rows. Despite the name, these are NOT prime CCOs."
+    gotchas: "Misleading name: stores commitment-side CCOs (subcontracts/POs), NOT prime contract change orders. Routes at api/commitments/[commitmentId]/change-orders/*."
+    relatedTables:
+      - contract_line_items
+      - subcontracts
+      - purchase_orders
+
+  - name: contract_line_items
+    db: MAIN
+    domain: financial
+    owner: core
+    status: live
+    purpose: "Line items for contract_change_orders. 140 rows."
+    relatedTables:
+      - contract_change_orders
+
+  - name: contract_documents
+    db: MAIN
+    domain: financial
+    owner: core
+    status: live
+    purpose: "Contract-level documents. 1 row. Effectively unused."
+    relatedTables: []
+
+  - name: prime_contract_pcos
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dormant
+    purpose: "Dormant prime contract PCO table."
+    relatedTables: []
+
+  - name: prime_contract_sovs
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dormant
+    purpose: "Dormant prime contract schedule of values."
+    relatedTables: []
+
+  - name: prime_contract_payment_applications
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dormant
+    purpose: "Dormant prime contract pay applications."
+    relatedTables: []
+
+  - name: pcco_line_items
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dormant
+    purpose: "Dormant PCCO line items."
+    relatedTables: []
+
+  - name: contract_billing_periods
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dormant
+    purpose: "Dormant contract billing period definitions."
+    relatedTables: []
+
+  - name: contract_payments
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dormant
+    purpose: "Dormant contract payments. Not the same as prime_contract_payments."
+    relatedTables: []
+
+  - name: contract_snapshots
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dormant
+    purpose: "Dormant contract snapshots."
+    relatedTables: []
+
+  - name: contract_views
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dormant
+    purpose: "Dormant contract view state."
+    relatedTables: []
+
+  # ─── Change events ───────────────────────────────────────
+
+  - name: change_events
+    db: MAIN
+    domain: financial
+    owner: core
+    status: live
+    purpose: "Project-level change events. 77 rows. Neutral upstream object that can generate RFQs and link to PCOs/CCOs."
+    relatedTables:
+      - change_event_line_items
+      - change_event_history
+      - change_event_rfqs
+
+  - name: change_event_line_items
+    db: MAIN
+    domain: financial
+    owner: core
+    status: live
+    purpose: "Line-item detail per change event. 54 rows."
+    relatedTables:
+      - change_events
+
+  - name: change_event_history
+    db: MAIN
+    domain: financial
+    owner: core
+    status: live
+    purpose: "Hand-rolled audit log for change events. 43 rows. Written at multiple change-event API call sites."
+    relatedTables:
+      - change_events
+
+  - name: change_event_rfqs
+    db: MAIN
+    domain: financial
+    owner: core
+    status: live
+    purpose: "RFQs sent from a change event to vendors. 6 rows."
+    relatedTables:
+      - change_events
+      - change_event_rfq_responses
+
+  - name: change_event_rfq_responses
+    db: MAIN
+    domain: financial
+    owner: core
+    status: live
+    purpose: "Vendor responses to change event RFQs. 1 row."
+    relatedTables:
+      - change_event_rfqs
+
+  - name: change_event_approvals
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dormant
+    purpose: "Dormant change event approval workflow."
+    relatedTables: []
+
+  - name: change_event_documents
+    db: MAIN
+    domain: financial
+    owner: core
+    status: live
+    purpose: "Pattern C junction between change events and document_metadata. Created during attachment backfill; 2 rows."
+    relatedTables:
+      - change_events
+      - document_metadata
+      - document_type_taxonomy
+
+  - name: change_event_pco_links
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dormant
+    purpose: "Dormant change event to PCO links."
+    relatedTables: []
+
+  - name: change_event_related_items
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dormant
+    purpose: "Dormant change event related items."
+    relatedTables: []
+
+  - name: change_events_documents_links
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dormant
+    purpose: "Dormant change event to document links."
+    relatedTables: []
+
+  - name: pco_change_events
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dormant
+    purpose: "Dormant PCO to change event links."
+    relatedTables: []
+
+  - name: pco_line_items
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dormant
+    purpose: "Dormant PCO line items."
+    relatedTables: []
+
+  - name: pco_versions
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dormant
+    purpose: "Dormant PCO version history."
+    relatedTables: []
+
+  - name: potential_change_orders
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dormant
+    purpose: "Numeric (bigint) potential change orders that group change events (via pco_change_events) and convert to COs. Header written atomically by create_pco_with_lines / update_pco_with_lines. NOT the same as commitment_pcos / prime_contract_pcos (uuid)."
+    relatedTables: [pco_change_events, potential_change_order_line_items]
+
+  - name: potential_change_order_line_items
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: active
+    purpose: "Line items for numeric potential_change_orders (pco_id bigint). line_amount is generated (quantity * unit_cost). Written atomically via create_pco_with_lines / update_pco_with_lines. Distinct from pco_line_items (uuid-keyed, for commitment_pcos / prime_contract_pcos)."
+    relatedTables: [potential_change_orders]
+
+  - name: app_page_access_policies
+    db: MAIN
+    domain: admin
+    owner: unknown
+    status: active
+    purpose: "Admin-managed route access inventory. Records explicit per-page access levels (route, access_level, permission_module) so page visibility decisions are reviewable and auditable."
+    relatedTables: []
+
+  - name: change_workflow_comments
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dormant
+    purpose: "Dormant change workflow comments."
+    relatedTables: []
+
+  - name: change_workflow_notifications
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dormant
+    purpose: "Dormant change workflow notifications."
+    relatedTables: []
+
+  - name: change_orders
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dead
+    purpose: "Generic change order table. Dead — all CO data lives in contract_change_orders and prime_contract_change_orders."
+    cleanupPriority: low
+    relatedTables:
+      - contract_change_orders
+      - prime_contract_change_orders
+
+  # ─── Purchase orders ─────────────────────────────────────
+
+  - name: purchase_orders
+    db: MAIN
+    domain: financial
+    owner: core
+    status: live
+    purpose: "Purchase order records. 129 rows. Domain projection from acumatica_purchase_orders. Audited via Postgres trigger to commitment_audit_log."
+    relatedTables:
+      - purchase_order_sov_items
+      - commitment_audit_log
+      - acumatica_purchase_orders
+
+  - name: purchase_order_sov_items
+    db: MAIN
+    domain: financial
+    owner: core
+    status: live
+    purpose: "SOV items for purchase orders. 198 rows."
+    relatedTables:
+      - purchase_orders
+
+  # ─── Owner invoicing ─────────────────────────────────────
+
+  - name: owner_invoices
+    db: MAIN
+    domain: financial
+    owner: core
+    status: live
+    purpose: "Invoices sent to the owner (pay applications outbound). 29 rows. Full state machine UI. Line-item granularity is in active use."
+    relatedTables:
+      - owner_invoice_line_items
+      - projects
+
+  - name: owner_invoice_line_items
+    db: MAIN
+    domain: financial
+    owner: core
+    status: live
+    purpose: "Line items for owner_invoices. 604 rows. Average ~20 lines per invoice."
+    relatedTables:
+      - owner_invoices
+
+  # ─── Estimates ───────────────────────────────────────────
+
+  - name: estimates
+    db: MAIN
+    domain: financial
+    owner: core
+    status: live
+    purpose: "Estimate header records. 5 rows. Bridge from estimates to budget and contract line items via estimate-import."
+    relatedTables:
+      - estimate_line_items
+      - estimate_detail_items
+      - estimate_gc_items
+
+  - name: estimate_line_items
+    db: MAIN
+    domain: financial
+    owner: core
+    status: live
+    purpose: "Main cost-of-work breakdown for estimates. 495 rows."
+    relatedTables:
+      - estimates
+
+  - name: estimate_detail_items
+    db: MAIN
+    domain: financial
+    owner: core
+    status: live
+    purpose: "Sub-line drill-downs for estimate line items. 615 rows."
+    relatedTables:
+      - estimate_line_items
+
+  - name: estimate_gc_items
+    db: MAIN
+    domain: financial
+    owner: core
+    status: live
+    purpose: "General conditions items for estimates. 281 rows."
+    relatedTables:
+      - estimates
+
+  - name: estimate_alternates
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dormant
+    purpose: "Dormant estimate alternates."
+    relatedTables: []
+
+  - name: estimate_allowances
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dormant
+    purpose: "Dormant estimate allowances."
+    relatedTables: []
+
+  - name: estimate_sublist_subs
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dormant
+    purpose: "Dormant estimate sublist substitutions."
+    relatedTables: []
+
+  - name: qto_items
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dormant
+    purpose: "Dormant quantity takeoff items."
+    relatedTables:
+      - qtos
+
+  - name: qtos
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dormant
+    purpose: "Dormant quantity takeoff headers."
+    relatedTables: []
+
+  # ─── Schedule of Values ──────────────────────────────────
+
+  - name: schedule_of_values
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dead
+    purpose: "SOV table. Referenced as a reader in AI financial tools but NEVER written. Dead reads."
+    relatedTables:
+      - sov_line_items
+
+  - name: sov_line_items
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dead
+    purpose: "SOV line items. Same as schedule_of_values — never written."
+    relatedTables:
+      - schedule_of_values
+
+  # ─── Dormant financial ────────────────────────────────────
+
+  - name: vertical_markup
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dormant
+    purpose: "Dormant vertical markup table."
+    relatedTables: []
+
+  - name: financial_contracts
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dormant
+    purpose: "Dormant financial contracts."
+    relatedTables: []
+
+  - name: forecasting
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dormant
+    purpose: "Dormant forecasting header table."
+    relatedTables:
+      - forecasting_curves
+
+  - name: forecasting_curves
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dormant
+    purpose: "Dormant forecasting curves."
+    relatedTables:
+      - forecasting
+
+  - name: invoice_payments
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dormant
+    purpose: "Dormant invoice payments."
+    relatedTables: []
+
+  - name: invoicing_settings
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dormant
+    purpose: "Dormant invoicing settings."
+    relatedTables: []
+
+  - name: payment_application_line_items
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dormant
+    purpose: "Dormant payment application line items."
+    relatedTables: []
+
+  - name: payment_transactions
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dormant
+    purpose: "Dormant payment transactions."
+    relatedTables: []
+
+  - name: billing_periods
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dormant
+    purpose: "Dormant billing periods."
+    relatedTables: []
+
+  - name: sub_jobs
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dormant
+    purpose: "Dormant sub-job tracking."
+    relatedTables: []
+
+  - name: subcontractor_invoice_emails
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dormant
+    purpose: "Dormant subcontractor invoice email log."
+    relatedTables: []
+
+  - name: subcontractor_invoice_related_items
+    db: MAIN
+    domain: financial
+    owner: unknown
+    status: dormant
+    purpose: "Dormant subcontractor invoice related items."
+    relatedTables: []
+
+  # ─────────────────────────────────────────────────────────
+  # DOMAIN: DOCUMENTS, COMMUNICATIONS, STORAGE
+  # ─────────────────────────────────────────────────────────
+
+  - name: document_metadata
+    db: MAIN
+    domain: documents
+    owner: pipeline
+    status: live
+    purpose: "Primary document catalog. 36,511 rows. Dual-written with RAG.rag_document_metadata on every ingestion. Full business metadata including project_id, source_type, storage path. document_type (FK to document_type_taxonomy) is auto-classified for folder-backed rows."
+    gotchas: "Always written alongside rag_document_metadata via upsert_document_metadata() — never write to one without the other. document_type for onedrive/sharepoint/microsoft_graph rows is auto-set by trigger trg_document_metadata_classify via classify_document_type(); communication rows (email/teams/meeting) keep document_type NULL and use the legacy `type`/`category` columns instead. LEADERSHIP RESTRICTION (2026-07-23): rows with category='Annual Review' are auto-stamped access_level='leadership' by trigger trg_stamp_leadership_access (migration 20260723230000) and are visible ONLY to user_profiles.is_leadership users — RLS enforces this for user-scoped clients, and every service-role AI read path must apply frontend/src/lib/ai/leadership-restriction.ts (withoutLeadershipRestricted / filterLeadershipRestrictedChunks). Re-categorizing a row away from Annual Review lifts the auto-stamp."
+    relatedTables:
+      - rag_document_metadata
+      - document_chunks
+      - project_emails
+    notesForAi: "Use document_metadata for filtering by project, source type, or date. Use document_chunks (RAG) for semantic search. MICROSOFT TEAMS MESSAGES LIVE HERE, not in team_chat_messages (that's the in-app chat feature): category='teams_message', ~28.5k rows as of 2026-07-14 — type='teams_dm' (legacy per-message DM docs, ~24.6k), type='teams_dm_conversation' (grouped DM daily docs, ~3.8k), type='teams_message' (channel threads, 13). Written by microsoft_graph/teams.py; chunked/embedded by microsoft_graph/embed.py into RAG document_chunks as source_type='teams_dm' (~36k chunks) / 'teams_channel' (34)."
+
+  - name: document_attribution_candidates
+    db: MAIN
+    domain: documents
+    owner: pipeline
+    status: live
+    purpose: "Low-confidence project attribution review queue. 13,233 rows. Written by compiler when project confidence < 0.70. No review UI yet."
+    gotchas: "Known gap: no review UI exists. Items accumulate without resolution."
+    relatedTables:
+      - document_metadata
+      - project_attribution_rules
+
+  - name: document_page_intelligence
+    db: MAIN
+    domain: documents
+    owner: pipeline
+    status: live
+    purpose: "Per-page AI vision extraction for drawings and PDFs. Written by backend OCR/vision processing and read by drawing intelligence, submittal required-package detection, submittal AI review, and document-intelligence tools."
+    gotchas: "Keyed by document_metadata_id + page_number. Stores AI summaries plus raw extraction; service role writes, authenticated users can read. Do not replace with document_chunks: this table preserves page/sheet-level visual intelligence for plans, drawings, specs, and manuals."
+    relatedTables:
+      - document_metadata
+      - drawings
+      - submittals
+    notesForAi: "Use for visual/page-level drawing and PDF facts such as sheet number, discipline, scale, detail references, implied submittals, notes, and requirements."
+
+  - name: document_rows
+    db: MAIN
+    domain: documents
+    owner: pipeline
+    status: live
+    purpose: "Structured document rows loaded by ETL outside the repo. 12,354 rows. Read by AI tools/structured-queries.ts."
+    relatedTables:
+      - document_metadata
+
+  - name: document_user_access
+    db: MAIN
+    domain: documents
+    owner: unknown
+    status: dormant
+    purpose: "Dormant per-user document access control."
+    relatedTables: []
+
+  - name: document_group_access
+    db: MAIN
+    domain: documents
+    owner: unknown
+    status: dormant
+    purpose: "Dormant per-group document access control."
+    relatedTables: []
+
+  - name: document_insights
+    db: MAIN
+    domain: documents
+    owner: unknown
+    status: blocked
+    purpose: "Dormant document insights table, but retained because the actionable_insights view depends on it. Do not drop until the view is retired or migrated."
+    relatedTables:
+      - actionable_insights
+
+  # ─── Drawings ────────────────────────────────────────────
+
+  - name: drawings
+    db: MAIN
+    domain: documents
+    owner: core
+    status: live
+    purpose: "Drawing records. 44 rows. Managed by DrawingService.ts and drawing API routes. Storage bucket: drawings."
+    relatedTables:
+      - drawing_revisions
+      - drawing_sets
+      - drawing_markup_pins
+
+  - name: spec_drawing_links
+    db: MAIN
+    domain: documents
+    owner: core
+    status: live-empty
+    purpose: "Junction between specification sections and drawings. Used by document-intelligence tooling to answer which drawings cover a spec section and which submittal packages may be required."
+    gotchas: "Links specification_sections.id to drawings.id with link_method and confidence. Even when empty, the table is part of the finalized spec/drawing/submittal coverage model and should not be treated as dead code."
+    relatedTables:
+      - specification_sections
+      - drawings
+      - submittals
+    notesForAi: "Use with submittals.specification_section_id to reason across the triangle: spec section to drawings to required submittals."
+
+  - name: drawing_revisions
+    db: MAIN
+    domain: documents
+    owner: core
+    status: live
+    purpose: "Drawing revision history. 44 rows."
+    relatedTables:
+      - drawings
+
+  - name: drawing_sets
+    db: MAIN
+    domain: documents
+    owner: core
+    status: live
+    purpose: "Drawing set groupings. 14 rows."
+    relatedTables:
+      - drawings
+
+  - name: drawing_downloads
+    db: MAIN
+    domain: documents
+    owner: core
+    status: live
+    purpose: "Download audit log for drawings. 1,400 rows."
+    relatedTables:
+      - drawings
+
+  - name: drawing_change_history
+    db: MAIN
+    domain: documents
+    owner: core
+    status: live
+    purpose: "Change history for drawing publish/obsolete actions. 11 rows."
+    relatedTables:
+      - drawings
+
+  - name: drawing_markup_pins
+    db: MAIN
+    domain: documents
+    owner: core
+    status: live
+    purpose: "Markup pins on drawings. 11 rows."
+    relatedTables:
+      - drawings
+
+  - name: drawing_areas
+    db: MAIN
+    domain: documents
+    owner: core
+    status: live
+    purpose: "Drawing area definitions. 1 row. Admin-only."
+    relatedTables:
+      - drawings
+
+  - name: drawing_sketches
+    db: MAIN
+    domain: documents
+    owner: unknown
+    status: dormant
+    purpose: "Dormant drawing sketches."
+    relatedTables: []
+
+  - name: drawing_related_items
+    db: MAIN
+    domain: documents
+    owner: unknown
+    status: dormant
+    purpose: "Dormant drawing related items."
+    relatedTables: []
+
+  - name: drawings_rfis_links
+    db: MAIN
+    domain: documents
+    owner: unknown
+    status: dormant
+    purpose: "Dormant drawing to RFI links."
+    relatedTables: []
+
+  # ─── Email ────────────────────────────────────────────────
+
+  - name: outlook_email_intake
+    db: MAIN
+    domain: communications
+    owner: pipeline
+    status: live
+    purpose: "Raw Outlook email sync. Every email from the Graph sync lands here first. Source for document_metadata (AI-relevant) and project_emails (project-matched). triage_action/triage_reason/triage_at written by the microsoft_executive_assistant agent after each 15-min check. teams_alert_sent_at is the dedup gate for Teams DM alerts."
+    relatedTables:
+      - outlook_email_intake_attachments
+      - document_metadata
+      - project_emails
+    notesForAi: "Use getRecentEmails tool (queries by date) for 'what emails today?' questions. Use searchEmails (vector via document_chunks) for topic questions. triage_action values: urgent | reply_needed | delegate | fyi | watch | delete."
+
+  - name: outlook_email_intake_attachments
+    db: MAIN
+    domain: communications
+    owner: pipeline
+    status: live
+    purpose: "Attachments from synced Outlook emails. 627 rows, 355 MB. Written by outlook.py and attachment_promotion.py."
+    relatedTables:
+      - outlook_email_intake
+
+  - name: email_attachments
+    db: MAIN
+    domain: communications
+    owner: core
+    status: live
+    purpose: "In-app attachment store. 419 rows, 391 MB. Covers manual uploads and change-event/contract/commitment/prime-CO/submittal attachments. NOT the same as outlook_email_intake_attachments."
+    gotchas: "Do not confuse with outlook_email_intake_attachments. This stores in-app uploads."
+    relatedTables: []
+
+  - name: outlook_email_skip_audit
+    db: MAIN
+    domain: communications
+    owner: unknown
+    status: dormant
+    purpose: "Dormant audit log for skipped Outlook emails."
+    relatedTables: []
+
+  - name: outlook_email_assistant_reviews
+    db: MAIN
+    domain: communications
+    owner: pipeline
+    status: live-empty
+    purpose: "Human review ledger for Brandon Outlook assistant decisions, draft outcomes, and feedback signals."
+    gotchas: "Admin/service-role table. It records review outcomes only; raw email source remains outlook_email_intake and project-matched email remains project_emails."
+    relatedTables:
+      - outlook_email_intake
+
+  - name: email_filter_rules
+    db: MAIN
+    domain: communications
+    owner: communications
+    status: live
+    purpose: >-
+      User-trained junk-mail rules. Applied by the Outlook sync as Gate 1.5
+      between the hand-coded noise filter (_is_noise_email) and the heuristic
+      classifier. Each rule matches on sender_pattern, sender_domain,
+      subject_pattern, body_pattern (ILIKE) and emits action skip/review/allow.
+    notes_for_ai: >-
+      Reads in backend/src/services/integrations/microsoft_graph/user_filter_rules.py.
+      Writes from frontend/src/app/api/email-filter-rules/ (admin-only POST/PATCH/DELETE).
+      Allow actions short-circuit allowlist; skip drops the email with no DB writes;
+      review writes to outlook_email_skip_audit only.
+      NOT the same as outlook_inbox_rules: this is the SYNC-TIME junk gate
+      (skip/review/allow); outlook_inbox_rules is the READ-TIME assistant-training
+      layer (always-important / never-inbox / set priority|category) for the
+      Outlook Draft Feedback inbox.
+    relatedTables:
+      - outlook_email_skip_audit
+      - outlook_email_intake
+      - outlook_inbox_rules
+
+  - name: outlook_inbox_rules
+    db: MAIN
+    domain: communications
+    owner: communications
+    status: live
+    purpose: >-
+      Gmail/Outlook-style inbox rules for the Outlook Draft Feedback surface.
+      Each rule matches a sender / sender_domain / subject / body / any pattern
+      (contains, equals, starts_with, ends_with) and forces an assistant action:
+      always_important, never_inbox, set_priority, or set_category. This trains
+      the assistant on how to treat mail from a person/pattern.
+    notes_for_ai: >-
+      Applied at READ time in frontend/src/app/api/emails/route.ts (the pure
+      matcher is frontend/src/lib/email-assistant/inbox-rules.ts) — NOT in the
+      backend sync. Human reviews (outlook_email_assistant_reviews) always win
+      over a rule; a rule overrides the derived triage guess. never_inbox drops
+      the mail from the feed (count logged, never a silent hide) but never hides
+      an email a human already reviewed. CRUD via
+      frontend/src/app/api/outlook-inbox-rules/ (owner/admin/mailbox-owner gated,
+      service client + RLS current_is_app_admin). Managed from the AI Review
+      panel and /outlook-draft-feedback/rules. Distinct from email_filter_rules
+      (the sync-time junk gate).
+    relatedTables:
+      - outlook_email_intake
+      - outlook_email_assistant_reviews
+      - email_filter_rules
+
+  # --- Pre-existing tables that were live but undocumented (drift backfill) ---
+  - name: admin_feedback_assistant_threads
+    db: MAIN
+    domain: admin
+    owner: platform
+    status: live
+    purpose: >-
+      Links an admin feedback item to an assistant session/thread that works it,
+      tracking status, runtime, relay comments, and last message/error.
+    relatedTables: []
+
+  - name: app_page_tags
+    db: MAIN
+    domain: admin
+    owner: platform
+    status: live
+    purpose: >-
+      Admin-managed catalog of page tags applied from the site map. Reusable
+      across pages; drives curated tagged-page views.
+    relatedTables:
+      - app_page_tag_assignments
+
+  - name: app_page_tag_assignments
+    db: MAIN
+    domain: admin
+    owner: platform
+    status: live
+    purpose: >-
+      Join table mapping a route from the app route inventory to a tag in
+      app_page_tags.
+    relatedTables:
+      - app_page_tags
+
+  - name: change_event_project_settings
+    db: MAIN
+    domain: financial
+    owner: financial
+    status: live
+    purpose: >-
+      Per-project change-event configuration flags (budget-code sync, ROM
+      columns, line-item autopopulation, attachment copy, PCO/CO behavior).
+    relatedTables: []
+
+  - name: daily_corpus_syntheses
+    db: MAIN
+    domain: intelligence
+    owner: intelligence
+    status: live
+    purpose: >-
+      Canonical previous-day full-corpus synthesis artifact for executive
+      briefing and downstream intelligence consumers.
+    relatedTables: []
+
+  - name: email_events
+    db: MAIN
+    domain: communications
+    owner: unknown
+    status: dormant
+    purpose: "Dormant email event log."
+    relatedTables: []
+
+  - name: email_messages
+    db: MAIN
+    domain: communications
+    owner: unknown
+    status: dead
+    purpose: "Dead schema. No code references. Drop candidate."
+    cleanupPriority: low
+    relatedTables: []
+
+  # ─── Meetings ────────────────────────────────────────────
+
+  - name: fireflies_ingestion_jobs
+    db: MAIN
+    domain: communications
+    owner: pipeline
+    status: live
+    purpose: "Pipeline ingest-job stage queue (MAIN side). ~27k rows. As of 2026-06-17 the pipeline DUAL-WRITES stage rows here AND into RAG.fireflies_ingestion_jobs via supabase_helpers.update_ingestion_job_state(); the document-insert trigger creates the MAIN row. No longer a passive stale orphan — keeping MAIN current lets the app UI / admin tooling read stages without crossing to the RAG DB."
+    gotchas: "Both copies are now kept in sync. Key is COALESCE(document_metadata.fireflies_id, id) (on_conflict=fireflies_id), so generic uploads are keyed by metadata id and real Fireflies meetings keep their external id — never assume the key is always a fireflies id. Always update both DBs through update_ingestion_job_state(), never one side directly."
+    relatedTables:
+      - meeting_segments
+      - rag_document_metadata
+
+  - name: meeting_segments
+    db: MAIN
+    domain: communications
+    owner: pipeline
+    status: live
+    purpose: "Meeting transcript chunks and summary embeddings. 19,527 rows. Written by parser.py, embedder.py. Read by meeting pages and project intelligence."
+    gotchas: "RLS enabled 2026-07-23 (migration 20260723230000): a segment is readable iff its parent document_metadata row is readable (parent RLS — including the leadership/Annual-Review gate — cascades through the policy's EXISTS subquery). Service role writes unaffected."
+    relatedTables:
+      - document_metadata
+
+  - name: daily_recaps
+    db: MAIN
+    domain: intelligence
+    owner: pipeline
+    status: live
+    purpose: "Executive briefing packet store. Executive Daily Brief generation now writes canonical AI Ops run linkage through ai_work_run_id."
+    gotchas: "Legacy mechanism, but still actively generated for Executive Daily Brief. ai_work_run_id is the canonical generation run pointer; ai_work_runs.daily_recap_id remains the run-to-packet history link."
+    relatedTables:
+      - ai_work_runs
+      - executive_briefing_follow_ups
+
+  - name: briefing_runs
+    db: MAIN
+    domain: intelligence
+    owner: unknown
+    status: dormant
+    purpose: "Dormant briefing run tracker."
+    relatedTables: []
+
+  - name: meeting_preps
+    db: MAIN
+    domain: communications
+    owner: unknown
+    status: dormant
+    purpose: "Dormant meeting preparation records."
+    relatedTables: []
+
+  # ─── Meetings tool (Procore-style, added 2026-07-01) ─────
+
+  - name: meeting_series
+    db: MAIN
+    domain: meetings
+    owner: core
+    status: live
+    purpose: "Groups recurring meetings under one project-scoped name (e.g. weekly OAC). unique(project_id, name). Backfilled from distinct document_metadata.title per project for existing Fireflies transcripts."
+    relatedTables:
+      - meetings
+      - projects
+
+  - name: meetings
+    db: MAIN
+    domain: meetings
+    owner: core
+    status: live
+    purpose: "Procore-style meeting record: agenda/minutes mode, schedule fields, optional link to a Fireflies transcript via transcript_document_id. Backfilled one row per existing document_metadata (type='meeting') row that has a project_id."
+    gotchas: "transcript_document_id references document_metadata.id (TEXT) — do not confuse with meeting_documents (generic attachment junction). number is scoped per series_id via unique(series_id, number)."
+    relatedTables:
+      - meeting_series
+      - meeting_attendees
+      - meeting_categories
+      - meeting_items
+      - meeting_documents
+      - document_metadata
+      - meeting_templates
+
+  - name: meeting_attendees
+    db: MAIN
+    domain: meetings
+    owner: core
+    status: live
+    purpose: "Per-meeting attendee roster (person_id -> people.id). attended is null until the meeting is in minutes mode and attendance is marked."
+    relatedTables:
+      - meetings
+      - people
+
+  - name: meeting_categories
+    db: MAIN
+    domain: meetings
+    owner: core
+    status: live
+    purpose: "Agenda section headers within a single meeting (ordered by position). Parent of meeting_items."
+    relatedTables:
+      - meetings
+      - meeting_items
+
+  - name: meeting_items
+    db: MAIN
+    domain: meetings
+    owner: core
+    status: live
+    purpose: "Individual agenda/minutes line items within a meeting_category: title, assignee, due date, status. Can carry forward to a later meeting (carried_from_item_id) and can spawn a task (tasks.meeting_item_id)."
+    gotchas: "origin_meeting_id and carried_from_item_id both self/cross-reference meetings and meeting_items to support 'carry open item to next meeting' workflows — do not assume carried items always share the same meeting."
+    relatedTables:
+      - meetings
+      - meeting_categories
+      - people
+      - tasks
+      - meeting_item_documents
+
+  - name: meeting_templates
+    db: MAIN
+    domain: meetings
+    owner: core
+    status: live
+    purpose: "Company-level (no project_id by design, matching Procore) reusable meeting template. Everyone authenticated can read; only admins write."
+    relatedTables:
+      - meeting_template_categories
+      - meetings
+
+  - name: meeting_template_categories
+    db: MAIN
+    domain: meetings
+    owner: core
+    status: live
+    purpose: "Agenda section headers within a meeting_template, mirrors meeting_categories."
+    relatedTables:
+      - meeting_templates
+      - meeting_template_items
+
+  - name: meeting_template_items
+    db: MAIN
+    domain: meetings
+    owner: core
+    status: live
+    purpose: "Pre-defined agenda line items within a meeting_template_category, mirrors meeting_items minus assignment/status fields."
+    relatedTables:
+      - meeting_template_categories
+
+  - name: meeting_documents
+    db: MAIN
+    domain: meetings
+    owner: core
+    status: live
+    purpose: "Pattern C attachment junction: links document_metadata records (generic uploads, not the transcript) to a meeting."
+    relatedTables:
+      - meetings
+      - document_metadata
+
+  - name: meeting_item_documents
+    db: MAIN
+    domain: meetings
+    owner: core
+    status: live
+    purpose: "Pattern C attachment junction: links document_metadata records to an individual meeting_item."
+    relatedTables:
+      - meeting_items
+      - document_metadata
+
+  # ─── Chat ────────────────────────────────────────────────
+
+  - name: chat_history
+    db: MAIN
+    domain: ai
+    owner: core
+    status: live
+    purpose: "AI assistant chat message persistence. 2,908 rows. The live chat store."
+    relatedTables:
+      - conversations
+    notesForAi: "Primary chat log table. Use with conversations for session context. `public.search_chat_history` provides scoped prior-conversation recall using chat_history FTS/trigram indexes, deduped session lineage, anchored neighboring windows, and session bookends. Do not route this recall through document_chunks or document RAG."
+
+  - name: conversations
+    db: MAIN
+    domain: ai
+    owner: core
+    status: live
+    purpose: "AI assistant chat session metadata. 226 rows. Thread/session header for chat_history."
+    relatedTables:
+      - chat_history
+
+  - name: notes
+    db: MAIN
+    domain: ai
+    owner: unknown
+    status: dead
+    purpose: "Dead schema. No code references. Drop candidate."
+    cleanupPriority: high
+    relatedTables: []
+
+  - name: memories
+    db: MAIN
+    domain: ai
+    owner: core
+    status: live
+    purpose: "Historical per-session conversation summaries with 3072-dim embeddings. There is no active writer; current durable Assistant memory uses ai_memories."
+    notesForAi: "Do not write new rows here. Use ai_memories for typed durable memory. Existing rows may remain readable only for historical recall."
+    relatedTables:
+      - ai_memories
+
+  # ─── Teams chat ──────────────────────────────────────────
+
+  - name: team_chat_channels
+    db: MAIN
+    domain: communications
+    owner: core
+    status: live
+    purpose: "Channels for Team Chat — the app's OWN internal chat feature at /team-chat (Slack-style channels + DMs). 2 rows. Nothing to do with Microsoft Teams."
+    relatedTables:
+      - team_chat_messages
+
+  - name: team_chat_messages
+    db: MAIN
+    domain: communications
+    owner: core
+    status: live-empty
+    purpose: "Messages for Team Chat — the app's OWN internal chat feature at /team-chat: channels, DMs, and a comments-inbox DM that surfaces app comments. UI is built (frontend/src/app/(main)/team-chat/page.tsx via ChatLayout; API frontend/src/app/api/team-chat/*, currently admin-gated) but the feature is NOT yet rolled out — finishing/launching it is a standing priority Megan has requested repeatedly (recorded 2026-07-14). 6 rows."
+    gotchas: "Nothing to do with Microsoft Teams — do not confuse the two. The company's Microsoft Teams history lives in document_metadata with category='teams_message' (~28k rows, synced since 2026-03 by backend/src/services/integrations/microsoft_graph/teams.py) with embedded chunks in RAG document_chunks source_type='teams_dm'/'teams_channel'. See document_metadata notesForAi."
+    relatedTables:
+      - team_chat_channels
+      - document_metadata
+
+  # ─── Files, attachments, photos ──────────────────────────
+
+  - name: files
+    db: MAIN
+    domain: documents
+    owner: core
+    status: live
+    purpose: "Project-setup wizard file index. 2 rows. Parallel to legacy documents table. Storage buckets: drawings, specifications, schedules."
+    relatedTables:
+      - documents
+
+  - name: photos
+    db: MAIN
+    domain: documents
+    owner: core
+    status: live-empty
+    purpose: "Photo feature. Routes wired, zero data. Feature shipped but never adopted."
+    relatedTables:
+      - photo_albums
+      - photo_links
+
+  - name: photo_albums
+    db: MAIN
+    domain: documents
+    owner: core
+    status: live-empty
+    purpose: "Photo albums. Feature shipped, never adopted."
+    relatedTables:
+      - photos
+
+  - name: photo_links
+    db: MAIN
+    domain: documents
+    owner: core
+    status: live-empty
+    purpose: "Photo links. Feature shipped, never adopted."
+    relatedTables:
+      - photos
+
+  - name: observation_photos
+    db: MAIN
+    domain: documents
+    owner: core
+    status: live-empty
+    purpose: "Photos for observations. Feature shipped, never adopted."
+    relatedTables: []
+
+  - name: daily_logs_project_photos_links
+    db: MAIN
+    domain: documents
+    owner: core
+    status: live-empty
+    purpose: "Link table between daily logs and project photos. Feature shipped, never adopted."
+    relatedTables: []
+
+  - name: daily_log_photos
+    db: MAIN
+    domain: documents
+    owner: core
+    status: live
+    purpose: "Photo metadata written by the Site Scribe daily-log flow. Stores uploaded image records plus pairing back to the generated daily log and note context."
+    gotchas: "This is not the old project photos feature. The active writer is /api/projects/[projectId]/daily-log/site-scribe, which replaces rows for a daily log on regeneration."
+    relatedTables:
+      - daily_logs
+      - projects
+
+  # ─────────────────────────────────────────────────────────
+  # DOMAIN: INTELLIGENCE, AI, SYNC, WORKFLOW
+  # ─────────────────────────────────────────────────────────
+
+  - name: intelligence_targets
+    db: MAIN
+    domain: intelligence
+    owner: pipeline
+    status: live
+    purpose: "Registry of compile-able intelligence targets (client_project, etc). 77 rows. status='active' gates packet refresh. Source for periodic refresh cron."
+    relatedTables:
+      - intelligence_packets
+      - insight_cards
+    notesForAi: "Query this to enumerate what intelligence packets exist. status='active' means the target gets 4×/day packet refreshes."
+
+  - name: intelligence_packets
+    db: MAIN
+    domain: intelligence
+    owner: pipeline
+    status: live
+    purpose: "Rendered briefing per intelligence target — latest snapshot. 83 rows. Upserted by compile_current_packet on every refresh."
+    relatedTables:
+      - intelligence_packet_cards
+      - intelligence_targets
+      - insight_cards
+    notesForAi: "Primary source for executive briefing content per project. Join with intelligence_packet_cards to get the insight cards."
+
+  - name: intelligence_packet_cards
+    db: MAIN
+    domain: intelligence
+    owner: pipeline
+    status: live
+    purpose: "Packet to insight_card join table with section and rank. 2,230 rows. Wiped and re-inserted on every packet refresh."
+    gotchas: "Wiped and re-inserted on every refresh. Do not reference rows by id across refresh cycles."
+    relatedTables:
+      - intelligence_packets
+      - insight_cards
+
+  - name: insight_cards
+    db: MAIN
+    domain: intelligence
+    owner: pipeline
+    status: live
+    purpose: "Durable extracted signals from the intelligence pipeline. 5,991 rows. Created by promote_signal_candidate. Can be acknowledged, snoozed, or manually created."
+    relatedTables:
+      - insight_card_evidence
+      - insight_card_targets
+      - intelligence_packet_cards
+    notesForAi: "Primary source for project insights. Filter by project_id and status. Acknowledged/snoozed cards should be excluded from active briefings."
+
+  - name: insight_card_evidence
+    db: MAIN
+    domain: intelligence
+    owner: pipeline
+    status: live
+    purpose: "Links insight cards to their source documents. 6,185 rows. FK to document_metadata/source_documents."
+    relatedTables:
+      - insight_cards
+      - document_metadata
+
+  - name: insight_card_targets
+    db: MAIN
+    domain: intelligence
+    owner: pipeline
+    status: live
+    purpose: "Links insight cards to intelligence targets with is_primary flag. 5,990 rows."
+    relatedTables:
+      - insight_cards
+      - intelligence_targets
+
+  - name: intelligence_reviews
+    db: MAIN
+    domain: intelligence
+    owner: core
+    status: live
+    purpose: "Human review queue for packet/card feedback. Low row count today, but active insert/read paths make it the durable app-side review ledger."
+    gotchas: "Do not let this become a silent junk drawer for AI corrections. Keep ownership tight around packet/card feedback until a broader review workflow exists."
+    cleanupPriority: medium
+    relatedTables:
+      - insight_cards
+
+  - name: project_attribution_rules
+    db: MAIN
+    domain: intelligence
+    owner: pipeline
+    status: live
+    purpose: "Heuristic rules for matching emails/documents to projects. 514 rows. Auto-learned from confirmed attributions."
+    relatedTables:
+      - document_attribution_candidates
+      - document_metadata
+
+  # ─── Pipeline state / sync ───────────────────────────────
+
+  - name: source_sync_runs
+    db: MAIN
+    domain: pipeline
+    owner: pipeline
+    status: live
+    purpose: "Per-sync-run audit log. 3,478 MAIN rows (3,639 in RAG canonical). Written by graph sync, outlook.py, Acumatica sync."
+    relatedTables:
+      - sources
+
+  - name: graph_subscriptions
+    db: MAIN
+    domain: pipeline
+    owner: pipeline
+    status: live
+    purpose: "Microsoft Graph webhook subscriptions. RLS-protected row count. Auto-renewed by subscriptions.py and webhooks.py."
+    relatedTables: []
+
+  - name: graph_sync_state
+    db: MAIN
+    domain: pipeline
+    owner: pipeline
+    status: live
+    purpose: "Per-resource delta sync tokens for Microsoft Graph. Per-user mailbox rows key resource_id by the bare mailbox email, not user:<email>."
+    gotchas: "Do not prefix mailbox resource_id values when reading graph_sync_state for stale-first sync selection; prefixed lookups match zero rows and collapse the limited mailbox batch into alphabetical order."
+    relatedTables: []
+
+  - name: ingestion_jobs
+    db: MAIN
+    domain: pipeline
+    owner: pipeline
+    status: orphan-mirror
+    purpose: "STALE copy of generic ingestion audit. 431 rows. RAG.ingestion_jobs is canonical."
+    cleanupPriority: medium
+    relatedTables: []
+
+  - name: system_alerts
+    db: MAIN
+    domain: pipeline
+    owner: pipeline
+    status: live
+    purpose: "Health alert sink. 646 rows. Written by source_sync_health.py and source_rag_health.py crons."
+    relatedTables: []
+
+  - name: sources
+    db: MAIN
+    domain: pipeline
+    owner: pipeline
+    status: live
+    purpose: "Source registry — canonical list of ingestion sources. 1,218 rows."
+    relatedTables:
+      - source_sync_runs
+
+  - name: pipeline_config
+    db: MAIN
+    domain: pipeline
+    owner: unknown
+    status: dormant
+    purpose: "Dormant pipeline configuration table."
+    relatedTables: []
+
+  - name: processing_queue
+    db: MAIN
+    domain: pipeline
+    owner: unknown
+    status: dormant
+    purpose: "Dormant processing queue."
+    relatedTables: []
+
+  - name: sync_status
+    db: MAIN
+    domain: pipeline
+    owner: unknown
+    status: dormant
+    purpose: "Dormant sync status table."
+    relatedTables: []
+
+  - name: ingestion_dead_letter
+    db: MAIN
+    domain: pipeline
+    owner: unknown
+    status: orphan-mirror
+    purpose: "STALE DLQ for failed ingestions. RAG.ingestion_dead_letter is canonical."
+    cleanupPriority: medium
+    relatedTables: []
+
+  # ─── AI assistant feedback + memory ─────────────────────
+
+  - name: ai_memories
+    db: MAIN
+    domain: ai
+    owner: core
+    status: live
+    purpose: "Long-term AI assistant memory store. 27,990 rows. Written by ai-memory-service.ts and workspace artifact promotions."
+    relatedTables: []
+    notesForAi: "Primary long-term memory source for the AI assistant. Use to recall user preferences, project context, and past interactions."
+
+  - name: ai_retrieval_feedback
+    db: MAIN
+    domain: ai
+    owner: core
+    status: live
+    purpose: "Thumb/score feedback on AI retrieval results. 1,948 rows. Written by feedback-event-service.ts."
+    relatedTables: []
+
+  - name: ai_feedback_events
+    db: MAIN
+    domain: ai
+    owner: core
+    status: live-empty
+    purpose: "AI feedback events. Writer wired in feedback-event-service.ts but never triggered."
+    relatedTables: []
+
+  - name: ai_learning_promotions
+    db: MAIN
+    domain: ai
+    owner: core
+    status: live-empty
+    purpose: "AI learning promotion records. Writer wired but never triggered."
+    relatedTables: []
+
+  - name: agent_learnings
+    db: MAIN
+    domain: ai
+    owner: core
+    status: live
+    purpose: "Durable AI failure-pattern and prevention-prompt memory. Read and upserted by agent-learning-service.ts from thumbs-down feedback, eval failures, and admin feedback flows."
+    gotchas: "PM APP stores the structured learning record only. Embeddings for retrieval are synced separately into the RAG database and must not be written into this table."
+    relatedTables:
+      - ai_feedback_events
+      - agent_learning_usages
+      - ai_learning_promotions
+    notesForAi: "Use this for verified behavioral guardrails and repeated failure patterns, not for transient chat history."
+
+  - name: agent_learning_usages
+    db: MAIN
+    domain: ai
+    owner: core
+    status: live
+    purpose: "Session-level usage/outcome log for injected agent learnings. Proves whether a retrieved learning was used and whether later feedback marked that session positive or negative."
+    gotchas: "Rows are written opportunistically when learnings are injected into assistant context. Treat it as effectiveness telemetry, not the source of the learning itself."
+    relatedTables:
+      - agent_learnings
+      - ai_feedback_events
+
+  - name: ai_retrieval_weights
+    db: MAIN
+    domain: ai
+    owner: unknown
+    status: dormant
+    purpose: "Dormant AI retrieval weight tuning table."
+    relatedTables: []
+
+  - name: ai_review_feedback
+    db: MAIN
+    domain: ai
+    owner: unknown
+    status: dormant
+    purpose: "Dormant AI review feedback."
+    relatedTables: []
+
+  - name: ai_task_feedback
+    db: MAIN
+    domain: ai
+    owner: unknown
+    status: dormant
+    purpose: "Dormant AI task feedback."
+    relatedTables: []
+
+  - name: ai_tool_write_audits
+    db: MAIN
+    domain: ai
+    owner: unknown
+    status: dormant
+    purpose: "Dormant AI tool write audit log."
+    relatedTables: []
+
+  - name: ai_work_run_steps
+    db: MAIN
+    domain: ai
+    owner: ai-ops
+    status: live
+    purpose: "Step-level execution log for canonical AI workflow runs, including source fetch, tool call, synthesis, artifact persistence, delivery, and verification outcomes."
+    relatedTables:
+      - ai_work_runs
+
+  - name: ai_work_run_artifacts
+    db: MAIN
+    domain: ai
+    owner: ai-ops
+    status: live
+    purpose: "Inspectable generated and delivered artifacts for AI workflow runs, including Executive Daily Brief packets, Teams/email payloads, source-health reports, delivery receipts, and verification reports."
+    relatedTables:
+      - ai_work_runs
+      - daily_recaps
+
+  - name: ai_work_run_delivery_attempts
+    db: MAIN
+    domain: ai
+    owner: ai-ops
+    status: live
+    purpose: "Per-channel delivery attempt ledger for AI workflow runs, with recipient, status, exact failure code/message, retryability, provider response, and artifact linkage."
+    relatedTables:
+      - ai_work_runs
+      - ai_work_run_artifacts
+
+  # ─── Executive briefing + strategic ─────────────────────
+
+  - name: executive_briefing_follow_ups
+    db: MAIN
+    domain: intelligence
+    owner: core
+    status: live
+    purpose: "Follow-up actions from executive briefings. 108 rows."
+    relatedTables:
+      - daily_recaps
+
+  - name: initiative_cards
+    db: MAIN
+    domain: intelligence
+    owner: core
+    status: live
+    purpose: "Strategic initiative cards. 8 rows. Separate from insight_cards."
+    relatedTables: []
+
+  # ─── Workflow + tasks ────────────────────────────────────
+
+  - name: tasks
+    db: MAIN
+    domain: workflow
+    owner: pipeline
+    status: live
+    purpose: "Project action items. 845 rows. Written by task_extraction.py (daily cron) and teams_compiler.py."
+    relatedTables:
+      - task_comments
+      - projects
+    notesForAi: "Primary task/action item source. Filter by project_id and status for active tasks."
+
+  - name: task_comments
+    db: MAIN
+    domain: workflow
+    owner: core
+    status: live-empty
+    purpose: "Comments on tasks. Routes exist, no data."
+    relatedTables:
+      - tasks
+
+  - name: todos
+    db: MAIN
+    domain: workflow
+    owner: core
+    status: live-empty
+    purpose: "SOV-related todos. Referenced in subcontractor-sov-service.ts but empty."
+    relatedTables: []
+
+  - name: rfis
+    db: MAIN
+    domain: workflow
+    owner: core
+    status: live
+    purpose: "Request for Information records. 11 rows."
+    relatedTables:
+      - rfi_assignees
+
+  - name: rfi_responses
+    db: MAIN
+    domain: workflow
+    owner: core
+    status: live
+    purpose: "Structured RFI responses from app, public magic-link web replies, and email reply ingestion."
+    gotchas: "Public response routes and RFI reply cron use service-role access after token validation; authenticated users may read responses. Do not expose rfi_response_tokens to normal clients."
+    relatedTables:
+      - rfis
+      - rfi_response_tokens
+      - people
+      - projects
+
+  - name: rfi_response_tokens
+    db: MAIN
+    domain: workflow
+    owner: core
+    status: live
+    purpose: "Opaque no-login authorization tokens for one recipient to respond to one RFI through web or email reply channels."
+    gotchas: "Token rows have no authenticated/anon policy. Access must stay service-role only after API-side validation."
+    relatedTables:
+      - rfis
+      - rfi_responses
+      - people
+      - projects
+
+  - name: rfi_assignees
+    db: MAIN
+    domain: workflow
+    owner: unknown
+    status: dormant
+    purpose: "Dormant RFI assignee table."
+    relatedTables:
+      - rfis
+
+  - name: rfis_submittals_links
+    db: MAIN
+    domain: workflow
+    owner: unknown
+    status: dormant
+    purpose: "Dormant RFI to submittal cross-links."
+    relatedTables: []
+
+  - name: submittals
+    db: MAIN
+    domain: workflow
+    owner: core
+    status: live
+    purpose: "Submittal records. 1 row."
+    relatedTables: []
+
+  - name: submittal_project_settings
+    db: MAIN
+    domain: workflow
+    owner: core
+    status: live
+    purpose: "Per-project Submittals tool configuration for default managers, distribution behavior, response days, workflow toggles, and email notification defaults."
+    gotchas: "One row per project. The settings API deliberately handles missing-table errors loudly with an actionable migration message."
+    relatedTables:
+      - projects
+      - submittals
+
+  - name: submittal_ai_review_runs
+    db: MAIN
+    domain: workflow
+    owner: ai
+    status: live
+    purpose: "AI submittal review run headers, including readiness, source coverage, model output, recommendation, status, and error details."
+    gotchas: "Runs are not the source documents; they are review artifacts tied to submittals and projects. Keep check rows in submittal_ai_review_checks."
+    relatedTables:
+      - submittals
+      - submittal_ai_review_checks
+      - projects
+
+  - name: submittal_ai_review_checks
+    db: MAIN
+    domain: workflow
+    owner: ai
+    status: live
+    purpose: "Per-check AI submittal review findings with severity, confidence, source references, missing data, and human reviewer disposition."
+    gotchas: "Rows belong to submittal_ai_review_runs. Reviewer disposition controls are part of the active submittal AI review workflow."
+    relatedTables:
+      - submittal_ai_review_runs
+      - submittals
+      - projects
+
+  - name: submittal_workflow_templates
+    db: MAIN
+    domain: workflow
+    owner: core
+    status: live
+    purpose: "Submittal workflow templates. 1 row."
+    relatedTables:
+      - submittals
+
+  - name: submittal_analytics_events
+    db: MAIN
+    domain: workflow
+    owner: core
+    status: live-empty
+    purpose: "Analytics events for submittal workflows. Wired but no data."
+    relatedTables: []
+
+  - name: schedule_tasks
+    db: MAIN
+    domain: workflow
+    owner: core
+    status: live
+    purpose: "Project schedule tasks. 241 rows."
+    relatedTables:
+      - schedule_deadlines
+      - schedule_dependencies
+
+  - name: schedule_deadlines
+    db: MAIN
+    domain: workflow
+    owner: unknown
+    status: dormant
+    purpose: "Dormant schedule deadline tracking."
+    relatedTables:
+      - schedule_tasks
+
+  - name: schedule_dependencies
+    db: MAIN
+    domain: workflow
+    owner: unknown
+    status: dormant
+    purpose: "Dormant schedule task dependencies."
+    relatedTables:
+      - schedule_tasks
+
+  - name: punch_items
+    db: MAIN
+    domain: workflow
+    owner: core
+    status: live
+    purpose: "Punch list items. 6 rows."
+    relatedTables:
+      - punch_item_comments
+      - punch_item_templates
+
+  - name: punch_item_comments
+    db: MAIN
+    domain: workflow
+    owner: unknown
+    status: dormant
+    purpose: "Dormant punch item comments."
+    relatedTables: []
+
+  - name: punch_item_templates
+    db: MAIN
+    domain: workflow
+    owner: unknown
+    status: dormant
+    purpose: "Dormant punch item templates."
+    relatedTables:
+      - punch_item_template_categories
+
+  - name: punch_item_template_categories
+    db: MAIN
+    domain: workflow
+    owner: unknown
+    status: dormant
+    purpose: "Dormant punch item template categories."
+    relatedTables: []
+
+  - name: recurring_issues
+    db: MAIN
+    domain: workflow
+    owner: core
+    status: live
+    purpose: "Pattern-detection recurring issues. 5 rows."
+    relatedTables:
+      - recurring_issue_evidence
+      - recurring_issue_projects
+
+  - name: recurring_issue_evidence
+    db: MAIN
+    domain: workflow
+    owner: core
+    status: live
+    purpose: "Evidence supporting recurring issues. 9 rows."
+    relatedTables:
+      - recurring_issues
+
+  - name: recurring_issue_projects
+    db: MAIN
+    domain: workflow
+    owner: unknown
+    status: dormant
+    purpose: "Dormant recurring issue to project links."
+    relatedTables: []
+
+  - name: feature_requests
+    db: MAIN
+    domain: workflow
+    owner: core
+    status: live
+    purpose: "Product feature requests from users. 1 row."
+    relatedTables:
+      - feature_request_events
+
+  - name: feature_request_events
+    db: MAIN
+    domain: workflow
+    owner: unknown
+    status: dormant
+    purpose: "Dormant feature request events."
+    relatedTables: []
+
+  - name: feature_request_linear_events
+    db: MAIN
+    domain: workflow
+    owner: unknown
+    status: dormant
+    purpose: "Dormant Linear integration events for feature requests."
+    relatedTables: []
+
+  - name: feature_request_linear_sub_issues
+    db: MAIN
+    domain: workflow
+    owner: unknown
+    status: dormant
+    purpose: "Dormant Linear sub-issue tracking for feature requests."
+    relatedTables: []
+
+  - name: roadmap_items
+    db: MAIN
+    domain: workflow
+    owner: core
+    status: live
+    purpose: "Product roadmap items. 10 rows. Admin-managed at /api/admin/roadmap/*."
+    relatedTables: []
+
+  - name: admin_feedback_items
+    db: MAIN
+    domain: workflow
+    owner: core
+    status: live
+    purpose: "In-app user feedback inbox. 291 rows. Managed at /api/admin/feedback/*."
+    relatedTables:
+      - admin_feedback_comments
+
+  - name: admin_feedback_comments
+    db: MAIN
+    domain: workflow
+    owner: unknown
+    status: dormant
+    purpose: "Dormant admin feedback comments."
+    relatedTables:
+      - admin_feedback_items
+
+  - name: inspections
+    db: MAIN
+    domain: workflow
+    owner: unknown
+    status: dormant
+    purpose: "Dormant inspections feature."
+    relatedTables: []
+
+  - name: issues
+    db: MAIN
+    domain: workflow
+    owner: unknown
+    status: dormant
+    purpose: "Dormant issues tracking."
+    relatedTables: []
+
+  - name: discrepancies
+    db: MAIN
+    domain: workflow
+    owner: unknown
+    status: dormant
+    purpose: "Dormant discrepancy tracking."
+    relatedTables: []
+
+  - name: timeline_events
+    db: MAIN
+    domain: workflow
+    owner: unknown
+    status: dormant
+    purpose: "Dormant timeline events."
+    relatedTables: []
+
+  - name: requests
+    db: MAIN
+    domain: workflow
+    owner: unknown
+    status: dormant
+    purpose: "Dormant generic requests table."
+    relatedTables: []
+
+  - name: implementation_plans
+    db: MAIN
+    domain: workflow
+    owner: unknown
+    status: dormant
+    purpose: "Dormant implementation plans."
+    relatedTables: []
+
+  - name: execution_handoffs
+    db: MAIN
+    domain: workflow
+    owner: unknown
+    status: dormant
+    purpose: "Dormant execution handoff records."
+    relatedTables: []
+
+  - name: collaboration_comments
+    db: MAIN
+    domain: workflow
+    owner: unknown
+    status: dormant
+    purpose: "Dormant collaboration comments."
+    relatedTables: []
+
+  - name: collaboration_notifications
+    db: MAIN
+    domain: workflow
+    owner: unknown
+    status: dormant
+    purpose: "Dormant collaboration notifications."
+    relatedTables: []
+
+  - name: reviews
+    db: MAIN
+    domain: workflow
+    owner: unknown
+    status: dormant
+    purpose: "Dormant review records."
+    relatedTables: []
+
+  - name: review_comments
+    db: MAIN
+    domain: workflow
+    owner: unknown
+    status: dormant
+    purpose: "Dormant review comments."
+    relatedTables: []
+
+  - name: transmittal_items
+    db: MAIN
+    domain: workflow
+    owner: unknown
+    status: dormant
+    purpose: "Dormant transmittal items."
+    relatedTables: []
+
+  # ─── Observations + Daily logs ───────────────────────────
+
+  - name: observation_photos
+    db: MAIN
+    domain: workflow
+    owner: core
+    status: live-empty
+    purpose: "Photos for observations. Feature shipped, never adopted."
+    relatedTables: []
+
+  - name: daily_log_equipment
+    db: MAIN
+    domain: workflow
+    owner: unknown
+    status: dormant
+    purpose: "Dormant daily log equipment entries."
+    relatedTables: []
+
+  - name: daily_log_manpower
+    db: MAIN
+    domain: workflow
+    owner: unknown
+    status: dormant
+    purpose: "Dormant daily log manpower entries."
+    relatedTables: []
+
+  - name: manpower_plans
+    db: MAIN
+    domain: workflow
+    owner: core
+    status: live-empty
+    purpose: "Imported manpower planning snapshot header. Marks the active manpower plan and tracks import metadata/warnings."
+    gotchas: "Only one active plan is allowed by partial unique index. Plan rows own manpower_projects and manpower_assignments via cascade delete."
+    relatedTables:
+      - manpower_projects
+      - manpower_assignments
+      - people
+
+  - name: manpower_projects
+    db: MAIN
+    domain: workflow
+    owner: core
+    status: live-empty
+    purpose: "Project rows within an imported manpower plan, optionally linked to the canonical projects table."
+    gotchas: "project_id is nullable; external_code/project_name may be the only source when the imported plan cannot be matched to a project."
+    relatedTables:
+      - manpower_plans
+      - manpower_assignments
+      - projects
+
+  - name: manpower_assignments
+    db: MAIN
+    domain: workflow
+    owner: core
+    status: live-empty
+    purpose: "Role/person assignment rows within an imported manpower plan project."
+    gotchas: "assignee_person_id is nullable; assignee_name preserves imported names before directory matching."
+    relatedTables:
+      - manpower_plans
+      - manpower_projects
+      - people
+
+  - name: daily_log_notes
+    db: MAIN
+    domain: workflow
+    owner: unknown
+    status: dormant
+    purpose: "Dormant daily log notes."
+    relatedTables: []
+
+  # ─── Specifications ───────────────────────────────────────
+
+  - name: specification_section_revisions
+    db: MAIN
+    domain: documents
+    owner: core
+    status: live
+    purpose: "Specification section revisions. 1 row."
+    relatedTables: []
+
+  - name: specification_area_sections
+    db: MAIN
+    domain: documents
+    owner: unknown
+    status: dormant
+    purpose: "Dormant specification area sections."
+    relatedTables: []
+
+  - name: specification_areas
+    db: MAIN
+    domain: documents
+    owner: unknown
+    status: dormant
+    purpose: "Dormant specification areas."
+    relatedTables: []
+
+  - name: specification_divisions
+    db: MAIN
+    domain: documents
+    owner: unknown
+    status: dormant
+    purpose: "Dormant specification divisions."
+    relatedTables: []
+
+  - name: specification_sections
+    db: MAIN
+    domain: documents
+    owner: unknown
+    status: dormant
+    purpose: "Dormant specification sections."
+    relatedTables: []
+
+  - name: specification_subscribers
+    db: MAIN
+    domain: documents
+    owner: unknown
+    status: dormant
+    purpose: "Dormant specification subscribers."
+    relatedTables: []
+
+  # ─── Marketing vertical (all dormant) ───────────────────
+
+  - name: marketing_intelligence_items
+    db: MAIN
+    domain: marketing
+    owner: unknown
+    status: dormant
+    purpose: "Dormant marketing intelligence items. CMO tool path wired but no production traffic."
+    relatedTables: []
+
+  - name: marketing_content_calendar_items
+    db: MAIN
+    domain: marketing
+    owner: unknown
+    status: dormant
+    purpose: "Dormant marketing content calendar."
+    relatedTables: []
+
+  - name: marketing_content_assets
+    db: MAIN
+    domain: marketing
+    owner: unknown
+    status: dormant
+    purpose: "Dormant marketing content assets."
+    relatedTables: []
+
+  - name: marketing_performance_snapshots
+    db: MAIN
+    domain: marketing
+    owner: unknown
+    status: dormant
+    purpose: "Dormant marketing performance snapshots."
+    relatedTables: []
+
+  - name: initiatives
+    db: MAIN
+    domain: marketing
+    owner: unknown
+    status: dormant
+    purpose: "Dormant marketing initiatives table. Not the same as initiative_cards."
+    relatedTables:
+      - initiative_cards
+
+  - name: workspace_artifacts
+    db: MAIN
+    domain: marketing
+    owner: unknown
+    status: dormant
+    purpose: "Dormant workspace artifacts. Referenced in CMO path but no production traffic."
+    relatedTables: []
+
+  # ─────────────────────────────────────────────────────────
+  # DOMAIN: FM GLOBAL / ASRS (SPRINKLER DESIGN VERTICAL)
+  # ─────────────────────────────────────────────────────────
+
+  - name: fm_global_tables
+    db: MAIN
+    domain: fm-asrs
+    owner: core
+    status: live
+    purpose: "FM Global lookup tables for sprinkler design. Lightly referenced."
+    relatedTables: []
+
+  - name: fm_form_submissions
+    db: MAIN
+    domain: fm-asrs
+    owner: core
+    status: live
+    purpose: "FM Global form submissions. Lightly referenced."
+    relatedTables: []
+
+  - name: fm_global_figures
+    db: MAIN
+    domain: fm-asrs
+    owner: core
+    status: live
+    purpose: "FM Global figures/charts. Lightly referenced."
+    relatedTables: []
+
+  - name: fm_sections
+    db: MAIN
+    domain: fm-asrs
+    owner: core
+    status: live
+    purpose: "FM Global section definitions. Lightly referenced."
+    relatedTables: []
+
+  - name: fm_sprinkler_configs
+    db: MAIN
+    domain: fm-asrs
+    owner: core
+    status: live
+    purpose: "FM Global sprinkler configurations. Lightly referenced."
+    relatedTables: []
+
+  - name: fm_optimization_rules
+    db: MAIN
+    domain: fm-asrs
+    owner: unknown
+    status: dormant
+    purpose: "Dormant FM optimization rules."
+    relatedTables: []
+
+  - name: fm_optimization_suggestions
+    db: MAIN
+    domain: fm-asrs
+    owner: unknown
+    status: dormant
+    purpose: "Dormant FM optimization suggestions."
+    relatedTables: []
+
+  - name: optimization_rules
+    db: MAIN
+    domain: fm-asrs
+    owner: unknown
+    status: dormant
+    purpose: "Dormant generic optimization rules."
+    relatedTables: []
+
+  - name: fm_blocks
+    db: MAIN
+    domain: fm-asrs
+    owner: unknown
+    status: dormant
+    purpose: "Dormant FM blocks. No code references."
+    relatedTables: []
+
+  - name: fm_cost_factors
+    db: MAIN
+    domain: fm-asrs
+    owner: unknown
+    status: dormant
+    purpose: "Dormant FM cost factors. No code references."
+    relatedTables: []
+
+  - name: fm_documents
+    db: MAIN
+    domain: fm-asrs
+    owner: unknown
+    status: dormant
+    purpose: "Dormant FM documents. No code references."
+    relatedTables: []
+
+  - name: fm_table_vectors
+    db: MAIN
+    domain: fm-asrs
+    owner: unknown
+    status: dormant
+    purpose: "Dormant FM table vectors. No code references."
+    relatedTables: []
+
+  - name: fm_text_chunks
+    db: MAIN
+    domain: fm-asrs
+    owner: unknown
+    status: dormant
+    purpose: "Dormant FM text chunks. No code references."
+    relatedTables: []
+
+  - name: asrs_sections
+    db: MAIN
+    domain: fm-asrs
+    owner: core
+    status: live
+    purpose: "ASRS section definitions. Lightly referenced."
+    relatedTables: []
+
+  - name: asrs_blocks
+    db: MAIN
+    domain: fm-asrs
+    owner: core
+    status: live
+    purpose: "ASRS blocks. Lightly referenced."
+    relatedTables: []
+
+  - name: asrs_configurations
+    db: MAIN
+    domain: fm-asrs
+    owner: unknown
+    status: dormant
+    purpose: "Dormant ASRS configurations. No code references."
+    relatedTables: []
+
+  - name: asrs_decision_matrix
+    db: MAIN
+    domain: fm-asrs
+    owner: unknown
+    status: dormant
+    purpose: "Dormant ASRS decision matrix. No code references."
+    relatedTables: []
+
+  - name: asrs_logic_cards
+    db: MAIN
+    domain: fm-asrs
+    owner: unknown
+    status: dormant
+    purpose: "Dormant ASRS logic cards. No code references."
+    relatedTables: []
+
+  - name: asrs_protection_rules
+    db: MAIN
+    domain: fm-asrs
+    owner: unknown
+    status: dormant
+    purpose: "Dormant ASRS protection rules. No code references."
+    relatedTables: []
+
+  - name: block_embeddings
+    db: MAIN
+    domain: fm-asrs
+    owner: unknown
+    status: dormant
+    purpose: "Dormant block embeddings. No code references."
+    relatedTables: []
+
+  - name: design_recommendations
+    db: MAIN
+    domain: fm-asrs
+    owner: core
+    status: live
+    purpose: >-
+      Persistence for FM Global sprinkler optimization recommendations. Columns mirror
+      the RETURNS TABLE of generate_optimization_recommendations (recommendation_type,
+      potential_savings, priority_level, implementation_effort, technical_details).
+      Empty as of 2026-07-20 -- the form computes recommendations per request and does
+      not persist them here yet.
+    relatedTables:
+      - fm_form_submissions
+      - fm_optimization_rules
+
+  - name: design_violations
+    db: MAIN
+    domain: design-system
+    owner: core
+    status: live
+    purpose: >-
+      Design-system violation tracker for this app's own UI -- route, element selector,
+      violation type, fix status. NOT an FM Global/ASRS table despite the adjacent name;
+      it was previously misfiled under domain fm-asrs. Written and read by
+      frontend/src/app/api/dev/violations/route.ts. Stays in PM APP -- it must not be
+      copied to or migrated with the ASRS corpus. Reclassified 2026-07-20.
+    relatedTables: []
+
+  # ─────────────────────────────────────────────────────────
+  # DOMAIN: PROCORE PARITY / QA
+  # ─────────────────────────────────────────────────────────
+
+  - name: procore_tools
+    db: MAIN
+    domain: admin
+    owner: core
+    status: live
+    purpose: "Admin Procore parity tracker. 10 code references."
+    relatedTables:
+      - procore_features
+      - procore_pages
+
+  - name: procore_features
+    db: MAIN
+    domain: admin
+    owner: core
+    status: live
+    purpose: "Procore feature parity audit. 7 code references."
+    relatedTables:
+      - procore_tools
+
+  - name: procore_pages
+    db: MAIN
+    domain: admin
+    owner: core
+    status: live
+    purpose: "Procore page registry for parity audit. 4 code references."
+    relatedTables:
+      - procore_tools
+
+  - name: procore_modules
+    db: MAIN
+    domain: admin
+    owner: core
+    status: live
+    purpose: "Procore module groupings. 2 code references."
+    relatedTables:
+      - procore_tools
+
+  - name: procore_screenshots
+    db: MAIN
+    domain: admin
+    owner: core
+    status: live
+    purpose: "Admin crawler screenshots from Procore. 2 code references."
+    relatedTables:
+      - procore_capture_sessions
+
+  - name: procore_capture_sessions
+    db: MAIN
+    domain: admin
+    owner: core
+    status: live
+    purpose: "Procore crawler capture sessions. 2 code references."
+    relatedTables:
+      - procore_screenshots
+
+  - name: qa_page_audit
+    db: MAIN
+    domain: admin
+    owner: core
+    status: live
+    purpose: "QA audit results for page parity. 2 code references."
+    relatedTables: []
+
+  - name: procore_components
+    db: MAIN
+    domain: admin
+    owner: unknown
+    status: dormant
+    purpose: "Dormant Procore component tracker. No code references."
+    relatedTables: []
+
+  - name: procore_feature_implementations
+    db: MAIN
+    domain: admin
+    owner: unknown
+    status: dormant
+    purpose: "Dormant Procore feature implementation tracker. No code references."
+    relatedTables: []
+
+  # ─────────────────────────────────────────────────────────
+  # DOMAIN: SUPPORT / KNOWLEDGE BASE
+  # ─────────────────────────────────────────────────────────
+
+  - name: support_articles
+    db: MAIN
+    domain: support
+    owner: core
+    status: live
+    purpose: "In-app knowledge base articles. 2,205 rows."
+    relatedTables:
+      - support_article_chunks
+
+  - name: support_article_chunks
+    db: MAIN
+    domain: support
+    owner: pipeline
+    status: live
+    purpose: "Knowledge base embeddings for semantic search. 5,219 rows."
+    relatedTables:
+      - support_articles
+
+  - name: nods_page
+    db: MAIN
+    domain: support
+    owner: core
+    status: live-empty
+    purpose: "Page registry for knowledge base navigation. Empty but code references exist."
+    relatedTables:
+      - nods_page_section
+
+  - name: nods_page_section
+    db: MAIN
+    domain: support
+    owner: unknown
+    status: dormant
+    purpose: "Dormant knowledge base page sections. No code references."
+    relatedTables: []
+
+  - name: training_docs
+    db: MAIN
+    domain: support
+    owner: core
+    status: live
+    purpose: "User-facing training/help articles (one row per task). Powers /training-docs admin UI, /knowledge/app/* viewer, and the publish pipeline to alleato-os-docs. tool_category/tool_module/task_key group by feature; status (planned→draft→in_review→approved→published→archived) tracks writing; qa_status (not_tested|passing|failing|needs_update) tracks QA. Tool grouping also mirrored in metadata.appToolCategory for back-compat."
+    relatedTables:
+      - training_doc_steps
+      - training_doc_assets
+      - training_doc_relations
+
+  - name: training_doc_steps
+    db: MAIN
+    domain: support
+    owner: core
+    status: live
+    purpose: "Ordered steps for a training_doc (instruction_markdown, expected_result, action_metadata, source_url). QA-ready; produced by the AI step generator and the Playwright tutorial recorder (scripts/tutorials/)."
+    relatedTables:
+      - training_docs
+      - training_doc_assets
+
+  - name: training_doc_assets
+    db: MAIN
+    domain: support
+    owner: core
+    status: live
+    purpose: "Screenshots/images/video attached to a training_doc (asset_type: screenshot|image|video), stored in the documents bucket. Rendered into published MDX."
+    relatedTables:
+      - training_docs
+      - training_doc_steps
+
+  - name: training_doc_relations
+    db: MAIN
+    domain: support
+    owner: core
+    status: live
+    purpose: "Links between training_docs for the training map: relation_type related|prerequisite|next, source_doc_id→target_doc_id. Added 2026-06-30 to let docs link related training. Admin-only RLS."
+    relatedTables:
+      - training_docs
+
+# ─────────────────────────────────────────────────────────
+  # DOMAIN: TEST / ADMIN / DEV INFRASTRUCTURE
+  # ─────────────────────────────────────────────────────────
+
+  - name: test_cases
+    db: MAIN
+    domain: admin
+    owner: core
+    status: live
+    purpose: "Test plan case definitions. 12 code references."
+    relatedTables:
+      - test_suites
+      - test_results
+
+  - name: test_results
+    db: MAIN
+    domain: admin
+    owner: core
+    status: live
+    purpose: "Test run results. 12 code references."
+    relatedTables:
+      - test_cases
+      - test_runs
+
+  - name: test_runs
+    db: MAIN
+    domain: admin
+    owner: core
+    status: live
+    purpose: "Test run sessions. 8 code references."
+    relatedTables:
+      - test_results
+
+  - name: test_suites
+    db: MAIN
+    domain: admin
+    owner: core
+    status: live
+    purpose: "Test suite groupings. 9 code references."
+    relatedTables:
+      - test_cases
+
+  - name: test_screenshots
+    db: MAIN
+    domain: admin
+    owner: core
+    status: live
+    purpose: "Test run screenshots. 3 code references."
+    relatedTables:
+      - test_runs
+
+  - name: database_tables_catalog
+    db: MAIN
+    domain: admin
+    owner: core
+    status: live
+    purpose: "Schema metadata catalog for admin tooling. 6 code references. Separate from db-inventory.generated.ts."
+    relatedTables: []
+
+  - name: dev_annotations
+    db: MAIN
+    domain: admin
+    owner: core
+    status: live
+    purpose: "Dev/admin annotation overlay for the UI. 4 code references."
+    relatedTables: []
+
+  - name: dev_panel_comments
+    db: MAIN
+    domain: admin
+    owner: core
+    status: live
+    purpose: "Dev panel inline comments. 2 code references."
+    relatedTables: []
+
+  - name: app_error_events
+    db: MAIN
+    domain: admin
+    owner: core
+    status: live
+    purpose: "Application error event tracking. 3 code references."
+    relatedTables:
+      - app_error_groups
+
+  - name: app_error_groups
+    db: MAIN
+    domain: admin
+    owner: core
+    status: live
+    purpose: "Error group aggregation. 4 code references."
+    relatedTables:
+      - app_error_events
+
+  - name: app_pages
+    db: MAIN
+    domain: admin
+    owner: core
+    status: live
+    purpose: "App page registry. 2 code references."
+    relatedTables: []
+
+  - name: app_ui_tables
+    db: MAIN
+    domain: admin
+    owner: core
+    status: live
+    purpose: "App UI table registry for admin tooling. 2 code references."
+    relatedTables:
+      - app_ui_table_columns
+
+  - name: app_ui_table_columns
+    db: MAIN
+    domain: admin
+    owner: unknown
+    status: dormant
+    purpose: "Dormant UI table column definitions."
+    relatedTables:
+      - app_ui_tables
+
+  - name: app_crawl_sessions
+    db: MAIN
+    domain: admin
+    owner: core
+    status: live
+    purpose: "App crawl sessions for admin auditing. 2 code references."
+    relatedTables: []
+
+  - name: app_system_actions
+    db: MAIN
+    domain: admin
+    owner: core
+    status: live
+    purpose: "App system action log. 1 code reference."
+    relatedTables: []
+
+  - name: table_metadata
+    db: MAIN
+    domain: admin
+    owner: core
+    status: live
+    purpose: "Table-level metadata for admin tooling. 1 code reference."
+    relatedTables: []
+
+  - name: app_parity_checks
+    db: MAIN
+    domain: admin
+    owner: unknown
+    status: dormant
+    purpose: "Dormant parity check results."
+    relatedTables: []
+
+  - name: app_system_states
+    db: MAIN
+    domain: admin
+    owner: unknown
+    status: dormant
+    purpose: "Dormant app system state snapshots."
+    relatedTables: []
+
+  - name: app_ui_components
+    db: MAIN
+    domain: admin
+    owner: unknown
+    status: dormant
+    purpose: "Dormant UI component registry."
+    relatedTables: []
+
+  - name: admin_view_backups
+    db: MAIN
+    domain: admin
+    owner: unknown
+    status: dormant
+    purpose: "Dormant admin view backup snapshots."
+    relatedTables: []
+
+  - name: psr_comments
+    db: MAIN
+    domain: admin
+    owner: core
+    status: live
+    purpose: "PSR (Project Status Report) comments."
+    relatedTables: []
+
+  - name: parts
+    db: MAIN
+    domain: admin
+    owner: unknown
+    status: dormant
+    purpose: "Dormant parts catalog. Purpose unclear."
+    relatedTables: []
+
+  - name: timesheets
+    db: MAIN
+    domain: workflow
+    owner: unknown
+    status: dormant
+    purpose: "Dormant timesheet records."
+    relatedTables: []
+
+  - name: tool_features
+    db: MAIN
+    domain: admin
+    owner: core
+    status: live
+    purpose: "Feature flags or tool feature definitions."
+    relatedTables: []
+
+  - name: tool_form_fields
+    db: MAIN
+    domain: admin
+    owner: core
+    status: live
+    purpose: "Form field definitions for tool configuration."
+    relatedTables:
+      - tool_features
+
+  # ─────────────────────────────────────────────────────────
+  # RAG DATABASE TABLES (project: fqcvmfqldlewvbsuxdvz)
+  # ─────────────────────────────────────────────────────────
+
+  - name: document_chunks
+    db: RAG
+    domain: documents
+    owner: pipeline
+    status: live
+    purpose: "THE unified vector store. 109,171 rows. halfvec 3072 embeddings. Written by pipeline/embedder.py. Read by rpc('search_document_chunks'). Canonical source for all semantic search."
+    gotchas: "MAIN.document_chunks (103K rows) is a stale orphan. Always use the RAG copy for reads and writes."
+    relatedTables:
+      - rag_document_metadata
+      - document_chunk_retrieval_telemetry
+    notesForAi: "Use search_document_chunks RPC for semantic search. Default ranking is vector-only. Hybrid ranking diagnostics are flag-gated with RAG_HYBRID_RANKING_ENABLED and return vector/text/recall/recency components; retrieval telemetry is separately gated and writes to document_chunk_retrieval_telemetry."
+
+  - name: document_chunk_retrieval_telemetry
+    db: RAG
+    domain: documents
+    owner: pipeline
+    status: live
+    purpose: "Daily bucket recall telemetry for document_chunks retrieval. Stores recall_count and last_recalled_at by chunk/date/retrieval mode so hybrid RAG ranking can use recall frequency without hot updates to vector rows."
+    gotchas: "RAG-owned only. Do not mirror to PM APP. Writes are only enabled when RAG_RETRIEVAL_TELEMETRY_ENABLED=true and should fail loudly if unavailable."
+    relatedTables:
+      - document_chunks
+    notesForAi: "Use document_chunk_retrieval_stats or search_document_chunks score_components for recall diagnostics. Do not query this table from user-facing app flows unless you are building retrieval observability."
+
+  - name: rag_document_metadata
+    db: RAG
+    domain: documents
+    owner: pipeline
+    status: live
+    purpose: "Embedding-side document catalog. 36,657 rows. app_document_id FK back to MAIN.document_metadata. Only backend pipeline reads this directly."
+    relatedTables:
+      - document_chunks
+
+  - name: fireflies_ingestion_jobs
+    db: RAG
+    domain: communications
+    owner: pipeline
+    status: live
+    purpose: "Pipeline ingest-job stage queue (RAG side). ~27k rows. As of 2026-06-17 written in lockstep with MAIN.fireflies_ingestion_jobs via supabase_helpers.update_ingestion_job_state() — every pipeline stage transition (segmented/chunked/embedded/done/error) upserts both copies keyed by COALESCE(fireflies_id, id)."
+    gotchas: "Both copies are now kept in sync — MAIN is no longer stale. Always update both DBs through update_ingestion_job_state(), never one side directly."
+    relatedTables:
+      - document_chunks
+      - rag_document_metadata
+
+  - name: document_attribution_candidates
+    db: RAG
+    domain: documents
+    owner: pipeline
+    status: live
+    purpose: "Low-confidence project attribution review queue. 13,193 rows. Canonical copy. Written when project confidence < 0.70."
+    relatedTables: []
+
+  - name: source_intelligence_jobs
+    db: RAG
+    domain: intelligence
+    owner: pipeline
+    status: live
+    purpose: "Compiler job queue. 11,071 rows. Canonical copy. Drained every 10 min by APScheduler in FastAPI."
+    relatedTables: []
+
+  - name: source_signal_candidates
+    db: RAG
+    domain: intelligence
+    owner: pipeline
+    status: live
+    purpose: "Pre-promotion signal candidates from compiler. 7,527 rows. Canonical copy."
+    relatedTables: []
+
+  - name: source_sync_runs
+    db: RAG
+    domain: pipeline
+    owner: pipeline
+    status: live
+    purpose: "Per-sync-run audit log. 3,639 rows. Canonical copy."
+    relatedTables: []
+
+  - name: source_processing_jobs
+    db: RAG
+    domain: pipeline
+    owner: pipeline
+    status: live-empty
+    purpose: "Durable per-source lifecycle ledger tracking source item hashes through assignment, RAG indexing, signal extraction, project intelligence, routing, and terminal states."
+    gotchas: "This is the cross-source status contract for Fireflies, Outlook, Teams, OneDrive, SharePoint, and future Acumatica-derived intelligence. Keep high-churn lifecycle rows in RAG, not PM APP. Terminal status `intentionally_excluded` (added 2026-06-30) marks documents the pipeline deliberately does NOT embed (interview-title meetings, sub-minimum low-content docs) — it is NOT a failure. Never count `intentionally_excluded` (or the historical `failed_permanent` rows carrying error_code `interview_title_excluded`/`skipped_low_content`) as a pipeline failure in health/alerting; only real `failed_retryable`/`failed_permanent` outcomes are failures. Status CHECK constraint enumerates allowed values."
+    relatedTables:
+      - rag_document_metadata
+      - document_chunks
+      - pipeline_model_usage
+
+  - name: pipeline_model_usage
+    db: RAG
+    domain: pipeline
+    owner: pipeline
+    status: live-empty
+    purpose: "Durable model usage and estimated-cost ledger for source processing, embeddings, daily briefs, Brandon email review, and project intelligence. Used by the daily background budget guard."
+    gotchas: "High-volume telemetry belongs in RAG, not PM APP. Cost is an estimate based on configured pricing; provider billing remains authoritative."
+    relatedTables:
+      - source_sync_runs
+
+  - name: packet_refresh_jobs
+    db: RAG
+    domain: intelligence
+    owner: pipeline
+    status: live
+    purpose: "Packet refresh job queue and PM packet projection staging handoff. Canonical copy. MAIN copy is stale orphan. Projection payload/status columns were added 2026-06-17 so final PM writes drain through the bounded projection guard instead of high-churn compiler jobs."
+    relatedTables: []
+
+  - name: ingestion_jobs
+    db: RAG
+    domain: pipeline
+    owner: pipeline
+    status: live
+    purpose: "Generic ingestion audit log. 436 rows. Canonical copy."
+    relatedTables: []
+
+  - name: source_sync_health_snapshots
+    db: RAG
+    domain: pipeline
+    owner: pipeline
+    status: live
+    purpose: "Source sync health rollup snapshots. 330 rows. Canonical copy."
+    relatedTables: []
+
+  - name: ingestion_dead_letter
+    db: RAG
+    domain: pipeline
+    owner: pipeline
+    status: live-empty
+    purpose: "Dead letter queue for failed ingestion jobs. Wired but empty."
+    relatedTables: []
+
+  - name: rag_pipeline_state
+    db: RAG
+    domain: pipeline
+    owner: pipeline
+    status: live-empty
+    purpose: "RAG pipeline state metadata. Wired but empty."
+    relatedTables: []
+
+  # ─────────────────────────────────────────────────────────
+  # TABLES DISCOVERED VIA DRIFT CHECK (not in TABLE-INVENTORY.md)
+  # ─────────────────────────────────────────────────────────
+
+  - name: app_schedule_bulk_operations
+    db: MAIN
+    domain: admin
+    owner: unknown
+    status: dormant
+    purpose: "Dormant app schedule bulk operation records."
+    relatedTables: []
+
+  - name: app_schedule_task_hierarchy
+    db: MAIN
+    domain: admin
+    owner: unknown
+    status: dormant
+    purpose: "Dormant app schedule task hierarchy records."
+    relatedTables:
+      - schedule_tasks
+
+  - name: daily_logs
+    db: MAIN
+    domain: workflow
+    owner: core
+    status: live-empty
+    purpose: "Daily log records for project field reporting. Feature shipped, no data."
+    relatedTables:
+      - daily_log_equipment
+      - daily_log_manpower
+      - daily_log_notes
+      - daily_log_weather
+
+  - name: daily_log_weather
+    db: MAIN
+    domain: workflow
+    owner: core
+    status: live-empty
+    purpose: "Per-observation weather entries (sky, temperature, precipitation, wind) attached to a daily_log. Added by the daily-log expansion migration (20260521020000)."
+    relatedTables:
+      - daily_logs
+
+  - name: observation_comments
+    db: MAIN
+    domain: workflow
+    owner: unknown
+    status: dormant
+    purpose: "Dormant observation comments."
+    relatedTables:
+      - observations
+
+  - name: observation_history
+    db: MAIN
+    domain: workflow
+    owner: unknown
+    status: dormant
+    purpose: "Dormant observation change history."
+    relatedTables:
+      - observations
+
+  - name: observation_types
+    db: MAIN
+    domain: workflow
+    owner: unknown
+    status: dormant
+    purpose: "Dormant observation type definitions."
+    relatedTables:
+      - observations
+
+  - name: observations
+    db: MAIN
+    domain: workflow
+    owner: unknown
+    status: dormant
+    purpose: "Dormant observations (site conditions, safety, quality). Feature wired but no production traffic."
+    relatedTables:
+      - observation_comments
+      - observation_history
+      - observation_photos
+
+  - name: observations_project_photos_links
+    db: MAIN
+    domain: workflow
+    owner: unknown
+    status: dormant
+    purpose: "Dormant link table between observations and project photos."
+    relatedTables:
+      - observations
+      - project_photos
+
+  - name: idea_items
+    db: MAIN
+    domain: workflow
+    owner: ai
+    status: live
+    purpose: "Lightweight editable idea inbox for quick capture, AI routing review, and later promotion to Linear, Codex, sub-agent, project, or manual workflows."
+    gotchas: "Ideas are not automatically executed. Status and route_type preserve inspectable routing before automation acts."
+    relatedTables:
+      - projects
+      - user_profiles
+    notesForAi: "Use for captured product/process ideas and routing review, not for generated project tasks."
+
+  - name: submittal_distribution_recipients
+    db: MAIN
+    domain: workflow
+    owner: unknown
+    status: dormant
+    purpose: "Dormant submittal distribution recipient records."
+    relatedTables:
+      - submittal_distributions
+
+  - name: submittal_distributions
+    db: MAIN
+    domain: workflow
+    owner: unknown
+    status: dormant
+    purpose: "Dormant submittal distribution records."
+    relatedTables:
+      - submittals
+
+  - name: submittal_history
+    db: MAIN
+    domain: workflow
+    owner: unknown
+    status: dormant
+    purpose: "Dormant submittal change history."
+    relatedTables:
+      - submittals
+
+  - name: submittal_linked_drawings
+    db: MAIN
+    domain: workflow
+    owner: unknown
+    status: dormant
+    purpose: "Dormant submittal to drawing links."
+    relatedTables:
+      - submittals
+      - drawings
+
+  - name: submittal_notifications
+    db: MAIN
+    domain: workflow
+    owner: unknown
+    status: dormant
+    purpose: "Dormant submittal notifications."
+    relatedTables:
+      - submittals
+
+  - name: submittal_packages
+    db: MAIN
+    domain: workflow
+    owner: unknown
+    status: dormant
+    purpose: "Dormant submittal packages for grouped submissions."
+    relatedTables:
+      - submittals
+
+  - name: submittal_performance_metrics
+    db: MAIN
+    domain: workflow
+    owner: unknown
+    status: dormant
+    purpose: "Dormant submittal performance metrics."
+    relatedTables:
+      - submittals
+
+  - name: submittal_responses
+    db: MAIN
+    domain: workflow
+    owner: unknown
+    status: dormant
+    purpose: "Dormant submittal response records."
+    relatedTables:
+      - submittals
+
+  - name: submittal_types
+    db: MAIN
+    domain: workflow
+    owner: unknown
+    status: dormant
+    purpose: "Dormant submittal type definitions."
+    relatedTables:
+      - submittals
+
+  - name: submittal_workflow_steps
+    db: MAIN
+    domain: workflow
+    owner: unknown
+    status: dormant
+    purpose: "Dormant submittal workflow step definitions."
+    relatedTables:
+      - submittal_workflow_templates
+
+  # ─────────────────────────────────────────────────────────
+  # NEEDS_DOCUMENTATION — stubs auto-added by drift check
+  # TODO: move into the correct section above, fill in writers/readers/gotchas
+  # ─────────────────────────────────────────────────────────
+
+  - name: change_order_documents
+    db: MAIN
+    domain: documents
+    owner: unknown
+    status: live
+    purpose: "Pattern C junction: change orders ↔ document_metadata. TODO: expand metadata, identify writers/readers."
+    relatedTables: []
+
+  - name: commitment_change_order_documents
+    db: MAIN
+    domain: documents
+    owner: core
+    status: live
+    purpose: "Pattern C junction: commitment change orders ↔ document_metadata. Replaces cco_attachments writers."
+    relatedTables:
+      - contract_change_orders
+      - document_metadata
+      - document_type_taxonomy
+
+  - name: company_documents
+    db: MAIN
+    domain: documents
+    owner: unknown
+    status: live
+    purpose: "Pattern C junction: companies ↔ document_metadata. TODO: expand metadata, identify writers/readers."
+    relatedTables: []
+
+  - name: prime_contract_documents
+    db: MAIN
+    domain: documents
+    owner: unknown
+    status: live
+    purpose: "Pattern C junction: prime contracts ↔ document_metadata. TODO: expand metadata, identify writers/readers."
+    relatedTables: []
+
+  - name: purchase_order_documents
+    db: MAIN
+    domain: documents
+    owner: unknown
+    status: live
+    purpose: "Pattern C junction: purchase orders ↔ document_metadata. TODO: expand metadata, identify writers/readers."
+    relatedTables: []
+
+  - name: rfi_documents
+    db: MAIN
+    domain: documents
+    owner: unknown
+    status: live
+    purpose: "Pattern C junction: RFIs ↔ document_metadata. TODO: expand metadata, identify writers/readers."
+    relatedTables: []
+
+  - name: subcontract_documents
+    db: MAIN
+    domain: documents
+    owner: unknown
+    status: live
+    purpose: "Pattern C junction: subcontracts ↔ document_metadata. TODO: expand metadata, identify writers/readers."
+    relatedTables: []
+
+  - name: owner_invoice_documents
+    db: MAIN
+    domain: documents
+    owner: unknown
+    status: live
+    purpose: "Pattern C junction: owner invoices ↔ document_metadata. TODO: expand metadata, identify writers/readers."
+    relatedTables: []
+
+  - name: prime_contract_change_order_documents
+    db: MAIN
+    domain: documents
+    owner: core
+    status: live
+    purpose: "Pattern C junction: prime contract change orders ↔ document_metadata. Replaces pcco_attachments writers."
+    relatedTables:
+      - prime_contract_change_orders
+      - document_metadata
+      - document_type_taxonomy
+
+  - name: prime_contract_pco_documents
+    db: MAIN
+    domain: documents
+    owner: core
+    status: live
+    purpose: "Pattern C junction: prime contract PCOs ↔ document_metadata. Replaces prime_contract_pco_attachments readers."
+    relatedTables:
+      - prime_contract_pcos
+      - document_metadata
+      - document_type_taxonomy
+
+  - name: subcontractor_invoice_documents
+    db: MAIN
+    domain: documents
+    owner: core
+    status: live
+    purpose: "Pattern C junction: subcontractor invoices ↔ document_metadata. Replaces subcontractor side of invoice_attachments."
+    relatedTables:
+      - subcontractor_invoices
+      - document_metadata
+      - document_type_taxonomy
+
+  - name: submittal_doc_links
+    db: MAIN
+    domain: documents
+    owner: unknown
+    status: live
+    purpose: "Pattern C junction: submittals ↔ document_metadata. TODO: expand metadata, identify writers/readers."
+    relatedTables: []
+
+  - name: document_type_taxonomy
+    db: MAIN
+    domain: documents
+    owner: unknown
+    status: live
+    purpose: "Lookup table for document_metadata.document_type values (Pattern C). TODO: expand metadata, identify writers/readers."
+    relatedTables: []
+
+  - name: project_documents_v2
+    db: MAIN
+    domain: documents
+    owner: unknown
+    status: live
+    purpose: "Successor to project_documents (Pattern C migration). Project ↔ document_metadata. TODO: expand metadata, identify writers/readers."
+    relatedTables: []
+
+  - name: estimate_gc_templates
+    db: MAIN
+    domain: estimating
+    owner: unknown
+    status: live
+    purpose: "GC template definitions for the estimating workflow. TODO: expand metadata, identify writers/readers."
+    relatedTables: []
+
+  - name: estimate_sublist_bid_items
+    db: MAIN
+    domain: estimating
+    owner: unknown
+    status: live
+    purpose: "Line items in subcontractor bid lists during estimating. TODO: expand metadata, identify writers/readers."
+    relatedTables: []
+
+  - name: estimate_sublist_call_logs
+    db: MAIN
+    domain: estimating
+    owner: unknown
+    status: live
+    purpose: "Call logs against estimate sublists. TODO: expand metadata, identify writers/readers."
+    relatedTables: []
+
+  - name: estimate_sublist_scope_items
+    db: MAIN
+    domain: estimating
+    owner: unknown
+    status: live
+    purpose: "Scope items attached to estimate sublists. TODO: expand metadata, identify writers/readers."
+    relatedTables: []
+
+  # ─── Inventory Drift Catch-Up: AI Ops / Intelligence ─────────────────────
+
+  - name: ai_agents
+    db: MAIN
+    domain: ai
+    owner: core
+    status: live
+    purpose: "AI agent registry rows for configured assistant agents, approvals, thresholds, and admin-visible agent metadata."
+    relatedTables:
+      - ai_agent_runs
+
+  - name: ai_agent_runs
+    db: MAIN
+    domain: ai
+    owner: core
+    status: live
+    purpose: "Run history for configured AI agents. Used by admin AI agent drilldowns and operational review."
+    relatedTables:
+      - ai_agents
+
+  - name: ai_operation_events
+    db: MAIN
+    domain: ai
+    owner: core
+    status: live
+    purpose: "AI Ops event ledger for scheduled/manual AI workflow events, accepted/rejected event state, and run conversion."
+    relatedTables:
+      - ai_work_runs
+
+  - name: ai_skills
+    db: MAIN
+    domain: ai
+    owner: core
+    status: live
+    purpose: "Approved Skill Library definitions consumed by assistant surface-specific skill injection."
+    relatedTables:
+      - ai_skill_usage_events
+
+  - name: ai_skill_usage_events
+    db: MAIN
+    domain: ai
+    owner: core
+    status: live
+    purpose: "Telemetry ledger for selected Skill Library context attached to assistant responses."
+    relatedTables:
+      - ai_skills
+      - chat_history
+
+  - name: ai_work_runs
+    db: MAIN
+    domain: ai
+    owner: core
+    status: live
+    purpose: "Canonical AI workflow run ledger for Executive Daily Brief and related AI Ops workflows."
+    relatedTables:
+      - ai_operation_events
+      - ai_work_run_sources
+
+  - name: ai_work_run_sources
+    db: MAIN
+    domain: ai
+    owner: core
+    status: live
+    purpose: "Evidence/source rows linked to AI workflow runs."
+    relatedTables:
+      - ai_work_runs
+
+  - name: change_event_candidates
+    db: MAIN
+    domain: change_management
+    owner: core
+    status: live
+    purpose: "Candidate change-event records staged from AI/intelligence signals before promotion into formal change management."
+    relatedTables:
+      - change_events
+
+  - name: project_current_state
+    db: MAIN
+    domain: project_intelligence
+    owner: core
+    status: live
+    purpose: "Current synthesized project state used by intelligence and executive surfaces."
+    relatedTables:
+      - projects
+      - project_intelligence_timeline_events
+
+  - name: project_intelligence_timeline_events
+    db: MAIN
+    domain: project_intelligence
+    owner: core
+    status: live
+    purpose: "Project intelligence timeline events used for current-state and executive drilldown views."
+    relatedTables:
+      - project_intelligence_timeline_event_sources
+      - projects
+
+  - name: project_intelligence_timeline_event_sources
+    db: MAIN
+    domain: project_intelligence
+    owner: core
+    status: live
+    purpose: "Source/evidence links for project intelligence timeline events."
+    relatedTables:
+      - project_intelligence_timeline_events
+
+  - name: project_operating_snapshots
+    db: MAIN
+    domain: project_intelligence
+    owner: core
+    status: live
+    purpose: "Point-in-time project operating snapshots for intelligence and reporting comparisons."
+    relatedTables:
+      - projects
+
+  - name: project_report_suggestions
+    db: MAIN
+    domain: project_intelligence
+    owner: core
+    status: live
+    purpose: "Suggested project report content/actions generated from project intelligence workflows."
+    relatedTables:
+      - projects
+
+  - name: db_incident_activity_samples
+    db: MAIN
+    domain: ops
+    owner: core
+    status: live
+    purpose: "Operational diagnostic samples captured during database incident investigations."
+    relatedTables: []
+
+  - name: db_incident_outlook_write_block_log
+    db: MAIN
+    domain: ops
+    owner: core
+    status: live
+    purpose: "Operational audit log for Outlook write blocks during database incident mitigation."
+    relatedTables: []
+
+  - name: db_incident_write_log
+    db: MAIN
+    domain: ops
+    owner: core
+    status: live
+    purpose: "Operational audit log for write attempts captured during database incident mitigation."
+    relatedTables: []
+
+  # ─── Inventory Drift Catch-Up: RAG / Microsoft Graph ─────────────────────
+
+  - name: graph_subscriptions
+    db: RAG
+    domain: pipeline
+    owner: pipeline
+    status: live
+    purpose: "RAG database copy of Microsoft Graph webhook subscriptions used by Graph ingestion workers."
+    relatedTables:
+      - graph_sync_state
+
+  - name: graph_sync_state
+    db: RAG
+    domain: pipeline
+    owner: pipeline
+    status: live
+    purpose: "RAG database Graph delta-token state for mailbox, Teams, and OneDrive sync workers."
+    relatedTables:
+      - graph_subscriptions
+
+  - name: outlook_email_intake
+    db: RAG
+    domain: communications
+    owner: pipeline
+    status: live
+    purpose: "RAG database Outlook email intake rows for Microsoft Graph ingestion and vectorization workflows."
+    relatedTables:
+      - outlook_email_intake_attachments
+
+  - name: outlook_email_intake_attachments
+    db: RAG
+    domain: communications
+    owner: pipeline
+    status: live
+    purpose: "RAG database attachment metadata for Outlook email intake rows."
+    relatedTables:
+      - outlook_email_intake
+
+  - name: outlook_email_skip_audit
+    db: RAG
+    domain: communications
+    owner: pipeline
+    status: live
+    purpose: "Audit rows for Outlook email messages skipped by ingestion or filtering rules."
+    relatedTables:
+      - outlook_email_intake
+
+  - name: project_daily_deltas
+    db: RAG
+    domain: project_intelligence
+    owner: pipeline
+    status: live
+    purpose: "Daily project delta summaries produced by RAG/intelligence processing."
+    relatedTables:
+      - source_syntheses
+
+  - name: source_syntheses
+    db: RAG
+    domain: project_intelligence
+    owner: pipeline
+    status: live
+    purpose: "Synthesized source-level intelligence outputs generated from RAG-ingested communications and documents."
+    relatedTables:
+      - project_daily_deltas
+
+  - name: system_alerts
+    db: RAG
+    domain: pipeline
+    owner: pipeline
+    status: live
+    purpose: "RAG database pipeline health and system alert sink."
+    relatedTables: []
+
+  - name: db_audit_log
+    db: MAIN
+    domain: infrastructure
+    owner: platform
+    status: live
+    purpose: "Central audit log for all key business entity tables. Populated by fn_audit_log_generic trigger (trg_audit_log) on 37 tables covering projects, financial, contracts, commitments, invoicing, change management, field tools, schedule, and permissions. Records operation (INSERT/UPDATE/DELETE), actor (auth.uid()), changed columns, old/new data as JSONB. No-op updated_at-only updates are filtered out."
+    notes_for_ai: "Query this table to answer 'who changed X and when' questions. Filter by table_name + record_id for per-record history. changed_by is null for service-role/cron writes."
+    relatedTables:
+      - projects_audit
+      - commitment_audit_log
+      - subcontractor_invoice_audit_log
+      - permission_audit_log
+      - acumatica_outbound_audit_logs
+
+  # ─── Inventory Drift Catch-Up: pre-existing tables undocumented before this
+  # commit (found while regenerating TABLE-LIST.md for the meetings tool
+  # migration; not created by this change) ─────────────────────────────────
+
+  - name: app_page_role_access_policies
+    db: MAIN
+    domain: permissions
+    owner: core
+    status: live
+    purpose: "Admin-managed project-page role access policy. Presence of a route row makes the route policy explicit; child rows define allowed permission templates."
+    relatedTables:
+      - app_page_role_access_policy_templates
+
+  - name: app_page_role_access_policy_templates
+    db: MAIN
+    domain: permissions
+    owner: core
+    status: live
+    purpose: "Allowed permission templates for an explicit page-role access policy."
+    relatedTables:
+      - app_page_role_access_policies
+
+  - name: user_phone_links
+    db: RAG
+    domain: unknown
+    status: dormant
+    owner: unknown
+    purpose: "TODO: Document this table. Discovered as pre-existing schema drift while regenerating TABLE-LIST.md; not created or touched by the meetings tool migration."
+    relatedTables: []
+
+  - name: app_request_log
+    db: MAIN
+    domain: ops
+    owner: core
+    status: live
+    purpose: "Operational API request log (request_id, method, path, status, latency). Written by frontend/src/lib/observability/request-log.ts via service.ts. Created by migration 20260713143000_operational_request_commit_logs.sql."
+    relatedTables: []
+
+  - name: developer_commit_log
+    db: MAIN
+    domain: ops
+    owner: core
+    status: live
+    purpose: "Commit ledger populated by the GitHub webhook (frontend/src/app/api/webhooks/github/route.ts) — repository, branch, sha per push. Created by migration 20260713143000_operational_request_commit_logs.sql."
+    relatedTables: []
+
+  - name: drawing_annotations
+    db: MAIN
+    domain: documents
+    owner: core
+    status: live
+    purpose: "Per-drawing markup annotations for the drawings viewer. Supports both the retired image-overlay viewer (image-space geometry in `data`) and the canonical PDF.js Express viewer (vendor XFDF payload in `xfdf`). Created by migration 20260710120000_drawing_annotations.sql; CRUD via api/projects/[projectId]/drawings/[drawingId]/annotations."
+    gotchas: "Two geometry formats coexist — never interpret legacy image-coordinate `data` rows as PDF-page markup. See migration header comments."
+    relatedTables:
+      - drawings
+
+  - name: ai_weekly_reflections
+    db: MAIN
+    domain: ai
+    owner: unknown
+    status: dormant
+    purpose: "TODO: Document this table. Zero code references in this repo (no migration, reader, or writer found 2026-07-14) — likely created directly in the DB by an agent session. Candidate for documentation or removal."
+    relatedTables: []
+
+  # ─── Inventory Drift Catch-Up: canonical operational tables ─────────────
+
+  - name: company_meeting_types
+    db: MAIN
+    domain: meetings
+    owner: core
+    status: live
+    purpose: "Company-managed catalog of normalized meeting types, ordering, and active state."
+    relatedTables:
+      - companies
+
+  - name: daily_deep_read_fanout_runs
+    db: MAIN
+    domain: project_intelligence
+    owner: pipeline
+    status: live
+    purpose: "Run ledger for daily deep-read fanout processing and its bounded projection work."
+    relatedTables:
+      - intelligence_packets
+      - operational_loss_occurrences
+
+  - name: executive_artifact_versions
+    db: MAIN
+    domain: executive
+    owner: pipeline
+    status: live
+    purpose: "Immutable versioned executive artifacts generated from intelligence packets."
+    gotchas: "Append-only; only the service role may write artifact versions."
+    relatedTables:
+      - intelligence_packets
+      - executive_monthly_reviews
+      - project_intelligence_packet_items
+
+  - name: executive_attention_items
+    db: MAIN
+    domain: executive
+    owner: core
+    status: live
+    purpose: "Governed executive attention items that require ownership, transition, or resolution."
+    relatedTables:
+      - executive_attention_evidence
+      - executive_attention_history
+
+  - name: executive_attention_evidence
+    db: MAIN
+    domain: executive
+    owner: core
+    status: live
+    purpose: "Evidence records supporting an executive attention item."
+    relatedTables:
+      - executive_attention_items
+
+  - name: executive_attention_history
+    db: MAIN
+    domain: executive
+    owner: core
+    status: live
+    purpose: "Append-only transition and resolution history for executive attention items."
+    gotchas: "Updates and deletes are blocked by a database trigger."
+    relatedTables:
+      - executive_attention_items
+
+  - name: executive_claim_conflicts
+    db: MAIN
+    domain: executive
+    owner: core
+    status: live
+    purpose: "Governed conflicts detected between executive claims."
+    relatedTables:
+      - executive_conflict_claims
+      - executive_conflict_resolution_history
+
+  - name: executive_conflict_claims
+    db: MAIN
+    domain: executive
+    owner: core
+    status: live
+    purpose: "Claims participating in a governed executive conflict."
+    relatedTables:
+      - executive_claim_conflicts
+
+  - name: executive_conflict_resolution_history
+    db: MAIN
+    domain: executive
+    owner: core
+    status: live
+    purpose: "Append-only governance history for executive claim-conflict resolution."
+    relatedTables:
+      - executive_claim_conflicts
+
+  - name: executive_monthly_reviews
+    db: MAIN
+    domain: executive
+    owner: pipeline
+    status: live
+    purpose: "Immutable monthly executive review records tied to an executive artifact version."
+    gotchas: "Only service-role issuance is allowed; records are immutable after creation."
+    relatedTables:
+      - executive_artifact_versions
+      - executive_monthly_review_events
+
+  - name: executive_monthly_review_events
+    db: MAIN
+    domain: executive
+    owner: pipeline
+    status: live
+    purpose: "Append-only governance events for a monthly executive review."
+    relatedTables:
+      - executive_monthly_reviews
+
+  - name: operational_loss_occurrences
+    db: MAIN
+    domain: project_intelligence
+    owner: pipeline
+    status: live
+    purpose: "Detected operational-loss occurrences emitted by daily deep-read projections."
+    relatedTables:
+      - daily_deep_read_fanout_runs
+      - intelligence_packets
+
+  - name: project_current_state_projection_envelopes
+    db: MAIN
+    domain: project_intelligence
+    owner: pipeline
+    status: live
+    purpose: "Idempotency envelopes and provenance for project current-state projections."
+    relatedTables:
+      - project_current_state
+      - projects
+
+  - name: project_intelligence_packet_items
+    db: MAIN
+    domain: project_intelligence
+    owner: pipeline
+    status: live
+    purpose: "Project-scoped actionable items materialized from intelligence packets and executive artifacts."
+    relatedTables:
+      - projects
+      - intelligence_packets
+      - executive_artifact_versions
+
+  - name: project_progress_report_versions
+    db: MAIN
+    domain: progress_reports
+    owner: core
+    status: live
+    purpose: "Version history for project progress reports."
+    relatedTables:
+      - project_progress_reports
+
+  - name: project_schedule_calendars
+    db: MAIN
+    domain: schedule
+    owner: core
+    status: live
+    purpose: "Canonical working-week calendar for a project schedule."
+    relatedTables:
+      - projects
+      - project_schedule_calendar_exceptions
+      - schedule_revision_calendar_snapshots
+
+  - name: project_schedule_calendar_exceptions
+    db: MAIN
+    domain: schedule
+    owner: core
+    status: live
+    purpose: "Project schedule non-working or exceptional working-day entries."
+    relatedTables:
+      - project_schedule_calendars
+
+  - name: project_synopsis_history
+    db: MAIN
+    domain: project_intelligence
+    owner: pipeline
+    status: live
+    purpose: "Immutable history of governed project synopsis changes."
+    relatedTables:
+      - projects
+
+  - name: schedule_alert_deliveries
+    db: MAIN
+    domain: schedule
+    owner: pipeline
+    status: live
+    purpose: "Idempotent delivery ledger for schedule-revision alerts and notification links."
+    relatedTables:
+      - schedule_revisions
+      - notifications
+
+  - name: schedule_revisions
+    db: MAIN
+    domain: schedule
+    owner: core
+    status: live
+    purpose: "Immutable schedule revision snapshots for a project."
+    relatedTables:
+      - projects
+      - schedule_revision_task_snapshots
+      - schedule_revision_dependency_snapshots
+      - schedule_revision_submittal_snapshots
+      - schedule_revision_calendar_snapshots
+      - schedule_revision_events
+      - schedule_baselines
+
+  - name: schedule_revision_task_snapshots
+    db: MAIN
+    domain: schedule
+    owner: core
+    status: live
+    purpose: "Task snapshots captured for an immutable schedule revision."
+    relatedTables:
+      - schedule_revisions
+
+  - name: schedule_revision_dependency_snapshots
+    db: MAIN
+    domain: schedule
+    owner: core
+    status: live
+    purpose: "Dependency snapshots captured for an immutable schedule revision."
+    relatedTables:
+      - schedule_revisions
+      - schedule_revision_task_snapshots
+
+  - name: schedule_revision_submittal_snapshots
+    db: MAIN
+    domain: schedule
+    owner: core
+    status: live
+    purpose: "Submittal-to-task snapshots captured for an immutable schedule revision."
+    relatedTables:
+      - schedule_revisions
+      - schedule_revision_task_snapshots
+      - submittals
+
+  - name: schedule_revision_calendar_snapshots
+    db: MAIN
+    domain: schedule
+    owner: core
+    status: live
+    purpose: "Working-calendar snapshot captured for an immutable schedule revision."
+    relatedTables:
+      - schedule_revisions
+
+  - name: schedule_revision_events
+    db: MAIN
+    domain: schedule
+    owner: core
+    status: live
+    purpose: "Append-only lifecycle events for a schedule revision."
+    relatedTables:
+      - schedule_revisions
+
+  - name: schedule_baselines
+    db: MAIN
+    domain: schedule
+    owner: core
+    status: live
+    purpose: "Named project schedule baselines that point to an immutable revision."
+    relatedTables:
+      - projects
+      - schedule_revisions
+      - schedule_baseline_events
+
+  - name: schedule_baseline_events
+    db: MAIN
+    domain: schedule
+    owner: core
+    status: live
+    purpose: "Append-only lifecycle events for a named schedule baseline."
+    relatedTables:
+      - schedule_baselines
+
+  - name: schedule_task_field_updates
+    db: MAIN
+    domain: schedule
+    owner: core
+    status: live
+    purpose: "Auditable field-level changes to canonical schedule tasks."
+    relatedTables:
+      - schedule_tasks
+
+  - name: schedule_task_submittal_links
+    db: MAIN
+    domain: schedule
+    owner: core
+    status: live
+    purpose: "Canonical links between schedule tasks and submittals."
+    relatedTables:
+      - schedule_tasks
+      - submittals
+
+  # ── Schedule resource leveling, Phase 4A (migration 20260722121917_schedule_resources_and_assignments.sql) ──
+
+  - name: schedule_resources
+    db: MAIN
+    domain: schedule
+    owner: core
+    status: live-empty
+    purpose: "Project-scoped roster of schedulable people. One row per (project, person); composite FK to project_directory_memberships so only active directory members can be scheduled."
+    gotchas: "Migration file lives on the schedule feature branches (feat/assistant-implementation-dispatch lineage), applied to prod DB 2026-07-22 but not yet in main's supabase/migrations. person delete is RESTRICTed while a resource row exists."
+    relatedTables:
+      - schedule_task_assignments
+      - schedule_resource_capacity_profiles
+      - people
+      - project_directory_memberships
+
+  - name: schedule_task_assignments
+    db: MAIN
+    domain: schedule
+    owner: core
+    status: live-empty
+    purpose: "Assigns a schedule_resource to a schedule_task with allocation_percent (1–100). Unique per (task, resource); tenant-safe composite FKs pin task and resource to the same project."
+    relatedTables:
+      - schedule_tasks
+      - schedule_resources
+      - schedule_revision_assignment_snapshots
+
+  - name: schedule_revision_resource_snapshots
+    db: MAIN
+    domain: schedule
+    owner: core
+    status: live-empty
+    purpose: "Immutable per-revision snapshot of the project's resources at publish time (display name, email, job title, person/membership status). Append-only; app roles have SELECT only."
+    relatedTables:
+      - schedule_revisions
+      - schedule_resources
+
+  - name: schedule_revision_assignment_snapshots
+    db: MAIN
+    domain: schedule
+    owner: core
+    status: live-empty
+    purpose: "Immutable per-revision snapshot of task↔resource assignments with allocation_percent, FK-pinned to the same revision's task and resource snapshots."
+    relatedTables:
+      - schedule_revisions
+      - schedule_revision_task_snapshots
+      - schedule_revision_resource_snapshots
+
+  # ── Schedule resource leveling, Phase 4B (migration 20260722161757_schedule_resource_calendars.sql) ──
+
+  - name: schedule_resource_capacity_profiles
+    db: MAIN
+    domain: schedule
+    owner: core
+    status: live-empty
+    purpose: "Versioned per-resource capacity profile (one per project+resource). Parent of the weekday-override and dated-exception tables; version bumps drive optimistic concurrency for capacity edits."
+    relatedTables:
+      - schedule_resources
+      - schedule_resource_weekday_capacity_overrides
+      - schedule_resource_capacity_exceptions
+      - schedule_revision_resource_capacity_snapshots
+
+  - name: schedule_resource_weekday_capacity_overrides
+    db: MAIN
+    domain: schedule
+    owner: core
+    status: live-empty
+    purpose: "Recurring per-weekday capacity_percent (0–100) overrides on a capacity profile. PK (profile_id, weekday); triple composite FK keeps profile/project/resource consistent."
+    relatedTables:
+      - schedule_resource_capacity_profiles
+
+  - name: schedule_resource_capacity_exceptions
+    db: MAIN
+    domain: schedule
+    owner: core
+    status: live-empty
+    purpose: "Date-specific capacity exceptions (PTO, half-days) on a capacity profile: capacity_percent 0–100 per (resource, date) with an optional trimmed reason (≤240 chars)."
+    relatedTables:
+      - schedule_resource_capacity_profiles
+
+  - name: schedule_revision_resource_capacity_snapshots
+    db: MAIN
+    domain: schedule
+    owner: core
+    status: live-empty
+    purpose: "Per-revision snapshot of each resource's capacity configuration: profile_configured flag plus weekday_overrides and dated_exceptions captured as JSONB arrays."
+    relatedTables:
+      - schedule_revisions
+      - schedule_revision_resource_snapshots
+      - schedule_resource_capacity_profiles
+
+  # ── Schedule resource leveling, Phase 4C — hourly splits + leveling engine
+  # (migration 20260722205432_schedule_phase4c_enterprise_hourly_splits_leveling.sql;
+  #  engine in frontend/src/lib/scheduling/schedule-hourly-leveling.ts) ──
+
+  - name: schedule_person_work_calendars
+    db: MAIN
+    domain: schedule
+    owner: core
+    status: live-empty
+    purpose: "Per-person (cross-project) work calendar: timezone plus a fixed 15-minute slot grid, versioned for optimistic concurrency. One calendar per person."
+    gotchas: "slot_minutes is CHECK-constrained to exactly 15 — the whole Phase 4C stack assumes a 15-minute grid."
+    relatedTables:
+      - people
+      - schedule_person_work_weekly_intervals
+      - schedule_person_work_date_intervals
+
+  - name: schedule_person_work_weekly_intervals
+    db: MAIN
+    domain: schedule
+    owner: core
+    status: live-empty
+    purpose: "Recurring weekly working intervals on a person's work calendar (weekday, start/end minute on the 15-min grid, capacity_percent). GiST exclusion constraint forbids overlapping intervals."
+    relatedTables:
+      - schedule_person_work_calendars
+
+  - name: schedule_person_work_date_intervals
+    db: MAIN
+    domain: schedule
+    owner: core
+    status: live-empty
+    purpose: "Date-specific working-interval overrides on a person's work calendar (local_date + 15-min-grid interval + capacity_percent + optional reason). Overlaps forbidden per date."
+    relatedTables:
+      - schedule_person_work_calendars
+
+  - name: schedule_person_allocation_revisions
+    db: MAIN
+    domain: schedule
+    owner: core
+    status: live-empty
+    purpose: "Per-person monotonically increasing version counter used as an optimistic-concurrency fence for allocation/calendar data; leveling runs record the person_revision_vector they were computed against."
+    relatedTables:
+      - people
+      - schedule_leveling_runs
+
+  - name: schedule_task_segments
+    db: MAIN
+    domain: schedule
+    owner: core
+    status: live-empty
+    purpose: "Hourly task splits: ordered 15-min-grid time segments per schedule task with planned_minutes and optional lock_reason ('fixed' or 'progressed'). GiST exclusion forbids overlapping segments per task."
+    relatedTables:
+      - schedule_tasks
+      - schedule_revision_segment_snapshots
+
+  - name: schedule_revision_segment_snapshots
+    db: MAIN
+    domain: schedule
+    owner: core
+    status: live-empty
+    purpose: "Immutable per-revision snapshot of task segments (index, start/end, planned_minutes, lock_reason), FK-pinned to the same revision's task snapshots."
+    relatedTables:
+      - schedule_revisions
+      - schedule_revision_task_snapshots
+      - schedule_task_segments
+
+  - name: schedule_leveling_runs
+    db: MAIN
+    domain: schedule
+    owner: core
+    status: live-empty
+    purpose: "Resource-leveling preview runs: algorithm_version, configuration, diagnostics, the person_revision_vector the run was computed against, and an expiring source_token that gates apply."
+    gotchas: "Rows expire (expires_at) — a preview must be applied before its token lapses or the run is recomputed."
+    relatedTables:
+      - schedule_leveling_run_changes
+      - schedule_leveling_events
+      - schedule_person_allocation_revisions
+
+  - name: schedule_leveling_run_changes
+    db: MAIN
+    domain: schedule
+    owner: core
+    status: live-empty
+    purpose: "Per-task proposed changes of a leveling run: before/after task states as JSONB with hashes, reasons array, and expected_task_version so apply can detect concurrent task edits."
+    relatedTables:
+      - schedule_leveling_runs
+      - schedule_tasks
+
+  - name: schedule_leveling_events
+    db: MAIN
+    domain: schedule
+    owner: core
+    status: live-empty
+    purpose: "Apply/undo audit ledger for leveling runs, linking source and target schedule revisions with before/after state hashes. Partial unique indexes enforce one apply per run and one undo per apply."
+    relatedTables:
+      - schedule_leveling_runs
+      - schedule_revisions
+
+  # ── Alleato Brain: business areas (docs/ops/plans/2026-07-23-alleato-brain-migration-plan.md) ──
+
+  - name: business_areas
+    db: MAIN
+    domain: projects
+    owner: core
+    status: live
+    purpose: "Business-area scopes (seeded: leads, ai, finance, internal-operations, marketing) that non-construction content migrates onto instead of fake projects. Columns per plan: key slug, name, description, is_restricted, owner_person_id."
+    gotchas: "Created directly in the DB for the 2026-07-23 Alleato Brain migration — no migration file in the repo yet. During the parallel run, migrated rows may carry both project_id and business_area_id; XOR is enforced in app code until cutover."
+    relatedTables:
+      - business_area_memberships
+      - business_area_project_map
+      - document_metadata
+      - meetings
+      - tasks
+
+  - name: business_area_memberships
+    db: MAIN
+    domain: permissions
+    owner: core
+    status: live-empty
+    purpose: "Person membership in a business area (business_area_id, person_id, role). Backs the current_is_business_area_member() RLS helper, mirroring current_is_project_member()."
+    gotchas: "Created directly in the DB for the Alleato Brain migration — no migration file in the repo yet."
+    relatedTables:
+      - business_areas
+      - people
+
+  - name: business_area_project_map
+    db: MAIN
+    domain: projects
+    owner: core
+    status: live
+    purpose: "Permanent migration ledger mapping legacy fake projects to business areas: old project, new branch, record type/ID, run ID, result, and rollback state per migrated record."
+    gotchas: "Created directly in the DB for the Alleato Brain migration — no migration file in the repo yet. Keep permanently: it is the audit trail and rollback map for the cutover."
+    relatedTables:
+      - business_areas
+      - projects
+
+  - name: business_area_migration_runs
+    db: MAIN
+    domain: projects
+    owner: core
+    status: live
+    purpose: "Run-level ledger for the Alleato Brain business-area migration: one row per migration execution (run id, timestamps, mode, summary counts, overall result)."
+    gotchas: "Created directly in the DB for the Alleato Brain migration — no migration file in the repo yet. Keep permanently as the audit trail for each cutover run. Parent of business_area_migration_items."
+    relatedTables:
+      - business_area_migration_items
+      - business_area_project_map
+      - business_areas
+
+  - name: business_area_migration_items
+    db: MAIN
+    domain: projects
+    owner: core
+    status: live
+    purpose: "Per-record detail rows for a business-area migration run: the individual legacy project/record each run touched, its target business area, result, and rollback state."
+    gotchas: "Created directly in the DB for the Alleato Brain migration — no migration file in the repo yet. Keep permanently. Child of business_area_migration_runs (run id)."
+    relatedTables:
+      - business_area_migration_runs
+      - business_area_project_map
+      - projects
+
+  # ── Durable AI chat canary ──
+
+  - name: durable_ai_turns
+    db: MAIN
+    domain: ai
+    owner: core
+    status: live
+    purpose: "Exactly-once submission ledger and reconnect locator for the Vercel Workflow durable AI chat canary (/ai-workflow): one row per (user, session, client_message_id) tracking workflow_run_id and status accepted→running→completed/failed."
+    gotchas: "Canary feature — created by migration 20260722175451_create_durable_ai_turns.sql on the codex/durable-ai-chat-canary branch, applied to prod DB but not yet in main's supabase/migrations. Links into conversations (session_id) and chat_history (user/assistant message ids)."
+    relatedTables:
+      - conversations
+      - chat_history
+      - user_profiles

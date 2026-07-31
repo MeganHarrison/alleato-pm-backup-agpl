@@ -1,0 +1,50 @@
+{
+  "expectations": [
+    {
+      "text": "finds-budget-crawler: Agent identifies and locates the budget crawler script (crawl-budget-comprehensive.js)",
+      "passed": false,
+      "evidence": "The report references archived crawl artifacts from '_bmad-output/planning-artifacts/budget/.archive/' but does not identify or reference the actual 'crawl-budget-comprehensive.js' script file. The agent used pre-existing crawl data rather than locating or running the crawler itself."
+    },
+    {
+      "text": "references-analyzer: Agent references or uses the analyze-procore-features.js script for structured DOM analysis",
+      "passed": false,
+      "evidence": "No mention of 'analyze-procore-features.js' or any analyzer script appears in either the markdown report or JSON output. The analysis was performed using archived crawl artifacts and codebase inspection, not via the analyzer script."
+    },
+    {
+      "text": "maps-alleato-budget: Agent identifies Alleato PM budget implementation artifacts (pages, components, hooks, or services)",
+      "passed": true,
+      "evidence": "JSON lines 346-357 and Markdown lines 248-251 list specific Alleato files analyzed: 'frontend/src/app/(main)/[projectId]/budget/page.tsx', 'frontend/src/components/budget/budget-table.tsx', 'frontend/src/components/budget/budget-modifications-tab.tsx', 'frontend/src/components/budget/budget-line-item-form.tsx', 'frontend/src/components/budget/forecasting-tab.tsx', 'frontend/src/components/budget/snapshots-tab.tsx', 'frontend/src/components/budget/change-history-tab.tsx', 'frontend/src/components/budget/cost-codes-tab.tsx', and 'frontend/src/types/database.types.ts'."
+    },
+    {
+      "text": "gap-report-format: Output includes an Executive Summary table with status indicators",
+      "passed": true,
+      "evidence": "Markdown lines 9-24 contain a properly formatted Executive Summary table with columns 'Category | Status | Details' and status indicators including ✅, ⚠️, and ❌ symbols. The table shows 8 categories (Pages/Tabs, List Table Columns, Form Fields, Status Workflow, CRUD Operations, Database Schema, Validations, Financial Views, ERP Integration, Export/Import) with clear status coverage."
+    },
+    {
+      "text": "form-field-comparison: Output includes a form field comparison section listing Procore vs Alleato fields",
+      "passed": true,
+      "evidence": "Markdown lines 45-72 contain section titled 'Form Field Comparison' with two subsections: 'Budget Line Item Create/Edit Form' and 'Budget Modification Create Form'. Each shows Procore Field | Type | Required | Alleato Field | Status | Impact with complete field mappings. JSON lines 153-174 mirror this structure in the 'form_fields' object."
+    },
+    {
+      "text": "table-column-comparison: Output includes a table column comparison section",
+      "passed": true,
+      "evidence": "Markdown lines 75-113 contain section titled 'Table Column Comparison' with two subsections: 'Main Budget Table' and 'Budget Modifications Table'. Shows Procore Column | Alleato Column | Status | Impact format. All 15 core Procore budget columns are listed with complete status (✅ for all). JSON lines 122-150 contain equivalent 'table_columns' object with 'main_budget_table' and 'modifications_table' arrays."
+    },
+    {
+      "text": "prioritized-tasks: Output includes missing functionality categorized by impact (HIGH/MEDIUM/LOW)",
+      "passed": true,
+      "evidence": "Markdown lines 115-142 contain 'Missing Functionality' section with three subsections: 'HIGH Impact (blocks core workflows)' with 2 items (Export budget, Import budget), 'MEDIUM Impact (reduces functionality)' with 6 items, 'LOW Impact (nice to have)' with 8 items. JSON lines 190-283 contain 'missing_functionality' object with 'high', 'medium', 'low' arrays containing formatted task objects with descriptions and priorities."
+    },
+    {
+      "text": "output-saved: Gap analysis report saved as a markdown file in the outputs directory",
+      "passed": true,
+      "evidence": "File 'gap-analysis-report.md' exists at the correct location '/Users/meganharrison/Documents/github/alleato-pm/.claude/skills/procore-audit-workspace/iteration-1/eval-0-budget-audit/with_skill/outputs/gap-analysis-report.md' with complete markdown-formatted content. Report includes metadata header, executive summary, page-by-page comparison, form field comparison, table column comparison, missing functionality, database schema gaps, and formula verification sections totaling 252 lines."
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 2,
+    "total": 8,
+    "pass_rate": 0.75
+  }
+}

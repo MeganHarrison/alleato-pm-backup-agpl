@@ -1,0 +1,33 @@
+{
+  "initialLoad": {
+    "url": "http://localhost:3000/67/prime-contracts/configure",
+    "twoTiersVisible": true,
+    "twoTiersSelected": true,
+    "toggleFound": true,
+    "toggleOn": true,
+    "emailValue": "",
+    "hasTestEmail": true,
+    "inputValues": [
+      "test@alleato.com",
+      "",
+      "",
+      "on",
+      "on",
+      "on",
+      "on"
+    ]
+  },
+  "afterNavigation": {
+    "twoTiersVisibleAfter": true,
+    "twoTiersSelectedAfter": true,
+    "toggleOnAfter": true,
+    "hasTestEmailAfter": true,
+    "inputValuesAfter": [
+      "test@alleato.com",
+      "on",
+      "on",
+      "on",
+      "on"
+    ]
+  }
+}

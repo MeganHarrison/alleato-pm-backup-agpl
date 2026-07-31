@@ -1,0 +1,23 @@
+{
+  "contractVersion": 1,
+  "taskId": "AAI-1073",
+  "feature": "Machine-enforced sub-agent verification contract",
+  "route": "N/A - control-plane tooling",
+  "flows": [
+    {
+      "name": "Validate and reject evidence claims",
+      "steps": ["Run focused validator tests", "Run review-queue acceptance", "Run closeout policy checks"],
+      "expectedOutcome": "Valid PASS fixtures are accepted and incomplete or unrelated evidence is rejected"
+    }
+  ],
+  "requiredEvidence": ["regressionTest"],
+  "visual": { "viewports": ["not-applicable"] },
+  "independentReview": { "required": true },
+  "claims": [
+    {
+      "id": "policy-tests",
+      "description": "All closeout and review policy tests pass",
+      "evidence": [{ "key": "regressionTest", "min": 1 }]
+    }
+  ]
+}

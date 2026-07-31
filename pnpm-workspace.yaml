@@ -1,0 +1,28 @@
+packages:
+  - agents/*
+
+minimumReleaseAgeExclude:
+  - "@ai-sdk/*"
+  - "@rolldown/*"
+  - "@vercel/*"
+  - "@workflow/*"
+  - ai
+  - experimental-ai-sdk-code-mode
+  - eve
+  - httpxy
+  - nf3
+  - nitro
+  - rolldown
+  - workflow
+allowBuilds:
+  sharp: false
+# Compatibility for eve releases with an incomplete runtime manifest.
+packageExtensions:
+  "eve@>=0.6.0-beta.13 <=0.7.0":
+    dependencies:
+      oxc-parser: 0.134.0
+
+# nf3 bundles @vercel/nft beneath an ESM package without declaring its
+# CommonJS format, so Node 24 cannot expose nodeFileTrace during Eve builds.
+patchedDependencies:
+  nf3@0.3.18: patches/nf3@0.3.18.patch

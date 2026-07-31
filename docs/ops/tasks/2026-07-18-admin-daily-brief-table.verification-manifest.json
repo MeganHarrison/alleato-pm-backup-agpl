@@ -1,0 +1,31 @@
+{
+  "contractVersion": 1,
+  "taskId": "ADMIN-DAILY-BRIEF-TABLE",
+  "feature": "Separate admin and executive Daily Brief tables",
+  "route": "/admin/daily-briefs",
+  "flows": [
+    {
+      "name": "Admin technical packet review",
+      "steps": ["Open /admin/daily-briefs as an administrator", "Inspect technical packet indicators", "Open a row"],
+      "expectedOutcome": "The admin table opens the technical fanout review at /admin/daily-briefs/[briefId]."
+    },
+    {
+      "name": "Executive written brief history",
+      "steps": ["Open /daily-briefs", "Open the same packet"],
+      "expectedOutcome": "The executive table opens the executive assessment at /daily-briefs/[briefId]."
+    }
+  ],
+  "requiredEvidence": ["screenshots", "actionLog", "visualReview", "regressionTest"],
+  "visual": {
+    "viewports": ["desktop", "mobile"],
+    "checks": ["Distinct admin and executive hierarchy", "No overflow", "Technical indicators remain scannable"]
+  },
+  "independentReview": { "required": true },
+  "claims": [
+    { "id": "admin-table", "description": "Admin technical table is captured", "evidence": [{ "key": "screenshots", "min": 1 }] },
+    { "id": "executive-table", "description": "Executive history table is captured", "evidence": [{ "key": "screenshots", "min": 1 }] },
+    { "id": "distinct-destinations", "description": "Both row destinations are proven", "evidence": [{ "key": "actionLog", "min": 1 }] },
+    { "id": "visual-review", "description": "Admin table visual review is complete", "evidence": [{ "key": "visualReview", "min": 1 }] },
+    { "id": "regression", "description": "A durable regression test exists", "evidence": [{ "key": "regressionTest", "min": 1 }] }
+  ]
+}

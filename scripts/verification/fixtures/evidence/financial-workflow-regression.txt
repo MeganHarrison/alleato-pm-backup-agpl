@@ -1,0 +1,12 @@
+Command:
+pnpm exec playwright test tests/e2e/commitments/commitments.smoke.spec.ts --config=config/playwright/playwright.config.ts --grep 'list page loads and shows empty state' --reporter=line
+
+Result: BLOCKED during setup; test body did not run.
+
+Exact failure:
+TimeoutError: page.goto: Timeout 60000ms exceeded
+navigating to "http://localhost:3000/tasks", waiting until "domcontentloaded"
+Owner file: frontend/tests/auth.setup.ts:143-145
+Related to current task: verification infrastructure/auth setup, not the commitment product path itself.
+Detection gap: saved auth was accepted initially, but protected-route verification hung on /tasks.
+Next action: isolate the /tasks response/console/network failure, then rerun the targeted smoke test.

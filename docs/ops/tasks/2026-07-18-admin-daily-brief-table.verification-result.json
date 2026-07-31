@@ -1,0 +1,19 @@
+{
+  "status": "BLOCKED",
+  "taskId": "ADMIN-DAILY-BRIEF-TABLE",
+  "reason": "The admin table implementation and targeted checks pass, but a valid admin-table screenshot cannot be captured because the available automated user is intentionally rejected by the fixed admin-dashboard allowlist. No access-denied screenshot is counted as table evidence.",
+  "observedStatus": "BLOCKED",
+  "findings": [
+    {
+      "id": "ADMIN-DAILY-BRIEF-AUTH-PROOF",
+      "severity": "blocked",
+      "title": "No allowlisted admin browser state is available",
+      "firstFailingLayer": "Authentication-to-admin authorization boundary",
+      "evidence": "http://localhost:3109/admin/daily-briefs redirected to /access-denied?reason=admin-dashboard-allowlist using the available authenticated test state.",
+      "ownerFiles": ["frontend/src/lib/auth/admin-dashboard-allowlist.ts"],
+      "detectionGap": "The normal browser bootstrap guarantees authentication but does not establish admin authorization.",
+      "prevention": "The admin Playwright test now requires explicit ADMIN_E2E_STORAGE_STATE instead of reusing normal-user state.",
+      "nextAction": "Run the admin browser proof with an existing allowlisted admin storage-state file."
+    }
+  ]
+}

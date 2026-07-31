@@ -1,0 +1,72 @@
+---
+title: AI Memory
+description: View and manage the facts, preferences, and context the AI assistant remembers about you across sessions.
+audience: client
+visibility: published
+module: ai-assistant
+category: AI & Intelligence
+tags: [ai-memory, preferences, context, personalization]
+featured: false
+client_visible: true
+ai_visible: true
+order: 620
+related_routes:
+  - /settings/memory
+related_actions: []
+---
+
+# AI Memory
+
+The AI assistant remembers facts, preferences, and context from your past conversations so it does not re-learn the same things every session. Memories persist across all entry points — the full-screen assistant, the inline sidebar, and the floating pill.
+
+## What Gets Remembered
+
+The assistant automatically extracts and stores:
+
+- **Preferences** — "I prefer summaries in bullet points", "always show dollar figures in thousands."
+- **Focus areas** — "I usually care about Vermillion Rise and Project Aurora."
+- **Role context** — "I review change orders weekly", "I'm the project executive on all industrial jobs."
+- **Inferred facts** — things you confirmed or the assistant learned from conversation context.
+- **Lessons** — things you explicitly told it to remember ("always flag retention releases on industrial projects").
+
+The assistant only writes to memory when something is durable and genuinely useful across sessions. It does not save one-off questions or transient context.
+
+## Explicitly Saving Something
+
+You can tell the assistant to remember anything:
+
+```
+"Remember that our standard retainage is 10% through substantial completion."
+"Remember I prefer to see margin in percentage points, not dollar amounts."
+"Remember that Apex Electric has a 6-week lead time on custom switchgear."
+```
+
+The assistant confirms what it saved. Saved facts may be available to other
+approved AI tools that serve you—for example, when Eve's financial analysis
+skill retrieves a summary, it can apply your preferred format.
+
+## Open AI Memory
+
+1. Open the user menu in the top-right corner.
+2. Select **Memory** under settings, or go to `/settings/memory`.
+
+## Manage Memory Records
+
+Each entry shows the fact, the date it was learned, and the source conversation.
+
+- **Edit** a record to correct or update it.
+- **Delete** a record to remove it permanently. The assistant will no longer use that fact.
+
+## Privacy
+
+Memory is scoped to your account. Other users cannot see your memory, and your memory does not influence answers given to other users. The assistant cannot read another user's memory records.
+
+## How Memory Affects Answers
+
+At the start of each conversation, the assistant retrieves memories that are semantically relevant to your current question. If you ask about cash flow, it loads any memories related to your financial preferences or focus projects. This happens automatically — you do not need to re-state your preferences each session.
+
+## Related Articles
+
+- [AI Assistant Overview](/help/articles/ai-assistant-overview)
+- [Knowledge Base](/help/articles/ai-memory)
+- [Update Your Profile](/help/articles/update-your-profile)

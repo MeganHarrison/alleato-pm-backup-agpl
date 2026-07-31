@@ -1,0 +1,24 @@
+{
+  "contractVersion": 1,
+  "taskId": "COMPANY-PROJECT-TABLE-CONTROLS",
+  "feature": "Company project table controls",
+  "route": "/",
+  "flows": [
+    {
+      "name": "Inspect project scopes and table controls",
+      "steps": ["Open the authenticated Company route", "Inspect desktop scope tabs, table controls, and create action", "Inspect mobile control collapse"],
+      "expectedOutcome": "Desktop tabs and controls share one row, the create action is fully visible, and mobile remains overflow-safe."
+    }
+  ],
+  "requiredEvidence": ["screenshots", "actionLog", "visualReview", "regressionTest"],
+  "visual": {
+    "viewports": ["desktop", "mobile"],
+    "checks": ["No horizontal overflow", "Scope tabs and controls share a row on desktop", "Primary action is usable"]
+  },
+  "independentReview": {"required": true},
+  "claims": [
+    {"id": "desktop-layout", "description": "Desktop tabs and table controls share the unified row, and the create action is visible.", "evidence": [{"key": "screenshots", "min": 1}, {"key": "visualReview", "min": 1}]},
+    {"id": "mobile-layout", "description": "Mobile uses the shared compact settings control with no horizontal overflow.", "evidence": [{"key": "screenshots", "min": 1}, {"key": "actionLog", "min": 1}, {"key": "visualReview", "min": 1}]},
+    {"id": "regression", "description": "A focused contract prevents the layout flags and primary action from regressing.", "evidence": [{"key": "regressionTest", "min": 1}]}
+  ]
+}

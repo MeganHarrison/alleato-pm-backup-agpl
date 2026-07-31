@@ -1,0 +1,24 @@
+{
+  "task_id": "LOCAL-2026-07-22-SHAREPOINT-SPREADSHEETS",
+  "delivery_lane": "High-risk",
+  "verification_contract": "Required",
+  "artifacts": [
+    "source-inventory.json",
+    "verification.md",
+    "verification-result.json",
+    "independent-review.md"
+  ],
+  "checks": [
+    "focused_unit_tests",
+    "ruff",
+    "python_compile",
+    "remote_main_exact_file_match",
+    "render_deployment_commit",
+    "scoped_historical_replay",
+    "pm_catalog_exact_set",
+    "rag_vector_exact_set",
+    "embedding_dimensions",
+    "delta_cursor_restoration",
+    "independent_review"
+  ]
+}

@@ -1,0 +1,11 @@
+Command:
+pytest -q backend/tests/test_project_assignment.py
+
+Result:
+24 passed, 8 unrelated FastAPI deprecation warnings.
+
+Guardrails proved:
+- default existing mapped project remains project-scoped
+- explicit migration converts a canonical mapped project to Business Area-only
+- explicit migration leaves an ordinary project unchanged
+- mapping unavailability fails loudly

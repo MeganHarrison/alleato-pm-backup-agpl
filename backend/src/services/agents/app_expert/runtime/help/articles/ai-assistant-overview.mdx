@@ -1,0 +1,135 @@
+---
+title: AI Assistant Overview
+description: Understand Ask Alleato — the Eve assistant with six domain skills embedded in the platform.
+audience: client
+visibility: published
+module: ai-assistant
+category: AI & Intelligence
+tags: [ai-assistant, ask-alleato, eve, skills]
+featured: true
+client_visible: true
+ai_visible: true
+order: 600
+related_routes:
+  - /ai
+related_actions: []
+---
+
+# AI Assistant Overview
+
+Ask Alleato is powered by Eve, one authenticated assistant embedded directly in
+the platform. Eve can read approved project, financial, schedule, meeting,
+email, and accounting information through the app-owned tool bridge. Every
+answer should be grounded in data available to the signed-in user.
+
+## Open the Assistant
+
+- **Full screen:** Open **Ask Alleato** from the main sidebar.
+- **Floating pill:** Press `⌘I` (Mac) or `Ctrl+I` (Windows) from anywhere in the app.
+- **Inline sidebar:** Click the brain icon in the top-right header to open a collapsible chat panel without leaving the current page.
+
+## How It Works
+
+Every question reaches the same Eve runtime. Eve loads the skills relevant to
+the request and can combine multiple skills for cross-functional questions such
+as “why is this project struggling?”
+
+Eve's current production tool bridge is read-only. Eve can retrieve and explain
+authorized data, but it cannot create, update, delete, send, approve, sign, or
+pay from chat. Use the linked application page for those actions.
+
+## Eve's Domain Skills
+
+Eve can load six domain skills. They are operating instructions for the same
+assistant identity, not separate agents or personas.
+
+### Financial analysis skill
+
+Owns all financial analysis. Analyzes through five lenses: margin protection, cash position, exposure, change order lifecycle, and billing and collections.
+
+**What to ask:**
+- "What's the current forecast and margin on Vermillion Rise?"
+- "Which projects are losing margin and why?"
+- "How much do we owe Apex Electric across all projects?"
+- "What does our cash position look like in the next 60 days?"
+- "Show me AP aging from Acumatica."
+
+**Data sources:** Budgets, change orders, commitments, direct costs, invoices, prime contracts, Acumatica ERP (live AP/AR aging, cash position, vendor spend).
+
+### Operations review skill
+
+Owns field operations, scheduling, and productivity.
+
+**What to ask:**
+- "Which schedule tasks are running late on Project Aurora?"
+- "Summarize field activity from this week's daily logs."
+- "Show me all open punch items assigned to the electrical sub."
+- "Who is assigned to what across all active projects?"
+
+**Data sources:** Schedule tasks, daily logs, punch lists, people and roles.
+
+### Risk review skill
+
+Owns risk identification and exposure tracking.
+
+**What to ask:**
+- "What are the top risks across all my projects right now?"
+- "Which RFIs are overdue?"
+- "Any submittals flagged as critical?"
+- "Show me projects with budget variance over 10%."
+
+**Data sources:** AI insights, RFI status, submittal status, budget variance, schedule slippage.
+
+### People capacity skill
+
+Owns team, staffing, and capacity.
+
+**What to ask:**
+- "Who is over-allocated next month?"
+- "Show me the team directory for the Vermillion Rise project."
+- "Which roles are unfilled on our active projects?"
+
+**Data sources:** Project directory, people records, roles and assignments.
+
+### Business-development skill
+
+Reviews pipeline, prospects, and market intelligence using the tools exposed to
+the current Eve deployment.
+
+**What to ask:**
+- "Summarize our win rate on ground-up industrial projects."
+- "Research the local market for tilt-up warehouse construction costs."
+- "What's the latest news about Apex Electric?"
+
+**Data sources:** Company knowledge base, prospect records, live web search.
+
+### Marketing strategy skill
+
+Reviews positioning, campaigns, content strategy, and audience priorities using
+approved company and market context.
+
+## Cross-Project and Portfolio Questions
+
+Eve can handle questions that span multiple projects. You do not need to select
+a project before asking, although project-scoped tools are available only after
+the app verifies the selected project.
+
+- "Catch me up on everything happening this week."
+- "Which projects need my attention today?"
+- "Is there a pattern of procurement delays across our jobs?"
+
+## Citations
+
+Answers cite the underlying records when available. Click any citation to open the meeting, document, RFI, line item, or record it came from. Verify before acting on financial or schedule decisions.
+
+## Conversation History
+
+Past conversations are saved and shown in the left panel of the full-screen assistant. Click any past conversation to resume it. The assistant recalls context from prior sessions through its memory system.
+
+## Related Articles
+
+- [AI Assistant Actions and Current Limits](/help/articles/ai-assistant-actions)
+- [Ask the AI About Meetings](/help/articles/ai-meeting-intelligence)
+- [Project Intelligence](/help/articles/project-intelligence)
+- [AI Memory](/help/articles/ai-memory)
+- [Knowledge Base](/help/articles/ai-memory)

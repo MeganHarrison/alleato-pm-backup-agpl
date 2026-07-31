@@ -1,0 +1,53 @@
+name: E2E Regression (Nightly)
+
+on:
+  schedule:
+    - cron: "0 2 * * *"   # 2am UTC every night
+  workflow_dispatch:
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: "10.13.1"
+
+      - name: Install frontend dependencies
+        run: pnpm --dir frontend install --frozen-lockfile
+
+      - name: Install Playwright browsers
+        run: pnpm --dir frontend exec playwright install chromium --with-deps
+
+      - name: Run full E2E regression suite
+        env:
+          PLAYWRIGHT_BASE_URL: ${{ secrets.PLAYWRIGHT_BASE_URL || secrets.API_SMOKE_BASE_URL }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          E2E_PROJECT_ID: "67"
+        run: |
+          if [[ -z "${PLAYWRIGHT_BASE_URL}" ]]; then
+            echo "PLAYWRIGHT_BASE_URL not set — cannot run nightly regression"
+            exit 1
+          fi
+          pnpm --dir frontend exec playwright test \
+            --config=config/playwright/playwright.no-webserver.config.ts \
+            --project=chromium
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ github.run_id }}
+          path: frontend/tests/playwright-report/
+          retention-days: 7

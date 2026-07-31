@@ -1,0 +1,20 @@
+{
+  "status": "passed",
+  "release_commit": "66ff2a88300ff209d09218daf5dceefee93ed9fe",
+  "render_job": "job-d9gi70u1a83c73fjk7b0",
+  "render_job_status": "succeeded",
+  "enumerated_files": 26,
+  "cataloged_files": 26,
+  "vectorized_files": 26,
+  "enumerated_workbooks": 8,
+  "cataloged_workbooks": 8,
+  "vectorized_workbooks": 8,
+  "total_chunks": 436,
+  "workbook_chunks": 55,
+  "embedding_dimensions": 3072,
+  "workbook_content_characters": 176607,
+  "id_set_hash": "239bfd3b3d8483e59c8249ab31c7dc8e",
+  "missing_source_ids": [],
+  "cursor_restored": true,
+  "independent_review": "approved"
+}

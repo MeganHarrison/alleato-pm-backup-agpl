@@ -1,0 +1,27 @@
+{
+  "checkedAt": "2026-07-22T20:48:30Z",
+  "approvedWrite": {
+    "projectId": 767,
+    "id": "7ff0ac94-9f5e-4f8a-b132-4460acb6150d",
+    "number": 8,
+    "subject": "AAI-1150 Signed Approval Pass 2026-07-22T2041Z",
+    "question": "Verify aligned AI SDK signed approval.",
+    "status": "open",
+    "observedCountBeforeCleanup": 1,
+    "observedCountAfterScopedCleanup": 0
+  },
+  "deniedWrite": {
+    "projectId": 767,
+    "subject": "AAI-1150 Mobile Deny No Write",
+    "observedCount": 0
+  },
+  "readOnlySurfaceAttempts": {
+    "projectId": 767,
+    "subjects": [
+      "AAI-1150 Ask Read Only Proof",
+      "AAI-1150 Ask Widget Read Only"
+    ],
+    "observedCount": 0
+  },
+  "cleanup": "The one approved test RFI was deleted by exact id and project id after evidence capture. It is not recoverable from the application."
+}

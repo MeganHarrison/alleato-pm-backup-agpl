@@ -1,0 +1,152 @@
+name: CI Failure Handler
+
+# When a PR quality workflow fails: classify flaky vs real, retry flaky runs,
+# and auto-fix real failures by pushing a fix commit to the SAME PR branch so
+# the checks re-run and the autofix merge loop can proceed.
+
+on:
+  workflow_run:
+    workflows: ["Quality Gate", "Guardrail PR Check", "Design System Guardrails"]
+    types: [completed]
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+  issues: write
+  id-token: write
+
+concurrency:
+  group: ci-handler-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: false
+
+jobs:
+  handle-failure:
+    if: |
+      github.event.workflow_run.conclusion == 'failure' &&
+      github.event.workflow_run.head_branch != 'main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_branch }}
+          fetch-depth: 0
+          token: ${{ secrets.AUTOFIX_GITHUB_TOKEN }}
+
+      # Step 1: Detect if failure is flaky or a real bug
+      - name: Detect flaky vs real failure
+        id: detect
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            The workflow "${{ github.event.workflow_run.name }}" failed: ${{ github.event.workflow_run.html_url }}
+
+            Check the logs: gh run view ${{ github.event.workflow_run.id }} --log-failed
+
+            Determine if this is a flaky failure by checking for:
+            - Timeout errors or race conditions
+            - Network errors
+            - Intermittent assertion failures
+            - Tests that passed in previous commits on the same code
+
+            Return JSON with:
+            - is_flaky: true if likely flaky, false if real bug
+            - confidence: 0-1 confidence level
+            - summary: one-sentence explanation
+          claude_args: |
+            --allowedTools "Bash(gh run view:*),Bash(gh run list:*),Bash(git log:*),Bash(git diff:*)"
+            --json-schema '{"type":"object","properties":{"is_flaky":{"type":"boolean"},"confidence":{"type":"number","minimum":0,"maximum":1},"summary":{"type":"string"}},"required":["is_flaky","confidence","summary"]}'
+
+      # If detection errored (bad/expired/malformed token, usage limit) it emits
+      # no structured_output, both branches below evaluate false, and the handler
+      # silently no-ops. The action still exits 0; the truth is the final
+      # "result" entry in its execution_file. Fail loudly instead.
+      - name: Assert detection ran
+        if: ${{ always() }}
+        shell: bash
+        env:
+          STEP_OUTCOME: ${{ steps.detect.outcome }}
+          EXEC_FILE: ${{ steps.detect.outputs.execution_file }}
+          LABEL: "CI failure detection"
+        run: |
+          if [ "$STEP_OUTCOME" = "skipped" ]; then echo "$LABEL skipped — nothing to assert."; exit 0; fi
+          if [ -z "$EXEC_FILE" ] || [ ! -f "$EXEC_FILE" ]; then
+            echo "::error::$LABEL produced no execution_file — the action did not run to completion (likely a credential/setup failure)."
+            exit 1
+          fi
+          is_error=$(jq -r '[.[] | select(.type == "result")] | last | .is_error | if . == null then true else . end' "$EXEC_FILE" 2>/dev/null || echo true)
+          cost=$(jq -r '[.[] | select(.type == "result")] | last | .total_cost_usd // 0' "$EXEC_FILE" 2>/dev/null || echo 0)
+          turns=$(jq -r '[.[] | select(.type == "result")] | last | .num_turns // 0' "$EXEC_FILE" 2>/dev/null || echo 0)
+          echo "$LABEL result: is_error=$is_error total_cost_usd=$cost num_turns=$turns"
+          if [ "$is_error" != "false" ]; then
+            echo "::error::$LABEL errored (is_error=$is_error, num_turns=$turns, total_cost_usd=$cost). The run did NOT do its work. Usually an invalid/expired/malformed CLAUDE_CODE_OAUTH_TOKEN (stray whitespace/newline) or a usage limit. Re-mint with 'claude setup-token' and: gh secret set CLAUDE_CODE_OAUTH_TOKEN --body \"\$(pbpaste | tr -d '[:space:]')\""
+            exit 1
+          fi
+
+      # Step 2a: If flaky and high confidence → retry
+      - name: Retry flaky run
+        if: |
+          fromJSON(steps.detect.outputs.structured_output).is_flaky == true &&
+          fromJSON(steps.detect.outputs.structured_output).confidence >= 0.7
+        env:
+          GH_TOKEN: ${{ github.token }}
+          STRUCTURED: ${{ steps.detect.outputs.structured_output }}
+        run: |
+          SUMMARY=$(echo "$STRUCTURED" | jq -r '.summary')
+          CONFIDENCE=$(echo "$STRUCTURED" | jq -r '.confidence')
+          echo "Flaky failure detected (confidence: $CONFIDENCE) — $SUMMARY"
+          gh run rerun ${{ github.event.workflow_run.id }} --failed
+
+      # Step 2b: If real bug on a PR branch → fix on the same branch
+      - name: Auto-fix real CI failure
+        if: |
+          fromJSON(steps.detect.outputs.structured_output).is_flaky == false &&
+          github.event.workflow_run.pull_requests[0]
+        id: fix
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            The workflow "${{ github.event.workflow_run.name }}" failed on branch
+            ${{ github.event.workflow_run.head_branch }} (PR #${{ github.event.workflow_run.pull_requests[0].number }}).
+
+            Failed run: ${{ github.event.workflow_run.html_url }}
+            Analysis: ${{ steps.detect.outputs.structured_output }}
+
+            The failing branch is already checked out in the workspace.
+
+            1. Read the failure logs: gh run view ${{ github.event.workflow_run.id }} --log-failed
+            2. Find the root cause in this branch's diff vs main (git diff origin/main...HEAD).
+            3. Fix the failing code or test with the smallest coherent change. Fix the code,
+               not the check — never loosen a lint rule, delete a failing test, or add
+               eslint-disable to get past the gate.
+            4. Do NOT commit or push — the workflow handles git.
+          claude_args: |
+            --allowedTools "Edit,MultiEdit,Write,Read,Glob,Grep,LS,Bash(pnpm:*),Bash(npm run:*),Bash(node:*),Bash(npx:*),Bash(gh run view:*),Bash(git diff:*),Bash(git log:*),Bash(git status:*)"
+
+      - name: Push CI fix to PR branch
+        if: |
+          fromJSON(steps.detect.outputs.structured_output).is_flaky == false &&
+          github.event.workflow_run.pull_requests[0]
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.workflow_run.pull_requests[0].number }}
+          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+        run: |
+          git config user.name "MeganHarrison"
+          git config user.email "109628141+MeganHarrison@users.noreply.github.com"
+
+          if git diff --quiet && [ -z "$(git ls-files --others --exclude-standard)" ]; then
+            gh pr comment "$PR_NUMBER" --repo "${{ github.repository }}" \
+              --body "CI failure handler analyzed the failed \"${{ github.event.workflow_run.name }}\" run but could not produce a fix. A human needs to look at ${{ github.event.workflow_run.html_url }}."
+            exit 0
+          fi
+
+          git add -A
+          git commit -m "fix: resolve ${{ github.event.workflow_run.name }} failure on #${PR_NUMBER}"
+          git push origin "HEAD:$HEAD_BRANCH"
+          gh pr comment "$PR_NUMBER" --repo "${{ github.repository }}" \
+            --body "CI failure handler pushed a fix for the failed \"${{ github.event.workflow_run.name }}\" run. Checks are re-running."

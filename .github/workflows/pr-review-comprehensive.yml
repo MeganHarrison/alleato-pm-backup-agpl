@@ -1,0 +1,105 @@
+name: PR Review (Claude)
+
+# Claude is the single automated PR reviewer for this repo (CodeRabbit/Codex are
+# disabled — see .coderabbit.yaml and the Codex cloud settings).
+#
+# Efficiency choices (2026-07-09):
+# - Reviews ONCE, when a PR becomes reviewable (opened ready, or draft→ready) —
+#   NOT on every push (`synchronize` removed), so a series of commits no longer
+#   triggers a full re-review each time. To force a fresh review after changes,
+#   comment `@claude review` (handled by claude.yml).
+# - track_progress is ON — the review posts a live progress checklist comment
+#   (Megan's preference) that updates in place as it works, then the final review.
+#   Because the review now runs once per PR (not per push), you get ONE checklist,
+#   not one per commit.
+# - The prompt asks for concise, high-signal output: flag real issues, skip
+#   praise and N/A category recitation.
+
+on:
+  pull_request:
+    types: [opened, ready_for_review]
+
+concurrency:
+  group: claude-pr-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  pr-review:
+    # Automation-created PRs are reviewed (with a merge-gating verdict) by
+    # autofix-pr-manager.yml — skip them here to avoid double reviews.
+    # Draft PRs are skipped; the review runs when the PR is marked ready.
+    if: |
+      github.event.pull_request.draft == false &&
+      !startsWith(github.event.pull_request.head.ref, 'autofix/') &&
+      !contains(github.event.pull_request.labels.*.name, 'automated-pr')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: PR Review
+        id: claude
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+
+          # Live progress checklist comment while reviewing (Megan's preference),
+          # then the final review.
+          track_progress: true
+
+          # Concise, high-signal review. Optimized to reduce noise.
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR NUMBER: ${{ github.event.pull_request.number }}
+
+            Review this PR's diff. Be concise and high-signal — this repo values
+            reviewer output that a busy owner can act on in under a minute.
+
+            Report ONLY things that need action, in priority order:
+            - Correctness bugs, broken edge cases, silent failures
+            - Security issues (input handling, authz/RLS, secrets)
+            - Missing tests/guardrails on risky changes (per CLAUDE.md Core Principles)
+            - Clear performance problems (N+1, unbounded queries)
+
+            Rules for keeping it tight:
+            - Use inline comments for specific issues; keep each to 1–3 sentences.
+            - Do NOT recite categories that have no findings. Do NOT restate the diff.
+            - Do NOT add praise, summaries of what the PR does, or "N/A" sections.
+            - If a category is not applicable (e.g. docs-only PR), say nothing about it.
+            - If there is nothing actionable, post a single one-line comment:
+              "No blocking issues." — and stop.
+
+          claude_args: |
+            --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*)"
+
+      # The action exits 0 even when the run errored (is_error) — the truth is
+      # the final "result" entry in its execution_file. Fail loudly instead of a
+      # silent green check. Common cause: invalid/expired/malformed
+      # CLAUDE_CODE_OAUTH_TOKEN (stray whitespace) or an account usage limit.
+      - name: Assert Claude review ran
+        if: ${{ always() }}
+        shell: bash
+        env:
+          STEP_OUTCOME: ${{ steps.claude.outcome }}
+          EXEC_FILE: ${{ steps.claude.outputs.execution_file }}
+          LABEL: "PR review"
+        run: |
+          if [ "$STEP_OUTCOME" = "skipped" ]; then echo "$LABEL skipped — nothing to assert."; exit 0; fi
+          if [ -z "$EXEC_FILE" ] || [ ! -f "$EXEC_FILE" ]; then
+            echo "::error::$LABEL produced no execution_file — the action did not run to completion (likely a credential/setup failure)."
+            exit 1
+          fi
+          is_error=$(jq -r '[.[] | select(.type == "result")] | last | .is_error | if . == null then true else . end' "$EXEC_FILE" 2>/dev/null || echo true)
+          cost=$(jq -r '[.[] | select(.type == "result")] | last | .total_cost_usd // 0' "$EXEC_FILE" 2>/dev/null || echo 0)
+          turns=$(jq -r '[.[] | select(.type == "result")] | last | .num_turns // 0' "$EXEC_FILE" 2>/dev/null || echo 0)
+          echo "$LABEL result: is_error=$is_error total_cost_usd=$cost num_turns=$turns"
+          if [ "$is_error" != "false" ]; then
+            echo "::error::$LABEL errored (is_error=$is_error, num_turns=$turns, total_cost_usd=$cost). The run did NOT do its work. Usually an invalid/expired/malformed CLAUDE_CODE_OAUTH_TOKEN (stray whitespace/newline) or a usage limit. Re-mint with 'claude setup-token' and: gh secret set CLAUDE_CODE_OAUTH_TOKEN --body \"\$(pbpaste | tr -d '[:space:]')\""
+            exit 1
+          fi

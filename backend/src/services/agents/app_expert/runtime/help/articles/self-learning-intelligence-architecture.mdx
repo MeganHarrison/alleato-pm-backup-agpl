@@ -1,0 +1,524 @@
+---
+title: Self-Learning Intelligence Architecture
+description: Internal implementation blueprint for Alleato AI feedback loops, promotion rules, retrieval scoring, and packet-first learning.
+audience: internal
+visibility: published
+module: ai-assistant
+category: AI & Intelligence
+tags: [ai, feedback, memory, rag, project-intelligence, architecture]
+featured: false
+client_visible: false
+ai_visible: false
+order: 621
+related_routes:
+  - /ai
+  - /docs/project-intelligence
+related_actions: []
+---
+
+# Self-Learning Intelligence Architecture
+
+Alleato should not try to make the model train itself. The durable product value is a feedback system that makes retrieval, project attribution, packet quality, tool decisions, task generation, and user-specific behavior improve over time.
+
+The architecture is:
+
+```text
+Raw source
+-> project/source attribution
+-> structured signal extraction
+-> packet/card compilation
+-> assistant/tool response
+-> user action, correction, rejection, or outcome
+-> feedback event
+-> promotion review
+-> active memory, retrieval weight, prompt constraint, or workflow rule
+```
+
+The learning system keeps four layers separate:
+
+| Layer | Purpose | Primary storage |
+|---|---|---|
+| Source truth | Raw evidence and retrievable text | `document_metadata`, `document_chunks`, source-specific tables |
+| Project intelligence | Current interpreted project state | `intelligence_targets`, `insight_cards`, `intelligence_packets` |
+| Feedback and outcomes | What users accepted, changed, rejected, or completed | existing feedback tables plus new unified feedback events |
+| Promoted learning | Reusable constraints, preferences, examples, and ranking rules | `agent_learnings`, `ai_memories`, new promotion records |
+
+Do not collapse these into one embeddings table. Vectors are recall infrastructure, not the source of truth.
+
+## Current Tables To Build On
+
+### Raw Knowledge And Retrieval
+
+| Table | Current role | Self-learning role |
+|---|---|---|
+| `document_metadata` | Source-level records for meetings, emails, Teams, SharePoint/OneDrive files, uploads, and summaries. | Attribution target and source identity ledger. Feedback improves `project_id`, source classification, source importance, and source trust. |
+| `document_chunks` | Chunked/vectorized text with `chunk_id`, `document_id`, `source_type`, metadata, content hash, and embedding. | Retrieval scoring records which chunks were used, ignored, cited, or corrected. |
+| `document_rows` | Structured rows tied to a document dataset. | Spreadsheet/table evidence and extraction quality checks. |
+| `project_emails` | Project-linked email records. | Outcome feedback improves email-to-project linking and attachment handling. |
+| Teams rows through `document_metadata` | Raw communications source. | Should be grouped into conversation/day/thread documents, then attributed and scored. |
+
+### Packet-First Project Intelligence
+
+| Table | Self-learning role |
+|---|---|
+| `intelligence_targets` | Learning scope anchor. Most feedback should resolve to a target, not only a chat session. |
+| `insight_cards` | Learn which risks, blockers, decisions, tasks, updates, and financial/schedule signals were accepted, ignored, resolved, contradicted, or converted into actions. |
+| `insight_card_evidence` | Track evidence quality and whether evidence was useful enough to cite again. |
+| `insight_card_targets` | Reviewable attribution improvement loop. |
+| `intelligence_packets` | Track whether packet sections were useful, stale, missing, or corrected. |
+| `intelligence_packet_cards` | Learn which card types and ordering are valuable for different project situations. |
+| `intelligence_reviews` | Human-in-the-loop gate before risky learnings become durable behavior. |
+
+### Attribution And Signal Review Ledgers
+
+| Table | Role |
+|---|---|
+| `document_attribution_candidates` | Reviewable candidate project/target matches for source documents. |
+| `source_signal_candidates` | Staging records for extracted signals before promotion to `insight_cards`. |
+
+The former per-document compiler queues are retained only as historical audit
+records. They are not ingestion stages and must not receive new work.
+
+### Existing Feedback And Memory
+
+| Table | Self-learning role |
+|---|---|
+| `ai_task_feedback` | First concrete behavior-learning loop for generated tasks. |
+| `ai_review_feedback` | Source-of-truth correction loop for document intelligence. |
+| `chat_thread_feedback` | Lightweight chat outcome signal that needs normalization into a unified event stream. |
+| `admin_feedback_items` / `admin_feedback_comments` | Verified failures can become `agent_learnings` when they describe repeatable AI/tool behavior. |
+| `agent_learnings` | Behavioral guardrail memory for "do not repeat this failure" instructions. |
+| `agent_learning_usages` | Proves whether injected learnings helped or hurt. |
+| `ai_memories` | Personal/team facts, preferences, commitments, and lessons. Must not replace source truth. |
+| `chat_history` | Session evidence and post-response extraction source, not the final learning store. |
+
+## Additive Tables To Build First
+
+The current tables are close, but feedback is fragmented. Add a thin normalized event layer instead of replacing existing feedback tables.
+
+### `ai_feedback_events`
+
+Purpose: one append-only event stream for every user/system learning signal. Existing feedback tables stay intact; this table points at them and normalizes cross-surface analysis.
+
+Required columns:
+
+```sql
+create table public.ai_feedback_events (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz not null default now(),
+  user_id uuid null references auth.users(id) on delete set null,
+  project_id integer null references public.projects(id) on delete set null,
+  target_id uuid null references public.intelligence_targets(id) on delete set null,
+  session_id uuid null,
+  source_table text null,
+  source_record_id text null,
+  event_type text not null,
+  event_family text not null,
+  surface text not null,
+  subject_type text not null,
+  subject_id text null,
+  signal text not null,
+  reason_category text null,
+  free_text text null,
+  before_snapshot jsonb not null default '{}'::jsonb,
+  after_snapshot jsonb not null default '{}'::jsonb,
+  source_context jsonb not null default '{}'::jsonb,
+  metadata jsonb not null default '{}'::jsonb
+);
+```
+
+Allowed event families:
+
+- `retrieval`
+- `attribution`
+- `assistant_response`
+- `tool_action`
+- `task_generation`
+- `packet_quality`
+- `document_review`
+- `user_preference`
+- `workflow_outcome`
+- `eval_failure`
+
+Allowed signals:
+
+- `positive`
+- `negative`
+- `corrected`
+- `accepted`
+- `ignored`
+- `completed`
+- `failed`
+- `needs_review`
+- `stale`
+- `conflicting`
+
+Required indexes:
+
+- `(project_id, event_family, created_at desc)`
+- `(target_id, event_family, created_at desc)`
+- `(subject_type, subject_id, created_at desc)`
+- `(source_table, source_record_id)`
+- `(event_type, signal, created_at desc)`
+
+RLS rules:
+
+- service role writes all events
+- users can insert events for their own interactions
+- admins can read all
+- project members can read project-scoped non-private events
+- private preference/memory events require user ownership or admin access
+
+### `ai_learning_promotions`
+
+Purpose: explicit review and promotion ledger. No feedback event should automatically become long-term behavior unless it passes a promotion rule.
+
+Required columns:
+
+```sql
+create table public.ai_learning_promotions (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz not null default now(),
+  reviewed_at timestamptz null,
+  reviewed_by uuid null references auth.users(id) on delete set null,
+  status text not null default 'candidate',
+  promotion_type text not null,
+  project_id integer null references public.projects(id) on delete set null,
+  target_id uuid null references public.intelligence_targets(id) on delete set null,
+  source_event_ids uuid[] not null default '{}',
+  destination_table text null,
+  destination_record_id text null,
+  confidence numeric not null default 0.5,
+  risk_level text not null default 'low',
+  proposed_learning jsonb not null,
+  review_notes text null,
+  expires_at timestamptz null,
+  superseded_by uuid null references public.ai_learning_promotions(id)
+);
+```
+
+Promotion destinations:
+
+- `agent_learnings` for prevention prompts and repeated failure patterns
+- `ai_memories` for user/team facts, preferences, lessons, and commitments
+- `ai_task_feedback.promoted = true` for approved positive task examples
+- `document_attribution_candidates.status = approved|rejected` for project-linking corrections
+- `insight_cards` / `insight_card_evidence` for packet-quality corrections
+- future retrieval scoring table for source/chunk ranking rules
+
+### `ai_retrieval_feedback`
+
+Purpose: retrieval-specific learning that is too granular for `agent_learnings`.
+
+Required columns:
+
+```sql
+create table public.ai_retrieval_feedback (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz not null default now(),
+  user_id uuid null references auth.users(id) on delete set null,
+  project_id integer null references public.projects(id) on delete set null,
+  target_id uuid null references public.intelligence_targets(id) on delete set null,
+  session_id uuid null,
+  tool_name text not null,
+  query_text text not null,
+  source_document_id text null references public.document_metadata(id) on delete set null,
+  source_chunk_id text null,
+  rank integer null,
+  score numeric null,
+  cited boolean not null default false,
+  user_referenced boolean not null default false,
+  used_in_answer boolean not null default false,
+  outcome text not null default 'unknown',
+  metadata jsonb not null default '{}'::jsonb
+);
+```
+
+Allowed outcomes:
+
+- `helpful`
+- `unhelpful`
+- `wrong_project`
+- `stale`
+- `unsupported`
+- `unknown`
+
+## Ingestion Flows
+
+### Microsoft Graph Teams, Outlook, And SharePoint
+
+1. Backend Graph service ingests messages, files, and attachments.
+2. Source row lands in `document_metadata` with source IDs, source URL/path, title/subject, participants, source timestamps, source_system, source_metadata, and raw_text or summary.
+3. Text is chunked into `document_chunks` when it has durable retrieval value.
+4. Project attribution scores explicit IDs, project aliases, client names, addresses, participants, thread/channel/path/title context.
+5. High-confidence attribution updates `document_metadata.project_id`.
+6. Medium/low-confidence attribution creates `document_attribution_candidates` and an `ai_feedback_events` review signal.
+7. Ingestion ends after durable source storage, attribution, and embedding.
+8. The governed Daily Executive Brief enumerates the complete source set on its schedule.
+9. Canonical packet consumers project supported findings, tasks, reports, and current state.
+
+### Fireflies Meetings
+
+1. Transcript/summary lands in `document_metadata`.
+2. Transcript content chunks into `document_chunks`.
+3. Meeting participants and title drive project attribution.
+4. Extract decisions, commitments, open questions, schedule risk, financial exposure, and owner/action signals.
+5. Promote supported items to cards only when an evidence excerpt exists.
+6. Later user corrections write `ai_feedback_events`, `ai_retrieval_feedback`, and candidate promotions when repeated or high-impact.
+
+### User Chat And AI Assistant
+
+1. User message enters the Eve client and authenticated
+   `frontend/src/app/api/ai-assistant/eve/proxy/[...path]/route.ts`.
+2. Intent chooses packet-first advisor path, source lookup path, action/tool path, or memory path.
+3. Assistant metadata records tool trace, retrieved sources, response quality, data parts/widgets, and selected learnings.
+4. Post-response jobs run conversation memory extraction, learning usage recording, and retrieval trace recording.
+5. User feedback, edit, regeneration, copied answer, accepted widget, or ignored action writes `ai_feedback_events`.
+6. Approved promotions write to `agent_learnings`, `ai_memories`, or a domain table.
+
+### Task Generation
+
+1. A task proposal originates from extraction or a supported application
+   workflow. Eve's current production bridge is read-only and does not create
+   the task from chat.
+2. Task snapshot is captured in `ai_task_feedback` when user rates it.
+3. Good feedback can become a promoted positive example after review.
+4. Bad feedback creates or updates an `agent_learnings` candidate with a prevention prompt.
+5. Future task creation pulls promoted positive examples, active agent learnings, and current project packet/source evidence.
+
+### Project Intelligence Pages
+
+1. User views a packet, opens a card, expands evidence, follows source links, or marks a card wrong/stale/useful.
+2. Each meaningful interaction writes `ai_feedback_events`.
+3. Card corrections update `intelligence_reviews`.
+4. Approved corrections update cards, evidence, or attribution candidates.
+5. Packet refresh regenerates the target packet and records why.
+
+## Feedback Events To Capture First
+
+| Event | Surface | Event family | Signal | Destination |
+|---|---|---|---|---|
+| Assistant thumbs up/down | AI assistant | `assistant_response` | `positive` / `negative` | `ai_feedback_events`, `agent_learning_usages`, possible `agent_learnings` |
+| Task thumbs up/down with reason | Tasks / assistant widget | `task_generation` | `positive` / `negative` | `ai_task_feedback`, `ai_feedback_events` |
+| Project attribution correction | Admin review / source review | attribution | corrected | `document_attribution_candidates`, `ai_feedback_events` |
+| Packet card marked wrong/stale/useful | Project Intelligence | `packet_quality` | `positive` / `negative` / `stale` | `intelligence_reviews`, `ai_feedback_events` |
+| Source/chunk cited in final answer | AI assistant | retrieval | accepted | `ai_retrieval_feedback` |
+| Source/chunk behind rejected answer | AI assistant | retrieval | negative | `ai_retrieval_feedback` |
+| User edited generated owner update/email/summary | Assistant widgets | `assistant_response` | `corrected` | `ai_feedback_events`, promotion candidate |
+| Tool action accepted/cancelled/completed | Assistant action preview | `tool_action` | `accepted` / `ignored` / `completed` / `failed` | `ai_feedback_events` |
+
+## Promotion Rules
+
+Feedback is evidence, not learning. A feedback event becomes durable behavior only after one of these paths:
+
+1. Human review approves it.
+2. The same failure repeats at least twice with similar signatures.
+3. A high-confidence workflow outcome proves it worked.
+4. A deterministic eval fails and maps to a clear prevention rule.
+
+### Promote To `agent_learnings`
+
+Promote repeatable AI behavior failures when feedback identifies a concrete failure pattern, includes tool trace and response evidence, and produces an actionable prevention prompt.
+
+Do not promote when the root cause is missing data ingestion, schema/API/frontend code, or a one-off mood signal without example.
+
+### Promote To `ai_memories`
+
+Promote stable facts, preferences, lessons, commitments, and context when they are useful across future sessions, user-stated or source-supported, and scoped to the correct visibility.
+
+Do not promote transient requests, guesses from weak retrieval, private preferences as team memory, or source facts that belong in project records.
+
+### Promote Positive Task Examples
+
+Use `ai_task_feedback.promoted = true` only when the task was rated good, complete enough to reuse, not duplicate/noise, and either completed or admin-approved.
+
+Inject no more than three positive examples into task generation.
+
+### Promote Retrieval Weight
+
+Promote retrieval ranking changes only after aggregation. Down-rank wrong-project, stale, unsupported, or weakly aligned chunks, but never hide a source because one answer failed.
+
+### Promote Attribution Rules
+
+Promote project-linking rules only when the correction has clear evidence, the alias/path/participant pattern recurs, and no competing project has similar confidence.
+
+Do not globally lower confidence thresholds to increase coverage.
+
+### Promote Packet Rules
+
+Promote packet behavior when users repeatedly mark a card type useful/stale/wrong, owner-facing summaries are edited consistently, or packet source coverage misses available data.
+
+Examples:
+
+- Put financial exposure before schedule commentary for owner updates.
+- Do not show Teams-only risk as high confidence without a confirming source.
+- Move stale cards older than 14 days without new evidence below active blockers.
+
+## Fail-Loud Rules
+
+| Failure | Cause | Detection | Prevention |
+|---|---|---|---|
+| Feedback write fails | API/schema/RLS issue | Return explicit API error and log table/message | `withApiGuardrails`, route tests, RLS smoke |
+| Memory extraction fails | model/provider/Supabase error | Background job logs and `ai_feedback_events` error event | retries with bounded attempts |
+| Retrieval trace missing | assistant metadata not persisted | eval checks for tool trace and source IDs | central trace writer |
+| Promotion creates bad learning | no review/repetition gate | promotion remains `candidate` until approved | required `ai_learning_promotions` record |
+| Project attribution wrong | fuzzy match over-applied | attribution correction event and candidate review | confidence thresholds |
+| Packet answer ignores packet | route intent fallback | assistant eval for project briefing/source lookup split | packet-first contract test |
+| User correction lost | generated output edit not captured | UI/API test for before/after snapshots | unified event writer |
+
+## Verification Gates To Build First
+
+### Gate 1: Schema And RLS
+
+```bash
+npx supabase gen types typescript --project-id "lgveqfnpkxvzbnnwuled" --schema public > frontend/src/types/database.types.ts
+npm run db:migrations:verify-applied -- supabase/migrations/<new_feedback_migration>.sql
+```
+
+Checks:
+
+- `ai_feedback_events`, `ai_learning_promotions`, and `ai_retrieval_feedback` exist in generated types.
+- FK types match actual tables: `projects.id` is integer, `document_metadata.id` is text, `document_chunks.chunk_id` is text, packet/card IDs are uuid.
+- anon/authenticated cannot read private feedback from other users.
+- service role can insert events and promotions.
+
+### Gate 2: Feedback Event Writer
+
+- assistant thumbs down writes the existing chat feedback path if still used and always writes `ai_feedback_events`
+- task feedback writes `ai_task_feedback` and a normalized event
+- packet/card feedback writes `intelligence_reviews` and a normalized event
+- failures return generic-free error messages with table and cause
+
+### Gate 3: Retrieval Trace
+
+- every source lookup answer records tool name, query, source document IDs, chunk IDs, rank, cited flag, and answer usage
+- downvoted source-grounded answers mark involved chunks as `unknown` or `unhelpful`, not bad forever
+- source lookup questions do not answer from packet summary alone
+
+### Gate 4: Promotion Queue
+
+- one-off thumbs-down creates candidate only
+- repeated similar thumbs-down promotes to `agent_learnings.status = active` only when threshold is met
+- approved positive task feedback becomes a future few-shot example
+- rejected/expired/superseded promotions are not injected
+
+### Gate 5: Packet Improvement Loop
+
+- correcting a card creates a review item and feedback event
+- approving correction updates card/evidence and enqueues packet refresh
+- refreshed packet includes changed card ranking/status
+- stale/missing source coverage is visible in packet JSON
+
+### Gate 6: Assistant Prompt Injection Safety
+
+- `agent_learnings` context is scoped by project/tool/tags
+- private `ai_memories` are only injected for the owning user
+- team memories are not created from low-confidence private preferences
+- max learning context stays bounded
+- injected learning usage is recorded in `agent_learning_usages`
+
+## First Implementation Order
+
+## Implemented Retrieval Learning Loop
+
+The first completed loop is retrieval learning. It does not retrain a model. It captures which sources/chunks helped or hurt assistant answers, promotes repeated patterns into reviewable candidates, and applies bounded ranking hints only after admin approval.
+
+### Implemented Data Model
+
+| Table | Role |
+|---|---|
+| `ai_feedback_events` | Normalized audit stream for review, apply, pause, resume, and supersede actions. |
+| `ai_retrieval_feedback` | Source/chunk retrieval traces from assistant tool output. |
+| `ai_learning_promotions` | Review ledger for candidate, approved, rejected, applied, and superseded learnings. |
+| `ai_retrieval_weights` | Active/paused/superseded retrieval ranking hints consumed by semantic search. |
+
+### Implemented Admin Surface
+
+Route: `/ai-learning-promotions`
+
+The page includes:
+
+- status tabs for candidate, approved, applied, rejected, and superseded promotions
+- metrics for candidates, approvals, applied learnings, active/paused weights, superseded promotions, and audit activity
+- Generate action for retrieval promotion scans
+- approve/reject controls
+- impact preview for retrieval-weight promotions
+- apply, pause, resume, and supersede controls
+- learning activity feed backed by `ai_feedback_events`
+
+### Implemented Flow
+
+```text
+assistant semantic search
+-> retrieval traces are written to ai_retrieval_feedback
+-> admin runs promotion scan
+-> repeated helpful/problem signals create ai_learning_promotions candidates
+-> admin approves/rejects
+-> approved retrieval weights can be previewed
+-> admin applies promotion
+-> ai_retrieval_weights row becomes active
+-> semanticSearch applies bounded ranking multiplier
+-> admin can pause, resume, or supersede
+-> every lifecycle action writes ai_feedback_events
+```
+
+### Current Safety Rules
+
+- No ranking hint is active until admin approval and apply.
+- Candidate generation requires repeated grouped signals.
+- Boosts require repeated helpful/cited/used signals without problem signals.
+- Problem candidates come from repeated unhelpful, wrong-project, stale, or unsupported outcomes.
+- Multipliers are bounded between `0.65` and `1.5`.
+- Paused and superseded weights are ignored by semantic search.
+- Lifecycle actions are auditable in `ai_feedback_events`.
+
+### Current Verification
+
+- route conflict check
+- focused ESLint
+- focused TypeScript filtering for touched self-learning files
+- unit guardrail for retrieval-weight scoring behavior
+
+### Remaining Gaps
+
+- Browser-level smoke test for generate -> approve -> preview -> apply -> pause/resume.
+- Live semantic-search replay preview.
+- Destination writers for `agent_learnings`, `ai_memories`, task examples, and attribution rules.
+- Packet/card feedback loop.
+
+1. Add `ai_feedback_events`, `ai_learning_promotions`, and `ai_retrieval_feedback`.
+2. Add `frontend/src/lib/ai/services/feedback-event-service.ts`.
+3. Wire assistant thumbs, task feedback, and packet/card feedback into normalized events.
+4. Add central retrieval trace capture.
+5. Add promotion review and destination writers for `agent_learnings`, `ai_memories`, task examples, and attribution candidates.
+6. Extend task generation with approved positive examples and active prevention prompts.
+7. Add packet card feedback after the event and promotion infrastructure is proven.
+
+## Product Behavior Rules
+
+- Feedback capture must be available in normal product surfaces, not only chat.
+- The assistant must say when it is using memory versus source truth.
+- Human-approved project facts should become project intelligence, not private memory.
+- Personal preferences should not change team-visible outputs unless explicitly promoted.
+- Financial, legal, contractual, and client-facing outputs require evidence and review before learning changes behavior.
+- The system should prefer a missing-data warning over confident unsupported advice.
+
+## Open Questions
+
+1. Which admin surface should own promotion review: existing feedback inbox, Project Intelligence review queue, or a dedicated AI Training page?
+2. Should `ai_feedback_events.session_id` use `chat_history.session_id` UUID only, or support text session IDs from older paths?
+3. Which events should be visible to non-admin project members?
+4. What is the first owner-facing output to learn from edits: Project Status Report, owner update email, or packet executive summary?
+5. How long should low-confidence attribution candidates stay active before archiving?
+
+## Recommended First Build
+
+Start with the smallest complete loop:
+
+1. Add `ai_feedback_events` and write to it from task feedback and assistant thumbs.
+2. Add `ai_retrieval_feedback` and record source/chunk usage for source lookup answers.
+3. Add `ai_learning_promotions` and promote only reviewed/repeated failures into `agent_learnings`.
+4. Extend task generation to use approved positive examples and active prevention prompts.
+5. Add packet card feedback after the event and promotion infrastructure is proven.
+
+This gives Alleato a measurable self-learning system without pretending the model is retraining itself.
