@@ -11,6 +11,7 @@ import {
   normalizeOutlookIntake,
   normalizeTaskIntake,
   resolveAdjacentIntakeKey,
+  resolveIntakeResolutionState,
   type OutlookIntakeEmail,
 } from "@/features/plane-intake/intake-adapter";
 import type { TasksRow } from "@/features/tasks/task-utils";
@@ -129,5 +130,58 @@ describe("Plane intake adapter", () => {
     expect(resolveAdjacentIntakeKey(rows, "task:task-2", "next")).toBe(
       "outlook:9",
     );
+  });
+
+  it("moves persisted task resolutions to closed intake", () => {
+    const [item] = normalizeTaskIntake([
+      task({
+        extraction_metadata: {
+          plane_intake: {
+            decision: "accepted",
+            snoozed_till: null,
+            accepted_task_id: "task-1",
+          },
+        },
+      }),
+    ]);
+
+    expect(item).toMatchObject({
+      decision: "accepted",
+      acceptedTaskId: "task-1",
+      status: "accepted",
+      tab: "closed",
+    });
+  });
+
+  it("keeps actively snoozed Outlook rows open with persisted state", () => {
+    const [item] = normalizeOutlookIntake(
+      [
+        email({
+          planeIntakeState: {
+            decision: "pending",
+            snoozedTill: "2099-08-01T13:00:00.000Z",
+            duplicateTaskId: null,
+            acceptedTaskId: null,
+          },
+        }),
+      ],
+      42,
+    );
+
+    expect(item).toMatchObject({
+      decision: "pending",
+      snoozedUntil: "2099-08-01T13:00:00.000Z",
+      status: "snoozed",
+      tab: "open",
+    });
+  });
+
+  it("falls back to a safe pending state for malformed metadata", () => {
+    expect(resolveIntakeResolutionState({ plane_intake: "invalid" })).toEqual({
+      decision: "pending",
+      snoozedUntil: null,
+      duplicateTaskId: null,
+      acceptedTaskId: null,
+    });
   });
 });

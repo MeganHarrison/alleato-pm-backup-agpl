@@ -17,7 +17,9 @@ import {
   CircleHelp,
   Command,
   Ellipsis,
+  FileText,
   FolderKanban,
+  Hammer,
   Inbox,
   Layers3,
   LayoutGrid,
@@ -44,16 +46,31 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 
+import {
+  hasModulePermission,
+  useProjectPermissions,
+} from "@/hooks/use-project-permissions";
+import type { PermissionModule } from "@/lib/navigation-config";
 import { cn } from "@/lib/utils";
+import { PlaneWorkspaceItemsNavigation } from "@/features/plane-workspace-shell/plane-workspace-items-navigation";
 import { PlaneOverlayProvider } from "./plane-overlay";
 
 export const PLANE_WORKSPACE_SURFACES = [
+  "home",
+  "projects",
+  "your-work",
+  "drafts",
   "work-items",
   "cycles",
   "modules",
   "views",
   "pages",
   "intake",
+  "rfis",
+  "submittals",
+  "change-events",
+  "commitments",
+  "prime-contracts",
 ] as const;
 
 export type PlaneWorkspaceSurface = (typeof PLANE_WORKSPACE_SURFACES)[number];
@@ -61,36 +78,67 @@ export type PlaneWorkspaceSurface = (typeof PLANE_WORKSPACE_SURFACES)[number];
 export const PLANE_HOST_LAYOUT_SELECTOR =
   '[data-slot="sidebar-container"], [data-slot="sidebar-inset"], nav[aria-label="Primary"]';
 
-type ProjectNavItem = {
+export type ProjectNavItem = {
   label: string;
   icon: LucideIcon;
   segment: PlaneWorkspaceSurface;
+  permissionModule?: PermissionModule;
 };
 
-const PROJECT_NAV: readonly ProjectNavItem[] = [
+export const PLANE_PROJECT_NAV: readonly ProjectNavItem[] = [
   { label: "Work items", icon: Layers3, segment: "work-items" },
   { label: "Cycles", icon: Circle, segment: "cycles" },
   { label: "Modules", icon: LayoutGrid, segment: "modules" },
   { label: "Views", icon: Layers3, segment: "views" },
   { label: "Pages", icon: MessageSquareText, segment: "pages" },
   { label: "Intake", icon: Inbox, segment: "intake" },
+  {
+    label: "RFIs",
+    icon: MessageSquareText,
+    segment: "rfis",
+    permissionModule: "rfis",
+  },
+  {
+    label: "Submittals",
+    icon: Inbox,
+    segment: "submittals",
+    permissionModule: "submittals",
+  },
+  {
+    label: "Change Events",
+    icon: Circle,
+    segment: "change-events",
+    permissionModule: "change_orders",
+  },
+  {
+    label: "Commitments",
+    icon: Hammer,
+    segment: "commitments",
+    permissionModule: "contracts",
+  },
+  {
+    label: "Prime Contracts",
+    icon: FileText,
+    segment: "prime-contracts",
+    permissionModule: "contracts",
+  },
 ] as const;
 
 const WORKSPACE_NAV = [
   {
     label: "Home",
     icon: FolderKanban,
-    href: (projectId: string) => `/${projectId}/home`,
+    href: (projectId: string) => `/${projectId}/plane/home`,
   },
   {
     label: "Drafts",
     icon: MessageSquareText,
-    disabledReason: "Drafts are not available in Alleato yet.",
+    href: (projectId: string) => `/${projectId}/plane/drafts`,
   },
   {
     label: "Your work",
     icon: UserRound,
-    href: (projectId: string) => `/${projectId}/my-work`,
+    href: (projectId: string) => `/${projectId}/plane/your-work`,
   },
   {
     label: "Stickies",
@@ -98,6 +146,18 @@ const WORKSPACE_NAV = [
     disabledReason: "Stickies are not available in Alleato yet.",
   },
 ] as const;
+
+export function getVisiblePlaneProjectNav(
+  permissions: Record<string, string[]>,
+  isLoading: boolean,
+): readonly ProjectNavItem[] {
+  return PLANE_PROJECT_NAV.filter(
+    (item) =>
+      !item.permissionModule ||
+      (!isLoading &&
+        hasModulePermission(permissions, item.permissionModule, "read")),
+  );
+}
 
 export const PLANE_SIDEBAR_STORAGE_KEY = "plane-workspace-sidebar";
 export const PLANE_SIDEBAR_DEFAULT_WIDTH = 250;
@@ -169,9 +229,24 @@ export type PlaneWorkspaceCommand = {
 export function getPlaneWorkspaceCommands(
   projectId: string,
   query: string,
+  projectNav: readonly ProjectNavItem[] = PLANE_PROJECT_NAV,
 ): PlaneWorkspaceCommand[] {
   const commands = [
-    ...PROJECT_NAV.map((item) => ({
+    ...WORKSPACE_NAV.flatMap((item) =>
+      "href" in item
+        ? [
+            {
+              label: `Open ${item.label}`,
+              href: item.href(projectId),
+            },
+          ]
+        : [],
+    ),
+    {
+      label: "Open Projects",
+      href: `/${projectId}/plane/projects`,
+    },
+    ...projectNav.map((item) => ({
       label: `Open ${item.label}`,
       href: `/${projectId}/plane/${item.segment}`,
     })),
@@ -192,6 +267,7 @@ function PlaneSidebar({
   open,
   desktopWidth,
   desktopCollapsed,
+  projectNav,
   onClose,
   onDesktopWidthChange,
   onDesktopCollapsedChange,
@@ -202,6 +278,7 @@ function PlaneSidebar({
   open: boolean;
   desktopWidth: number;
   desktopCollapsed: boolean;
+  projectNav: readonly ProjectNavItem[];
   onClose: () => void;
   onDesktopWidthChange: (width: number) => void;
   onDesktopCollapsedChange: (collapsed: boolean) => void;
@@ -411,7 +488,7 @@ function PlaneSidebar({
               Workspace
             </p>
             <Link
-              href="/projects"
+              href={`/${projectId}/plane/projects`}
               aria-label="Projects"
               title={desktopCollapsed ? "Projects" : undefined}
               className={cn(
@@ -438,14 +515,13 @@ function PlaneSidebar({
             </button>
           </div>
 
-          <p
-            className={cn(
-              "mt-5 px-2 pb-1.5 text-xs font-semibold text-[#818790]",
-              desktopCollapsed && "md:hidden",
-            )}
-          >
-            Favorites
-          </p>
+          <PlaneWorkspaceItemsNavigation
+            projectId={Number(projectId)}
+            projectName={projectName}
+            activeSurface={activeSurface}
+            collapsed={desktopCollapsed}
+            onNavigate={onClose}
+          />
 
           <div className="mt-4">
             <div
@@ -476,7 +552,7 @@ function PlaneSidebar({
                 desktopCollapsed && "md:ml-0 md:border-l-0 md:pl-0",
               )}
             >
-              {PROJECT_NAV.map(({ label, icon: Icon, segment }) => {
+              {projectNav.map(({ label, icon: Icon, segment }) => {
                 const active = segment === activeSurface;
                 return (
                   <Link
@@ -557,7 +633,18 @@ export function PlaneWorkspaceShell({
   const commandInputRef = useRef<HTMLInputElement>(null);
   const rootRef = useRef<HTMLDivElement>(null);
   const previousFocusedElement = useRef<HTMLElement | null>(null);
-  const commands = getPlaneWorkspaceCommands(projectId, commandQuery);
+  const numericProjectId = Number(projectId);
+  const { permissions, isLoading: permissionsLoading } = useProjectPermissions(
+    Number.isSafeInteger(numericProjectId) && numericProjectId > 0
+      ? numericProjectId
+      : null,
+  );
+  const projectNav = getVisiblePlaneProjectNav(permissions, permissionsLoading);
+  const commands = getPlaneWorkspaceCommands(
+    projectId,
+    commandQuery,
+    projectNav,
+  );
 
   useEffect(() => {
     try {
@@ -706,6 +793,7 @@ export function PlaneWorkspaceShell({
           open={sidebarOpen}
           desktopWidth={desktopSidebarWidth}
           desktopCollapsed={desktopSidebarCollapsed}
+          projectNav={projectNav}
           onClose={() => setSidebarOpen(false)}
           onDesktopWidthChange={(width) =>
             setDesktopSidebarWidth(clampPlaneSidebarWidth(width))

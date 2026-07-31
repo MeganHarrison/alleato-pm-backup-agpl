@@ -28,7 +28,7 @@ import {
 } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { StatusDot } from "@/components/ds";
+import { StatusDot } from "@/components/ds/status-badge";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverTrigger } from "@/components/ui/popover";
@@ -64,6 +64,11 @@ import {
   TASK_PRIORITY_VALUES,
   TASK_STATUS_VALUES,
 } from "@/features/tasks/task-values";
+import {
+  PlaneIntakeActionBar,
+  type PlaneIntakeActionResponse,
+  type PlaneIntakeDuplicateCandidate,
+} from "@/features/plane-intake-actions";
 import { useProjects } from "@/hooks/use-projects";
 import { apiFetch } from "@/lib/api-client";
 import { getErrorDetail } from "@/lib/format-error";
@@ -703,7 +708,9 @@ function IntakeDetailPane({
   onNavigate,
   onPatchTask,
   onDeleteTask,
-  onToggleEmail,
+  duplicateCandidates,
+  actionsDisabled,
+  onActionCompleted,
 }: {
   item: IntakeItem | null;
   users: UserOption[];
@@ -714,7 +721,11 @@ function IntakeDetailPane({
   onNavigate: (direction: "previous" | "next") => void;
   onPatchTask: (patch: Record<string, unknown>) => void;
   onDeleteTask: () => void;
-  onToggleEmail: () => void;
+  duplicateCandidates: PlaneIntakeDuplicateCandidate[];
+  actionsDisabled: boolean;
+  onActionCompleted: (
+    result: PlaneIntakeActionResponse,
+  ) => void | Promise<void>;
 }) {
   const splitPage = useSplitPage();
   if (!item) {
@@ -819,16 +830,21 @@ function IntakeDetailPane({
             </Button>
           ) : null}
 
-          {item.source === "outlook" ? (
-            <Button
-              size="sm"
-              variant="secondary"
-              className="ml-1 h-8 text-[13px]"
-              disabled={saving}
-              onClick={onToggleEmail}
-            >
-              {item.tab === "closed" ? "Restore" : "Ignore"}
-            </Button>
+          {item.source === "outlook" || item.task.id ? (
+            <PlaneIntakeActionBar
+              source={item.source}
+              sourceId={
+                item.source === "task"
+                  ? (item.task.id as string)
+                  : String(item.email.id)
+              }
+              projectId={Number.parseInt(projectId, 10)}
+              decision={item.decision}
+              snoozedUntil={item.snoozedUntil}
+              duplicateCandidates={duplicateCandidates}
+              disabled={actionsDisabled}
+              onCompleted={onActionCompleted}
+            />
           ) : null}
         </div>
       </div>
@@ -911,7 +927,28 @@ export function PlaneIntakeClient({
       tasksQuery.data?.data,
     ],
   );
-  const selectedItem = items.find((item) => item.key === selectedKey) ?? null;
+  const duplicateCandidates = React.useMemo<
+    PlaneIntakeDuplicateCandidate[]
+  >(() => {
+    const currentProject = projects.find(
+      (project) => project.id === numericProjectId,
+    );
+    const projectIdentifier =
+      currentProject?.project_number?.trim() ||
+      currentProject?.name?.trim().slice(0, 4).toUpperCase() ||
+      String(numericProjectId);
+
+    return (tasksQuery.data?.data ?? [])
+      .filter((task): task is TasksRow & { id: string } => Boolean(task.id))
+      .map((task) => ({
+        id: task.id,
+        identifier: `${projectIdentifier}-${task.id.slice(0, 6)}`,
+        title: taskLabel(task),
+        status: task.status,
+      }));
+  }, [numericProjectId, projects, tasksQuery.data?.data]);
+  const selectedItem =
+    items.find((item) => item.key === selectedKey) ?? null;
   const loadingState = resolvePlaneIntakeLoadingState({
     tasksLoading: tasksQuery.isLoading,
     outlookEnabled: requestPolicy.outlookQueriesEnabled,
@@ -1028,36 +1065,6 @@ export function PlaneIntakeClient({
     }
   }
 
-  async function toggleSelectedEmail() {
-    if (selectedItem?.source !== "outlook") return;
-    if (!mutationPolicy.canToggleOutlook) {
-      toast.error("Outlook intake requires app admin access");
-      return;
-    }
-    setSaving(true);
-    try {
-      await apiFetch(`/api/outlook-intake/${selectedItem.email.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          match_status:
-            selectedItem.tab === "closed" ? "unassigned" : "ignored",
-        }),
-      });
-      await refresh();
-      setTab(selectedItem.tab === "closed" ? "open" : "closed");
-      toast.success(
-        selectedItem.tab === "closed" ? "Email restored" : "Email ignored",
-      );
-    } catch (error) {
-      toast.error("Email update failed", {
-        description: getErrorDetail(error),
-      });
-    } finally {
-      setSaving(false);
-    }
-  }
-
   return (
     <>
       <PlaneIntakeLayout
@@ -1089,7 +1096,15 @@ export function PlaneIntakeClient({
             onNavigate={navigateSelected}
             onPatchTask={(patch) => void patchSelectedTask(patch)}
             onDeleteTask={() => setDeleteOpen(true)}
-            onToggleEmail={() => void toggleSelectedEmail()}
+            duplicateCandidates={duplicateCandidates}
+            actionsDisabled={
+              selectedItem?.source === "outlook"
+                ? !mutationPolicy.canToggleOutlook
+                : saving
+            }
+            onActionCompleted={async () => {
+              await refresh();
+            }}
           />
         }
       />

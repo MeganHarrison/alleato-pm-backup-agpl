@@ -10,6 +10,10 @@ import * as React from "react";
 
 import { ErrorState } from "@/components/ds";
 import { Button } from "@/components/ui/button";
+import {
+  createProjectNotesEditorAdapter,
+  PlanePagesEditor,
+} from "@/features/plane-pages-editor";
 
 import {
   createProjectPage,
@@ -17,11 +21,6 @@ import {
   type ProjectPage,
   updateProjectPage,
 } from "./plane-pages-data";
-import {
-  type PageDraft,
-  PlanePageEditor,
-  type PageSaveState,
-} from "./plane-page-editor";
 import { PlanePagesListView } from "./plane-pages-list-view";
 import {
   applyPageArchiveResult,
@@ -39,28 +38,20 @@ function errorMessage(error: unknown): string {
     : "An unexpected page error occurred.";
 }
 
-function draftKey(draft: PageDraft): string {
-  return JSON.stringify(draft);
-}
-
 export function PlanePagesWorkspace({ projectId }: { projectId: number }) {
   const [pages, setPages] = React.useState<ProjectPage[]>([]);
-  const [selectedPageId, setSelectedPageId] = React.useState<number | null>(null);
+  const [selectedPageId, setSelectedPageId] = React.useState<number | null>(
+    null,
+  );
   const [scope, setScope] = React.useState<PageScope>("active");
   const [query, setQuery] = React.useState("");
   const [sortKey, setSortKey] = React.useState<PageSortKey>("updated_at");
   const [sortOrder, setSortOrder] = React.useState<PageSortOrder>("desc");
-  const [draft, setDraft] = React.useState<PageDraft>({
-    title: "",
-    body: "",
-  });
   const [isLoading, setIsLoading] = React.useState(true);
   const [isCreating, setIsCreating] = React.useState(false);
   const [isArchiving, setIsArchiving] = React.useState(false);
   const [loadError, setLoadError] = React.useState<string | null>(null);
   const [actionError, setActionError] = React.useState<string | null>(null);
-  const [saveState, setSaveState] = React.useState<PageSaveState>("idle");
-  const persistedDraftRef = React.useRef(draftKey({ title: "", body: "" }));
 
   const loadPages = React.useCallback(async () => {
     setIsLoading(true);
@@ -85,73 +76,26 @@ export function PlanePagesWorkspace({ projectId }: { projectId: number }) {
     void loadPages();
   }, [loadPages]);
 
-  const selectedPage =
-    pages.find((page) => page.id === selectedPageId) ?? null;
+  const selectedPage = pages.find((page) => page.id === selectedPageId) ?? null;
 
   const openPage = React.useCallback((page: ProjectPage) => {
-    const nextDraft = {
-      title: page.title ?? "",
-      body: page.body ?? "",
-    };
-    setDraft(nextDraft);
-    persistedDraftRef.current = draftKey(nextDraft);
-    setSaveState("idle");
     setSelectedPageId(page.id);
   }, []);
 
-  const saveDraft = React.useCallback(async () => {
-    if (!selectedPage || draftKey(draft) === persistedDraftRef.current) {
-      return;
-    }
-
-    setSaveState("saving");
-    setActionError(null);
-    try {
-      const updated = await updateProjectPage(projectId, selectedPage.id, {
-        title: draft.title,
-        body: draft.body,
-      });
-      setPages((current) =>
-        current.map((page) => (page.id === updated.id ? updated : page)),
-      );
-      persistedDraftRef.current = draftKey({
-        title: updated.title ?? "",
-        body: updated.body ?? "",
-      });
-      setSaveState("saved");
-    } catch (error) {
-      setActionError(errorMessage(error));
-      setSaveState("error");
-    }
-  }, [draft, projectId, selectedPage]);
-
-  React.useEffect(() => {
-    if (!selectedPage || draftKey(draft) === persistedDraftRef.current) {
-      return;
-    }
-
-    setSaveState("saving");
-    const timeoutId = window.setTimeout(() => {
-      void saveDraft();
-    }, 700);
-
-    return () => window.clearTimeout(timeoutId);
-  }, [draft, saveDraft, selectedPage]);
-
-  React.useEffect(() => {
-    const handleKeyboardSave = (event: KeyboardEvent) => {
-      if (
-        (event.metaKey || event.ctrlKey) &&
-        event.key.toLowerCase() === "s"
-      ) {
-        event.preventDefault();
-        void saveDraft();
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyboardSave);
-    return () => window.removeEventListener("keydown", handleKeyboardSave);
-  }, [saveDraft]);
+  const editorAdapter = React.useMemo(
+    () =>
+      createProjectNotesEditorAdapter({
+        projectId,
+        onPageSaved: (savedPage) => {
+          setPages((current) =>
+            current.map((page) =>
+              page.id === savedPage.id ? savedPage : page,
+            ),
+          );
+        },
+      }),
+    [projectId],
+  );
 
   const visiblePages = React.useMemo(
     () =>
@@ -250,15 +194,15 @@ export function PlanePagesWorkspace({ projectId }: { projectId: number }) {
       ) : null}
 
       {selectedPage ? (
-        <PlanePageEditor
-          page={selectedPage}
-          draft={draft}
-          saveState={saveState}
-          isArchiving={isArchiving}
+        <PlanePagesEditor
+          pageId={String(selectedPage.id)}
+          adapter={editorAdapter}
           onBack={() => setSelectedPageId(null)}
-          onDraftChange={setDraft}
-          onSave={() => void saveDraft()}
-          onToggleArchived={() => void handleArchive(selectedPage)}
+          archiveAction={{
+            archived: Boolean(selectedPage.archived),
+            isWorking: isArchiving,
+            onToggle: () => void handleArchive(selectedPage),
+          }}
         />
       ) : (
         <PlanePagesListView

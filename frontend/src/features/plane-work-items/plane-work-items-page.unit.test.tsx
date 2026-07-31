@@ -7,6 +7,11 @@ import type { TasksRow } from "@/features/tasks/task-utils";
 const dom = new JSDOM("<!doctype html><html><body></body></html>", {
   url: "http://localhost/31/plane/work-items",
 });
+Object.assign(dom.window, {
+  requestAnimationFrame: (callback: FrameRequestCallback) =>
+    setTimeout(callback, 0),
+  cancelAnimationFrame: (handle: number) => clearTimeout(handle),
+});
 Object.assign(globalThis, {
   window: dom.window,
   document: dom.window.document,
@@ -46,10 +51,8 @@ const { act, fireEvent, render, screen, waitFor, within } =
 const userEvent =
   require("@testing-library/user-event").default as typeof import("@testing-library/user-event").default;
 const {
-  buildPlaneWorkItemsPeekHref,
   classifyPlaneWorkItemMutationFailure,
   getInitialPlaneWorkItemsLayout,
-  getInitialPlaneWorkItemFilters,
   PlaneWorkItemsPage,
   restorePlaneWorkItemsOrigin,
   runPlaneWorkItemStatusMutation,
@@ -65,6 +68,7 @@ const { ApiError } =
 let mockView: string | null = null;
 let mockSearch = "";
 const mockReplace = jest.fn();
+const mockPush = jest.fn();
 const mockApiFetch = jest.fn();
 const mutationTask = {
   id: "task-1",
@@ -73,7 +77,7 @@ const mutationTask = {
 
 jest.mock("next/navigation", () => ({
   usePathname: () => "/31/plane/work-items",
-  useRouter: () => ({ push: jest.fn(), replace: mockReplace }),
+  useRouter: () => ({ push: mockPush, replace: mockReplace }),
   useSearchParams: () => ({
     get: (name: string) => {
       if (name === "view" && mockView) return mockView;
@@ -122,9 +126,14 @@ describe("PlaneWorkItemsPage", () => {
     mockView = null;
     mockSearch = "";
     mockReplace.mockClear();
+    mockPush.mockClear();
     mockApiFetch.mockReset();
     mockApiFetch.mockResolvedValue({ data: [] });
     document.body.style.pointerEvents = "";
+    Object.defineProperty(window, "innerWidth", {
+      configurable: true,
+      value: 1024,
+    });
   });
 
   it("renders the Plane command, display, analytics, and creation controls", () => {
@@ -151,62 +160,53 @@ describe("PlaneWorkItemsPage", () => {
     );
   });
 
-  it.each([null, "list", "calendar", "unsupported"])(
+  it.each(["list", "board", "calendar", "spreadsheet", "gantt"])(
+    "accepts the supported initial view (%s)",
+    (view) => {
+      expect(getInitialPlaneWorkItemsLayout(view)).toBe(view);
+    },
+  );
+
+  it.each([null, "unsupported"])(
     "falls back to list for an unsupported initial view (%s)",
     (view) => {
       expect(getInitialPlaneWorkItemsLayout(view)).toBe("list");
     },
   );
 
-  it("reads supported saved-view filters from the initial query", () => {
-    const filters = getInitialPlaneWorkItemFilters(
-      new URLSearchParams(
-        "status=done&priority=HIGH&due_from=2026-07-01&due_to=2026-07-31",
-      ),
-    );
+  it("writes layout changes to the canonical URL", async () => {
+    const user = userEvent.setup();
+    render(<PlaneWorkItemsPage projectId="31" projectName="AI Implementation" />);
 
-    expect(filters).toEqual({
-      status: "done",
-      priority: "high",
-      dueFrom: "2026-07-01",
-      dueTo: "2026-07-31",
-    });
+    await user.click(screen.getByRole("button", { name: "Board view" }));
+
+    expect(mockReplace).toHaveBeenCalledWith(
+      "/31/plane/work-items?view=board",
+      { scroll: false },
+    );
   });
 
-  it("ignores unsupported saved-view filter values", () => {
-    expect(
-      getInitialPlaneWorkItemFilters(
-        new URLSearchParams("status=blocked&priority=critical"),
-      ),
-    ).toEqual({
-      status: "all",
-      priority: null,
-      dueFrom: null,
-      dueTo: null,
-    });
-  });
-
-  it("adds and removes peek without dropping the active view or filters", () => {
-    const activeQuery = new URLSearchParams(
-      "view=board&status=done&priority=high&due_to=2026-07-31",
-    );
-    const openHref = buildPlaneWorkItemsPeekHref(
-      "/31/plane/work-items",
-      activeQuery,
-      "task-42",
-    );
-    const closeHref = buildPlaneWorkItemsPeekHref(
-      "/31/plane/work-items",
-      new URL(openHref, "https://alleato.test").searchParams,
-      null,
+  it("offers sign-in recovery when the collection session has expired", async () => {
+    const user = userEvent.setup();
+    const consoleError = jest
+      .spyOn(console, "error")
+      .mockImplementation(() => undefined);
+    mockSearch = "view=board&status=open";
+    mockApiFetch.mockRejectedValue(
+      new ApiError(401, { error: "Unauthorized" }),
     );
 
-    expect(openHref).toBe(
-      "/31/plane/work-items?view=board&status=done&priority=high&due_to=2026-07-31&peek=task-42",
+    render(<PlaneWorkItemsPage projectId="31" projectName="AI Implementation" />);
+
+    await user.click(await screen.findByRole("button", { name: "Sign in" }));
+    expect(mockPush).toHaveBeenCalledWith(
+      "/auth/login?callbackUrl=%2F31%2Fplane%2Fwork-items%3Fview%3Dboard%26status%3Dopen",
     );
-    expect(closeHref).toBe(
-      "/31/plane/work-items?view=board&status=done&priority=high&due_to=2026-07-31",
+    expect(consoleError).toHaveBeenCalledWith(
+      "Failed to load Plane work items for project 31",
+      expect.any(ApiError),
     );
+    consoleError.mockRestore();
   });
 
   it("restores main scroll position and focus to the inspector origin", () => {
@@ -492,6 +492,63 @@ describe("PlaneWorkItemsPage", () => {
     expect(screen.getByRole("button", { name: "Open inspector" })).toHaveFocus();
   });
 
+  it("uses the focus-trapped inspector dialog from a mobile deep link", async () => {
+    Object.defineProperty(window, "innerWidth", {
+      configurable: true,
+      value: 390,
+    });
+    mockSearch = "peek=task-1";
+    mockApiFetch.mockResolvedValue({
+      data: [
+        {
+          ...mutationTask,
+          description: "Review storefront submittal",
+        },
+      ],
+    });
+
+    render(<PlaneWorkItemsPage projectId="31" projectName="AI Implementation" />);
+
+    expect(
+      await screen.findByRole("dialog", {
+        name: "Review storefront submittal",
+      }),
+    ).toHaveAttribute("aria-modal", "true");
+    expect(
+      screen.queryByRole("complementary", { name: "Work item detail" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("restores focus to the originating row after closing desktop side peek", async () => {
+    const user = userEvent.setup();
+    mockApiFetch.mockResolvedValue({
+      data: [
+        {
+          ...mutationTask,
+          description: "Review storefront submittal",
+        },
+      ],
+    });
+    const { rerender } = render(
+      <PlaneWorkItemsPage projectId="31" projectName="AI Implementation" />,
+    );
+    const title = await screen.findByText("Review storefront submittal");
+    const origin = title.closest("button");
+    expect(origin).not.toBeNull();
+
+    origin!.focus();
+    await user.click(origin!);
+    mockSearch = "peek=task-1";
+    rerender(
+      <PlaneWorkItemsPage projectId="31" projectName="AI Implementation" />,
+    );
+    await user.click(
+      await screen.findByRole("button", { name: "Close work item peek" }),
+    );
+
+    await waitFor(() => expect(origin).toHaveFocus());
+  });
+
   it("rolls a rejected status change back in both the rendered list and inspector", async () => {
     const user = userEvent.setup();
     const patchRequest = deferred();
@@ -517,6 +574,10 @@ describe("PlaneWorkItemsPage", () => {
     const inspectorStatus = await screen.findByRole("combobox", {
       name: "Change status for Review storefront submittal in inspector",
     });
+    expect(
+      screen.getByRole("complementary", { name: "Work item detail" }),
+    ).toBeVisible();
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     const listStatus = screen.getByRole("combobox", {
       name: "Change status for Review storefront submittal",
       hidden: true,

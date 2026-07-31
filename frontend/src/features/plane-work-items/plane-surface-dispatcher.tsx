@@ -7,11 +7,20 @@
 
 import { notFound } from "next/navigation";
 
+import { PlaneChangeEventsSurface } from "@/features/plane-change-events";
+import { PlaneCommitmentsPage } from "@/features/plane-commitments";
 import { PlaneCyclesPage } from "@/features/plane-cycles";
+import { PlaneDraftsPage } from "@/features/plane-drafts";
+import { PlaneHomePage } from "@/features/plane-home";
 import { PlaneIntakeSurface } from "@/features/plane-intake";
 import { PlaneModulesPage } from "@/features/plane-modules";
 import { PlanePagesWorkspace } from "@/features/plane-pages";
+import { PlanePrimeContractsPage } from "@/features/plane-prime-contracts";
+import { PlaneProjectsSurface } from "@/features/plane-projects";
+import { PlaneRfisSurface } from "@/features/plane-rfis";
 import { PlaneProjectViewsIndex } from "@/features/plane-views";
+import { PlaneSubmittalsPage } from "@/features/plane-submittals";
+import { PlaneYourWorkSurface } from "@/features/plane-your-work";
 import { PlaneWorkItemsPage } from "./plane-work-items-page";
 import { PlaneWorkspaceShell } from "./plane-workspace-shell";
 import {
@@ -50,6 +59,18 @@ export function PlaneSurfaceDispatcher({
 
   let surfaceContent;
   switch (planeSurface) {
+    case "home":
+      surfaceContent = <PlaneHomePage projectId={String(numericProjectId)} />;
+      break;
+    case "projects":
+      surfaceContent = <PlaneProjectsSurface />;
+      break;
+    case "your-work":
+      surfaceContent = <PlaneYourWorkSurface />;
+      break;
+    case "drafts":
+      surfaceContent = <PlaneDraftsPage />;
+      break;
     case "cycles":
       surfaceContent = (
         <PlaneCyclesPage
@@ -82,6 +103,38 @@ export function PlaneSurfaceDispatcher({
         />
       );
       break;
+    case "rfis":
+      surfaceContent = <PlaneRfisSurface projectId={numericProjectId} />;
+      break;
+    case "submittals":
+      surfaceContent = (
+        <PlaneSubmittalsPage
+          projectId={numericProjectId}
+          projectName={projectName}
+        />
+      );
+      break;
+    case "change-events":
+      surfaceContent = (
+        <PlaneChangeEventsSurface projectId={numericProjectId} />
+      );
+      break;
+    case "commitments":
+      surfaceContent = (
+        <PlaneCommitmentsPage
+          projectId={String(numericProjectId)}
+          projectName={projectName}
+        />
+      );
+      break;
+    case "prime-contracts":
+      surfaceContent = (
+        <PlanePrimeContractsPage
+          projectId={numericProjectId}
+          projectName={projectName}
+        />
+      );
+      break;
     case "work-items":
       notFound();
   }
@@ -90,7 +143,13 @@ export function PlaneSurfaceDispatcher({
     <PlaneWorkspaceShell
       projectId={String(numericProjectId)}
       projectName={projectName}
-      activeSurface={planeSurface}
+      activeSurface={
+        // The shared shell is under a separate active lease. Runtime accepts the
+        // segment; its navigation union will add Submittals during integration.
+        planeSurface as Parameters<
+          typeof PlaneWorkspaceShell
+        >[0]["activeSurface"]
+      }
     >
       {surfaceContent}
     </PlaneWorkspaceShell>

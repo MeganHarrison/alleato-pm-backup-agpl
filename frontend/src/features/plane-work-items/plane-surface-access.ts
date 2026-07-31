@@ -4,15 +4,31 @@
  */
 
 export const SUPPORTED_PLANE_SURFACES = [
+  "home",
+  "projects",
+  "your-work",
+  "drafts",
   "work-items",
   "cycles",
   "modules",
   "views",
   "pages",
   "intake",
+  "rfis",
+  "submittals",
+  "change-events",
+  "commitments",
+  "prime-contracts",
 ] as const;
 
 export type PlaneSurface = (typeof SUPPORTED_PLANE_SURFACES)[number];
+export type PlaneSurfaceScope = "project" | "workspace";
+
+const WORKSPACE_SCOPED_PLANE_SURFACES = [
+  "projects",
+  "your-work",
+  "drafts",
+] as const satisfies readonly PlaneSurface[];
 
 type PlaneScheduleMutationPreviewEnvironment = Readonly<
   Record<string, string | undefined>
@@ -29,6 +45,14 @@ export function parsePlaneProjectId(value: string): number | null {
 
 export function isPlaneSurface(value: string): value is PlaneSurface {
   return SUPPORTED_PLANE_SURFACES.some((surface) => surface === value);
+}
+
+export function getPlaneSurfaceScope(surface: PlaneSurface): PlaneSurfaceScope {
+  return WORKSPACE_SCOPED_PLANE_SURFACES.some(
+    (workspaceSurface) => workspaceSurface === surface,
+  )
+    ? "workspace"
+    : "project";
 }
 
 export function isPlaneScheduleAdapterMutationPreviewEnabled(

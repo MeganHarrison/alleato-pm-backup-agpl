@@ -8,6 +8,7 @@ import {
   PLANE_WORKSPACE_SURFACES,
   PlaneWorkspaceShell,
   clampPlaneSidebarWidth,
+  getVisiblePlaneProjectNav,
   getPlaneSidebarKeyboardWidth,
   getPlaneWorkspaceCommands,
   parsePlaneSidebarPreference,
@@ -15,6 +16,22 @@ import {
 
 jest.mock("next/navigation", () => ({
   useRouter: () => ({ push: jest.fn() }),
+}));
+
+jest.mock("@/hooks/use-project-permissions", () => ({
+  useProjectPermissions: () => ({
+    permissions: {
+      contracts: ["read"],
+      rfis: ["read"],
+      submittals: ["read"],
+      change_orders: ["read"],
+    },
+    isLoading: false,
+  }),
+  hasModulePermission: (
+    permissions: Record<string, string[]>,
+    module: string,
+  ) => (permissions[module] ?? []).some((level) => level !== "none"),
 }));
 
 describe("PlaneWorkspaceShell", () => {
@@ -43,14 +60,37 @@ describe("PlaneWorkspaceShell", () => {
       `--plane-sidebar-width:${PLANE_SIDEBAR_DEFAULT_WIDTH}px`,
     );
     expect(html).toContain('aria-label="Resize project sidebar"');
-    expect(html).toContain('href="/31/home"');
-    expect(html).toContain('href="/31/my-work"');
-    expect(html).toContain('aria-label="Drafts unavailable"');
+    expect(html).toContain('href="/31/plane/home"');
+    expect(html).toContain('href="/31/plane/your-work"');
+    expect(html).toContain('href="/31/plane/drafts"');
+    expect(html).toContain('href="/31/plane/projects"');
     expect(html).toContain('aria-label="Stickies unavailable"');
     expect(html).toContain('aria-label="More unavailable"');
     PLANE_WORKSPACE_SURFACES.forEach((surface) => {
       expect(html).toContain(`href="/31/plane/${surface}"`);
     });
+  });
+
+  it("hides permission-scoped project tools when read access is absent", () => {
+    const visibleNav = getVisiblePlaneProjectNav(
+      {
+        rfis: ["read"],
+        submittals: [],
+        change_orders: [],
+        contracts: [],
+      },
+      false,
+    );
+
+    expect(visibleNav.map((item) => item.segment)).toContain("rfis");
+    expect(visibleNav.map((item) => item.segment)).not.toEqual(
+      expect.arrayContaining([
+        "submittals",
+        "change-events",
+        "commitments",
+        "prime-contracts",
+      ]),
+    );
   });
 
   it("filters the command palette without becoming a work-item text filter", () => {
@@ -59,6 +99,9 @@ describe("PlaneWorkspaceShell", () => {
     ]);
     expect(getPlaneWorkspaceCommands("31", "source")).toEqual([
       { label: "View corresponding source", href: "/auth/source" },
+    ]);
+    expect(getPlaneWorkspaceCommands("31", "projects")).toEqual([
+      { label: "Open Projects", href: "/31/plane/projects" },
     ]);
   });
 

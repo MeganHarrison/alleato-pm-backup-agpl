@@ -10,6 +10,18 @@ import type { TasksRow } from "@/features/tasks/task-utils";
 
 export type IntakeTab = "open" | "closed";
 export type IntakeSource = "task" | "outlook";
+export type IntakeDecision =
+  | "pending"
+  | "accepted"
+  | "declined"
+  | "duplicate";
+
+export interface IntakeResolutionState {
+  decision: IntakeDecision;
+  snoozedUntil: string | null;
+  duplicateTaskId: string | null;
+  acceptedTaskId: string | null;
+}
 
 export interface OutlookIntakeEmail {
   id: number;
@@ -27,6 +39,7 @@ export interface OutlookIntakeEmail {
   hasAttachments: boolean | null;
   webLink: string | null;
   createdAt: string | null;
+  planeIntakeState?: unknown;
   project: {
     id: number;
     name: string | null;
@@ -42,6 +55,10 @@ interface IntakeItemBase {
   status: string;
   tab: IntakeTab;
   occurredAt: string | null;
+  decision: IntakeDecision;
+  snoozedUntil: string | null;
+  duplicateTaskId: string | null;
+  acceptedTaskId: string | null;
 }
 
 export interface TaskIntakeItem extends IntakeItemBase {
@@ -57,6 +74,54 @@ export interface EmailIntakeItem extends IntakeItemBase {
 export type IntakeItem = TaskIntakeItem | EmailIntakeItem;
 
 const CLOSED_TASK_STATUSES = new Set(["done", "complete", "closed", "cancelled"]);
+const RESOLVED_INTAKE_DECISIONS = new Set<IntakeDecision>([
+  "accepted",
+  "declined",
+  "duplicate",
+]);
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+  return typeof value === "object" && value !== null && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : null;
+}
+
+function nullableText(value: unknown): string | null {
+  return typeof value === "string" && value.trim() ? value : null;
+}
+
+export function resolveIntakeResolutionState(
+  rawValue: unknown,
+): IntakeResolutionState {
+  const root = asRecord(rawValue);
+  const state = asRecord(root?.plane_intake) ?? root;
+  const rawDecision = state?.decision;
+  const decision: IntakeDecision =
+    rawDecision === "accepted" ||
+    rawDecision === "declined" ||
+    rawDecision === "duplicate"
+      ? rawDecision
+      : "pending";
+
+  return {
+    decision,
+    snoozedUntil: nullableText(
+      state?.snoozedTill ?? state?.snoozed_till,
+    ),
+    duplicateTaskId: nullableText(
+      state?.duplicateTaskId ?? state?.duplicate_task_id,
+    ),
+    acceptedTaskId: nullableText(
+      state?.acceptedTaskId ?? state?.accepted_task_id,
+    ),
+  };
+}
+
+function isActivelySnoozed(value: string | null): boolean {
+  if (!value) return false;
+  const timestamp = new Date(value).getTime();
+  return Number.isFinite(timestamp) && timestamp > Date.now();
+}
 
 export function formatIntakeIdentifier(
   item: IntakeItem,
@@ -74,14 +139,27 @@ export function normalizeTaskIntake(tasks: TasksRow[]): TaskIntakeItem[] {
     .filter((task): task is TasksRow & { id: string } => Boolean(task.id))
     .map((task) => {
       const normalizedStatus = (task.status ?? "open").toLowerCase();
+      const resolution = resolveIntakeResolutionState(
+        task.extraction_metadata,
+      );
+      const resolved = RESOLVED_INTAKE_DECISIONS.has(resolution.decision);
+      const snoozed = isActivelySnoozed(resolution.snoozedUntil);
       return {
         key: `task:${task.id}`,
         source: "task",
         title: task.title?.trim() || task.description?.trim() || "Untitled task",
         summary: task.title?.trim() ? task.description?.trim() || null : null,
-        status: normalizedStatus,
-        tab: CLOSED_TASK_STATUSES.has(normalizedStatus) ? "closed" : "open",
+        status: resolved
+          ? resolution.decision
+          : snoozed
+            ? "snoozed"
+            : normalizedStatus,
+        tab:
+          resolved || CLOSED_TASK_STATUSES.has(normalizedStatus)
+            ? "closed"
+            : "open",
         occurredAt: task.created_at,
+        ...resolution,
         task,
       };
     });
@@ -94,15 +172,26 @@ export function normalizeOutlookIntake(
   return emails
     .filter((email) => email.project?.id === projectId)
     .map((email) => {
-      const closed = email.matchStatus.toLowerCase() === "ignored";
+      const resolution = resolveIntakeResolutionState(email.planeIntakeState);
+      const resolved = RESOLVED_INTAKE_DECISIONS.has(resolution.decision);
+      const snoozed = isActivelySnoozed(resolution.snoozedUntil);
+      const closed =
+        email.matchStatus.toLowerCase() === "ignored" || resolved;
       return {
         key: `outlook:${email.id}`,
         source: "outlook",
         title: email.subject.trim() || "Untitled email",
         summary: email.bodyText?.trim() || email.body?.trim() || null,
-        status: closed ? "ignored" : "matched",
+        status: resolved
+          ? resolution.decision
+          : snoozed
+            ? "snoozed"
+            : closed
+              ? "ignored"
+              : "matched",
         tab: closed ? "closed" : "open",
         occurredAt: email.receivedAt ?? email.createdAt,
+        ...resolution,
         email,
       };
     });

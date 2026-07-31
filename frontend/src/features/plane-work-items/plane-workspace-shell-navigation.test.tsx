@@ -22,8 +22,30 @@ import {
   PlaneWorkspaceShell,
 } from "./plane-workspace-shell";
 
+vi.mock("@/features/plane-workspace-items", () => ({
+  listPlaneWorkspaceItems: vi.fn().mockResolvedValue([]),
+  removePlaneWorkspaceItem: vi.fn(),
+  savePlaneWorkspaceItem: vi.fn(),
+}));
+
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn() }),
+}));
+
+vi.mock("@/hooks/use-project-permissions", () => ({
+  useProjectPermissions: () => ({
+    permissions: {
+      contracts: ["read"],
+      rfis: ["read"],
+      submittals: ["read"],
+      change_orders: ["read"],
+    },
+    isLoading: false,
+  }),
+  hasModulePermission: (
+    permissions: Record<string, string[]>,
+    module: string,
+  ) => (permissions[module] ?? []).some((level) => level !== "none"),
 }));
 
 beforeAll(() => {
@@ -97,20 +119,43 @@ describe("Plane workspace desktop sidebar navigation", () => {
 
     expect(
       (await screen.findByRole("link", { name: "Home" })).getAttribute("href"),
-    ).toBe("/31/home");
+    ).toBe("/31/plane/home");
     expect(
       screen.getByRole("link", { name: "Your work" }).getAttribute("href"),
-    ).toBe("/31/my-work");
+    ).toBe("/31/plane/your-work");
+    expect(
+      screen.getByRole("link", { name: "Drafts" }).getAttribute("href"),
+    ).toBe("/31/plane/drafts");
+    expect(
+      screen.getByRole("link", { name: "Projects" }).getAttribute("href"),
+    ).toBe("/31/plane/projects");
 
-    for (const label of [
-      "Drafts unavailable",
-      "Stickies unavailable",
-      "More unavailable",
-    ]) {
+    for (const label of ["Stickies unavailable", "More unavailable"]) {
       const control = screen.getByRole("button", { name: label });
       expect((control as HTMLButtonElement).disabled).toBe(true);
       expect(control.getAttribute("aria-disabled")).toBe("true");
     }
+
+    for (const slug of [
+      "rfis",
+      "submittals",
+      "change-events",
+      "commitments",
+      "prime-contracts",
+    ]) {
+      const link = screen.getByRole("link", {
+        name:
+          slug === "rfis"
+            ? "RFIs"
+            : slug
+                .split("-")
+                .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(" "),
+      });
+      expect(link.getAttribute("href")).toBe(`/31/plane/${slug}`);
+    }
+
+    expect(screen.getAllByRole("link", { name: "Projects" })).toHaveLength(1);
   });
 
   it("bounds pointer resizing at the desktop maximum", async () => {

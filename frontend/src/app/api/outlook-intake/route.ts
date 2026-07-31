@@ -294,6 +294,7 @@ export const GET = withApiGuardrails(
         triageAction: row.triage_action,
         triageReason: row.triage_reason,
         triageAt: row.triage_at,
+        planeIntakeState: normalizePlaneIntakeState(row.source_metadata),
         intakeClassification: normalizeIntakeClassification(row.source_metadata),
         project: project
           ? {
@@ -343,6 +344,42 @@ function normalizeIntakeClassification(
           (signal): signal is string => typeof signal === "string",
         )
       : [],
+  };
+}
+
+function normalizePlaneIntakeState(
+  sourceMetadata: Record<string, unknown> | null,
+) {
+  const raw = sourceMetadata?.plane_intake;
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+
+  const state = raw as Record<string, unknown>;
+  const decision = state.decision;
+  if (
+    decision !== "pending" &&
+    decision !== "accepted" &&
+    decision !== "declined" &&
+    decision !== "duplicate"
+  ) {
+    return null;
+  }
+
+  return {
+    decision,
+    snoozedTill:
+      typeof state.snoozed_till === "string" ? state.snoozed_till : null,
+    duplicateTaskId:
+      typeof state.duplicate_task_id === "string"
+        ? state.duplicate_task_id
+        : null,
+    acceptedTaskId:
+      typeof state.accepted_task_id === "string"
+        ? state.accepted_task_id
+        : null,
+    resolvedAt:
+      typeof state.resolved_at === "string" ? state.resolved_at : null,
+    updatedAt:
+      typeof state.updated_at === "string" ? state.updated_at : null,
   };
 }
 

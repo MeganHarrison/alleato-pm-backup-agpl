@@ -22,11 +22,25 @@ Modification history is preserved in this repository.
 The deployed replacement surfaces live in these source directories:
 
 - `frontend/src/features/plane-work-items/`
+- `frontend/src/features/plane-work-items-contracts/`
 - `frontend/src/features/plane-cycles/`
 - `frontend/src/features/plane-modules/`
 - `frontend/src/features/plane-views/`
 - `frontend/src/features/plane-pages/`
+- `frontend/src/features/plane-pages-editor/`
 - `frontend/src/features/plane-intake/`
+- `frontend/src/features/plane-intake-actions/`
+- `frontend/src/features/plane-workspace-items/`
+- `frontend/src/features/plane-stickies/`
+- `frontend/src/features/plane-home/`
+- `frontend/src/features/plane-projects/`
+- `frontend/src/features/plane-your-work/`
+- `frontend/src/features/plane-drafts/`
+- `frontend/src/features/plane-rfis/`
+- `frontend/src/features/plane-submittals/`
+- `frontend/src/features/plane-change-events/`
+- `frontend/src/features/plane-commitments/`
+- `frontend/src/features/plane-prime-contracts/`
 
 Each copied or adapted source file retains an SPDX header or an adjacent source
 mapping that identifies the corresponding upstream Plane template. Alleato data

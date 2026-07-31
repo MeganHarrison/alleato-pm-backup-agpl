@@ -19,7 +19,6 @@ import {
   Columns3,
   Copy,
   Ellipsis,
-  Filter,
   Layers3,
   List,
   MoveRight,
@@ -42,6 +41,17 @@ import { appToast as toast } from "@/lib/toast/app-toast";
 import { cn } from "@/lib/utils";
 import { type TasksRow } from "@/features/tasks/task-utils";
 import {
+  filterAndSortPlaneWorkItems,
+  getPlaneWorkItemInspectorContract,
+  getPlaneWorkItemsRecovery,
+  parsePlaneWorkItemsQuery,
+  PLANE_WORK_ITEM_VIEWS,
+  PlaneWorkItemsQueryControls,
+  updatePlaneWorkItemsQuery,
+  type PlaneWorkItemAssigneeOption,
+  type PlaneWorkItemView,
+} from "@/features/plane-work-items-contracts";
+import {
   normalizePlaneWorkItemStatus,
   planeWorkItemIdentifier,
   planeWorkItemStatusLabel,
@@ -56,13 +66,6 @@ import {
 import { PlaneWorkspaceShell } from "./plane-workspace-shell";
 
 type Layout = "list" | "board" | "calendar" | "spreadsheet" | "gantt";
-
-type InitialWorkItemFilters = {
-  status: PlaneWorkItemStatusFilter;
-  priority: string | null;
-  dueFrom: string | null;
-  dueTo: string | null;
-};
 
 type PlaneWorkItemMutationFailure = {
   kind: "authentication" | "permission" | "request";
@@ -196,39 +199,9 @@ export async function runPlaneWorkItemStatusMutation({
 export function getInitialPlaneWorkItemsLayout(
   view: string | null | undefined,
 ): Layout {
-  return view === "board" ? "board" : "list";
-}
-
-export function getInitialPlaneWorkItemFilters(
-  searchParams: Pick<URLSearchParams, "get">,
-): InitialWorkItemFilters {
-  const status = searchParams.get("status");
-  const priority = searchParams.get("priority")?.trim().toLowerCase() || null;
-
-  return {
-    status:
-      status === "open" || status === "in_progress" || status === "done"
-        ? status
-        : "all",
-    priority:
-      priority && ["low", "medium", "high", "urgent"].includes(priority)
-        ? priority
-        : null,
-    dueFrom: searchParams.get("due_from")?.trim() || null,
-    dueTo: searchParams.get("due_to")?.trim() || null,
-  };
-}
-
-export function buildPlaneWorkItemsPeekHref(
-  pathname: string,
-  searchParams: Pick<URLSearchParams, "toString">,
-  taskId: string | null,
-) {
-  const next = new URLSearchParams(searchParams.toString());
-  if (taskId) next.set("peek", taskId);
-  else next.delete("peek");
-  const query = next.toString();
-  return query ? `${pathname}?${query}` : pathname;
+  return PLANE_WORK_ITEM_VIEWS.includes(view as PlaneWorkItemView)
+    ? (view as PlaneWorkItemView)
+    : "list";
 }
 
 export function restorePlaneWorkItemsOrigin(
@@ -454,6 +427,34 @@ export function WorkItemInspectorDialog({
   );
 }
 
+function WorkItemInspectorRecovery({
+  title,
+  message,
+  onClose,
+}: {
+  title: string;
+  message: string;
+  onClose: () => void;
+}) {
+  return (
+    <div className="flex min-h-full flex-col items-center justify-center px-8 text-center">
+      <p className="text-sm font-medium text-[#30343a]">{title}</p>
+      <p className="mt-1 max-w-sm text-xs leading-5 text-[#7b8189]">
+        {message}
+      </p>
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        className="mt-4"
+        onClick={onClose}
+      >
+        Close inspector
+      </Button>
+    </div>
+  );
+}
+
 export function PlaneWorkItemsPage({
   projectId,
   projectName,
@@ -464,7 +465,10 @@ export function PlaneWorkItemsPage({
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const initialFilters = getInitialPlaneWorkItemFilters(searchParams);
+  const query = useMemo(
+    () => parsePlaneWorkItemsQuery(searchParams.toString()),
+    [searchParams],
+  );
   const mainRef = useRef<HTMLElement>(null);
   const inspectorOriginRef = useRef<HTMLElement | null>(null);
   const inspectorScrollTopRef = useRef(0);
@@ -479,11 +483,13 @@ export function PlaneWorkItemsPage({
   const [items, setItems] = useState<TasksRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [layout, setLayout] = useState<Layout>(() =>
-    getInitialPlaneWorkItemsLayout(searchParams.get("view")),
-  );
-  const [statusFilter, setStatusFilter] =
-    useState<PlaneWorkItemStatusFilter>(initialFilters.status);
+  const [errorStatus, setErrorStatus] = useState<number | null>(null);
+  const [viewportWidth, setViewportWidth] = useState(1024);
+  const layout = query.view;
+  const statusFilter: PlaneWorkItemStatusFilter =
+    query.statuses.length === 1 && query.statuses[0]
+      ? query.statuses[0]
+      : "all";
   const [displayProperties, setDisplayProperties] =
     useState<PlaneWorkItemDisplayProperties>({
       assignee: true,
@@ -505,22 +511,41 @@ export function PlaneWorkItemsPage({
   >("open");
   const [newItem, setNewItem] = useState("");
   const [selectedTask, setSelectedTask] = useState<TasksRow | null>(null);
-  const peekId = searchParams.get("peek");
+  const peekId = query.peekId;
+
+  const updateQuery = useCallback(
+    (
+      patch: Parameters<typeof updatePlaneWorkItemsQuery>[1],
+      navigation: "push" | "replace" = "replace",
+    ) => {
+      const next = updatePlaneWorkItemsQuery(searchParams.toString(), patch);
+      const serialized = next.toString();
+      const href = serialized ? `${pathname}?${serialized}` : pathname;
+      router[navigation](href, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
 
   const loadItems = useCallback(async () => {
     setLoading(true);
     setError(null);
+    setErrorStatus(null);
     try {
       const response = await apiFetch<{ data?: TasksRow[] }>(
         `/api/tasks?project_id=${projectId}&scope=all`,
       );
       setItems(response.data ?? []);
     } catch (cause) {
+      console.error(
+        `Failed to load Plane work items for project ${projectId}`,
+        cause,
+      );
       const message =
         cause instanceof ApiError
           ? cause.message
           : "The work-item list could not be loaded.";
       setError(message);
+      setErrorStatus(cause instanceof ApiError ? cause.status : null);
     } finally {
       setLoading(false);
     }
@@ -529,6 +554,13 @@ export function PlaneWorkItemsPage({
   useEffect(() => {
     void loadItems();
   }, [loadItems]);
+
+  useEffect(() => {
+    const updateViewport = () => setViewportWidth(window.innerWidth);
+    updateViewport();
+    window.addEventListener("resize", updateViewport);
+    return () => window.removeEventListener("resize", updateViewport);
+  }, []);
 
   const restoreInspectorOrigin = useCallback(() => {
     window.requestAnimationFrame(() => {
@@ -545,70 +577,66 @@ export function PlaneWorkItemsPage({
     if (!peekId) {
       if (selectedTask) {
         setSelectedTask(null);
+        restoreInspectorOrigin();
       }
       return;
     }
     const peekTask = items.find((item) => item.id === peekId);
     if (peekTask && selectedTask?.id !== peekTask.id) {
       setSelectedTask(peekTask);
+      return;
     }
-  }, [items, peekId, restoreInspectorOrigin, selectedTask]);
+    if (!loading && !peekTask && selectedTask) {
+      setSelectedTask(null);
+    }
+  }, [items, loading, peekId, restoreInspectorOrigin, selectedTask]);
 
-  const filteredItems = useMemo(() => {
-    return items.filter((item) => {
-      const pendingStatusMutation = item.id
-        ? statusMutations[item.id]
-        : undefined;
-      if (
-        statusFilter !== "all" &&
-        normalizePlaneWorkItemStatus(item.status) !== statusFilter &&
-        pendingStatusMutation?.phase !== "saving"
-      ) {
-        return false;
-      }
-      if (
-        initialFilters.priority &&
-        item.priority?.toLowerCase() !== initialFilters.priority
-      ) {
-        return false;
-      }
-      if (
-        initialFilters.dueFrom &&
-        (!item.due_date || item.due_date < initialFilters.dueFrom)
-      ) {
-        return false;
-      }
-      if (
-        initialFilters.dueTo &&
-        (!item.due_date || item.due_date > initialFilters.dueTo)
-      ) {
-        return false;
-      }
-      return true;
-    });
-  }, [
-    initialFilters.dueFrom,
-    initialFilters.dueTo,
-    initialFilters.priority,
-    items,
-    statusFilter,
-    statusMutations,
-  ]);
+  const filteredItems = useMemo(
+    () => filterAndSortPlaneWorkItems(items, query),
+    [items, query],
+  );
+  const assigneeOptions = useMemo<PlaneWorkItemAssigneeOption[]>(() => {
+    const options = new Map<string, string>();
+    for (const item of items) {
+      const value =
+        item.assignee_person_id ?? item.assignee_email ?? item.assignee_name;
+      if (!value) continue;
+      options.set(value, item.assignee_name ?? item.assignee_email ?? value);
+    }
+    return [...options.entries()]
+      .map(([value, label]) => ({ value, label }))
+      .sort((left, right) => left.label.localeCompare(right.label));
+  }, [items]);
+  const inspectorContract = getPlaneWorkItemInspectorContract(
+    peekId,
+    viewportWidth,
+  );
+  const inspectorRecovery =
+    !loading && !selectedTask && peekId
+      ? getPlaneWorkItemsRecovery(404, "inspector")
+      : null;
+  const collectionRecovery = error
+    ? getPlaneWorkItemsRecovery(errorStatus, "collection")
+    : null;
+  const currentQueryString = searchParams.toString();
+  const collectionSignInHref = `/auth/login?callbackUrl=${encodeURIComponent(
+    currentQueryString ? `${pathname}?${currentQueryString}` : pathname,
+  )}`;
 
   function openInspector(task: TasksRow, origin: HTMLElement) {
     if (!task.id) return;
     inspectorOriginRef.current = origin;
     inspectorScrollTopRef.current = mainRef.current?.scrollTop ?? 0;
-    router.push(
-      buildPlaneWorkItemsPeekHref(pathname, searchParams, task.id),
-      { scroll: false },
-    );
+    updateQuery({ peekId: task.id }, "push");
   }
 
   function closeInspector() {
-    router.replace(buildPlaneWorkItemsPeekHref(pathname, searchParams, null), {
-      scroll: false,
-    });
+    updateQuery({ peekId: null });
+  }
+
+  function closeDesktopInspector() {
+    closeInspector();
+    restoreInspectorOrigin();
   }
 
   async function createItem(status = quickAddStatus) {
@@ -644,6 +672,10 @@ export function PlaneWorkItemsPage({
       setCreateState({ phase: "error", failure });
       toast.error(failure.message);
     }
+  }
+
+  function setLayout(view: PlaneWorkItemView) {
+    updateQuery({ view });
   }
 
   function openQuickAdd(status: "open" | "in_progress" | "done" = "open") {
@@ -778,32 +810,17 @@ export function PlaneWorkItemsPage({
                 <ChartNoAxesGantt className="size-4" />
               </button>
             </div>
-            <button
-              type="button"
-              className={cn(
-                "hidden h-7 items-center gap-1.5 rounded border border-[#d9dce1] px-2.5 text-xs md:flex",
-                statusFilter !== "all" && "border-[#93c5d8] bg-[#eaf5fa]",
-              )}
-              aria-label={`Filter work items: ${
-                statusFilter === "all"
-                  ? "All"
-                  : planeWorkItemStatusLabel(statusFilter)
-              }`}
-              title="Cycle status filter"
-              onClick={() =>
-                setStatusFilter((current) => {
-                  if (current === "all") return "open";
-                  if (current === "open") return "in_progress";
-                  if (current === "in_progress") return "done";
-                  return "all";
-                })
-              }
-            >
-              <Filter className="size-3.5" />
-            </button>
+            <PlaneWorkItemsQueryControls
+              query={query}
+              assignees={assigneeOptions}
+              onChange={updateQuery}
+              className="hidden md:inline-flex"
+            />
             <PlaneWorkItemsDisplayMenu
               statusFilter={statusFilter}
-              onStatusFilterChange={setStatusFilter}
+              onStatusFilterChange={(status) =>
+                updateQuery({ statuses: status === "all" ? [] : [status] })
+              }
               properties={displayProperties}
               onPropertyChange={(property, checked) =>
                 setDisplayProperties((current) => ({
@@ -836,21 +853,23 @@ export function PlaneWorkItemsPage({
           </div>
         </div>
 
-        <div className="flex h-10 shrink-0 items-center border-b border-[#e5e7eb] bg-white md:hidden">
+        <div className="flex h-11 shrink-0 items-center border-b border-[#e5e7eb] bg-white md:hidden">
           <div className="flex flex-1 items-center justify-center gap-3">
-            <button type="button" onClick={() => setLayout("list")} aria-label="Mobile list view">
+            <button type="button" className="grid h-11 min-w-11 place-items-center" onClick={() => setLayout("list")} aria-label="Mobile list view">
               <List className={cn("size-4", layout === "list" ? "text-[#202124]" : "text-[#9aa0a8]")} />
             </button>
-            <button type="button" onClick={() => setLayout("board")} aria-label="Mobile board view">
+            <button type="button" className="grid h-11 min-w-11 place-items-center" onClick={() => setLayout("board")} aria-label="Mobile board view">
               <Columns3 className={cn("size-4", layout === "board" ? "text-[#202124]" : "text-[#9aa0a8]")} />
             </button>
-            <button type="button" onClick={() => setLayout("calendar")} aria-label="Mobile calendar view">
+            <button type="button" className="grid h-11 min-w-11 place-items-center" onClick={() => setLayout("calendar")} aria-label="Mobile calendar view">
               <CalendarDays className={cn("size-4", layout === "calendar" ? "text-[#202124]" : "text-[#9aa0a8]")} />
             </button>
           </div>
           <PlaneWorkItemsDisplayMenu
             statusFilter={statusFilter}
-            onStatusFilterChange={setStatusFilter}
+            onStatusFilterChange={(status) =>
+              updateQuery({ statuses: status === "all" ? [] : [status] })
+            }
             properties={displayProperties}
             onPropertyChange={(property, checked) =>
               setDisplayProperties((current) => ({
@@ -868,6 +887,12 @@ export function PlaneWorkItemsPage({
               </button>
             }
           />
+          <PlaneWorkItemsQueryControls
+            query={query}
+            assignees={assigneeOptions}
+            onChange={updateQuery}
+            className="h-full flex-1 rounded-none border-y-0 border-r-0 md:hidden"
+          />
           <button
             type="button"
             className="flex h-full flex-1 items-center justify-center border-l border-[#e5e7eb] text-xs text-[#59616b]"
@@ -877,6 +902,7 @@ export function PlaneWorkItemsPage({
           </button>
         </div>
 
+        <div className="flex min-h-0 flex-1">
         <main ref={mainRef} className="min-h-0 flex-1 overflow-auto">
           <div className="flex h-11 items-center justify-between border-b border-[#e5e7eb] px-5">
             <div className="flex items-center gap-2">
@@ -889,11 +915,35 @@ export function PlaneWorkItemsPage({
 
           {error && (
             <div className="flex min-h-52 flex-col items-center justify-center px-6 text-center">
-              <p className="text-sm font-medium">Work items could not be loaded</p>
-              <p className="mt-1 text-xs text-[#7b8189]">{error}</p>
-              <Button variant="outline" size="sm" className="mt-4" onClick={() => void loadItems()}>
-                Try again
-              </Button>
+              <p className="text-sm font-medium">
+                {collectionRecovery?.title ?? "Work items could not be loaded"}
+              </p>
+              <p className="mt-1 max-w-md text-xs text-[#7b8189]">
+                {collectionRecovery?.message ?? error}
+              </p>
+              {collectionRecovery?.action === "retry" ? (
+                <Button variant="outline" size="sm" className="mt-4" onClick={() => void loadItems()}>
+                  Try again
+                </Button>
+              ) : collectionRecovery?.action === "sign-in" ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mt-4"
+                  onClick={() => router.push(collectionSignInHref)}
+                >
+                  Sign in
+                </Button>
+              ) : (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mt-4"
+                  onClick={() => router.push(`/${projectId}`)}
+                >
+                  Return to project
+                </Button>
+              )}
             </div>
           )}
 
@@ -1321,8 +1371,39 @@ export function PlaneWorkItemsPage({
             </div>
           )}
         </main>
+        {inspectorContract?.presentation === "side-peek" &&
+        (selectedTask || inspectorRecovery) ? (
+          <aside
+            aria-label="Work item detail"
+            className="min-h-0 shrink-0 overflow-y-auto border-l border-[#d9dce1] bg-white"
+            style={{ width: inspectorContract.width }}
+          >
+            {selectedTask ? (
+              <WorkItemDetail
+                task={selectedTask}
+                onStatusChange={updateStatus}
+                statusMutation={
+                  selectedTask.id
+                    ? statusMutations[selectedTask.id]
+                    : undefined
+                }
+                onRetryStatus={() => {
+                  if (selectedTask.id) retryStatus(selectedTask.id);
+                }}
+                onClose={closeDesktopInspector}
+              />
+            ) : inspectorRecovery ? (
+              <WorkItemInspectorRecovery
+                title={inspectorRecovery.title}
+                message={inspectorRecovery.message}
+                onClose={closeDesktopInspector}
+              />
+            ) : null}
+          </aside>
+        ) : null}
+        </div>
 
-      {selectedTask ? (
+      {selectedTask && inspectorContract?.presentation === "mobile-sheet" ? (
         <WorkItemInspectorDialog
           task={selectedTask}
           onStatusChange={updateStatus}
@@ -1335,6 +1416,26 @@ export function PlaneWorkItemsPage({
           onClose={closeInspector}
           onRestoreFocus={restoreInspectorOrigin}
         />
+      ) : null}
+      {!selectedTask &&
+      inspectorRecovery &&
+      inspectorContract?.presentation === "mobile-sheet" ? (
+        <Dialog open onOpenChange={(open) => !open && closeInspector()}>
+          <DialogContent
+            aria-describedby={undefined}
+            showCloseButton={false}
+            className="inset-y-0 right-0 left-auto top-0 h-svh w-full max-w-none translate-x-0 translate-y-0 gap-0 rounded-none border-y-0 border-r-0 p-0"
+          >
+            <DialogTitle className="sr-only">
+              {inspectorRecovery.title}
+            </DialogTitle>
+            <WorkItemInspectorRecovery
+              title={inspectorRecovery.title}
+              message={inspectorRecovery.message}
+              onClose={closeInspector}
+            />
+          </DialogContent>
+        </Dialog>
       ) : null}
     </PlaneWorkspaceShell>
   );

@@ -6,7 +6,6 @@ import {
   PlanePageDetailsPrimaryHeader,
   PlanePagesListPrimaryHeader,
 } from "./plane-pages-header";
-import { PlanePageEditor } from "./plane-page-editor";
 import type { ProjectPage } from "./plane-pages-data";
 import { PlanePagesListView } from "./plane-pages-list-view";
 
@@ -95,38 +94,7 @@ describe("Plane Pages inner template", () => {
     expect(markup).toContain('aria-label="Actions for Turnover plan"');
   });
 
-  it("pins the editor canvas and visibly disabled Plane-only affordances", () => {
-    const markup = renderToStaticMarkup(
-      <PlanePageEditor
-        page={page}
-        draft={{ title: "Turnover plan", body: "Closeout sequence" }}
-        saveState="saved"
-        isArchiving={false}
-        onBack={() => undefined}
-        onDraftChange={() => undefined}
-        onSave={() => undefined}
-        onToggleArchived={() => undefined}
-      />,
-    );
-
-    expect(markup).toContain("data-plane-page-toolbar");
-    expect(markup).toContain('aria-label="Page title"');
-    expect(markup).toContain('aria-label="Page content"');
-    expect(markup).toContain(
-      'title="Outline and version history require Plane collaboration metadata."',
-    );
-    expect(markup).toContain(
-      'title="Page icons require Plane logo metadata."',
-    );
-    expect(markup).toMatch(
-      /disabled=""[^>]*title="Outline and version history require Plane collaboration metadata\."/,
-    );
-    expect(markup).toMatch(
-      /disabled=""[^>]*title="Page icons require Plane logo metadata\."/,
-    );
-  });
-
-  it("pins create, autosave, and archive calls to the project-scoped data owner", () => {
+  it("pins create, editor persistence, and archive calls to project-scoped owners", () => {
     const source = readFileSync(
       path.join(
         process.cwd(),
@@ -134,14 +102,26 @@ describe("Plane Pages inner template", () => {
       ),
       "utf8",
     );
+    const adapterSource = readFileSync(
+      path.join(
+        process.cwd(),
+        "src/features/plane-pages-editor/notes-adapter.ts",
+      ),
+      "utf8",
+    );
 
     expect(source).toMatch(/createProjectPage\(projectId\)/);
-    expect(source).toMatch(
-      /updateProjectPage\(projectId,\s*selectedPage\.id,\s*\{/,
-    );
-    expect(source).toMatch(/window\.setTimeout\(\(\) => \{[\s\S]*\}, 700\)/);
+    expect(source).toMatch(/createProjectNotesEditorAdapter\(\{/);
+    expect(source).toMatch(/<PlanePagesEditor/);
     expect(source).toMatch(
       /updateProjectPage\(projectId,\s*page\.id,\s*\{\s*archived: nextArchived/,
+    );
+    expect(adapterSource).toMatch(/listProjectPages\(projectId\)/);
+    expect(adapterSource).toMatch(
+      /updateProjectPage\(projectId, numericPageId, \{/,
+    );
+    expect(adapterSource).toContain(
+      "capabilities: { comments: false, versions: false }",
     );
   });
 });

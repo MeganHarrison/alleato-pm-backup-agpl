@@ -92,6 +92,14 @@ function makeIntakeRows(count: number) {
     outlook_email_intake_attachments: [],
     source_metadata: {
       user_tags: ["automated"],
+      plane_intake: {
+        decision: "pending",
+        snoozed_till: "2026-08-01T13:00:00.000Z",
+        duplicate_task_id: null,
+        accepted_task_id: null,
+        resolved_at: null,
+        updated_at: "2026-07-31T13:00:00.000Z",
+      },
       intake_classification: {
         action: "quarantine",
         category: "calendar_low_value",
@@ -179,6 +187,14 @@ describe("/api/outlook-intake", () => {
       intakeClassification: {
         action: "quarantine",
         category: "calendar_low_value",
+      },
+      planeIntakeState: {
+        decision: "pending",
+        snoozedTill: "2026-08-01T13:00:00.000Z",
+        duplicateTaskId: null,
+        acceptedTaskId: null,
+        resolvedAt: null,
+        updatedAt: "2026-07-31T13:00:00.000Z",
       },
     });
 
