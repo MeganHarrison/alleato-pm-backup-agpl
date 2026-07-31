@@ -55,7 +55,7 @@ function throwRepositoryFailure(
       status: 503,
       details: {
         operation: action,
-        migration: "20260731210000_create_plane_stickies.sql",
+        migration: "20260731231400_create_plane_stickies.sql",
       },
       cause: error,
     });

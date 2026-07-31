@@ -331,6 +331,10 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
+        source: "/:projectId/plane",
+        destination: "/:projectId/tasks?planeSurface=home",
+      },
+      {
         source: "/:projectId/plane/:planeSurface",
         destination: "/:projectId/tasks?planeSurface=:planeSurface",
       },

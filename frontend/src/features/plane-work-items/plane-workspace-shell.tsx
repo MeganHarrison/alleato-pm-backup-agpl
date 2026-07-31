@@ -60,6 +60,7 @@ export const PLANE_WORKSPACE_SURFACES = [
   "projects",
   "your-work",
   "drafts",
+  "stickies",
   "work-items",
   "cycles",
   "modules",
@@ -143,7 +144,7 @@ const WORKSPACE_NAV = [
   {
     label: "Stickies",
     icon: StickyNote,
-    disabledReason: "Stickies are not available in Alleato yet.",
+    href: (projectId: string) => `/${projectId}/plane/stickies`,
   },
 ] as const;
 

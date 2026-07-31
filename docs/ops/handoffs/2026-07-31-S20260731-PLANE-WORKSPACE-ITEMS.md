@@ -8,7 +8,7 @@ publication, or production state changes.
 
 ## Ownership
 
-- `supabase/migrations/20260731200000_create_plane_workspace_items.sql`
+- `supabase/migrations/20260731231300_create_plane_workspace_items.sql`
 - `frontend/src/app/api/plane-workspace-items/`
 - `frontend/src/features/plane-workspace-items/`
 - `docs/ops/tasks/2026-07-31-plane-workspace-items-domain.md`
@@ -68,7 +68,7 @@ Deferred. The migration must not be applied in this worker session.
 - Prevention: release integration must apply deliberately, verify the exact
   remote ledger version, and exercise cross-user plus revoked-module cases.
 - Next owner action:
-  `npm run db:migrations:verify-applied -- supabase/migrations/20260731200000_create_plane_workspace_items.sql`.
+  `npm run db:migrations:verify-applied -- supabase/migrations/20260731231300_create_plane_workspace_items.sql`.
 
 ## Release integration
 

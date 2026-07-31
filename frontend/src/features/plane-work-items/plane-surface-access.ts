@@ -8,6 +8,7 @@ export const SUPPORTED_PLANE_SURFACES = [
   "projects",
   "your-work",
   "drafts",
+  "stickies",
   "work-items",
   "cycles",
   "modules",
@@ -28,6 +29,7 @@ const WORKSPACE_SCOPED_PLANE_SURFACES = [
   "projects",
   "your-work",
   "drafts",
+  "stickies",
 ] as const satisfies readonly PlaneSurface[];
 
 type PlaneScheduleMutationPreviewEnvironment = Readonly<

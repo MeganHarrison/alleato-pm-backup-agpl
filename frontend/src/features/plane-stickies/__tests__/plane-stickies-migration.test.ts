@@ -7,7 +7,7 @@ const migrationSql = readFileSync(
     "..",
     "supabase",
     "migrations",
-    "20260731210000_create_plane_stickies.sql",
+    "20260731231400_create_plane_stickies.sql",
   ),
   "utf8",
 )

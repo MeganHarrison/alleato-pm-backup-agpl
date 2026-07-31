@@ -26,6 +26,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { DetailField, DetailFieldGrid } from "@/components/ds";
 import { SectionRuleHeading } from "@/components/layout/spacing";
 import { Button } from "@/components/ui/button";
+import { buildPlaneWorkItemsHref } from "@/features/plane-work-items-contracts";
 import type { TasksRow } from "@/features/tasks/task-utils";
 import { ApiError } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
@@ -143,8 +144,8 @@ function TaskRow({
   task: TasksRow;
 }) {
   const href = task.id
-    ? `/${projectId}/tasks?scope=all&task=${task.id}`
-    : `/${projectId}/tasks?scope=all`;
+    ? buildPlaneWorkItemsHref(projectId, { peekId: task.id })
+    : buildPlaneWorkItemsHref(projectId);
 
   return (
     <Link
@@ -330,7 +331,7 @@ export function PlaneHomePage({ projectId }: { projectId: string }) {
           <span className="font-medium text-foreground">Home</span>
         </div>
         <Button asChild size="sm" className="h-7 gap-1.5 px-2.5 text-xs">
-          <Link href={`/${projectId}/tasks?planeSurface=work-items`}>
+          <Link href={buildPlaneWorkItemsHref(projectId)}>
             <Plus className="size-3.5" />
             Add task
           </Link>
@@ -352,7 +353,7 @@ export function PlaneHomePage({ projectId }: { projectId: string }) {
           <section className="mt-9">
             <SectionHeading
               title="Open work"
-              href={`/${projectId}/tasks?scope=all`}
+              href={buildPlaneWorkItemsHref(projectId)}
               actionLabel="View all"
             />
             <div className="mt-1 divide-y divide-border">
@@ -374,7 +375,7 @@ export function PlaneHomePage({ projectId }: { projectId: string }) {
                 <div className="py-6 text-sm text-muted-foreground">
                   No open tasks.{" "}
                   <Link
-                    href={`/${projectId}/tasks?planeSurface=work-items`}
+                    href={buildPlaneWorkItemsHref(projectId)}
                     className="font-medium text-foreground hover:underline"
                   >
                     Add the next task
@@ -424,7 +425,7 @@ export function PlaneHomePage({ projectId }: { projectId: string }) {
           <section className="mt-9 pb-8">
             <SectionHeading
               title="Project details"
-              href={`/${projectId}/settings`}
+              href={`/${projectId}/setup`}
               actionLabel="Open settings"
             />
             <DetailFieldGrid columns={1} className="mt-4 gap-y-4">

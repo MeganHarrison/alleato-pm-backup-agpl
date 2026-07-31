@@ -18,6 +18,7 @@ import { PlanePagesWorkspace } from "@/features/plane-pages";
 import { PlanePrimeContractsPage } from "@/features/plane-prime-contracts";
 import { PlaneProjectsSurface } from "@/features/plane-projects";
 import { PlaneRfisSurface } from "@/features/plane-rfis";
+import { PlaneStickiesPage } from "@/features/plane-stickies";
 import { PlaneProjectViewsIndex } from "@/features/plane-views";
 import { PlaneSubmittalsPage } from "@/features/plane-submittals";
 import { PlaneYourWorkSurface } from "@/features/plane-your-work";
@@ -70,6 +71,9 @@ export function PlaneSurfaceDispatcher({
       break;
     case "drafts":
       surfaceContent = <PlaneDraftsPage />;
+      break;
+    case "stickies":
+      surfaceContent = <PlaneStickiesPage projectId={numericProjectId} />;
       break;
     case "cycles":
       surfaceContent = (

@@ -16,7 +16,7 @@ by authenticated personal, workspace, and project-scoped Supabase persistence.
 
 - New `frontend/src/features/plane-stickies/**` domain and page component.
 - New static `frontend/src/app/api/plane-stickies/**` API.
-- Deferred migration `20260731210000_create_plane_stickies.sql`.
+- Deferred migration `20260731231400_create_plane_stickies.sql`.
 - AGPL provenance, focused tests, and worker handoff.
 - Excludes workspace dispatcher/navigation integration, production migration,
   deployment, and generated maps.

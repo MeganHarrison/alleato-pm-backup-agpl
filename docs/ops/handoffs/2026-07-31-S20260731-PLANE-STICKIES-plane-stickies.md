@@ -14,7 +14,7 @@
 
 - `C:\Users\KimiClaw\.codex\isolated-workspaces\s20260731-plane-stickies-aai-plane-stickies-0fb186\frontend\src\features\plane-stickies\**`
 - `C:\Users\KimiClaw\.codex\isolated-workspaces\s20260731-plane-stickies-aai-plane-stickies-0fb186\frontend\src\app\api\plane-stickies\**`
-- `C:\Users\KimiClaw\.codex\isolated-workspaces\s20260731-plane-stickies-aai-plane-stickies-0fb186\supabase\migrations\20260731210000_create_plane_stickies.sql`
+- `C:\Users\KimiClaw\.codex\isolated-workspaces\s20260731-plane-stickies-aai-plane-stickies-0fb186\supabase\migrations\20260731231400_create_plane_stickies.sql`
 - `C:\Users\KimiClaw\.codex\isolated-workspaces\s20260731-plane-stickies-aai-plane-stickies-0fb186\LICENSES\NOTICE-PLANE-STICKIES.md`
 - This task and handoff document.
 
@@ -47,11 +47,11 @@
 11. Handoff file path:
     `docs/ops/handoffs/2026-07-31-S20260731-PLANE-STICKIES-plane-stickies.md`
 
-12. Migration ledger evidence: `20260731210000_create_plane_stickies.sql` is
+12. Migration ledger evidence: `20260731231400_create_plane_stickies.sql` is
     intentionally deferred and was not applied because the leader explicitly
     instructed this worker not to apply it. The approval gate is now cleared.
     Detection gap: generated types confirm the relation is absent.
     Prevention: the route maps missing-table/schema-cache errors to a specific 503.
     Next owner action: apply only this approved migration at the coordinated
     release checkpoint and run
-    `npm run db:migrations:verify-applied -- supabase/migrations/20260731210000_create_plane_stickies.sql`, then regenerate `frontend/src/types/database.types.ts`.
+    `npm run db:migrations:verify-applied -- supabase/migrations/20260731231400_create_plane_stickies.sql`, then regenerate `frontend/src/types/database.types.ts`.

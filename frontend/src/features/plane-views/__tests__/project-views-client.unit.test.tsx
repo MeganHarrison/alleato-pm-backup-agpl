@@ -9,6 +9,8 @@
 
 import * as React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import fs from "node:fs";
+import path from "node:path";
 
 import type { SavedTableView } from "@/hooks/use-saved-table-views";
 
@@ -57,11 +59,7 @@ const VIEW: SavedTableView = {
 
 function renderViews() {
   return renderToStaticMarkup(
-    <PlaneProjectViewsIndex
-      projectId="31"
-      projectName="All Implementation"
-      taskRoute="/31/tasks"
-    />,
+    <PlaneProjectViewsIndex projectId="31" projectName="All Implementation" />,
   );
 }
 
@@ -83,6 +81,16 @@ describe("Plane Views rendered structure", () => {
         isPending: false,
       });
     }
+  });
+
+  it("defaults saved views to the canonical Plane work-items route", () => {
+    const source = fs.readFileSync(
+      path.join(__dirname, "../project-views-client.tsx"),
+      "utf8",
+    );
+
+    expect(source).toContain("taskRoute = `/${projectId}/plane/work-items`");
+    expect(source).not.toContain("taskRoute = `/${projectId}/tasks`");
   });
 
   it("pins the Plane desktop and mobile header controls", () => {

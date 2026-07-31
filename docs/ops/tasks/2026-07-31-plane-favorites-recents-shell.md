@@ -83,7 +83,7 @@ Verification contract: Optional
 
 ## Remaining Risk
 
-- `supabase/migrations/20260731200000_create_plane_workspace_items.sql` remains intentionally unapplied; live UI will fail loudly until separately approved and applied.
+- `supabase/migrations/20260731231300_create_plane_workspace_items.sql` remains intentionally unapplied; live UI will fail loudly until separately approved and applied.
 
 ## Final Status
 

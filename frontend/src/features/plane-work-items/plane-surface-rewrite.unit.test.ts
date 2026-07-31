@@ -7,6 +7,7 @@ describe("Plane surface route-budget rewrite", () => {
     path.join(frontendRoot, "next.config.ts"),
     "utf8",
   );
+  const rewritesBlock = nextConfig.slice(nextConfig.indexOf("async rewrites()"));
   const tasksPage = fs.readFileSync(
     path.join(
       frontendRoot,
@@ -31,10 +32,14 @@ describe("Plane surface route-budget rewrite", () => {
   );
 
   it("rewrites Plane URLs into the existing Tasks route", () => {
-    expect(nextConfig).toContain(
+    expect(rewritesBlock).toContain('source: "/:projectId/plane"');
+    expect(rewritesBlock).toContain(
+      'destination: "/:projectId/tasks?planeSurface=home"',
+    );
+    expect(rewritesBlock).toContain(
       'source: "/:projectId/plane/:planeSurface"',
     );
-    expect(nextConfig).toContain(
+    expect(rewritesBlock).toContain(
       'destination: "/:projectId/tasks?planeSurface=:planeSurface"',
     );
   });

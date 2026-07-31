@@ -64,6 +64,7 @@ describe("Plane dispatcher access", () => {
         "projects",
         "your-work",
         "drafts",
+        "stickies",
         "work-items",
         "cycles",
         "modules",
@@ -84,6 +85,7 @@ describe("Plane dispatcher access", () => {
     expect(getPlaneSurfaceScope("projects")).toBe("workspace");
     expect(getPlaneSurfaceScope("your-work")).toBe("workspace");
     expect(getPlaneSurfaceScope("drafts")).toBe("workspace");
+    expect(getPlaneSurfaceScope("stickies")).toBe("workspace");
     expect(getPlaneSurfaceScope("home")).toBe("project");
     expect(getPlaneSurfaceScope("rfis")).toBe("project");
     expect(getPlaneSurfaceScope("submittals")).toBe("project");
@@ -98,6 +100,7 @@ describe("Plane dispatcher access", () => {
       projects: "PlaneProjectsSurface",
       "your-work": "PlaneYourWorkSurface",
       drafts: "PlaneDraftsPage",
+      stickies: "PlaneStickiesPage",
       rfis: "PlaneRfisSurface",
       submittals: "PlaneSubmittalsPage",
       "change-events": "PlaneChangeEventsSurface",
@@ -119,6 +122,7 @@ describe("Plane dispatcher access", () => {
         "projects",
         "your-work",
         "drafts",
+        "stickies",
         "cycles",
         "modules",
         "views",

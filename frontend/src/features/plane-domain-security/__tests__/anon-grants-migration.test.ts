@@ -3,7 +3,7 @@ import path from "node:path";
 
 const migrationPath = path.resolve(
   process.cwd(),
-  "../supabase/migrations/20260731213000_revoke_plane_domain_anon_grants.sql",
+  "../supabase/migrations/20260731231500_revoke_plane_domain_anon_grants.sql",
 );
 const sql = fs.readFileSync(migrationPath, "utf8").replace(/\r\n?/g, "\n");
 const normalizedSql = sql.toLowerCase();

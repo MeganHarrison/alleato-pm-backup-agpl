@@ -85,7 +85,7 @@ Verification contract: Required
 - Migration is unapplied, so live persistence cannot be exercised until explicit production approval.
 - Deferred cause: this worker was explicitly prohibited from applying schema or changing production state.
 - Detection gap: static migration tests cannot prove live RLS behavior until an approved non-production or production apply.
-- Prevention and next owner: the release integrator must run `npm run db:migrations:verify-applied -- supabase/migrations/20260731200000_create_plane_workspace_items.sql`, exercise two-user and revoked-module RLS cases, and record the ledger before release.
+- Prevention and next owner: the release integrator must run `npm run db:migrations:verify-applied -- supabase/migrations/20260731231300_create_plane_workspace_items.sql`, exercise two-user and revoked-module RLS cases, and record the ledger before release.
 - Favorite folders and shared-shell integration remain subsequent slices.
 - The release integrator must add this derived feature to the global Plane AGPL notice/source-offer manifest before any remote deployment.
 

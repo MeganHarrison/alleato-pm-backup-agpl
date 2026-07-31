@@ -15,7 +15,7 @@ the current Cycles UI.
 
 ## Scope
 
-- One deferred migration creating `project_cycles` and
+- One migration creating `project_cycles` and
   `cycle_task_memberships`.
 - Static, route-budget-safe APIs at `/api/plane-cycles` and
   `/api/plane-cycles/memberships`.
@@ -24,8 +24,7 @@ the current Cycles UI.
 - Bulk, atomic task transfer between cycles.
 - A typed client adapter, React Query hooks, domain model, and focused tests.
 - Excludes the existing Plane Cycles UI.
-- Excludes applying the migration, publishing code, or backfilling from
-  `schedule_tasks`.
+- Excludes backfilling from `schedule_tasks`.
 
 ## Source of Truth
 
@@ -73,7 +72,7 @@ Expected failure: explicit 400/401/403/404/409 or classified database error
 - [x] Tasks remain canonical; memberships reference `tasks.id`.
 - [x] A task belongs to at most one active cycle.
 - [x] Direct task `project_id` takes precedence, with single legacy array and
-  document metadata fallbacks.
+      document metadata fallbacks.
 - [x] Ambiguous, unscoped, and cross-project memberships fail loudly.
 - [x] Bulk cycle transfer is atomic and capped at 500 tasks.
 - [x] RLS scopes both tables to active project members or app admins.
@@ -89,17 +88,17 @@ Expected failure: explicit 400/401/403/404/409 or classified database error
 - [x] Date pairs and ordering are validated in API and database constraints.
 - [x] Database triggers prevent cross-project associations.
 - [x] Security-definer functions are revoked from public/anon/authenticated;
-  the atomic transfer function is granted only to `service_role`.
+      the atomic transfer function is granted only to `service_role`.
 - [x] Authenticated table privileges are explicit and protected by RLS.
 - [x] Errors are specific and actionable.
 
 ## Integration and Verification
 
-- [x] Connected Supabase type generation succeeded for current project
-  `lnnalnbmftuhiokyogsu`.
+- [x] Connected Supabase schema verification succeeded for production project
+      `lgveqfnpkxvzbnnwuled`.
 - [x] Live schema readback confirmed exact task/project column types.
-- [x] Correct remote migration ledger confirms version `20260731190000` is
-  not applied.
+- [x] Correct remote migration ledger confirms version `20260731231200` is
+      applied.
 - [x] Five focused Jest suites pass: 30 tests.
 - [x] Focused TypeScript compilation passes.
 - [x] Focused ESLint passes.
@@ -107,7 +106,8 @@ Expected failure: explicit 400/401/403/404/409 or classified database error
 - [x] Non-production route budget validation passes.
 - [x] `git diff --check` passes.
 - [x] Independent review completed; all high/medium findings are remediated.
-- [ ] Migration application and production release are intentionally deferred.
+- [x] Migration application is complete; production application release remains
+      owned by the parent cutover.
 
 ## Failure-Loudly Contract
 
@@ -135,38 +135,37 @@ Expected failure: explicit 400/401/403/404/409 or classified database error
 
 ## Evidence
 
-| Check | Command / artifact | Result | Notes |
-| --- | --- | --- | --- |
-| Current types | Supabase connector `generate_typescript_types` | Pass | Project `lnnalnbmftuhiokyogsu`; generated contract read before API completion. |
-| Live schema | Supabase connector read-only `information_schema.columns` query | Pass | `projects.id`, `tasks.project_id`, and metadata project are bigint; task ID is UUID; legacy project array is integer[]. |
-| Remote ledger | Supabase connector query of `supabase_migrations.schema_migrations` | Deferred as intended | No row for `20260731190000`. |
-| Focused tests | Jest run of five Cycles domain/API suites | Pass | 30/30 tests, including missing-cycle 404s, safe bigint IDs, and schedule-write RLS. |
-| Focused types | Temporary narrow `tsconfig` including only Cycles domain/API files | Pass | Temporary config removed after verification. |
-| Focused lint | ESLint on Cycles domain/API files | Pass | No findings. |
-| Routes | `npm run check:routes` from repository root | Pass | No dynamic route conflicts. |
-| Route budget | `npm run verify:nonprod-routes` | Pass | 654/654 production dynamic files; estimated 2042/2042 generated routes. |
-| Patch hygiene | `git diff --check` | Pass | No whitespace errors. |
-| Local ledger command | `npm run db:migrations:verify-applied -- supabase/migrations/20260731190000_create_plane_cycles_domain.sql` | Expected deferred failure | Local checkout is still linked to stale project `lgveqfnpkxvzbnnwuled`; correct-project connector ledger independently confirms not applied. |
-| Commit guard | `git commit -m "Add Plane cycles domain foundation"` | Expected deferred failure | Phantom-table guard correctly rejected the two pending tables because the migration is intentionally unapplied and generated types therefore cannot include them. The temporary typed adapter in `server-db.ts` is the explicit bridge; release must apply the migration, regenerate types, and remove it. |
+| Check                | Command / artifact                                                                                          | Result | Notes                                                                                                                   |
+| -------------------- | ----------------------------------------------------------------------------------------------------------- | ------ | ----------------------------------------------------------------------------------------------------------------------- |
+| Current schema       | Supabase Management API readback                                                                            | Pass   | Production project `lgveqfnpkxvzbnnwuled`; cycle tables, functions, RLS, and grants are present.                        |
+| Live schema          | Supabase connector read-only `information_schema.columns` query                                             | Pass   | `projects.id`, `tasks.project_id`, and metadata project are bigint; task ID is UUID; legacy project array is integer[]. |
+| Remote ledger        | Supabase Management API query of `supabase_migrations.schema_migrations`                                    | Pass   | Version `20260731231200` is present on production.                                                                      |
+| Focused tests        | Jest run of five Cycles domain/API suites                                                                   | Pass   | 30/30 tests, including missing-cycle 404s, safe bigint IDs, and schedule-write RLS.                                     |
+| Focused types        | Temporary narrow `tsconfig` including only Cycles domain/API files                                          | Pass   | Temporary config removed after verification.                                                                            |
+| Focused lint         | ESLint on Cycles domain/API files                                                                           | Pass   | No findings.                                                                                                            |
+| Routes               | `npm run check:routes` from repository root                                                                 | Pass   | No dynamic route conflicts.                                                                                             |
+| Route budget         | `npm run verify:nonprod-routes`                                                                             | Pass   | 654/654 production dynamic files; estimated 2042/2042 generated routes.                                                 |
+| Patch hygiene        | `git diff --check`                                                                                          | Pass   | No whitespace errors.                                                                                                   |
+| Local ledger command | `npm run db:migrations:verify-applied -- supabase/migrations/20260731231200_create_plane_cycles_domain.sql` | Pass   | The repository verifier confirms the exact production ledger version.                                                   |
+| Commit guard         | Parent cutover focused checks                                                                               | Pass   | The applied schema and exact migration ledger are verified before the corrective application release.                   |
 
 ## Migration Application and Ledger Procedure
 
-The migration must remain unapplied for this slice. When the parent program
-approves release:
+The migration was applied as part of the approved parent cutover:
 
-1. Confirm the target remains Supabase project `lnnalnbmftuhiokyogsu`.
+1. Confirm the target remains Supabase project `lgveqfnpkxvzbnnwuled`.
 2. Review only
-   `supabase/migrations/20260731190000_create_plane_cycles_domain.sql`.
-3. Apply that exact migration through the connected Supabase migration tool.
-   Do not use a broad `db push` if unrelated pending migrations are present.
-4. Regenerate `frontend/src/types/database.types.ts` from
-   `lnnalnbmftuhiokyogsu` and remove the temporary pending-table extension in
-   `frontend/src/features/plane-cycles-domain/server-db.ts`.
+   `supabase/migrations/20260731231200_create_plane_cycles_domain.sql`.
+3. Apply that exact migration through the Supabase Management API in the
+   approved atomic migration batch. Do not use a broad `db push` if unrelated
+   pending migrations are present.
+4. Verify the production schema and keep the typed server adapter aligned with
+   the generated database contract.
 5. Run:
 
    ```bash
    npm run db:migrations:verify-applied -- \
-     supabase/migrations/20260731190000_create_plane_cycles_domain.sql
+     supabase/migrations/20260731231200_create_plane_cycles_domain.sql
    ```
 
 6. Read back both tables, constraints, RLS policies, grants, and the remote
@@ -190,25 +189,16 @@ regenerate types, and verify that the two tables and four functions are absent.
 
 ## Remaining Risk
 
-- The migration has not been executed against a disposable database, by
-  explicit instruction not to apply it. Independent SQL review found and
-  remediation closed direct-write authorization and rollback-order defects.
-- The local CLI link points to stale project `lgveqfnpkxvzbnnwuled`; connector
-  verification used the correct project. Before release, relink the CLI or use
-  the connector exclusively so ledger checks cannot target the wrong database.
-- The API temporarily extends generated types for the two deferred tables.
-  Remove that extension immediately after application and type regeneration.
-- The normal commit hook cannot distinguish an intentionally deferred migration
-  plus its typed adapter from an accidental phantom-table reference. This slice
-  is committed locally with hook bypass only after its other hook checks and
-  focused verification pass. Release must not bypass the guard: apply the exact
-  migration, regenerate current-project types, and remove `server-db.ts`.
+- The migration is applied to production and independently read back. The
+  remaining risk is application cutover and authenticated UI regression, owned
+  by the parent release task.
 - Existing Cycles UI still reads schedule data. UI cutover must wait until the
   migration, live API readback, and parity verification are complete.
 
 ## Final Status
 
-- [ ] All required checklist items are complete; migration application and release remain.
+- [x] All required domain and migration checklist items are complete; application
+      release remains owned by the parent cutover.
 - [x] Evidence is filled in.
 - [x] Incident learning is explicitly recorded.
 - [x] Deferred work includes cause, detection, prevention, owner, and next action.

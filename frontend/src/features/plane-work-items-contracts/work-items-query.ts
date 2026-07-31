@@ -199,6 +199,15 @@ export function updatePlaneWorkItemsQuery(
   });
 }
 
+export function buildPlaneWorkItemsHref(
+  projectId: string | number,
+  patch: Partial<PlaneWorkItemsQuery> = {},
+): string {
+  const query = updatePlaneWorkItemsQuery("", patch).toString();
+  const pathname = `/${projectId}/plane/work-items`;
+  return query ? `${pathname}?${query}` : pathname;
+}
+
 function normalizeStatus(
   value: string | null | undefined,
 ): PlaneWorkItemStatus {

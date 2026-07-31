@@ -3,7 +3,7 @@ import path from "node:path";
 
 const migrationPath = path.resolve(
   process.cwd(),
-  "../supabase/migrations/20260731093000_create_plane_project_modules.sql",
+  "../supabase/migrations/20260731231100_create_plane_project_modules.sql",
 );
 const sql = fs.readFileSync(migrationPath, "utf8");
 const executableSql = sql.split("-- Controlled rollback")[0] ?? sql;

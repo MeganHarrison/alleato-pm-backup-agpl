@@ -3,7 +3,7 @@ import path from "node:path";
 
 const migrationPath = path.resolve(
   process.cwd(),
-  "../supabase/migrations/20260731190000_create_plane_cycles_domain.sql",
+  "../supabase/migrations/20260731231200_create_plane_cycles_domain.sql",
 );
 const migration = fs.readFileSync(migrationPath, "utf8");
 

@@ -3,7 +3,7 @@ import path from "node:path";
 
 const migrationPath = path.resolve(
   process.cwd(),
-  "../supabase/migrations/20260731200000_create_plane_workspace_items.sql",
+  "../supabase/migrations/20260731231300_create_plane_workspace_items.sql",
 );
 
 describe("Plane workspace items migration", () => {

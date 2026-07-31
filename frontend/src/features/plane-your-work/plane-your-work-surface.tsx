@@ -62,6 +62,7 @@ import {
   TASK_PRIORITY_VALUES,
   TASK_STATUS_VALUES,
 } from "@/features/tasks/task-values";
+import { buildPlaneWorkItemsHref } from "@/features/plane-work-items-contracts/work-items-query";
 import { useCurrentUserProfile } from "@/hooks/use-current-user-profile";
 import { apiFetch } from "@/lib/api-client";
 import { getErrorDetail } from "@/lib/format-error";
@@ -191,7 +192,6 @@ function PlaneTaskDueDatePicker({
 }
 
 function PlaneYourWorkDetail({
-  scope,
   task,
   projects,
   users,
@@ -202,7 +202,6 @@ function PlaneYourWorkDetail({
   onUpdate,
   onDelete,
 }: {
-  scope: PlaneYourWorkScope;
   task: TasksRow;
   projects: ProjectOption[];
   users: UserOption[];
@@ -314,10 +313,7 @@ function PlaneYourWorkDetail({
               value={task.due_date}
               disabled={updating}
               onChange={(value) =>
-                onUpdate(
-                  { due_date: value },
-                  { due_date: value },
-                )
+                onUpdate({ due_date: value }, { due_date: value })
               }
             />
           </DetailProperty>
@@ -335,8 +331,7 @@ function PlaneYourWorkDetail({
                   { project_id: nextProjectId },
                   {
                     project_id: nextProjectId,
-                    project_ids:
-                      nextProjectId === null ? [] : [nextProjectId],
+                    project_ids: nextProjectId === null ? [] : [nextProjectId],
                     project_name: project?.name ?? null,
                   },
                 );
@@ -363,8 +358,7 @@ function PlaneYourWorkDetail({
               value={task.assignee_person_id ?? "__unassigned__"}
               disabled={updating}
               onValueChange={(value) => {
-                const personId =
-                  value === "__unassigned__" ? null : value;
+                const personId = value === "__unassigned__" ? null : value;
                 const user = users.find(
                   (candidate) => candidate.person_id === personId,
                 );
@@ -389,10 +383,7 @@ function PlaneYourWorkDetail({
                 {users
                   .filter((user) => user.person_id)
                   .map((user) => (
-                    <SelectItem
-                      key={user.id}
-                      value={user.person_id as string}
-                    >
+                    <SelectItem key={user.id} value={user.person_id as string}>
                       {user.full_name || user.email || "Unnamed user"}
                     </SelectItem>
                   ))}
@@ -400,9 +391,7 @@ function PlaneYourWorkDetail({
             </Select>
           </DetailProperty>
           <DetailProperty label="Created">
-            {task.created_at
-              ? formatPlaneTaskDate(task.created_at)
-              : "Not set"}
+            {task.created_at ? formatPlaneTaskDate(task.created_at) : "Not set"}
           </DetailProperty>
           <DetailProperty label="Source">
             {sourceTarget ? (
@@ -444,18 +433,12 @@ function PlaneYourWorkDetail({
         </Button>
         {projectId !== null ? (
           <Button asChild variant="outline">
-            <Link href={`/${projectId}/tasks?task=${taskId}`}>
-              View project tasks
+            <Link href={buildPlaneWorkItemsHref(projectId, { peekId: taskId })}>
+              Open work item
               <ArrowRight className="size-4" />
             </Link>
           </Button>
         ) : null}
-        <Button asChild variant="outline">
-          <Link href={`/tasks?scope=${scope}&task=${taskId}`}>
-            View all tasks
-            <ArrowRight className="size-4" />
-          </Link>
-        </Button>
       </SheetFooter>
     </>
   );
@@ -586,13 +569,7 @@ export function PlaneYourWorkSurface() {
     [tasks],
   );
   const filteredTasks = React.useMemo(
-    () =>
-      filterPlaneYourWorkTasks(
-        tasks,
-        statusFilter,
-        projectFilter,
-        query,
-      ),
+    () => filterPlaneYourWorkTasks(tasks, statusFilter, projectFilter, query),
     [projectFilter, query, statusFilter, tasks],
   );
   const groups = React.useMemo(
@@ -600,9 +577,7 @@ export function PlaneYourWorkSurface() {
     [filteredTasks],
   );
   const selectedTask =
-    selectedDetail ??
-    tasks.find((task) => task.id === selectedId) ??
-    null;
+    selectedDetail ?? tasks.find((task) => task.id === selectedId) ?? null;
 
   async function updateTask(
     taskId: string,
@@ -788,7 +763,6 @@ export function PlaneYourWorkSurface() {
         <SheetContent className="gap-0 p-0 sm:max-w-2xl">
           {selectedTask ? (
             <PlaneYourWorkDetail
-              scope={scope}
               task={selectedTask}
               projects={projects}
               users={users}

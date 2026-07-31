@@ -88,7 +88,7 @@ Verification contract: Required
 | --- | --- | --- | --- |
 | Types gate | `npx supabase gen types typescript --project-id "lnnalnbmftuhiokyogsu" --schema public` | Blocked | Local CLI auth failed with `LegacyInvalidAccessTokenError: Invalid access token format`; checked-in `frontend/src/types/database.types.ts` also does not yet include these Plane domain tables. |
 | Scope | `npm.cmd run test:unit -- --runInBand --silent --runTestsByPath src/features/plane-domain-security/__tests__/anon-grants-migration.test.ts` | Pass | 3/3 exact revoke and service-role grant tests passed. |
-| Patch hygiene | `git diff --check -- supabase/migrations/20260731213000_revoke_plane_domain_anon_grants.sql frontend/src/features/plane-domain-security/__tests__/anon-grants-migration.test.ts docs/ops/tasks/2026-07-31-plane-domain-anon-grants.md` | Pass | No whitespace errors in task-owned files. |
+| Patch hygiene | `git diff --check -- supabase/migrations/20260731231500_revoke_plane_domain_anon_grants.sql frontend/src/features/plane-domain-security/__tests__/anon-grants-migration.test.ts docs/ops/tasks/2026-07-31-plane-domain-anon-grants.md` | Pass | No whitespace errors in task-owned files. |
 | Live ledger and privileges | Parent release checkpoint | Deferred | This task must not apply or publish. |
 
 ## Remaining Risk

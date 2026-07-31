@@ -7,7 +7,7 @@ const migrationSql = readFileSync(
     "..",
     "supabase",
     "migrations",
-    "20260731051836_secure_notes_rls.sql",
+    "20260731231000_secure_notes_rls.sql",
   ),
   "utf8",
 )
@@ -86,7 +86,7 @@ describe("secure notes RLS migration contract", () => {
     expect(migrationSql).toContain("rollback / recovery");
     expect(migrationSql).toContain("never disable rls as rollback");
     expect(migrationSql).toContain(
-      "npm run db:migrations:verify-applied -- supabase/migrations/20260731051836_secure_notes_rls.sql",
+      "npm run db:migrations:verify-applied -- supabase/migrations/20260731231000_secure_notes_rls.sql",
     );
   });
 });

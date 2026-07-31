@@ -16,7 +16,7 @@ canonical `tasks` lifecycle, replacing the temporary practice of relabeling
 ## Scope
 
 - One new migration:
-  `supabase/migrations/20260731093000_create_plane_project_modules.sql`.
+  `supabase/migrations/20260731231100_create_plane_project_modules.sql`.
 - Static, route-budget-safe API namespace under
   `frontend/src/app/api/plane-modules/**`.
 - Typed model, adapter, and React Query hooks under
@@ -163,7 +163,7 @@ This task intentionally does not apply the migration. The release owner must
 apply it deliberately and then run:
 
 ```bash
-npm run db:migrations:verify-applied -- supabase/migrations/20260731093000_create_plane_project_modules.sql
+npm run db:migrations:verify-applied -- supabase/migrations/20260731231100_create_plane_project_modules.sql
 ```
 
 Release is blocked until the linked ledger reports the migration version in the

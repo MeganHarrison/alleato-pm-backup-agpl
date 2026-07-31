@@ -16,7 +16,7 @@
 --    approval; never disable RLS as rollback.
 --
 -- Production ledger verification after an approved apply:
--- npm run db:migrations:verify-applied -- supabase/migrations/20260731051836_secure_notes_rls.sql
+-- npm run db:migrations:verify-applied -- supabase/migrations/20260731231000_secure_notes_rls.sql
 
 begin;
 

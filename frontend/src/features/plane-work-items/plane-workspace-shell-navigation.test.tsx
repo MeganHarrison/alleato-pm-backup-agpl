@@ -127,10 +127,13 @@ describe("Plane workspace desktop sidebar navigation", () => {
       screen.getByRole("link", { name: "Drafts" }).getAttribute("href"),
     ).toBe("/31/plane/drafts");
     expect(
+      screen.getByRole("link", { name: "Stickies" }).getAttribute("href"),
+    ).toBe("/31/plane/stickies");
+    expect(
       screen.getByRole("link", { name: "Projects" }).getAttribute("href"),
     ).toBe("/31/plane/projects");
 
-    for (const label of ["Stickies unavailable", "More unavailable"]) {
+    for (const label of ["More unavailable"]) {
       const control = screen.getByRole("button", { name: label });
       expect((control as HTMLButtonElement).disabled).toBe(true);
       expect(control.getAttribute("aria-disabled")).toBe("true");

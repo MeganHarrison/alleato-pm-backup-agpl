@@ -154,7 +154,7 @@ function editorForView(view: SavedTableView): ViewEditorState {
 export function PlaneProjectViewsIndex({
   projectId,
   projectName,
-  taskRoute = `/${projectId}/tasks`,
+  taskRoute = `/${projectId}/plane/work-items`,
 }: PlaneProjectViewsIndexProps) {
   const router = useRouter();
   const scopeKey = `project-tasks-${projectId}`;

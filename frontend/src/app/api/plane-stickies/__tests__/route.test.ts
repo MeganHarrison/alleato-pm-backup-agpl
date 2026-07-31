@@ -191,7 +191,7 @@ describe("/api/plane-stickies", () => {
       error_message:
         "Stickies are unavailable until the Plane Stickies database migration is applied.",
       details: {
-        migration: "20260731210000_create_plane_stickies.sql",
+        migration: "20260731231400_create_plane_stickies.sql",
       },
     });
     expect(JSON.stringify(payload)).not.toContain("42P01");

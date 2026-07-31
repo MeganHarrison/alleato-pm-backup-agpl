@@ -1,4 +1,5 @@
 import {
+  buildPlaneWorkItemsHref,
   filterAndSortPlaneWorkItems,
   parsePlaneWorkItemsQuery,
   serializePlaneWorkItemsQuery,
@@ -77,6 +78,13 @@ describe("Plane Work Items URL contract", () => {
         peekId: "three",
       }).toString(),
     ).toBe("view=board&q=owner&status=open&peek=three");
+  });
+
+  it("builds canonical Plane Work Items list and inspector links", () => {
+    expect(buildPlaneWorkItemsHref(31)).toBe("/31/plane/work-items");
+    expect(buildPlaneWorkItemsHref("31", { peekId: "task-1" })).toBe(
+      "/31/plane/work-items?peek=task-1",
+    );
   });
 
   it("preserves valid legacy saved-view date ranges in canonical URLs", () => {
