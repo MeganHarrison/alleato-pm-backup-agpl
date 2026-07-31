@@ -1,6 +1,3 @@
-"use client";
-
-import { createClient } from "@/lib/supabase/client";
 import type { Database } from "@/types/database.types";
 
 export type ProjectPage = Database["public"]["Tables"]["notes"]["Row"];
@@ -13,54 +10,66 @@ function pageError(action: string, message: string): Error {
   return new Error(`Could not ${action} page: ${message}`);
 }
 
-export async function listProjectPages(projectId: number): Promise<ProjectPage[]> {
-  const supabase = createClient();
-  const { data, error } = await supabase
-    .from("notes")
-    .select("*")
-    .eq("project_id", projectId)
-    .order("updated_at", { ascending: false, nullsFirst: false })
-    .order("created_at", { ascending: false, nullsFirst: false });
+type PageApiError = {
+  error?: string;
+  error_message?: string;
+  request_id?: string;
+};
 
-  if (error) {
-    throw pageError("load", error.message);
+async function requestPageApi<T>(
+  action: string,
+  input: string,
+  init?: RequestInit,
+): Promise<T> {
+  const response = await fetch(input, {
+    ...init,
+    headers: {
+      "content-type": "application/json",
+      ...init?.headers,
+    },
+  });
+
+  if (!response.ok) {
+    const payload = (await response.json().catch(() => ({}))) as PageApiError;
+    const detail =
+      payload.error_message ||
+      payload.error ||
+      `request failed with status ${response.status}`;
+    const requestId = payload.request_id
+      ? ` Request ID: ${payload.request_id}.`
+      : "";
+    throw pageError(action, `${detail}${requestId}`);
   }
 
-  return data ?? [];
+  if (response.status === 204) {
+    return undefined as T;
+  }
+
+  return (await response.json()) as T;
 }
 
-export async function createProjectPage(projectId: number): Promise<ProjectPage> {
-  const supabase = createClient();
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
+export async function listProjectPages(
+  projectId: number,
+): Promise<ProjectPage[]> {
+  const result = await requestPageApi<{ data: ProjectPage[] }>(
+    "load",
+    `/api/notes?project_id=${projectId}`,
+  );
+  return result.data;
+}
 
-  if (userError) {
-    throw pageError("create", userError.message);
-  }
-
-  if (!user) {
-    throw pageError("create", "your session has expired. Sign in and try again.");
-  }
-
-  const { data, error } = await supabase
-    .from("notes")
-    .insert({
-      project_id: projectId,
-      title: "Untitled",
-      body: "",
-      archived: false,
-      created_by: user.id,
-    })
-    .select("*")
-    .single();
-
-  if (error) {
-    throw pageError("create", error.message);
-  }
-
-  return data;
+export async function createProjectPage(
+  projectId: number,
+): Promise<ProjectPage> {
+  const result = await requestPageApi<{ data: ProjectPage }>(
+    "create",
+    "/api/notes",
+    {
+      method: "POST",
+      body: JSON.stringify({ projectId, title: "Untitled", body: "" }),
+    },
+  );
+  return result.data;
 }
 
 export async function updateProjectPage(
@@ -68,21 +77,24 @@ export async function updateProjectPage(
   pageId: number,
   values: Partial<ProjectPageUpdate>,
 ): Promise<ProjectPage> {
-  const supabase = createClient();
-  const { data, error } = await supabase
-    .from("notes")
-    .update({
-      ...values,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("project_id", projectId)
-    .eq("id", pageId)
-    .select("*")
-    .single();
+  const result = await requestPageApi<{ data: ProjectPage }>(
+    "save",
+    "/api/notes",
+    {
+      method: "PATCH",
+      body: JSON.stringify({ projectId, pageId, ...values }),
+    },
+  );
+  return result.data;
+}
 
-  if (error) {
-    throw pageError("save", error.message);
-  }
-
-  return data;
+export async function deleteProjectPage(
+  projectId: number,
+  pageId: number,
+): Promise<void> {
+  await requestPageApi<void>(
+    "delete",
+    `/api/notes?project_id=${projectId}&note_id=${pageId}`,
+    { method: "DELETE" },
+  );
 }

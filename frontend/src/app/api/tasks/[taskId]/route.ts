@@ -8,11 +8,19 @@ import { createServiceClient } from "@/lib/supabase/service";
 import { serviceDb } from "@/lib/supabase/service-db";
 import { apiErrorResponse } from "@/lib/api-error";
 import {
+  isAuthError,
+  verifyProjectAccess,
+} from "@/lib/supabase/auth-guard";
+import {
   TASK_PRIORITY_VALUES,
   TASK_STATUS_VALUES,
 } from "@/features/tasks/task-values";
 import type { Json } from "@/types/database.types";
 import { mapTaskRow, type JoinedTaskRow } from "@/features/tasks/task-utils";
+import {
+  resolveTaskProjectAssociation,
+  type TaskProjectAssociationRow,
+} from "../task-project-resolution";
 
 const TASK_COLUMNS = `
   id,
@@ -72,6 +80,7 @@ type JsonRecord = { [key: string]: Json | undefined };
 
 const TaskStatusSchema = z.enum(TASK_STATUS_VALUES);
 const TaskPrioritySchema = z.enum(TASK_PRIORITY_VALUES);
+const TaskIdSchema = z.string().uuid();
 
 const PatchBodySchema = z
   .object({
@@ -81,9 +90,7 @@ const PatchBodySchema = z
     due_date: z
       .union([z.string().regex(/^\d{4}-\d{2}-\d{2}$/), z.literal(""), z.null()])
       .optional(),
-    project_id: z
-      .union([z.coerce.number().int().positive(), z.null()])
-      .optional(),
+    project_id: z.coerce.number().int().positive().optional(),
     category: z.union([z.string().trim().min(1), z.null()]).optional(),
     priority: z.union([TaskPrioritySchema, z.null()]).optional(),
     assignee_user_id: z.union([z.string().uuid(), z.null()]).optional(),
@@ -107,6 +114,76 @@ function toJsonRecord(value: unknown): JsonRecord {
   return typeof value === "object" && value !== null && !Array.isArray(value)
     ? { ...(value as JsonRecord) }
     : {};
+}
+
+function parseTaskId(taskId: string | undefined, where: string) {
+  const parsed = TaskIdSchema.safeParse(taskId);
+  if (!parsed.success) {
+    throw new GuardrailError({
+      code: "VALIDATION_ERROR",
+      where,
+      message: "Task ID must be a valid UUID.",
+      status: 400,
+    });
+  }
+  return parsed.data;
+}
+
+async function authorizeTaskWrite(
+  taskId: string,
+  user: { id: string; email?: string | null },
+  where: string,
+) {
+  const { data: taskAssociation, error: associationError } = await serviceDb
+    .from("tasks")
+    .select(
+      `
+        project_id,
+        project_ids,
+        document_metadata:tasks_metadata_id_fkey (project_id)
+      `,
+    )
+    .eq("id", taskId)
+    .maybeSingle();
+
+  if (associationError) {
+    throw new GuardrailError({
+      code: "INTERNAL_ERROR",
+      where,
+      message: "Failed to resolve task project access.",
+      details: { reason: associationError.message, taskId },
+      cause: associationError,
+    });
+  }
+  if (!taskAssociation) {
+    throw new GuardrailError({
+      code: "NOT_FOUND",
+      where,
+      message: "Task not found.",
+      status: 404,
+    });
+  }
+
+  const project = resolveTaskProjectAssociation(
+    taskAssociation as TaskProjectAssociationRow,
+  );
+  if (project.status !== "resolved") {
+    throw new GuardrailError({
+      code: "VALIDATION_ERROR",
+      where,
+      message: project.reason,
+      status: 409,
+      details: { taskId, resolution: project.status },
+    });
+  }
+
+  // Product policy: Tasks currently use active project membership as their
+  // write boundary. There is intentionally no invented `tasks` permission
+  // module here; role-based refinement remains a separate product decision.
+  const access = await verifyProjectAccess(project.projectId, user);
+  if (isAuthError(access)) return access;
+
+  return { access, project };
 }
 
 async function resolveAssignee(userId: string | null) {
@@ -271,13 +348,24 @@ export const GET = withApiGuardrails(
 export const PATCH = withApiGuardrails(
   "tasks/[taskId]#PATCH",
   async ({ request, params }) => {
-    const { taskId } = await params;
-    if (!taskId) {
-      return NextResponse.json(
-        { error: "Task ID is required" },
-        { status: 400 },
-      );
+    const rawParams = await params;
+    const taskId = parseTaskId(rawParams.taskId, "tasks/[taskId]#PATCH");
+    const user = await getApiRouteUser();
+    if (!user) {
+      throw new GuardrailError({
+        code: "AUTH_EXPIRED",
+        where: "tasks/[taskId]#PATCH",
+        message: "Authentication required.",
+      });
     }
+
+    const authorization = await authorizeTaskWrite(
+      taskId,
+      user,
+      "tasks/[taskId]#PATCH",
+    );
+    if (authorization instanceof NextResponse) return authorization;
+    const { access, project } = authorization;
 
     const body = await request.json();
     const parsed = PatchBodySchema.safeParse(body);
@@ -288,22 +376,24 @@ export const PATCH = withApiGuardrails(
       );
     }
 
-    const supabase = await createClient();
-    const user = await getApiRouteUser();
-    if (!user) {
-      throw new GuardrailError({
-        code: "AUTH_EXPIRED",
-        where: "tasks/[taskId]#PATCH",
-        message: "Authentication required.",
-      });
+    if (
+      parsed.data.project_id !== undefined &&
+      parsed.data.project_id !== project.projectId
+    ) {
+      const targetAccess = await verifyProjectAccess(
+        parsed.data.project_id,
+        user,
+      );
+      if (isAuthError(targetAccess)) return targetAccess;
     }
 
+    const mutationClient = access.serviceClient;
     const updates: {
       title?: string | null;
       description?: string;
       status?: string;
       due_date?: string | null;
-      project_id?: number | null;
+      project_id?: number;
       project_ids?: number[];
       priority?: string | null;
       assignee_person_id?: string | null;
@@ -334,8 +424,7 @@ export const PATCH = withApiGuardrails(
 
     if (parsed.data.project_id !== undefined) {
       updates.project_id = parsed.data.project_id;
-      updates.project_ids =
-        parsed.data.project_id === null ? [] : [parsed.data.project_id];
+      updates.project_ids = [parsed.data.project_id];
     }
 
     if (parsed.data.priority !== undefined) {
@@ -357,7 +446,8 @@ export const PATCH = withApiGuardrails(
     }
 
     if (parsed.data.category !== undefined) {
-      const { data: currentTask, error: currentTaskError } = await supabase
+      const { data: currentTask, error: currentTaskError } =
+        await mutationClient
         .from("tasks")
         .select("extraction_metadata")
         .eq("id", taskId)
@@ -376,15 +466,18 @@ export const PATCH = withApiGuardrails(
       updates.extraction_metadata = metadata;
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await mutationClient
       .from("tasks")
       .update(updates)
       .eq("id", taskId)
       .select()
-      .single();
+      .maybeSingle();
 
     if (error) {
       return apiErrorResponse(error);
+    }
+    if (!data) {
+      return NextResponse.json({ error: "Task not found" }, { status: 404 });
     }
 
     return NextResponse.json({ task: data });
@@ -394,15 +487,8 @@ export const PATCH = withApiGuardrails(
 export const DELETE = withApiGuardrails(
   "tasks/[taskId]#DELETE",
   async ({ request, params }) => {
-    const { taskId } = await params;
-    if (!taskId) {
-      return NextResponse.json(
-        { error: "Task ID is required" },
-        { status: 400 },
-      );
-    }
-
-    const supabase = await createClient();
+    const rawParams = await params;
+    const taskId = parseTaskId(rawParams.taskId, "tasks/[taskId]#DELETE");
     const user = await getApiRouteUser();
 
     if (!user) {
@@ -413,10 +499,25 @@ export const DELETE = withApiGuardrails(
       });
     }
 
-    const { error } = await supabase.from("tasks").delete().eq("id", taskId);
+    const authorization = await authorizeTaskWrite(
+      taskId,
+      user,
+      "tasks/[taskId]#DELETE",
+    );
+    if (authorization instanceof NextResponse) return authorization;
+
+    const { data, error } = await authorization.access.serviceClient
+      .from("tasks")
+      .delete()
+      .eq("id", taskId)
+      .select("id")
+      .maybeSingle();
 
     if (error) {
       return apiErrorResponse(error);
+    }
+    if (!data) {
+      return NextResponse.json({ error: "Task not found" }, { status: 404 });
     }
 
     return NextResponse.json({ success: true });

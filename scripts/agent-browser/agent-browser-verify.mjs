@@ -14,28 +14,25 @@ const CLEANUP_SCRIPT_PATH = path.join(
   "agent-browser",
   "agent-browser-cleanup.mjs",
 );
-const DEFAULT_URL = process.env.PLAYWRIGHT_BASE_URL || process.env.BASE_URL || "http://localhost:3000";
+const DEFAULT_BASE_URL = process.env.PLAYWRIGHT_BASE_URL || process.env.BASE_URL || "http://localhost:3000";
+const DEFAULT_ROUTE = "/tasks";
 const DEFAULT_RETENTION_HOURS = 48;
-const AUTH_STATE_PATH = path.join(CWD, "frontend", "tests", ".auth", "user.json");
-const AUTH_TOKEN_MIN_TTL_MS = 5 * 60 * 1000;
 
-function loadEnvFile(relativePath) {
-  const file = path.resolve(CWD, relativePath);
-  if (!fs.existsSync(file)) return;
-
-  for (const line of fs.readFileSync(file, "utf8").split(/\n/)) {
-    const match = line.match(/^([A-Za-z_][A-Za-z0-9_]*)=(.*)$/);
-    if (!match) continue;
-
-    let value = match[2].trim();
-    if (
-      (value.startsWith('"') && value.endsWith('"')) ||
-      (value.startsWith("'") && value.endsWith("'"))
-    ) {
-      value = value.slice(1, -1);
-    }
-    process.env[match[1]] ||= value;
-  }
+function usage() {
+  return [
+    "Usage: npm run e2e:browser -- --route <path-or-url> [options]",
+    "",
+    "Options:",
+    "  --base-url <origin>       App origin (default: http://localhost:3000)",
+    "  --route <path-or-url>     Protected route to test (default: /tasks)",
+    "  --actions <file>          One agent-browser action per line",
+    "  --name <name>             Evidence run name",
+    "  --session <name>          Isolated browser session name",
+    "",
+    "The runner refreshes authenticated browser state, rejects login/access-denied",
+    "landings, then writes screenshots, video, DOM snapshots, console, and error logs",
+    "to tests/agent-browser-runs/.",
+  ].join("\n");
 }
 
 function slugify(value) {
@@ -52,16 +49,33 @@ function runId() {
 
 function parseArgs(argv) {
   const options = {
-    url: DEFAULT_URL,
-    name: "browser-verify",
+    baseUrl: DEFAULT_BASE_URL,
+    route: DEFAULT_ROUTE,
+    url: "",
+    name: "browser-e2e",
     actionsFile: "",
     session: "alleato-pm-e2e",
     retentionHours: DEFAULT_RETENTION_HOURS,
     skipCleanup: false,
+    help: false,
   };
 
   for (let i = 0; i < argv.length; i += 1) {
     const token = argv[i];
+    if (token === "--help" || token === "-h") {
+      options.help = true;
+      continue;
+    }
+    if (token === "--base-url" && argv[i + 1]) {
+      options.baseUrl = argv[i + 1];
+      i += 1;
+      continue;
+    }
+    if (token === "--route" && argv[i + 1]) {
+      options.route = argv[i + 1];
+      i += 1;
+      continue;
+    }
     if (token === "--url" && argv[i + 1]) {
       options.url = argv[i + 1];
       i += 1;
@@ -72,7 +86,7 @@ function parseArgs(argv) {
       i += 1;
       continue;
     }
-    if (token === "--actions-file" && argv[i + 1]) {
+    if ((token === "--actions" || token === "--actions-file") && argv[i + 1]) {
       options.actionsFile = path.resolve(argv[i + 1]);
       i += 1;
       continue;
@@ -91,6 +105,7 @@ function parseArgs(argv) {
       options.skipCleanup = true;
       continue;
     }
+    throw new Error(`Unknown or incomplete option: ${token}\n\n${usage()}`);
   }
 
   if (!Number.isFinite(options.retentionHours) || options.retentionHours <= 0) {
@@ -98,6 +113,33 @@ function parseArgs(argv) {
   }
 
   return options;
+}
+
+export function resolveTarget(options) {
+  const baseUrl = new URL(options.baseUrl).origin;
+  const targetUrl = options.url
+    ? new URL(options.url)
+    : new URL(options.route, `${baseUrl}/`);
+
+  if (!options.url && targetUrl.origin !== baseUrl) {
+    throw new Error("--route must stay on the --base-url origin.");
+  }
+
+  return {
+    baseUrl: targetUrl.origin,
+    targetUrl: targetUrl.toString(),
+    route: `${targetUrl.pathname}${targetUrl.search}`,
+  };
+}
+
+export function extractBrowserErrors(consoleOutput, errorsOutput = "") {
+  const consoleErrors = consoleOutput
+    .split("\n")
+    .filter((line) => line.trim().startsWith("[error]"));
+  const reportedErrors = errorsOutput
+    .split("\n")
+    .filter((line) => line.trim().length > 0);
+  return [...new Set([...consoleErrors, ...reportedErrors])];
 }
 
 function execute(cmd, args, { capture = false, allowFailure = false, cwd = CWD, env = process.env } = {}) {
@@ -158,79 +200,108 @@ function writeFile(filePath, contents) {
   fs.writeFileSync(filePath, contents, "utf8");
 }
 
-function parseAuthStateToken(authStatePath) {
-  if (!fs.existsSync(authStatePath)) return null;
-
-  const state = JSON.parse(fs.readFileSync(authStatePath, "utf8"));
-  const authCookie = (state.cookies ?? []).find((cookie) =>
-    /^sb-.*-auth-token$/.test(cookie.name),
-  );
-
-  if (!authCookie?.value) return null;
-
-  let sessionJson = authCookie.value;
-  if (sessionJson.startsWith("base64-")) {
-    sessionJson = Buffer.from(sessionJson.slice(7), "base64").toString("utf8");
-  }
-
-  const session = JSON.parse(sessionJson);
-  const jwt = session?.access_token;
-  if (typeof jwt !== "string") return null;
-
-  const parts = jwt.split(".");
-  if (parts.length !== 3) return null;
-
-  const payload = JSON.parse(Buffer.from(parts[1], "base64url").toString("utf8"));
-  return {
-    email: typeof payload.email === "string" ? payload.email : "",
-    expiresAtMs: typeof payload.exp === "number" ? payload.exp * 1000 : 0,
-  };
+export function appendNodePath(existingNodePath, dependencyRoot) {
+  return [dependencyRoot, existingNodePath]
+    .filter(Boolean)
+    .join(path.delimiter);
 }
 
-function hasUsableAuthState(authStatePath) {
-  try {
-    const token = parseAuthStateToken(authStatePath);
-    return Boolean(token?.expiresAtMs && token.expiresAtMs > Date.now() + AUTH_TOKEN_MIN_TTL_MS);
-  } catch {
-    return false;
+const AUTH_ENVIRONMENT_NAMES = new Set([
+  "NEXT_PUBLIC_SUPABASE_URL",
+  "SUPABASE_SERVICE_ROLE_KEY",
+  "TEST_USER_1",
+  "TEST_PASSWORD_1",
+]);
+
+export function mergeMissingAuthEnvironment(environment, contents) {
+  for (const line of contents.split("\n")) {
+    const match = line.match(/^([A-Za-z_][A-Za-z0-9_]*)=(.*)$/);
+    if (!match || !AUTH_ENVIRONMENT_NAMES.has(match[1]) || environment[match[1]]) continue;
+
+    let value = match[2].trim();
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      value = value.slice(1, -1);
+    }
+    environment[match[1]] = value;
   }
+  return environment;
 }
 
-function getOrigin(url) {
-  try {
-    return new URL(url).origin;
-  } catch {
-    return DEFAULT_URL;
+function loadMissingAuthEnvironment(environment, workspaceRoot) {
+  for (const relativePath of [".env", "frontend/.env.local", "frontend/.env"]) {
+    const filePath = path.join(workspaceRoot, relativePath);
+    if (fs.existsSync(filePath)) {
+      mergeMissingAuthEnvironment(environment, fs.readFileSync(filePath, "utf8"));
+    }
   }
 }
 
-function refreshAuthState(baseUrl, reason) {
-  console.log(`[agent-browser-verify] refreshing auth state (${reason})`);
-  execute(
-    "npx",
-    [
-      "playwright",
-      "test",
-      "tests/auth.setup.ts",
-      "--config",
-      "config/playwright/playwright.no-webserver.config.ts",
-      "--project",
-      "setup",
-    ],
-    {
-      cwd: path.join(CWD, "frontend"),
-      env: {
+function sharedFrontendNodeModules() {
+  const localDependencies = path.join(CWD, "frontend", "node_modules");
+  if (fs.existsSync(path.join(localDependencies, "@playwright", "test"))) {
+    return localDependencies;
+  }
+
+  const worktrees = spawnSync("git", ["worktree", "list", "--porcelain"], {
+    cwd: CWD,
+    encoding: "utf8",
+  });
+  if (worktrees.status !== 0) return null;
+
+  const candidates = worktrees.stdout
+    .split("\n")
+    .filter((line) => line.startsWith("worktree "))
+    .map((line) => line.slice("worktree ".length))
+    .filter((worktree) => path.resolve(worktree) !== path.resolve(CWD));
+
+  for (const worktree of candidates) {
+    const dependencies = path.join(worktree, "frontend", "node_modules");
+    if (fs.existsSync(path.join(dependencies, "@playwright", "test"))) {
+      return dependencies;
+    }
+  }
+
+  return null;
+}
+
+function prepareAuthenticatedBrowser(baseUrl, route, session) {
+  console.log(`[agent-browser-verify] preparing authenticated session=${session}`);
+  const dependencyRoot = sharedFrontendNodeModules();
+  const playwrightCli = dependencyRoot
+    ? path.join(dependencyRoot, ".bin", "playwright")
+    : "";
+  const env = dependencyRoot
+    ? {
         ...process.env,
-        PLAYWRIGHT_BASE_URL: baseUrl,
-        BASE_URL: baseUrl,
-      },
-    },
-  );
-}
+        NODE_PATH: appendNodePath(process.env.NODE_PATH, dependencyRoot),
+        ALLEATO_PLAYWRIGHT_CLI: playwrightCli,
+      }
+    : { ...process.env };
+  loadMissingAuthEnvironment(env, CWD);
 
-function ensureAuthState(baseUrl) {
-  if (hasUsableAuthState(AUTH_STATE_PATH)) return;
-  refreshAuthState(baseUrl, "missing or expired frontend/tests/.auth/user.json");
+  if (dependencyRoot && dependencyRoot !== path.join(CWD, "frontend", "node_modules")) {
+    loadMissingAuthEnvironment(env, path.resolve(dependencyRoot, "../.."));
+    console.log(`[agent-browser-verify] using shared Playwright dependencies from ${dependencyRoot}`);
+  }
+
+  execute(
+    "npm",
+    [
+      "run",
+      "verify:browser-auth",
+      "--",
+      "--base-url",
+      baseUrl,
+      "--route",
+      route,
+      "--session",
+      session,
+    ],
+    { cwd: CWD, env },
+  );
 }
 
 function currentBrowserUrl(session) {
@@ -259,7 +330,7 @@ export function classifyProtectedLanding(url) {
   }
 }
 
-function assertAuthenticatedLanding(session, targetUrl, baseUrl, authStatePath) {
+function assertAuthenticatedLanding(session, targetUrl) {
   const openedUrl = currentBrowserUrl(session);
   const initialLanding = classifyProtectedLanding(openedUrl);
   if (!initialLanding) return;
@@ -279,43 +350,35 @@ function assertAuthenticatedLanding(session, targetUrl, baseUrl, authStatePath) 
     );
   }
 
-  refreshAuthState(baseUrl, `agent-browser landed on login at ${openedUrl}`);
-  runAgentBrowser(session, ["close"], { allowFailure: true });
-  runAgentBrowser(session, ["open", targetUrl], { statePath: authStatePath });
-  runAgentBrowser(session, ["wait", "3000"]);
-
-  const retriedUrl = currentBrowserUrl(session);
-  const retriedLanding = classifyProtectedLanding(retriedUrl);
-  if (!retriedLanding) return;
-
   throw new Error(
     [
       "Browser verification could not authenticate the protected route.",
       `Target: ${targetUrl}`,
-      `Final URL: ${retriedUrl}`,
-      `Landing state: ${retriedLanding.kind}${retriedLanding.reason ? ` (${retriedLanding.reason})` : ""}`,
-      "Expected behavior: smoke verification opens protected pages as the test user by loading frontend/tests/.auth/user.json before page checks.",
-      "Cause: the refreshed Playwright auth state was not accepted by the app or the app denied the authenticated identity.",
-      "Detection gap: the verifier previously captured a protected-route failure as if it were page-level evidence.",
-      "Prevention: the verifier now refreshes stale auth once, then rejects every login or access-denied landing before evidence capture.",
+      `Final URL: ${openedUrl}`,
+      `Landing state: ${initialLanding.kind}${initialLanding.reason ? ` (${initialLanding.reason})` : ""}`,
+      "Cause: the authenticated preflight returned an invalid protected-route landing.",
+      "Detection gap: an earlier evidence runner reimplemented auth refresh and could diverge from the canonical preflight.",
+      "Prevention: every browser E2E run now delegates authentication to verify:browser-auth before it captures evidence.",
     ].join(" "),
   );
 }
 
 function summarize(actionsOutput, metadata) {
   const failedActions = actionsOutput.filter((entry) => entry.exitCode !== 0);
+  const browserErrors = metadata.browserErrors ?? [];
   const lines = [];
 
   lines.push(`# Agent Browser Verification - ${metadata.runName}`);
   lines.push("");
   lines.push(`- Run ID: \`${metadata.runId}\``);
-  lines.push(`- Status: **${failedActions.length === 0 ? "PASS" : "FAIL"}**`);
+  lines.push(`- Status: **${failedActions.length === 0 && browserErrors.length === 0 ? "PASS" : "FAIL"}**`);
   lines.push(`- URL: \`${metadata.url}\``);
   lines.push(`- Session: \`${metadata.session}\``);
   lines.push(`- Started: \`${metadata.startedAt}\``);
   lines.push(`- Finished: \`${metadata.finishedAt}\``);
   lines.push(`- Actions executed: \`${actionsOutput.length}\``);
   lines.push(`- Action failures: \`${failedActions.length}\``);
+  lines.push(`- Browser errors: \`${browserErrors.length}\``);
   lines.push(`- Run directory: \`${metadata.relativeRunDir}\``);
   lines.push("");
   lines.push("## Evidence");
@@ -344,6 +407,15 @@ function summarize(actionsOutput, metadata) {
     lines.push("");
   }
 
+  if (browserErrors.length > 0) {
+    lines.push("## Browser Errors");
+    lines.push("");
+    for (const error of browserErrors.slice(0, 10)) {
+      lines.push(`- ${error}`);
+    }
+    lines.push("");
+  }
+
   lines.push("## Next Step");
   lines.push("");
   lines.push("- Open the video and screenshots first, then inspect action and error logs for any failing step.");
@@ -354,10 +426,12 @@ function summarize(actionsOutput, metadata) {
 
 function main() {
   const options = parseArgs(process.argv.slice(2));
-  loadEnvFile(".env");
-  loadEnvFile("frontend/.env.local");
-  const baseUrl = getOrigin(options.url);
-  ensureAuthState(baseUrl);
+  if (options.help) {
+    console.log(usage());
+    return;
+  }
+
+  const { baseUrl, targetUrl, route } = resolveTarget(options);
   ensureDir(RUNS_ROOT);
 
   if (!options.skipCleanup) {
@@ -387,14 +461,12 @@ function main() {
 
   const actions = parseActionsFile(options.actionsFile);
   const actionsOutput = [];
+  let browserErrors = [];
   let failed = false;
 
   try {
-    runAgentBrowser(options.session, ["close"], { allowFailure: true });
-
-    runAgentBrowser(options.session, ["open", options.url], { statePath: AUTH_STATE_PATH });
-    runAgentBrowser(options.session, ["wait", "3000"]);
-    assertAuthenticatedLanding(options.session, options.url, baseUrl, AUTH_STATE_PATH);
+    prepareAuthenticatedBrowser(baseUrl, route, options.session);
+    assertAuthenticatedLanding(options.session, targetUrl);
 
     const initialSnapshot = runAgentBrowser(options.session, ["snapshot", "-i"], {
       capture: true,
@@ -423,6 +495,14 @@ function main() {
       allowFailure: true,
     });
     writeFile(errorsLogPath, (errorsOutput.stdout || "").toString());
+
+    browserErrors = extractBrowserErrors(
+      (consoleOutput.stdout || "").toString(),
+      (errorsOutput.stdout || "").toString(),
+    );
+    if (browserErrors.length > 0) {
+      failed = true;
+    }
 
     const finalSnapshot = runAgentBrowser(options.session, ["snapshot", "-i"], {
       capture: true,
@@ -462,7 +542,7 @@ function main() {
   const summary = summarize(actionsOutput, {
     runId: id,
     runName,
-    url: options.url,
+    url: targetUrl,
     session: options.session,
     startedAt,
     finishedAt,
@@ -475,6 +555,7 @@ function main() {
     relativeConsoleLog: path.relative(CWD, consoleLogPath),
     relativeErrorsLog: path.relative(CWD, errorsLogPath),
     relativeActionsLog: path.relative(CWD, actionsLogPath),
+    browserErrors,
   });
 
   const summaryPath = path.join(runDir, "VERIFICATION_SUMMARY.md");

@@ -6,8 +6,8 @@
   "scripts": {
     "postinstall": "rm -rf .next 2>/dev/null || true && node scripts/copy-pdfjs-express-assets.mjs",
     "prebuild": "node ../scripts/validate-runtime-config.mjs --supabase-binding-only",
-    "dev": "bash ../scripts/dev/start-frontend-clean.sh",
-    "dev:clean": "bash ../scripts/dev/start-frontend-clean.sh",
+    "dev": "node scripts/dev/start-frontend-clean.mjs",
+    "dev:clean": "node scripts/dev/start-frontend-clean.mjs",
     "pdfjs-express:assets": "node scripts/copy-pdfjs-express-assets.mjs",
     "ai:devtools": "devtools",
     "build": "npm run quality:build-routes && NODE_OPTIONS='--max-old-space-size=7168' next build",

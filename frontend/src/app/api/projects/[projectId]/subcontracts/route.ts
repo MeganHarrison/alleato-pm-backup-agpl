@@ -172,6 +172,13 @@ export const POST = withApiGuardrails<{ projectId: string }>(
             description: item.description || null,
             amount: toNumber(item.amount),
             billed_to_date: toNumber(item.billedToDate),
+            // Unit/quantity pricing. The SOV form has a unit_quantity accounting
+            // method that collects these, but they were never written — only the
+            // extended amount survived, so unit cost and UOM vanished on save.
+            // The purchase-order route has always persisted them; this matches it.
+            quantity: item.quantity ?? null,
+            unit_cost: item.unitCost ?? null,
+            unit_of_measure: item.unitOfMeasure || null,
             sort_order: index,
           };
         }),

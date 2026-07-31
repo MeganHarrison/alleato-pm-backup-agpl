@@ -264,6 +264,36 @@ describe("navigation config", () => {
     }
   });
 
+  it("routes project Tasks to Plane Work Items without changing company Tasks", () => {
+    const projectTaskTools = [
+      ...sidebarNavGroups.flatMap((group) => group.tools),
+      ...headerTools,
+    ].filter(
+      (tool) =>
+        tool.name === "Project Tasks" && tool.requiresProject === true,
+    );
+    const companyTasks = companyWideHeaderTools.find(
+      (tool) => tool.name === "Tasks",
+    );
+
+    expect(projectTaskTools).toHaveLength(2);
+    expect(
+      projectTaskTools.every((tool) => tool.path === "plane/work-items"),
+    ).toBe(true);
+    expect(companyTasks).toMatchObject({
+      name: "Tasks",
+      path: "tasks",
+      requiresProject: false,
+    });
+    expect(
+      buildToolUrl(
+        companyTasks?.path ?? "",
+        null,
+        companyTasks?.requiresProject,
+      ),
+    ).toBe("/tasks");
+  });
+
   it("allows User Management for configured project leadership roles", () => {
     const userManagementTools = companyWideHeaderTools.filter(
       (tool) => tool.name === "User Management",

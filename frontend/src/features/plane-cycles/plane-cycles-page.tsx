@@ -38,7 +38,6 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
-  DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
@@ -47,11 +46,14 @@ import {
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
-  DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  PlaneDialogContent,
+  PlaneDropdownMenuContent,
+} from "@/features/plane-work-items/plane-overlay";
 import {
   hasModulePermission,
   useProjectPermissions,
@@ -194,7 +196,7 @@ function CycleRow({
               <Ellipsis className="size-4" />
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-44">
+          <PlaneDropdownMenuContent align="end" className="w-44">
             {canWrite ? (
               <>
                 <DropdownMenuItem onClick={onEdit}>
@@ -219,7 +221,7 @@ function CycleRow({
             ) : (
               <DropdownMenuItem disabled>Read-only access</DropdownMenuItem>
             )}
-          </DropdownMenuContent>
+          </PlaneDropdownMenuContent>
         </DropdownMenu>
       </div>
     </div>
@@ -473,7 +475,7 @@ function DeleteCycleDialog({
 }) {
   return (
     <Dialog open={Boolean(cycle)} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <PlaneDialogContent>
         <DialogHeader>
           <DialogTitle>Delete cycle</DialogTitle>
           <DialogDescription>
@@ -501,7 +503,7 @@ function DeleteCycleDialog({
             {submitting ? "Deleting" : "Delete cycle"}
           </Button>
         </DialogFooter>
-      </DialogContent>
+      </PlaneDialogContent>
     </Dialog>
   );
 }
@@ -771,7 +773,7 @@ export function PlaneCyclesPage({
                   ) : null}
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
+              <PlaneDropdownMenuContent align="end" className="w-48">
                 {GROUPS.map((group) => (
                   <DropdownMenuCheckboxItem
                     key={group.id}
@@ -790,7 +792,7 @@ export function PlaneCyclesPage({
                     </DropdownMenuItem>
                   </>
                 ) : null}
-              </DropdownMenuContent>
+              </PlaneDropdownMenuContent>
             </DropdownMenu>
 
             {canWrite ? (

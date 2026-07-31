@@ -1006,7 +1006,7 @@ export const sidebarNavGroups: SidebarNavGroup[] = [
       },
       {
         name: "Project Tasks",
-        path: "tasks",
+        path: "plane/work-items",
         icon: CheckCircle,
         requiresProject: true,
       },
@@ -1315,7 +1315,7 @@ export const headerNavGroups: HeaderNavGroup[] = [
       },
       {
         name: "Project Tasks",
-        path: "tasks",
+        path: "plane/work-items",
         requiresProject: true,
         icon: CheckCircle,
         description: "Tasks for this project",

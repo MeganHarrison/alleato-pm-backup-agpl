@@ -13,7 +13,7 @@ are the strongest signal that a script is live.
 
 | Path | Status | Owner | Notes |
 | --- | --- | --- | --- |
-| `scripts/agent-browser/` | Live verification tooling | Browser verification | Root `verify:browser*` scripts call this. Runtime output belongs in `tests/agent-browser-runs/`. |
+| `scripts/agent-browser/` | Live verification tooling | Browser verification | Root `e2e:browser` and `verify:browser*` scripts call this. `e2e:browser` is the canonical authenticated runner. Runtime output belongs in `tests/agent-browser-runs/`. |
 | `scripts/archive/` | Archived script helpers | Ops/dev tooling | Dated archive for preserved one-off helpers that should not look like live root entry points. |
 | `scripts/audits/` | Live guardrails/audits | Repo quality | Includes `check-repo-control.mjs` and architecture/design/dead-code audits. |
 | `scripts/build/` | Live build helpers | Release/build | Non-production route control and production-build helpers. |

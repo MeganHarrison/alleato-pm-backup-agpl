@@ -1,4 +1,5 @@
 # Vendor-distributed PDF.js Express assets preserve upstream whitespace.
+*.sh text eol=lf
 frontend/public/webviewer/** -whitespace
 .agents/skills/design/design-md.md/SKILL.md -whitespace
 .agents/skills/design/design-md.md/examples/DESIGN.md -whitespace

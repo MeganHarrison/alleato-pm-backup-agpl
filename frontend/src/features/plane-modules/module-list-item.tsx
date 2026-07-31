@@ -20,22 +20,21 @@ import {
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
-  DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
   Select,
-  SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type {
-  ScheduleTaskWithHierarchy,
-  TaskStatus,
-} from "@/types/scheduling";
+import {
+  PlaneDropdownMenuContent,
+  PlaneSelectContent,
+} from "@/features/plane-work-items/plane-overlay";
+import type { ScheduleTaskWithHierarchy, TaskStatus } from "@/types/scheduling";
 
 import {
   formatModuleDateRange,
@@ -130,7 +129,7 @@ function ModuleActions({
           <MoreHorizontal className="size-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-44">
+      <PlaneDropdownMenuContent align="end" className="w-44">
         <DropdownMenuItem onSelect={() => onEdit(module)}>
           <Pencil />
           Edit module
@@ -143,7 +142,7 @@ function ModuleActions({
           <Trash2 />
           Delete module
         </DropdownMenuItem>
-      </DropdownMenuContent>
+      </PlaneDropdownMenuContent>
     </DropdownMenu>
   );
 }
@@ -201,9 +200,7 @@ export function ModuleListItem({
         <Select
           value={module.status}
           disabled={!canEdit || isUpdating}
-          onValueChange={(value) =>
-            onStatusChange(module, value as TaskStatus)
-          }
+          onValueChange={(value) => onStatusChange(module, value as TaskStatus)}
         >
           <SelectTrigger
             size="sm"
@@ -212,13 +209,13 @@ export function ModuleListItem({
           >
             <SelectValue />
           </SelectTrigger>
-          <SelectContent align="end">
+          <PlaneSelectContent align="end">
             {Object.entries(MODULE_STATUS_LABELS).map(([value, label]) => (
               <SelectItem key={value} value={value}>
                 {label}
               </SelectItem>
             ))}
-          </SelectContent>
+          </PlaneSelectContent>
         </Select>
 
         <span
@@ -231,11 +228,7 @@ export function ModuleListItem({
           {workItemCount} work item{workItemCount === 1 ? "" : "s"}
         </span>
         {canEdit ? (
-          <ModuleActions
-            module={module}
-            onEdit={onEdit}
-            onDelete={onDelete}
-          />
+          <ModuleActions module={module} onEdit={onEdit} onDelete={onDelete} />
         ) : null}
       </div>
     </div>

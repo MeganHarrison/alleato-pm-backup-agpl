@@ -23,7 +23,6 @@ import {
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
-  DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuRadioGroup,
@@ -32,6 +31,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { PlaneDropdownMenuContent } from "@/features/plane-work-items/plane-overlay";
 import { cn } from "@/lib/utils";
 
 import type { ProjectPage } from "./plane-pages-data";
@@ -203,7 +203,7 @@ export function PlanePagesListView({
                   {sortLabels[sortKey]}
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
+              <PlaneDropdownMenuContent align="end" className="w-48">
                 <DropdownMenuLabel>Order pages by</DropdownMenuLabel>
                 <DropdownMenuRadioGroup
                   value={sortKey}
@@ -233,7 +233,7 @@ export function PlanePagesListView({
                     Descending
                   </DropdownMenuRadioItem>
                 </DropdownMenuRadioGroup>
-              </DropdownMenuContent>
+              </PlaneDropdownMenuContent>
             </DropdownMenu>
           </div>
         </div>
@@ -322,7 +322,7 @@ export function PlanePagesListView({
                         <MoreHorizontal className="size-4" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
+                    <PlaneDropdownMenuContent align="end">
                       <DropdownMenuItem onClick={() => onSelect(page)}>
                         Open page
                       </DropdownMenuItem>
@@ -331,7 +331,7 @@ export function PlanePagesListView({
                         <Archive className="size-4" />
                         {page.archived ? "Restore" : "Archive"}
                       </DropdownMenuItem>
-                    </DropdownMenuContent>
+                    </PlaneDropdownMenuContent>
                   </DropdownMenu>
                 </div>
               </div>

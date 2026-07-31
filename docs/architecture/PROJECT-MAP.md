@@ -233,7 +233,7 @@ _295/366 have a description (from the page's `PageShell` or the curated `fronten
 | `/company-settings` | Control company-wide defaults without disrupting active project workflows. | frontend/src/app/(admin)/company-settings/page.tsx |
 | `/company-settings/project-creation-log` | Project Creation Log | frontend/src/app/(admin)/company-settings/project-creation-log/page.tsx |
 | `/create-project` | Set up core project details, location, and delivery defaults. | frontend/src/app/(main)/create-project/page.tsx |
-| `/daily-brief` | Daily Brief is limited to users with executive briefing access. | frontend/src/app/daily-brief/page.tsx |
+| `/daily-brief` | Daily Brief is limited to users with executive briefing access. | frontend/src/app/(main)/daily-brief/page.tsx |
 | `/daily-briefs` | Historical record of executive Daily Brief packets and delivery status | frontend/src/app/(tables)/daily-briefs/page.tsx |
 | `/daily-briefs/[briefId]` | Daily Brief history requires executive detail access because historic packets contain claims, evidence, and artifacts. | frontend/src/app/(tables)/daily-briefs/[briefId]/page.tsx |
 | `/daily-logs` | Table of daily construction logs with weather, manpower, and work completed entries | frontend/src/app/(tables)/daily-logs/page.tsx |
@@ -384,7 +384,7 @@ _295/366 have a description (from the page's `PageShell` or the curated `fronten
 | `/user-management/users/[userSlug]` | User Management rejected this request. Admin permission is required before this profile can load. | frontend/src/app/(admin)/user-management/users/[userSlug]/page.tsx |
 | `/weekly-operating-review` | Weekly Operating Review is limited to users with executive briefing access. | frontend/src/app/weekly-operating-review/page.tsx |
 
-## API Endpoints (787)
+## API Endpoints (788)
 
 | Endpoint | Methods | File |
 |----------|---------|------|
@@ -689,6 +689,7 @@ _295/366 have a description (from the page's `PageShell` or the curated `fronten
 | `/api/manpower/import` | POST | frontend/src/app/api/manpower/import/route.ts |
 | `/api/meeting-templates` | GET | frontend/src/app/api/meeting-templates/route.ts |
 | `/api/meetings/[meetingId]` | GET | frontend/src/app/api/meetings/[meetingId]/route.ts |
+| `/api/notes` | GET, POST, PATCH, DELETE | frontend/src/app/api/notes/route.ts |
 | `/api/notes/highlight` | POST | frontend/src/app/api/notes/highlight/route.ts |
 | `/api/notifications/trigger` | POST | frontend/src/app/api/notifications/trigger/route.ts |
 | `/api/og/fetch` | GET | frontend/src/app/api/og/fetch/route.ts |

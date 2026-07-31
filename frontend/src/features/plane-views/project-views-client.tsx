@@ -17,9 +17,10 @@
  * - apps/web/core/components/views/view-list-item-action.tsx
  * - apps/web/core/components/core/list/list-item.tsx
  *
- * Alleato adaptation: saved views remain read-only. Plane's creation and row
- * mutation affordances are intentionally disabled or omitted until a separate
- * permissions-and-mutations slice is authorized.
+ * Alleato adaptation: Plane's create and row mutation affordances are wired to
+ * Alleato's private, user-scoped saved table view contract. Plane controls for
+ * favorites, publishing, and public access are omitted because those states
+ * are not persisted by user_table_views.
  */
 
 "use client";
@@ -31,35 +32,78 @@ import {
   ArrowUpAZ,
   Check,
   ChevronRight,
+  Copy,
   Eye,
+  LayoutGrid,
   LayoutList,
   ListFilter,
   LockKeyhole,
+  MoreHorizontal,
+  Pencil,
   Plus,
   Search,
   Star,
+  Trash2,
   X,
 } from "lucide-react";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Dialog,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
-  DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import {
+  Select,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  type SavedTableView,
+  useCreateSavedTableView,
+  useDeleteSavedTableView,
   useSavedTableViews,
+  useUpdateSavedTableView,
   type SavedViewFilterValue,
 } from "@/hooks/use-saved-table-views";
 import { cn } from "@/lib/utils";
+import {
+  PlaneAlertDialogContent,
+  PlaneDialogContent,
+  PlaneDropdownMenuContent,
+  PlaneSelectContent,
+} from "@/features/plane-work-items/plane-overlay";
 
 import {
   applyProjectTaskViewFiltersToSearchParams,
   describeProjectTaskViewFilters,
   normalizeProjectTaskViewFilters,
 } from "./view-query";
+import {
+  buildDuplicateSavedViewInput,
+  buildProjectTaskViewFilters,
+  type ProjectTaskViewEditorValues,
+} from "./view-mutations";
 
 function textFilter(value: SavedViewFilterValue): string {
   return typeof value === "string" ? value : "";
@@ -71,6 +115,42 @@ export type PlaneProjectViewsIndexProps = {
   taskRoute?: string;
 };
 
+type ViewEditorState = ProjectTaskViewEditorValues & {
+  viewId: string | null;
+};
+
+function blankEditor(): ViewEditorState {
+  return {
+    viewId: null,
+    name: "",
+    description: "",
+    layout: "list",
+    status: "open",
+    priority: "",
+    dueDateFrom: "",
+    dueDateTo: "",
+    isDefault: false,
+  };
+}
+
+function editorForView(view: SavedTableView): ViewEditorState {
+  const filters = normalizeProjectTaskViewFilters(view.filters);
+  return {
+    viewId: view.id,
+    name: view.name,
+    description: textFilter(filters.description),
+    layout: filters.view === "board" ? "board" : "list",
+    status: filters.status === "done" ? "done" : "open",
+    priority:
+      typeof filters.priority === "string"
+        ? (filters.priority as ViewEditorState["priority"])
+        : "",
+    dueDateFrom: textFilter(filters.due_date_from),
+    dueDateTo: textFilter(filters.due_date_to),
+    isDefault: view.is_default,
+  };
+}
+
 export function PlaneProjectViewsIndex({
   projectId,
   projectName,
@@ -79,12 +159,22 @@ export function PlaneProjectViewsIndex({
   const router = useRouter();
   const scopeKey = `project-tasks-${projectId}`;
   const { data: views = [], isLoading, error } = useSavedTableViews(scopeKey);
+  const createView = useCreateSavedTableView(scopeKey);
+  const updateView = useUpdateSavedTableView(scopeKey);
+  const deleteView = useDeleteSavedTableView(scopeKey);
 
   const [query, setQuery] = React.useState("");
   const [defaultOnly, setDefaultOnly] = React.useState(false);
   const [sortDirection, setSortDirection] = React.useState<"asc" | "desc">(
     "asc",
   );
+  const [editor, setEditor] = React.useState<ViewEditorState | null>(null);
+  const [editorError, setEditorError] = React.useState<string | null>(null);
+  const [operationError, setOperationError] = React.useState<string | null>(
+    null,
+  );
+  const [viewPendingDelete, setViewPendingDelete] =
+    React.useState<SavedTableView | null>(null);
   const filteredViews = React.useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase();
     return views
@@ -113,6 +203,106 @@ export function PlaneProjectViewsIndex({
     params.set("saved_view", view.id);
     router.push(`${taskRoute}?${params.toString()}`);
   }
+
+  function updateEditor<Key extends keyof ViewEditorState>(
+    key: Key,
+    value: ViewEditorState[Key],
+  ) {
+    setEditor((current) => (current ? { ...current, [key]: value } : current));
+  }
+
+  function openCreateEditor() {
+    setEditorError(null);
+    setEditor(blankEditor());
+  }
+
+  function openEditEditor(view: SavedTableView) {
+    setEditorError(null);
+    setEditor(editorForView(view));
+  }
+
+  async function submitEditor(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!editor) return;
+
+    const name = editor.name.trim();
+    if (!name) {
+      setEditorError("Enter a name for this view.");
+      return;
+    }
+
+    setEditorError(null);
+    try {
+      const input = {
+        name,
+        is_default: editor.isDefault,
+        filters: buildProjectTaskViewFilters(editor),
+      };
+      if (editor.viewId) {
+        await updateView.mutateAsync({ viewId: editor.viewId, input });
+      } else {
+        await createView.mutateAsync(input);
+      }
+      setEditor(null);
+    } catch (mutationError) {
+      setEditorError(
+        mutationError instanceof Error
+          ? mutationError.message
+          : "The view could not be saved.",
+      );
+    }
+  }
+
+  async function duplicateSavedView(view: SavedTableView) {
+    setOperationError(null);
+    try {
+      await createView.mutateAsync(
+        buildDuplicateSavedViewInput(
+          view,
+          views.map((savedView) => savedView.name),
+        ),
+      );
+    } catch (mutationError) {
+      setOperationError(
+        mutationError instanceof Error
+          ? mutationError.message
+          : "The view could not be duplicated.",
+      );
+    }
+  }
+
+  async function toggleDefaultView(view: SavedTableView) {
+    setOperationError(null);
+    try {
+      await updateView.mutateAsync({
+        viewId: view.id,
+        input: { is_default: !view.is_default },
+      });
+    } catch (mutationError) {
+      setOperationError(
+        mutationError instanceof Error
+          ? mutationError.message
+          : "The default view could not be changed.",
+      );
+    }
+  }
+
+  async function confirmDeleteView() {
+    if (!viewPendingDelete) return;
+    setOperationError(null);
+    try {
+      await deleteView.mutateAsync(viewPendingDelete.id);
+      setViewPendingDelete(null);
+    } catch (mutationError) {
+      setOperationError(
+        mutationError instanceof Error
+          ? mutationError.message
+          : "The view could not be deleted.",
+      );
+    }
+  }
+
+  const editorPending = createView.isPending || updateView.isPending;
 
   return (
     <section
@@ -180,7 +370,7 @@ export function PlaneProjectViewsIndex({
                   <ListFilter className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-44">
+              <PlaneDropdownMenuContent align="end" className="w-44">
                 <DropdownMenuItem onSelect={() => setDefaultOnly(false)}>
                   {!defaultOnly ? (
                     <Check className="h-4 w-4" />
@@ -197,23 +387,18 @@ export function PlaneProjectViewsIndex({
                   )}
                   Default view
                 </DropdownMenuItem>
-              </DropdownMenuContent>
+              </PlaneDropdownMenuContent>
             </DropdownMenu>
           </div>
           <Button
             type="button"
             size="sm"
             className="h-8"
-            disabled
-            aria-describedby="plane-view-create-status"
-            title="View creation is unavailable in this read-only pilot"
+            onClick={openCreateEditor}
           >
             <Plus className="h-4 w-4" />
             <span className="hidden sm:inline">Add view</span>
           </Button>
-          <span id="plane-view-create-status" className="sr-only">
-            View creation is unavailable in this read-only pilot.
-          </span>
         </div>
       </header>
 
@@ -245,7 +430,7 @@ export function PlaneProjectViewsIndex({
               Filters
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-44">
+          <PlaneDropdownMenuContent align="end" className="w-44">
             <DropdownMenuItem onSelect={() => setDefaultOnly(false)}>
               {!defaultOnly ? (
                 <Check className="h-4 w-4" />
@@ -262,7 +447,7 @@ export function PlaneProjectViewsIndex({
               )}
               Default view
             </DropdownMenuItem>
-          </DropdownMenuContent>
+          </PlaneDropdownMenuContent>
         </DropdownMenu>
       </div>
 
@@ -288,6 +473,14 @@ export function PlaneProjectViewsIndex({
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto">
+        {operationError ? (
+          <p
+            role="alert"
+            className="border-b border-border px-3 py-2 text-sm text-destructive"
+          >
+            {operationError}
+          </p>
+        ) : null}
         {isLoading ? (
           <div className="space-y-px">
             {Array.from({ length: 5 }).map((_, index) => (
@@ -323,6 +516,7 @@ export function PlaneProjectViewsIndex({
             {filteredViews.map((view) => {
               const filters = normalizeProjectTaskViewFilters(view.filters);
               const description = textFilter(filters.description);
+              const isBoard = filters.view === "board";
               return (
                 <div
                   key={view.id}
@@ -334,7 +528,11 @@ export function PlaneProjectViewsIndex({
                     onClick={() => openView(view)}
                   >
                     <span className="grid h-7 w-7 shrink-0 place-items-center text-muted-foreground">
-                      <LayoutList className="h-4 w-4" />
+                      {isBoard ? (
+                        <LayoutGrid className="h-4 w-4" />
+                      ) : (
+                        <LayoutList className="h-4 w-4" />
+                      )}
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="flex items-center gap-1.5">
@@ -366,6 +564,47 @@ export function PlaneProjectViewsIndex({
                       <LockKeyhole className="h-3.5 w-3.5" />
                       <span className="sm:sr-only">Private</span>
                     </span>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="grid size-11 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground sm:size-8"
+                          aria-label={`Actions for ${view.name}`}
+                        >
+                          <MoreHorizontal className="size-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <PlaneDropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuItem onSelect={() => openEditEditor(view)}>
+                          <Pencil className="size-4" />
+                          Edit view
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onSelect={() => void duplicateSavedView(view)}
+                        >
+                          <Copy className="size-4" />
+                          Duplicate
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onSelect={() => void toggleDefaultView(view)}
+                        >
+                          <Star className="size-4" />
+                          {view.is_default
+                            ? "Remove as default"
+                            : "Set as default"}
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          variant="destructive"
+                          onSelect={() => setViewPendingDelete(view)}
+                        >
+                          <Trash2 className="size-4" />
+                          Delete view
+                        </DropdownMenuItem>
+                      </PlaneDropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </div>
               );
@@ -373,6 +612,242 @@ export function PlaneProjectViewsIndex({
           </div>
         )}
       </div>
+
+      <Dialog
+        open={editor !== null}
+        onOpenChange={(open) => {
+          if (!open && !editorPending) setEditor(null);
+        }}
+      >
+        <PlaneDialogContent
+          size="notification"
+          onInteractOutside={(event) => {
+            if (editorPending) event.preventDefault();
+          }}
+        >
+          <DialogHeader>
+            <DialogTitle>
+              {editor?.viewId ? "Edit view" : "Create view"}
+            </DialogTitle>
+            <DialogDescription>
+              Save a private task layout and filter set for this project.
+            </DialogDescription>
+          </DialogHeader>
+          {editor ? (
+            <form className="space-y-5" onSubmit={submitEditor}>
+              <div className="space-y-2">
+                <label
+                  htmlFor="plane-view-name"
+                  className="text-sm font-medium"
+                >
+                  Name
+                </label>
+                <Input
+                  id="plane-view-name"
+                  value={editor.name}
+                  onChange={(event) => updateEditor("name", event.target.value)}
+                  autoFocus
+                  disabled={editorPending}
+                  placeholder="View name"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label
+                  htmlFor="plane-view-description"
+                  className="text-sm font-medium"
+                >
+                  Description
+                </label>
+                <Input
+                  id="plane-view-description"
+                  value={editor.description}
+                  onChange={(event) =>
+                    updateEditor("description", event.target.value)
+                  }
+                  disabled={editorPending}
+                  placeholder="Optional"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Layout</label>
+                  <Select
+                    value={editor.layout}
+                    onValueChange={(value: "list" | "board") =>
+                      updateEditor("layout", value)
+                    }
+                    disabled={editorPending}
+                  >
+                    <SelectTrigger aria-label="View layout">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <PlaneSelectContent>
+                      <SelectItem value="list">List</SelectItem>
+                      <SelectItem value="board">Board</SelectItem>
+                    </PlaneSelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Status</label>
+                  <Select
+                    value={editor.status}
+                    onValueChange={(value: "open" | "done") =>
+                      updateEditor("status", value)
+                    }
+                    disabled={editorPending}
+                  >
+                    <SelectTrigger aria-label="Task status">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <PlaneSelectContent>
+                      <SelectItem value="open">Open</SelectItem>
+                      <SelectItem value="done">Done</SelectItem>
+                    </PlaneSelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Priority</label>
+                <Select
+                  value={editor.priority || "all"}
+                  onValueChange={(value) =>
+                    updateEditor(
+                      "priority",
+                      value === "all"
+                        ? ""
+                        : (value as ViewEditorState["priority"]),
+                    )
+                  }
+                  disabled={editorPending}
+                >
+                  <SelectTrigger aria-label="Task priority">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <PlaneSelectContent>
+                    <SelectItem value="all">All priorities</SelectItem>
+                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="urgent">Urgent</SelectItem>
+                  </PlaneSelectContent>
+                </Select>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <label
+                    htmlFor="plane-view-due-from"
+                    className="text-sm font-medium"
+                  >
+                    Due from
+                  </label>
+                  <Input
+                    id="plane-view-due-from"
+                    value={editor.dueDateFrom}
+                    onChange={(event) =>
+                      updateEditor("dueDateFrom", event.target.value)
+                    }
+                    disabled={editorPending}
+                    placeholder="YYYY-MM-DD"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label
+                    htmlFor="plane-view-due-to"
+                    className="text-sm font-medium"
+                  >
+                    Due to
+                  </label>
+                  <Input
+                    id="plane-view-due-to"
+                    value={editor.dueDateTo}
+                    onChange={(event) =>
+                      updateEditor("dueDateTo", event.target.value)
+                    }
+                    disabled={editorPending}
+                    placeholder="YYYY-MM-DD"
+                  />
+                </div>
+              </div>
+
+              <label className="flex min-h-11 items-center gap-3 text-sm">
+                <Checkbox
+                  checked={editor.isDefault}
+                  onCheckedChange={(checked) =>
+                    updateEditor("isDefault", checked === true)
+                  }
+                  disabled={editorPending}
+                />
+                Open this view by default
+              </label>
+
+              {editorError ? (
+                <p role="alert" className="text-sm text-destructive">
+                  {editorError}
+                </p>
+              ) : null}
+
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setEditor(null)}
+                  disabled={editorPending}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={editorPending}>
+                  {editorPending
+                    ? "Saving..."
+                    : editor.viewId
+                      ? "Save changes"
+                      : "Create view"}
+                </Button>
+              </DialogFooter>
+            </form>
+          ) : null}
+        </PlaneDialogContent>
+      </Dialog>
+
+      <AlertDialog
+        open={viewPendingDelete !== null}
+        onOpenChange={(open) => {
+          if (!open && !deleteView.isPending) setViewPendingDelete(null);
+        }}
+      >
+        <PlaneAlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this view?</AlertDialogTitle>
+            <AlertDialogDescription>
+              “{viewPendingDelete?.name}” will be removed from your private
+              saved views. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          {operationError ? (
+            <p role="alert" className="text-sm text-destructive">
+              {operationError}
+            </p>
+          ) : null}
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteView.isPending}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(event) => {
+                event.preventDefault();
+                void confirmDeleteView();
+              }}
+              disabled={deleteView.isPending}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleteView.isPending ? "Deleting..." : "Delete view"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </PlaneAlertDialogContent>
+      </AlertDialog>
     </section>
   );
 }

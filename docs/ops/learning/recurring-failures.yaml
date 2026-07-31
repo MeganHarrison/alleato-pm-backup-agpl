@@ -1449,6 +1449,52 @@
       }
     },
     {
+      "id": "tasks-list-rls-client-mismatch",
+      "title": "Authenticated Tasks list uses an RLS-bound client after route authorization",
+      "status": "active",
+      "maturity": "prevented",
+      "canonical_owner": "frontend/src/app/api/tasks/route.ts GET list-read boundary",
+      "symptoms": [
+        "An authenticated user sees a Tasks list error despite a valid session.",
+        "GET /api/tasks?scope=mine returns a database permission error for tasks.",
+        "A server route selects the tasks table with a cookie or request-scoped RLS client after it has already established in-route authorization."
+      ],
+      "affected_paths": [
+        "frontend/src/app/api/tasks/route.ts",
+        "frontend/src/app/api/tasks/__tests__/route.test.ts",
+        "frontend/src/lib/supabase/service-db.ts"
+      ],
+      "root_cause": "The Tasks API chose the RLS-bound request client for scope=mine even though the route had already authenticated the caller and was responsible for applying its explicit assignee filters. Production RLS correctly denied that client SELECT access to tasks.",
+      "detection_gap": "Authenticated browser checks stopped at login success and did not fail on the Tasks API console error, so the browser-to-API permission failure was not a release blocker.",
+      "first_checks": [
+        {
+          "command": "npm run e2e:browser -- --base-url https://projects.alleatogroup.com --route /tasks",
+          "expected": "The authenticated Tasks route loads without API error, visible error toast, or browser console error."
+        },
+        {
+          "command": "NODE_PATH=/Users/meganharrison/Documents/alleato-pm-backup/frontend/node_modules /Users/meganharrison/Documents/alleato-pm-backup/frontend/node_modules/.bin/jest --runInBand src/app/api/tasks/__tests__/route.test.ts",
+          "expected": "The route reads through serviceDb, filters mine scope, rejects a missing email, and keeps all scope admin-only."
+        }
+      ],
+      "prevention": "For server-owned list reads, use serviceDb only after getApiRouteUser and retain explicit scope filtering in the route. The browser runner must treat browser console errors and authenticated API failures as test failures.",
+      "guardrail": {
+        "kind": "route_authorization_regression",
+        "status": "active",
+        "command": "NODE_PATH=/Users/meganharrison/Documents/alleato-pm-backup/frontend/node_modules /Users/meganharrison/Documents/alleato-pm-backup/frontend/node_modules/.bin/jest --runInBand src/app/api/tasks/__tests__/route.test.ts",
+        "evidence": "docs/ops/evidence/2026-07-31-tasks-permission-e2e/regression-test.md"
+      },
+      "incidents": [
+        {
+          "date": "2026-07-31",
+          "task": "tasks-permission-e2e",
+          "summary": "Production authenticated scope=mine requests returned HTTP 500 permission denied for tasks until the API list read moved to the canonical serviceDb owner while preserving in-route authorization."
+        }
+      ],
+      "promotion": {
+        "required": false
+      }
+    },
+    {
       "id": "tooling.playwright-runtime-drift",
       "title": "Playwright MCP process loads two physical test runtimes",
       "status": "active",

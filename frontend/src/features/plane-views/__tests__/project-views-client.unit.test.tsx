@@ -14,6 +14,9 @@ import type { SavedTableView } from "@/hooks/use-saved-table-views";
 
 const mockPush = jest.fn();
 const mockUseSavedTableViews = jest.fn();
+const mockUseCreateSavedTableView = jest.fn();
+const mockUseUpdateSavedTableView = jest.fn();
+const mockUseDeleteSavedTableView = jest.fn();
 
 jest.mock("next/navigation", () => ({
   useRouter: () => ({ push: mockPush }),
@@ -21,6 +24,12 @@ jest.mock("next/navigation", () => ({
 
 jest.mock("@/hooks/use-saved-table-views", () => ({
   useSavedTableViews: (...args: unknown[]) => mockUseSavedTableViews(...args),
+  useCreateSavedTableView: (...args: unknown[]) =>
+    mockUseCreateSavedTableView(...args),
+  useUpdateSavedTableView: (...args: unknown[]) =>
+    mockUseUpdateSavedTableView(...args),
+  useDeleteSavedTableView: (...args: unknown[]) =>
+    mockUseDeleteSavedTableView(...args),
 }));
 
 import { PlaneProjectViewsIndex } from "../project-views-client";
@@ -60,6 +69,20 @@ describe("Plane Views rendered structure", () => {
   beforeEach(() => {
     mockPush.mockReset();
     mockUseSavedTableViews.mockReset();
+    mockUseCreateSavedTableView.mockReset();
+    mockUseUpdateSavedTableView.mockReset();
+    mockUseDeleteSavedTableView.mockReset();
+
+    for (const mutationHook of [
+      mockUseCreateSavedTableView,
+      mockUseUpdateSavedTableView,
+      mockUseDeleteSavedTableView,
+    ]) {
+      mutationHook.mockReturnValue({
+        mutateAsync: jest.fn(),
+        isPending: false,
+      });
+    }
   });
 
   it("pins the Plane desktop and mobile header controls", () => {
@@ -136,7 +159,7 @@ describe("Plane Views rendered structure", () => {
     expect(errorMarkup).toContain("Saved-view request timed out");
   });
 
-  it("keeps creation disabled and mutation controls absent", () => {
+  it("renders enabled creation and per-view mutation entry points", () => {
     mockUseSavedTableViews.mockReturnValue({
       data: [VIEW],
       isLoading: false,
@@ -145,16 +168,23 @@ describe("Plane Views rendered structure", () => {
 
     const markup = renderViews();
 
-    expect(markup).toMatch(
-      /<button[^>]*disabled=""[^>]*aria-describedby="plane-view-create-status"[^>]*>/,
+    const addViewLabelIndex = markup.indexOf(">Add view</span>");
+    const addViewButtonStart = markup.lastIndexOf("<button", addViewLabelIndex);
+    const addViewButtonEnd = markup.indexOf(">", addViewButtonStart);
+    expect(addViewLabelIndex).toBeGreaterThan(-1);
+    expect(markup.slice(addViewButtonStart, addViewButtonEnd)).not.toMatch(
+      /\sdisabled(?:=|\s|$)/,
     );
-    expect(markup).toContain(
-      "View creation is unavailable in this read-only pilot.",
+    expect(markup).toContain('aria-label="Actions for Critical closeout"');
+    expect(markup).not.toContain("read-only pilot");
+    expect(mockUseCreateSavedTableView).toHaveBeenCalledWith(
+      "project-tasks-31",
     );
-    expect(markup).not.toContain(">Create view<");
-    expect(markup).not.toContain(">Edit<");
-    expect(markup).not.toContain(">Delete<");
-    expect(markup).not.toContain(">Set as default<");
-    expect(markup).not.toContain(">Remove as default<");
+    expect(mockUseUpdateSavedTableView).toHaveBeenCalledWith(
+      "project-tasks-31",
+    );
+    expect(mockUseDeleteSavedTableView).toHaveBeenCalledWith(
+      "project-tasks-31",
+    );
   });
 });

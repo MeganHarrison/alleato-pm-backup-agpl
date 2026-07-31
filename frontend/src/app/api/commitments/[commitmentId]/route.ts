@@ -602,6 +602,11 @@ export const PUT = withApiGuardrails<{ commitmentId: string }>(
           projectBudgetCodeId?: string | null;
           description: string | null;
           amount: number;
+          quantity?: number | null;
+          unit_cost?: number | null;
+          unitCost?: number | null;
+          unit_of_measure?: string | null;
+          unitOfMeasure?: string | null;
         }>)
       : null;
 
@@ -665,6 +670,23 @@ export const PUT = withApiGuardrails<{ commitmentId: string }>(
           .eq("line_number", line.line_number)
           .maybeSingle();
 
+        // Unit/quantity pricing is only written when the caller actually sent it,
+        // so an amount-only edit leaves existing unit cost / UOM untouched instead
+        // of nulling it.
+        const unitPricing: {
+          quantity?: number | null;
+          unit_cost?: number | null;
+          unit_of_measure?: string | null;
+        } = {};
+        const lineQuantity = line.quantity;
+        const lineUnitCost = line.unit_cost ?? line.unitCost;
+        const lineUnitOfMeasure = line.unit_of_measure ?? line.unitOfMeasure;
+        if (lineQuantity !== undefined) unitPricing.quantity = lineQuantity;
+        if (lineUnitCost !== undefined) unitPricing.unit_cost = lineUnitCost;
+        if (lineUnitOfMeasure !== undefined) {
+          unitPricing.unit_of_measure = lineUnitOfMeasure || null;
+        }
+
         if (existing) {
           await supabase
             .from(sovTable as "subcontract_sov_items")
@@ -673,6 +695,7 @@ export const PUT = withApiGuardrails<{ commitmentId: string }>(
               project_budget_code_id: resolvedBudgetCode.projectBudgetCodeId,
               description: line.description,
               amount: line.amount,
+              ...unitPricing,
             })
             .eq("id", existing.id);
         } else {
@@ -686,6 +709,7 @@ export const PUT = withApiGuardrails<{ commitmentId: string }>(
                 project_budget_code_id: resolvedBudgetCode.projectBudgetCodeId,
                 description: line.description,
                 amount: line.amount,
+                ...unitPricing,
               });
           } else {
             await supabase
@@ -697,6 +721,7 @@ export const PUT = withApiGuardrails<{ commitmentId: string }>(
                 project_budget_code_id: resolvedBudgetCode.projectBudgetCodeId,
                 description: line.description,
                 amount: line.amount,
+                ...unitPricing,
               });
           }
         }

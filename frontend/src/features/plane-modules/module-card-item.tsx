@@ -18,7 +18,6 @@ import {
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
-  DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
@@ -26,15 +25,15 @@ import {
 import { Progress } from "@/components/ui/progress";
 import {
   Select,
-  SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type {
-  ScheduleTaskWithHierarchy,
-  TaskStatus,
-} from "@/types/scheduling";
+import {
+  PlaneDropdownMenuContent,
+  PlaneSelectContent,
+} from "@/features/plane-work-items/plane-overlay";
+import type { ScheduleTaskWithHierarchy, TaskStatus } from "@/types/scheduling";
 
 import {
   formatModuleDateRange,
@@ -97,13 +96,13 @@ export function ModuleCardItem({
             >
               <SelectValue />
             </SelectTrigger>
-            <SelectContent align="end">
+            <PlaneSelectContent align="end">
               {Object.entries(MODULE_STATUS_LABELS).map(([value, label]) => (
                 <SelectItem key={value} value={value}>
                   {label}
                 </SelectItem>
               ))}
-            </SelectContent>
+            </PlaneSelectContent>
           </Select>
           <Button
             type="button"
@@ -154,7 +153,7 @@ export function ModuleCardItem({
                   <MoreHorizontal className="size-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <PlaneDropdownMenuContent align="end">
                 <DropdownMenuItem onSelect={() => onEdit(module)}>
                   <Pencil />
                   Edit module
@@ -167,7 +166,7 @@ export function ModuleCardItem({
                   <Trash2 />
                   Delete module
                 </DropdownMenuItem>
-              </DropdownMenuContent>
+              </PlaneDropdownMenuContent>
             </DropdownMenu>
           ) : null}
         </div>

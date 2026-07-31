@@ -1,0 +1,54 @@
+{
+  "contractVersion": 1,
+  "taskId": "tasks-permission-e2e",
+  "riskLevel": "high",
+  "feature": "Authenticated Tasks list permission boundary",
+  "route": "frontend/src/app/api/tasks/route.ts#GET",
+  "flows": [
+    {
+      "name": "Load the authenticated user's Tasks",
+      "steps": [
+        "Authenticate the request with getApiRouteUser",
+        "Resolve the user's profile and person record through the service data owner",
+        "Read tasks through serviceDb and apply the in-route mine scope filters",
+        "Reject missing-email and non-admin all-scope requests"
+      ],
+      "expectedOutcome": "An authenticated user can receive only their task list without browser-side table permissions or scope escalation"
+    }
+  ],
+  "requiredEvidence": [
+    "actionLog",
+    "databaseReadback",
+    "negativePath",
+    "regressionTest"
+  ],
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "service-owned-mine-read",
+      "description": "The authenticated mine scope reads through the canonical server-only data owner and retains assignee filtering",
+      "evidence": [
+        { "key": "regressionTest", "min": 1 },
+        { "key": "databaseReadback", "min": 1 }
+      ]
+    },
+    {
+      "id": "fail-closed-missing-email",
+      "description": "A session without an email returns a typed authentication error before any broad task read",
+      "evidence": [
+        { "key": "regressionTest", "min": 1 },
+        { "key": "negativePath", "min": 1 }
+      ]
+    },
+    {
+      "id": "all-scope-remains-admin-only",
+      "description": "A non-admin cannot request all tasks",
+      "evidence": [
+        { "key": "regressionTest", "min": 1 },
+        { "key": "negativePath", "min": 1 }
+      ]
+    }
+  ]
+}

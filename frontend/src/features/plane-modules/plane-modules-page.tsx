@@ -25,7 +25,6 @@ import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
-  AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
@@ -35,7 +34,6 @@ import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
-  DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuRadioGroup,
@@ -45,12 +43,16 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   Sheet,
-  SheetContent,
   SheetDescription,
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  PlaneAlertDialogContent,
+  PlaneDropdownMenuContent,
+  PlaneSheetContent,
+} from "@/features/plane-work-items/plane-overlay";
 import {
   useProjectPermissions,
   hasModulePermission,
@@ -60,10 +62,7 @@ import { apiFetch } from "@/lib/api-client";
 import { getErrorDetail } from "@/lib/format-error";
 import { cn } from "@/lib/utils";
 import { appToast as toast } from "@/lib/toast/app-toast";
-import type {
-  ScheduleTaskWithHierarchy,
-  TaskStatus,
-} from "@/types/scheduling";
+import type { ScheduleTaskWithHierarchy, TaskStatus } from "@/types/scheduling";
 
 import { ModuleCardItem } from "./module-card-item";
 import { ModuleFormDialog } from "./module-form-dialog";
@@ -160,9 +159,7 @@ export function PlaneModulesPage({
 
     return filtered.toSorted((left, right) => {
       if (sortBy === "progress") {
-        return (
-          normalizeModuleProgress(right) - normalizeModuleProgress(left)
-        );
+        return normalizeModuleProgress(right) - normalizeModuleProgress(left);
       }
       if (sortBy === "start_date") {
         return (left.start_date ?? "9999").localeCompare(
@@ -322,15 +319,13 @@ export function PlaneModulesPage({
                 <span className="sr-only">Order modules</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <PlaneDropdownMenuContent align="end">
               <DropdownMenuLabel>Order by</DropdownMenuLabel>
               <DropdownMenuRadioGroup
                 value={sortBy}
                 onValueChange={(value) => setSortBy(value as ModuleSort)}
               >
-                <DropdownMenuRadioItem value="name">
-                  Name
-                </DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="name">Name</DropdownMenuRadioItem>
                 <DropdownMenuRadioItem value="start_date">
                   Start date
                 </DropdownMenuRadioItem>
@@ -338,7 +333,7 @@ export function PlaneModulesPage({
                   Progress
                 </DropdownMenuRadioItem>
               </DropdownMenuRadioGroup>
-            </DropdownMenuContent>
+            </PlaneDropdownMenuContent>
           </DropdownMenu>
 
           <DropdownMenu>
@@ -356,7 +351,7 @@ export function PlaneModulesPage({
                 <span className="sr-only">Filter modules</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
+            <PlaneDropdownMenuContent align="end" className="w-48">
               <DropdownMenuLabel>Status</DropdownMenuLabel>
               {Object.entries(MODULE_STATUS_LABELS).map(([value, label]) => (
                 <DropdownMenuCheckboxItem
@@ -377,7 +372,7 @@ export function PlaneModulesPage({
                   </DropdownMenuItem>
                 </>
               ) : null}
-            </DropdownMenuContent>
+            </PlaneDropdownMenuContent>
           </DropdownMenu>
 
           <div className="hidden items-center gap-1 rounded bg-muted p-1 md:flex">
@@ -557,7 +552,7 @@ export function PlaneModulesPage({
           if (!open) setInspectedModule(null);
         }}
       >
-        <SheetContent className="gap-0 p-0 sm:max-w-md lg:w-[36rem]">
+        <PlaneSheetContent className="gap-0 p-0 sm:max-w-md lg:w-[36rem]">
           {inspectedModule ? (
             <>
               <SheetHeader className="border-b px-5 py-4">
@@ -602,7 +597,7 @@ export function PlaneModulesPage({
               </div>
             </>
           ) : null}
-        </SheetContent>
+        </PlaneSheetContent>
       </Sheet>
 
       <AlertDialog
@@ -611,7 +606,7 @@ export function PlaneModulesPage({
           if (!open && !isDeleting) setDeleteTarget(null);
         }}
       >
-        <AlertDialogContent>
+        <PlaneAlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete module?</AlertDialogTitle>
             <AlertDialogDescription>
@@ -633,7 +628,7 @@ export function PlaneModulesPage({
               {isDeleting ? "Deleting" : "Delete"}
             </AlertDialogAction>
           </AlertDialogFooter>
-        </AlertDialogContent>
+        </PlaneAlertDialogContent>
       </AlertDialog>
     </div>
   );

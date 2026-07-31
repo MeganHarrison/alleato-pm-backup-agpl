@@ -237,6 +237,10 @@ describe("/api/outlook-intake", () => {
       "match_status",
       expect.any(String),
     );
+    expect(intakeBuilder.eq).not.toHaveBeenCalledWith(
+      "project_id",
+      expect.any(Number),
+    );
   });
 
   it("allows explicitly filtering to ignored intake rows", async () => {
@@ -284,6 +288,147 @@ describe("/api/outlook-intake", () => {
       "match_status",
       "ignored",
     );
+  });
+
+  it("scopes an authorized admin request to one validated project", async () => {
+    const intakeBuilder = createQueryBuilder({
+      data: [],
+      error: null,
+    });
+    const builders: Record<string, QueryBuilderMock[]> = {
+      user_profiles: [
+        createQueryBuilder({
+          data: { is_admin: true },
+          error: null,
+        }),
+      ],
+      outlook_email_intake: [intakeBuilder],
+      document_metadata: [],
+    };
+
+    const supabase = {
+      from: jest.fn((table: string) => {
+        const builder = builders[table]?.shift();
+        if (!builder) {
+          throw new Error(`Unexpected query for table: ${table}`);
+        }
+        return builder;
+      }),
+    };
+
+    createClientMock.mockResolvedValue(
+      supabase as Awaited<ReturnType<typeof createClient>>,
+    );
+    createServiceClientMock.mockReturnValue(supabase as never);
+    createOutlookIntakeServiceClientMock.mockReturnValue(supabase as never);
+
+    const response = await GET(
+      new NextRequest(
+        "http://localhost/api/outlook-intake?project_id=31",
+      ),
+      { params: Promise.resolve({}) },
+    );
+
+    expect(response.status).toBe(200);
+    expect(intakeBuilder.eq).toHaveBeenCalledWith("project_id", 31);
+  });
+
+  it.each(["", "0", "-1", "31.5", "31oops", "9007199254740992"])(
+    "rejects invalid project_id=%s before querying Outlook Intake",
+    async (projectId) => {
+      const profileBuilder = createQueryBuilder({
+        data: { is_admin: true },
+        error: null,
+      });
+      const supabase = {
+        from: jest.fn((table: string) => {
+          if (table === "user_profiles") return profileBuilder;
+          throw new Error(`Unexpected query for table: ${table}`);
+        }),
+      };
+
+      createClientMock.mockResolvedValue(
+        supabase as Awaited<ReturnType<typeof createClient>>,
+      );
+
+      const response = await GET(
+        new NextRequest(
+          `http://localhost/api/outlook-intake?project_id=${encodeURIComponent(projectId)}`,
+        ),
+        { params: Promise.resolve({}) },
+      );
+      const body = (await response.json()) as {
+        error_code: string;
+        error_message: string;
+      };
+
+      expect(response.status).toBe(400);
+      expect(body).toMatchObject({
+        error_code: "VALIDATION_ERROR",
+        error_message: "project_id must be a positive integer.",
+      });
+      expect(createOutlookIntakeServiceClientMock).not.toHaveBeenCalled();
+    },
+  );
+
+  it("rejects unauthenticated requests before querying Outlook Intake", async () => {
+    getApiRouteUserMock.mockResolvedValue(null);
+    createClientMock.mockResolvedValue({ from: jest.fn() } as never);
+
+    const response = await GET(
+      new NextRequest(
+        "http://localhost/api/outlook-intake?project_id=31",
+      ),
+      { params: Promise.resolve({}) },
+    );
+    const body = (await response.json()) as {
+      error_code: string;
+      error_message: string;
+    };
+
+    expect(response.status).toBe(401);
+    expect(body).toMatchObject({
+      error_code: "AUTH_EXPIRED",
+      error_message: "Authentication required.",
+    });
+    expect(createOutlookIntakeServiceClientMock).not.toHaveBeenCalled();
+    expect(createServiceClientMock).not.toHaveBeenCalled();
+  });
+
+  it("rejects non-admin members before constructing either service client", async () => {
+    const profileBuilder = createQueryBuilder({
+      data: { is_admin: false },
+      error: null,
+    });
+    const supabase = {
+      from: jest.fn((table: string) => {
+        if (table === "user_profiles") return profileBuilder;
+        throw new Error(`Unexpected query for table: ${table}`);
+      }),
+    };
+
+    createClientMock.mockResolvedValue(
+      supabase as Awaited<ReturnType<typeof createClient>>,
+    );
+
+    const response = await GET(
+      new NextRequest(
+        "http://localhost/api/outlook-intake?project_id=31",
+      ),
+      { params: Promise.resolve({}) },
+    );
+    const body = (await response.json()) as {
+      error_code: string;
+      error_message: string;
+    };
+
+    expect(response.status).toBe(403);
+    expect(body).toMatchObject({
+      error_code: "FORBIDDEN",
+      error_message: "Admin access required.",
+    });
+    expect(createOutlookIntakeServiceClientMock).not.toHaveBeenCalled();
+    expect(createServiceClientMock).not.toHaveBeenCalled();
   });
 
   it("filters by intake classification action", async () => {

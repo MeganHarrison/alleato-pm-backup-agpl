@@ -22,11 +22,11 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import {
   Modal,
-  ModalContent,
   ModalFooter,
   ModalHeader,
   ModalTitle,
 } from "@/components/ui/unified-modal";
+import { PlaneModalContent } from "@/features/plane-work-items/plane-overlay";
 import { Spinner } from "@/components/ui/spinner";
 import { apiFetch } from "@/lib/api-client";
 import { getErrorDetail } from "@/lib/format-error";
@@ -138,7 +138,7 @@ export function ModuleFormDialog({
 
   return (
     <Modal open={open} onOpenChange={onOpenChange}>
-      <ModalContent size="lg">
+      <PlaneModalContent size="lg">
         <ModalHeader>
           <ModalTitle>{isEditing ? "Edit module" : "New module"}</ModalTitle>
         </ModalHeader>
@@ -197,7 +197,7 @@ export function ModuleFormDialog({
             </ModalFooter>
           </form>
         </Form>
-      </ModalContent>
+      </PlaneModalContent>
     </Modal>
   );
 }

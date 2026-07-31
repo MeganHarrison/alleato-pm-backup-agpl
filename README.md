@@ -41,7 +41,8 @@ npm run dev:backend
 # repo root
 npm run db:types
 npm run check:routes
-npm run verify:browser
+# With the app running locally, authenticate, run the browser flow, and save evidence.
+npm run e2e:browser -- --route /tasks
 npm run test
 
 # frontend/

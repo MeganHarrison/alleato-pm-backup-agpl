@@ -10,7 +10,10 @@ const detailRoute = path.join(
   process.cwd(),
   "src/app/(tables)/daily-briefs/[briefId]/page.tsx",
 );
-const landingRoute = path.join(process.cwd(), "src/app/daily-brief/page.tsx");
+const landingRoute = path.join(
+  process.cwd(),
+  "src/app/(main)/daily-brief/page.tsx",
+);
 const canonicalPacketReader = path.join(
   process.cwd(),
   "src/lib/daily-briefs/canonical-packets.ts",

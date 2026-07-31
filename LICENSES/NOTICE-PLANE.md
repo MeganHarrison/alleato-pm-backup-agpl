@@ -1,7 +1,8 @@
 # Plane-derived software notice
 
 Portions of this application are copied or adapted from
-[Plane](https://github.com/makeplane/plane), release `v1.3.1`.
+[Plane](https://github.com/makeplane/plane), pinned upstream revision
+`39856932cd6b9bd17eab0920506d628190b47af2`.
 
 Copyright (c) 2023-present Plane Software, Inc. and contributors.
 
@@ -16,10 +17,26 @@ must be made available at:
 The upstream source is available at <https://github.com/makeplane/plane>.
 Modification history is preserved in this repository.
 
+## Plane-derived replacement surfaces
+
+The deployed replacement surfaces live in these source directories:
+
+- `frontend/src/features/plane-work-items/`
+- `frontend/src/features/plane-cycles/`
+- `frontend/src/features/plane-modules/`
+- `frontend/src/features/plane-views/`
+- `frontend/src/features/plane-pages/`
+- `frontend/src/features/plane-intake/`
+
+Each copied or adapted source file retains an SPDX header or an adjacent source
+mapping that identifies the corresponding upstream Plane template. Alleato data
+adapters, permission checks, and mutations are modifications distributed under
+the same AGPL-compatible terms as the combined network deployment.
+
 ## Work Items template provenance
 
 The Work Items replacement adapts the structure, responsive behavior, and
-interaction templates from these Plane v1.3.1 sources:
+interaction templates from these Plane sources at the pinned revision:
 
 - `apps/web/app/(all)/[workspaceSlug]/(projects)/sidebar.tsx`
 - `apps/web/app/(all)/[workspaceSlug]/(projects)/extended-project-sidebar.tsx`

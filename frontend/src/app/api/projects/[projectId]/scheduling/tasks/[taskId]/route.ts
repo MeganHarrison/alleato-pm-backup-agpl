@@ -13,11 +13,52 @@
 import { withApiGuardrails } from "@/lib/guardrails/api";
 import { GuardrailError } from "@/lib/guardrails/errors";
 import { NextResponse } from "next/server";
+import { requirePermission } from "@/lib/permissions-guard";
 import { createClient, getApiRouteUser } from "@/lib/supabase/server";
 import { SchedulingService } from "@/lib/services/scheduling-service";
 import { ScheduleTaskUpdate } from "@/types/scheduling";
 import { validateFieldScheduleUpdate } from "@/lib/scheduling/field-update-validation";
 import type { Database } from "@/types/database.types";
+
+const POSTGRES_INT4_MAX = 2_147_483_647;
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function parseMutationProjectId(projectId: string, where: string): number {
+  if (!/^[1-9]\d*$/.test(projectId)) {
+    throw new GuardrailError({
+      code: "VALIDATION_ERROR",
+      where,
+      message: "A valid project id is required.",
+    });
+  }
+
+  const numericProjectId = Number(projectId);
+  if (
+    !Number.isSafeInteger(numericProjectId) ||
+    numericProjectId > POSTGRES_INT4_MAX
+  ) {
+    throw new GuardrailError({
+      code: "VALIDATION_ERROR",
+      where,
+      message: "A valid project id is required.",
+    });
+  }
+
+  return numericProjectId;
+}
+
+function parseMutationTaskId(taskId: string, where: string): string {
+  if (!UUID_PATTERN.test(taskId)) {
+    throw new GuardrailError({
+      code: "VALIDATION_ERROR",
+      where,
+      message: "A valid schedule task id is required.",
+    });
+  }
+
+  return taskId;
+}
 
 // =============================================================================
 // GET - Fetch Single Schedule Task
@@ -60,15 +101,22 @@ export const PUT = withApiGuardrails<{ projectId: string; taskId: string }>(
   async ({ request, params }) => {
   
     const { projectId, taskId } = await params;
+    const numericProjectId = parseMutationProjectId(
+      projectId,
+      "projects/[projectId]/scheduling/tasks/[taskId]#PUT",
+    );
+    const validatedTaskId = parseMutationTaskId(
+      taskId,
+      "projects/[projectId]/scheduling/tasks/[taskId]#PUT",
+    );
+    const permission = await requirePermission(
+      numericProjectId,
+      "schedule",
+      "write",
+    );
+    if (permission.denied) return permission.response;
+
     const supabase = await createClient();
-
-    // Check authentication
-    const user = await getApiRouteUser();
-
-    if (!user) {
-      throw new GuardrailError({ code: "AUTH_EXPIRED", where: "projects/[projectId]/scheduling/tasks/[taskId]#PUT", message: "Authentication required." });
-    }
-
     const body = await request.json();
 
     // Validate name if provided
@@ -132,7 +180,7 @@ export const PUT = withApiGuardrails<{ projectId: string; taskId: string }>(
         const { data: membership, error: membershipError } = await supabase
           .from("project_directory_memberships")
           .select("person_id")
-          .eq("project_id", Number(projectId))
+          .eq("project_id", numericProjectId)
           .eq("person_id", body.assignee_person_id)
           .eq("status", "active")
           .maybeSingle();
@@ -143,7 +191,11 @@ export const PUT = withApiGuardrails<{ projectId: string; taskId: string }>(
     }
 
     const service = new SchedulingService(supabase);
-    const task = await service.updateTask(projectId, taskId, updateData);
+    const task = await service.updateTask(
+      projectId,
+      validatedTaskId,
+      updateData,
+    );
 
     if (!task) {
       return NextResponse.json(
@@ -234,17 +286,24 @@ export const DELETE = withApiGuardrails<{ projectId: string; taskId: string }>(
   async ({ request, params }) => {
   
     const { projectId, taskId } = await params;
+    const numericProjectId = parseMutationProjectId(
+      projectId,
+      "projects/[projectId]/scheduling/tasks/[taskId]#DELETE",
+    );
+    const validatedTaskId = parseMutationTaskId(
+      taskId,
+      "projects/[projectId]/scheduling/tasks/[taskId]#DELETE",
+    );
+    const permission = await requirePermission(
+      numericProjectId,
+      "schedule",
+      "write",
+    );
+    if (permission.denied) return permission.response;
+
     const supabase = await createClient();
-
-    // Check authentication
-    const user = await getApiRouteUser();
-
-    if (!user) {
-      throw new GuardrailError({ code: "AUTH_EXPIRED", where: "projects/[projectId]/scheduling/tasks/[taskId]#DELETE", message: "Authentication required." });
-    }
-
     const service = new SchedulingService(supabase);
-    const deleted = await service.deleteTask(projectId, taskId);
+    const deleted = await service.deleteTask(projectId, validatedTaskId);
 
     if (!deleted) {
       return NextResponse.json(
@@ -255,7 +314,7 @@ export const DELETE = withApiGuardrails<{ projectId: string; taskId: string }>(
 
     return NextResponse.json({
       message: "Task deleted successfully",
-      id: taskId,
+      id: validatedTaskId,
     });
     },
 );

@@ -31,15 +31,10 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { StatusDot } from "@/components/ds";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverTrigger } from "@/components/ui/popover";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   Select,
-  SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -54,7 +49,6 @@ import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
-  AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
@@ -75,6 +69,11 @@ import { apiFetch } from "@/lib/api-client";
 import { getErrorDetail } from "@/lib/format-error";
 import { appToast as toast } from "@/lib/toast/app-toast";
 import { cn } from "@/lib/utils";
+import {
+  PlaneAlertDialogContent,
+  PlanePopoverContent,
+  PlaneSelectContent,
+} from "@/features/plane-work-items/plane-overlay";
 import {
   formatIntakeIdentifier,
   intakeItemMatches,
@@ -107,6 +106,34 @@ interface UserOption {
   full_name?: string | null;
   email?: string | null;
   person_id?: string | null;
+}
+
+export function buildPlaneOutlookIntakeUrl(
+  projectId: string,
+  matchStatus?: "ignored",
+) {
+  const searchParams = new URLSearchParams({ project_id: projectId });
+  if (matchStatus) searchParams.set("match_status", matchStatus);
+  return `/api/outlook-intake?${searchParams.toString()}`;
+}
+
+export function resolvePlaneIntakeLoadingState({
+  tasksLoading,
+  outlookEnabled,
+  outlookOpenLoading,
+  outlookClosedLoading,
+}: {
+  tasksLoading: boolean;
+  outlookEnabled: boolean;
+  outlookOpenLoading: boolean;
+  outlookClosedLoading: boolean;
+}) {
+  return {
+    listLoading: tasksLoading,
+    countsSettled:
+      !tasksLoading &&
+      (!outlookEnabled || (!outlookOpenLoading && !outlookClosedLoading)),
+  };
 }
 
 interface UsersResponse {
@@ -146,8 +173,7 @@ function IntakeRow({
       onClick={onSelect}
       className={cn(
         "h-auto w-full justify-start rounded-none border border-x-transparent border-t-transparent border-b-border/60 px-4 py-4 text-left font-normal transition-colors hover:bg-primary/[0.04] focus-visible:ring-inset",
-        selected &&
-          "border-primary bg-primary/[0.04] hover:bg-primary/[0.04]",
+        selected && "border-primary bg-primary/[0.04] hover:bg-primary/[0.04]",
       )}
       aria-pressed={selected}
     >
@@ -170,7 +196,10 @@ function IntakeRow({
         <div className="flex items-center justify-between gap-3 text-[11px] text-muted-foreground">
           <div className="flex min-w-0 items-center gap-2">
             <span>{formatDate(item.occurredAt)}</span>
-            <span className="size-1 rounded-full bg-border" aria-hidden="true" />
+            <span
+              className="size-1 rounded-full bg-border"
+              aria-hidden="true"
+            />
             <span className="truncate">
               {item.source === "task"
                 ? item.task.priority || item.task.assignee_name || "Unassigned"
@@ -198,11 +227,13 @@ export function PlaneIntakeStatusTabs({
   tab,
   openCount,
   closedCount,
+  countsSettled = true,
   onTabChange,
 }: {
   tab: IntakeTab;
   openCount: number;
   closedCount: number;
+  countsSettled?: boolean;
   onTabChange: (tab: IntakeTab) => void;
 }) {
   return (
@@ -232,8 +263,15 @@ export function PlaneIntakeStatusTabs({
         >
           {label}
           {value === "open" && tab === value ? (
-            <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[11px] font-semibold text-primary">
-              {count}
+            <span
+              className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[11px] font-semibold text-primary"
+              aria-label={
+                countsSettled
+                  ? `${label} count ${count}`
+                  : `${label} count loading`
+              }
+            >
+              {countsSettled ? count : "…"}
             </span>
           ) : null}
           <span
@@ -255,6 +293,7 @@ function IntakeListPane({
   tab,
   query,
   loading,
+  countsSettled,
   error,
   projectId,
   projects,
@@ -268,6 +307,7 @@ function IntakeListPane({
   tab: IntakeTab;
   query: string;
   loading: boolean;
+  countsSettled: boolean;
   error: string | null;
   projectId: number;
   projects: Array<{
@@ -306,6 +346,7 @@ function IntakeListPane({
             tab={tab}
             openCount={openCount}
             closedCount={closedCount}
+            countsSettled={countsSettled}
             onTabChange={onTabChange}
           />
           <div className="flex items-center gap-1">
@@ -326,7 +367,7 @@ function IntakeListPane({
                   <ChevronDown className="hidden size-3 min-[1280px]:block" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent align="end" className="w-72 space-y-3 p-3">
+              <PlanePopoverContent align="end" className="w-72 space-y-3 p-3">
                 <div className="text-[12px] font-medium text-foreground">
                   Filter intake
                 </div>
@@ -349,7 +390,7 @@ function IntakeListPane({
                     Clear filter
                   </Button>
                 ) : null}
-              </PopoverContent>
+              </PlanePopoverContent>
             </Popover>
             <Button
               type="button"
@@ -381,7 +422,9 @@ function IntakeListPane({
         ) : error ? (
           <div className="flex h-full flex-col items-center justify-center gap-4 px-6 text-center">
             <div className="max-w-sm space-y-2">
-              <div className="text-sm font-medium text-foreground">Intake could not load</div>
+              <div className="text-sm font-medium text-foreground">
+                Intake could not load
+              </div>
               <div className="text-sm text-muted-foreground">{error}</div>
             </div>
             <Button variant="outline" onClick={onRetry}>
@@ -390,9 +433,16 @@ function IntakeListPane({
           </div>
         ) : visibleItems.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center gap-2 px-6 text-center">
-            <Inbox className="size-6 text-muted-foreground" aria-hidden="true" />
+            <Inbox
+              className="size-6 text-muted-foreground"
+              aria-hidden="true"
+            />
             <div className="text-sm font-medium text-foreground">
-              {query ? "No matching intake" : tab === "open" ? "Intake is clear" : "No closed intake"}
+              {query
+                ? "No matching intake"
+                : tab === "open"
+                  ? "Intake is clear"
+                  : "No closed intake"}
             </div>
             <div className="max-w-xs text-sm text-muted-foreground">
               {query
@@ -466,13 +516,13 @@ function TaskDetail({
               <SelectTrigger className="h-8 min-h-8 w-3/5 border-transparent px-2 text-[13px] shadow-none hover:bg-muted/60">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <PlaneSelectContent>
                 {TASK_STATUS_VALUES.map((status) => (
                   <SelectItem key={status} value={status}>
                     {status.replaceAll("_", " ")}
                   </SelectItem>
                 ))}
-              </SelectContent>
+              </PlaneSelectContent>
             </Select>
           </label>
 
@@ -493,14 +543,14 @@ function TaskDetail({
               <SelectTrigger className="h-8 min-h-8 w-3/5 border-transparent px-2 text-[13px] shadow-none hover:bg-muted/60">
                 <SelectValue placeholder="Unassigned" />
               </SelectTrigger>
-              <SelectContent>
+              <PlaneSelectContent>
                 <SelectItem value="__none__">Unassigned</SelectItem>
                 {users.map((user) => (
                   <SelectItem key={user.id} value={user.person_id ?? user.id}>
                     {user.full_name || user.email || "Unnamed user"}
                   </SelectItem>
                 ))}
-              </SelectContent>
+              </PlaneSelectContent>
             </Select>
           </label>
 
@@ -519,14 +569,14 @@ function TaskDetail({
               <SelectTrigger className="h-8 min-h-8 w-3/5 border-transparent px-2 text-[13px] shadow-none hover:bg-muted/60">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <PlaneSelectContent>
                 <SelectItem value="__none__">Not set</SelectItem>
                 {TASK_PRIORITY_VALUES.map((priority) => (
                   <SelectItem key={priority} value={priority}>
                     {priority}
                   </SelectItem>
                 ))}
-              </SelectContent>
+              </PlaneSelectContent>
             </Select>
           </label>
 
@@ -547,10 +597,14 @@ function TaskDetail({
                   {task.due_date ? formatDate(task.due_date) : "No due date"}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
+              <PlanePopoverContent className="w-auto p-0" align="start">
                 <Calendar
                   mode="single"
-                  selected={task.due_date ? new Date(`${task.due_date}T12:00:00`) : undefined}
+                  selected={
+                    task.due_date
+                      ? new Date(`${task.due_date}T12:00:00`)
+                      : undefined
+                  }
                   onSelect={(date) => {
                     const dueDate = date
                       ? [
@@ -575,7 +629,7 @@ function TaskDetail({
                     </Button>
                   </div>
                 ) : null}
-              </PopoverContent>
+              </PlanePopoverContent>
             </Popover>
           </div>
         </div>
@@ -601,11 +655,7 @@ function TaskDetail({
   );
 }
 
-function EmailDetail({
-  item,
-}: {
-  item: EmailIntakeItem;
-}) {
+function EmailDetail({ item }: { item: EmailIntakeItem }) {
   const email = item.email;
   return (
     <div className="mx-auto w-full max-w-4xl space-y-6 px-5 py-6 sm:px-8">
@@ -683,11 +733,8 @@ function IntakeDetailPane({
   }
 
   const sourceTarget =
-    item.source === "task"
-      ? getTaskSourceTarget(item.task, projectId)
-      : null;
-  const outlookWebLink =
-    item.source === "outlook" ? item.email.webLink : null;
+    item.source === "task" ? getTaskSourceTarget(item.task, projectId) : null;
+  const outlookWebLink = item.source === "outlook" ? item.email.webLink : null;
 
   return (
     <div className="flex h-full min-h-0 flex-col bg-background">
@@ -708,9 +755,7 @@ function IntakeDetailPane({
             {item.source === "task" ? "TASK" : "OUTLOOK"}-
           </span>
           <span className="truncate">
-            {item.source === "task"
-              ? item.task.id?.slice(0, 8)
-              : item.email.id}
+            {item.source === "task" ? item.task.id?.slice(0, 8) : item.email.id}
           </span>
         </div>
         <StatusDot
@@ -767,11 +812,7 @@ function IntakeDetailPane({
               size="sm"
               className="ml-1 hidden h-8 sm:inline-flex"
             >
-              <Link
-                href={outlookWebLink}
-                target="_blank"
-                rel="noreferrer"
-              >
+              <Link href={outlookWebLink} target="_blank" rel="noreferrer">
                 Outlook
                 <ArrowUpRight className="size-3.5" />
               </Link>
@@ -837,32 +878,30 @@ export function PlaneIntakeClient({
   const outlookOpenQuery = useQuery<OutlookIntakeEmail[]>({
     queryKey: ["plane-intake", "outlook", projectId, "open"],
     queryFn: ({ signal }) =>
-      apiFetch<OutlookIntakeEmail[]>("/api/outlook-intake", { signal }),
+      apiFetch<OutlookIntakeEmail[]>(buildPlaneOutlookIntakeUrl(projectId), {
+        signal,
+      }),
     enabled: requestPolicy.outlookQueriesEnabled,
   });
   const outlookClosedQuery = useQuery<OutlookIntakeEmail[]>({
     queryKey: ["plane-intake", "outlook", projectId, "closed"],
     queryFn: ({ signal }) =>
       apiFetch<OutlookIntakeEmail[]>(
-        "/api/outlook-intake?match_status=ignored",
+        buildPlaneOutlookIntakeUrl(projectId, "ignored"),
         { signal },
       ),
     enabled: requestPolicy.outlookQueriesEnabled,
   });
   const usersQuery = useQuery<UsersResponse>({
     queryKey: ["plane-intake", "users"],
-    queryFn: ({ signal }) =>
-      apiFetch<UsersResponse>("/api/users", { signal }),
+    queryFn: ({ signal }) => apiFetch<UsersResponse>("/api/users", { signal }),
   });
 
   const items = React.useMemo(
     () =>
       mergeIntakeItems(
         tasksQuery.data?.data ?? [],
-        [
-          ...(outlookOpenQuery.data ?? []),
-          ...(outlookClosedQuery.data ?? []),
-        ],
+        [...(outlookOpenQuery.data ?? []), ...(outlookClosedQuery.data ?? [])],
         numericProjectId,
       ),
     [
@@ -872,8 +911,13 @@ export function PlaneIntakeClient({
       tasksQuery.data?.data,
     ],
   );
-  const selectedItem =
-    items.find((item) => item.key === selectedKey) ?? null;
+  const selectedItem = items.find((item) => item.key === selectedKey) ?? null;
+  const loadingState = resolvePlaneIntakeLoadingState({
+    tasksLoading: tasksQuery.isLoading,
+    outlookEnabled: requestPolicy.outlookQueriesEnabled,
+    outlookOpenLoading: outlookOpenQuery.isLoading,
+    outlookClosedLoading: outlookClosedQuery.isLoading,
+  });
   const mutationPolicy = resolvePlaneIntakeMutationPolicy(
     selectedItem?.source ?? null,
     access,
@@ -902,8 +946,7 @@ export function PlaneIntakeClient({
   const fatalError =
     Boolean(tasksQuery.error) &&
     (!access.canAccessOutlookIntake ||
-      (Boolean(outlookOpenQuery.error) &&
-        Boolean(outlookClosedQuery.error)))
+      (Boolean(outlookOpenQuery.error) && Boolean(outlookClosedQuery.error)))
       ? sourceErrors.join(" ")
       : null;
 
@@ -969,13 +1012,17 @@ export function PlaneIntakeClient({
       return;
     setSaving(true);
     try {
-      await apiFetch(`/api/tasks/${selectedItem.task.id}`, { method: "DELETE" });
+      await apiFetch(`/api/tasks/${selectedItem.task.id}`, {
+        method: "DELETE",
+      });
       setSelectedKey(null);
       setDeleteOpen(false);
       await refresh();
       toast.success("Task deleted");
     } catch (error) {
-      toast.error("Task deletion failed", { description: getErrorDetail(error) });
+      toast.error("Task deletion failed", {
+        description: getErrorDetail(error),
+      });
     } finally {
       setSaving(false);
     }
@@ -999,9 +1046,13 @@ export function PlaneIntakeClient({
       });
       await refresh();
       setTab(selectedItem.tab === "closed" ? "open" : "closed");
-      toast.success(selectedItem.tab === "closed" ? "Email restored" : "Email ignored");
+      toast.success(
+        selectedItem.tab === "closed" ? "Email restored" : "Email ignored",
+      );
     } catch (error) {
-      toast.error("Email update failed", { description: getErrorDetail(error) });
+      toast.error("Email update failed", {
+        description: getErrorDetail(error),
+      });
     } finally {
       setSaving(false);
     }
@@ -1016,12 +1067,8 @@ export function PlaneIntakeClient({
             selectedKey={selectedKey}
             tab={tab}
             query={query}
-            loading={
-              tasksQuery.isLoading ||
-              (access.canAccessOutlookIntake &&
-                (outlookOpenQuery.isLoading ||
-                  outlookClosedQuery.isLoading))
-            }
+            loading={loadingState.listLoading}
+            countsSettled={loadingState.countsSettled}
             error={fatalError}
             projectId={numericProjectId}
             projects={projects}
@@ -1074,7 +1121,7 @@ export function PlaneIntakeClient({
       ) : null}
 
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <AlertDialogContent>
+        <PlaneAlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete this task?</AlertDialogTitle>
             <AlertDialogDescription>
@@ -1094,7 +1141,7 @@ export function PlaneIntakeClient({
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>
-        </AlertDialogContent>
+        </PlaneAlertDialogContent>
       </AlertDialog>
     </>
   );

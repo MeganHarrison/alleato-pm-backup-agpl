@@ -6,8 +6,8 @@ import { loadCurrentUserExecutiveVisibility } from "@/lib/executive/executive-vi
 import { buildExecutiveBriefViewModel } from "@/lib/daily-briefs/brief-view-model";
 import { loadGovernedExecutiveArtifact } from "@/lib/executive/governed-executive-artifact";
 
-import { ExecutiveBriefView } from "../(main)/executive/intelligence-brief/executive-brief-view";
-import "../(main)/executive/intelligence-brief/brief.css";
+import { ExecutiveBriefView } from "../executive/intelligence-brief/executive-brief-view";
+import "../executive/intelligence-brief/brief.css";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";

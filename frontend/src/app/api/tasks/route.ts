@@ -1,6 +1,10 @@
-import { createClient, getApiRouteUser } from "@/lib/supabase/server";
+import { getApiRouteUser } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { serviceDb } from "@/lib/supabase/service-db";
+import {
+  isAuthError,
+  verifyProjectAccess,
+} from "@/lib/supabase/auth-guard";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { mapTaskRow, type JoinedTaskRow } from "@/features/tasks/task-utils";
@@ -79,9 +83,34 @@ const TASK_SELECT_WITH_DOCUMENT_INNER = TASK_SELECT.replace(
   "document_metadata:tasks_metadata_id_fkey!inner (",
 );
 
+const POSTGRES_INT4_MAX = 2_147_483_647;
+
+function parseProjectIdParam(value: string | null): number | null {
+  if (value === null) return null;
+  if (!/^[1-9]\d*$/.test(value)) {
+    throw new GuardrailError({
+      code: "VALIDATION_ERROR",
+      where: "/api/tasks#GET",
+      message: "project_id must be a positive integer.",
+      details: { projectId: value },
+    });
+  }
+
+  const projectId = Number(value);
+  if (!Number.isSafeInteger(projectId) || projectId > POSTGRES_INT4_MAX) {
+    throw new GuardrailError({
+      code: "VALIDATION_ERROR",
+      where: "/api/tasks#GET",
+      message: "project_id must be a valid positive PostgreSQL integer.",
+      details: { projectId: value },
+    });
+  }
+  return projectId;
+}
+
 export const GET = withApiGuardrails("/api/tasks#GET", async ({ request }) => {
   const projectIdParam = request.nextUrl.searchParams.get("project_id");
-  const projectId = projectIdParam ? Number.parseInt(projectIdParam, 10) : null;
+  const projectId = parseProjectIdParam(projectIdParam);
 
   const rawScope = request.nextUrl.searchParams.get("scope") ?? "mine";
   const scope = rawScope === "all" || rawScope === "mine" ? rawScope : "mine";
@@ -106,48 +135,66 @@ export const GET = withApiGuardrails("/api/tasks#GET", async ({ request }) => {
     });
   }
 
-  // Use service client so profile lookup/admin checks are immune to RLS edge cases.
-  const serviceClient = createServiceClient();
-  const { data: profileData, error: profileError } = await serviceDb.from("user_profiles")
-    .select("is_admin, full_name")
-    .eq("id", user.id)
-    .maybeSingle();
+  let serviceClient: ReturnType<typeof createServiceClient> | null = null;
+  let profileData: { is_admin: boolean | null; full_name: string | null } | null;
 
-  if (profileError) {
-    throw new GuardrailError({
-      code: "INTERNAL_ERROR",
-      where: "/api/tasks#GET",
-      message: "Failed to verify task access.",
-      details: { reason: profileError.message },
-      cause: profileError,
-    });
+  if (projectId !== null) {
+    const access = await verifyProjectAccess(projectId, user);
+    if (isAuthError(access)) return access;
+    serviceClient = access.serviceClient;
+    profileData = access.userProfile;
+  } else {
+    // Global task reads preserve the existing admin-only `scope=all`
+    // behavior. Project-scoped `scope=all` means all tasks in an authorized
+    // project and is available to ordinary project members.
+    const { data, error } = await serviceDb.from("user_profiles")
+      .select("is_admin, full_name")
+      .eq("id", user.id)
+      .maybeSingle();
+    if (error) {
+      throw new GuardrailError({
+        code: "INTERNAL_ERROR",
+        where: "/api/tasks#GET",
+        message: "Failed to verify task access.",
+        details: { reason: error.message },
+        cause: error,
+      });
+    }
+    profileData = data;
+
+    if (scope === "all" && profileData?.is_admin !== true) {
+      throw new GuardrailError({
+        code: "FORBIDDEN",
+        where: "/api/tasks#GET",
+        message: "Only admins can view all tasks.",
+        details: { userId: user.id, scope },
+      });
+    }
   }
-
-  // Admins-only guard for "all" scope.
-  if (scope === "all" && profileData?.is_admin !== true) {
-    throw new GuardrailError({
-      code: "FORBIDDEN",
-      where: "/api/tasks#GET",
-      message: "Only admins can view all tasks.",
-      details: { userId: user.id, scope },
-    });
-  }
-
-  const supabase = await createClient();
 
   // Project-scoped: use service client to bypass RLS; deduplicate across three query strategies.
-  if (projectId !== null && !Number.isNaN(projectId)) {
+  if (projectId !== null) {
+    if (serviceClient === null) {
+      throw new GuardrailError({
+        code: "INTERNAL_ERROR",
+        where: "/api/tasks#GET",
+        message: "Authorized project task client was unavailable.",
+        details: { projectId },
+      });
+    }
+
     const [byProjectIds, byProjectId, viaDocsMeta] = await Promise.all([
-      serviceDb.from("tasks")
+      serviceClient.from("tasks")
         .select(TASK_SELECT)
         .contains("project_ids", [projectId])
         .order("created_at", { ascending: false }),
-      serviceDb.from("tasks")
+      serviceClient.from("tasks")
         .select(TASK_SELECT)
         .eq("project_id", projectId)
         .order("created_at", { ascending: false }),
-      serviceDb.from("tasks")
+      serviceClient.from("tasks")
         .select(TASK_SELECT_WITH_DOCUMENT_INNER)
+        .is("project_id", null)
         .eq("document_metadata.project_id", projectId)
         .or("project_ids.is.null,project_ids.eq.{}")
         .order("created_at", { ascending: false }),
@@ -186,7 +233,7 @@ export const GET = withApiGuardrails("/api/tasks#GET", async ({ request }) => {
     const currentUserEmail = user.email?.trim().toLowerCase() ?? "";
     const fullName = profileData?.full_name?.trim().toLowerCase() ?? "";
     const { data: currentPerson } = currentUserEmail
-      ? await serviceDb.from("people").select("id").ilike("email", currentUserEmail).maybeSingle()
+      ? await serviceClient.from("people").select("id").ilike("email", currentUserEmail).maybeSingle()
       : { data: null };
 
     const scopedRows = scope === "mine"
@@ -221,11 +268,14 @@ export const GET = withApiGuardrails("/api/tasks#GET", async ({ request }) => {
     });
   }
 
-  const taskClient = scope === "all" ? serviceClient : supabase;
+  // This is a server-side list read: authorization is established above, then
+  // scope is enforced below with explicit assignee filters. The browser RLS
+  // client cannot SELECT this table in production, so using it here turns a
+  // valid authenticated request into a database-permission 500.
   // Legacy tasks are document-linked (metadata_id not null). Manual tasks and
   // tasks the daily deep read creates are legitimately metadata_id-null, so
   // include them by source_system instead of filtering them out.
-  let query = taskClient
+  let query = serviceDb
     .from("tasks")
     .select(TASK_SELECT)
     .or("metadata_id.not.is.null,source_system.in.(manual,daily_deep_read)")
@@ -233,7 +283,16 @@ export const GET = withApiGuardrails("/api/tasks#GET", async ({ request }) => {
     .limit(1000);
 
   // Scope: mine → prefer durable people FK, with email/name fallback for legacy rows.
-  if (scope === "mine" && currentUserEmail) {
+  if (scope === "mine") {
+    if (!currentUserEmail) {
+      throw new GuardrailError({
+        code: "AUTH_EXPIRED",
+        where: "/api/tasks#GET",
+        message: "Cannot load tasks because the authenticated session has no email.",
+        details: { reason: "Task scope filtering requires the authenticated email" },
+      });
+    }
+
     const fullName = profileData?.full_name?.trim();
     const filters = [`assignee_email.ilike.${currentUserEmail}`];
     if (currentPerson?.id) filters.unshift(`assignee_person_id.eq.${currentPerson.id}`);
@@ -282,7 +341,10 @@ export const GET = withApiGuardrails("/api/tasks#GET", async ({ request }) => {
 const CreateTaskBodySchema = z.object({
   description: z.string().trim().min(1, "A task description is required."),
   title: z.string().trim().min(1).max(200).optional(),
-  project_id: z.union([z.coerce.number().int().positive(), z.null()]).optional(),
+  project_id: z.union([
+    z.number().int().positive().max(POSTGRES_INT4_MAX),
+    z.null(),
+  ]).optional(),
   assignee_person_id: z.union([z.string().uuid(), z.null()]).optional(),
   due_date: z
     .union([z.string().regex(/^\d{4}-\d{2}-\d{2}$/), z.literal(""), z.null()])
@@ -303,7 +365,10 @@ function deriveTitleFromDescription(description: string): string {
   return `${(lastSpace > 40 ? truncated.slice(0, lastSpace) : truncated).trim()}…`;
 }
 
-async function resolveManualAssignee(personId: string | null | undefined) {
+async function resolveManualAssignee(
+  personId: string | null | undefined,
+  serviceClient: ReturnType<typeof createServiceClient>,
+) {
   if (!personId) {
     return {
       assignee_person_id: null as string | null,
@@ -312,8 +377,7 @@ async function resolveManualAssignee(personId: string | null | undefined) {
     };
   }
 
-  const serviceClient = createServiceClient();
-  const { data: person, error } = await serviceDb.from("people")
+  const { data: person, error } = await serviceClient.from("people")
     .select("id, first_name, last_name, email")
     .eq("id", personId)
     .in("person_type", ["employee", "user"])
@@ -376,13 +440,24 @@ export const POST = withApiGuardrails("/api/tasks#POST", async ({ request }) => 
   const { description, title, project_id, assignee_person_id, due_date, priority, status } =
     parsed.data;
 
-  const assignee = await resolveManualAssignee(assignee_person_id);
-
   const projectId = project_id ?? null;
   const dueDate = due_date && due_date.length > 0 ? due_date : null;
+  let serviceClient: ReturnType<typeof createServiceClient>;
 
-  const serviceClient = createServiceClient();
-  const { data, error } = await serviceDb.from("tasks")
+  if (projectId !== null) {
+    const access = await verifyProjectAccess(projectId, user);
+    if (isAuthError(access)) return access;
+    serviceClient = access.serviceClient;
+  } else {
+    serviceClient = createServiceClient();
+  }
+
+  const assignee = await resolveManualAssignee(
+    assignee_person_id,
+    serviceClient,
+  );
+
+  const { data, error } = await serviceClient.from("tasks")
     .insert({
       metadata_id: null,
       source_system: "manual",

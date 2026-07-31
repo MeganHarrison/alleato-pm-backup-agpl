@@ -72,6 +72,7 @@
     "gen:playwright-prompt:all": "node scripts/generate-playwright-skill-prompts-batch.cjs",
     "dashboard:playwright": "node scripts/build-playwright-dashboard.cjs",
     "dashboard:playwright:open": "npm run dashboard:playwright && open output/playwright/dashboard/index.html",
+    "e2e:browser": "node scripts/agent-browser/agent-browser-verify.mjs",
     "verify:browser": "node scripts/agent-browser/agent-browser-verify.mjs",
     "verify:contract": "node scripts/verification/verification-contract.mjs",
     "verify:browser-auth": "node scripts/verification/prepare-authenticated-browser.mjs",

@@ -27,9 +27,15 @@ import {
   Table2,
   Tag,
 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { ApiError, apiFetch } from "@/lib/api-client";
 import { appToast as toast } from "@/lib/toast/app-toast";
@@ -51,13 +57,266 @@ import { PlaneWorkspaceShell } from "./plane-workspace-shell";
 
 type Layout = "list" | "board" | "calendar" | "spreadsheet" | "gantt";
 
+type InitialWorkItemFilters = {
+  status: PlaneWorkItemStatusFilter;
+  priority: string | null;
+  dueFrom: string | null;
+  dueTo: string | null;
+};
+
+type PlaneWorkItemMutationFailure = {
+  kind: "authentication" | "permission" | "request";
+  message: string;
+  retryable: boolean;
+  recoveryHref?: string;
+};
+
+type PlaneWorkItemStatusMutation = {
+  phase: "saving" | "error";
+  requestId: number;
+  previousStatus: string | null;
+  targetStatus: string;
+  failure?: PlaneWorkItemMutationFailure;
+};
+
+type PlaneWorkItemCreateState =
+  | { phase: "idle" }
+  | { phase: "saving" }
+  | {
+      phase: "error";
+      failure: PlaneWorkItemMutationFailure;
+    };
+
+export function validatePlaneWorkItemDescription(description: string) {
+  const value = description.trim();
+  if (!value) return "Work item title is required.";
+  if (value.length > 500) {
+    return "Work item title must be 500 characters or fewer.";
+  }
+  return null;
+}
+
+export function classifyPlaneWorkItemMutationFailure(
+  cause: unknown,
+  action: "create" | "status",
+): PlaneWorkItemMutationFailure {
+  if (cause instanceof ApiError && cause.status === 401) {
+    return {
+      kind: "authentication",
+      message: "Your session has expired. Sign in again to continue.",
+      retryable: false,
+      recoveryHref: "/auth/login",
+    };
+  }
+
+  if (cause instanceof ApiError && cause.status === 403) {
+    return {
+      kind: "permission",
+      message:
+        action === "create"
+          ? "You do not have permission to create work items in this project."
+          : "You do not have permission to change this work item’s status.",
+      retryable: false,
+    };
+  }
+
+  return {
+    kind: "request",
+    message:
+      action === "create"
+        ? "The work item could not be created. Check your connection and retry."
+        : "The status change could not be saved. Retry the change.",
+    retryable: true,
+  };
+}
+
+export type PlaneWorkItemMutationMutex = { current: boolean };
+
+export async function runWithPlaneWorkItemMutationMutex<T>({
+  mutex,
+  persist,
+}: {
+  mutex: PlaneWorkItemMutationMutex;
+  persist: () => Promise<T>;
+}) {
+  if (mutex.current) return { status: "busy" as const };
+  mutex.current = true;
+  try {
+    return { status: "completed" as const, value: await persist() };
+  } finally {
+    mutex.current = false;
+  }
+}
+
+export async function runPlaneWorkItemStatusMutation({
+  task,
+  targetStatus,
+  requestId,
+  isLatest,
+  persist,
+  applyStatus,
+  setMutation,
+}: {
+  task: TasksRow;
+  targetStatus: string;
+  requestId: number;
+  isLatest: (requestId: number) => boolean;
+  persist: () => Promise<unknown>;
+  applyStatus: (status: string | null) => void;
+  setMutation: (mutation: PlaneWorkItemStatusMutation | null) => void;
+}) {
+  const previousStatus = task.status;
+  applyStatus(targetStatus);
+  setMutation({
+    phase: "saving",
+    requestId,
+    previousStatus,
+    targetStatus,
+  });
+
+  try {
+    await persist();
+    if (!isLatest(requestId)) return "stale" as const;
+    setMutation(null);
+    return "saved" as const;
+  } catch (cause) {
+    if (!isLatest(requestId)) return "stale" as const;
+    applyStatus(previousStatus);
+    setMutation({
+      phase: "error",
+      requestId,
+      previousStatus,
+      targetStatus,
+      failure: classifyPlaneWorkItemMutationFailure(cause, "status"),
+    });
+    return "rejected" as const;
+  }
+}
+
+export function getInitialPlaneWorkItemsLayout(
+  view: string | null | undefined,
+): Layout {
+  return view === "board" ? "board" : "list";
+}
+
+export function getInitialPlaneWorkItemFilters(
+  searchParams: Pick<URLSearchParams, "get">,
+): InitialWorkItemFilters {
+  const status = searchParams.get("status");
+  const priority = searchParams.get("priority")?.trim().toLowerCase() || null;
+
+  return {
+    status:
+      status === "open" || status === "in_progress" || status === "done"
+        ? status
+        : "all",
+    priority:
+      priority && ["low", "medium", "high", "urgent"].includes(priority)
+        ? priority
+        : null,
+    dueFrom: searchParams.get("due_from")?.trim() || null,
+    dueTo: searchParams.get("due_to")?.trim() || null,
+  };
+}
+
+export function buildPlaneWorkItemsPeekHref(
+  pathname: string,
+  searchParams: Pick<URLSearchParams, "toString">,
+  taskId: string | null,
+) {
+  const next = new URLSearchParams(searchParams.toString());
+  if (taskId) next.set("peek", taskId);
+  else next.delete("peek");
+  const query = next.toString();
+  return query ? `${pathname}?${query}` : pathname;
+}
+
+export function restorePlaneWorkItemsOrigin(
+  scrollContainer: Pick<HTMLElement, "scrollTop"> | null,
+  scrollTop: number,
+  origin: Pick<HTMLElement, "focus"> | null,
+) {
+  if (scrollContainer) scrollContainer.scrollTop = scrollTop;
+  origin?.focus();
+}
+
+function WorkItemMutationStatus({
+  mutation,
+  onRetry,
+}: {
+  mutation: PlaneWorkItemStatusMutation | undefined;
+  onRetry: () => void;
+}) {
+  if (!mutation) return null;
+  if (mutation.phase === "saving") {
+    return (
+      <span className="text-[11px] text-[#69707a]" aria-live="polite">
+        Saving…
+      </span>
+    );
+  }
+
+  return (
+    <span
+      className="flex items-center gap-1 text-[11px] text-destructive"
+      role="alert"
+    >
+      {mutation.failure?.message}
+      {mutation.failure?.recoveryHref ? (
+        <Button type="button" variant="ghost" size="xs" asChild>
+          <a href={mutation.failure.recoveryHref}>Sign in</a>
+        </Button>
+      ) : mutation.failure?.retryable ? (
+        <Button type="button" variant="ghost" size="xs" onClick={onRetry}>
+          Retry
+        </Button>
+      ) : null}
+    </span>
+  );
+}
+
+export function WorkItemStatusControl({
+  task,
+  mutation,
+  onChange,
+  onRetry,
+}: {
+  task: TasksRow;
+  mutation: PlaneWorkItemStatusMutation | undefined;
+  onChange: (status: string) => void;
+  onRetry: () => void;
+}) {
+  const label = planeWorkItemTitle(task);
+
+  return (
+    <span className="flex min-w-0 flex-col items-start gap-0.5">
+      <select
+        aria-label={`Change status for ${label}`}
+        value={normalizePlaneWorkItemStatus(task.status)}
+        disabled={!task.id || mutation?.phase === "saving"}
+        onChange={(event) => onChange(event.target.value)}
+        className="h-6 rounded border border-[#d9dce1] bg-white px-1.5 text-[11px] text-[#4f5660]"
+      >
+        <option value="open">Backlog</option>
+        <option value="in_progress">In progress</option>
+        <option value="done">Done</option>
+      </select>
+      <WorkItemMutationStatus mutation={mutation} onRetry={onRetry} />
+    </span>
+  );
+}
+
 function WorkItemDetail({
   task,
   onStatusChange,
+  statusMutation,
+  onRetryStatus,
   onClose,
 }: {
   task: TasksRow;
   onStatusChange: (task: TasksRow, status: string) => Promise<void>;
+  statusMutation: PlaneWorkItemStatusMutation | undefined;
+  onRetryStatus: () => void;
   onClose: () => void;
 }) {
   async function copyLink() {
@@ -111,14 +370,20 @@ function WorkItemDetail({
           <dt className="text-[#7b8189]">Status</dt>
           <dd>
             <select
+              aria-label={`Change status for ${planeWorkItemTitle(task)} in inspector`}
               value={normalizePlaneWorkItemStatus(task.status)}
               onChange={(event) => void onStatusChange(task, event.target.value)}
+              disabled={statusMutation?.phase === "saving"}
               className="h-7 rounded border border-[#d9dce1] bg-white px-2 text-xs"
             >
               <option value="open">Backlog</option>
               <option value="in_progress">In progress</option>
               <option value="done">Done</option>
             </select>
+            <WorkItemMutationStatus
+              mutation={statusMutation}
+              onRetry={onRetryStatus}
+            />
           </dd>
         </div>
         <div className="grid grid-cols-[110px_1fr] py-3">
@@ -142,6 +407,53 @@ function WorkItemDetail({
   );
 }
 
+export function WorkItemInspectorDialog({
+  task,
+  onStatusChange,
+  statusMutation,
+  onRetryStatus,
+  onClose,
+  onRestoreFocus,
+}: {
+  task: TasksRow;
+  onStatusChange: (task: TasksRow, status: string) => Promise<void>;
+  statusMutation: PlaneWorkItemStatusMutation | undefined;
+  onRetryStatus: () => void;
+  onClose: () => void;
+  onRestoreFocus: () => void;
+}) {
+  return (
+    <Dialog
+      open
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
+    >
+      <DialogContent
+        aria-modal="true"
+        aria-describedby={undefined}
+        showCloseButton={false}
+        onCloseAutoFocus={(event) => {
+          event.preventDefault();
+          onRestoreFocus();
+        }}
+        className="inset-y-0 right-0 left-auto top-0 h-svh w-full max-w-xl translate-x-0 translate-y-0 gap-0 rounded-none border-y-0 border-r-0 p-0"
+      >
+        <DialogTitle className="sr-only">
+          {planeWorkItemTitle(task)}
+        </DialogTitle>
+        <WorkItemDetail
+          task={task}
+          onStatusChange={onStatusChange}
+          statusMutation={statusMutation}
+          onRetryStatus={onRetryStatus}
+          onClose={onClose}
+        />
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export function PlaneWorkItemsPage({
   projectId,
   projectName,
@@ -149,12 +461,29 @@ export function PlaneWorkItemsPage({
   projectId: string;
   projectName: string;
 }) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialFilters = getInitialPlaneWorkItemFilters(searchParams);
+  const mainRef = useRef<HTMLElement>(null);
+  const inspectorOriginRef = useRef<HTMLElement | null>(null);
+  const inspectorScrollTopRef = useRef(0);
+  const statusRequestIdRef = useRef(0);
+  const latestStatusRequestRef = useRef<Record<string, number>>({});
+  const statusMutationMutexesRef = useRef<
+    Record<string, PlaneWorkItemMutationMutex>
+  >({});
+  const createMutationMutexRef = useRef<PlaneWorkItemMutationMutex>({
+    current: false,
+  });
   const [items, setItems] = useState<TasksRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [layout, setLayout] = useState<Layout>("list");
+  const [layout, setLayout] = useState<Layout>(() =>
+    getInitialPlaneWorkItemsLayout(searchParams.get("view")),
+  );
   const [statusFilter, setStatusFilter] =
-    useState<PlaneWorkItemStatusFilter>("all");
+    useState<PlaneWorkItemStatusFilter>(initialFilters.status);
   const [displayProperties, setDisplayProperties] =
     useState<PlaneWorkItemDisplayProperties>({
       assignee: true,
@@ -162,13 +491,21 @@ export function PlaneWorkItemsPage({
       priority: true,
     });
   const [analyticsOpen, setAnalyticsOpen] = useState(false);
-  const [creating, setCreating] = useState(false);
+  const [createState, setCreateState] =
+    useState<PlaneWorkItemCreateState>({ phase: "idle" });
+  const [createValidationError, setCreateValidationError] = useState<
+    string | null
+  >(null);
+  const [statusMutations, setStatusMutations] = useState<
+    Record<string, PlaneWorkItemStatusMutation>
+  >({});
   const [quickAddOpen, setQuickAddOpen] = useState(false);
   const [quickAddStatus, setQuickAddStatus] = useState<
     "open" | "in_progress" | "done"
   >("open");
   const [newItem, setNewItem] = useState("");
   const [selectedTask, setSelectedTask] = useState<TasksRow | null>(null);
+  const peekId = searchParams.get("peek");
 
   const loadItems = useCallback(async () => {
     setLoading(true);
@@ -193,35 +530,119 @@ export function PlaneWorkItemsPage({
     void loadItems();
   }, [loadItems]);
 
+  const restoreInspectorOrigin = useCallback(() => {
+    window.requestAnimationFrame(() => {
+      restorePlaneWorkItemsOrigin(
+        mainRef.current,
+        inspectorScrollTopRef.current,
+        inspectorOriginRef.current,
+      );
+      inspectorOriginRef.current = null;
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!peekId) {
+      if (selectedTask) {
+        setSelectedTask(null);
+      }
+      return;
+    }
+    const peekTask = items.find((item) => item.id === peekId);
+    if (peekTask && selectedTask?.id !== peekTask.id) {
+      setSelectedTask(peekTask);
+    }
+  }, [items, peekId, restoreInspectorOrigin, selectedTask]);
+
   const filteredItems = useMemo(() => {
-    return items.filter(
-      (item) =>
-        statusFilter === "all" ||
-        normalizePlaneWorkItemStatus(item.status) === statusFilter,
+    return items.filter((item) => {
+      const pendingStatusMutation = item.id
+        ? statusMutations[item.id]
+        : undefined;
+      if (
+        statusFilter !== "all" &&
+        normalizePlaneWorkItemStatus(item.status) !== statusFilter &&
+        pendingStatusMutation?.phase !== "saving"
+      ) {
+        return false;
+      }
+      if (
+        initialFilters.priority &&
+        item.priority?.toLowerCase() !== initialFilters.priority
+      ) {
+        return false;
+      }
+      if (
+        initialFilters.dueFrom &&
+        (!item.due_date || item.due_date < initialFilters.dueFrom)
+      ) {
+        return false;
+      }
+      if (
+        initialFilters.dueTo &&
+        (!item.due_date || item.due_date > initialFilters.dueTo)
+      ) {
+        return false;
+      }
+      return true;
+    });
+  }, [
+    initialFilters.dueFrom,
+    initialFilters.dueTo,
+    initialFilters.priority,
+    items,
+    statusFilter,
+    statusMutations,
+  ]);
+
+  function openInspector(task: TasksRow, origin: HTMLElement) {
+    if (!task.id) return;
+    inspectorOriginRef.current = origin;
+    inspectorScrollTopRef.current = mainRef.current?.scrollTop ?? 0;
+    router.push(
+      buildPlaneWorkItemsPeekHref(pathname, searchParams, task.id),
+      { scroll: false },
     );
-  }, [items, statusFilter]);
+  }
+
+  function closeInspector() {
+    router.replace(buildPlaneWorkItemsPeekHref(pathname, searchParams, null), {
+      scroll: false,
+    });
+  }
 
   async function createItem(status = quickAddStatus) {
     const description = newItem.trim();
-    if (!description) return;
-    setCreating(true);
+    const validationError = validatePlaneWorkItemDescription(newItem);
+    if (validationError) {
+      setCreateValidationError(validationError);
+      return;
+    }
+    setCreateValidationError(null);
     try {
-      await apiFetch("/api/tasks", {
-        method: "POST",
-        body: JSON.stringify({
-          description,
-          project_id: Number(projectId),
-          status,
-        }),
+      await runWithPlaneWorkItemMutationMutex({
+        mutex: createMutationMutexRef.current,
+        persist: async () => {
+          setCreateState({ phase: "saving" });
+          await apiFetch("/api/tasks", {
+            method: "POST",
+            body: JSON.stringify({
+              description,
+              project_id: Number(projectId),
+              status,
+            }),
+          });
+          setNewItem("");
+          setQuickAddOpen(false);
+          setCreateState({ phase: "idle" });
+          await loadItems();
+          toast.success("Work item created");
+        },
       });
-      setNewItem("");
-      setQuickAddOpen(false);
-      await loadItems();
-      toast.success("Work item created");
     } catch (cause) {
-      toast.error(cause instanceof Error ? cause.message : "Work item could not be created.");
-    } finally {
-      setCreating(false);
+      const failure = classifyPlaneWorkItemMutationFailure(cause, "create");
+      setCreateState({ phase: "error", failure });
+      toast.error(failure.message);
     }
   }
 
@@ -229,31 +650,66 @@ export function PlaneWorkItemsPage({
     if (!["list", "board"].includes(layout)) setLayout("list");
     setQuickAddStatus(status);
     setQuickAddOpen(true);
+    setCreateValidationError(null);
+    setCreateState({ phase: "idle" });
     window.setTimeout(() => document.getElementById("plane-new-work-item")?.focus(), 0);
   }
 
-  async function updateStatus(task: TasksRow, status: string) {
-    if (!task.id) return;
-    const previous = task.status;
-    setItems((current) =>
-      current.map((item) => (item.id === task.id ? { ...item, status } : item)),
-    );
-    try {
-      await apiFetch(`/api/tasks/${task.id}`, {
-        method: "PATCH",
-        body: JSON.stringify({ status }),
-      });
-      setSelectedTask((current) =>
-        current?.id === task.id ? { ...current, status } : current,
-      );
-    } catch (cause) {
+  const applyStatus = useCallback(
+    (taskId: string, status: string | null) => {
       setItems((current) =>
         current.map((item) =>
-          item.id === task.id ? { ...item, status: previous } : item,
+          item.id === taskId ? { ...item, status } : item,
         ),
       );
-      toast.error(cause instanceof Error ? cause.message : "Status update failed.");
-    }
+      setSelectedTask((current) =>
+        current?.id === taskId ? { ...current, status } : current,
+      );
+    },
+    [],
+  );
+
+  async function updateStatus(task: TasksRow, status: string) {
+    if (!task.id) return;
+    const taskId = task.id;
+    const mutex =
+      statusMutationMutexesRef.current[taskId] ??
+      (statusMutationMutexesRef.current[taskId] = { current: false });
+    const requestId = ++statusRequestIdRef.current;
+    await runWithPlaneWorkItemMutationMutex({
+      mutex,
+      persist: async () => {
+        latestStatusRequestRef.current[taskId] = requestId;
+        await runPlaneWorkItemStatusMutation({
+          task,
+          targetStatus: status,
+          requestId,
+          isLatest: (candidateRequestId) =>
+            latestStatusRequestRef.current[taskId] === candidateRequestId,
+          persist: () =>
+            apiFetch(`/api/tasks/${taskId}`, {
+              method: "PATCH",
+              body: JSON.stringify({ status }),
+            }),
+          applyStatus: (nextStatus) => applyStatus(taskId, nextStatus),
+          setMutation: (mutation) =>
+            setStatusMutations((current) => {
+              if (!mutation) {
+                const { [taskId]: _removed, ...remaining } = current;
+                return remaining;
+              }
+              return { ...current, [taskId]: mutation };
+            }),
+        });
+      },
+    });
+  }
+
+  function retryStatus(taskId: string) {
+    const mutation = statusMutations[taskId];
+    const task = items.find((item) => item.id === taskId);
+    if (!mutation || !task || !mutation.failure?.retryable) return;
+    void updateStatus(task, mutation.targetStatus);
   }
 
   return (
@@ -421,7 +877,7 @@ export function PlaneWorkItemsPage({
           </button>
         </div>
 
-        <main className="min-h-0 flex-1 overflow-auto">
+        <main ref={mainRef} className="min-h-0 flex-1 overflow-auto">
           <div className="flex h-11 items-center justify-between border-b border-[#e5e7eb] px-5">
             <div className="flex items-center gap-2">
               <Circle className="size-3.5 stroke-[1.5]" />
@@ -452,22 +908,32 @@ export function PlaneWorkItemsPage({
           {!loading && !error && layout === "list" && (
             <div className="divide-y divide-[#e9ebed]">
               {filteredItems.map((item, index) => (
-                <button
+                <div
                   key={item.id ?? index}
-                  type="button"
                   className="group flex min-h-11 w-full items-center gap-3 px-5 text-left text-[13px] hover:bg-[#f7f8f9]"
-                  onClick={() => setSelectedTask(item)}
                 >
-                  <span className="w-[92px] shrink-0 text-[11px] text-[#7b8189]">
-                    {planeWorkItemIdentifier(item, index)}
-                  </span>
-                  <span className="min-w-0 flex-1 truncate font-medium text-[#282c31]">
-                    {planeWorkItemTitle(item)}
-                  </span>
-                  <span className="hidden h-6 items-center gap-1.5 rounded border border-[#d9dce1] px-2 text-[11px] text-[#4f5660] sm:flex">
-                    <Circle className="size-3" />
-                    {planeWorkItemStatusLabel(item.status)}
-                  </span>
+                  <button
+                    type="button"
+                    className="flex min-w-0 flex-1 items-center gap-3 py-2 text-left"
+                    onClick={(event) =>
+                      openInspector(item, event.currentTarget)
+                    }
+                  >
+                    <span className="w-[92px] shrink-0 text-[11px] text-[#7b8189]">
+                      {planeWorkItemIdentifier(item, index)}
+                    </span>
+                    <span className="min-w-0 flex-1 truncate font-medium text-[#282c31]">
+                      {planeWorkItemTitle(item)}
+                    </span>
+                  </button>
+                  <WorkItemStatusControl
+                    task={item}
+                    mutation={item.id ? statusMutations[item.id] : undefined}
+                    onChange={(status) => void updateStatus(item, status)}
+                    onRetry={() => {
+                      if (item.id) retryStatus(item.id);
+                    }}
+                  />
                   {displayProperties.assignee && (
                     <span className="hidden text-[11px] text-[#7b8189] md:block">
                       {item.assignee_name || item.assignee_email || "Unassigned"}
@@ -480,29 +946,85 @@ export function PlaneWorkItemsPage({
                     <Tag className="hidden size-3.5 text-[#7b8189] lg:block" />
                   )}
                   <Ellipsis className="size-4 shrink-0 text-[#7b8189] opacity-0 group-hover:opacity-100" />
-                </button>
+                </div>
               ))}
               {quickAddOpen ? (
-                <div className="flex h-11 items-center gap-2 px-5">
-                  <Plus className="size-3.5 text-[#59616b]" />
-                  <Input
-                    id="plane-new-work-item"
-                    value={newItem}
-                    onChange={(event) => setNewItem(event.target.value)}
-                    onBlur={() => {
-                      if (!newItem.trim()) setQuickAddOpen(false);
-                    }}
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter") void createItem();
-                      if (event.key === "Escape") {
-                        setNewItem("");
-                        setQuickAddOpen(false);
-                      }
-                    }}
-                    placeholder="New work item"
-                    disabled={creating}
-                    className="h-8 border-0 bg-transparent px-0 text-[13px] shadow-none focus-visible:ring-0"
-                  />
+                <div className="min-h-11 px-5 py-1">
+                  <div className="flex items-center gap-2">
+                    <Plus className="size-3.5 text-[#59616b]" />
+                    <Input
+                      id="plane-new-work-item"
+                      value={newItem}
+                      onChange={(event) => {
+                        setNewItem(event.target.value);
+                        setCreateValidationError(null);
+                        if (createState.phase === "error") {
+                          setCreateState({ phase: "idle" });
+                        }
+                      }}
+                      onBlur={() => {
+                        if (
+                          !newItem.trim() &&
+                          !createValidationError &&
+                          createState.phase === "idle"
+                        ) {
+                          setQuickAddOpen(false);
+                        }
+                      }}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter") void createItem();
+                        if (
+                          event.key === "Escape" &&
+                          createState.phase !== "saving"
+                        ) {
+                          setNewItem("");
+                          setQuickAddOpen(false);
+                        }
+                      }}
+                      placeholder="New work item"
+                      disabled={createState.phase === "saving"}
+                      aria-invalid={Boolean(createValidationError)}
+                      aria-describedby="plane-new-work-item-feedback"
+                      className="h-8 border-0 bg-transparent px-0 text-[13px] shadow-none focus-visible:ring-0"
+                    />
+                  </div>
+                  <div
+                    id="plane-new-work-item-feedback"
+                    className="pl-5 text-[11px]"
+                  >
+                    {createState.phase === "saving" ? (
+                      <span className="text-[#69707a]" aria-live="polite">
+                        Saving…
+                      </span>
+                    ) : null}
+                    {createValidationError ? (
+                      <span className="text-destructive" role="alert">
+                        {createValidationError}
+                      </span>
+                    ) : null}
+                    {createState.phase === "error" ? (
+                      <span
+                        className="flex items-center gap-1 text-destructive"
+                        role="alert"
+                      >
+                        {createState.failure.message}
+                        {createState.failure.recoveryHref ? (
+                          <Button type="button" variant="ghost" size="xs" asChild>
+                            <a href={createState.failure.recoveryHref}>Sign in</a>
+                          </Button>
+                        ) : createState.failure.retryable ? (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="xs"
+                            onClick={() => void createItem()}
+                          >
+                            Retry
+                          </Button>
+                        ) : null}
+                      </span>
+                    ) : null}
+                  </div>
                 </div>
               ) : (
                 <button
@@ -532,7 +1054,11 @@ export function PlaneWorkItemsPage({
                       event.preventDefault();
                       const taskId = event.dataTransfer.getData("text/plain");
                       const task = items.find((item) => item.id === taskId);
-                      if (task && normalizePlaneWorkItemStatus(task.status) !== status) {
+                      if (
+                        task &&
+                        !statusMutations[taskId] &&
+                        normalizePlaneWorkItemStatus(task.status) !== status
+                      ) {
                         void updateStatus(task, status);
                       }
                     }}
@@ -543,53 +1069,144 @@ export function PlaneWorkItemsPage({
                     </div>
                     <div className="space-y-2">
                       {statusItems.map((item) => (
-                        <button
+                        <div
                           key={item.id}
-                          type="button"
-                          draggable={Boolean(item.id)}
+                          draggable={
+                            Boolean(item.id) &&
+                            !Boolean(item.id && statusMutations[item.id])
+                          }
                           onDragStart={(event) => {
-                            if (item.id) event.dataTransfer.setData("text/plain", item.id);
+                            if (item.id && !statusMutations[item.id]) {
+                              event.dataTransfer.setData("text/plain", item.id);
+                            } else {
+                              event.preventDefault();
+                            }
                           }}
-                          onClick={() => setSelectedTask(item)}
                           className="w-full rounded-md border border-[#dfe2e5] bg-white p-3 text-left hover:border-[#c9cdd2]"
                         >
-                          <span className="mb-2 block text-[10px] text-[#7b8189]">
-                            {planeWorkItemIdentifier(item, items.indexOf(item))}
-                          </span>
-                          <p className="text-[13px] font-medium leading-snug">
-                            {planeWorkItemTitle(item)}
-                          </p>
-                          <div className="mt-3 flex items-center justify-between text-[11px] text-[#7b8189]">
-                            {displayProperties.assignee && (
-                              <span>{item.assignee_name || "Unassigned"}</span>
-                            )}
-                            <span className="flex items-center gap-2">
-                              {displayProperties.dueDate && item.due_date && <span>{item.due_date}</span>}
-                              {displayProperties.priority && item.priority && <Tag className="size-3.5" />}
+                          <button
+                            type="button"
+                            className="w-full text-left"
+                            onClick={(event) =>
+                              openInspector(item, event.currentTarget)
+                            }
+                          >
+                            <span className="mb-2 block text-[10px] text-[#7b8189]">
+                              {planeWorkItemIdentifier(item, items.indexOf(item))}
                             </span>
+                            <span className="block text-[13px] font-medium leading-snug">
+                              {planeWorkItemTitle(item)}
+                            </span>
+                            <span className="mt-3 flex items-center justify-between text-[11px] text-[#7b8189]">
+                              {displayProperties.assignee && (
+                                <span>{item.assignee_name || "Unassigned"}</span>
+                              )}
+                              <span className="flex items-center gap-2">
+                                {displayProperties.dueDate && item.due_date && <span>{item.due_date}</span>}
+                                {displayProperties.priority && item.priority && <Tag className="size-3.5" />}
+                              </span>
+                            </span>
+                          </button>
+                          <div className="mt-2">
+                            <WorkItemStatusControl
+                              task={item}
+                              mutation={
+                                item.id ? statusMutations[item.id] : undefined
+                              }
+                              onChange={(nextStatus) =>
+                                void updateStatus(item, nextStatus)
+                              }
+                              onRetry={() => {
+                                if (item.id) retryStatus(item.id);
+                              }}
+                            />
                           </div>
-                        </button>
+                        </div>
                       ))}
                       {quickAddOpen && quickAddStatus === status ? (
                         <div className="rounded-md border border-[#dfe2e5] bg-white p-2">
                           <Input
                             id="plane-new-work-item"
                             value={newItem}
-                            onChange={(event) => setNewItem(event.target.value)}
+                            onChange={(event) => {
+                              setNewItem(event.target.value);
+                              setCreateValidationError(null);
+                              if (createState.phase === "error") {
+                                setCreateState({ phase: "idle" });
+                              }
+                            }}
                             onBlur={() => {
-                              if (!newItem.trim()) setQuickAddOpen(false);
+                              if (
+                                !newItem.trim() &&
+                                !createValidationError &&
+                                createState.phase === "idle"
+                              ) {
+                                setQuickAddOpen(false);
+                              }
                             }}
                             onKeyDown={(event) => {
                               if (event.key === "Enter") void createItem(status);
-                              if (event.key === "Escape") {
+                              if (
+                                event.key === "Escape" &&
+                                createState.phase !== "saving"
+                              ) {
                                 setNewItem("");
                                 setQuickAddOpen(false);
                               }
                             }}
                             placeholder="Work item title"
-                            disabled={creating}
+                            disabled={createState.phase === "saving"}
+                            aria-invalid={Boolean(createValidationError)}
+                            aria-describedby="plane-new-work-item-feedback"
                             className="h-8 text-xs"
                           />
+                          <div
+                            id="plane-new-work-item-feedback"
+                            className="mt-1 text-[11px]"
+                          >
+                            {createState.phase === "saving" ? (
+                              <span
+                                className="text-[#69707a]"
+                                aria-live="polite"
+                              >
+                                Saving…
+                              </span>
+                            ) : null}
+                            {createValidationError ? (
+                              <span className="text-destructive" role="alert">
+                                {createValidationError}
+                              </span>
+                            ) : null}
+                            {createState.phase === "error" ? (
+                              <span
+                                className="flex items-center gap-1 text-destructive"
+                                role="alert"
+                              >
+                                {createState.failure.message}
+                                {createState.failure.recoveryHref ? (
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="xs"
+                                    asChild
+                                  >
+                                    <a href={createState.failure.recoveryHref}>
+                                      Sign in
+                                    </a>
+                                  </Button>
+                                ) : createState.failure.retryable ? (
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="xs"
+                                    onClick={() => void createItem(status)}
+                                  >
+                                    Retry
+                                  </Button>
+                                ) : null}
+                              </span>
+                            ) : null}
+                          </div>
                         </div>
                       ) : (
                         <button
@@ -628,7 +1245,9 @@ export function PlaneWorkItemsPage({
                         <button
                           key={item.id}
                           type="button"
-                          onClick={() => setSelectedTask(item)}
+                          onClick={(event) =>
+                            openInspector(item, event.currentTarget)
+                          }
                           className="w-full rounded border border-[#dfe2e5] bg-[#f7f8f9] p-2 text-left text-[11px] leading-snug"
                         >
                           {planeWorkItemTitle(item)}
@@ -654,7 +1273,9 @@ export function PlaneWorkItemsPage({
                 <button
                   key={item.id ?? index}
                   type="button"
-                  onClick={() => setSelectedTask(item)}
+                  onClick={(event) =>
+                    openInspector(item, event.currentTarget)
+                  }
                   className="grid min-h-10 w-full grid-cols-[110px_minmax(320px,1fr)_140px_180px_120px] items-center border-b border-[#eceef0] px-5 text-left hover:bg-[#f7f8f9]"
                 >
                   <span className="text-[#7b8189]">{planeWorkItemIdentifier(item, index)}</span>
@@ -682,7 +1303,9 @@ export function PlaneWorkItemsPage({
                   <button
                     key={item.id ?? index}
                     type="button"
-                    onClick={() => setSelectedTask(item)}
+                    onClick={(event) =>
+                      openInspector(item, event.currentTarget)
+                    }
                     className="grid min-h-11 w-full grid-cols-[320px_1fr] items-center border-b border-[#eceef0] px-5 text-left text-xs hover:bg-[#f7f8f9]"
                   >
                     <span className="truncate pr-5">{planeWorkItemTitle(item)}</span>
@@ -700,24 +1323,18 @@ export function PlaneWorkItemsPage({
         </main>
 
       {selectedTask ? (
-        <div className="fixed inset-0 z-20">
-          <button
-            type="button"
-            className="absolute inset-0 bg-black/20"
-            onClick={() => setSelectedTask(null)}
-            aria-label="Close work item detail"
-          />
-          <aside
-            aria-label="Work item detail"
-            className="absolute inset-y-0 right-0 w-full max-w-xl overflow-y-auto border-l border-[#d9dce1] bg-white shadow-lg"
-          >
-            <WorkItemDetail
-              task={selectedTask}
-              onStatusChange={updateStatus}
-              onClose={() => setSelectedTask(null)}
-            />
-          </aside>
-        </div>
+        <WorkItemInspectorDialog
+          task={selectedTask}
+          onStatusChange={updateStatus}
+          statusMutation={
+            selectedTask.id ? statusMutations[selectedTask.id] : undefined
+          }
+          onRetryStatus={() => {
+            if (selectedTask.id) retryStatus(selectedTask.id);
+          }}
+          onClose={closeInspector}
+          onRestoreFocus={restoreInspectorOrigin}
+        />
       ) : null}
     </PlaneWorkspaceShell>
   );

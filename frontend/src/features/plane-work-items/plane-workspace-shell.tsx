@@ -34,6 +34,9 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
+  type CSSProperties,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type PointerEvent as ReactPointerEvent,
   type ReactNode,
   useEffect,
   useRef,
@@ -42,6 +45,7 @@ import {
 import { createPortal } from "react-dom";
 
 import { cn } from "@/lib/utils";
+import { PlaneOverlayProvider } from "./plane-overlay";
 
 export const PLANE_WORKSPACE_SURFACES = [
   "work-items",
@@ -73,11 +77,82 @@ const PROJECT_NAV: readonly ProjectNavItem[] = [
 ] as const;
 
 const WORKSPACE_NAV = [
-  { label: "Home", icon: FolderKanban },
-  { label: "Drafts", icon: MessageSquareText },
-  { label: "Your work", icon: UserRound },
-  { label: "Stickies", icon: StickyNote },
+  {
+    label: "Home",
+    icon: FolderKanban,
+    href: (projectId: string) => `/${projectId}/home`,
+  },
+  {
+    label: "Drafts",
+    icon: MessageSquareText,
+    disabledReason: "Drafts are not available in Alleato yet.",
+  },
+  {
+    label: "Your work",
+    icon: UserRound,
+    href: (projectId: string) => `/${projectId}/my-work`,
+  },
+  {
+    label: "Stickies",
+    icon: StickyNote,
+    disabledReason: "Stickies are not available in Alleato yet.",
+  },
 ] as const;
+
+export const PLANE_SIDEBAR_STORAGE_KEY = "plane-workspace-sidebar";
+export const PLANE_SIDEBAR_DEFAULT_WIDTH = 250;
+export const PLANE_SIDEBAR_MIN_WIDTH = 220;
+export const PLANE_SIDEBAR_MAX_WIDTH = 360;
+export const PLANE_SIDEBAR_COLLAPSED_WIDTH = 52;
+export const PLANE_SIDEBAR_KEYBOARD_STEP = 16;
+
+export type PlaneSidebarPreference = {
+  width: number;
+  collapsed: boolean;
+};
+
+export function clampPlaneSidebarWidth(width: number) {
+  return Math.min(
+    PLANE_SIDEBAR_MAX_WIDTH,
+    Math.max(PLANE_SIDEBAR_MIN_WIDTH, Math.round(width)),
+  );
+}
+
+export function parsePlaneSidebarPreference(
+  value: string | null,
+): PlaneSidebarPreference {
+  if (!value) {
+    return { width: PLANE_SIDEBAR_DEFAULT_WIDTH, collapsed: false };
+  }
+
+  try {
+    const parsed = JSON.parse(value) as Partial<PlaneSidebarPreference>;
+    return {
+      width:
+        typeof parsed.width === "number" && Number.isFinite(parsed.width)
+          ? clampPlaneSidebarWidth(parsed.width)
+          : PLANE_SIDEBAR_DEFAULT_WIDTH,
+      collapsed: parsed.collapsed === true,
+    };
+  } catch {
+    return { width: PLANE_SIDEBAR_DEFAULT_WIDTH, collapsed: false };
+  }
+}
+
+export function getPlaneSidebarKeyboardWidth(
+  currentWidth: number,
+  key: string,
+) {
+  if (key === "Home") return PLANE_SIDEBAR_MIN_WIDTH;
+  if (key === "End") return PLANE_SIDEBAR_MAX_WIDTH;
+  if (key === "ArrowLeft") {
+    return clampPlaneSidebarWidth(currentWidth - PLANE_SIDEBAR_KEYBOARD_STEP);
+  }
+  if (key === "ArrowRight") {
+    return clampPlaneSidebarWidth(currentWidth + PLANE_SIDEBAR_KEYBOARD_STEP);
+  }
+  return null;
+}
 
 type PlaneWorkspaceShellProps = {
   projectId: string;
@@ -115,14 +190,61 @@ function PlaneSidebar({
   projectName,
   activeSurface,
   open,
+  desktopWidth,
+  desktopCollapsed,
   onClose,
+  onDesktopWidthChange,
+  onDesktopCollapsedChange,
 }: {
   projectId: string;
   projectName: string;
   activeSurface: PlaneWorkspaceSurface;
   open: boolean;
+  desktopWidth: number;
+  desktopCollapsed: boolean;
   onClose: () => void;
+  onDesktopWidthChange: (width: number) => void;
+  onDesktopCollapsedChange: (collapsed: boolean) => void;
 }) {
+  function startResize(event: ReactPointerEvent<HTMLDivElement>) {
+    if (desktopCollapsed || event.button !== 0) return;
+    event.preventDefault();
+    const startX = event.clientX;
+    const startWidth = desktopWidth;
+
+    function resize(pointerEvent: PointerEvent) {
+      onDesktopWidthChange(startWidth + pointerEvent.clientX - startX);
+    }
+
+    function finishResize() {
+      window.removeEventListener("pointermove", resize);
+      window.removeEventListener("pointerup", finishResize);
+      window.removeEventListener("pointercancel", finishResize);
+    }
+
+    window.addEventListener("pointermove", resize);
+    window.addEventListener("pointerup", finishResize, { once: true });
+    window.addEventListener("pointercancel", finishResize, { once: true });
+  }
+
+  function resizeWithKeyboard(event: ReactKeyboardEvent<HTMLDivElement>) {
+    const nextWidth = getPlaneSidebarKeyboardWidth(desktopWidth, event.key);
+    if (nextWidth === null) return;
+    event.preventDefault();
+    onDesktopWidthChange(nextWidth);
+  }
+
+  const desktopSidebarWidth = desktopCollapsed
+    ? PLANE_SIDEBAR_COLLAPSED_WIDTH
+    : desktopWidth;
+  const sidebarStyle = {
+    "--plane-sidebar-width": `${desktopSidebarWidth}px`,
+  } as CSSProperties;
+  const labelClassName = cn(
+    "min-w-0 truncate",
+    desktopCollapsed && "md:hidden",
+  );
+
   return (
     <>
       {open ? (
@@ -135,20 +257,37 @@ function PlaneSidebar({
       ) : null}
       <aside
         aria-label="Plane workspace navigation"
+        data-plane-sidebar-collapsed={desktopCollapsed ? "true" : "false"}
+        style={sidebarStyle}
         className={cn(
-          "fixed inset-y-0 left-0 z-[120] flex w-[250px] flex-col border-r border-[#e5e7eb] bg-white transition-transform md:static md:z-auto md:translate-x-0",
+          "fixed inset-y-0 left-0 z-[120] flex w-[250px] flex-col border-r border-[#e5e7eb] bg-white transition-[transform,width] md:static md:z-auto md:w-[var(--plane-sidebar-width)] md:translate-x-0",
           open ? "translate-x-0" : "-translate-x-full",
         )}
       >
-        <div className="flex h-10 items-center justify-between border-b border-[#e5e7eb] px-3">
+        <div
+          className={cn(
+            "flex h-10 items-center justify-between border-b border-[#e5e7eb] px-3",
+            desktopCollapsed && "md:justify-center md:px-2",
+          )}
+        >
           <div className="flex min-w-0 items-center gap-2">
             <span className="grid size-6 shrink-0 place-items-center rounded bg-[#075985] text-xs font-semibold text-white">
               A
             </span>
-            <span className="truncate text-sm font-medium text-[#202124]">
+            <span
+              className={cn(
+                "truncate text-sm font-medium text-[#202124]",
+                desktopCollapsed && "md:hidden",
+              )}
+            >
               Alleato
             </span>
-            <ChevronDown className="size-3.5 text-[#7b8189]" />
+            <ChevronDown
+              className={cn(
+                "size-3.5 text-[#7b8189]",
+                desktopCollapsed && "md:hidden",
+              )}
+            />
           </div>
           <button
             type="button"
@@ -160,74 +299,183 @@ function PlaneSidebar({
           </button>
         </div>
 
-        <div className="flex h-11 items-center justify-between px-5">
-          <span className="text-base font-medium text-[#202124]">Projects</span>
+        <div
+          className={cn(
+            "flex h-11 items-center justify-between px-5",
+            desktopCollapsed && "md:justify-center md:px-2",
+          )}
+        >
+          <span
+            className={cn(
+              "text-base font-medium text-[#202124]",
+              desktopCollapsed && "md:hidden",
+            )}
+          >
+            Projects
+          </span>
           <div className="flex items-center gap-3 text-[#59616b]">
-            <SlidersHorizontal className="size-4" />
-            <PanelLeft className="size-4" />
+            <SlidersHorizontal
+              className={cn("size-4", desktopCollapsed && "md:hidden")}
+              aria-hidden="true"
+            />
+            <PanelLeft className="size-4 md:hidden" aria-hidden="true" />
+            <button
+              type="button"
+              onClick={() => onDesktopCollapsedChange(!desktopCollapsed)}
+              className="hidden size-7 place-items-center rounded hover:bg-[#f2f3f4] md:grid"
+              aria-label={
+                desktopCollapsed
+                  ? "Restore project sidebar"
+                  : "Collapse project sidebar"
+              }
+              title={
+                desktopCollapsed
+                  ? "Restore project sidebar"
+                  : "Collapse project sidebar"
+              }
+            >
+              <PanelLeft className="size-4" />
+            </button>
           </div>
         </div>
 
-        <div className="px-3 pb-2">
+        <div className={cn("px-3 pb-2", desktopCollapsed && "md:px-2")}>
           <Link
             href={`/${projectId}/plane/work-items`}
-            className="flex h-8 w-full items-center gap-2 rounded border border-[#d9dce1] px-2.5 text-left text-xs font-medium text-[#3f454d] hover:bg-[#f5f6f7]"
+            aria-label="New work item"
+            title={desktopCollapsed ? "New work item" : undefined}
+            className={cn(
+              "flex h-8 w-full items-center gap-2 rounded border border-[#d9dce1] px-2.5 text-left text-xs font-medium text-[#3f454d] hover:bg-[#f5f6f7]",
+              desktopCollapsed && "md:justify-center md:px-0",
+            )}
           >
             <Layers3 className="size-4" />
-            New work item
+            <span className={labelClassName}>New work item</span>
           </Link>
         </div>
 
-        <nav className="min-h-0 flex-1 overflow-y-auto px-3 pb-4 text-[13px]">
+        <nav
+          className={cn(
+            "min-h-0 flex-1 overflow-y-auto px-3 pb-4 text-[13px]",
+            desktopCollapsed && "md:px-2",
+          )}
+        >
           <div className="space-y-0.5">
-            {WORKSPACE_NAV.map(({ label, icon: Icon }) => (
-              <button
-                key={label}
-                type="button"
-                className="flex h-8 w-full items-center gap-2 rounded px-2 text-[#4f5660] hover:bg-[#f2f3f4]"
-              >
-                <Icon className="size-4 stroke-[1.6]" />
-                {label}
-              </button>
-            ))}
+            {WORKSPACE_NAV.map((item) => {
+              const Icon = item.icon;
+              const itemClassName = cn(
+                "flex h-8 w-full items-center gap-2 rounded px-2 text-[#4f5660]",
+                desktopCollapsed && "md:justify-center md:px-0",
+              );
+              if ("href" in item) {
+                return (
+                  <Link
+                    key={item.label}
+                    href={item.href(projectId)}
+                    aria-label={item.label}
+                    title={desktopCollapsed ? item.label : undefined}
+                    className={cn(itemClassName, "hover:bg-[#f2f3f4]")}
+                  >
+                    <Icon className="size-4 shrink-0 stroke-[1.6]" />
+                    <span className={labelClassName}>{item.label}</span>
+                  </Link>
+                );
+              }
+              return (
+                <button
+                  key={item.label}
+                  type="button"
+                  disabled
+                  aria-disabled="true"
+                  aria-label={`${item.label} unavailable`}
+                  title={item.disabledReason}
+                  className={cn(
+                    itemClassName,
+                    "cursor-not-allowed text-[#9aa0a8]",
+                  )}
+                >
+                  <Icon className="size-4 shrink-0 stroke-[1.6]" />
+                  <span className={labelClassName}>{item.label}</span>
+                </button>
+              );
+            })}
           </div>
 
           <div className="mt-5">
-            <p className="px-2 pb-1.5 text-xs font-semibold text-[#818790]">
+            <p
+              className={cn(
+                "px-2 pb-1.5 text-xs font-semibold text-[#818790]",
+                desktopCollapsed && "md:hidden",
+              )}
+            >
               Workspace
             </p>
             <Link
               href="/projects"
-              className="flex h-8 w-full items-center gap-2 rounded px-2 text-[#4f5660] hover:bg-[#f2f3f4]"
+              aria-label="Projects"
+              title={desktopCollapsed ? "Projects" : undefined}
+              className={cn(
+                "flex h-8 w-full items-center gap-2 rounded px-2 text-[#4f5660] hover:bg-[#f2f3f4]",
+                desktopCollapsed && "md:justify-center md:px-0",
+              )}
             >
-              <FolderKanban className="size-4" />
-              Projects
+              <FolderKanban className="size-4 shrink-0" />
+              <span className={labelClassName}>Projects</span>
             </Link>
             <button
               type="button"
-              className="flex h-8 w-full items-center gap-2 rounded px-2 text-[#4f5660] hover:bg-[#f2f3f4]"
+              disabled
+              aria-disabled="true"
+              aria-label="More unavailable"
+              title="More workspace tools are not available in Alleato yet."
+              className={cn(
+                "flex h-8 w-full cursor-not-allowed items-center gap-2 rounded px-2 text-[#9aa0a8]",
+                desktopCollapsed && "md:justify-center md:px-0",
+              )}
             >
-              <Ellipsis className="size-4" />
-              More
+              <Ellipsis className="size-4 shrink-0" />
+              <span className={labelClassName}>More</span>
             </button>
           </div>
 
-          <p className="mt-5 px-2 pb-1.5 text-xs font-semibold text-[#818790]">
+          <p
+            className={cn(
+              "mt-5 px-2 pb-1.5 text-xs font-semibold text-[#818790]",
+              desktopCollapsed && "md:hidden",
+            )}
+          >
             Favorites
           </p>
 
           <div className="mt-4">
-            <div className="flex h-8 items-center justify-between px-2 text-xs font-semibold text-[#818790]">
+            <div
+              className={cn(
+                "flex h-8 items-center justify-between px-2 text-xs font-semibold text-[#818790]",
+                desktopCollapsed && "md:hidden",
+              )}
+            >
               <span>Projects</span>
               <ChevronDown className="size-3.5" />
             </div>
-            <div className="flex h-8 items-center gap-2 px-2 text-[#4f5660]">
+            <div
+              className={cn(
+                "flex h-8 items-center gap-2 px-2 text-[#4f5660]",
+                desktopCollapsed && "md:justify-center md:px-0",
+              )}
+              title={desktopCollapsed ? projectName : undefined}
+              aria-label={desktopCollapsed ? projectName : undefined}
+            >
               <span className="grid size-4 place-items-center rounded bg-[#eef2ff] text-[10px] text-[#4338ca]">
                 A
               </span>
-              <span className="truncate">{projectName}</span>
+              <span className={labelClassName}>{projectName}</span>
             </div>
-            <div className="ml-4 border-l border-[#e5e7eb] pl-2">
+            <div
+              className={cn(
+                "ml-4 border-l border-[#e5e7eb] pl-2",
+                desktopCollapsed && "md:ml-0 md:border-l-0 md:pl-0",
+              )}
+            >
               {PROJECT_NAV.map(({ label, icon: Icon, segment }) => {
                 const active = segment === activeSurface;
                 return (
@@ -235,13 +483,16 @@ function PlaneSidebar({
                     key={label}
                     href={`/${projectId}/plane/${segment}`}
                     aria-current={active ? "page" : undefined}
+                    aria-label={label}
+                    title={desktopCollapsed ? label : undefined}
                     className={cn(
                       "flex h-8 w-full items-center gap-2 rounded px-2 text-left text-[12px] text-[#4f5660] hover:bg-[#f2f3f4]",
                       active && "bg-[#e7e7e7] font-medium text-[#292d32]",
+                      desktopCollapsed && "md:justify-center md:px-0",
                     )}
                   >
-                    <Icon className="size-4 stroke-[1.6]" />
-                    {label}
+                    <Icon className="size-4 shrink-0 stroke-[1.6]" />
+                    <span className={labelClassName}>{label}</span>
                   </Link>
                 );
               })}
@@ -249,15 +500,39 @@ function PlaneSidebar({
           </div>
         </nav>
 
-        <div className="border-t border-[#e5e7eb] p-3">
+        <div
+          className={cn(
+            "border-t border-[#e5e7eb] p-3",
+            desktopCollapsed && "md:p-2",
+          )}
+        >
           <Link
             href="/auth/source"
-            className="flex min-h-8 items-center justify-between rounded bg-[#f1f2f3] px-2 text-xs font-medium text-[#4f5660] hover:bg-[#e5e7eb]"
+            aria-label="Source code"
+            title={desktopCollapsed ? "Source code" : undefined}
+            className={cn(
+              "flex min-h-8 items-center justify-between rounded bg-[#f1f2f3] px-2 text-xs font-medium text-[#4f5660] hover:bg-[#e5e7eb]",
+              desktopCollapsed && "md:justify-center md:px-0",
+            )}
           >
-            Source code
+            <span className={labelClassName}>Source code</span>
             <Archive className="size-3.5" />
           </Link>
         </div>
+        {!desktopCollapsed ? (
+          <div
+            role="separator"
+            aria-label="Resize project sidebar"
+            aria-orientation="vertical"
+            aria-valuemin={PLANE_SIDEBAR_MIN_WIDTH}
+            aria-valuemax={PLANE_SIDEBAR_MAX_WIDTH}
+            aria-valuenow={desktopWidth}
+            tabIndex={0}
+            onPointerDown={startResize}
+            onKeyDown={resizeWithKeyboard}
+            className="absolute inset-y-0 right-0 hidden w-1 translate-x-1/2 cursor-col-resize touch-none outline-none hover:bg-[#075985]/30 focus-visible:bg-[#075985]/40 md:block"
+          />
+        ) : null}
       </aside>
     </>
   );
@@ -272,12 +547,52 @@ export function PlaneWorkspaceShell({
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [desktopSidebarWidth, setDesktopSidebarWidth] = useState(
+    PLANE_SIDEBAR_DEFAULT_WIDTH,
+  );
+  const [desktopSidebarCollapsed, setDesktopSidebarCollapsed] = useState(false);
+  const [sidebarPreferenceLoaded, setSidebarPreferenceLoaded] = useState(false);
   const [commandOpen, setCommandOpen] = useState(false);
   const [commandQuery, setCommandQuery] = useState("");
   const commandInputRef = useRef<HTMLInputElement>(null);
   const rootRef = useRef<HTMLDivElement>(null);
   const previousFocusedElement = useRef<HTMLElement | null>(null);
   const commands = getPlaneWorkspaceCommands(projectId, commandQuery);
+
+  useEffect(() => {
+    try {
+      const preference = parsePlaneSidebarPreference(
+        window.localStorage.getItem(PLANE_SIDEBAR_STORAGE_KEY),
+      );
+      setDesktopSidebarWidth(preference.width);
+      setDesktopSidebarCollapsed(preference.collapsed);
+    } catch (cause) {
+      console.warn(
+        "[PlaneWorkspaceShell] Sidebar preference could not be loaded.",
+        cause,
+      );
+    } finally {
+      setSidebarPreferenceLoaded(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!sidebarPreferenceLoaded) return;
+    try {
+      window.localStorage.setItem(
+        PLANE_SIDEBAR_STORAGE_KEY,
+        JSON.stringify({
+          width: desktopSidebarWidth,
+          collapsed: desktopSidebarCollapsed,
+        } satisfies PlaneSidebarPreference),
+      );
+    } catch (cause) {
+      console.warn(
+        "[PlaneWorkspaceShell] Sidebar preference could not be saved.",
+        cause,
+      );
+    }
+  }, [desktopSidebarCollapsed, desktopSidebarWidth, sidebarPreferenceLoaded]);
 
   useEffect(() => {
     const previousBodyOverflow = document.body.style.overflow;
@@ -298,9 +613,7 @@ export function PlaneWorkspaceShell({
 
     const isolateReplacementSurface = () => {
       const hostElements = [
-        ...document.querySelectorAll<HTMLElement>(
-          PLANE_HOST_LAYOUT_SELECTOR,
-        ),
+        ...document.querySelectorAll<HTMLElement>(PLANE_HOST_LAYOUT_SELECTOR),
         ...[...document.querySelectorAll<HTMLElement>("header")].filter(
           (element) => !element.closest("[data-plane-workspace-root]"),
         ),
@@ -383,120 +696,128 @@ export function PlaneWorkspaceShell({
       data-plane-workspace-root
       data-plane-workspace-surface={activeSurface}
       tabIndex={-1}
-      className="fixed inset-0 z-[2147483000] flex overflow-hidden bg-white font-sans text-[#202124] outline-none"
+      className="fixed inset-0 z-[2147483000] isolate flex overflow-hidden bg-white font-sans text-[#202124] outline-none"
     >
-      <PlaneSidebar
-        projectId={projectId}
-        projectName={projectName}
-        activeSurface={activeSurface}
-        open={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-      />
+      <PlaneOverlayProvider>
+        <PlaneSidebar
+          projectId={projectId}
+          projectName={projectName}
+          activeSurface={activeSurface}
+          open={sidebarOpen}
+          desktopWidth={desktopSidebarWidth}
+          desktopCollapsed={desktopSidebarCollapsed}
+          onClose={() => setSidebarOpen(false)}
+          onDesktopWidthChange={(width) =>
+            setDesktopSidebarWidth(clampPlaneSidebarWidth(width))
+          }
+          onDesktopCollapsedChange={setDesktopSidebarCollapsed}
+        />
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header className="relative z-30 flex h-10 shrink-0 items-center border-b border-[#e5e7eb] bg-[#f7f8f9] px-3">
-          <button
-            type="button"
-            className="mr-2 md:hidden"
-            onClick={() => setSidebarOpen(true)}
-            aria-label="Open navigation"
-          >
-            <Menu className="size-4" />
-          </button>
-          <div className="relative mx-auto w-full max-w-[365px]">
-            <div
-              className={cn(
-                "flex h-7 items-center gap-2 rounded-md border border-[#d9dce1] bg-white px-2.5 text-xs text-[#858b93]",
-                commandOpen && "border-[#9aa0a8]",
-              )}
+        <div className="flex min-w-0 flex-1 flex-col">
+          <header className="relative z-30 flex h-10 shrink-0 items-center border-b border-[#e5e7eb] bg-[#f7f8f9] px-3">
+            <button
+              type="button"
+              className="mr-2 md:hidden"
+              onClick={() => setSidebarOpen(true)}
+              aria-label="Open navigation"
             >
-              <Search className="size-3.5" />
-              <input
-                ref={commandInputRef}
-                value={commandQuery}
-                onChange={(event) => {
-                  setCommandQuery(event.target.value);
-                  setCommandOpen(true);
-                }}
-                onFocus={() => setCommandOpen(true)}
-                onKeyDown={(event) => {
-                  if (event.key === "Escape") {
-                    event.preventDefault();
-                    setCommandOpen(false);
-                    setCommandQuery("");
-                  }
-                  if (event.key === "Enter" && commands[0]) {
-                    event.preventDefault();
-                    runCommand(commands[0].href);
-                  }
-                }}
-                placeholder="Search commands..."
-                className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-[#858b93]"
-                aria-label="Search commands"
-                aria-expanded={commandOpen}
-                aria-controls="plane-command-list"
-              />
-              {commandQuery ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setCommandQuery("");
-                    commandInputRef.current?.focus();
-                  }}
-                  aria-label="Clear command search"
-                >
-                  <X className="size-3.5" />
-                </button>
-              ) : (
-                <Command className="size-3.5" />
-              )}
-            </div>
-            {commandOpen ? (
+              <Menu className="size-4" />
+            </button>
+            <div className="relative mx-auto w-full max-w-[365px]">
               <div
-                id="plane-command-list"
-                role="listbox"
-                className="absolute left-1/2 top-8 z-50 max-h-[60vh] w-[min(574px,calc(100vw-24px))] -translate-x-1/2 overflow-y-auto rounded-md border border-[#d9dce1] bg-white p-2 shadow-lg"
-              >
-                {commands.length ? (
-                  commands.map((command) => (
-                    <button
-                      key={command.href}
-                      type="button"
-                      role="option"
-                      className="flex h-9 w-full items-center rounded px-3 text-left text-[13px] text-[#30343a] hover:bg-[#f1f2f3]"
-                      onMouseDown={(event) => event.preventDefault()}
-                      onClick={() => runCommand(command.href)}
-                    >
-                      {command.label}
-                    </button>
-                  ))
-                ) : (
-                  <div className="px-3 py-5 text-center text-xs text-[#7b8189]">
-                    No commands found
-                  </div>
+                className={cn(
+                  "flex h-7 items-center gap-2 rounded-md border border-[#d9dce1] bg-white px-2.5 text-xs text-[#858b93]",
+                  commandOpen && "border-[#9aa0a8]",
                 )}
-                <div className="mt-2 border-t border-[#eceef0] px-3 pt-2 text-[10px] text-[#858b93]">
-                  Enter to open · Esc to close · Ctrl K to toggle
-                </div>
+              >
+                <Search className="size-3.5" />
+                <input
+                  ref={commandInputRef}
+                  value={commandQuery}
+                  onChange={(event) => {
+                    setCommandQuery(event.target.value);
+                    setCommandOpen(true);
+                  }}
+                  onFocus={() => setCommandOpen(true)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Escape") {
+                      event.preventDefault();
+                      setCommandOpen(false);
+                      setCommandQuery("");
+                    }
+                    if (event.key === "Enter" && commands[0]) {
+                      event.preventDefault();
+                      runCommand(commands[0].href);
+                    }
+                  }}
+                  placeholder="Search commands..."
+                  className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-[#858b93]"
+                  aria-label="Search commands"
+                  aria-expanded={commandOpen}
+                  aria-controls="plane-command-list"
+                />
+                {commandQuery ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCommandQuery("");
+                      commandInputRef.current?.focus();
+                    }}
+                    aria-label="Clear command search"
+                  >
+                    <X className="size-3.5" />
+                  </button>
+                ) : (
+                  <Command className="size-3.5" />
+                )}
               </div>
-            ) : null}
-          </div>
-          <div className="ml-auto hidden items-center gap-4 text-[#69707a] sm:flex">
-            <Bell className="size-4" />
-            <CircleHelp className="size-4" />
-            <span className="grid size-5 place-items-center rounded-full bg-[#087f5b] text-[10px] font-semibold text-white">
-              M
-            </span>
-          </div>
-        </header>
+              {commandOpen ? (
+                <div
+                  id="plane-command-list"
+                  role="listbox"
+                  className="absolute left-1/2 top-8 z-50 max-h-[60vh] w-[min(574px,calc(100vw-24px))] -translate-x-1/2 overflow-y-auto rounded-md border border-[#d9dce1] bg-white p-2 shadow-lg"
+                >
+                  {commands.length ? (
+                    commands.map((command) => (
+                      <button
+                        key={command.href}
+                        type="button"
+                        role="option"
+                        className="flex h-9 w-full items-center rounded px-3 text-left text-[13px] text-[#30343a] hover:bg-[#f1f2f3]"
+                        onMouseDown={(event) => event.preventDefault()}
+                        onClick={() => runCommand(command.href)}
+                      >
+                        {command.label}
+                      </button>
+                    ))
+                  ) : (
+                    <div className="px-3 py-5 text-center text-xs text-[#7b8189]">
+                      No commands found
+                    </div>
+                  )}
+                  <div className="mt-2 border-t border-[#eceef0] px-3 pt-2 text-[10px] text-[#858b93]">
+                    Enter to open · Esc to close · Ctrl K to toggle
+                  </div>
+                </div>
+              ) : null}
+            </div>
+            <div className="ml-auto hidden items-center gap-4 text-[#69707a] sm:flex">
+              <Bell className="size-4" />
+              <CircleHelp className="size-4" />
+              <span className="grid size-5 place-items-center rounded-full bg-[#087f5b] text-[10px] font-semibold text-white">
+                M
+              </span>
+            </div>
+          </header>
 
-        <div
-          data-plane-workspace-content
-          className="flex min-h-0 flex-1 flex-col overflow-hidden bg-white"
-        >
-          {children}
+          <div
+            data-plane-workspace-content
+            className="flex min-h-0 flex-1 flex-col overflow-hidden bg-white"
+          >
+            {children}
+          </div>
         </div>
-      </div>
+      </PlaneOverlayProvider>
     </div>
   );
 

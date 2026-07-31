@@ -14,13 +14,13 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
-  DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PlaneDialogContent } from "@/features/plane-work-items/plane-overlay";
 import type { ScheduleTaskWithHierarchy } from "@/types/scheduling";
 
 export type CycleFormValue = {
@@ -62,7 +62,7 @@ export function CycleFormModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <PlaneDialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>{cycle ? "Edit cycle" : "Create cycle"}</DialogTitle>
         </DialogHeader>
@@ -131,7 +131,7 @@ export function CycleFormModal({
             </Button>
           </DialogFooter>
         </form>
-      </DialogContent>
+      </PlaneDialogContent>
     </Dialog>
   );
 }

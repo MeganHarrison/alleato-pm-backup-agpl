@@ -1,14 +1,10 @@
 import {
   createProjectPage,
+  deleteProjectPage,
+  listProjectPages,
   type ProjectPage,
   updateProjectPage,
 } from "./plane-pages-data";
-
-const mockCreateClient = jest.fn();
-
-jest.mock("@/lib/supabase/client", () => ({
-  createClient: () => mockCreateClient(),
-}));
 
 const page: ProjectPage = {
   id: 21,
@@ -21,50 +17,53 @@ const page: ProjectPage = {
   updated_at: "2026-07-30T13:00:00.000Z",
 };
 
-describe("Plane Pages mutation scope", () => {
+const fetchMock = jest.fn();
+
+describe("Plane Pages server API adapter", () => {
   beforeEach(() => {
-    mockCreateClient.mockReset();
+    fetchMock.mockReset();
+    global.fetch = fetchMock;
   });
 
-  it("creates an authenticated page inside the requested project", async () => {
-    const single = jest.fn().mockResolvedValue({ data: page, error: null });
-    const select = jest.fn(() => ({ single }));
-    const insert = jest.fn(() => ({ select }));
-    const from = jest.fn(() => ({ insert }));
-    const getUser = jest.fn().mockResolvedValue({
-      data: { user: { id: "user-1" } },
-      error: null,
-    });
-    mockCreateClient.mockReturnValue({
-      auth: { getUser },
-      from,
-    });
+  it("loads project pages through the project-scoped API", async () => {
+    fetchMock.mockResolvedValue(
+      new Response(JSON.stringify({ data: [page] }), { status: 200 }),
+    );
+
+    await expect(listProjectPages(31)).resolves.toEqual([page]);
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/notes?project_id=31",
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          "content-type": "application/json",
+        }),
+      }),
+    );
+  });
+
+  it("creates a page without accepting a client-supplied creator or project", async () => {
+    fetchMock.mockResolvedValue(
+      new Response(JSON.stringify({ data: page }), { status: 201 }),
+    );
 
     await expect(createProjectPage(31)).resolves.toEqual(page);
-
-    expect(from).toHaveBeenCalledWith("notes");
-    expect(insert).toHaveBeenCalledWith({
-      project_id: 31,
-      title: "Untitled",
-      body: "",
-      archived: false,
-      created_by: "user-1",
-    });
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/notes",
+      expect.objectContaining({
+        method: "POST",
+        body: JSON.stringify({
+          projectId: 31,
+          title: "Untitled",
+          body: "",
+        }),
+      }),
+    );
   });
 
-  it("scopes every page update by project and page identity", async () => {
-    const single = jest.fn().mockResolvedValue({ data: page, error: null });
-    const builder = {
-      update: jest.fn(),
-      eq: jest.fn(),
-      select: jest.fn(),
-      single,
-    };
-    builder.update.mockReturnValue(builder);
-    builder.eq.mockReturnValue(builder);
-    builder.select.mockReturnValue(builder);
-    const from = jest.fn(() => builder);
-    mockCreateClient.mockReturnValue({ from });
+  it("updates only through the project-and-page-scoped API", async () => {
+    fetchMock.mockResolvedValue(
+      new Response(JSON.stringify({ data: page }), { status: 200 }),
+    );
 
     await expect(
       updateProjectPage(31, 21, {
@@ -73,17 +72,43 @@ describe("Plane Pages mutation scope", () => {
       }),
     ).resolves.toEqual(page);
 
-    expect(from).toHaveBeenCalledWith("notes");
-    expect(builder.eq.mock.calls).toEqual([
-      ["project_id", 31],
-      ["id", 21],
-    ]);
-    expect(builder.update).toHaveBeenCalledWith(
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/notes",
       expect.objectContaining({
-        title: "Updated turnover plan",
-        archived: true,
-        updated_at: expect.any(String),
+        method: "PATCH",
+        body: JSON.stringify({
+          projectId: 31,
+          pageId: 21,
+          title: "Updated turnover plan",
+          archived: true,
+        }),
       }),
+    );
+  });
+
+  it("deletes only through the scoped API", async () => {
+    fetchMock.mockResolvedValue(new Response(null, { status: 204 }));
+
+    await expect(deleteProjectPage(31, 21)).resolves.toBeUndefined();
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/notes?project_id=31&note_id=21",
+      expect.objectContaining({ method: "DELETE" }),
+    );
+  });
+
+  it("surfaces structured server failures with the request id", async () => {
+    fetchMock.mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          error_message: "Insufficient permissions.",
+          request_id: "request-123",
+        }),
+        { status: 403 },
+      ),
+    );
+
+    await expect(listProjectPages(31)).rejects.toThrow(
+      "Could not load page: Insufficient permissions. Request ID: request-123.",
     );
   });
 });

@@ -113,6 +113,23 @@ export function needsProviderAuthEnvironment(linkedProjectName) {
   return linkedProjectName !== VERCEL_PROJECT;
 }
 
+export function providerPlaywrightInvocation(playwrightCli = process.env.ALLEATO_PLAYWRIGHT_CLI) {
+  const args = [
+    "test",
+    "tests/auth.setup.ts",
+    "--config=config/playwright/playwright.config.ts",
+    "--project=setup",
+  ];
+  return playwrightCli ? [playwrightCli, ...args] : ["npx", "playwright", ...args];
+}
+
+export function hasLocalAuthEnvironment(environment = process.env) {
+  return Boolean(
+    environment.NEXT_PUBLIC_SUPABASE_URL &&
+    environment.SUPABASE_SERVICE_ROLE_KEY,
+  );
+}
+
 function linkedVercelProjectName() {
   try {
     const linked = JSON.parse(fs.readFileSync(path.join(frontendDir, ".vercel", "project.json"), "utf8"));
@@ -141,22 +158,41 @@ function ensureAuthEnvironment() {
 }
 
 function runProviderBackedPlaywrightAuth(baseUrl) {
+  const authEnvironment = { ...process.env, PLAYWRIGHT_BASE_URL: baseUrl };
+  const playwrightInvocation = providerPlaywrightInvocation();
+
+  // The frontend's production Vercel project deliberately does not expose a
+  // Supabase service-role key. When the authenticated runner has loaded an
+  // existing secure local test environment, execute the same setup directly
+  // rather than wrapping it in `vercel env run`, which would replace that key.
+  if (hasLocalAuthEnvironment(authEnvironment)) {
+    console.log("Using the secure local test environment for browser authentication.");
+    const output = run(playwrightInvocation[0], playwrightInvocation.slice(1), {
+      cwd: frontendDir,
+      env: authEnvironment,
+    });
+    if (output) console.log(output);
+    return;
+  }
+
+  console.log("Secure local test variables are unavailable; retrieving the configured Vercel environment.");
+
   // Sensitive Production variables are intentionally not materialized by
   // `vercel env pull` in every local credential context. `env run` injects
   // them only into this child process, avoiding both blank .env files and
   // cross-worktree secret copying.
-  run(
+  const output = run(
     "npx",
     [
       "vercel", "env", "run", "--environment", "production", "--scope", VERCEL_TEAM, "--",
-      "npx", "playwright", "test", "tests/auth.setup.ts",
-      "--config=config/playwright/playwright.config.ts", "--project=setup",
+      ...playwrightInvocation,
     ],
     {
       cwd: frontendDir,
-      env: { ...process.env, PLAYWRIGHT_BASE_URL: baseUrl },
+      env: authEnvironment,
     },
   );
+  if (output) console.log(output);
 }
 
 function hydrateAgentBrowserSession(baseUrl, session) {

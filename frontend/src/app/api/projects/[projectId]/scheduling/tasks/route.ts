@@ -14,7 +14,8 @@
 import { withApiGuardrails } from "@/lib/guardrails/api";
 import { GuardrailError } from "@/lib/guardrails/errors";
 import { NextResponse } from "next/server";
-import { createClient, getApiRouteUser } from "@/lib/supabase/server";
+import { requirePermission } from "@/lib/permissions-guard";
+import { createClient } from "@/lib/supabase/server";
 import {
   isAuthError,
   verifyProjectAccess,
@@ -23,6 +24,32 @@ import { SchedulingService } from "@/lib/services/scheduling-service";
 import { ScheduleTaskListParams, ScheduleTaskCreate } from "@/types/scheduling";
 import { apiErrorResponse } from "@/lib/api-error";
 import { validateScheduleTaskCreateInput } from "@/lib/scheduling/task-validation";
+
+const POSTGRES_INT4_MAX = 2_147_483_647;
+
+function parseSchedulingProjectId(projectId: string, where: string): number {
+  if (!/^[1-9]\d*$/.test(projectId)) {
+    throw new GuardrailError({
+      code: "VALIDATION_ERROR",
+      where,
+      message: "A valid project id is required.",
+    });
+  }
+
+  const numericProjectId = Number(projectId);
+  if (
+    !Number.isSafeInteger(numericProjectId) ||
+    numericProjectId > POSTGRES_INT4_MAX
+  ) {
+    throw new GuardrailError({
+      code: "VALIDATION_ERROR",
+      where,
+      message: "A valid project id is required.",
+    });
+  }
+
+  return numericProjectId;
+}
 
 // =============================================================================
 // GET - Fetch Schedule Tasks
@@ -114,14 +141,16 @@ export const POST = withApiGuardrails<{ projectId: string }>(
   async ({ request, params }) => {
   
     const { projectId } = await params;
-    const supabase = await createClient();
-
-    // Check authentication
-    const user = await getApiRouteUser();
-
-    if (!user) {
-      throw new GuardrailError({ code: "AUTH_EXPIRED", where: "projects/[projectId]/scheduling/tasks#POST", message: "Authentication required." });
-    }
+    const numericProjectId = parseSchedulingProjectId(
+      projectId,
+      "projects/[projectId]/scheduling/tasks#POST",
+    );
+    const permission = await requirePermission(
+      numericProjectId,
+      "schedule",
+      "write",
+    );
+    if (permission.denied) return permission.response;
 
     const body = await request.json();
 
@@ -137,7 +166,7 @@ export const POST = withApiGuardrails<{ projectId: string }>(
     }
 
     const taskData: ScheduleTaskCreate = {
-      project_id: Number(projectId),
+      project_id: numericProjectId,
       name: body.name.trim(),
       parent_task_id: body.parent_task_id || null,
       start_date: body.start_date || null,
@@ -152,6 +181,7 @@ export const POST = withApiGuardrails<{ projectId: string }>(
       sort_order: body.sort_order,
     };
 
+    const supabase = await createClient();
     const service = new SchedulingService(supabase);
     const task = await service.createTask(projectId, taskData);
 
