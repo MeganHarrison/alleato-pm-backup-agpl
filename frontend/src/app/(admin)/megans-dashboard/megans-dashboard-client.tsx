@@ -16,7 +16,11 @@ import {
 } from "@/components/tables/unified";
 import { StatusBadge } from "@/components/ds/status-badge";
 import { apiFetch } from "@/lib/api-client";
-import { MEGANS_DASHBOARD_TAG_SLUG, type PageTagsResponse } from "@/lib/page-tags";
+import {
+  filterRoutesByTag,
+  MEGANS_DASHBOARD_TAG_SLUG,
+  type PageTagsResponse,
+} from "@/lib/page-tags";
 import type { InventoryRoute } from "@/app/(admin)/site-map/site-map-client";
 
 /**
@@ -179,10 +183,14 @@ function buildColumns(): TableColumn<InventoryRoute>[] {
   ];
 }
 
-export default function MegansDashboardClient({
+export default function TaggedDashboardClient({
   routes,
+  tagSlug,
+  dashboardTitle,
 }: {
   routes: InventoryRoute[];
+  tagSlug: string;
+  dashboardTitle: string;
 }) {
   const searchParams = useSearchParams()!;
   const pathname = usePathname() ?? "";
@@ -194,7 +202,7 @@ export default function MegansDashboardClient({
   });
 
   const tableState = useUnifiedTableState({
-    entityKey: "megans-dashboard",
+    entityKey: tagSlug,
     searchParams,
     pathname,
     router,
@@ -211,15 +219,14 @@ export default function MegansDashboardClient({
     },
   });
 
-  // Routes that carry the megans-dashboard tag.
+  // Routes that carry the dashboard's configured tag.
   const taggedRoutes = useMemo(() => {
-    const tagged = new Set(
-      (pageTagsQuery.data?.assignments ?? [])
-        .filter((assignment) => assignment.tagSlug === MEGANS_DASHBOARD_TAG_SLUG)
-        .map((assignment) => assignment.route),
+    return filterRoutesByTag(
+      routes,
+      pageTagsQuery.data?.assignments ?? [],
+      tagSlug,
     );
-    return routes.filter((route) => tagged.has(route.route));
-  }, [pageTagsQuery.data?.assignments, routes]);
+  }, [pageTagsQuery.data?.assignments, routes, tagSlug]);
 
   const activeFilters = useMemo<Record<string, FilterValue>>(() => {
     const next: Record<string, FilterValue> = {};
@@ -273,7 +280,7 @@ export default function MegansDashboardClient({
   return (
     <UnifiedTablePage<InventoryRoute>
       header={{
-        title: "Megan's Dashboard",
+        title: dashboardTitle,
         description: `${filteredRoutes.length} page${
           filteredRoutes.length === 1 ? "" : "s"
         } tagged for this dashboard`,
@@ -320,7 +327,8 @@ export default function MegansDashboardClient({
         items: itemsForTable,
         isLoading: pageTagsQuery.isLoading,
         isFetching: pageTagsQuery.isFetching,
-        error: pageTagsQuery.error instanceof Error ? pageTagsQuery.error : null,
+        error:
+          pageTagsQuery.error instanceof Error ? pageTagsQuery.error : null,
       }}
       features={{ enableRowSelection: false }}
       table={{
@@ -339,8 +347,7 @@ export default function MegansDashboardClient({
       }}
       emptyState={{
         title: "No pages tagged yet",
-        description:
-          "Open the site map, add the “Megan's Dashboard” tag to any page, and it will appear here.",
+        description: `Open the site map, add the “${dashboardTitle}” tag to any page, and it will appear here.`,
         filteredDescription: "No tagged pages match your search or filters.",
         isFiltered,
         action: (

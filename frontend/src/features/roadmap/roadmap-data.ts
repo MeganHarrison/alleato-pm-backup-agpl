@@ -102,10 +102,10 @@ export const ongoingItems: OngoingItem[] = [
   { id: "og-e2e", task: "Playwright auth/session refresh + full E2E run", frequency: "Monthly", area: "Testing", status: "Todo" },
 ];
 
-export function priorityVariant(priority: Priority): "error" | "orange" | "info" | "neutral" {
+export function priorityVariant(priority: Priority): "error" | "warning" | "info" | "neutral" {
   switch (priority) {
     case "P0": return "error";
-    case "P1": return "orange";
+    case "P1": return "warning";
     case "P2": return "info";
     case "P3": return "neutral";
   }

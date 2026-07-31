@@ -1,9 +1,11 @@
 import type { ReactNode } from "react";
 import Image from "next/image";
 
+import { SiteFooter } from "@/components/layout/site-footer";
+
 export default function PublicLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex min-h-screen flex-col bg-background">
       <header className="bg-background">
         <div className="mx-auto flex max-w-6xl items-center px-6 py-4">
           <Image
@@ -16,7 +18,8 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
           />
         </div>
       </header>
-      <main className="py-8">{children}</main>
+      <main className="flex-1 py-8">{children}</main>
+      <SiteFooter />
     </div>
   );
 }

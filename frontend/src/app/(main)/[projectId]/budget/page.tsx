@@ -749,6 +749,9 @@ function BudgetPageContent() {
           uom: item.uom,
           unitCost: item.unitCost,
           amount: item.amount,
+          // The server still recomputes and enforces the execution policy.
+          // This flag only opts the schema into the server-approved $0 path.
+          allowZeroAmount: newLinePolicy.requireZeroAmount,
         })),
       };
 
@@ -766,7 +769,7 @@ function BudgetPageContent() {
     } catch (error) {
       throw error;
     }
-  }, [projectId, handleLineItemSuccess]);
+  }, [projectId, handleLineItemSuccess, newLinePolicy.requireZeroAmount]);
 
   // Keyboard shortcuts
   React.useEffect(() => {

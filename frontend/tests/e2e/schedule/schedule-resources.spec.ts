@@ -1,19 +1,22 @@
-import { expect, test } from "@playwright/test";
-import path from "path";
+import { expect, test, type APIResponse, type Page } from "@playwright/test";
+import { randomUUID } from "node:crypto";
 import {
+  addProjectMember,
+  assertDisposableScheduleProject,
+  createDisposableScheduleProject,
   createScheduleTask,
+  deleteDisposableScheduleProject,
   deleteScheduleTask,
+  type DisposableScheduleProjectFixture,
   getAdminClient,
+  getUserIdByEmail,
 } from "../../helpers/db";
 
-const PROJECT_ID = 67;
-const SCHEDULE_URL = `/${PROJECT_ID}/schedule`;
+let PROJECT_ID = 0;
+let SCHEDULE_URL = "";
+let projectFixture: DisposableScheduleProjectFixture | null = null;
 const TASK_START = "2026-07-27";
 const TASK_FINISH = "2026-07-29";
-const EVIDENCE_DIR = path.resolve(
-  __dirname,
-  "../../../../docs/ops/evidence/2026-07-22-schedule-resources",
-);
 
 interface ResourceCandidate {
   person_id: string;
@@ -27,10 +30,37 @@ interface ResourceRoster {
   resources: Array<{ id: string; person_id: string }>;
 }
 
+interface AssignmentExpectation {
+  id: string;
+  person_id: string;
+  cost_version: number;
+}
+
+async function responseError(response: APIResponse) {
+  return `${response.status()} ${await response.text()}`;
+}
+
+async function currentAssignmentExpectations(
+  page: Page,
+  taskId: string,
+): Promise<AssignmentExpectation[]> {
+  const response = await page.request.get(
+    `/api/projects/${PROJECT_ID}/scheduling/tasks/${taskId}/assignments`,
+  );
+  expect(response.ok(), await responseError(response)).toBeTruthy();
+  const body = await response.json() as { data: AssignmentExpectation[] };
+  return body.data.map(({ id, person_id, cost_version }) => ({
+    id,
+    person_id,
+    cost_version,
+  }));
+}
+
 let firstTaskId = "";
 let secondTaskId = "";
 let capturedRevisionId = "";
 let selectedPersonIds: string[] = [];
+let createdPersonIds: string[] = [];
 let preexistingResourceIds = new Set<string>();
 
 test.describe("Schedule resources and assignments", () => {
@@ -38,6 +68,39 @@ test.describe("Schedule resources and assignments", () => {
   test.use({ storageState: "tests/.auth/user.json" });
 
   test.beforeAll(async () => {
+    projectFixture = await createDisposableScheduleProject("resources");
+    PROJECT_ID = projectFixture.id;
+    await assertDisposableScheduleProject(projectFixture);
+    const userId = await getUserIdByEmail(process.env.TEST_USER_1 ?? "test1@mail.com");
+    await addProjectMember(PROJECT_ID, userId);
+    SCHEDULE_URL = `/${PROJECT_ID}/schedule`;
+
+    const admin = getAdminClient();
+    createdPersonIds = [randomUUID(), randomUUID()];
+    const suffix = randomUUID().slice(0, 8);
+    const { error: peopleError } = await admin.from("people").insert(
+      createdPersonIds.map((id, index) => ({
+        id,
+        first_name: "E2E",
+        last_name: `P4A ${suffix}-${index + 1}`,
+        email: `e2e-p4a-${suffix}-${index + 1}@example.invalid`,
+        person_type: "user",
+        status: "active",
+      })),
+    );
+    if (peopleError) throw new Error(`Failed to create isolated Phase 4A people: ${peopleError.message}`);
+
+    const { error: membershipError } = await admin.from("project_directory_memberships").insert(
+      createdPersonIds.map((personId) => ({
+        project_id: PROJECT_ID,
+        person_id: personId,
+        role: "E2E resource",
+        status: "active",
+        user_type: "employee",
+      })),
+    );
+    if (membershipError) throw new Error(`Failed to create isolated Phase 4A memberships: ${membershipError.message}`);
+
     const first = await createScheduleTask({
       project_id: PROJECT_ID,
       name: "E2E-P4A Resource Task A",
@@ -98,6 +161,19 @@ test.describe("Schedule resources and assignments", () => {
         }
       }
     }
+    if (projectFixture) {
+      try {
+        await deleteDisposableScheduleProject(projectFixture);
+      } catch (error) {
+        cleanupErrors.push(
+          `project ${PROJECT_ID}: ${error instanceof Error ? error.message : String(error)}`,
+        );
+      }
+    }
+    if (createdPersonIds.length > 0) {
+      const { error } = await admin.from("people").delete().in("id", createdPersonIds);
+      if (error) cleanupErrors.push(`people: ${error.message}`);
+    }
     if (cleanupErrors.length > 0) {
       throw new Error(`E2E cleanup failed: ${cleanupErrors.join("; ")}`);
     }
@@ -105,7 +181,7 @@ test.describe("Schedule resources and assignments", () => {
 
   test("assigns two people, shows overlap without moving dates, and snapshots the facts", async ({
     page,
-  }) => {
+  }, testInfo) => {
     test.setTimeout(300_000);
     await page.goto(SCHEDULE_URL);
     await expect(page.getByRole("heading", { name: "Schedule", level: 1 })).toBeVisible();
@@ -116,9 +192,10 @@ test.describe("Schedule resources and assignments", () => {
     expect(rosterResponse.ok()).toBeTruthy();
     const initialRoster = await rosterResponse.json() as ResourceRoster;
     expect(initialRoster.can_manage).toBe(true);
-    expect(initialRoster.candidates.length).toBeGreaterThanOrEqual(2);
-
-    const candidates = initialRoster.candidates.slice(0, 2);
+    const candidates = initialRoster.candidates.filter((candidate) =>
+      createdPersonIds.includes(candidate.person_id),
+    );
+    expect(candidates).toHaveLength(2);
     selectedPersonIds = candidates.map((candidate) => candidate.person_id);
     preexistingResourceIds = new Set(initialRoster.resources.map((item) => item.id));
 
@@ -130,10 +207,11 @@ test.describe("Schedule resources and assignments", () => {
             { person_id: candidates[0].person_id, allocation_percent: 75 },
             { person_id: candidates[1].person_id, allocation_percent: 25 },
           ],
+          expected_assignments: [],
         },
       },
     );
-    expect(firstReplace.ok()).toBeTruthy();
+    expect(firstReplace.ok(), await responseError(firstReplace)).toBeTruthy();
 
     const secondReplace = await page.request.put(
       `/api/projects/${PROJECT_ID}/scheduling/tasks/${secondTaskId}/assignments`,
@@ -142,30 +220,46 @@ test.describe("Schedule resources and assignments", () => {
           assignments: [
             { person_id: candidates[0].person_id, allocation_percent: 75 },
           ],
+          expected_assignments: [],
         },
       },
     );
-    expect(secondReplace.ok()).toBeTruthy();
+    expect(secondReplace.ok(), await responseError(secondReplace)).toBeTruthy();
 
     await page.reload({ waitUntil: "domcontentloaded" });
     await expect(page.getByRole("heading", { name: "Schedule", level: 1 })).toBeVisible();
-    await expect(page.getByText("E2E-P4A Resource Task A")).toBeVisible();
+    await expect(page.getByText("E2E-P4A Resource Task A").first()).toBeVisible();
 
-    await page.getByRole("button", { name: "Project resource load" }).click();
+    await page.getByRole("button", {
+      name: "Resources, costs, leveling, revisions & reports",
+    }).click();
+    const projectResourceLoad = page.getByRole("button", { name: "Project resource load" });
+    await expect(projectResourceLoad).toBeVisible();
+    if (await projectResourceLoad.getAttribute("aria-expanded") !== "true") {
+      await projectResourceLoad.click();
+    }
+    await expect(projectResourceLoad).toHaveAttribute("aria-expanded", "true");
     await page.getByLabel("Start", { exact: true }).fill("07/27/2026");
     await page.getByLabel("Finish", { exact: true }).fill("07/29/2026");
     await expect(page.getByText("50% over capacity").first()).toBeVisible();
     await page.screenshot({
-      path: path.join(EVIDENCE_DIR, "schedule-resource-load-desktop.png"),
+      path: testInfo.outputPath("schedule-resource-load-desktop.png"),
     });
     await page.setViewportSize({ width: 390, height: 844 });
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.screenshot({
-      path: path.join(EVIDENCE_DIR, "schedule-resource-load-mobile.png"),
+      path: testInfo.outputPath("schedule-resource-load-mobile.png"),
     });
     await page.setViewportSize({ width: 1280, height: 720 });
 
-    await page.getByText("E2E-P4A Resource Task A").click();
+    await page.getByTestId("schedule-workspace-tab").click();
+    await page.getByRole("button", { name: "Switch to Gantt view" }).click();
+    const taskLink = page
+      .locator("button")
+      .filter({ hasText: "E2E-P4A Resource Task A" })
+      .first();
+    await expect(taskLink).toBeVisible({ timeout: 30_000 });
+    await taskLink.click();
     const assignmentRegion = page.getByRole("region", { name: "Resource assignments" });
     await expect(assignmentRegion).toBeVisible();
     await expect(page.getByText(candidates[0].display_name).first()).toBeVisible();
@@ -173,7 +267,7 @@ test.describe("Schedule resources and assignments", () => {
     await expect(page.getByLabel(`Allocation for ${candidates[1].display_name}`)).toHaveValue("25.00");
     await assignmentRegion.scrollIntoViewIfNeeded();
     await page.screenshot({
-      path: path.join(EVIDENCE_DIR, "schedule-task-assignments-desktop.png"),
+      path: testInfo.outputPath("schedule-task-assignments-desktop.png"),
     });
 
     await page.getByLabel(`Allocation for ${candidates[0].display_name}`).fill("70");
@@ -249,15 +343,17 @@ test.describe("Schedule resources and assignments", () => {
     expect(resourceMutationError?.code).toBe("42501");
     expect(assignmentMutationError?.code).toBe("42501");
 
+    const firstExpectedAssignments = await currentAssignmentExpectations(page, firstTaskId);
+    const secondExpectedAssignments = await currentAssignmentExpectations(page, secondTaskId);
     const clearFirst = await page.request.put(
       `/api/projects/${PROJECT_ID}/scheduling/tasks/${firstTaskId}/assignments`,
-      { data: { assignments: [] } },
+      { data: { assignments: [], expected_assignments: firstExpectedAssignments } },
     );
     const clearSecond = await page.request.put(
       `/api/projects/${PROJECT_ID}/scheduling/tasks/${secondTaskId}/assignments`,
-      { data: { assignments: [] } },
+      { data: { assignments: [], expected_assignments: secondExpectedAssignments } },
     );
-    expect(clearFirst.ok()).toBeTruthy();
-    expect(clearSecond.ok()).toBeTruthy();
+    expect(clearFirst.ok(), await responseError(clearFirst)).toBeTruthy();
+    expect(clearSecond.ok(), await responseError(clearSecond)).toBeTruthy();
   });
 });

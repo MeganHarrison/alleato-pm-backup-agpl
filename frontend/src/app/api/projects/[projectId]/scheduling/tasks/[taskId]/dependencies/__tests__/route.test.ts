@@ -4,6 +4,7 @@ process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "test-anon-key";
 import { NextRequest } from "next/server";
 import { PATCH, POST } from "../route";
 import { createClient, getApiRouteUser } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 
 const createDependencyMock = jest.fn();
 const updateDependencyMock = jest.fn();
@@ -11,6 +12,9 @@ const updateDependencyMock = jest.fn();
 jest.mock("@/lib/supabase/server", () => ({
   createClient: jest.fn(),
   getApiRouteUser: jest.fn(),
+}));
+jest.mock("@/lib/supabase/service", () => ({
+  createServiceClient: jest.fn(),
 }));
 
 jest.mock("@/lib/services/scheduling-service", () => ({
@@ -22,6 +26,7 @@ jest.mock("@/lib/services/scheduling-service", () => ({
 
 const getApiRouteUserMock = getApiRouteUser as jest.MockedFunction<typeof getApiRouteUser>;
 const createClientMock = createClient as jest.MockedFunction<typeof createClient>;
+const createServiceClientMock = createServiceClient as jest.MockedFunction<typeof createServiceClient>;
 
 function request(body: unknown) {
   return new NextRequest("http://localhost/api/projects/43/scheduling/tasks/task-1/dependencies", {
@@ -38,6 +43,7 @@ describe("POST /api/projects/[projectId]/scheduling/tasks/[taskId]/dependencies"
     createClientMock.mockResolvedValue({
       auth: { getUser: jest.fn() },
     } as never);
+    createServiceClientMock.mockReturnValue({} as never);
     createDependencyMock.mockResolvedValue({ id: "dependency-1" });
     updateDependencyMock.mockResolvedValue({ id: "dependency-1" });
   });
@@ -70,6 +76,26 @@ describe("POST /api/projects/[projectId]/scheduling/tasks/[taskId]/dependencies"
 
     await expect(response.json()).resolves.toEqual({ error: "Both the task and predecessor must belong to this project." });
     expect(response.status).toBe(400);
+  });
+
+  it("returns a conflict response when dependency logic violates a task constraint", async () => {
+    createDependencyMock.mockRejectedValue(
+      new Error("Constrained Task conflicts with its must start on constraint."),
+    );
+    const response = await POST(
+      request({ predecessor_task_id: "task-2" }),
+      {
+        params: Promise.resolve({ projectId: "43", taskId: "task-1" }),
+      },
+    );
+
+    await expect(response.json()).resolves.toMatchObject({
+      success: false,
+      error_code: "PRECONDITION_FAILED",
+      error_message:
+        "Constrained Task conflicts with its must start on constraint.",
+    });
+    expect(response.status).toBe(409);
   });
 
   it("returns an actionable client error when an update would create a cycle", async () => {

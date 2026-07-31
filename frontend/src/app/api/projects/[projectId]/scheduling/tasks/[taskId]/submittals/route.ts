@@ -38,11 +38,16 @@ export const GET = withApiGuardrails<{ projectId: string; taskId: string }>(
     }));
     const { data: dependentTasks, error: dependencyError } = await db
       .from("schedule_dependencies")
-      .select("schedule_tasks!inner(name, project_id)")
+      .select("successor:schedule_tasks!schedule_dependencies_task_id_fkey!inner(name, project_id)")
       .eq("predecessor_task_id", taskId)
-      .eq("schedule_tasks.project_id", Number(projectId));
+      .eq("successor.project_id", Number(projectId));
     if (dependencyError) return NextResponse.json({ error: dependencyError.message }, { status: 400 });
-    const dependency_context = (dependentTasks ?? []).map((row: any) => row.schedule_tasks?.name).filter(Boolean);
+    const dependency_context = (dependentTasks ?? [])
+      .map(
+        (row: { successor?: { name?: string | null } | null }) =>
+          row.successor?.name,
+      )
+      .filter((name: string | null | undefined): name is string => Boolean(name));
     return NextResponse.json({ data: linkedSubmittals, risk: evaluateLinkedSubmittalRisk({ task, linkedSubmittals, dependentTaskNames: dependency_context }) });
   },
 );

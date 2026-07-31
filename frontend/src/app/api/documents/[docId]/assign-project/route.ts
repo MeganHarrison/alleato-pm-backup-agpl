@@ -3,6 +3,7 @@ import { apiErrorResponse } from "@/lib/api-error";
 import { withApiGuardrails } from "@/lib/guardrails/api";
 import { GuardrailError } from "@/lib/guardrails/errors";
 import { createClient, getApiRouteUser } from "@/lib/supabase/server";
+import type { Database } from "@/types/database.types";
 
 const ALLOWED_FIELDS = new Set([
   "title",
@@ -146,7 +147,7 @@ export const PATCH = withApiGuardrails<{ docId: string }>(
 
     const { data: updated, error } = await supabase
       .from("document_metadata")
-      .update(updates)
+      .update(updates as Database["public"]["Tables"]["document_metadata"]["Update"])
       .eq("id", docId)
       .select("id");
 

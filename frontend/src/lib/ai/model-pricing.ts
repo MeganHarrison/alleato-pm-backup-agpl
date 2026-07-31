@@ -109,7 +109,7 @@ export function listKnownModels(): string[] {
 /**
  * Extracts the model id from a chat_history metadata blob.
  *
- * Assistant persistence records the
+ * The assistant write path (api/ai-assistant/chat/handler-v2.ts) records the
  * model under the `model` key — NOT `modelId`. Reading the wrong key made the
  * AI System Health "Models in use" table report every call as "unknown".
  * Always go through this helper so the reader and writer can never drift again.

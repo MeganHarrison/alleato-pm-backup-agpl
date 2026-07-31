@@ -5,12 +5,12 @@ const source = (relativePath: string) =>
   readFileSync(join(__dirname, "..", relativePath), "utf8");
 
 describe("AI dashboard route consolidation", () => {
-  it("uses AI OS as the canonical dashboard surface", () => {
+  it("uses Company Brain as the canonical dashboard surface", () => {
     const rootPage = source("page.tsx");
 
-    expect(rootPage).toContain('import { AiOsDashboard } from "./ai-os/ai-os-preview";');
-    expect(rootPage).toContain("<AiOsDashboard />");
-    expect(rootPage).not.toContain("<ExecutiveAiDashboard />");
+    expect(rootPage).toContain('from "@/features/company-brain/company-brain-page";');
+    expect(rootPage).toContain("<CompanyBrainPageContent searchParams={searchParams} />");
+    expect(rootPage).not.toContain("<AiOsDashboard />");
   });
 
   it.each(["ai-os/page.tsx", "projects/page.tsx"])(
@@ -23,12 +23,13 @@ describe("AI dashboard route consolidation", () => {
     },
   );
 
-  it("does not expose retired routes through dashboard navigation or AI OS links", () => {
+  it("keeps the explicitly routed dashboard workspaces discoverable", () => {
     const workspaceShell = source("workspace-shell.tsx");
     const aiOsData = source("ai-os/ai-os-data.ts");
 
-    expect(workspaceShell).not.toContain('href: "/ai-dashboard/projects"');
-    expect(workspaceShell).not.toContain('href: "/ai-dashboard/ai-os"');
+    expect(workspaceShell).toContain('href: "/ai-dashboard/projects"');
+    expect(workspaceShell).toContain('href: "/ai-dashboard/ai-os"');
+    expect(workspaceShell).toContain('href: "/ai/company-brain"');
     expect(aiOsData).not.toContain('href: "/ai-dashboard/projects"');
   });
 });

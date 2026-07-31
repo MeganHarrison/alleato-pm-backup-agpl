@@ -71,6 +71,8 @@ export function MeetingsTablePage({
     handleSave,
     handleDeleteConfirm,
     handleBulkDeleteConfirm,
+    bulkEditFields,
+    handleBulkEdit,
     handleSelectAll,
     handleSelectRow,
     handleOpenSource,
@@ -151,6 +153,11 @@ export function MeetingsTablePage({
           columns: tableColumns,
           getRowId: (item) => item.id,
           onRowClick: handleRowClick,
+          bulkEdit: {
+            fields: bulkEditFields,
+            onApply: handleBulkEdit,
+            itemNoun: "meeting",
+          },
           rowActions: (item) =>
             renderMeetingRowActions(
               item,

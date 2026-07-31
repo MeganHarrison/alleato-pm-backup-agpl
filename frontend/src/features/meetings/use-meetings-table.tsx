@@ -5,9 +5,11 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
 import { createClient } from "@/lib/supabase/client";
+import type { Database } from "@/types/database.types";
 import { useProjects } from "@/hooks/use-projects";
 import {
   useUnifiedTableState,
+  type BulkEditField,
   type FilterValue,
   type DetailFieldConfig,
   type FilterConfig,
@@ -219,6 +221,12 @@ export interface UseMeetingsTableResult {
   handleSave: (data: Partial<Meeting>) => Promise<void>;
   handleDeleteConfirm: () => Promise<void>;
   handleBulkDeleteConfirm: () => Promise<void>;
+  bulkEditFields: BulkEditField[];
+  handleBulkEdit: (
+    fieldId: string,
+    value: string,
+    selectedIds: string[],
+  ) => Promise<void>;
   handleSelectAll: (checked: boolean) => void;
   handleSelectRow: (id: string, checked: boolean) => void;
   handleOpenSource: (meeting: Meeting) => void;
@@ -542,7 +550,7 @@ export function useMeetingsTable(initialMeetings: Meeting[], projectId?: string)
 
       const { data: updatedMeeting, error } = await supabase
         .from("document_metadata")
-        .update(updatePayload)
+        .update(updatePayload as Database["public"]["Tables"]["document_metadata"]["Update"])
         .eq("id", meetingId)
         .is("deleted_at", null)
         .select("*")
@@ -742,7 +750,7 @@ export function useMeetingsTable(initialMeetings: Meeting[], projectId?: string)
       const supabase = createClient();
       const { data: updatedMeeting, error } = await supabase
         .from("document_metadata")
-        .update(payload)
+        .update(payload as Database["public"]["Tables"]["document_metadata"]["Update"])
         .eq("id", editingMeeting.id)
         .is("deleted_at", null)
         .select("*")
@@ -833,6 +841,93 @@ export function useMeetingsTable(initialMeetings: Meeting[], projectId?: string)
       toast.error(message);
     } finally {
       setBulkDeleteDialogOpen(false);
+    }
+  };
+
+  // ── Bulk edit ─────────────────────────────────────────────────────────────
+  // Fields offered in the "Edit selected" dialog. Project uses the searchable
+  // combobox (long list); category is a plain select of existing values; type
+  // is free text. "No project" clears the assignment.
+  const bulkEditFields: BulkEditField[] = React.useMemo(
+    () => [
+      {
+        id: "project",
+        label: "Project",
+        type: "select",
+        searchable: true,
+        placeholder: "Select project",
+        options: [{ value: "__none__", label: "No project" }, ...projectOptions],
+      },
+      {
+        id: "category",
+        label: "Category",
+        type: "select",
+        placeholder: "Select category",
+        options: categoryOptions,
+      },
+      { id: "type", label: "Type", type: "text", placeholder: "Enter type…" },
+    ],
+    [projectOptions, categoryOptions],
+  );
+
+  const handleBulkEdit = async (
+    fieldId: string,
+    value: string,
+    selectedIds: string[],
+  ) => {
+    if (selectedIds.length === 0) return;
+
+    const normalized = value === "__none__" ? "" : value;
+
+    let payload: Record<string, unknown>;
+    if (fieldId === "project") {
+      const nextProjectId = normalized ? Number(normalized) : null;
+      if (nextProjectId) {
+        if (!Number.isFinite(nextProjectId)) {
+          toast.error("Select a valid project before saving.");
+          return;
+        }
+        const project = projectById.get(nextProjectId);
+        if (!project) {
+          toast.error("Selected project was not loaded. Search again and retry.");
+          return;
+        }
+        payload = { project: project.name, project_id: project.id };
+      } else {
+        payload = { project: null, project_id: null };
+      }
+    } else {
+      payload = { [fieldId]: normalized || null };
+    }
+
+    try {
+      const supabase = createClient();
+      const { data: updatedRows, error } = await supabase
+        .from("document_metadata")
+        .update(payload as Database["public"]["Tables"]["document_metadata"]["Update"])
+        .in("id", selectedIds)
+        .is("deleted_at", null)
+        .select("*");
+
+      if (error) throw new Error(error.message);
+
+      const updatedById = new Map(
+        (updatedRows ?? []).map((row) => [row.id as string, row as Partial<Meeting>]),
+      );
+      setMeetings((prev) =>
+        prev.map((meeting) =>
+          updatedById.has(meeting.id)
+            ? { ...meeting, ...updatedById.get(meeting.id) }
+            : meeting,
+        ),
+      );
+      const count = updatedById.size || selectedIds.length;
+      toast.success(`Updated ${count} meeting${count === 1 ? "" : "s"}`);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to update selected meetings";
+      toast.error(message);
+      throw error instanceof Error ? error : new Error(message);
     }
   };
 
@@ -1067,6 +1162,8 @@ export function useMeetingsTable(initialMeetings: Meeting[], projectId?: string)
     handleSave,
     handleDeleteConfirm,
     handleBulkDeleteConfirm,
+    bulkEditFields,
+    handleBulkEdit,
     handleSelectAll,
     handleSelectRow,
     handleOpenSource,

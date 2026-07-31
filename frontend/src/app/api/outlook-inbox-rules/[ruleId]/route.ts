@@ -5,6 +5,7 @@ import { NextResponse } from "next/server";
 import { withApiGuardrails, parseJsonBody } from "@/lib/guardrails/api";
 import { GuardrailError } from "@/lib/guardrails/errors";
 import { serviceDb } from "@/lib/supabase/service-db";
+import type { Database } from "@/types/database.types";
 import {
   INBOX_RULES_MAILBOX,
   requireRulesAccess,
@@ -23,7 +24,7 @@ export const PATCH = withApiGuardrails<{ ruleId: string }>(
     const { ruleId } = await params;
     const input = await parseJsonBody(request, updateInboxRuleSchema, WHERE_PATCH);
 
-    const patch: Record<string, unknown> = {};
+    const patch: Database["public"]["Tables"]["outlook_inbox_rules"]["Update"] = {};
     if (input.name !== undefined) {
       patch.name = input.name?.trim() ? input.name.trim() : null;
     }

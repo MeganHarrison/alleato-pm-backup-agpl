@@ -1,0 +1,60 @@
+{
+  "status": "PASS",
+  "observedStatus": "PASS",
+  "taskId": "ALL-11-PHASE1B",
+  "evidence": {
+    "regressionTest": [
+      "docs/ops/evidence/2026-07-24-alleato-brain-operational-scope/regression-test.txt"
+    ],
+    "databaseReadback": [
+      "docs/ops/evidence/2026-07-24-alleato-brain-operational-scope/database-readback.json"
+    ],
+    "negativePath": [
+      "docs/ops/evidence/2026-07-24-alleato-brain-operational-scope/negative-path.md"
+    ],
+    "summary": [
+      "docs/ops/evidence/2026-07-24-alleato-brain-operational-scope/summary.md",
+      "docs/ops/evidence/2026-07-24-alleato-brain-operational-scope/rollback-contract.md"
+    ]
+  },
+  "claims": {
+    "operational-scope-schema": {
+      "regressionTest": [
+        "docs/ops/evidence/2026-07-24-alleato-brain-operational-scope/regression-test.txt"
+      ],
+      "databaseReadback": [
+        "docs/ops/evidence/2026-07-24-alleato-brain-operational-scope/database-readback.json"
+      ]
+    },
+    "typed-targets-fail-closed": {
+      "negativePath": [
+        "docs/ops/evidence/2026-07-24-alleato-brain-operational-scope/negative-path.md"
+      ],
+      "summary": [
+        "docs/ops/evidence/2026-07-24-alleato-brain-operational-scope/summary.md"
+      ]
+    },
+    "finance-and-ledger-fail-closed": {
+      "negativePath": [
+        "docs/ops/evidence/2026-07-24-alleato-brain-operational-scope/negative-path.md"
+      ],
+      "databaseReadback": [
+        "docs/ops/evidence/2026-07-24-alleato-brain-operational-scope/database-readback.json"
+      ]
+    },
+    "phase1b-rollback-is-atomic": {
+      "negativePath": [
+        "docs/ops/evidence/2026-07-24-alleato-brain-operational-scope/negative-path.md"
+      ],
+      "summary": [
+        "docs/ops/evidence/2026-07-24-alleato-brain-operational-scope/rollback-contract.md"
+      ]
+    }
+  },
+  "independentReview": {
+    "reviewer": "Independent Codex high-risk review",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-24T06:24:00Z",
+    "artifact": "docs/ops/evidence/2026-07-24-alleato-brain-operational-scope/independent-review.md"
+  }
+}

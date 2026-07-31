@@ -1,0 +1,2 @@
+project_id,subcontract_id,purchase_order_id,billing_period_id,invoice_number,jobplanner_pay_app_number,period_start,period_end,billing_date,is_retainage_release,status,notes
+876,00000000-0000-0000-0000-0000000000sc,,00000000-0000-0000-0000-00000000bp04,10482,4,2026-07-01,2026-07-31,2026-07-31,FALSE,pending,Concrete — App No. 4

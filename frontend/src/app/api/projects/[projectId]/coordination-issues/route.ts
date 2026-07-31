@@ -5,8 +5,6 @@ import { isAuthError, verifyProjectAccess } from "@/lib/supabase/auth-guard";
 import { GuardrailError } from "@/lib/guardrails/errors";
 import { withApiGuardrails } from "@/lib/guardrails/api";
 
-type RouteContext = { params: Promise<{ projectId: string }> };
-
 const createIssueSchema = z.object({
   title: z.string().trim().min(1, "A title is required.").max(500),
   description: z.string().trim().max(5000).optional().or(z.literal("")),
@@ -14,10 +12,13 @@ const createIssueSchema = z.object({
   severity: z.literal("Medium").default("Medium"),
 });
 
-async function getProjectContext(params: Promise<{ projectId: string }>) {
+async function getProjectContext(params: { projectId: string }): Promise<
+  | { response: NextResponse }
+  | { projectId: number; user: NonNullable<Awaited<ReturnType<typeof getApiRouteUser>>>; access: Exclude<Awaited<ReturnType<typeof verifyProjectAccess>>, NextResponse> }
+> {
   const user = await getApiRouteUser();
   if (!user) throw new GuardrailError({ code: "AUTH_EXPIRED", where: "/coordination-issues", message: "Authentication required." });
-  const { projectId: rawProjectId } = await params;
+  const { projectId: rawProjectId } = params;
   const projectId = Number(rawProjectId);
   if (!Number.isInteger(projectId) || projectId <= 0) {
     throw new GuardrailError({ code: "VALIDATION", where: "/coordination-issues", message: "A valid project id is required." });
@@ -27,7 +28,7 @@ async function getProjectContext(params: Promise<{ projectId: string }>) {
   return { projectId, user, access };
 }
 
-export const GET = withApiGuardrails<{ projectId: string }>("projects/[projectId]/coordination-issues#GET", async ({ params }) => {
+export const GET = withApiGuardrails<{ projectId: string }>("projects/[projectId]/coordination-issues#GET", async ({ params }): Promise<Response> => {
   const result = await getProjectContext(params);
   if ("response" in result) return result.response;
   const { data, error } = await result.access.serviceClient
@@ -39,7 +40,7 @@ export const GET = withApiGuardrails<{ projectId: string }>("projects/[projectId
   return NextResponse.json({ issues: data ?? [] });
 });
 
-export const POST = withApiGuardrails<{ projectId: string }>("projects/[projectId]/coordination-issues#POST", async ({ request, params }) => {
+export const POST = withApiGuardrails<{ projectId: string }>("projects/[projectId]/coordination-issues#POST", async ({ request, params }): Promise<Response> => {
   const result = await getProjectContext(params);
   if ("response" in result) return result.response;
   const body = createIssueSchema.parse(await request.json());

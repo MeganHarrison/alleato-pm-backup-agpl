@@ -13,7 +13,7 @@ test("runtime performance gates", async (t) => {
     assert.equal(shouldHideGlobalAiWidgetForRoute("/ai"), true);
     assert.equal(shouldHideGlobalAiWidgetForRoute("/ai-dashboard"), true);
     assert.equal(
-      shouldHideGlobalAiWidgetForRoute("/ai/session-1"),
+      shouldHideGlobalAiWidgetForRoute("/ai-assistant/session-1"),
       true,
     );
     assert.equal(

@@ -7,7 +7,7 @@ import { DocReportSchema } from "../lib/result-schema.js";
 
 export default defineTool({
   description:
-    "Approval-gated regeneration of the generated docs (PROJECT-MAP via map:project, TABLE-LIST via db:inventory). With dryRun=true (default) it reports the diff and restores the files. With dryRun=false it leaves the regenerated output staged in the working tree for a human to review and open a PR. It never commits or pushes.",
+    "Approval-gated regeneration of the generated docs (PROJECT-MAP via map:project, TABLE-LIST via db:inventory). With dryRun=true (default) it compares in an isolated scratch worktree. With dryRun=false it leaves the regenerated output modified in the working tree for a human to review and open a PR. It never stages, commits, or pushes.",
   inputSchema: z.object({
     dryRun: z.boolean().default(true),
   }),

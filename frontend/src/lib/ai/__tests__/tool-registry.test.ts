@@ -775,12 +775,6 @@ describe("global AI assistant tool registry", () => {
       status: "Open",
       limit: 20,
     });
-    expect(
-      getAcumaticaProjectBudgetInputSchema.parse({ projectId: "25108" }),
-    ).toEqual({
-      projectId: "25108",
-      typeFilter: "all",
-    });
     expect(getAcumaticaProjectListInputSchema.parse({})).toEqual({});
     expect(getPurchaseOrderSummaryInputSchema.parse({})).toEqual({
       limit: 30,

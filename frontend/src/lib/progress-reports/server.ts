@@ -58,6 +58,8 @@ interface ProgressReportRow {
   internal_notes?: string | null;
   review_status?: "needs_review" | "approved" | "sent" | null;
   version?: number | null;
+  refined_at?: string | null;
+  refined_by?: string | null;
   weather_days_lost: number;
   contacts: unknown;
   client_recipients: string[] | null;
@@ -237,6 +239,9 @@ function mapReport(row: ProgressReportRow): ProgressReportRecord {
     review_status:
       row.review_status ?? (row.status === "sent" ? "sent" : "needs_review"),
     version: row.version ?? 1,
+    refined_at: row.refined_at ?? null,
+    refined_by: row.refined_by ?? null,
+    internal_notes: row.internal_notes ?? null,
     contacts: parseContacts(row.contacts),
     client_recipients: row.client_recipients ?? [],
     source_snapshot: parseSourceSnapshot(row.source_snapshot),

@@ -1,0 +1,50 @@
+{
+  "status": "PASS",
+  "observedStatus": "PASS",
+  "taskId": "PM-EMPLOYEE-PROJECT-ACCESS-20260730",
+  "evidence": {
+    "databaseReadback": [
+      "docs/ops/tasks/2026-07-30-active-employee-project-access.md"
+    ],
+    "browserScreenshot": [
+      "tests/agent-browser-runs/2026-07-30-active-employee-project-access/andrew-billing-periods-desktop.png"
+    ],
+    "regressionTest": [
+      "frontend/src/lib/__tests__/active-employee-project-access.test.ts",
+      "supabase/tests/active_employee_project_access.sql"
+    ],
+    "negativePath": [
+      "supabase/tests/active_employee_project_access.sql"
+    ],
+    "summary": [
+      "docs/ops/handoffs/2026-07-30-SROOT-active-employee-project-access.md"
+    ]
+  },
+  "claims": {
+    "employee-access": {
+      "databaseReadback": [
+        "docs/ops/tasks/2026-07-30-active-employee-project-access.md"
+      ],
+      "browserScreenshot": [
+        "tests/agent-browser-runs/2026-07-30-active-employee-project-access/andrew-billing-periods-desktop.png"
+      ]
+    },
+    "least-privilege": {
+      "negativePath": [
+        "supabase/tests/active_employee_project_access.sql"
+      ]
+    },
+    "regression-guard": {
+      "regressionTest": [
+        "frontend/src/lib/__tests__/active-employee-project-access.test.ts",
+        "supabase/tests/active_employee_project_access.sql"
+      ]
+    }
+  },
+  "independentReview": {
+    "reviewer": "pmrole_db_review",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-31T00:00:54Z",
+    "artifact": "docs/ops/handoffs/2026-07-30-SROOT-active-employee-project-access.md"
+  }
+}

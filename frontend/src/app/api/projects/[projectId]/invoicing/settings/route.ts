@@ -187,14 +187,20 @@ export const PATCH = withApiGuardrails<{ projectId: string }>(
         {
           p_project_id: projectIdNum,
           p_frequency: frequency,
-        p_anchor_start_date: startDate as never,
-        p_anchor_end_date: endDate as never,
-        p_anchor_due_date: dueDate as never,
+          p_anchor_start_date: startDate as never,
+          p_anchor_end_date: endDate as never,
+          p_anchor_due_date: dueDate as never,
         },
       );
       if (error) {
         const status =
-          error.code === "23514" ? 422 : error.code === "P0002" ? 404 : 500;
+          error.code === "23514"
+            ? 422
+            : error.code === "23505"
+              ? 409
+              : error.code === "P0002"
+                ? 404
+                : 500;
         return NextResponse.json(
           {
             error:

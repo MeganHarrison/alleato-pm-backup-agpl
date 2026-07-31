@@ -12,6 +12,7 @@ from typing import Optional, Dict, Any, List, Tuple
 from supabase import Client
 import os
 import re
+import time
 from difflib import SequenceMatcher
 import logging
 
@@ -59,14 +60,36 @@ class ProjectAssigner:
         self.client = supabase_client
         self._project_cache: Optional[List[Dict[str, Any]]] = None
         self._project_cache_loaded_from_db = False
+        self._project_cache_loaded_at: Optional[float] = None
+        self._project_snapshot_pinned = False
         self._contact_signal_cache: Optional[Dict[int, Dict[str, set[str]]]] = None
         self._attribution_rule_cache: Optional[List[Dict[str, Any]]] = None
         self._business_area_project_map_cache: Optional[Dict[int, int]] = None
 
     def _get_projects(self, *, refresh: bool = False) -> List[Dict[str, Any]]:
-        """Get all active projects with matching signals."""
+        """Get a bounded-fresh active-project snapshot.
+
+        Project matching is a hot path during mailbox ingestion. Re-querying the
+        full project/contact payload for every eligibility check retained enough
+        transient HTTP/JSON memory to exhaust the 512 MiB scheduled worker.
+        One process therefore shares a time-bounded snapshot; an explicit
+        refresh remains available at source-batch boundaries.
+        """
+        try:
+            cache_ttl_seconds = int(
+                os.environ.get("PROJECT_ASSIGNMENT_CACHE_TTL_SECONDS", "300")
+            )
+        except ValueError:
+            cache_ttl_seconds = 300
+        cache_ttl_seconds = max(30, min(cache_ttl_seconds, 3600))
+        cache_expired = bool(
+            self._project_cache_loaded_from_db
+            and self._project_cache_loaded_at is not None
+            and time.monotonic() - self._project_cache_loaded_at
+            >= cache_ttl_seconds
+        )
         if self._project_cache is None or (
-            refresh and self._project_cache_loaded_from_db
+            (refresh or cache_expired) and self._project_cache_loaded_from_db
         ):
             response = (
                 self.client.table("projects")
@@ -78,6 +101,7 @@ class ProjectAssigner:
             )
             self._project_cache = response.data or []
             self._project_cache_loaded_from_db = True
+            self._project_cache_loaded_at = time.monotonic()
         # Keep the runtime guard even though the database query filters too. It
         # protects callers/tests that seed the cache directly and prevents a
         # future projection change from making archived projects eligible.
@@ -95,6 +119,23 @@ class ProjectAssigner:
             for project in self._get_projects()
             if project.get("id") and project.get("archived") is not True
         }
+
+    def is_project_eligible(self, project_id: Any) -> bool:
+        """Validate a persisted/cached project target against current app truth."""
+        self._get_projects(refresh=not self._project_snapshot_pinned)
+        return self._is_eligible_project_id(
+            project_id,
+            self._eligible_project_ids(),
+        )
+
+    def begin_batch_snapshot(self) -> None:
+        """Pin one current active-project snapshot for a bounded source batch."""
+        self._get_projects(refresh=True)
+        self._project_snapshot_pinned = True
+
+    def end_batch_snapshot(self) -> None:
+        """Release a source-batch snapshot so the next call refreshes app truth."""
+        self._project_snapshot_pinned = False
 
     @staticmethod
     def _is_eligible_project_id(value: Any, eligible_project_ids: set[int]) -> bool:
@@ -127,12 +168,31 @@ class ProjectAssigner:
             - confidence: 0.0-1.0 confidence score
         """
 
-        # The assigner is intentionally long-lived in several ingestion
-        # processes. Refresh the active-project snapshot once per assignment so
-        # a project archived after cache warm-up becomes ineligible immediately.
-        projects = self._get_projects(refresh=True)
-        if not projects:
-            return None, "no_projects", 0.0
+        # Ordinary interactive calls refresh immediately so newly archived
+        # projects cannot remain eligible. Bounded ingestion batches explicitly
+        # pin one snapshot, giving every item the same attribution truth while
+        # avoiding repeated full project/contact payloads.
+        projects = self._get_projects(
+            refresh=not self._project_snapshot_pinned,
+        )
+        eligible_project_ids = {
+            int(project["id"])
+            for project in projects
+            if project.get("id") and project.get("archived") is not True
+        }
+        if (
+            existing_project_id is not None
+            and not self._is_eligible_project_id(
+                existing_project_id,
+                eligible_project_ids,
+            )
+        ):
+            logger.warning(
+                "[ProjectAssigner] ignored existing assignment to archived, "
+                "deleted, unavailable, or invalid project %s",
+                existing_project_id,
+            )
+            existing_project_id = None
 
         # Strategy 1: Explicit attribution matrix rules (highest confidence)
         rule_project_id, rule_method, rule_confidence = self._match_by_attribution_rules(
@@ -150,6 +210,9 @@ class ProjectAssigner:
             return rule_project_id, rule_method, rule_confidence
         if existing_project_id is None and rule_project_id and rule_confidence >= 0.8:
             return rule_project_id, rule_method, rule_confidence
+
+        if not projects:
+            return None, "no_projects", 0.0
 
         # Strategy 2: Direct or fuzzy project number/name match in title
         project_id, confidence = self._match_by_title(meeting_title, projects)
@@ -698,7 +761,10 @@ class ProjectAssigner:
             try:
                 rows = (
                     self.client.table("project_attribution_rules")
-                    .select("id,project_id,rule_type,pattern,confidence,priority,status")
+                    .select(
+                        "id,project_id,business_area_id,rule_type,pattern,"
+                        "confidence,priority,status"
+                    )
                     .eq("status", "active")
                     .execute()
                     .data
@@ -711,17 +777,41 @@ class ProjectAssigner:
             rows = self._attribution_rule_cache
 
         eligible_project_ids = self._eligible_project_ids()
-        eligible_rows = [
-            row
-            for row in rows
-            if row.get("project_id")
-            and self._is_eligible_project_id(row["project_id"], eligible_project_ids)
-        ]
+        has_business_area_rules = any(
+            row.get("business_area_id") is not None for row in rows
+        )
+        area_to_legacy_project = (
+            {
+                business_area_id: project_id
+                for project_id, business_area_id in self._get_business_area_project_map().items()
+            }
+            if has_business_area_rules
+            else {}
+        )
+        eligible_rows: List[Dict[str, Any]] = []
+        for row in rows:
+            business_area_id = row.get("business_area_id")
+            if business_area_id is not None:
+                legacy_project_id = area_to_legacy_project.get(int(business_area_id))
+                if legacy_project_id is None:
+                    continue
+                eligible_rows.append(
+                    {
+                        **row,
+                        "project_id": legacy_project_id,
+                        "_typed_business_area_rule": True,
+                    }
+                )
+                continue
+            if row.get("project_id") and self._is_eligible_project_id(
+                row["project_id"], eligible_project_ids
+            ):
+                eligible_rows.append(row)
         skipped_count = len(rows) - len(eligible_rows)
         if skipped_count:
             logger.warning(
                 "[ProjectAssigner] ignored %d active attribution rule(s) targeting "
-                "archived or unavailable projects",
+                "archived, unavailable, or unmapped destinations",
                 skipped_count,
             )
         self._attribution_rule_cache = eligible_rows

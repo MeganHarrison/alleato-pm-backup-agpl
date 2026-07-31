@@ -4,22 +4,28 @@ import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const MIGRATION_PATH = /^supabase\/migrations\/\d{14}_[^/]+\.sql$/;
+// Vendored third-party drop: Supabase UI "Platform Kit". Kept verbatim from the
+// registry (its auto-generated OpenAPI types legitimately carry JSDoc
+// deprecation tags), and already exempt from the ESLint design-system gates.
+// Same rationale here — do not scan the vendored tree for retired-code markers.
+const VENDORED_PATH = /(?:^|\/)frontend\/src\/components\/platform-kit\//;
 const RETIRED_SEGMENT = /(^|\/)(?:archive|legacy|deprecated|backup|old)(?:\/|$)|\.(?:backup|bak|old|orig|deprecated)(?:\.|$)/i;
 const RETIRED_EXACT_PATH = /(?:^|\/)(?:run_migration\.sh|run-migration\.js|seed-database\.ts|seed-financial-data\.ts|seed-project-financial-data\.ts|seed-test-data\.(?:js|ts)|seed-budget-data\.ts|seed-budget-test-data\.ts|fix-snaplet-models\.cjs|check-seed-data\.ts|verify-seed-data\.ts|test-seed-config\.ts|seed-direct-costs\.ts|seed\.config\.ts|TABLE_TEMPLATE\.tsx\.example)$/;
 const RETIRED_EXACT_REFERENCE = /(?:run_migration\.sh|run-migration\.js|seed-database\.ts|seed-financial-data\.ts|seed-project-financial-data\.ts|seed-test-data\.(?:js|ts)|seed-budget-data\.ts|seed-budget-test-data\.ts|fix-snaplet-models\.cjs|check-seed-data\.ts|verify-seed-data\.ts|test-seed-config\.ts|seed-direct-costs\.ts|seed\.config\.ts|TABLE_TEMPLATE\.tsx\.example)/;
 const RETIRED_EVIDENCE_ROOT = /docs\/ops\/evidence(?:\/|$)/;
 const RETIRED_CODE_MARKER = /@deprecated|\bDEPRECATED\b/i;
 const EXECUTABLE_OR_CONFIG = /\.(?:[cm]?[jt]sx?|py|sh|json|ya?ml)$/i;
-const PACKAGE_MANAGER_LOCKFILE = /(?:^|\/)(?:package-lock\.json|npm-shrinkwrap\.json|pnpm-lock\.ya?ml|yarn\.lock)$/i;
 const PATH_REFERENCE = /(?:from\s*["']|require\s*\(|import\s*\(|(?:path\.)?(?:join|resolve)\s*\(|fileURLToPath\s*\(|(?:path|directory|dir|file|glob|include|exclude|source)\s*[:=]\s*["'])/i;
 
 export function analyzePath(filePath) {
+  if (VENDORED_PATH.test(filePath)) return null;
   if (MIGRATION_PATH.test(filePath) || (!RETIRED_SEGMENT.test(filePath) && !RETIRED_EXACT_PATH.test(filePath) && !RETIRED_EVIDENCE_ROOT.test(filePath))) return null;
   return { filePath, category: "banned new artifact path" };
 }
 
 export function analyzeAddedLine(filePath, line) {
-  if (MIGRATION_PATH.test(filePath) || PACKAGE_MANAGER_LOCKFILE.test(filePath) || !EXECUTABLE_OR_CONFIG.test(filePath)) return null;
+  if (VENDORED_PATH.test(filePath)) return null;
+  if (MIGRATION_PATH.test(filePath) || !EXECUTABLE_OR_CONFIG.test(filePath)) return null;
   if (RETIRED_CODE_MARKER.test(line)) return { filePath, category: "banned retired-code marker", line };
   if ((!PATH_REFERENCE.test(line) && !RETIRED_EXACT_REFERENCE.test(line)) || (!RETIRED_SEGMENT.test(line) && !RETIRED_EXACT_REFERENCE.test(line) && !RETIRED_EVIDENCE_ROOT.test(line))) return null;
   return { filePath, category: "banned runtime reference", line };

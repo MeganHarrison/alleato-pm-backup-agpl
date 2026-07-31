@@ -1449,45 +1449,296 @@
       }
     },
     {
-      "id": "tasks-list-rls-client-mismatch",
-      "title": "Authenticated Tasks list uses an RLS-bound client after route authorization",
+      "id": "ai.external-project-id-field-collision",
+      "title": "External provider project code collides with governed Alleato projectId",
       "status": "active",
       "maturity": "prevented",
-      "canonical_owner": "frontend/src/app/api/tasks/route.ts GET list-read boundary",
+      "canonical_owner": "Provider-specific AI tool schemas and the signed Eve tool bridge",
       "symptoms": [
-        "An authenticated user sees a Tasks list error despite a valid session.",
-        "GET /api/tasks?scope=mine returns a database permission error for tasks.",
-        "A server route selects the tasks table with a cookie or request-scoped RLS client after it has already established in-route authorization."
+        "A provider read tool rejects a valid external string project code because the governed bridge requires numeric projectId.",
+        "The tool schema describes projectId as an ERP code while the authorization boundary reserves projectId for the selected Alleato project.",
+        "A field rename reaches the provider but the response mapper still references the removed identifier."
       ],
       "affected_paths": [
-        "frontend/src/app/api/tasks/route.ts",
-        "frontend/src/app/api/tasks/__tests__/route.test.ts",
-        "frontend/src/lib/supabase/service-db.ts"
+        "frontend/src/lib/ai/tool-schemas/acumatica-schemas.ts",
+        "frontend/src/lib/ai/tools/acumatica.ts",
+        "frontend/src/app/api/ai-assistant/eve/tools/route.ts"
       ],
-      "root_cause": "The Tasks API chose the RLS-bound request client for scope=mine even though the route had already authenticated the caller and was responsible for applying its explicit assignee filters. Production RLS correctly denied that client SELECT access to tasks.",
-      "detection_gap": "Authenticated browser checks stopped at login success and did not fail on the Tasks API console error, so the browser-to-API permission failure was not a release blocker.",
+      "root_cause": "The Acumatica budget tool reused the generic projectId field for an external ERP code, while the signed Eve bridge correctly reserves projectId for numeric selected-project authorization. The first rename also left one stale response reference because no adapter execution test covered the full mapping.",
+      "detection_gap": "Bridge tests covered numeric selected-project mismatch, but no test asserted the advertised external identifier name, rejected the obsolete payload, and executed the complete provider adapter response.",
       "first_checks": [
         {
-          "command": "npm run e2e:browser -- --base-url https://projects.alleatogroup.com --route /tasks",
-          "expected": "The authenticated Tasks route loads without API error, visible error toast, or browser console error."
+          "command": "cd frontend && npx jest --runInBand --runTestsByPath src/lib/ai/tool-schemas/__tests__/acumatica-project-budget-schema.test.ts src/lib/ai/tools/__tests__/acumatica-project-budget.test.ts src/app/api/ai-assistant/eve/tools/__tests__/route.test.ts",
+          "expected": "The catalog advertises acumaticaProjectId, the obsolete projectId payload fails before execution, numeric internal scope remains guarded, and the adapter returns a complete response."
         },
         {
-          "command": "NODE_PATH=/Users/meganharrison/Documents/alleato-pm-backup/frontend/node_modules /Users/meganharrison/Documents/alleato-pm-backup/frontend/node_modules/.bin/jest --runInBand src/app/api/tasks/__tests__/route.test.ts",
-          "expected": "The route reads through serviceDb, filters mine scope, rejects a missing email, and keeps all scope admin-only."
+          "command": "Run getAcumaticaProjectBudget through the authenticated /ai surface and inspect the persisted eve_parts tool trace.",
+          "expected": "The exact tool part is output-available with acumaticaProjectId and live Acumatica totals."
         }
       ],
-      "prevention": "For server-owned list reads, use serviceDb only after getApiRouteUser and retain explicit scope filtering in the route. The browser runner must treat browser console errors and authenticated API failures as test failures.",
+      "prevention": "Name external identifiers by their provider boundary, reserve projectId for governed Alleato IDs, and keep schema, signed-route, adapter-execution, persisted-trace, and screenshot checks together.",
       "guardrail": {
-        "kind": "route_authorization_regression",
+        "kind": "provider_identifier_and_signed_bridge_contract",
         "status": "active",
-        "command": "NODE_PATH=/Users/meganharrison/Documents/alleato-pm-backup/frontend/node_modules /Users/meganharrison/Documents/alleato-pm-backup/frontend/node_modules/.bin/jest --runInBand src/app/api/tasks/__tests__/route.test.ts",
-        "evidence": "docs/ops/evidence/2026-07-31-tasks-permission-e2e/regression-test.md"
+        "command": "cd frontend && npx jest --runInBand --runTestsByPath src/lib/ai/tool-schemas/__tests__/acumatica-project-budget-schema.test.ts src/lib/ai/tools/__tests__/acumatica-project-budget.test.ts src/app/api/ai-assistant/eve/tools/__tests__/route.test.ts",
+        "evidence": "docs/ops/tasks/2026-07-31-eve-acumatica-project-budget.md"
       },
       "incidents": [
         {
           "date": "2026-07-31",
-          "task": "tasks-permission-e2e",
-          "summary": "Production authenticated scope=mine requests returned HTTP 500 permission denied for tasks until the API list read moved to the canonical serviceDb owner while preserving in-route authorization."
+          "task": "AAI-EVE-ACUMATICA-BUDGET",
+          "summary": "Real Eve rejected Acumatica code 26119 as a non-numeric Alleato projectId; the first rename then exposed a stale response reference before the complete browser retest passed."
+        }
+      ],
+      "promotion": {
+        "required": false
+      }
+    },
+    {
+      "id": "ai.acumatica-application-date-contract-drift",
+      "title": "Acumatica cash-position reads select a nonexistent Date field",
+      "status": "active",
+      "maturity": "prevented",
+      "canonical_owner": "Acumatica Payment and Check adapters",
+      "symptoms": [
+        "getCashPositionReport returns an output-available tool part whose result contains an Acumatica HTTP 500 error.",
+        "The provider error includes KeyNotFoundException while binding an OData select.",
+        "Payment and Check payloads expose ApplicationDate but the adapter selects Date."
+      ],
+      "affected_paths": [
+        "frontend/src/lib/acumatica/client.ts",
+        "frontend/src/lib/acumatica/types.ts"
+      ],
+      "root_cause": "The live Acumatica 24.200.001 Payment and Check contracts expose ApplicationDate, while getCashPosition selected and filtered on Date. Acumatica returned HTTP 500 instead of a field-validation response.",
+      "detection_gap": "Local interfaces declared Date as required for both entities and no client regression asserted the exact provider select or date-filter field.",
+      "first_checks": [
+        {
+          "command": "cd frontend && npx jest --runInBand --runTestsByPath src/lib/acumatica/__tests__/cash-position.test.ts",
+          "expected": "Payment and Check requests select ApplicationDate and the 90-day rollup excludes old activity."
+        },
+        {
+          "command": "Run getCashPositionReport through authenticated /ai and inspect its persisted eve_parts trace.",
+          "expected": "The exact tool part is output-available with numeric inflows, outflows, net cash flow, and no nested error."
+        }
+      ],
+      "prevention": "Probe provider fields independently when Acumatica returns KeyNotFoundException, model unsupported fields as optional, and keep a client regression on the exact select plus a real Eve trace and screenshot.",
+      "guardrail": {
+        "kind": "provider_field_contract_test",
+        "status": "active",
+        "command": "cd frontend && npx jest --runInBand --runTestsByPath src/lib/acumatica/__tests__/cash-position.test.ts",
+        "evidence": "docs/ops/tasks/2026-07-31-eve-tool-runtime-repairs.md"
+      },
+      "incidents": [
+        {
+          "date": "2026-07-31",
+          "task": "AAI-EVE-TOOL-RUNTIME-REPAIRS",
+          "summary": "The real Eve cash-position call failed until controlled live probes proved Date returned 500 and ApplicationDate returned 200 for both Payment and Check."
+        }
+      ],
+      "promotion": {
+        "required": false
+      }
+    },
+    {
+      "id": "ai.empty-project-label-source-citation",
+      "title": "Empty optional project name wins over the persisted project label",
+      "status": "active",
+      "maturity": "prevented",
+      "canonical_owner": "Project tool source-label resolution",
+      "symptoms": [
+        "A successful project tool returns project.name as an empty string.",
+        "The persisted tool output contains a source reference ending in a blank project label.",
+        "Eve supplies projectName as an empty string while a valid projectId is present."
+      ],
+      "affected_paths": [
+        "frontend/src/lib/ai/tools/project-label.ts",
+        "frontend/src/lib/ai/tools/project-tools.ts"
+      ],
+      "root_cause": "getProjectRiskAnalysis treated an empty projectName string as a resolved value because nullish fallback does not reject empty strings, so the empty input replaced the persisted projects.name value in both the output and source reference.",
+      "detection_gap": "Tool tests covered registration but not the real bridge input shape where optional string fields arrive as empty strings.",
+      "first_checks": [
+        {
+          "command": "cd frontend && npx jest --runInBand --runTestsByPath src/lib/ai/tools/__tests__/project-risk-source.test.ts",
+          "expected": "Empty requested names fall back to the persisted project name and finally to Project plus the numeric id."
+        },
+        {
+          "command": "Run getProjectRiskAnalysis through authenticated /ai and inspect its persisted eve_parts trace.",
+          "expected": "project.name and sourceRef both contain the selected persisted project name."
+        }
+      ],
+      "prevention": "Normalize optional labels with trim-and-empty rejection at one shared helper before building project output or citations, and retain a regression for Eve's empty-string bridge payload.",
+      "guardrail": {
+        "kind": "project_source_label_contract",
+        "status": "active",
+        "command": "cd frontend && npx jest --runInBand --runTestsByPath src/lib/ai/tools/__tests__/project-risk-source.test.ts",
+        "evidence": "docs/ops/tasks/2026-07-31-eve-tool-runtime-repairs.md"
+      },
+      "incidents": [
+        {
+          "date": "2026-07-31",
+          "task": "AAI-EVE-TOOL-RUNTIME-REPAIRS",
+          "summary": "The first strict getProjectRiskAnalysis trace returned project.name empty and [Source: Risk Analysis - ]; the retest returned Union Collective in both fields."
+        }
+      ],
+      "promotion": {
+        "required": false
+      }
+    },
+    {
+      "id": "ai.unscoped-project-communication-retrieval",
+      "title": "Resolved project lookup fans out into corpus-wide communication retrieval",
+      "status": "active",
+      "maturity": "prevented",
+      "canonical_owner": "findProject communication enrichment and RAG project index",
+      "symptoms": [
+        "findProject resolves a project but returns statement-timeout errors for documents, emails, and Teams.",
+        "Communication retrieval omits filter_project_id after a concrete project match."
+      ],
+      "affected_paths": [
+        "frontend/src/lib/ai/tools/read/project-data-tools.ts",
+        "frontend/src/lib/ai/tools/read/shared-search-helpers.ts",
+        "supabase/migrations/20260731011000_index_rag_chunks_by_project_and_source.sql"
+      ],
+      "root_cause": "The resolved project id was not forwarded to the three RAG searches, and the live chunk table lacked an index for the project id stored in metadata.",
+      "detection_gap": "Registration tests did not inspect nested enrichment errors or prove that resolved project scope reached the live RPC.",
+      "first_checks": [
+        {
+          "command": "cd frontend && npx jest --runInBand --runTestsByPath src/lib/ai/tools/read/__tests__/find-project-search-scope.test.ts",
+          "expected": "All three category searches receive the resolved project id and Teams excludes generic Graph sources."
+        }
+      ],
+      "prevention": "Forward the resolved project id to every enrichment query, index the exact metadata expression used by the RPC, and reject any nested retrieval error in strict browser verification.",
+      "guardrail": {
+        "kind": "project_scoped_rag_retrieval_contract",
+        "status": "active",
+        "command": "cd frontend && npx jest --runInBand --runTestsByPath src/lib/ai/tools/read/__tests__/find-project-search-scope.test.ts",
+        "evidence": "docs/ops/tasks/2026-07-31-eve-tool-runtime-repairs.md"
+      },
+      "incidents": [
+        {
+          "date": "2026-07-31",
+          "task": "AAI-EVE-TOOL-RUNTIME-REPAIRS",
+          "summary": "findProject returned three statement-timeout errors until project scope and the live metadata index were added."
+        }
+      ],
+      "promotion": {
+        "required": false
+      }
+    },
+    {
+      "id": "ai.spec-query-false-positive",
+      "title": "Spec-like documents are returned without matching the requested requirement",
+      "status": "active",
+      "maturity": "prevented",
+      "canonical_owner": "Document intelligence spec-source matching",
+      "symptoms": [
+        "A concrete requirement query returns unrelated equipment or glycol spec attachments.",
+        "The returned excerpt contains attachment metadata but no requested requirement."
+      ],
+      "affected_paths": [
+        "frontend/src/lib/ai/tools/spec-source-matching.ts",
+        "frontend/src/lib/ai/tools/document-intelligence.ts"
+      ],
+      "root_cause": "Spec classification points alone allowed a document to pass even when neither its title nor stored text matched any query token.",
+      "detection_gap": "The existing test rejected non-spec documents but did not reject irrelevant documents that happened to be classified as specifications.",
+      "first_checks": [
+        {
+          "command": "cd frontend && npx jest --runInBand --runTestsByPath src/lib/ai/tools/__tests__/document-intelligence.spec-sources.test.ts",
+          "expected": "Unrelated spec attachments are excluded and the tool returns a truthful no-match note."
+        }
+      ],
+      "prevention": "Require both a specification signal and a direct query-token or section match before returning a stored source.",
+      "guardrail": {
+        "kind": "spec_query_relevance_contract",
+        "status": "active",
+        "command": "cd frontend && npx jest --runInBand --runTestsByPath src/lib/ai/tools/__tests__/document-intelligence.spec-sources.test.ts",
+        "evidence": "docs/ops/tasks/2026-07-31-eve-tool-runtime-repairs.md"
+      },
+      "incidents": [
+        {
+          "date": "2026-07-31",
+          "task": "AAI-EVE-TOOL-RUNTIME-REPAIRS",
+          "summary": "getSpecRequirements returned four unrelated attachment stubs for concrete before the relevance gate."
+        }
+      ],
+      "promotion": {
+        "required": false
+      }
+    },
+    {
+      "id": "ai.read-project-zero-sentinel",
+      "title": "Eve sends project zero before retrying the signed project",
+      "status": "active",
+      "maturity": "detectable",
+      "canonical_owner": "Governed Eve tool bridge project binding",
+      "symptoms": [
+        "A project-scoped read tool first fails AUTH_FORBIDDEN against project 0 and then succeeds on retry.",
+        "The rendered answer claims no nested errors although the persisted turn contains output-error."
+      ],
+      "affected_paths": [
+        "frontend/src/app/api/ai-assistant/eve/tools/route.ts"
+      ],
+      "root_cause": "The model used zero as an unknown-project sentinel, but the governed bridge compared it literally with the server-signed project before read execution.",
+      "detection_gap": "Verification inspected only the successful retry instead of every matching tool part in the persisted assistant turn.",
+      "first_checks": [
+        {
+          "command": "cd frontend && npx jest --runInBand --runTestsByPath src/app/api/ai-assistant/eve/tools/__tests__/route.test.ts",
+          "expected": "Read sentinel zero normalizes to the signed project; writes and positive mismatches remain guarded."
+        }
+      ],
+      "prevention": "Normalize only read-tool project zero to the signed project before schema validation, and inspect all tool attempts in each browser turn.",
+      "guardrail": {
+        "kind": "governed_read_project_sentinel_contract",
+        "status": "active",
+        "command": "cd frontend && npx jest --runInBand --runTestsByPath src/app/api/ai-assistant/eve/tools/__tests__/route.test.ts",
+        "evidence": "docs/ops/tasks/2026-07-31-eve-tool-runtime-repairs.md"
+      },
+      "incidents": [
+        {
+          "date": "2026-07-31",
+          "task": "AAI-EVE-TOOL-RUNTIME-REPAIRS",
+          "summary": "getSubmittalLog hid an initial project-zero AUTH_FORBIDDEN behind a successful retry."
+        }
+      ],
+      "promotion": {
+        "required": false
+      }
+    },
+    {
+      "id": "ai.eve-tokenless-continuation-state",
+      "title": "Interrupted Eve snapshots overwrite a resumable continuation cursor",
+      "status": "active",
+      "maturity": "prevented",
+      "canonical_owner": "Alleato Eve browser session persistence",
+      "symptoms": [
+        "The first Eve turn completes or is interrupted, but the next prompt fails before tool execution.",
+        "The saved session contains sessionId and streamIndex but no continuationToken.",
+        "Eve returns Missing or empty continuationToken for the follow-up POST."
+      ],
+      "affected_paths": [
+        "frontend/src/hooks/eve-session-persistence.ts",
+        "frontend/src/hooks/use-alleato-eve-chat.ts"
+      ],
+      "root_cause": "An interrupted or stale final snapshot could persist a remote Eve session id without the continuation token required to resume that session.",
+      "detection_gap": "Browser verification checked the rendered answer but did not assert all three serialized cursor fields before sending a continuation.",
+      "first_checks": [
+        {
+          "command": "cd frontend && pnpm exec jest src/hooks/__tests__/use-alleato-eve-chat-session.test.ts --runInBand",
+          "expected": "A tokenless same-session snapshot preserves the prior token, while an unresumable or different session is rejected."
+        }
+      ],
+      "prevention": "Reconcile every persisted Eve snapshot with the prior same-session cursor and never restore a remote session id that has no non-empty continuation token.",
+      "guardrail": {
+        "kind": "eve_continuation_cursor_persistence_contract",
+        "status": "active",
+        "command": "cd frontend && pnpm exec jest src/hooks/__tests__/use-alleato-eve-chat-session.test.ts --runInBand",
+        "evidence": "docs/ops/tasks/2026-07-31-eve-tool-runtime-repairs.md"
+      },
+      "incidents": [
+        {
+          "date": "2026-07-31",
+          "task": "AAI-EVE-TOOL-RUNTIME-REPAIRS",
+          "summary": "A follow-up tool request failed before execution because the saved Eve cursor omitted continuationToken."
         }
       ],
       "promotion": {

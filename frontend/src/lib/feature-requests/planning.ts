@@ -106,7 +106,7 @@ export function generateImplementationPlanDraft(
     summary:
       overrides.summary ??
       `Implement a durable feature request packet for "${request.title}" with stakeholder wording, readiness checks, and execution handoff context.`,
-    affectedRoutes: overrides.affectedRoutes ?? ["/ai/feature-requests", "/ai/feature-requests/[requestId]"],
+    affectedRoutes: overrides.affectedRoutes ?? ["/ai-assistant/feature-requests", "/ai-assistant/feature-requests/[requestId]"],
     affectedComponents: overrides.affectedComponents ?? [
       "AIS chat packet widget",
       "Feature request list",

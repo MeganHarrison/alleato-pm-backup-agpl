@@ -26,13 +26,10 @@ These are the authoritative, always-up-to-date references. The summary below pro
 |--------|------|-------------|
 | `POST` | `/api/chat` | Legacy keyword-based transcript lookup used by backend verification scripts |
 
-Production assistant generation is owned by Eve under
-`agents/alleato-assistant`. The Alleato app reaches Eve through the
-authenticated Next.js proxy at
-`frontend/src/app/api/ai-assistant/eve/proxy/[...path]/route.ts`. This backend
-continues to own ingestion, processing stages, intelligence services, and
-approved specialist/tool implementations; `/api/chat` is not the production
-assistant runtime.
+Production AI chat is owned by Eve under `agents/alleato-assistant`. The
+frontend exposes the authenticated proxy
+`/api/ai-assistant/eve/proxy/[...path]`; FastAPI owns ingestion and the
+single-stage RAG adapters, not assistant orchestration.
 
 ### Projects
 
@@ -67,6 +64,7 @@ The API uses CORS-based access control for origin allowlisting. In addition, all
 state-mutating endpoints require an `ADMIN_API_KEY` header.
 
 **Allowed CORS origins:**
+
 - `http://localhost:3000` / `http://127.0.0.1:3000`
 - `http://localhost:3001` / `http://127.0.0.1:3001`
 - `http://localhost:8080` / `http://127.0.0.1:8080`
@@ -74,25 +72,28 @@ state-mutating endpoints require an `ADMIN_API_KEY` header.
 **Admin API key authentication:**
 
 The following endpoints require either:
+
 - `Authorization: Bearer <ADMIN_API_KEY>`, or
 - `X-Admin-Api-Key: <ADMIN_API_KEY>` header
 
 Protected endpoints:
+
 - All `/api/admin/*` routes
 - `POST /api/ingest/fireflies/recent`
 - `POST /api/graph/sync`
 - `POST /api/intelligence/teams-compiler/run`
+- `POST /api/pipeline/process` (compatibility ingress to Vercel Workflow)
+- `POST /api/pipeline/stages/{stage}` (single-stage adapter for Vercel Workflow)
 
 If `ADMIN_API_KEY` is not set in the environment, protected endpoints return `503`.
 
-**Unprotected endpoints** (safe to expose publicly — read-only or triggered by Supabase):
+**Unprotected endpoints** (safe to expose publicly — read-only):
+
 - `GET /health`
 - `GET /api/projects`, `GET /api/projects/{id}`
 - `GET /api/digests/*`
 - `GET /api/intelligence/teams-compiler/status`
 - `POST /api/chat` (legacy, read-only)
-- `POST /api/pipeline/stages/{stage}` (authenticated single-stage adapter; orchestration stays in Vercel Workflow)
-- `POST /api/pipeline/stages/{stage}` (authenticated; called only by Vercel Workflow)
 
 ## Environment Variables
 

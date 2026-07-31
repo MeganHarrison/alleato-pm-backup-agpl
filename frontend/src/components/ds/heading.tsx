@@ -26,17 +26,32 @@ export interface HeadingProps {
   as?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
   /** Additional CSS classes */
   className?: string;
+  /**
+   * DOM id. Must be forwarded — callers point `aria-labelledby` at it to name
+   * a section, and dropping it leaves a dangling reference and an unnamed
+   * region.
+   */
+  id?: string;
   /** Heading text */
   children: React.ReactNode;
 }
 
-export function Heading({ level = 2, as, className, children }: HeadingProps) {
+export function Heading({
+  level = 2,
+  as,
+  className,
+  id,
+  children,
+}: HeadingProps) {
   // Use 'as' prop if provided, otherwise use level
   const Component =
     as || (`h${level}` as "h1" | "h2" | "h3" | "h4" | "h5" | "h6");
 
   return (
-    <Component className={cn("text-foreground", levelStyles[level], className)}>
+    <Component
+      id={id}
+      className={cn("text-foreground", levelStyles[level], className)}
+    >
       {children}
     </Component>
   );

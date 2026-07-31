@@ -8,21 +8,21 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { dialogContentMotion, dialogOverlayMotion } from "@/components/ui/dialog-motion"
 
 const modalVariants = cva(
-  "fixed z-50 grid w-full gap-4 border bg-background p-6 shadow-sm sm:rounded-lg",
+  "fixed z-50 grid w-full max-w-[calc(100%-2rem)] gap-4 border bg-background p-6 shadow-sm sm:rounded-lg",
   {
     variants: {
       size: {
-        xs: "max-w-xs",
-        sm: "max-w-sm",
-        md: "max-w-md",
-        lg: "max-w-lg",
-        xl: "max-w-xl",
-        "2xl": "max-w-2xl",
-        "3xl": "max-w-3xl",
-        "4xl": "max-w-4xl",
-        "5xl": "max-w-5xl",
-        full: "max-w-full",
-        form: "max-w-3xl lg:max-w-4xl",
+        xs: "sm:max-w-xs",
+        sm: "sm:max-w-sm",
+        md: "sm:max-w-md",
+        lg: "sm:max-w-lg",
+        xl: "sm:max-w-xl",
+        "2xl": "sm:max-w-2xl",
+        "3xl": "sm:max-w-3xl",
+        "4xl": "sm:max-w-4xl",
+        "5xl": "sm:max-w-5xl",
+        full: "sm:max-w-full",
+        form: "sm:max-w-3xl lg:max-w-4xl",
       },
     },
     defaultVariants: {

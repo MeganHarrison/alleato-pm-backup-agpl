@@ -147,12 +147,6 @@ const FEATURED_ACTIONS: CatalogDefinition[] = [
     prompt: "Show me the current canonical Daily Executive Brief.",
   },
   {
-    toolName: "reviewSubmittalAgainstDrawings",
-    label: "Review submittal against drawings",
-    group: "Reports and briefings",
-    prompt: "Review a submittal against linked drawings and call out conflicts with evidence.",
-  },
-  {
     toolName: "writeMemory",
     label: "Save a preference or memory",
     group: "Personalization",

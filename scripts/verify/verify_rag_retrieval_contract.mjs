@@ -121,13 +121,15 @@ function assertStaticPermissionGuards() {
     path.join(repoRoot, "frontend/src/lib/ai/tools/guardrails.ts"),
     "utf8",
   );
-  const ragSearchTools = fs.readFileSync(
-    path.join(
-      repoRoot,
-      "frontend/src/lib/ai/tools/read/rag-search-tools.ts",
-    ),
+  const operational = fs.readFileSync(
+    path.join(repoRoot, "frontend/src/lib/ai/tools/operational.ts"),
     "utf8",
   );
+  const sourceSpecific = fs.readFileSync(
+    path.join(repoRoot, "frontend/src/lib/ai/retrieval/source-specific-rag.ts"),
+    "utf8",
+  );
+
   const requiredFragments = [
     {
       file: "guardrails.ts",
@@ -140,16 +142,24 @@ function assertStaticPermissionGuards() {
       ],
     },
     {
-      file: "read/rag-search-tools.ts",
-      source: ragSearchTools,
+      file: "operational.ts",
+      source: operational,
       fragments: [
         "filter_project_id: resolvedProjectId ?? undefined",
         "service role client (bypasses RLS)",
-        "allowedProjectIdSet.has(resolvedProjectId)",
-        "isDocumentScopeAllowed({",
-        "isCommunicationSourceAllowed({",
-        "isLeadershipRestrictedChunkMetadata(row.doc_metadata)",
-        "You do not have access to any projects or Alleato Brain branches in the current database scope",
+        "allowedProjectIdSet.has(docProjectId)",
+        "You are not assigned to any projects in the current database scope",
+      ],
+    },
+    {
+      file: "source-specific-rag.ts",
+      source: sourceSpecific,
+      fragments: [
+        "import type { ToolScope }",
+        "scope: ToolScope",
+        "scope.allowedProjectIds.length === 0",
+        "applyProjectScope",
+        "query.in(\"project_id\", scope.allowedProjectIds)",
       ],
     },
   ];

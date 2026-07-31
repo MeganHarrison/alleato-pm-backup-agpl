@@ -2,18 +2,17 @@
 
 import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { PageShell } from "@/components/layout";
 import { GanttChart } from "@/components/scheduling/gantt-chart";
 import { TaskEditModal } from "@/components/scheduling/task-edit-modal";
 import { ImportExportModal } from "@/components/scheduling/import-export-modal";
+import type { ScheduleRevisionControlItem } from "@/components/scheduling/schedule-revision-controls";
 import {
-  ScheduleRevisionControls,
-  type ScheduleRevisionControlItem,
-} from "@/components/scheduling/schedule-revision-controls";
-import { ScheduleLookahead } from "@/components/scheduling/schedule-lookahead";
-import { ScheduleRiskSummary } from "@/components/scheduling/schedule-risk-summary";
-import { TradeScheduleActivities } from "@/components/scheduling/trade-schedule-activities";
+  getScheduleWorkspace,
+  SchedulePlanningWorkspace,
+  ScheduleWorkspaceNavigation,
+} from "@/components/scheduling/schedule-planning-workspace";
 import { ResourceAvailabilityPanel } from "@/components/scheduling/resource-availability-panel";
 import {
   CalendarSettingsDialog,
@@ -78,6 +77,7 @@ import {
   removeScheduleDeadline,
   removeScheduleDependency,
   saveScheduleDeadline,
+  scheduleApiErrorMessage,
   updateScheduleDependency,
 } from "@/lib/scheduling/dependency-api";
 import { reconcileEditingTask } from "@/lib/scheduling/reconcile-editing-task";
@@ -94,6 +94,7 @@ import {
   filterScheduleTaskHierarchy,
   type ScheduleDateFilter,
 } from "@/lib/scheduling/schedule-task-filters";
+import { lastScheduleSiblingTaskId } from "@/lib/scheduling/schedule-task-ordering";
 
 // =============================================================================
 // TYPES
@@ -102,6 +103,7 @@ import {
 type ViewMode = "grid" | "board" | "schedule" | "timeline" | "calendar";
 type QuickAddTaskInput = {
   name: string;
+  afterTaskId?: string | null;
   parentId?: string | null;
   status?: TaskStatus;
   startDate?: string | null;
@@ -382,6 +384,10 @@ function flattenIds(tasks: ScheduleTaskWithHierarchy[]): Set<string> {
 export default function ProjectSchedulePage() {
   const params = useParams()!;
   const projectId = params.projectId as string;
+  const searchParams = useSearchParams()! ?? new URLSearchParams();
+  const scheduleWorkspace = getScheduleWorkspace(searchParams);
+  const isPlanningWorkspace = scheduleWorkspace === "planning";
+  const router = useRouter();
 
   // State
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
@@ -413,6 +419,9 @@ export default function ProjectSchedulePage() {
   const [showCriticalPath, setShowCriticalPath] = useState(false);
   const [showBaseline, setShowBaseline] = useState(false);
   const [parentTaskIdForNew, setParentTaskIdForNew] = useState<string | null>(
+    null,
+  );
+  const [afterTaskIdForNew, setAfterTaskIdForNew] = useState<string | null>(
     null,
   );
   const [copiedTask, setCopiedTask] = useState<ScheduleTask | null>(null);
@@ -592,19 +601,16 @@ export default function ProjectSchedulePage() {
       setIsRevisionActionPending(true);
       setRevisionActionError(null);
       try {
-        await apiFetch(
-          `/api/projects/${projectId}/scheduling/actions`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              entity_type: "revision",
-              action: "transition",
-              entity_id: revisionId,
-              payload: { status },
-            }),
-          },
-        );
+        await apiFetch(`/api/projects/${projectId}/scheduling/actions`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            entity_type: "revision",
+            action: "transition",
+            entity_id: revisionId,
+            payload: { status },
+          }),
+        });
         await fetchScheduleRevisions();
         toast.success(
           status === "review"
@@ -670,18 +676,15 @@ export default function ProjectSchedulePage() {
       setIsRevisionActionPending(true);
       setBaselineActionError(null);
       try {
-        await apiFetch(
-          `/api/projects/${projectId}/scheduling/actions`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              entity_type: "baseline",
-              action: "activate",
-              entity_id: baselineId,
-            }),
-          },
-        );
+        await apiFetch(`/api/projects/${projectId}/scheduling/actions`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            entity_type: "baseline",
+            action: "activate",
+            entity_id: baselineId,
+          }),
+        });
         await fetchScheduleBaselines();
         toast.success("Active schedule baseline updated");
       } catch (actionError) {
@@ -704,13 +707,14 @@ export default function ProjectSchedulePage() {
 
   // Dependency/deadline mutations refetch the hierarchy. Replace the modal's
   // prior task object so its predecessor list and deadline reflect that result.
+  const editingTaskId = editingTask?.id;
   useEffect(() => {
-    if (!editingTask || !data?.tasks) return;
+    if (!editingTaskId || !data?.tasks) return;
 
     setEditingTask((currentTask) =>
       currentTask ? reconcileEditingTask(currentTask, data.tasks) : currentTask,
     );
-  }, [data?.tasks, editingTask?.id]);
+  }, [data?.tasks, editingTaskId]);
 
   const fetchRelatedActionItems = useCallback(async () => {
     try {
@@ -809,13 +813,15 @@ export default function ProjectSchedulePage() {
     closeContextMenu,
     handleContextMenuAction,
   } = useTaskContextMenu({
-    add_task: () => {
-      setParentTaskIdForNew(null);
+    add_task: (task) => {
+      setParentTaskIdForNew(task?.parent_task_id ?? null);
+      setAfterTaskIdForNew(task?.id ?? null);
       setEditingTask(null);
       setIsModalOpen(true);
     },
     edit_task: (task) => {
       if (task) {
+        setAfterTaskIdForNew(null);
         setEditingTask(task);
         setIsModalOpen(true);
       }
@@ -859,6 +865,7 @@ export default function ProjectSchedulePage() {
     },
     set_deadline: (task) => {
       if (task) {
+        setAfterTaskIdForNew(null);
         setEditingTask(task);
         setIsModalOpen(true);
       }
@@ -869,6 +876,12 @@ export default function ProjectSchedulePage() {
         const element = document.getElementById(`gantt-task-${task.id}`);
         element?.scrollIntoView({ behavior: "smooth", block: "center" });
       }
+    },
+    import_schedule: () => {
+      router.push(`/${projectId}/schedule/import`);
+    },
+    export_schedule: () => {
+      setIsImportExportModalOpen(true);
     },
   });
 
@@ -897,8 +910,13 @@ export default function ProjectSchedulePage() {
     async (
       taskId: string,
       assignments: Array<{ person_id: string; allocation_percent: number }>,
+      expectedAssignments: Array<{
+        id: string;
+        person_id: string;
+        cost_version: number;
+      }>,
     ) => {
-      await replaceTaskAssignments(taskId, assignments);
+      await replaceTaskAssignments(taskId, assignments, expectedAssignments);
       toast.success("Resource assignments saved");
     },
     [replaceTaskAssignments],
@@ -910,6 +928,7 @@ export default function ProjectSchedulePage() {
 
   const handleAddTask = useCallback((parentId: string | null = null) => {
     setParentTaskIdForNew(parentId);
+    setAfterTaskIdForNew(null);
     setEditingTask(null);
     setIsModalOpen(true);
   }, []);
@@ -917,12 +936,17 @@ export default function ProjectSchedulePage() {
   const handleQuickAddTask = useCallback(
     async ({
       name,
+      afterTaskId = null,
       parentId = null,
       status = "not_started",
       startDate = null,
       finishDate = null,
     }: QuickAddTaskInput) => {
       const taskName = name.trim() || "New task";
+      const insertionAnchorId =
+        parentId === null
+          ? lastScheduleSiblingTaskId(allFlatTasks, null)
+          : afterTaskId;
 
       const res = await fetch(apiUrl, {
         method: "POST",
@@ -930,6 +954,7 @@ export default function ProjectSchedulePage() {
         body: JSON.stringify({
           project_id: Number(projectId),
           name: taskName,
+          after_task_id: insertionAnchorId,
           parent_task_id: parentId,
           status,
           start_date: startDate,
@@ -946,18 +971,28 @@ export default function ProjectSchedulePage() {
 
       await refetch();
     },
-    [apiUrl, projectId, refetch],
+    [allFlatTasks, apiUrl, projectId, refetch],
   );
 
   const handleEditTask = useCallback((task: ScheduleTask) => {
+    setAfterTaskIdForNew(null);
     setEditingTask(task);
     setIsModalOpen(true);
   }, []);
 
   const handleTaskClick = useCallback((task: ScheduleTask) => {
     // For now, just edit on click
+    setAfterTaskIdForNew(null);
     setEditingTask(task);
     setIsModalOpen(true);
+  }, []);
+
+  const handleTaskModalOpenChange = useCallback((open: boolean) => {
+    setIsModalOpen(open);
+    if (!open) {
+      setAfterTaskIdForNew(null);
+      setEditingTask(null);
+    }
   }, []);
 
   const handleSaveTask = useCallback(
@@ -965,15 +1000,35 @@ export default function ProjectSchedulePage() {
       try {
         if (editingTask) {
           // Update existing task
+          const expectedScheduleVersion = editingTask.schedule_version;
+          if (
+            typeof expectedScheduleVersion !== "number" ||
+            !Number.isInteger(expectedScheduleVersion)
+          ) {
+            throw new Error(
+              "This task has no editable schedule version. Refresh the schedule, then retry.",
+            );
+          }
           const res = await fetch(`${apiUrl}/${editingTask.id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(taskData),
+            body: JSON.stringify({
+              ...taskData,
+              expected_schedule_version: expectedScheduleVersion,
+            }),
           });
 
           if (!res.ok) {
-            const errorData = await res.json();
-            throw new Error(errorData.error || "Failed to update task");
+            const errorData = await res.json().catch(() => null);
+            if (res.status === 409) {
+              await refetch();
+              setIsModalOpen(false);
+              setEditingTask(null);
+              setAfterTaskIdForNew(null);
+            }
+            throw new Error(
+              scheduleApiErrorMessage(errorData, "Failed to update task"),
+            );
           }
 
           toast.success("Task updated successfully");
@@ -982,7 +1037,10 @@ export default function ProjectSchedulePage() {
           const res = await fetch(apiUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(taskData),
+            body: JSON.stringify({
+              ...taskData,
+              after_task_id: afterTaskIdForNew,
+            }),
           });
 
           if (!res.ok) {
@@ -997,6 +1055,7 @@ export default function ProjectSchedulePage() {
         await refetch();
         setIsModalOpen(false);
         setEditingTask(null);
+        setAfterTaskIdForNew(null);
       } catch (err) {
         console.error("Failed to save task:", err);
         const errorMessage =
@@ -1028,7 +1087,7 @@ export default function ProjectSchedulePage() {
         throw err;
       }
     },
-    [apiUrl, editingTask, refetch],
+    [afterTaskIdForNew, apiUrl, editingTask, refetch],
   );
 
   const handleFieldUpdate = useCallback(
@@ -1063,22 +1122,22 @@ export default function ProjectSchedulePage() {
   );
 
   useEffect(() => {
-    if (!editingTask) {
+    if (!editingTaskId) {
       setLinkedSubmittalState({ data: [], risk: null, error: null });
       return;
     }
     setLinkedSubmittalState({ data: [], risk: null, error: null });
-    void refreshLinkedSubmittals(editingTask.id).catch((error) => {
+    void refreshLinkedSubmittals(editingTaskId).catch((error) => {
       const message =
         error instanceof Error
           ? error.message
           : "Unable to refresh linked submittals.";
       setLinkedSubmittalState({ data: [], risk: null, error: message });
     });
-  }, [editingTask?.id, refreshLinkedSubmittals]);
+  }, [editingTaskId, refreshLinkedSubmittals]);
 
   useEffect(() => {
-    if (!editingTask) return;
+    if (!editingTaskId) return;
     void (async () => {
       try {
         const response = await fetch(`/api/projects/${projectId}/submittals`);
@@ -1104,7 +1163,7 @@ export default function ProjectSchedulePage() {
         console.error("Failed to load project submittals", error);
       }
     })();
-  }, [editingTask?.id, projectId]);
+  }, [editingTaskId, projectId]);
 
   const handleLinkSubmittal = useCallback(
     async (taskId: string, submittalId: string) => {
@@ -1125,9 +1184,12 @@ export default function ProjectSchedulePage() {
 
   const handleUnlinkSubmittal = useCallback(
     async (taskId: string, submittalId: string) => {
-      const res = await fetch(`${apiUrl}/${taskId}/submittals?submittalId=${encodeURIComponent(submittalId)}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(
+        `${apiUrl}/${taskId}/submittals?submittalId=${encodeURIComponent(submittalId)}`,
+        {
+          method: "DELETE",
+        },
+      );
       if (!res.ok) {
         const error = await res.json();
         throw new Error(error.error || "Unable to unlink submittal.");
@@ -1141,18 +1203,34 @@ export default function ProjectSchedulePage() {
   const handleUpdateTask = useCallback(
     async (taskId: string, updates: Partial<ScheduleTask>) => {
       try {
+        const currentTask = allFlatTasks.find((task) => task.id === taskId);
+        const expectedScheduleVersion = currentTask?.schedule_version;
+        if (
+          typeof expectedScheduleVersion !== "number" ||
+          !Number.isInteger(expectedScheduleVersion)
+        ) {
+          throw new Error(
+            "This task has no editable schedule version. Refresh the schedule, then retry.",
+          );
+        }
         const res = await fetch(`${apiUrl}/${taskId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(updates),
+          body: JSON.stringify({
+            ...updates,
+            expected_schedule_version: expectedScheduleVersion,
+          }),
         });
 
         if (!res.ok) {
-          const errorData = await res.json();
-          throw new Error(errorData.error || "Failed to update task");
+          const errorData = await res.json().catch(() => null);
+          if (res.status === 409) await refetch();
+          throw new Error(
+            scheduleApiErrorMessage(errorData, "Failed to update task"),
+          );
         }
 
-        refetch();
+        await refetch();
       } catch (err) {
         console.error("Failed to update task:", err);
         const errorMessage =
@@ -1164,7 +1242,7 @@ export default function ProjectSchedulePage() {
         throw err;
       }
     },
-    [apiUrl, refetch],
+    [allFlatTasks, apiUrl, refetch],
   );
 
   const handleCreateDependency = useCallback(
@@ -1502,51 +1580,6 @@ export default function ProjectSchedulePage() {
     }
   }, [apiUrl, refetch, refetchScheduleResources, selectedIds]);
 
-  const handleImportTasks = useCallback(
-    async (importedTasks: Partial<ScheduleTask>[]) => {
-      try {
-        // Create tasks one by one
-        const promises = importedTasks.map(async (taskData) => {
-          const res = await fetch(apiUrl, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              project_id: Number(projectId),
-              name: taskData.name,
-              start_date: taskData.start_date || null,
-              finish_date: taskData.finish_date || null,
-              duration_days: taskData.duration_days || null,
-              percent_complete: taskData.percent_complete || 0,
-              status: taskData.status || "not_started",
-              is_milestone: taskData.is_milestone || false,
-              wbs_code: taskData.wbs_code || null,
-            }),
-          });
-
-          if (!res.ok) {
-            const errorData = await res.json();
-            throw new Error(errorData.error || "Failed to create task");
-          }
-        });
-
-        await Promise.all(promises);
-        toast.success(`Successfully imported ${importedTasks.length} tasks`);
-        refetch();
-        setIsImportExportModalOpen(false);
-      } catch (err) {
-        console.error("Failed to import tasks:", err);
-        const errorMessage =
-          err instanceof Error ? err.message : "Failed to import tasks";
-        toast.error("Import Failed", {
-          description: errorMessage,
-          duration: 6000,
-        });
-        throw err;
-      }
-    },
-    [apiUrl, projectId, refetch],
-  );
-
   // State for toolbar
   const [searchValue, setSearchValue] = useState("");
   const [activeFilters, setActiveFilters] = useState<
@@ -1595,16 +1628,6 @@ export default function ProjectSchedulePage() {
     );
   }, [baselineComparison?.tasks, data?.ganttData, filteredTasks, showBaseline]);
 
-  const baselineChangeSummary = useMemo(() => {
-    const tasks = baselineComparison?.tasks ?? [];
-    return {
-      changed: tasks.filter((task) => task.comparison_status === "changed")
-        .length,
-      added: tasks.filter((task) => task.comparison_status === "added"),
-      removed: tasks.filter((task) => task.comparison_status === "removed"),
-    };
-  }, [baselineComparison?.tasks]);
-
   const hasToolbarFilters =
     searchValue.trim().length > 0 ||
     Object.values(activeFilters).some((value) =>
@@ -1619,7 +1642,7 @@ export default function ProjectSchedulePage() {
       <Button asChild size="sm" variant="outline" className="max-sm:min-h-11">
         <Link href={`/${projectId}/schedule/import`}>
           <Upload />
-          MS Project Import
+          Import Schedule
         </Link>
       </Button>
       <Button
@@ -1676,10 +1699,21 @@ export default function ProjectSchedulePage() {
     : false;
 
   return (
-    <PageShell variant="table" title="Schedule" actions={headerActions}>
+    <PageShell
+      variant="table"
+      title={isPlanningWorkspace ? "Schedule planning" : "Schedule"}
+      actions={isPlanningWorkspace ? undefined : headerActions}
+    >
+      <ScheduleWorkspaceNavigation
+        projectId={projectId}
+        workspace={scheduleWorkspace}
+      />
       {/* Loading skeleton */}
-      {isLoading && (
+      {!isPlanningWorkspace && isLoading && (
         <>
+          <p className="sr-only" role="status">
+            Loading schedule
+          </p>
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <ViewModeTabs mode={viewMode} onChange={setViewMode} />
             <div className="flex items-center gap-2 pb-2 animate-pulse">
@@ -1709,7 +1743,7 @@ export default function ProjectSchedulePage() {
       )}
 
       {/* Error state */}
-      {!isLoading && error && (
+      {!isPlanningWorkspace && !isLoading && error && (
         <>
           <ViewModeTabs mode={viewMode} onChange={setViewMode} />
           <ErrorState
@@ -1728,321 +1762,284 @@ export default function ProjectSchedulePage() {
       )}
 
       {/* Main content */}
-      {!isLoading && !error && (
+      {(isPlanningWorkspace || (!isLoading && !error)) && (
         <>
-          <div className="mb-6 space-y-3">
-            {revisionActionError && (
-              <InfoAlert variant="error" role="alert">
-                {revisionActionError}
-              </InfoAlert>
-            )}
-            {baselineActionError && (
-              <InfoAlert variant="error" role="alert">
-                Baseline comparison unavailable: {baselineActionError}
-              </InfoAlert>
-            )}
-            {baselineComparison?.provenance === "reconstructed" && (
-              <InfoAlert variant="warning" role="status">
-                This legacy baseline predates full context capture. Calendar,
-                deadline, and submittal context was reconstructed and may not
-                match the original publication date.
-              </InfoAlert>
-            )}
-            {scheduleCalendarLoadError && (
-              <InfoAlert variant="error" role="alert">
-                <div className="flex flex-wrap items-center gap-3">
-                  <span>
-                    The saved schedule calendar could not be loaded. Editing is
-                    disabled to protect the existing calendar.
-                  </span>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    onClick={() =>
-                      setScheduleCalendarReloadKey((key) => key + 1)
-                    }
-                    disabled={isScheduleCalendarLoading}
-                  >
-                    {isScheduleCalendarLoading ? "Retrying…" : "Retry calendar"}
-                  </Button>
-                </div>
-              </InfoAlert>
-            )}
-            <ResourceAvailabilityPanel
+          {isPlanningWorkspace ? (
+            <SchedulePlanningWorkspace
               projectId={projectId}
-              roster={scheduleResourceRoster}
-              tasks={allFlatTasks}
-              calendar={scheduleCalendar}
-              calendarReady={
-                !isScheduleCalendarLoading && !scheduleCalendarLoadError
-              }
-              isLoading={isScheduleResourceLoading || isScheduleCalendarLoading}
-              error={
-                scheduleCalendarLoadError
-                  ? `Resource load is unavailable until the saved calendar is restored: ${scheduleCalendarLoadError}`
-                  : (scheduleResourceError?.message ?? null)
-              }
-              onRetry={() => {
-                if (scheduleCalendarLoadError)
-                  setScheduleCalendarReloadKey((key) => key + 1);
-                void refetchScheduleResources();
-              }}
-              capacityRange={scheduleResourceCapacityRange}
-              isCapacityRangeLoading={isScheduleResourceCapacityLoading}
-              capacityRangeError={
-                scheduleResourceCapacityError?.message ?? null
-              }
-              onLoadCapacityRange={loadCapacityRange}
-              selectedCapacityProfile={selectedCapacityProfile}
-              isCapacityProfileLoading={isCapacityProfileLoading}
-              capacityProfileError={capacityProfileError?.message ?? null}
-              onLoadCapacityProfile={loadCapacityProfile}
-              onSaveCapacityProfile={replaceCapacityProfile}
-              levelingPreview={levelingPreview}
-              isLevelingPreviewLoading={isLevelingPreviewLoading}
-              levelingPreviewError={levelingPreviewError?.message ?? null}
-              onPreviewLeveling={previewResourceLeveling}
-              onScheduleChanged={async () => {
-                await Promise.all([refetch(), refetchScheduleResources()]);
-              }}
-            />
-            <ScheduleRevisionControls
               revisions={scheduleRevisions}
               baselines={scheduleBaselines}
+              baselineComparison={baselineComparison}
               canManageBaselines={canManageBaselines}
-              canManageSchedule={canManageBaselines}
               onSnapshot={handleSnapshotSchedule}
               onTransition={handleRevisionTransition}
               onCaptureBaseline={handleCaptureBaseline}
               onActivateBaseline={handleActivateBaseline}
               disabled={isRevisionActionPending}
-            />
-            {baselineComparison && (
-              <section
-                aria-label="Baseline variance summary"
-                className="border-y py-2 text-sm"
-              >
-                <p className="text-muted-foreground">
-                  Baseline changes: {baselineChangeSummary.changed} changed ·{" "}
-                  {baselineChangeSummary.added.length} added ·{" "}
-                  {baselineChangeSummary.removed.length} removed
-                </p>
-                {(baselineChangeSummary.added.length > 0 ||
-                  baselineChangeSummary.removed.length > 0) && (
-                  <details className="mt-2">
-                    <summary className="cursor-pointer font-medium">
-                      Scope changes
-                    </summary>
-                    <ul className="mt-2 space-y-1 text-muted-foreground">
-                      {baselineChangeSummary.added.map((task) => (
-                        <li key={`added-${task.source_task_id}`}>
-                          {task.name} — added
-                        </li>
-                      ))}
-                      {baselineChangeSummary.removed.map((task) => (
-                        <li key={`removed-${task.source_task_id}`}>
-                          {task.name} — removed
-                        </li>
-                      ))}
-                    </ul>
-                  </details>
-                )}
-              </section>
-            )}
-            <ScheduleLookahead
-              projectId={projectId}
-              startDate={lookaheadStartDate}
-              revisionId={
-                scheduleRevisions.find(
-                  (revision) => revision.status === "published",
-                )?.id ?? null
+              revisionActionError={revisionActionError}
+              baselineActionError={baselineActionError}
+              lookaheadStartDate={lookaheadStartDate}
+              resourceAvailability={
+                <ResourceAvailabilityPanel
+                  projectId={projectId}
+                  roster={scheduleResourceRoster}
+                  tasks={allFlatTasks}
+                  calendar={scheduleCalendar}
+                  defaultOpen
+                  calendarReady={
+                    !isScheduleCalendarLoading && !scheduleCalendarLoadError
+                  }
+                  isLoading={
+                    isLoading ||
+                    isScheduleResourceLoading ||
+                    isScheduleCalendarLoading
+                  }
+                  error={
+                    scheduleCalendarLoadError
+                      ? `Resource load is unavailable until the saved calendar is restored: ${scheduleCalendarLoadError}`
+                      : error
+                        ? `Resource task context is unavailable: ${error.message}`
+                        : (scheduleResourceError?.message ?? null)
+                  }
+                  onRetry={() => {
+                    if (scheduleCalendarLoadError)
+                      setScheduleCalendarReloadKey((key) => key + 1);
+                    void refetch();
+                    void refetchScheduleResources();
+                  }}
+                  capacityRange={scheduleResourceCapacityRange}
+                  isCapacityRangeLoading={isScheduleResourceCapacityLoading}
+                  capacityRangeError={
+                    scheduleResourceCapacityError?.message ?? null
+                  }
+                  onLoadCapacityRange={loadCapacityRange}
+                  selectedCapacityProfile={selectedCapacityProfile}
+                  isCapacityProfileLoading={isCapacityProfileLoading}
+                  capacityProfileError={capacityProfileError?.message ?? null}
+                  onLoadCapacityProfile={loadCapacityProfile}
+                  onSaveCapacityProfile={replaceCapacityProfile}
+                  levelingPreview={levelingPreview}
+                  isLevelingPreviewLoading={isLevelingPreviewLoading}
+                  levelingPreviewError={levelingPreviewError?.message ?? null}
+                  onPreviewLeveling={previewResourceLeveling}
+                  onScheduleChanged={async () => {
+                    await Promise.all([refetch(), refetchScheduleResources()]);
+                  }}
+                />
               }
             />
-            <ScheduleRiskSummary
-              projectId={projectId}
-              revisionId={
-                scheduleRevisions.find(
-                  (revision) => revision.status === "published",
-                )?.id ?? null
-              }
-            />
-            <TradeScheduleActivities
-              projectId={projectId}
-              revisionId={
-                scheduleRevisions.find(
-                  (revision) => revision.status === "published",
-                )?.id ?? null
-              }
-            />
-          </div>
-          <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
-            <ViewModeTabs mode={viewMode} onChange={setViewMode} />
-            <div className="flex flex-wrap items-center gap-2">
-              <DateFilterPills value={dateFilter} onChange={setDateFilter} />
-              {viewMode === "grid" && (
-                <>
-                  <Button
-                    type="button"
-                    variant={showCriticalPath ? "secondary" : "outline"}
-                    size="sm"
-                    aria-pressed={showCriticalPath}
-                    onClick={() => setShowCriticalPath((visible) => !visible)}
-                  >
-                    <GitBranch />
-                    Critical Path
-                  </Button>
-                  {scheduleBaselines.some((baseline) => baseline.is_active) && (
+          ) : (
+            <>
+              {scheduleCalendarLoadError && (
+                <InfoAlert variant="error" role="alert">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <span>
+                      The saved schedule calendar could not be loaded. Editing
+                      is disabled to protect the existing calendar.
+                    </span>
                     <Button
                       type="button"
-                      variant={showBaseline ? "secondary" : "outline"}
                       size="sm"
-                      aria-pressed={showBaseline}
-                      disabled={
-                        !baselineComparison || Boolean(baselineActionError)
+                      variant="outline"
+                      onClick={() =>
+                        setScheduleCalendarReloadKey((key) => key + 1)
                       }
-                      onClick={() => setShowBaseline((visible) => !visible)}
+                      disabled={isScheduleCalendarLoading}
                     >
-                      Baseline
+                      {isScheduleCalendarLoading
+                        ? "Retrying…"
+                        : "Retry calendar"}
                     </Button>
-                  )}
-                </>
+                  </div>
+                </InfoAlert>
               )}
-              <TableToolbar
-                className="w-full sm:w-auto"
-                totalItems={totalTaskCount}
-                filteredItems={filteredTaskCount}
-                selectedCount={selectedIds.size}
-                searchValue={searchValue}
-                onSearchChange={setSearchValue}
-                searchPlaceholder="Search tasks..."
-                currentView="table"
-                onViewChange={() => {}}
-                enableViews={false}
-                filters={SCHEDULE_FILTERS}
-                activeFilters={activeFilters}
-                onFilterChange={setActiveFilters}
-                onClearFilters={() => setActiveFilters({})}
-                columns={SCHEDULE_COLUMNS}
-                visibleColumns={visibleColumns}
-                onColumnVisibilityChange={setVisibleColumns}
-                onExport={() => setIsImportExportModalOpen(true)}
-                enableBulkDelete={false}
-              />
-            </div>
-          </div>
-
-          {selectedIds.size > 0 && (
-            <BulkActionBar
-              selectedCount={selectedIds.size}
-              deleteProgress={bulkDeleteProgress}
-              onUpdateStatus={handleBulkStatusUpdate}
-              onDelete={handleBulkDelete}
-              onClear={() => {
-                setBulkDeleteProgress(null);
-                setSelectedIds(new Set());
-              }}
-            />
-          )}
-
-          {data && (!data.tasks || data.tasks.length === 0) && (
-            <EmptyState
-              className="mt-4 animate-reveal"
-              icon={<Calendar />}
-              title="No tasks scheduled"
-              description="Create tasks, set milestones, and track dependencies with Gantt charts and multiple view modes."
-              action={
-                <div className="flex gap-2">
-                  <Button size="sm" onClick={() => handleAddTask()}>
-                    <Plus />
-                    Add Task
-                  </Button>
-                  <Button size="sm" variant="outline" asChild>
-                    <Link href={`/${projectId}/schedule/import`}>
-                      <Upload />
-                      Import Schedule
-                    </Link>
-                  </Button>
-                </div>
-              }
-            />
-          )}
-
-          {data?.tasks &&
-            data.tasks.length > 0 &&
-            filteredTasks.length === 0 && (
-              <EmptyState
-                className="mt-4 animate-reveal"
-                icon={<CalendarDays />}
-                title={
-                  hasToolbarFilters
-                    ? "No tasks match your filters"
-                    : dateFilter === "today"
-                      ? "No tasks scheduled for today"
-                      : "No tasks scheduled this week"
-                }
-                description={
-                  hasToolbarFilters
-                    ? "Clear the search or filters to see more of the schedule."
-                    : dateFilter === "today"
-                      ? "No tasks have a start or finish date of today. Switch to All to see the full schedule."
-                      : "No tasks are active this week. Switch to All to see the full schedule."
-                }
-                action={
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => {
-                      setDateFilter("all");
-                      setSearchValue("");
-                      setActiveFilters({});
-                    }}
-                  >
-                    {hasToolbarFilters ? "Clear Filters" : "Show All Tasks"}
-                  </Button>
-                }
-              />
-            )}
-
-          {data?.tasks && data.tasks.length > 0 && filteredTasks.length > 0 && (
-            <div key={viewMode} className="flex-1 min-h-[600px] animate-reveal">
-              {viewMode === "grid" && (
-                <div className="-mx-4 sm:-mx-6 lg:-mx-8">
-                  <GanttChart
-                    data={filteredGanttData}
-                    calendar={scheduleCalendar}
-                    showCriticalPath={showCriticalPath}
-                    showBaseline={showBaseline}
+              <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
+                <ViewModeTabs mode={viewMode} onChange={setViewMode} />
+                <div className="flex flex-wrap items-center gap-2">
+                  <DateFilterPills
+                    value={dateFilter}
+                    onChange={setDateFilter}
+                  />
+                  {viewMode === "grid" && (
+                    <>
+                      <Button
+                        type="button"
+                        variant={showCriticalPath ? "secondary" : "outline"}
+                        size="sm"
+                        aria-pressed={showCriticalPath}
+                        onClick={() =>
+                          setShowCriticalPath((visible) => !visible)
+                        }
+                      >
+                        <GitBranch />
+                        Critical Path
+                      </Button>
+                      {scheduleBaselines.some(
+                        (baseline) => baseline.is_active,
+                      ) && (
+                        <Button
+                          type="button"
+                          variant={showBaseline ? "secondary" : "outline"}
+                          size="sm"
+                          aria-pressed={showBaseline}
+                          disabled={
+                            !baselineComparison || Boolean(baselineActionError)
+                          }
+                          onClick={() => setShowBaseline((visible) => !visible)}
+                        >
+                          Baseline
+                        </Button>
+                      )}
+                    </>
+                  )}
+                  <TableToolbar
+                    className="w-full sm:w-auto"
+                    totalItems={totalTaskCount}
+                    filteredItems={filteredTaskCount}
+                    selectedCount={selectedIds.size}
+                    searchValue={searchValue}
+                    onSearchChange={setSearchValue}
+                    searchPlaceholder="Search tasks..."
+                    currentView="table"
+                    onViewChange={() => {}}
+                    enableViews={false}
+                    filters={SCHEDULE_FILTERS}
+                    activeFilters={activeFilters}
+                    onFilterChange={setActiveFilters}
+                    onClearFilters={() => setActiveFilters({})}
+                    columns={SCHEDULE_COLUMNS}
                     visibleColumns={visibleColumns}
-                    onQuickAddTask={(name) => handleQuickAddTask({ name })}
-                    onUpdateTask={handleUpdateTask}
-                    onTaskClick={(taskId) => {
-                      const fullTask = data?.tasks
-                        ? findTaskById(data.tasks, taskId)
-                        : null;
-                      if (fullTask) {
-                        handleEditTask(fullTask);
-                      }
-                    }}
+                    onColumnVisibilityChange={setVisibleColumns}
+                    onExport={() => setIsImportExportModalOpen(true)}
+                    enableBulkDelete={false}
                   />
                 </div>
+              </div>
+
+              {selectedIds.size > 0 && (
+                <BulkActionBar
+                  selectedCount={selectedIds.size}
+                  deleteProgress={bulkDeleteProgress}
+                  onUpdateStatus={handleBulkStatusUpdate}
+                  onDelete={handleBulkDelete}
+                  onClear={() => {
+                    setBulkDeleteProgress(null);
+                    setSelectedIds(new Set());
+                  }}
+                />
               )}
 
-              {viewMode !== "grid" && (
-                <>
-                  {viewMode === "board" && <ScheduleBoardView {...viewProps} />}
-                  {viewMode === "calendar" && (
-                    <ScheduleCalendarView {...viewProps} />
-                  )}
-                  {viewMode === "timeline" && (
-                    <ScheduleTimelineView {...viewProps} />
-                  )}
-                  {viewMode === "schedule" && (
-                    <ScheduleGridView {...viewProps} />
-                  )}
-                </>
+              {data && (!data.tasks || data.tasks.length === 0) && (
+                <EmptyState
+                  className="mt-4 animate-reveal"
+                  icon={<Calendar />}
+                  title="No tasks scheduled"
+                  description="Create tasks, set milestones, and track dependencies with Gantt charts and multiple view modes."
+                  action={
+                    <div className="flex gap-2">
+                      <Button size="sm" onClick={() => handleAddTask()}>
+                        <Plus />
+                        Add Task
+                      </Button>
+                      <Button size="sm" variant="outline" asChild>
+                        <Link href={`/${projectId}/schedule/import`}>
+                          <Upload />
+                          Import Schedule
+                        </Link>
+                      </Button>
+                    </div>
+                  }
+                />
               )}
-            </div>
+
+              {data?.tasks &&
+                data.tasks.length > 0 &&
+                filteredTasks.length === 0 && (
+                  <EmptyState
+                    className="mt-4 animate-reveal"
+                    icon={<CalendarDays />}
+                    title={
+                      hasToolbarFilters
+                        ? "No tasks match your filters"
+                        : dateFilter === "today"
+                          ? "No tasks scheduled for today"
+                          : "No tasks scheduled this week"
+                    }
+                    description={
+                      hasToolbarFilters
+                        ? "Clear the search or filters to see more of the schedule."
+                        : dateFilter === "today"
+                          ? "No tasks have a start or finish date of today. Switch to All to see the full schedule."
+                          : "No tasks are active this week. Switch to All to see the full schedule."
+                    }
+                    action={
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setDateFilter("all");
+                          setSearchValue("");
+                          setActiveFilters({});
+                        }}
+                      >
+                        {hasToolbarFilters ? "Clear Filters" : "Show All Tasks"}
+                      </Button>
+                    }
+                  />
+                )}
+
+              {data?.tasks &&
+                data.tasks.length > 0 &&
+                filteredTasks.length > 0 && (
+                  <div
+                    key={viewMode}
+                    className="flex-1 min-h-[600px] animate-reveal"
+                  >
+                    {viewMode === "grid" && (
+                      <div className="-mx-4 sm:-mx-6 lg:-mx-8">
+                        <GanttChart
+                          data={filteredGanttData}
+                          calendar={scheduleCalendar}
+                          showCriticalPath={showCriticalPath}
+                          showBaseline={showBaseline}
+                          visibleColumns={visibleColumns}
+                          onQuickAddTask={(name) =>
+                            handleQuickAddTask({
+                              name,
+                            })
+                          }
+                          onUpdateTask={handleUpdateTask}
+                          onTaskClick={(taskId) => {
+                            const fullTask = data?.tasks
+                              ? findTaskById(data.tasks, taskId)
+                              : null;
+                            if (fullTask) {
+                              handleEditTask(fullTask);
+                            }
+                          }}
+                        />
+                      </div>
+                    )}
+
+                    {viewMode !== "grid" && (
+                      <>
+                        {viewMode === "board" && (
+                          <ScheduleBoardView {...viewProps} />
+                        )}
+                        {viewMode === "calendar" && (
+                          <ScheduleCalendarView {...viewProps} />
+                        )}
+                        {viewMode === "timeline" && (
+                          <ScheduleTimelineView {...viewProps} />
+                        )}
+                        {viewMode === "schedule" && (
+                          <ScheduleGridView {...viewProps} />
+                        )}
+                      </>
+                    )}
+                  </div>
+                )}
+            </>
           )}
         </>
       )}
@@ -2050,7 +2047,7 @@ export default function ProjectSchedulePage() {
       {/* Modals */}
       <TaskEditModal
         open={isModalOpen}
-        onOpenChange={setIsModalOpen}
+        onOpenChange={handleTaskModalOpenChange}
         task={editingTask}
         parentTaskId={parentTaskIdForNew}
         projectId={projectId}
@@ -2094,8 +2091,12 @@ export default function ProjectSchedulePage() {
                     setScheduleCalendarReloadKey((key) => key + 1);
                   void refetchScheduleResources();
                 },
-                onSave: (assignments) =>
-                  handleSaveTaskAssignments(editingTask.id, assignments),
+                onSave: (assignments, expectedAssignments) =>
+                  handleSaveTaskAssignments(
+                    editingTask.id,
+                    assignments,
+                    expectedAssignments,
+                  ),
                 loadCapacityProfiles: fetchCapacityProfilesForRange,
               }
             : undefined
@@ -2157,7 +2158,6 @@ export default function ProjectSchedulePage() {
         onOpenChange={setIsImportExportModalOpen}
         projectId={projectId}
         tasks={allFlatTasks}
-        onImport={handleImportTasks}
       />
     </PageShell>
   );

@@ -8,6 +8,9 @@
 /** Slug of the seeded curated-dashboard tag. Kept in sync with the migration. */
 export const MEGANS_DASHBOARD_TAG_SLUG = "megans-dashboard";
 
+/** Slug of Brandon's curated dashboard tag. Kept in sync with the migration. */
+export const BRANDONS_DASHBOARD_TAG_SLUG = "brandons-dashboard";
+
 export type PageTag = {
   slug: string;
   label: string;
@@ -24,6 +27,20 @@ export type PageTagsResponse = {
   tags: PageTag[];
   assignments: PageTagAssignment[];
 };
+
+export function filterRoutesByTag<T extends { route: string }>(
+  routes: T[],
+  assignments: PageTagAssignment[],
+  tagSlug: string,
+): T[] {
+  const taggedRoutes = new Set(
+    assignments
+      .filter((assignment) => assignment.tagSlug === tagSlug)
+      .map((assignment) => assignment.route),
+  );
+
+  return routes.filter((route) => taggedRoutes.has(route.route));
+}
 
 /**
  * Converts a free-text tag label into a stable kebab-case slug that satisfies

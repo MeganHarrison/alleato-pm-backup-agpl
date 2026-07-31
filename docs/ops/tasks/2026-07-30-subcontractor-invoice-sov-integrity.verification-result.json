@@ -1,0 +1,45 @@
+{
+  "status": "PASS",
+  "observedStatus": "PASS",
+  "taskId": "ALL-56",
+  "evidence": {
+    "databaseReadback": [
+      "docs/ops/tasks/2026-07-30-subcontractor-invoice-sov-integrity.md"
+    ],
+    "regressionTest": [
+      "docs/ops/tasks/2026-07-30-subcontractor-invoice-sov-integrity.md"
+    ],
+    "negativePath": [
+      "supabase/tests/subcontractor_invoice_sov_integrity.sql"
+    ],
+    "independentReview": [
+      "docs/ops/handoffs/2026-07-30-SROOT3-subcontractor-invoice-sov-integrity.md"
+    ]
+  },
+  "claims": {
+    "canonical-source-set": {
+      "databaseReadback": [
+        "docs/ops/tasks/2026-07-30-subcontractor-invoice-sov-integrity.md"
+      ],
+      "regressionTest": [
+        "docs/ops/tasks/2026-07-30-subcontractor-invoice-sov-integrity.md"
+      ]
+    },
+    "fail-closed": {
+      "negativePath": [
+        "supabase/tests/subcontractor_invoice_sov_integrity.sql"
+      ]
+    },
+    "reviewed": {
+      "independentReview": [
+        "docs/ops/handoffs/2026-07-30-SROOT3-subcontractor-invoice-sov-integrity.md"
+      ]
+    }
+  },
+  "independentReview": {
+    "reviewer": "code_review, react_review, security_review",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-31T02:41:00Z",
+    "artifact": "docs/ops/handoffs/2026-07-30-SROOT3-subcontractor-invoice-sov-integrity.md"
+  }
+}

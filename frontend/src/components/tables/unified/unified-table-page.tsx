@@ -99,6 +99,12 @@ import {
 } from "lucide-react";
 import { MobileCardList } from "./mobile-card-list";
 import { InlineSelectEditor } from "./inline-select-editor";
+import { BulkEditDialog, type BulkEditField } from "./bulk-edit-dialog";
+import {
+  readUnifiedTablePreferences,
+  saveUnifiedTablePreferences,
+  type TablePaginationBehavior,
+} from "./use-unified-table-state";
 
 const BOOLEAN_EDIT_OPTIONS = [
   { value: "true", label: "Yes" },
@@ -155,6 +161,29 @@ export function computeResizedColumnWidth(
   deltaX: number,
 ): number {
   return Math.max(MIN_COLUMN_RESIZE_WIDTH, startWidth + deltaX);
+}
+
+/**
+ * Keeps already loaded server pages on-screen when the global continuous-scroll
+ * preference advances to a later page. A stable row ID also prevents duplicate
+ * rows when an API repeats a record across pages.
+ */
+export function mergeContinuousTableItems<T>(
+  previousItems: T[],
+  nextPageItems: T[],
+  getRowId: (item: T) => string,
+  replace: boolean,
+): T[] {
+  if (replace) return nextPageItems;
+  const nextById = new Map(nextPageItems.map((item) => [getRowId(item), item]));
+  const merged = previousItems.map(
+    (item) => nextById.get(getRowId(item)) ?? item,
+  );
+  const loadedIds = new Set(merged.map((item) => getRowId(item)));
+  for (const item of nextPageItems) {
+    if (!loadedIds.has(getRowId(item))) merged.push(item);
+  }
+  return merged;
 }
 
 function isInteractiveRowTarget(target: EventTarget | null): boolean {
@@ -329,6 +358,53 @@ export function shouldUseIconOnlyInlineEdit<T>(
     : column.id === "name";
 }
 
+/**
+ * Derives the bulk-edit field list from a table's columns. Any column that is
+ * declaratively editable (`editable` + an `onEdit` handler) becomes a bulk-edit
+ * field, so a standard editable table gets "edit selected" for free. Select and
+ * select columns need `editOptions` to render a value picker. Boolean columns
+ * use the shared Yes/No options when no explicit options are supplied. Columns
+ * relying on a custom `renderEditor` are skipped (no generic picker exists).
+ */
+export function deriveBulkEditFields<T>(
+  columns: TableColumn<T>[],
+  enabled = true,
+): BulkEditField[] {
+  if (!enabled) return [];
+  return columns
+    .filter(
+      (column) =>
+        column.editable &&
+        typeof column.onEdit === "function" &&
+        (column.editType === "text" ||
+          column.editType === "number" ||
+          column.editType === "date" ||
+          (column.editType === "select" && Array.isArray(column.editOptions)) ||
+          column.editType === "boolean"),
+    )
+    .map((column) => {
+      const isSelect =
+        column.editType === "select" || column.editType === "boolean";
+      return {
+        id: column.id,
+        label: column.label,
+        type: isSelect ? "select" : "text",
+        options: isSelect
+          ? column.editType === "boolean"
+            ? (column.editOptions ?? BOOLEAN_EDIT_OPTIONS)
+            : column.editOptions
+          : undefined,
+        inputType:
+          column.editInputType ??
+          (column.editType === "date"
+            ? "date"
+            : column.editType === "number"
+              ? "number"
+              : "text"),
+      } satisfies BulkEditField;
+    });
+}
+
 type TableColumnAlignment = "left" | "center" | "right";
 
 const TEXT_LIKE_ALIGNMENT_PATTERN =
@@ -365,6 +441,7 @@ export interface UnifiedTableFeatures {
   enableColumnToggle?: boolean;
   enableExport?: boolean;
   enableBulkDelete?: boolean;
+  enableBulkEdit?: boolean;
   enableRowSelection?: boolean;
   enableRowActions?: boolean;
   enableColumnReorder?: boolean;
@@ -467,6 +544,25 @@ export interface UnifiedTablePageProps<T> {
     /** Called when user clicks Delete in the default row-actions menu. When provided without custom rowActions, renders a default "⋯" dropdown with View/Edit/Delete as available. */
     onDelete?: (item: T) => void;
     getRowId: (item: T) => string;
+    /**
+     * Bulk edit — update one field across every selected row at once. When
+     * omitted, the table auto-derives editable fields from columns marked
+     * `editable` with an `onEdit` handler (select/text/number/date), applying
+     * the value per-row via `column.onEdit`. Supply this to override the field
+     * list and/or provide an efficient batched write (a single UPDATE … IN).
+     */
+    bulkEdit?: {
+      fields: BulkEditField[];
+      onApply: (
+        fieldId: string,
+        value: string,
+        selectedIds: string[],
+      ) => void | Promise<void>;
+      /** Singular noun for a row (e.g. "meeting"). Defaults to "row". */
+      itemNoun?: string;
+      /** Clear the selection after a successful apply (default: true). */
+      clearSelectionOnApply?: boolean;
+    };
     onRowClick?: (item: T) => void;
     activeRowId?: string | null;
     onTableKeyDown?: (
@@ -676,6 +772,7 @@ export function UnifiedTablePage<T>({
     enableColumnToggle: features?.enableColumnToggle ?? true,
     enableExport: features?.enableExport ?? true,
     enableBulkDelete: features?.enableBulkDelete ?? true,
+    enableBulkEdit: features?.enableBulkEdit ?? true,
     enableRowSelection: features?.enableRowSelection ?? true,
     enableRowActions: features?.enableRowActions ?? true,
     enableColumnReorder: features?.enableColumnReorder ?? true,
@@ -696,7 +793,87 @@ export function UnifiedTablePage<T>({
     React.useState<SortDirection>("asc");
   // Internal pagination state — used when the parent does not supply a pagination prop
   const [internalPage, setInternalPage] = React.useState(1);
-  const [internalPerPage, setInternalPerPage] = React.useState(25);
+  const [internalPerPage, setInternalPerPage] = React.useState(
+    () => readUnifiedTablePreferences().perPage ?? 25,
+  );
+  const [paginationBehavior, setPaginationBehavior] =
+    React.useState<TablePaginationBehavior>(
+      () => readUnifiedTablePreferences().paginationBehavior ?? "pages",
+    );
+  const shouldClientPaginate =
+    pagination?.clientSide ||
+    (!pagination && resolvedFeatures.enablePagination);
+  const activePage = pagination?.page ?? internalPage;
+  const activePerPage = pagination?.perPage ?? internalPerPage;
+  const shouldContinuouslyLoad =
+    paginationBehavior === "scroll" && resolvedFeatures.enablePagination;
+  const canLoadAnotherPage =
+    shouldContinuouslyLoad &&
+    activePage <
+      (pagination?.totalPages ??
+        Math.max(1, Math.ceil(data.items.length / activePerPage)));
+  const [loadedServerItems, setLoadedServerItems] = React.useState<T[]>([]);
+  const autoLoadSentinelRef = React.useRef<HTMLDivElement | null>(null);
+  const autoLoadRequestRef = React.useRef(false);
+  const lastLoadedServerPageRef = React.useRef<{
+    page: number;
+    items: T[];
+  } | null>(null);
+  const getRowIdRef = React.useRef(table.getRowId);
+  const appliedControlledRowPreferenceRef = React.useRef(false);
+  getRowIdRef.current = table.getRowId;
+
+  // Most tables use useUnifiedTableState, which reads this preference before
+  // the first request. This covers the remaining controlled consumers so a
+  // page-local default cannot silently defeat the global row-count choice.
+  React.useEffect(() => {
+    if (!pagination || appliedControlledRowPreferenceRef.current) return;
+    appliedControlledRowPreferenceRef.current = true;
+    const preferredPerPage = readUnifiedTablePreferences().perPage;
+    if (preferredPerPage && preferredPerPage !== pagination.perPage) {
+      pagination.onPerPageChange(String(preferredPerPage));
+    }
+  }, [pagination]);
+
+  React.useEffect(() => {
+    if (
+      !shouldContinuouslyLoad ||
+      shouldClientPaginate ||
+      data.isLoading ||
+      data.isFetching
+    ) {
+      return;
+    }
+    if (
+      lastLoadedServerPageRef.current?.page === activePage &&
+      lastLoadedServerPageRef.current.items === data.items
+    ) {
+      return;
+    }
+    lastLoadedServerPageRef.current = { page: activePage, items: data.items };
+    setLoadedServerItems((previousItems) =>
+      mergeContinuousTableItems(
+        previousItems,
+        data.items,
+        getRowIdRef.current,
+        activePage === 1,
+      ),
+    );
+  }, [
+    activePage,
+    data.isFetching,
+    data.isLoading,
+    data.items,
+    shouldClientPaginate,
+    shouldContinuouslyLoad,
+  ]);
+
+  React.useEffect(() => {
+    if (!shouldContinuouslyLoad || shouldClientPaginate) {
+      setLoadedServerItems((items) => (items.length === 0 ? items : []));
+      lastLoadedServerPageRef.current = null;
+    }
+  }, [shouldClientPaginate, shouldContinuouslyLoad]);
 
   // Internal selection state — used when the parent does not supply a selection prop
   const [internalSelectedIds, setInternalSelectedIds] = React.useState<
@@ -787,6 +964,52 @@ export function UnifiedTablePage<T>({
     handleSelectAll(false);
     setBulkDeleteDialogOpen(false);
   }, [data.items, selectedIds, table, handleSelectAll]);
+
+  // ── Bulk edit ─────────────────────────────────────────────────────────────
+  const [bulkEditDialogOpen, setBulkEditDialogOpen] = React.useState(false);
+
+  // Fields the bulk-edit dialog offers. Explicit config wins; otherwise derive
+  // from declaratively-editable columns so any standard editable table gets
+  // bulk edit for free.
+  const autoBulkEditFields = React.useMemo<BulkEditField[]>(
+    () =>
+      deriveBulkEditFields(table.columns, resolvedFeatures.enableInlineEditing),
+    [table.columns, resolvedFeatures.enableInlineEditing],
+  );
+
+  const bulkEditFields = table.bulkEdit?.fields ?? autoBulkEditFields;
+  const hasBulkEdit =
+    resolvedFeatures.enableBulkEdit &&
+    hasRowSelection &&
+    bulkEditFields.length > 0;
+
+  const handleBulkEditApply = React.useCallback(
+    async (fieldId: string, value: string) => {
+      const targetIds = [...selectedIds];
+      if (targetIds.length === 0) return;
+
+      if (table.bulkEdit?.onApply) {
+        await table.bulkEdit.onApply(fieldId, value, targetIds);
+      } else {
+        const column = table.columns.find(
+          (candidate) => candidate.id === fieldId,
+        );
+        if (!column?.onEdit) return;
+        const itemsById = new Map(
+          data.items.map((item) => [table.getRowId(item), item]),
+        );
+        for (const id of targetIds) {
+          const item = itemsById.get(id);
+          if (item) await column.onEdit(item, value);
+        }
+      }
+
+      if (table.bulkEdit?.clearSelectionOnApply !== false) {
+        handleSelectAll(false);
+      }
+    },
+    [data.items, selectedIds, table, handleSelectAll],
+  );
 
   // ── Internal view state ──────────────────────────────────────────────────────
   // UnifiedTablePage owns view state internally so individual pages never need
@@ -1293,6 +1516,11 @@ export function UnifiedTablePage<T>({
     };
   }, [isSidePanelOpen, panelMounted, updatePanelTogglePosition]);
 
+  const sourceItems =
+    shouldContinuouslyLoad && !shouldClientPaginate && activePage > 1
+      ? loadedServerItems
+      : data.items;
+
   const dateRangeFilteredItems = React.useMemo(() => {
     const dateRangeFilters = effectiveToolbarFilters.filter(
       (filter) => filter.type === "dateRange",
@@ -1323,9 +1551,9 @@ export function UnifiedTablePage<T>({
         } => Boolean(filter),
       );
 
-    if (activeDateRangeFilters.length === 0) return data.items;
+    if (activeDateRangeFilters.length === 0) return sourceItems;
 
-    return data.items.filter((item) =>
+    return sourceItems.filter((item) =>
       activeDateRangeFilters.every(({ column, from, to }) => {
         const value = parseColumnDateValue(column.sortValue?.(item));
         if (value === null) return false;
@@ -1334,7 +1562,7 @@ export function UnifiedTablePage<T>({
         return true;
       }),
     );
-  }, [activeFilters, data.items, effectiveToolbarFilters, table.columns]);
+  }, [activeFilters, effectiveToolbarFilters, sourceItems, table.columns]);
 
   const sortedItems = React.useMemo(() => {
     if (!effectiveSorting?.sortBy) return dateRangeFilteredItems;
@@ -1550,18 +1778,132 @@ export function UnifiedTablePage<T>({
     table,
   ]);
 
-  // Slice client-side when: caller passes pagination.clientSide, OR no pagination prop + enablePagination.
-  const shouldClientPaginate =
-    pagination?.clientSide ||
-    (!pagination && resolvedFeatures.enablePagination);
-  const activePage = pagination?.page ?? internalPage;
-  const activePerPage = pagination?.perPage ?? internalPerPage;
-
   const paginatedItems = React.useMemo(() => {
     if (!shouldClientPaginate) return rowOrderedItems;
+    if (shouldContinuouslyLoad) {
+      return rowOrderedItems.slice(0, activePage * activePerPage);
+    }
     const start = (activePage - 1) * activePerPage;
     return rowOrderedItems.slice(start, start + activePerPage);
-  }, [shouldClientPaginate, activePage, activePerPage, rowOrderedItems]);
+  }, [
+    shouldClientPaginate,
+    shouldContinuouslyLoad,
+    activePage,
+    activePerPage,
+    rowOrderedItems,
+  ]);
+
+  const handlePageChange = React.useCallback(
+    (page: number) => {
+      if (pagination) {
+        pagination.onPageChange(page);
+      } else {
+        setInternalPage(page);
+      }
+    },
+    [pagination],
+  );
+
+  const handlePerPageChange = React.useCallback(
+    (perPage: string) => {
+      const parsed = Number(perPage);
+      if (!Number.isInteger(parsed) || parsed <= 0 || parsed > 150) return;
+      try {
+        saveUnifiedTablePreferences({ perPage: parsed });
+      } catch (error) {
+        reportNonCriticalFailure({
+          area: "unified-table-page",
+          operation: "save-row-count-preference",
+          error,
+          userVisibleFallback:
+            "Your row count preference could not be saved. The current table remains unchanged.",
+          metadata: { tableTitle: header.title, perPage: parsed },
+        });
+      }
+      if (pagination) {
+        pagination.onPerPageChange(perPage);
+      } else {
+        setInternalPerPage(parsed);
+        setInternalPage(1);
+      }
+    },
+    [header.title, pagination],
+  );
+
+  const handlePaginationBehaviorChange = React.useCallback(
+    (nextBehavior: TablePaginationBehavior) => {
+      setPaginationBehavior(nextBehavior);
+      try {
+        saveUnifiedTablePreferences({ paginationBehavior: nextBehavior });
+      } catch (error) {
+        reportNonCriticalFailure({
+          area: "unified-table-page",
+          operation: "save-pagination-behavior-preference",
+          error,
+          userVisibleFallback:
+            "Your loading preference could not be saved. The current table remains unchanged.",
+          metadata: {
+            tableTitle: header.title,
+            paginationBehavior: nextBehavior,
+          },
+        });
+      }
+      if (nextBehavior === "scroll" && activePage !== 1) {
+        setLoadedServerItems([]);
+        lastLoadedServerPageRef.current = null;
+        handlePageChange(1);
+      }
+    },
+    [activePage, handlePageChange, header.title],
+  );
+
+  React.useEffect(() => {
+    if (
+      !shouldContinuouslyLoad ||
+      data.isLoading ||
+      data.isFetching ||
+      (!shouldClientPaginate &&
+        lastLoadedServerPageRef.current?.page !== activePage)
+    ) {
+      return;
+    }
+    autoLoadRequestRef.current = false;
+  }, [
+    activePage,
+    data.isFetching,
+    data.isLoading,
+    loadedServerItems,
+    shouldClientPaginate,
+    shouldContinuouslyLoad,
+  ]);
+
+  React.useEffect(() => {
+    const sentinel = autoLoadSentinelRef.current;
+    if (!sentinel || !canLoadAnotherPage) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (
+          !entry?.isIntersecting ||
+          autoLoadRequestRef.current ||
+          data.isLoading ||
+          data.isFetching
+        ) {
+          return;
+        }
+        autoLoadRequestRef.current = true;
+        handlePageChange(activePage + 1);
+      },
+      { rootMargin: "240px 0px" },
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [
+    activePage,
+    canLoadAnotherPage,
+    data.isFetching,
+    data.isLoading,
+    handlePageChange,
+  ]);
 
   const allSelected =
     rowOrderedItems.length > 0 &&
@@ -2029,6 +2371,7 @@ export function UnifiedTablePage<T>({
       onGroupByChange={toolbar.onGroupByChange}
       onExport={effectiveOnExport}
       onBulkDelete={effectiveBulkDelete}
+      onBulkEdit={hasBulkEdit ? () => setBulkEditDialogOpen(true) : undefined}
       mobilePanelActions={toolbar.mobilePanelActions}
       customActions={toolbar.customActions}
       leftContent={toolbar.leftContent}
@@ -3258,33 +3601,73 @@ export function UnifiedTablePage<T>({
         if (!paginProps || paginProps.totalPages <= 1) return null;
         return (
           <div className="flex flex-col gap-4 items-center justify-between pt-6 md:flex-row">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span>Rows per page</span>
-              <Select
-                value={String(paginProps.perPage)}
-                onValueChange={paginProps.onPerPageChange}
-              >
-                <SelectTrigger
-                  variant="inline"
-                  size="sm"
-                  className="h-8 w-16 px-1"
+            <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <span>Rows per page</span>
+                <Select
+                  value={String(paginProps.perPage)}
+                  onValueChange={handlePerPageChange}
                 >
-                  <SelectValue placeholder={String(paginProps.perPage)} />
-                </SelectTrigger>
-                <SelectContent>
-                  {[10, 25, 50, 100, 150].map((size) => (
-                    <SelectItem key={size} value={String(size)}>
-                      {size}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                  <SelectTrigger
+                    variant="inline"
+                    size="sm"
+                    className="h-8 w-16 px-1"
+                    aria-label="Rows per page"
+                  >
+                    <SelectValue placeholder={String(paginProps.perPage)} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[10, 25, 50, 100, 150].map((size) => (
+                      <SelectItem key={size} value={String(size)}>
+                        {size}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex items-center gap-2">
+                <span>Loading</span>
+                <Select
+                  value={paginationBehavior}
+                  onValueChange={(value) =>
+                    handlePaginationBehaviorChange(
+                      value as TablePaginationBehavior,
+                    )
+                  }
+                >
+                  <SelectTrigger
+                    variant="inline"
+                    size="sm"
+                    className="h-8 min-w-36 px-1"
+                    aria-label="Table loading behavior"
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pages">Pages</SelectItem>
+                    <SelectItem value="scroll">Continue on scroll</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            <SimplePagination
-              currentPage={paginProps.page}
-              totalPages={paginProps.totalPages}
-              onPageChange={paginProps.onPageChange}
-            />
+            {paginationBehavior === "pages" ? (
+              <SimplePagination
+                currentPage={paginProps.page}
+                totalPages={paginProps.totalPages}
+                onPageChange={handlePageChange}
+              />
+            ) : (
+              <div
+                ref={autoLoadSentinelRef}
+                className="text-sm text-muted-foreground"
+              >
+                {data.isFetching
+                  ? "Loading more rows…"
+                  : canLoadAnotherPage
+                    ? "More rows load as you scroll."
+                    : "All rows loaded."}
+              </div>
+            )}
           </div>
         );
       })()}
@@ -3519,6 +3902,16 @@ export function UnifiedTablePage<T>({
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+      )}
+      {hasBulkEdit && (
+        <BulkEditDialog
+          open={bulkEditDialogOpen}
+          onOpenChange={setBulkEditDialogOpen}
+          selectedCount={selectedIds.length}
+          itemNoun={table.bulkEdit?.itemNoun}
+          fields={bulkEditFields}
+          onApply={handleBulkEditApply}
+        />
       )}
     </>
   );

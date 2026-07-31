@@ -789,7 +789,7 @@ export async function renderPdfFromHtml(
   try {
     const page = await browser.newPage();
     await page.setViewport({ width: 1280, height: 900 });
-    await page.setContent(html, { waitUntil: "networkidle0" });
+    await page.setContent(html, { waitUntil: "domcontentloaded" });
 
     // Wait for any lazy-loading images to settle before printing.
     await page.evaluate(async () => {

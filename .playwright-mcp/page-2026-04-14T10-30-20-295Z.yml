@@ -1,0 +1,1064 @@
+- generic:
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - link:
+                - /url: /
+                - img
+              - button:
+                - img
+          - generic:
+            - generic:
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - generic: Financial
+                    - generic:
+                      - link:
+                        - /url: /767/budget
+                        - generic: Budget
+                      - link:
+                        - /url: /767/prime-contracts
+                        - generic: Prime Contracts
+                      - link:
+                        - /url: /767/commitments
+                        - generic: Commitments
+                      - link:
+                        - /url: /767/change-orders
+                        - generic: Change Orders
+                      - link:
+                        - /url: /767/change-events
+                        - generic: Change Events
+                      - link:
+                        - /url: /767/direct-costs
+                        - generic: Direct Costs
+                      - link:
+                        - /url: /767/invoices
+                        - generic: Invoicing
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - generic: Operations
+                    - generic:
+                      - link:
+                        - /url: /767/directory
+                        - generic: Project Directory
+                      - link:
+                        - /url: /767/schedule
+                        - generic: Schedule
+                      - link:
+                        - /url: /767/meetings
+                        - generic: Meetings
+                      - link:
+                        - /url: /767/daily-log
+                        - generic: Daily Log
+                      - link:
+                        - /url: /767/punch-list
+                        - generic: Punch List
+                      - link:
+                        - /url: /767/rfis
+                        - generic: RFIs
+                      - link:
+                        - /url: /767/submittals
+                        - generic: Submittals
+                      - link:
+                        - /url: /767/transmittals
+                        - generic: Transmittals
+                      - link:
+                        - /url: /767/emails
+                        - generic: Emails
+                      - link:
+                        - /url: /767/photos
+                        - generic: Photos
+                      - link:
+                        - /url: /767/drawings
+                        - generic: Drawings
+                      - link:
+                        - /url: /767/specifications
+                        - generic: Specifications
+                      - link:
+                        - /url: /767/documents
+                        - generic: Documents
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - generic: Company
+                    - generic:
+                      - link:
+                        - /url: /directory/companies
+                        - generic: Company Directory
+                      - link:
+                        - /url: /767/meetings
+                        - generic: Meetings
+                      - link:
+                        - /url: /knowledge
+                        - generic: Knowledge Base
+                      - link:
+                        - /url: /ai-assistant
+                        - generic: AI Strategist
+                      - link:
+                        - /url: /767/documents
+                        - generic: Documents
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - generic: Admin
+                    - generic:
+                      - link:
+                        - /url: /settings
+                        - generic: Settings
+                      - link:
+                        - /url: /admin/company-knowledge
+                        - generic: Company Knowledge
+          - generic:
+            - list:
+              - listitem:
+                - button:
+                  - generic:
+                    - img
+          - button
+    - main:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - link:
+                  - /url: /
+                  - text: Projects
+              - generic:
+                - img
+                - link:
+                  - /url: /767/home
+                  - text: Alleato AI
+              - generic:
+                - img
+                - generic: Budget
+          - generic:
+            - button:
+              - generic: Budget
+              - img
+            - combobox:
+              - generic:
+                - generic: Alleato AI
+              - img
+            - button:
+              - img
+            - button:
+              - img
+            - link:
+              - /url: /feedback-inbox
+              - img
+            - link:
+              - /url: /annotation-inbox
+              - img
+            - button:
+              - img
+      - generic:
+        - generic:
+          - main:
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - heading [level=1]: Budget
+                      - generic:
+                        - generic:
+                          - generic:
+                            - button [expanded]:
+                              - img
+                              - text: Create
+                              - img
+                            - button:
+                              - img
+                              - generic: Lock Budget
+                            - button:
+                              - img
+                            - button:
+                              - img
+                            - button:
+                              - img
+              - generic:
+                - navigation:
+                  - generic:
+                    - generic:
+                      - button: Budget
+                      - button: Budget Details
+                      - button: Budget Modifications
+                      - button: Cost Codes
+                      - button: Forecasting
+                      - button: Project Status Snapshots
+                      - button: Change History
+                      - button: Settings
+                  - generic:
+                    - generic:
+                      - button:
+                        - img
+                        - generic: View
+                      - button:
+                        - img
+                      - button:
+                        - img
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - img
+                          - textbox:
+                            - /placeholder: Search budget codes, descriptions, vendors...
+                    - generic:
+                      - generic:
+                        - table:
+                          - rowgroup:
+                            - row:
+                              - columnheader:
+                                - generic:
+                                  - generic: Budget Code
+                                  - img
+                              - columnheader:
+                                - generic:
+                                  - generic: Vendor
+                                  - img
+                              - columnheader:
+                                - generic:
+                                  - generic: Item
+                                  - img
+                              - columnheader:
+                                - generic:
+                                  - generic: Detail Type
+                                  - img
+                              - columnheader:
+                                - generic:
+                                  - generic: Original
+                                  - img
+                              - columnheader:
+                                - generic:
+                                  - generic: Mods
+                                  - img
+                              - columnheader:
+                                - generic:
+                                  - generic: Pending
+                                  - img
+                              - columnheader:
+                                - generic:
+                                  - generic: Approved COs
+                                  - img
+                              - columnheader:
+                                - generic:
+                                  - generic: Committed
+                                  - img
+                              - columnheader:
+                                - generic:
+                                  - generic: Pending Changes
+                                  - img
+                              - columnheader:
+                                - generic:
+                                  - generic: Direct Costs
+                                  - img
+                              - columnheader:
+                                - generic:
+                                  - generic: Proj. +/-
+                                  - img
+                              - columnheader:
+                                - generic:
+                                  - generic: Forecast
+                                  - img
+                          - rowgroup:
+                            - row:
+                              - cell:
+                                - generic:
+                                  - generic: 05-4100
+                                  - generic: Structural Metal Stud Framing
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: Original Budget
+                              - cell: $0.00
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: $0.00
+                              - cell: "-"
+                            - row:
+                              - cell:
+                                - generic:
+                                  - generic: 06-1100
+                                  - generic: Wood Framing
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: Original Budget
+                              - cell: $0.00
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: $0.00
+                              - cell: "-"
+                            - row:
+                              - cell:
+                                - generic:
+                                  - generic: 01-3128
+                                  - generic: Project Manager
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: Original Budget
+                              - cell: $15,500.00
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: $15,500.00
+                              - cell: "-"
+                            - row:
+                              - cell:
+                                - generic:
+                                  - generic: 01-3120
+                                  - generic: Vice President
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: Original Budget
+                              - cell: $38,000.00
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: $38,000.00
+                              - cell: "-"
+                            - row:
+                              - cell:
+                                - generic:
+                                  - generic: 07-4113
+                                  - generic: Metal Roof Panels
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: Original Budget
+                              - cell: $52,000.00
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: $52,000.00
+                              - cell: "-"
+                            - row:
+                              - cell:
+                                - generic:
+                                  - generic: 07-1000
+                                  - generic: Dampproofing and Waterproofing
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: Original Budget
+                              - cell: $67,500.00
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: $67,500.00
+                              - cell: "-"
+                            - row:
+                              - cell:
+                                - generic:
+                                  - generic: 07-1000
+                                  - generic: Dampproofing and Waterproofing
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: Original Budget
+                              - cell: $85,000.00
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: $85,000.00
+                              - cell: "-"
+                            - row:
+                              - cell:
+                                - generic:
+                                  - generic: 07-4113
+                                  - generic: Metal Roof Panels
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: Original Budget
+                              - cell: $120,000.00
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: $120,000.00
+                              - cell: "-"
+                            - row:
+                              - cell:
+                                - generic:
+                                  - generic: 01-3120
+                                  - generic: Vice President
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: Original Budget
+                              - cell: $45,500.00
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: $45,500.00
+                              - cell: "-"
+                            - row:
+                              - cell:
+                                - generic:
+                                  - generic: 01-3126
+                                  - generic: Pre-construction
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: Original Budget
+                              - cell: $28,000.00
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: $28,000.00
+                              - cell: "-"
+                            - row:
+                              - cell:
+                                - generic:
+                                  - generic: 01-3120
+                                  - generic: Vice President
+                              - cell: "-"
+                              - cell: BM-0001 - Smoke Test Modification
+                              - cell: Budget Changes
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: $5,000.00
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: $0.00
+                              - cell: "-"
+                            - row:
+                              - cell
+                              - cell: "-"
+                              - cell: 001 - Browser Verification Test Event - EDITED
+                              - cell: Change Events
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: $0.00
+                              - cell: "-"
+                            - row:
+                              - cell
+                              - cell: "-"
+                              - cell: CE-001 - Unforeseen Rock Excavation at Grid Lines A-C
+                              - cell: Change Events
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: $0.00
+                              - cell: "-"
+                            - row:
+                              - cell
+                              - cell: "-"
+                              - cell: CE-001 - Unforeseen Rock Excavation at Grid Lines A-C
+                              - cell: Change Events
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: $0.00
+                              - cell: "-"
+                            - row:
+                              - cell
+                              - cell: "-"
+                              - cell: CE-001 - Unforeseen Rock Excavation at Grid Lines A-C
+                              - cell: Change Events
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: $0.00
+                              - cell: "-"
+                            - row:
+                              - cell
+                              - cell: "-"
+                              - cell: CE-002 - Owner-Requested Lobby Finish Upgrade
+                              - cell: Change Events
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: $0.00
+                              - cell: "-"
+                            - row:
+                              - cell
+                              - cell: "-"
+                              - cell: CE-002 - Owner-Requested Lobby Finish Upgrade
+                              - cell: Change Events
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: $0.00
+                              - cell: "-"
+                            - row:
+                              - cell
+                              - cell: "-"
+                              - cell: CE-002 - Owner-Requested Lobby Finish Upgrade
+                              - cell: Change Events
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: $0.00
+                              - cell: "-"
+                            - row:
+                              - cell
+                              - cell: "-"
+                              - cell: "CE-004 - RFI #23 — Structural Connection Detail Revision"
+                              - cell: Change Events
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: $0.00
+                              - cell: "-"
+                            - row:
+                              - cell
+                              - cell: "-"
+                              - cell: "CE-004 - RFI #23 — Structural Connection Detail Revision"
+                              - cell: Change Events
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: $0.00
+                              - cell: "-"
+                            - row:
+                              - cell
+                              - cell: "-"
+                              - cell: "CE-004 - RFI #23 — Structural Connection Detail Revision"
+                              - cell: Change Events
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: $0.00
+                              - cell: "-"
+                            - row:
+                              - cell
+                              - cell: "-"
+                              - cell: CE-006 - IT Room HVAC Supplemental Cooling
+                              - cell: Change Events
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: $0.00
+                              - cell: "-"
+                            - row:
+                              - cell
+                              - cell: "-"
+                              - cell: CE-006 - IT Room HVAC Supplemental Cooling
+                              - cell: Change Events
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: $0.00
+                              - cell: "-"
+                            - row:
+                              - cell
+                              - cell: "-"
+                              - cell: CE-006 - IT Room HVAC Supplemental Cooling
+                              - cell: Change Events
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: $0.00
+                              - cell: "-"
+                            - row:
+                              - cell
+                              - cell: "-"
+                              - cell: CE-006 - IT Room HVAC Supplemental Cooling
+                              - cell: Change Events
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: $0.00
+                              - cell: "-"
+                            - row:
+                              - cell
+                              - cell: "-"
+                              - cell: 009 - Vendor FK Collapse Demo - 360 Electric
+                              - cell: Change Events
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: $0.00
+                              - cell: "-"
+                            - row:
+                              - cell:
+                                - generic:
+                                  - generic: 8ca3dce9-3388-4f6f-a081-8f872e658aa5
+                              - cell: "-"
+                              - cell: 010 - change event test
+                              - cell: Change Events
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: $0.00
+                              - cell: "-"
+                            - row:
+                              - cell
+                              - cell: "-"
+                              - cell: 011 - Smoke Test CE - UPDATED
+                              - cell: Change Events
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: $0.00
+                              - cell: "-"
+                            - row:
+                              - cell
+                              - cell: "-"
+                              - cell: 012 - Smoke CE 1776154400 Updated
+                              - cell: Change Events
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: $0.00
+                              - cell: "-"
+                            - row:
+                              - cell:
+                                - generic:
+                                  - generic: bd81304f-a7c5-4d89-9dc7-a8ae7e9e4f11
+                              - cell: "-"
+                              - cell: CE-003 - Added Emergency Generator & Transfer Switch
+                              - cell: Change Events
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: $0.00
+                              - cell: "-"
+                            - row:
+                              - cell:
+                                - generic:
+                                  - generic: 05-4100
+                                  - generic: Forecast
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: Forecast to Complete
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: $0.00
+                              - cell: $0.00
+                            - row:
+                              - cell:
+                                - generic:
+                                  - generic: 06-1100
+                                  - generic: Forecast
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: Forecast to Complete
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: $0.00
+                              - cell: $0.00
+                            - row:
+                              - cell:
+                                - generic:
+                                  - generic: 01-3128
+                                  - generic: Forecast
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: Forecast to Complete
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: $0.00
+                              - cell: $15,500.00
+                            - row:
+                              - cell:
+                                - generic:
+                                  - generic: 01-3120
+                                  - generic: Forecast
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: Forecast to Complete
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: $0.00
+                              - cell: $88,500.00
+                            - row:
+                              - cell:
+                                - generic:
+                                  - generic: 07-4113
+                                  - generic: Forecast
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: Forecast to Complete
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: $0.00
+                              - cell: $172,000.00
+                            - row:
+                              - cell:
+                                - generic:
+                                  - generic: 07-1000
+                                  - generic: Forecast
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: Forecast to Complete
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: $0.00
+                              - cell: $152,500.00
+                            - row:
+                              - cell:
+                                - generic:
+                                  - generic: 01-3126
+                                  - generic: Forecast
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: Forecast to Complete
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: $0.00
+                              - cell: $28,000.00
+                            - row:
+                              - cell:
+                                - generic:
+                                  - generic: Forecast
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: Forecast to Complete
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: $0.00
+                              - cell: $0.00
+                            - row:
+                              - cell:
+                                - generic:
+                                  - generic: 8ca3dce9-3388-4f6f-a081-8f872e658aa5
+                                  - generic: Forecast
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: Forecast to Complete
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: $0.00
+                              - cell: $0.00
+                            - row:
+                              - cell:
+                                - generic:
+                                  - generic: bd81304f-a7c5-4d89-9dc7-a8ae7e9e4f11
+                                  - generic: Forecast
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: Forecast to Complete
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: "-"
+                              - cell: $0.00
+                              - cell: $0.00
+                    - generic:
+                      - generic:
+                        - table:
+                          - rowgroup:
+                            - row:
+                              - cell: Grand Totals
+                              - cell: $451,500.00
+                              - cell: $0.00
+                              - cell: $5,000.00
+                              - cell: $0.00
+                              - cell: $0.00
+                              - cell: $0.00
+                              - cell: $0.00
+                              - cell: $451,500.00
+                              - cell: $456,500.00
+          - generic:
+            - generic:
+              - navigation:
+                - generic:
+                  - button:
+                    - text: Admin
+                    - img
+              - paragraph: © 2026 Alleato Group. All rights reserved.
+  - region "Notifications alt+T"
+  - generic:
+    - button:
+      - img
+  - generic:
+    - button:
+      - generic: 🎨
+      - generic: "2"
+  - button "Open Next.js Dev Tools" [ref=e93] [cursor=pointer]:
+    - img [ref=e94]
+  - alert
+  - button [ref=e885] [cursor=pointer]:
+    - img [ref=e101]
+    - generic:
+      - generic:
+        - button:
+          - img
+      - generic:
+        - button:
+          - img
+      - generic:
+        - button [disabled]:
+          - img
+      - generic:
+        - button [disabled]:
+          - img
+      - button [disabled]:
+        - img
+      - generic:
+        - button [disabled]:
+          - img
+      - generic:
+        - button:
+          - img
+      - generic:
+        - button:
+          - img
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - link:
+              - /url: https://agentation.com
+              - img
+            - paragraph: v3.0.2
+            - button:
+              - generic:
+                - generic:
+                  - img
+          - generic:
+            - generic:
+              - generic:
+                - text: Output Detail
+                - generic:
+                  - img
+              - button:
+                - generic: Standard
+            - generic:
+              - generic:
+                - text: React Components
+                - generic:
+                  - img
+              - generic:
+                - checkbox [checked]
+            - generic:
+              - generic:
+                - text: Hide Until Restart
+                - generic:
+                  - img
+              - generic:
+                - checkbox
+          - generic:
+            - generic: Marker Color
+            - generic:
+              - button
+              - button
+              - button
+              - button
+              - button
+              - button
+              - button
+          - generic:
+            - generic:
+              - generic:
+                - checkbox
+                - img
+              - generic: Clear on copy/send
+              - generic:
+                - img
+            - generic:
+              - generic:
+                - checkbox
+                - img
+              - generic: Block page interactions
+          - button:
+            - generic: Manage MCP & Webhooks
+            - generic:
+              - img
+        - generic:
+          - button:
+            - img
+            - generic: Manage MCP & Webhooks
+          - generic:
+            - generic:
+              - generic:
+                - text: MCP Connection
+                - generic:
+                  - img
+            - paragraph:
+              - text: MCP connection allows agents to receive and act on annotations.
+              - link:
+                - /url: https://agentation.dev/mcp
+                - text: Learn more
+          - generic:
+            - generic:
+              - generic:
+                - text: Webhooks
+                - generic:
+                  - img
+              - generic:
+                - generic: Auto-Send
+                - generic:
+                  - checkbox [checked] [disabled]
+            - paragraph: The webhook URL will receive live annotation changes and annotation data.
+            - textbox:
+              - /placeholder: Webhook URL
+  - menu "Create" [active] [ref=e886]:
+    - menuitem "Budget Line Item" [ref=e887]
+    - menuitem "Snapshot" [ref=e888]
+    - separator [ref=e889]
+    - menuitem "Import" [ref=e890]:
+      - img
+      - text: Import

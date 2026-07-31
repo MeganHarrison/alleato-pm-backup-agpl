@@ -2,7 +2,7 @@
  * Response quality scoring for the RAG chat pipeline.
  *
  * Extracted from route.ts for independent unit-testability.
- * @see agents/alleato-assistant — production AI Assistant runtime
+ * @see frontend/src/app/api/ai-assistant/chat/route.ts — call sites
  */
 
 export type ResponseQuality = {

@@ -1,0 +1,1453 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Content Studio Management & Review Guide</title>
+    <style>
+      :root {
+        --paper: #faf6ee;
+        --paper-raised: #fffdf8;
+        --ink: #2b2926;
+        --ink-soft: #6b6660;
+        --ink-faint: #8d867d;
+        --line: rgba(43, 41, 38, 0.2);
+        --line-strong: rgba(43, 41, 38, 0.64);
+        --yellow: #f5e6a8;
+        --green: #d5e3c8;
+        --purple: #dcd3ee;
+        --pink: #f3d5d8;
+        --blue: #cfe3f0;
+        --orange: #e37b22;
+        --danger: #9f442f;
+        --focus: #315f8a;
+        --max: 1180px;
+      }
+
+      [data-theme="dark"] {
+        --paper: #1f1e1b;
+        --paper-raised: #292721;
+        --ink: #f5efe4;
+        --ink-soft: #c0b8ad;
+        --ink-faint: #979087;
+        --line: rgba(245, 239, 228, 0.16);
+        --line-strong: rgba(245, 239, 228, 0.56);
+        --yellow: #544b28;
+        --green: #344333;
+        --purple: #413852;
+        --pink: #52353a;
+        --blue: #304554;
+        --orange: #e99a55;
+        --danger: #e08b73;
+        --focus: #91bfe6;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        background: var(--paper);
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background: var(--paper);
+        font-family:
+          Inter,
+          ui-sans-serif,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        line-height: 1.55;
+      }
+
+      button,
+      input {
+        color: inherit;
+        font: inherit;
+      }
+
+      button:focus-visible,
+      a:focus-visible,
+      summary:focus-visible {
+        outline: 3px solid var(--focus);
+        outline-offset: 4px;
+      }
+
+      .skip-link {
+        position: fixed;
+        z-index: 20;
+        top: -100px;
+        left: 12px;
+        padding: 8px 12px;
+        color: var(--paper);
+        background: var(--ink);
+      }
+
+      .skip-link:focus {
+        top: 12px;
+      }
+
+      .page {
+        width: min(calc(100% - 42px), var(--max));
+        margin: 0 auto;
+        padding: 24px 0 76px;
+      }
+
+      .topbar,
+      .wordmark,
+      .top-actions,
+      .route,
+      .legend,
+      .footer {
+        display: flex;
+        align-items: center;
+      }
+
+      .topbar {
+        justify-content: space-between;
+        gap: 18px;
+        padding-bottom: 48px;
+      }
+
+      .wordmark {
+        gap: 10px;
+        font-size: 0.72rem;
+        font-weight: 800;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .wordmark-mark {
+        display: grid;
+        width: 28px;
+        height: 28px;
+        place-items: center;
+        border: 1.5px solid var(--ink);
+        border-radius: 52% 46% 50% 44%;
+        font-family: Georgia, serif;
+      }
+
+      .top-actions {
+        gap: 16px;
+      }
+
+      .quiet-button {
+        padding: 5px 1px;
+        color: var(--ink-soft);
+        background: transparent;
+        border: 0;
+        border-bottom: 1px solid var(--line);
+        cursor: pointer;
+        font-size: 0.78rem;
+      }
+
+      .quiet-button:hover {
+        color: var(--ink);
+        border-color: var(--ink);
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
+        gap: clamp(38px, 7vw, 84px);
+        align-items: end;
+        padding: 10px 0 64px;
+      }
+
+      .eyebrow,
+      .section-label,
+      .detail-kicker,
+      .micro-label {
+        color: var(--ink-soft);
+        font-size: 0.68rem;
+        font-weight: 800;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .eyebrow,
+      .section-label {
+        margin: 0 0 12px;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        max-width: 760px;
+        margin-bottom: 22px;
+        font-family: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+        font-size: clamp(3.2rem, 7vw, 6.2rem);
+        font-weight: 500;
+        letter-spacing: -0.055em;
+        line-height: 0.93;
+      }
+
+      h2 {
+        max-width: 760px;
+        margin-bottom: 14px;
+        font-family: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+        font-size: clamp(2rem, 4.2vw, 3.4rem);
+        font-weight: 500;
+        letter-spacing: -0.035em;
+        line-height: 1.02;
+      }
+
+      h3 {
+        margin-bottom: 8px;
+        font-size: 1rem;
+      }
+
+      .hero-lede,
+      .section-lede {
+        max-width: 720px;
+        margin-bottom: 0;
+        color: var(--ink-soft);
+        font-size: 1.05rem;
+      }
+
+      .field-note {
+        position: relative;
+        padding: 26px 24px 22px;
+        background: color-mix(in srgb, var(--yellow) 76%, var(--paper-raised));
+        border: 1.5px solid var(--line-strong);
+        border-radius: 8px 11px 7px 10px;
+        transform: rotate(0.5deg);
+      }
+
+      .field-note::before {
+        position: absolute;
+        top: -9px;
+        left: 50%;
+        width: 76px;
+        height: 17px;
+        background: color-mix(in srgb, var(--blue) 78%, transparent);
+        border-inline: 1px solid var(--line);
+        content: "";
+        transform: translateX(-50%) rotate(-1deg);
+      }
+
+      .field-note strong {
+        display: block;
+        margin-bottom: 9px;
+        font-family: "Iowan Old Style", Georgia, serif;
+        font-size: 1.35rem;
+      }
+
+      .field-note p {
+        margin-bottom: 14px;
+        color: var(--ink-soft);
+      }
+
+      .route {
+        gap: 8px;
+        color: var(--ink-soft);
+        font-size: 0.8rem;
+      }
+
+      code {
+        padding: 2px 5px;
+        color: var(--ink);
+        background: color-mix(in srgb, var(--paper-raised) 72%, transparent);
+        border-radius: 4px;
+        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+      }
+
+      section {
+        padding: 62px 0;
+        border-top: 1px solid var(--line);
+      }
+
+      .mental-model {
+        display: grid;
+        grid-template-columns: minmax(240px, 0.7fr) minmax(0, 1.3fr);
+        gap: clamp(34px, 6vw, 74px);
+        align-items: center;
+        margin-top: 38px;
+      }
+
+      .catalog-hub {
+        position: relative;
+        display: grid;
+        min-height: 250px;
+        place-items: center;
+      }
+
+      .hub-core {
+        display: grid;
+        width: 182px;
+        height: 182px;
+        place-items: center;
+        padding: 24px;
+        text-align: center;
+        background: color-mix(in srgb, var(--yellow) 72%, var(--paper-raised));
+        border: 2px solid var(--ink);
+        border-radius: 50% 47% 52% 46%;
+      }
+
+      .hub-core strong {
+        display: block;
+        font-family: "Iowan Old Style", Georgia, serif;
+        font-size: 1.45rem;
+        line-height: 1.05;
+      }
+
+      .hub-core span {
+        display: block;
+        margin-top: 8px;
+        color: var(--ink-soft);
+        font-size: 0.78rem;
+      }
+
+      .destinations {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .destination {
+        min-height: 112px;
+        padding: 18px;
+        border-top: 2px solid var(--ink);
+      }
+
+      .destination:nth-child(1) {
+        background: color-mix(in srgb, var(--blue) 56%, transparent);
+      }
+
+      .destination:nth-child(2) {
+        background: color-mix(in srgb, var(--green) 56%, transparent);
+      }
+
+      .destination:nth-child(3) {
+        background: color-mix(in srgb, var(--pink) 56%, transparent);
+      }
+
+      .destination:nth-child(4) {
+        background: color-mix(in srgb, var(--purple) 56%, transparent);
+      }
+
+      .destination p {
+        margin: 4px 0 0;
+        color: var(--ink-soft);
+        font-size: 0.86rem;
+      }
+
+      .model-rule {
+        grid-column: 1 / -1;
+        margin: 6px 0 0;
+        padding: 16px 0 0;
+        border-top: 1px dashed var(--line-strong);
+        color: var(--ink-soft);
+      }
+
+      .model-rule strong {
+        color: var(--ink);
+      }
+
+      .workflow-shell {
+        margin-top: 40px;
+      }
+
+      .workflow-tabs {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        border-bottom: 1.5px solid var(--line-strong);
+      }
+
+      .workflow-tab {
+        position: relative;
+        padding: 18px 12px 20px;
+        text-align: left;
+        background: transparent;
+        border: 0;
+        cursor: pointer;
+      }
+
+      .workflow-tab::after {
+        position: absolute;
+        right: -5px;
+        bottom: -5px;
+        width: 9px;
+        height: 9px;
+        background: var(--paper);
+        border-top: 1.5px solid var(--line-strong);
+        border-right: 1.5px solid var(--line-strong);
+        content: "";
+        transform: rotate(45deg);
+      }
+
+      .workflow-tab:last-child::after {
+        display: none;
+      }
+
+      .workflow-tab span {
+        display: grid;
+        width: 28px;
+        height: 28px;
+        margin-bottom: 10px;
+        place-items: center;
+        border: 1.5px solid var(--ink);
+        border-radius: 50%;
+        font-size: 0.78rem;
+        font-weight: 800;
+      }
+
+      .workflow-tab strong {
+        display: block;
+        font-size: 0.9rem;
+      }
+
+      .workflow-tab[aria-selected="true"] {
+        background: color-mix(in srgb, var(--yellow) 62%, transparent);
+      }
+
+      .workflow-detail {
+        display: grid;
+        grid-template-columns: minmax(0, 1.15fr) minmax(260px, 0.85fr);
+        gap: clamp(30px, 6vw, 72px);
+        min-height: 300px;
+        padding: 40px 0 10px;
+      }
+
+      .detail-kicker {
+        margin-bottom: 10px;
+      }
+
+      .detail-title {
+        margin-bottom: 14px;
+        font-family: "Iowan Old Style", Georgia, serif;
+        font-size: clamp(1.8rem, 3vw, 2.6rem);
+        font-weight: 500;
+        line-height: 1.05;
+      }
+
+      .detail-summary {
+        max-width: 630px;
+        color: var(--ink-soft);
+        font-size: 1rem;
+      }
+
+      .detail-actions {
+        display: grid;
+        gap: 16px;
+      }
+
+      .action-line {
+        padding-left: 16px;
+        border-left: 3px solid var(--line-strong);
+      }
+
+      .action-line.done {
+        border-color: color-mix(in srgb, var(--green) 76%, var(--ink));
+      }
+
+      .action-line.fail {
+        border-color: var(--danger);
+      }
+
+      .action-line p {
+        margin: 4px 0 0;
+        color: var(--ink-soft);
+        font-size: 0.9rem;
+      }
+
+      .creation-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 0.8fr) minmax(300px, 1.2fr);
+        gap: clamp(34px, 6vw, 72px);
+        margin-top: 38px;
+      }
+
+      .question-list {
+        display: grid;
+        gap: 8px;
+      }
+
+      .question-button {
+        padding: 15px 0;
+        text-align: left;
+        background: transparent;
+        border: 0;
+        border-bottom: 1px solid var(--line);
+        cursor: pointer;
+      }
+
+      .question-button[aria-pressed="true"] {
+        color: var(--orange);
+        border-color: var(--orange);
+      }
+
+      .recommendation {
+        min-height: 250px;
+        padding: 28px;
+        background: color-mix(in srgb, var(--blue) 56%, var(--paper-raised));
+        border: 1.5px solid var(--line-strong);
+        border-radius: 8px 11px 7px 10px;
+      }
+
+      .recommendation h3 {
+        margin: 7px 0 12px;
+        font-family: "Iowan Old Style", Georgia, serif;
+        font-size: 2rem;
+        font-weight: 500;
+      }
+
+      .recommendation p {
+        color: var(--ink-soft);
+      }
+
+      .recommendation .then {
+        margin: 22px 0 0;
+        padding-top: 17px;
+        color: var(--ink);
+        border-top: 1px dashed var(--line-strong);
+      }
+
+      .review-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0 34px;
+        margin-top: 34px;
+      }
+
+      .signal-row {
+        display: grid;
+        grid-template-columns: minmax(126px, 0.36fr) minmax(0, 0.64fr);
+        gap: 18px;
+        padding: 16px 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .signal {
+        align-self: start;
+        font-weight: 750;
+      }
+
+      .signal-row p {
+        margin: 0;
+        color: var(--ink-soft);
+        font-size: 0.88rem;
+      }
+
+      .signal-row em {
+        color: var(--ink);
+        font-style: normal;
+        font-weight: 700;
+      }
+
+      .bulk-flow {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 34px;
+      }
+
+      .bulk-step {
+        position: relative;
+        min-height: 155px;
+        padding: 18px;
+        border-top: 2px solid var(--ink);
+      }
+
+      .bulk-step:nth-child(odd) {
+        background: color-mix(in srgb, var(--green) 48%, transparent);
+      }
+
+      .bulk-step:nth-child(even) {
+        background: color-mix(in srgb, var(--yellow) 48%, transparent);
+      }
+
+      .bulk-step span {
+        display: block;
+        margin-bottom: 10px;
+        color: var(--ink-soft);
+        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+        font-size: 0.75rem;
+      }
+
+      .bulk-step p {
+        margin: 6px 0 0;
+        color: var(--ink-soft);
+        font-size: 0.86rem;
+      }
+
+      .cadence {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: clamp(28px, 5vw, 58px);
+        margin-top: 36px;
+      }
+
+      .cadence-column {
+        padding-top: 20px;
+        border-top: 2px solid var(--ink);
+      }
+
+      .checklist {
+        display: grid;
+        gap: 12px;
+        padding: 0;
+        list-style: none;
+      }
+
+      .checklist li {
+        position: relative;
+        padding-left: 30px;
+      }
+
+      .checklist li::before {
+        position: absolute;
+        top: 0.22em;
+        left: 0;
+        width: 16px;
+        height: 16px;
+        border: 1.5px solid var(--ink);
+        border-radius: 4px 3px 5px 3px;
+        content: "";
+      }
+
+      details {
+        border-bottom: 1px solid var(--line);
+      }
+
+      summary {
+        padding: 18px 0;
+        cursor: pointer;
+        font-weight: 750;
+      }
+
+      details p {
+        max-width: 760px;
+        margin: -4px 0 20px;
+        color: var(--ink-soft);
+      }
+
+      .legend {
+        flex-wrap: wrap;
+        gap: 10px 18px;
+        margin-top: 24px;
+        color: var(--ink-soft);
+        font-size: 0.78rem;
+      }
+
+      .legend span {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+      }
+
+      .legend i {
+        width: 12px;
+        height: 12px;
+        border: 1px solid var(--line-strong);
+        border-radius: 50%;
+      }
+
+      .footer {
+        justify-content: space-between;
+        gap: 24px;
+        padding-top: 28px;
+        color: var(--ink-faint);
+        border-top: 1px solid var(--line);
+        font-size: 0.75rem;
+      }
+
+      @media (max-width: 840px) {
+        .hero,
+        .mental-model,
+        .workflow-detail,
+        .creation-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .workflow-tabs {
+          grid-template-columns: 1fr;
+          border-bottom: 0;
+        }
+
+        .workflow-tab {
+          display: grid;
+          grid-template-columns: 36px 1fr;
+          gap: 8px;
+          align-items: center;
+          padding: 11px 12px;
+          border-bottom: 1px solid var(--line);
+        }
+
+        .workflow-tab span {
+          margin: 0;
+        }
+
+        .workflow-tab::after {
+          display: none;
+        }
+
+        .review-grid,
+        .bulk-flow,
+        .cadence {
+          grid-template-columns: 1fr;
+        }
+
+        .bulk-step {
+          min-height: auto;
+        }
+      }
+
+      @media (max-width: 560px) {
+        .page {
+          width: min(calc(100% - 28px), var(--max));
+          padding-top: 16px;
+        }
+
+        .topbar {
+          align-items: flex-start;
+          padding-bottom: 34px;
+        }
+
+        .top-actions {
+          align-items: flex-end;
+          flex-direction: column;
+          gap: 6px;
+        }
+
+        .hero {
+          padding-bottom: 44px;
+        }
+
+        h1 {
+          font-size: clamp(2.8rem, 15vw, 4.2rem);
+        }
+
+        section {
+          padding: 44px 0;
+        }
+
+        .destinations {
+          grid-template-columns: 1fr;
+        }
+
+        .signal-row {
+          grid-template-columns: 1fr;
+          gap: 5px;
+        }
+
+        .recommendation,
+        .field-note {
+          padding: 22px;
+        }
+
+        .footer {
+          align-items: flex-start;
+          flex-direction: column;
+          gap: 6px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+
+        *,
+        *::before,
+        *::after {
+          transition-duration: 0.01ms !important;
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+        }
+      }
+
+      @media print {
+        :root {
+          --paper: #ffffff;
+          --paper-raised: #ffffff;
+          --ink: #151515;
+          --ink-soft: #444444;
+          --line: rgba(0, 0, 0, 0.22);
+          --line-strong: rgba(0, 0, 0, 0.68);
+        }
+
+        .page {
+          width: 100%;
+          padding: 0;
+        }
+
+        .top-actions,
+        .skip-link {
+          display: none;
+        }
+
+        .topbar {
+          padding-bottom: 22px;
+        }
+
+        .hero,
+        section {
+          padding-block: 28px;
+        }
+
+        .workflow-tab[aria-selected="false"] {
+          background: transparent;
+        }
+
+        .workflow-detail {
+          min-height: 0;
+        }
+
+        .creation-grid,
+        .mental-model,
+        .review-grid,
+        .bulk-flow,
+        .cadence {
+          break-inside: avoid;
+        }
+
+        details[open] {
+          break-inside: avoid;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to guide</a>
+    <main class="page" id="main">
+      <header class="topbar">
+        <div class="wordmark">
+          <span class="wordmark-mark" aria-hidden="true">A</span>
+          <span>Alleato operating guide</span>
+        </div>
+        <div class="top-actions">
+          <button class="quiet-button" id="print-guide" type="button">
+            Print guide
+          </button>
+          <button class="quiet-button" id="theme-toggle" type="button">
+            Dark theme
+          </button>
+        </div>
+      </header>
+
+      <section class="hero" aria-labelledby="page-title">
+        <div>
+          <p class="eyebrow">For Brandon / Content operations</p>
+          <h1 id="page-title">Manage content without losing the plot.</h1>
+          <p class="hero-lede">
+            Content Studio is the control center for deciding where knowledge
+            appears, who owns it, whether it is ready, and what employees are
+            actually using.
+          </p>
+        </div>
+        <aside class="field-note" aria-label="Primary operating rule">
+          <strong>One catalog. Four destinations.</strong>
+          <p>
+            Content type explains what an item is. <b>Displayed in</b> controls
+            where employees find it. Keep those two decisions separate.
+          </p>
+          <div class="route">
+            <span>Start here</span>
+            <code>/content</code>
+          </div>
+        </aside>
+      </section>
+
+      <section aria-labelledby="mental-model-title">
+        <p class="section-label">The mental model</p>
+        <h2 id="mental-model-title">The catalog is the hub, not another library.</h2>
+        <p class="section-lede">
+          Every content item lives once in the catalog. The destination field
+          determines which employee-facing collection shows it.
+        </p>
+        <div class="mental-model">
+          <div class="catalog-hub" aria-label="One shared content catalog">
+            <div class="hub-core">
+              <div>
+                <strong>Content Studio</strong>
+                <span>One authoritative catalog</span>
+              </div>
+            </div>
+          </div>
+          <div class="destinations" aria-label="Content destinations">
+            <article class="destination">
+              <strong>Training</strong>
+              <p>Courses, onboarding, walkthroughs, and structured growth.</p>
+            </article>
+            <article class="destination">
+              <strong>Resources</strong>
+              <p>Reference material, useful links, videos, and job aids.</p>
+            </article>
+            <article class="destination">
+              <strong>SOPs</strong>
+              <p>Required procedures, operating standards, and policies.</p>
+            </article>
+            <article class="destination">
+              <strong>Documentation</strong>
+              <p>Technical guides for using the Alleato application.</p>
+            </article>
+            <p class="model-rule">
+              <strong>The tab count is inventory.</strong> Use the tabs to see
+              what is displayed in each destination. Change <b>Displayed in</b>
+              when an item belongs somewhere else; do not recreate it.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="workflow-title">
+        <p class="section-label">The operating loop</p>
+        <h2 id="workflow-title">Five decisions keep the catalog healthy.</h2>
+        <p class="section-lede">
+          Select each step. The right side tells you what success and failure
+          look like before you move on.
+        </p>
+
+        <div class="workflow-shell">
+          <div
+            class="workflow-tabs"
+            role="tablist"
+            aria-label="Content management workflow"
+          >
+            <button
+              class="workflow-tab"
+              id="workflow-tab-1"
+              role="tab"
+              aria-controls="workflow-panel"
+              aria-selected="true"
+              data-stage="0"
+              type="button"
+            >
+              <span>1</span><strong>Sort it</strong>
+            </button>
+            <button
+              class="workflow-tab"
+              id="workflow-tab-2"
+              role="tab"
+              aria-controls="workflow-panel"
+              aria-selected="false"
+              data-stage="1"
+              tabindex="-1"
+              type="button"
+            >
+              <span>2</span><strong>Own it</strong>
+            </button>
+            <button
+              class="workflow-tab"
+              id="workflow-tab-3"
+              role="tab"
+              aria-controls="workflow-panel"
+              aria-selected="false"
+              data-stage="2"
+              tabindex="-1"
+              type="button"
+            >
+              <span>3</span><strong>Review it</strong>
+            </button>
+            <button
+              class="workflow-tab"
+              id="workflow-tab-4"
+              role="tab"
+              aria-controls="workflow-panel"
+              aria-selected="false"
+              data-stage="3"
+              tabindex="-1"
+              type="button"
+            >
+              <span>4</span><strong>Publish it</strong>
+            </button>
+            <button
+              class="workflow-tab"
+              id="workflow-tab-5"
+              role="tab"
+              aria-controls="workflow-panel"
+              aria-selected="false"
+              data-stage="4"
+              tabindex="-1"
+              type="button"
+            >
+              <span>5</span><strong>Learn from it</strong>
+            </button>
+          </div>
+
+          <div
+            class="workflow-detail"
+            id="workflow-panel"
+            role="tabpanel"
+            aria-labelledby="workflow-tab-1"
+            tabindex="0"
+          >
+            <div>
+              <p class="detail-kicker" id="detail-kicker">Step 1 / Placement</p>
+              <h3 class="detail-title" id="detail-title">
+                Put the item where employees will look for it.
+              </h3>
+              <p class="detail-summary" id="detail-summary">
+                Choose the correct destination tab, then confirm the Displayed
+                in column. Placement can be changed without creating a duplicate.
+              </p>
+            </div>
+            <div class="detail-actions">
+              <div class="action-line">
+                <span class="micro-label">Do this</span>
+                <p id="detail-action">
+                  Scan the four tabs, open the relevant destination, and correct
+                  Displayed in when the item is misplaced.
+                </p>
+              </div>
+              <div class="action-line done">
+                <span class="micro-label">Done when</span>
+                <p id="detail-done">
+                  The item appears under the intended tab and exists only once.
+                </p>
+              </div>
+              <div class="action-line fail">
+                <span class="micro-label">If it fails</span>
+                <p id="detail-fail">
+                  Read the specific error, confirm your access and selected
+                  value, then retry. Do not create a replacement item.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="create-title">
+        <p class="section-label">Create the right thing</p>
+        <h2 id="create-title">Start with the employee's job, not the file format.</h2>
+        <p class="section-lede">
+          Select the question that best describes the need. Content type and
+          destination are separate decisions.
+        </p>
+
+        <div class="creation-grid">
+          <div class="question-list" aria-label="Content type decision questions">
+            <button
+              class="question-button"
+              type="button"
+              aria-pressed="true"
+              data-choice="0"
+            >
+              Is this a sequenced learning experience?
+            </button>
+            <button
+              class="question-button"
+              type="button"
+              aria-pressed="false"
+              data-choice="1"
+            >
+              Is this a how-to for using Alleato?
+            </button>
+            <button
+              class="question-button"
+              type="button"
+              aria-pressed="false"
+              data-choice="2"
+            >
+              Is this a required operating procedure or policy?
+            </button>
+            <button
+              class="question-button"
+              type="button"
+              aria-pressed="false"
+              data-choice="3"
+            >
+              Is this optional reference material or a job aid?
+            </button>
+          </div>
+
+          <aside class="recommendation" aria-live="polite">
+            <span class="micro-label">Create</span>
+            <h3 id="choice-title">Course</h3>
+            <p id="choice-summary">
+              Use a course when people should complete content in a deliberate
+              order, such as onboarding, role development, or certification.
+            </p>
+            <p class="then" id="choice-next">
+              Then set Displayed in to Training, add sections and required items,
+              assign ownership, review the complete sequence, and publish.
+            </p>
+          </aside>
+        </div>
+      </section>
+
+      <section aria-labelledby="signals-title">
+        <p class="section-label">Read the signals correctly</p>
+        <h2 id="signals-title">The table tells you what needs action next.</h2>
+        <p class="section-lede">
+          Review and engagement labels are operating signals, not decoration.
+          Use the matching action instead of guessing what the number means.
+        </p>
+
+        <div class="review-grid">
+          <div>
+            <div class="signal-row">
+              <span class="signal">Assign owner</span>
+              <p>No accountable maintainer. <em>Assign one before publishing.</em></p>
+            </div>
+            <div class="signal-row">
+              <span class="signal">Assign reviewer</span>
+              <p>No independent reviewer. <em>Assign the person who approves accuracy.</em></p>
+            </div>
+            <div class="signal-row">
+              <span class="signal">Never reviewed</span>
+              <p>Published content lacks a recorded review. <em>Review it now.</em></p>
+            </div>
+            <div class="signal-row">
+              <span class="signal">Set review date</span>
+              <p>No next checkpoint exists. <em>Choose a calendar date.</em></p>
+            </div>
+            <div class="signal-row">
+              <span class="signal">Review due</span>
+              <p>The checkpoint is today or earlier. <em>Confirm, revise, or archive.</em></p>
+            </div>
+          </div>
+          <div>
+            <div class="signal-row">
+              <span class="signal">No activity</span>
+              <p>Tracking works, but nobody has engaged yet. <em>Check relevance and promotion.</em></p>
+            </div>
+            <div class="signal-row">
+              <span class="signal">Not tracked</span>
+              <p>Usage measurement is unavailable. <em>Do not interpret this as zero use.</em></p>
+            </div>
+            <div class="signal-row">
+              <span class="signal">Viewers / watched</span>
+              <p>Durable learning activity exists. <em>Use it as evidence, not a quality score.</em></p>
+            </div>
+            <div class="signal-row">
+              <span class="signal">In review</span>
+              <p>Content is waiting for approval. <em>Resolve accuracy and ownership.</em></p>
+            </div>
+            <div class="signal-row">
+              <span class="signal">Archived</span>
+              <p>Content is intentionally retired. <em>Leave it out of active cleanup.</em></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="legend" aria-label="Signal families">
+          <span><i style="background: var(--pink)"></i>Governance gap</span>
+          <span><i style="background: var(--green)"></i>Ready or measured</span>
+          <span><i style="background: var(--yellow)"></i>Needs judgment</span>
+        </div>
+      </section>
+
+      <section aria-labelledby="bulk-title">
+        <p class="section-label">Change many items safely</p>
+        <h2 id="bulk-title">Use bulk edit for one shared decision at a time.</h2>
+        <p class="section-lede">
+          Bulk editing is for consistent governance updates, not a shortcut for
+          reviewing different content as if it were the same.
+        </p>
+
+        <div class="bulk-flow" aria-label="Bulk editing workflow">
+          <article class="bulk-step">
+            <span>01 / Isolate</span>
+            <strong>Filter first.</strong>
+            <p>Use destination, Needs attention, Ownership, Status, or Engagement.</p>
+          </article>
+          <article class="bulk-step">
+            <span>02 / Select</span>
+            <strong>Check only matching rows.</strong>
+            <p>Every selected item should need the same field change.</p>
+          </article>
+          <article class="bulk-step">
+            <span>03 / Edit</span>
+            <strong>Choose one field.</strong>
+            <p>Display area, Owner, Reviewer, or Next review date.</p>
+          </article>
+          <article class="bulk-step">
+            <span>04 / Verify</span>
+            <strong>Read the rows again.</strong>
+            <p>Confirm the count and changed value before leaving the tab.</p>
+          </article>
+        </div>
+      </section>
+
+      <section aria-labelledby="cadence-title">
+        <p class="section-label">Recommended operating rhythm</p>
+        <h2 id="cadence-title">A short routine prevents a large cleanup.</h2>
+        <div class="cadence">
+          <article class="cadence-column">
+            <p class="micro-label">Weekly / Content owner</p>
+            <h3>Clear the action queue.</h3>
+            <ul class="checklist">
+              <li>Open the saved view for Needs attention.</li>
+              <li>Assign missing owners and reviewers.</li>
+              <li>Resolve items marked Never reviewed or Review due.</li>
+              <li>Move misplaced items with Displayed in.</li>
+              <li>Review items waiting In review.</li>
+            </ul>
+          </article>
+          <article class="cadence-column">
+            <p class="micro-label">Monthly / Executive review</p>
+            <h3>Confirm the system is useful.</h3>
+            <ul class="checklist">
+              <li>Scan all four destination counts for unexpected growth.</li>
+              <li>Review published content with no activity.</li>
+              <li>Separate Not tracked from truly unused content.</li>
+              <li>Archive obsolete or duplicative material.</li>
+              <li>Confirm important training has an accountable owner.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section aria-labelledby="quality-title">
+        <p class="section-label">Before you publish</p>
+        <h2 id="quality-title">The six-point content quality check.</h2>
+        <div class="cadence">
+          <ul class="checklist">
+            <li>The title says exactly what the employee will learn or use.</li>
+            <li>The content type matches the job: course, guide, SOP, or resource.</li>
+            <li>Displayed in points to the correct employee destination.</li>
+          </ul>
+          <ul class="checklist">
+            <li>An owner and an independent reviewer are assigned.</li>
+            <li>The content opens correctly and contains no stale instructions.</li>
+            <li>A next review date is set before the status becomes Published.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section aria-labelledby="issues-title">
+        <p class="section-label">Common questions</p>
+        <h2 id="issues-title">When something does not look right.</h2>
+
+        <details>
+          <summary>Should I create a new item or move the existing one?</summary>
+          <p>
+            Move the existing item by changing Displayed in. Create a new item
+            only when the content itself is meaningfully different. The catalog
+            is designed to prevent parallel copies.
+          </p>
+        </details>
+        <details>
+          <summary>Does Not tracked mean nobody used the content?</summary>
+          <p>
+            No. It means that content's reader does not currently emit durable
+            usage events. No activity is the zero-use state for content whose
+            engagement can be measured.
+          </p>
+        </details>
+        <details>
+          <summary>What should I do if a bulk update fails?</summary>
+          <p>
+            Read the specific error, confirm the selected field, value, and your
+            administrator access, then retry. The update is atomic, so a failed
+            request does not partially change the selected catalog items.
+          </p>
+        </details>
+        <details>
+          <summary>Who should own and review content?</summary>
+          <p>
+            The owner is accountable for keeping the content current. The
+            reviewer is the independent person qualified to approve accuracy.
+            Avoid assigning both roles casually just to clear a warning.
+          </p>
+        </details>
+      </section>
+
+      <footer class="footer">
+        <span>Alleato Content Studio / Management and review field guide</span>
+        <span>Architecture snapshot / July 31, 2026</span>
+      </footer>
+    </main>
+
+    <script>
+      const stages = [
+        {
+          kicker: "Step 1 / Placement",
+          title: "Put the item where employees will look for it.",
+          summary:
+            "Choose the correct destination tab, then confirm the Displayed in column. Placement can be changed without creating a duplicate.",
+          action:
+            "Scan the four tabs, open the relevant destination, and correct Displayed in when the item is misplaced.",
+          done: "The item appears under the intended tab and exists only once.",
+          fail:
+            "Read the specific error, confirm your access and selected value, then retry. Do not create a replacement item.",
+        },
+        {
+          kicker: "Step 2 / Accountability",
+          title: "Give every active item a responsible owner and reviewer.",
+          summary:
+            "The owner maintains the content. The reviewer independently confirms that it is accurate, current, and appropriate for employees.",
+          action:
+            "Use Ownership: Unassigned or Needs attention, then assign Owner and Reviewer from the table or bulk editor.",
+          done:
+            "Active content has a named owner and an appropriate independent reviewer.",
+          fail:
+            "If the right person is missing, do not assign a substitute just to clear the signal. Resolve access or employee status first.",
+        },
+        {
+          kicker: "Step 3 / Quality",
+          title: "Review the content, not just its metadata.",
+          summary:
+            "Open the title, test the employee path, confirm accuracy, remove stale guidance, and set the next calendar review date.",
+          action:
+            "Filter Needs attention, then resolve Never reviewed, Set review date, Review due, and In review items.",
+          done:
+            "The content is accurate, the link works, the review is recorded, and the next review date is intentional.",
+          fail:
+            "Return unfinished content to Draft or keep it In review. Published is not a holding status.",
+        },
+        {
+          kicker: "Step 4 / Lifecycle",
+          title: "Publish only what employees should rely on today.",
+          summary:
+            "Status communicates whether content is being built, awaiting approval, active for employees, or intentionally retired.",
+          action:
+            "Use Draft while building, In review while approving, Published when dependable, and Archived when retired.",
+          done:
+            "The status matches the content's real readiness and the correct destination contains the active version.",
+          fail:
+            "Do not leave obsolete instructions Published. Archive them and keep one current authoritative item.",
+        },
+        {
+          kicker: "Step 5 / Evidence",
+          title: "Use engagement to ask better questions.",
+          summary:
+            "Viewer, completion, and watch activity indicate measured use. They do not prove that the content is accurate or effective by themselves.",
+          action:
+            "Filter Engagement by Has activity, No activity yet, or Not tracked and investigate the appropriate question for each state.",
+          done:
+            "Low use triggers a relevance or promotion review, while Not tracked remains explicitly unknown rather than being treated as zero.",
+          fail:
+            "Never report Not tracked as no use. Measurement must exist before engagement conclusions are valid.",
+        },
+      ];
+
+      const choices = [
+        {
+          title: "Course",
+          summary:
+            "Use a course when people should complete content in a deliberate order, such as onboarding, role development, or certification.",
+          next:
+            "Then set Displayed in to Training, add sections and required items, assign ownership, review the complete sequence, and publish.",
+        },
+        {
+          title: "Software guide",
+          summary:
+            "Use a software guide for task-based instructions on how to use the Alleato application. Keep each guide focused on one job or workflow.",
+          next:
+            "Then set Displayed in to Documentation, verify the current application steps, assign a product owner and reviewer, and schedule review after meaningful UI changes.",
+        },
+        {
+          title: "SOP or document",
+          summary:
+            "Use an SOP or document for required operating procedures, policies, standards, and authoritative company guidance.",
+          next:
+            "Keep the authoritative document in the document system, set Displayed in to SOPs, assign the process owner and approver, and control the review date.",
+        },
+        {
+          title: "Resource",
+          summary:
+            "Use a resource for optional reference material, links, videos, templates, and job aids that support work without forming a course.",
+          next:
+            "Then set Displayed in to Resources, confirm the source is trustworthy and accessible, assign an owner, and review whether employees still need it.",
+        },
+      ];
+
+      const stageButtons = Array.from(document.querySelectorAll("[data-stage]"));
+      const workflowPanel = document.getElementById("workflow-panel");
+      const detail = {
+        kicker: document.getElementById("detail-kicker"),
+        title: document.getElementById("detail-title"),
+        summary: document.getElementById("detail-summary"),
+        action: document.getElementById("detail-action"),
+        done: document.getElementById("detail-done"),
+        fail: document.getElementById("detail-fail"),
+      };
+
+      function selectStage(index, moveFocus = false) {
+        const stage = stages[index];
+        stageButtons.forEach((button, buttonIndex) => {
+          const selected = buttonIndex === index;
+          button.setAttribute("aria-selected", String(selected));
+          button.tabIndex = selected ? 0 : -1;
+          if (selected) {
+            workflowPanel.setAttribute("aria-labelledby", button.id);
+          }
+        });
+        detail.kicker.textContent = stage.kicker;
+        detail.title.textContent = stage.title;
+        detail.summary.textContent = stage.summary;
+        detail.action.textContent = stage.action;
+        detail.done.textContent = stage.done;
+        detail.fail.textContent = stage.fail;
+        if (moveFocus) stageButtons[index].focus();
+      }
+
+      stageButtons.forEach((button, index) => {
+        button.addEventListener("click", () => selectStage(index));
+        button.addEventListener("keydown", (event) => {
+          if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) {
+            return;
+          }
+          event.preventDefault();
+          let nextIndex = index;
+          if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+            nextIndex = (index + 1) % stageButtons.length;
+          }
+          if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+            nextIndex = (index - 1 + stageButtons.length) % stageButtons.length;
+          }
+          if (event.key === "Home") nextIndex = 0;
+          if (event.key === "End") nextIndex = stageButtons.length - 1;
+          selectStage(nextIndex, true);
+        });
+      });
+
+      const choiceButtons = Array.from(document.querySelectorAll("[data-choice]"));
+      const choiceTitle = document.getElementById("choice-title");
+      const choiceSummary = document.getElementById("choice-summary");
+      const choiceNext = document.getElementById("choice-next");
+
+      function selectChoice(index) {
+        const choice = choices[index];
+        choiceButtons.forEach((button, buttonIndex) => {
+          button.setAttribute("aria-pressed", String(buttonIndex === index));
+        });
+        choiceTitle.textContent = choice.title;
+        choiceSummary.textContent = choice.summary;
+        choiceNext.textContent = choice.next;
+      }
+
+      choiceButtons.forEach((button, index) => {
+        button.addEventListener("click", () => selectChoice(index));
+      });
+
+      const themeToggle = document.getElementById("theme-toggle");
+      const storedTheme = localStorage.getItem("content-studio-guide-theme");
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const initialTheme = storedTheme || (prefersDark ? "dark" : "light");
+
+      function applyTheme(theme) {
+        document.documentElement.dataset.theme = theme;
+        const nextTheme = theme === "dark" ? "light" : "dark";
+        themeToggle.textContent = `${nextTheme[0].toUpperCase()}${nextTheme.slice(1)} theme`;
+        themeToggle.setAttribute("aria-label", `Switch to ${nextTheme} theme`);
+      }
+
+      applyTheme(initialTheme);
+      themeToggle.addEventListener("click", () => {
+        const nextTheme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+        localStorage.setItem("content-studio-guide-theme", nextTheme);
+        applyTheme(nextTheme);
+      });
+
+      document.getElementById("print-guide").addEventListener("click", () => {
+        window.print();
+      });
+    </script>
+  </body>
+</html>

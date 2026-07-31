@@ -87,8 +87,11 @@ export const GET = withApiGuardrails<RouteParams>(
 // before insert, so repeat task creation against the same agenda item reuses
 // one stub forever instead of leaving orphaned document_metadata rows behind.
 //
-// The document trigger intentionally skips meeting_agenda_task rows. Reusing
-// one deterministic stub per agenda item also prevents orphan metadata rows.
+// The historical database pg_net fan-out is disabled by
+// 20260513164000_disable_db_pg_net_pipeline_blast_radius.sql, and
+// 20260701230517_skip_pipeline_trigger_for_stub_documents.sql explicitly
+// excludes terminal stub rows. Reusing one deterministic stub per agenda item
+// remains the canonical data-integrity guard against duplicate source rows.
 export const POST = withApiGuardrails<RouteParams>(
   "projects/[projectId]/meetings/[meetingId]/items/[itemId]/tasks#POST",
   async ({ request, params }) => {
@@ -173,7 +176,9 @@ export const POST = withApiGuardrails<RouteParams>(
         id: metadataId,
         title: `Meeting agenda item: ${title}`,
         type: "meeting_agenda_task",
-        // Marks the intentionally non-processable stub as terminal.
+        // Marks this non-document stub terminal. The current trigger guard
+        // excludes terminal meeting_agenda rows, and the value correctly
+        // reflects that there is no content to parse, embed, or extract.
         status: "done",
         source_system: "meeting_agenda",
         project_id: numericProjectId,

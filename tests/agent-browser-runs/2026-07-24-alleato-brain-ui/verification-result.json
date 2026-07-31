@@ -1,0 +1,71 @@
+{
+  "status": "PASS",
+  "observedStatus": "PASS",
+  "taskId": "ALL-11-BRAIN-UI",
+  "evidence": {
+    "summary": [
+      "tests/agent-browser-runs/2026-07-24-alleato-brain-ui/summary.md"
+    ],
+    "screenshots": [
+      "tests/agent-browser-runs/2026-07-24-alleato-brain-ui/screenshots/brain-files-375.png",
+      "tests/agent-browser-runs/2026-07-24-alleato-brain-ui/screenshots/brain-files-414.png",
+      "tests/agent-browser-runs/2026-07-24-alleato-brain-ui/screenshots/brain-files-768.png",
+      "tests/agent-browser-runs/2026-07-24-alleato-brain-ui/screenshots/brain-files-1024.png",
+      "tests/agent-browser-runs/2026-07-24-alleato-brain-ui/screenshots/brain-files-1440.png",
+      "tests/agent-browser-runs/2026-07-24-alleato-brain-ui/screenshots/brain-list-375.png",
+      "tests/agent-browser-runs/2026-07-24-alleato-brain-ui/screenshots/brain-list-1440.png",
+      "tests/agent-browser-runs/2026-07-24-alleato-brain-ui/screenshots/brain-finance-denied-1440.png",
+      "tests/agent-browser-runs/2026-07-24-alleato-brain-ui/screenshots/brain-external-denied-1440.png"
+    ],
+    "negativePath": [
+      "tests/agent-browser-runs/2026-07-24-alleato-brain-ui/negative-path.md"
+    ],
+    "visualReview": [
+      "tests/agent-browser-runs/2026-07-24-alleato-brain-ui/visual-review.md"
+    ],
+    "regressionTest": [
+      "tests/agent-browser-runs/2026-07-24-alleato-brain-ui/regression-test.txt"
+    ]
+  },
+  "claims": {
+    "canonical-branch-ui": {
+      "screenshots": [
+        "tests/agent-browser-runs/2026-07-24-alleato-brain-ui/screenshots/brain-list-375.png",
+        "tests/agent-browser-runs/2026-07-24-alleato-brain-ui/screenshots/brain-list-1440.png"
+      ],
+      "regressionTest": [
+        "tests/agent-browser-runs/2026-07-24-alleato-brain-ui/regression-test.txt"
+      ]
+    },
+    "finance-fail-closed": {
+      "screenshots": [
+        "tests/agent-browser-runs/2026-07-24-alleato-brain-ui/screenshots/brain-finance-denied-1440.png",
+        "tests/agent-browser-runs/2026-07-24-alleato-brain-ui/screenshots/brain-external-denied-1440.png"
+      ],
+      "negativePath": [
+        "tests/agent-browser-runs/2026-07-24-alleato-brain-ui/negative-path.md"
+      ],
+      "summary": [
+        "tests/agent-browser-runs/2026-07-24-alleato-brain-ui/summary.md"
+      ]
+    },
+    "responsive-quiet-surface": {
+      "screenshots": [
+        "tests/agent-browser-runs/2026-07-24-alleato-brain-ui/screenshots/brain-files-375.png",
+        "tests/agent-browser-runs/2026-07-24-alleato-brain-ui/screenshots/brain-files-414.png",
+        "tests/agent-browser-runs/2026-07-24-alleato-brain-ui/screenshots/brain-files-768.png",
+        "tests/agent-browser-runs/2026-07-24-alleato-brain-ui/screenshots/brain-files-1024.png",
+        "tests/agent-browser-runs/2026-07-24-alleato-brain-ui/screenshots/brain-files-1440.png"
+      ],
+      "visualReview": [
+        "tests/agent-browser-runs/2026-07-24-alleato-brain-ui/visual-review.md"
+      ]
+    }
+  },
+  "independentReview": {
+    "reviewer": "Independent Codex high-risk UI review",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-24T09:30:47Z",
+    "artifact": "tests/agent-browser-runs/2026-07-24-alleato-brain-ui/independent-review-final.md"
+  }
+}

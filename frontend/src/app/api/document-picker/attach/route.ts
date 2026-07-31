@@ -1,32 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { apiErrorResponse } from '@/lib/api-error';
 import { createClient, getApiRouteUser } from '@/lib/supabase/server';
-import type { Database } from '@/types/database.types';
 import {
   getPatternCConfig,
   resolvePatternCEntity,
   type PatternCEntityType,
-  type PatternCJunctionTable,
 } from '@/lib/documents/pattern-c-attachments';
-
-// Convenience union of all Pattern C junction table Insert types
-type JunctionInsert =
-  | Database['public']['Tables']['project_documents_v2']['Insert']
-  | Database['public']['Tables']['subcontract_documents']['Insert']
-  | Database['public']['Tables']['purchase_order_documents']['Insert']
-  | Database['public']['Tables']['prime_contract_documents']['Insert']
-  | Database['public']['Tables']['change_order_documents']['Insert']
-  | Database['public']['Tables']['commitment_change_order_documents']['Insert']
-  | Database['public']['Tables']['prime_contract_change_order_documents']['Insert']
-  | Database['public']['Tables']['prime_contract_pco_documents']['Insert']
-  | Database['public']['Tables']['change_event_documents']['Insert']
-  | Database['public']['Tables']['owner_invoice_documents']['Insert']
-  | Database['public']['Tables']['subcontractor_invoice_documents']['Insert']
-  | Database['public']['Tables']['submittal_doc_links']['Insert']
-  | Database['public']['Tables']['rfi_documents']['Insert']
-  | Database['public']['Tables']['company_documents']['Insert']
-  | Database['public']['Tables']['meeting_documents']['Insert']
-  | Database['public']['Tables']['meeting_item_documents']['Insert'];
 
 export const dynamic = 'force-dynamic';
 
@@ -122,23 +102,39 @@ export async function POST(req: NextRequest) {
     actorColumn = 'attached_by',
     supportsDocumentType = true,
   } = getPatternCConfig(resolved.entityType);
+  let attachmentActorId = user.id;
+  if (resolved.entityType === 'crm_deal') {
+    const { data: person, error: personError } = await supabase
+      .from('people')
+      .select('id')
+      .eq('auth_user_id', user.id)
+      .eq('status', 'active')
+      .maybeSingle();
+    if (personError || !person) {
+      return validationError('CRM attachment actor could not be resolved', 403);
+    }
+    attachmentActorId = person.id;
+  }
 
   const row: Record<string, unknown> = {
     [fkColumn]:             /^\d+$/.test(resolved.entityId) ? Number(resolved.entityId) : resolved.entityId,
     document_metadata_id:   documentMetadataId,
-    [actorColumn]:          user.id,
+    [actorColumn]:          attachmentActorId,
     [timestampColumn]:      new Date().toISOString(),
   };
   if (documentType && supportsDocumentType) {
     row['document_type'] = documentType;
   }
 
-  // TypeScript requires a literal table name — cast via `as` to satisfy the
-  // Supabase generic while keeping the hardcoded-map safety guarantee.
-  const { error: insertError } = await supabase
-    .from(tableName as PatternCJunctionTable)
-    // Shape is validated by the hardcoded FK_COLUMN + JUNCTION_TABLE maps above.
-    .insert(row as unknown as JunctionInsert);
+  // TypeScript can't verify a dynamically-selected table against a 16-member
+  // Insert union (postgrest-js's RejectExcessProperties can't structurally
+  // match every member at once here), so this one call drops to the
+  // untyped client. Shape is validated by the hardcoded FK_COLUMN +
+  // JUNCTION_TABLE maps above, not by the type system, for this call only.
+  const untypedDb = supabase as unknown as SupabaseClient;
+  const { error: insertError } = await untypedDb
+    .from(tableName)
+    .insert(row);
 
   if (insertError) {
     // Conflict on PK = already linked — treat as success

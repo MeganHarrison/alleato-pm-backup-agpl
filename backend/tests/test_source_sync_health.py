@@ -2,11 +2,32 @@ from datetime import datetime, timedelta, timezone
 
 import src.services.health.source_sync_health as source_sync_health_mod
 from src.services.health.source_sync_health import (
+    _sharepoint_discovery_receipt,
     get_source_sync_health,
     persist_source_sync_alerts,
     record_sync_run,
     update_sync_run,
 )
+
+
+def test_sharepoint_health_reads_latest_discovery_receipt():
+    receipt = _sharepoint_discovery_receipt(
+        [
+            {
+                "source": "microsoft_graph_source_sync",
+                "metadata": {
+                    "sharepoint_discovery": {
+                        "scope_count": 54,
+                        "bootstrap_pending_count": 51,
+                        "resource_ids": ["sharepoint:AlleatoGroup:/project"],
+                    }
+                },
+            }
+        ]
+    )
+
+    assert receipt["scope_count"] == 54
+    assert receipt["bootstrap_pending_count"] == 51
 
 
 class _Result:

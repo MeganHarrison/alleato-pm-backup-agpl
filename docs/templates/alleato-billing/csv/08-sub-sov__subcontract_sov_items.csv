@@ -1,0 +1,4 @@
+subcontract_id,line_number,sort_order,description,budget_code,project_budget_code_id,quantity,unit_cost,unit_of_measure,amount,retainage_percent,billed_to_date
+00000000-0000-0000-0000-0000000000sc,1,1,Mobilization,03-3000,,1,15000.0,LS,15000.0,10.0,0.0
+00000000-0000-0000-0000-0000000000sc,2,2,Footings and foundations,03-3000,,1,185000.0,LS,185000.0,10.0,0.0
+00000000-0000-0000-0000-0000000000sc,3,3,Slab on grade,03-3000,,62000,3.23,SF,200000.0,10.0,0.0

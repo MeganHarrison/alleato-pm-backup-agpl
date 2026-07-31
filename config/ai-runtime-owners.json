@@ -1,0 +1,221 @@
+{
+  "schema_version": 1,
+  "reviewed_at": "2026-07-24",
+  "authoritative_billing": ["OpenAI usage/cost API", "Vercel AI Gateway billing"],
+  "ledger": "RAG public.pipeline_model_usage",
+  "callsite_groups": [
+    {
+      "id": "rag-pipeline-metered",
+      "owner": "Backend AI and RAG",
+      "runtime": "Render Python",
+      "trigger": "pipeline, Graph, Fireflies, and Project Intelligence jobs",
+      "models": ["gpt-5.4", "gpt-5.4-mini", "text-embedding-3-large"],
+      "paths": [
+        "backend/src/services/pipeline/llm.py",
+        "backend/src/services/ai_transport.py",
+        "backend/src/services/intelligence/client.py",
+        "backend/src/services/integrations/microsoft_graph/embed.py",
+        "backend/src/services/ingestion/fireflies_pipeline.py"
+      ],
+      "tracking_status": "ledgered",
+      "budget_status": "env_guard",
+      "budget_env": "PIPELINE_DAILY_MODEL_BUDGET_USD",
+      "provider_policy": "gateway_required",
+      "deployment_state": "active",
+      "render_services": [
+        "alleato-backend",
+        "alleato-graph-sync",
+        "alleato-fireflies-sync",
+        "alleato-teams-dm-sync",
+        "alleato-teams-channel-sync",
+        "alleato-project-synthesis-sweep"
+      ]
+    },
+    {
+      "id": "microsoft-executive-assistant",
+      "owner": "Microsoft Executive Assistant",
+      "runtime": "Render Python cron",
+      "trigger": "*/15 * * * *",
+      "models": ["gpt-5.5"],
+      "paths": [
+        "backend/src/services/agents/runtime_common.py",
+        "backend/src/scripts/run_microsoft_executive_assistant_check.py"
+      ],
+      "tracking_status": "unmetered",
+      "budget_status": "none",
+      "provider_policy": "gateway_required",
+      "deployment_state": "suspended",
+      "render_service": "alleato-microsoft-executive-assistant-check"
+    },
+    {
+      "id": "domain-packet-compiler",
+      "owner": "Project Intelligence",
+      "runtime": "Render Python cron",
+      "trigger": "30 2,9,15,21 * * *",
+      "models": ["gpt-5.4-mini"],
+      "paths": [
+        "backend/src/services/project_intelligence/projections/domain_packets.py"
+      ],
+      "tracking_status": "unmetered",
+      "budget_status": "none",
+      "provider_policy": "gateway_required",
+      "deployment_state": "suspended",
+      "render_service": "alleato-domain-packet-compiler"
+    },
+    {
+      "id": "backend-unmetered-ai",
+      "owner": "Backend AI platform",
+      "runtime": "Render Python",
+      "trigger": "API, health, ingestion, and agent requests",
+      "models": ["multiple"],
+      "paths": [
+        "backend/src/services/ingestion/fireflies_task_rewriter.py",
+        "backend/src/services/pipeline/vision_analyzer.py",
+        "backend/src/services/agents/alleato_ai_tools/rag.py",
+        "backend/src/services/agents/alleato_ai_tools/rerank.py",
+        "backend/src/services/health/ai_provider_health.py",
+        "backend/src/services/health/rag_meeting_health.py",
+        "backend/src/api/main.py"
+      ],
+      "tracking_status": "unmetered",
+      "budget_status": "none",
+      "provider_policy": "direct_openai_blocked_or_suspended",
+      "deployment_state": "active",
+      "migration_owner": "AI spend control plane"
+    },
+    {
+      "id": "main-ai-assistant",
+      "owner": "AI Assistant",
+      "runtime": "Vercel Next.js",
+      "trigger": "authenticated user chat",
+      "models": ["multiple"],
+      "paths": [
+        "frontend/src/app/api/ai-assistant/chat/handler-v2.ts",
+        "frontend/src/lib/ai/retrieval/collection-planner.ts",
+        "frontend/src/lib/ai/retrieval/meeting-collection.ts",
+        "frontend/src/lib/ai/retrieval/collection-synthesis.ts",
+        "frontend/src/lib/ai/stream/compaction.ts",
+        "frontend/src/lib/ai/services/conversation-memory.ts",
+        "frontend/src/lib/ai/services/memory-extraction.ts",
+        "frontend/src/lib/ai/llm-judge.ts",
+        "frontend/src/lib/ai/services/agent-learning-service.ts",
+        "frontend/src/lib/ai/services/ai-memory-service.ts",
+        "frontend/src/lib/ai/services/project-intelligence-summary.ts",
+        "frontend/src/lib/ai/services/workspace-artifact-service.ts",
+        "frontend/src/lib/ai/orchestrator.ts",
+        "frontend/src/lib/ai/bot-core.ts",
+        "frontend/src/lib/ai/providers.ts",
+        "frontend/src/lib/ai/retrieval/retrieve-chunks.ts",
+        "frontend/src/lib/ai/tools/tool-utils.ts",
+        "frontend/src/lib/ai/tools/structured-output.ts",
+        "frontend/src/lib/ai/tools/request-suggestions.ts",
+        "frontend/src/lib/ai/tools/tool-context.ts",
+        "frontend/src/lib/ai/tools/read/shared-search-helpers.ts",
+        "frontend/src/lib/ai/tools/write/misc-write-tools.ts",
+        "frontend/src/lib/ai/learning-proposals/human-gated-learning.ts"
+      ],
+      "tracking_status": "partial",
+      "budget_status": "none",
+      "provider_policy": "gateway",
+      "deployment_state": "active",
+      "note": "Only final chat usage is persisted; helper generations are omitted."
+    },
+    {
+      "id": "nextjs-ai-features",
+      "owner": "Product feature owners",
+      "runtime": "Vercel Next.js",
+      "trigger": "authenticated feature requests and scheduled routes",
+      "models": ["multiple"],
+      "paths": [
+        "frontend/src/app/api/procore-docs/ask/route.ts",
+        "frontend/src/app/api/procore-docs/chat/route.ts",
+        "frontend/src/app/api/email-inbox/[emailId]/draft-reply/route.ts",
+        "frontend/src/app/api/projects/[projectId]/emails/[emailId]/summarize/route.ts",
+        "frontend/src/app/api/projects/[projectId]/meetings/[meetingId]/prep/generate/route.ts",
+        "frontend/src/app/api/projects/[projectId]/meetings/prep-suggestions/route.ts",
+        "frontend/src/lib/progress-reports/ai-generate.ts",
+        "frontend/src/lib/submittals/ai-review/review-run-service.ts",
+        "frontend/src/lib/executive/portfolio-synthesis-brief.ts",
+        "frontend/src/lib/executive/brandon-daily-update.ts",
+        "frontend/src/lib/intelligence/content-source.ts",
+        "frontend/src/lib/ai/services/autonomous-triage.ts",
+        "frontend/src/artifacts/text/server.ts"
+      ],
+      "tracking_status": "unmetered",
+      "budget_status": "none",
+      "provider_policy": "gateway",
+      "deployment_state": "active",
+      "migration_owner": "AI spend control plane"
+    },
+    {
+      "id": "site-scribe-and-speech",
+      "owner": "Site Scribe and AI Assistant",
+      "runtime": "Vercel Next.js and browser realtime",
+      "trigger": "user voice and speech requests",
+      "models": ["OpenAI Realtime", "gpt-5.4-mini", "gpt-4o-mini-tts"],
+      "paths": [
+        "frontend/src/app/api/site-scribe/realtime-session/route.ts",
+        "frontend/src/app/api/site-scribe/refine-log/route.ts",
+        "frontend/src/app/api/ai-assistant/speech/route.ts",
+        "frontend/src/app/(main)/[projectId]/daily-log/site-scribe/site-scribe-client.tsx"
+      ],
+      "tracking_status": "unmetered",
+      "budget_status": "none",
+      "provider_policy": "direct_openai_exception",
+      "deployment_state": "active",
+      "migration_owner": "AI spend control plane"
+    },
+    {
+      "id": "daily-executive-brief",
+      "owner": "Project Intelligence",
+      "runtime": "Render Node cron",
+      "trigger": "daily executive brief",
+      "models": ["gpt-5.6-terra"],
+      "paths": [
+        "project-intelligence/core/model-transport.mjs"
+      ],
+      "tracking_status": "usage_returned_not_persisted",
+      "budget_status": "none",
+      "provider_policy": "gateway_with_direct_failover",
+      "deployment_state": "active",
+      "migration_owner": "AI spend control plane"
+    },
+    {
+      "id": "eve-agents",
+      "owner": "Automation agents",
+      "runtime": "Eve/Vercel agents",
+      "trigger": "webhooks and schedules",
+      "models": ["multiple"],
+      "paths": [
+        "agents/github-issue-triage/agent/agent.ts",
+        "agents/github-pr-triage/agent/agent.ts",
+        "agents/project-intelligence-maintainer/agent/agent.ts",
+        "agents/docs-freshness-maintainer/agent/agent.ts"
+      ],
+      "tracking_status": "unmetered",
+      "budget_status": "none",
+      "provider_policy": "agent_runtime",
+      "deployment_state": "active",
+      "migration_owner": "AI spend control plane"
+    },
+    {
+      "id": "manual-ai-evaluations",
+      "owner": "AI quality engineering",
+      "runtime": "Developer or CI command",
+      "trigger": "manual evaluation or backfill",
+      "models": ["multiple"],
+      "paths": [
+        "backend/src/scripts/rag_e2e_eval.py",
+        "backend/src/scripts/backfill_tasks_quality.py",
+        "backend/src/scripts/rag_answer_eval.py",
+        "backend/src/scripts/rag_eval.py",
+        "backend/src/scripts/rag_reranker_eval.py"
+      ],
+      "tracking_status": "unmetered",
+      "budget_status": "operator_owned",
+      "provider_policy": "explicit_command",
+      "deployment_state": "manual",
+      "migration_owner": "AI spend control plane"
+    }
+  ]
+}

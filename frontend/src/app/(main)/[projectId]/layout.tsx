@@ -2,16 +2,18 @@ import { unstable_cache } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { getApiRouteUser } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import { serviceDb } from "@/lib/supabase/service-db";
 import { isOwnerEmail } from "@/lib/auth/owner";
+import { resolveProjectAccessForPerson } from "@/lib/auth/project-access";
 import { canonicalizeProjectPath } from "@/lib/page-role-access";
 
 /**
  * Cached authorization check per user+project pair.
  *
- * Access is membership-scoped for EVERYONE except the workspace owner (handled
- * in the layout below). A user may be attached to a project two ways — a direct
- * directory membership OR a project-role assignment — and either grants access.
+ * Access is project-scoped for EVERYONE except the workspace owner (handled
+ * in the layout below). A user may reach a project through an active directory
+ * membership, a project-role assignment, or a company-wide permission template.
  * This MUST stay in sync with the visibility rules in `GET /api/projects`, or a
  * project can appear in the portfolio list yet 404 when opened.
  *
@@ -50,41 +52,22 @@ function getProjectAuthorization(userId: string, projectId: number) {
         return { authorized: false, reason: "no-profile" } as const;
       }
 
-      // Active directory membership grants access and carries the permission
-      // template used by page-role policies.
-      const { data: membership } = await serviceDb.from("project_directory_memberships")
-        .select("id, permission_template_id")
-        .eq("person_id", authLink.person_id)
-        .eq("project_id", projectId)
-        .eq("status", "active")
-        .maybeSingle();
+      const access = await resolveProjectAccessForPerson(
+        createServiceClient(),
+        authLink.person_id,
+        projectId,
+      );
 
-      if (membership) {
+      if (access.authorized) {
         return {
           authorized: true,
           isAdmin,
           isDeveloper,
-          permissionTemplateId: membership.permission_template_id,
+          permissionTemplateId: access.permissionTemplateId,
         } as const;
       }
 
-      // A project-role assignment also grants access (mirrors /api/projects).
-      const { data: roleMembership } = await serviceDb.from("project_role_members")
-        .select("id, project_role:project_roles!inner(project_id)")
-        .eq("person_id", authLink.person_id)
-        .eq("project_roles.project_id", projectId)
-        .maybeSingle();
-
-      if (roleMembership) {
-        return {
-          authorized: true,
-          isAdmin,
-          isDeveloper,
-          permissionTemplateId: null,
-        } as const;
-      }
-
-      return { authorized: false, reason: "no-project-access" } as const;
+      return { authorized: false, reason: access.reason } as const;
     },
     // Cache key: unique per user + project so entries never cross-contaminate.
     [`project-auth-${userId}-${projectId}`],

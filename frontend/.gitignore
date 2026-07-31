@@ -5,3 +5,9 @@ storybook-static
 
 *storybook.log
 /.swc
+
+# This project builds and deploys with pnpm (see vercel.json + root build
+# script + packageManager field). A committed npm package-lock.json only drifts
+# from pnpm-lock.yaml and triggers ERR_PNPM_OUTDATED_LOCKFILE + merge conflicts.
+# pnpm-lock.yaml is the ONE lockfile of record; keep npm's out of the repo.
+package-lock.json

@@ -1,0 +1,89 @@
+{
+  "contractVersion": 1,
+  "taskId": "local-training-growth-contract-final",
+  "riskLevel": "high",
+  "feature": "Training Growth completed assessment contract",
+  "route": "/training/growth",
+  "flows": [
+    {
+      "name": "Authenticated assessment and save",
+      "steps": [
+        "Open the authenticated growth route",
+        "Score every skill",
+        "Enter structured evidence",
+        "Select 2–4 focus skills",
+        "Complete the 30/60/90 plan",
+        "Save the check-in"
+      ],
+      "expectedOutcome": "A completed assessment persists for the authenticated employee with the exact completed contract"
+    },
+    {
+      "name": "Reload persistence",
+      "steps": [
+        "Observe the saved history row",
+        "Reload the route",
+        "Reopen the saved history entry"
+      ],
+      "expectedOutcome": "The saved assessment remains visible after reload with structured evidence intact"
+    },
+    {
+      "name": "Fail-closed validation",
+      "steps": [
+        "Exercise invalid API payloads",
+        "Exercise unauthenticated save behavior",
+        "Exercise invalid focus/plan combinations"
+      ],
+      "expectedOutcome": "Invalid, unauthenticated, and tampered saves fail closed with specific recovery messages"
+    }
+  ],
+  "requiredEvidence": [
+    "screenshots",
+    "actionLog",
+    "databaseReadback",
+    "reloadProof",
+    "negativePath",
+    "visualReview",
+    "regressionTest"
+  ],
+  "visual": {
+    "viewports": [
+      "desktop",
+      "mobile-390x844"
+    ],
+    "checks": [
+      "One main landmark",
+      "No horizontal overflow on mobile",
+      "Primary save action remains clear"
+    ]
+  },
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "completed-assessment",
+      "description": "The completed assessment flow works in the authenticated app",
+      "evidence": [
+        { "key": "screenshots", "min": 2 },
+        { "key": "actionLog", "min": 1 },
+        { "key": "visualReview", "min": 1 }
+      ]
+    },
+    {
+      "id": "persistence-and-reload",
+      "description": "The saved assessment persists and survives reload",
+      "evidence": [
+        { "key": "databaseReadback", "min": 1 },
+        { "key": "reloadProof", "min": 1 }
+      ]
+    },
+    {
+      "id": "fail-closed-regression",
+      "description": "Invalid states fail closed and durable regression coverage exists",
+      "evidence": [
+        { "key": "negativePath", "min": 1 },
+        { "key": "regressionTest", "min": 1 }
+      ]
+    }
+  ]
+}

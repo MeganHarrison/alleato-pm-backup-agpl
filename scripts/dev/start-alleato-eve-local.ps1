@@ -44,6 +44,18 @@ if (-not $oidcLine -or $oidcLine -notmatch "^VERCEL_OIDC_TOKEN=(.*)$") {
 }
 $env:VERCEL_OIDC_TOKEN = $matches[1].Trim('"')
 
+# `vercel env pull` includes deployment-only markers. They must not leak into
+# local Next/Eve processes: Eve otherwise selects the read-only Vercel world
+# and local session requests can be redirected through deployment auth.
+foreach ($deploymentOnlyVariable in @(
+  "VERCEL",
+  "VERCEL_ENV",
+  "VERCEL_TARGET_ENV",
+  "VERCEL_URL"
+)) {
+  [Environment]::SetEnvironmentVariable($deploymentOnlyVariable, $null, "Process")
+}
+
 $secretBytes = New-Object byte[] 48
 $random = [Security.Cryptography.RandomNumberGenerator]::Create()
 $random.GetBytes($secretBytes)
@@ -52,6 +64,10 @@ $random.Dispose()
 $env:ALLEATO_EVE_PROXY_SECRET = [Convert]::ToBase64String($secretBytes)
 $env:ALLEATO_EVE_URL = "http://localhost:$EvePort"
 $env:ALLEATO_APP_URL = "http://localhost:$FrontendPort"
+# Reuse the generated local Workflow artifacts. Without this flag the
+# Workflow watcher observes Next's generated output and repeatedly rebuilds,
+# which prevents /ai from reaching a stable ready state during browser QA.
+$env:WORKFLOW_NEXT_PRIVATE_BUILT = "1"
 
 $eveOut = Join-Path $env:TEMP "alleato-assistant-eve-local.log"
 $eveErr = Join-Path $env:TEMP "alleato-assistant-eve-local.err.log"

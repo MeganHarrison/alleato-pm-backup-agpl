@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Audit: Orphaned API routes
-// Finds route.ts files under frontend/src/app/api that have no callers in frontend/src.
+// Finds route.ts files under frontend/src/app/api that have no known runtime,
+// test, automation, deployment, or published-contract owner in this repo.
 // Pure static analysis. Reports (route file, derived URL pattern) for possibly-orphaned routes.
 
 import { readdirSync, readFileSync, statSync } from "node:fs";
@@ -11,6 +12,23 @@ import { fileURLToPath } from "node:url";
 const ROOT = join(fileURLToPath(import.meta.url), "..", "..", "..");
 const SRC = join(ROOT, "frontend/src");
 const API_ROOT = join(SRC, "app/api");
+const EXTERNAL_ROUTES_PATH = join(ROOT, "scripts/audits/external-api-routes.json");
+const CALLER_ROOTS = [
+  SRC,
+  join(ROOT, "frontend/tests"),
+  join(ROOT, "scripts"),
+  join(ROOT, ".github"),
+];
+const CONTRACT_FILES = [
+  join(ROOT, "frontend/vercel.json"),
+  join(ROOT, "frontend/public/openapi.json"),
+  join(ROOT, "frontend/public/openapi.yaml"),
+  join(ROOT, "render.yaml"),
+];
+const externalRouteManifest = JSON.parse(readFileSync(EXTERNAL_ROUTES_PATH, "utf8"));
+const externalOwnershipByPath = new Map(
+  externalRouteManifest.routes.map((entry) => [entry.path, entry]),
+);
 
 function walk(dir, out = []) {
   let entries;
@@ -22,7 +40,7 @@ function walk(dir, out = []) {
   for (const ent of entries) {
     const full = join(dir, ent.name);
     if (ent.isDirectory()) {
-      if (ent.name === "node_modules" || ent.name === ".next" || ent.name === "__tests__") continue;
+      if (ent.name === "node_modules" || ent.name === ".next") continue;
       walk(full, out);
     } else if (ent.isFile()) {
       out.push(full);
@@ -33,7 +51,8 @@ function walk(dir, out = []) {
 
 function routeFileToPath(file) {
   // frontend/src/app/api/foo/[id]/bar/route.ts -> /api/foo/[id]/bar
-  const rel = relative(join(SRC, "app"), file);
+  // Normalize Windows separators before applying URL-oriented patterns.
+  const rel = relative(join(SRC, "app"), file).replaceAll("\\", "/");
   const withoutFile = rel.replace(/\/route\.ts$/, "");
   return "/" + withoutFile;
 }
@@ -46,7 +65,7 @@ function toSegments(urlPattern) {
 
 // Gather all route files
 const allFiles = walk(API_ROOT);
-const routeFiles = allFiles.filter((f) => f.endsWith("/route.ts") || f.endsWith("/route.tsx"));
+const routeFiles = allFiles.filter((f) => /[\\/]route\.tsx?$/.test(f));
 
 if (routeFiles.length === 0) {
   console.error(
@@ -55,16 +74,48 @@ if (routeFiles.length === 0) {
   process.exit(2);
 }
 
-// Gather all source files to search (excluding the route files themselves and tests)
-const allSrc = walk(SRC).filter(
+const routePatterns = new Set(routeFiles.map(routeFileToPath));
+const externalManifestPaths = externalRouteManifest.routes.map((entry) => entry.path);
+const duplicateExternalPaths = externalManifestPaths.filter(
+  (entry, index) => externalManifestPaths.indexOf(entry) !== index,
+);
+const staleExternalPaths = externalManifestPaths.filter(
+  (entry) => !routePatterns.has(entry),
+);
+const invalidExternalEntries = externalRouteManifest.routes.filter(
+  (entry) => !entry.path || !entry.owner || !entry.reason,
+);
+if (
+  duplicateExternalPaths.length > 0 ||
+  staleExternalPaths.length > 0 ||
+  invalidExternalEntries.length > 0
+) {
+  console.error("ERROR: external API ownership manifest is invalid.");
+  if (duplicateExternalPaths.length > 0) {
+    console.error(`Duplicate paths: ${[...new Set(duplicateExternalPaths)].join(", ")}`);
+  }
+  if (staleExternalPaths.length > 0) {
+    console.error(`Missing route files: ${staleExternalPaths.join(", ")}`);
+  }
+  if (invalidExternalEntries.length > 0) {
+    console.error("Every external route requires path, owner, and reason.");
+  }
+  process.exit(2);
+}
+
+// Gather runtime source plus executable tests/automation and provider-facing
+// contracts. Tests and deployment configuration are ownership evidence even
+// when a route has no browser caller.
+const callerExtensions = /\.(?:ts|tsx|js|jsx|mjs|cjs|sh|json|ya?ml)$/;
+const allSrc = [
+  ...CALLER_ROOTS.flatMap((root) => walk(root)),
+  ...CONTRACT_FILES,
+].filter(
   (f) =>
-    (f.endsWith(".ts") || f.endsWith(".tsx")) &&
+    callerExtensions.test(f) &&
     !f.endsWith(".d.ts") &&
-    !f.includes("/__tests__/") &&
-    !f.endsWith(".test.ts") &&
-    !f.endsWith(".test.tsx") &&
-    !f.endsWith(".spec.ts") &&
-    !f.endsWith(".spec.tsx")
+    !f.includes("db-inventory.generated.") &&
+    !f.includes("app-surface.generated.")
 );
 
 // Read all source file contents once (small enough)
@@ -80,10 +131,17 @@ for (const f of allSrc) {
 // For each route, build a regex and search
 const orphans = [];
 const borderline = [];
+const externallyOwned = [];
 
 for (const rf of routeFiles) {
   const urlPattern = routeFileToPath(rf); // e.g. /api/projects/[projectId]/budget
   const segments = toSegments(urlPattern); // [api, projects, [projectId], budget]
+
+  const externalOwner = externalOwnershipByPath.get(urlPattern);
+  if (externalOwner) {
+    externallyOwned.push({ route: rf, urlPattern, ...externalOwner });
+    continue;
+  }
 
   // Build regex: /api/projects/[^"'`\s]+/budget or literal segments
   // Treat [param] or [...param] as "any non-slash chunk"
@@ -143,6 +201,7 @@ console.log("=== Orphaned API routes (no callers found via static analysis) ==="
 console.log(`Total routes scanned: ${routeFiles.length}`);
 console.log(`Orphaned: ${orphans.length}`);
 console.log(`Borderline (only matched by loose segment search): ${borderline.length}`);
+console.log(`Externally owned: ${externallyOwned.length}`);
 console.log("");
 console.log("-- Orphans --");
 for (const o of orphans) {
@@ -152,6 +211,11 @@ console.log("");
 console.log("-- Borderline --");
 for (const b of borderline) {
   console.log(`${relative(ROOT, b.route)}\t${b.urlPattern}\t(loose match in ${relative(ROOT, b.witness)})`);
+}
+console.log("");
+console.log("-- Externally owned --");
+for (const entry of externallyOwned) {
+  console.log(`${relative(ROOT, entry.route)}\t${entry.urlPattern}\t(${entry.owner}: ${entry.reason})`);
 }
 
 process.exit(0);

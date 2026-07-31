@@ -1,0 +1,58 @@
+{
+  "contractVersion": 1,
+  "taskId": "LOCAL-2026-07-29-SUBCONTRACT-DOCUMENT-RLS",
+  "riskLevel": "high",
+  "feature": "Project-member document links on commitments",
+  "route": "subcontract_documents RLS boundary",
+  "flows": [
+    {
+      "name": "Link a document to a commitment",
+      "steps": [
+        "Authenticate the user",
+        "Resolve the subcontract UUID through commitments_unified",
+        "Confirm active project membership",
+        "Insert the subcontract_documents junction row"
+      ],
+      "expectedOutcome": "Active project members can link documents; anonymous users and nonmembers remain denied"
+    }
+  ],
+  "requiredEvidence": [
+    "actionLog",
+    "negativePath",
+    "regressionTest",
+    "visualReview"
+  ],
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "member-access",
+      "description": "An active Avita project member can link a document to SC-001",
+      "evidence": [
+        {
+          "key": "actionLog",
+          "min": 1
+        },
+        {
+          "key": "regressionTest",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "restricted-boundary",
+      "description": "Anonymous users and nonmembers remain denied across restrictive authenticated policies",
+      "evidence": [
+        {
+          "key": "negativePath",
+          "min": 1
+        },
+        {
+          "key": "visualReview",
+          "min": 1
+        }
+      ]
+    }
+  ]
+}

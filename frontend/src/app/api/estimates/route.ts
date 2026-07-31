@@ -1,6 +1,6 @@
 /**
  * Company-level estimates API — cross-project list
- * GET /api/estimates?type=asrs|design_build|all
+ * GET /api/estimates?type=design_build|all
  */
 
 import { withApiGuardrails } from "@/lib/guardrails/api";

@@ -1095,11 +1095,17 @@ export type Database = {
     Functions: {
       search_document_chunks: {
         Args: {
+          filter_business_area_id?: number
           filter_project_id?: number
           filter_source_types?: string[]
           match_count?: number
           match_threshold?: number
           query_embedding: unknown
+          query_signature?: string
+          query_text?: string
+          ranking_mode?: string
+          telemetry_enabled?: boolean
+          trace_id?: string
         }
         Returns: {
           chunk_id: string
@@ -1108,13 +1114,21 @@ export type Database = {
           doc_category: string
           doc_created_at: string
           doc_date: string
+          doc_business_area_id: number
           doc_metadata: Json
           doc_project_id: number
           doc_source: string
           doc_title: string
           document_id: string
+          hybrid_score: number
+          ranking_mode_used: string
+          recall_score: number
+          recency_score: number
+          score_components: Json
           similarity: number
           source_type: string
+          text_score: number
+          vector_score: number
         }[]
       }
     }

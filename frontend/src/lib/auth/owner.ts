@@ -28,3 +28,12 @@ export function isOwnerEmail(email: string | null | undefined): boolean {
   const normalized = email.trim().toLowerCase();
   return OWNER_EMAILS.some((owner) => owner.toLowerCase() === normalized);
 }
+
+/**
+ * Hidden projects remain active for linked records and AI, but are intentionally
+ * absent from the employee portfolio during the phased rollout. Megan is the
+ * only person authorized to inspect that retained portfolio state.
+ */
+export function canViewHiddenProjects(email: string | null | undefined): boolean {
+  return typeof email === "string" && email.trim().toLowerCase() === OWNER_EMAIL;
+}

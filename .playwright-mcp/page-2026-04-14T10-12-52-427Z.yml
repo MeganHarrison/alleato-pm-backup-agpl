@@ -1,0 +1,738 @@
+- generic [ref=e4]:
+  - generic [ref=e5]:
+    - generic [ref=e8]:
+      - generic [ref=e10]:
+        - link "Alleato" [ref=e11] [cursor=pointer]:
+          - /url: /
+          - img "Alleato" [ref=e12]
+        - button "Expand sidebar" [ref=e13]:
+          - img [ref=e14]
+      - generic [ref=e18]:
+        - generic [ref=e19]:
+          - button "Financial" [ref=e20]:
+            - img [ref=e21]
+          - generic:
+            - generic:
+              - generic: Financial
+              - generic:
+                - link "Budget":
+                  - /url: /767/budget
+                  - generic: Budget
+                - link "Prime Contracts":
+                  - /url: /767/prime-contracts
+                  - generic: Prime Contracts
+                - link "Commitments":
+                  - /url: /767/commitments
+                  - generic: Commitments
+                - link "Change Orders":
+                  - /url: /767/change-orders
+                  - generic: Change Orders
+                - link "Change Events":
+                  - /url: /767/change-events
+                  - generic: Change Events
+                - link "Direct Costs":
+                  - /url: /767/direct-costs
+                  - generic: Direct Costs
+                - link "Invoicing":
+                  - /url: /767/invoices
+                  - generic: Invoicing
+        - generic [ref=e23]:
+          - button "Operations" [ref=e24]:
+            - img [ref=e25]
+          - generic:
+            - generic:
+              - generic: Operations
+              - generic:
+                - link "Project Directory":
+                  - /url: /767/directory
+                  - generic: Project Directory
+                - link "Schedule":
+                  - /url: /767/schedule
+                  - generic: Schedule
+                - link "Meetings":
+                  - /url: /767/meetings
+                  - generic: Meetings
+                - link "Daily Log":
+                  - /url: /767/daily-log
+                  - generic: Daily Log
+                - link "Punch List":
+                  - /url: /767/punch-list
+                  - generic: Punch List
+                - link "RFIs":
+                  - /url: /767/rfis
+                  - generic: RFIs
+                - link "Submittals":
+                  - /url: /767/submittals
+                  - generic: Submittals
+                - link "Transmittals":
+                  - /url: /767/transmittals
+                  - generic: Transmittals
+                - link "Emails":
+                  - /url: /767/emails
+                  - generic: Emails
+                - link "Photos":
+                  - /url: /767/photos
+                  - generic: Photos
+                - link "Drawings":
+                  - /url: /767/drawings
+                  - generic: Drawings
+                - link "Specifications":
+                  - /url: /767/specifications
+                  - generic: Specifications
+                - link "Documents":
+                  - /url: /767/documents
+                  - generic: Documents
+        - generic [ref=e26]:
+          - button "Company" [ref=e27]:
+            - img [ref=e28]
+          - generic:
+            - generic:
+              - generic: Company
+              - generic:
+                - link "Company Directory":
+                  - /url: /directory/companies
+                  - generic: Company Directory
+                - link "Meetings":
+                  - /url: /767/meetings
+                  - generic: Meetings
+                - link "Knowledge Base":
+                  - /url: /knowledge
+                  - generic: Knowledge Base
+                - link "AI Strategist":
+                  - /url: /ai-assistant
+                  - generic: AI Strategist
+                - link "Documents":
+                  - /url: /767/documents
+                  - generic: Documents
+        - generic [ref=e30]:
+          - button "Admin" [ref=e31]:
+            - img [ref=e32]
+          - generic:
+            - generic:
+              - generic: Admin
+              - generic:
+                - link "Settings":
+                  - /url: /settings
+                  - generic: Settings
+                - link "Company Knowledge":
+                  - /url: /admin/company-knowledge
+                  - generic: Company Knowledge
+      - list [ref=e34]:
+        - listitem [ref=e35]:
+          - button "test1" [ref=e36]:
+            - img "test1" [ref=e38]
+      - button "Toggle Sidebar" [ref=e39]
+    - main [ref=e40]:
+      - generic [ref=e42]:
+        - generic [ref=e44]:
+          - link "Projects" [ref=e46] [cursor=pointer]:
+            - /url: /
+          - generic [ref=e47]:
+            - img [ref=e48]
+            - link "Alleato AI" [ref=e231] [cursor=pointer]:
+              - /url: /767/home
+          - generic [ref=e51]:
+            - img [ref=e52]
+            - generic [ref=e54]: Budget
+        - generic [ref=e55]:
+          - button "Budget" [ref=e56]:
+            - generic [ref=e57]: Budget
+            - img
+          - combobox [ref=e58]:
+            - generic [ref=e60]: Alleato AI
+            - img
+          - button "Comments" [ref=e61]:
+            - img
+          - button "Toggle Procore reference panel" [ref=e62]:
+            - img [ref=e63]
+          - link "Feedback inbox" [ref=e68] [cursor=pointer]:
+            - /url: /feedback-inbox
+            - img [ref=e69]
+          - link "Annotation inbox" [ref=e72] [cursor=pointer]:
+            - /url: /annotation-inbox
+            - img [ref=e73]
+          - button "Notifications" [ref=e75]:
+            - img
+      - generic [ref=e77]:
+        - main [ref=e78]:
+          - generic [ref=e79]:
+            - generic [ref=e83]:
+              - heading "Budget" [level=1] [ref=e86]
+              - generic [ref=e89]:
+                - button "Create" [ref=e90]:
+                  - img
+                  - text: Create
+                  - img
+                - button "Lock Budget" [ref=e91]:
+                  - img
+                  - generic [ref=e92]: Lock Budget
+                - button "Sync to ERP" [ref=e93]:
+                  - img
+                - button "Export" [ref=e94]:
+                  - img
+                - button [ref=e95]:
+                  - img
+            - navigation "Tabs" [ref=e97]:
+              - generic [ref=e99]:
+                - button "Budget" [ref=e100]
+                - button "Budget Details" [ref=e101]
+                - button "Budget Modifications" [ref=e102]
+                - button "Cost Codes" [ref=e103]
+                - button "Forecasting" [ref=e104]
+                - button "Project Status Snapshots" [ref=e105]
+                - button "Change History" [active] [ref=e106]
+                - button "Settings" [ref=e107]
+            - generic [ref=e2354]:
+              - generic [ref=e2355]:
+                - generic [ref=e2356]:
+                  - heading "Budget Change History" [level=2] [ref=e2357]
+                  - paragraph [ref=e2358]: Complete audit trail of all budget modifications
+                - generic [ref=e2359]:
+                  - button "Refresh" [ref=e2360]:
+                    - img
+                    - text: Refresh
+                  - button "Export Log" [ref=e2361]:
+                    - img
+                    - text: Export Log
+              - generic [ref=e2362]:
+                - generic [ref=e2363]:
+                  - generic [ref=e2364]:
+                    - generic [ref=e2365]: Total Changes
+                    - img [ref=e2366]
+                  - generic [ref=e2369]:
+                    - generic [ref=e2370]: "34"
+                    - paragraph [ref=e2371]: All time
+                - generic [ref=e2372]:
+                  - generic [ref=e2373]:
+                    - generic [ref=e2374]: This Month
+                    - img [ref=e2375]
+                  - generic [ref=e2378]:
+                    - generic [ref=e2379]: "22"
+                    - paragraph [ref=e2380]: Budget modifications
+                - generic [ref=e2381]:
+                  - generic [ref=e2382]:
+                    - generic [ref=e2383]: Last Change
+                    - img [ref=e2384]
+                  - generic [ref=e2387]:
+                    - generic [ref=e2388]: 4/12/2026
+                    - paragraph [ref=e2389]: 9:53:35 PM
+                - generic [ref=e2390]:
+                  - generic [ref=e2391]:
+                    - generic [ref=e2392]: Active Users
+                    - img [ref=e2393]
+                  - generic [ref=e2396]:
+                    - generic [ref=e2397]: "2"
+                    - paragraph [ref=e2398]: Making changes
+              - generic [ref=e2399]:
+                - generic [ref=e2400]:
+                  - generic [ref=e2401]: Change Log
+                  - generic [ref=e2402]: Detailed history of all budget line modifications
+                - generic [ref=e2404]:
+                  - generic [ref=e2406]:
+                    - generic [ref=e2407]:
+                      - generic [ref=e2408]: Megan Harrison
+                      - generic [ref=e2409]: create
+                      - generic [ref=e2410]: 06-1100 - Wood Framing
+                    - generic [ref=e2411]:
+                      - text: Changed
+                      - strong [ref=e2412]: Description
+                      - text: from (empty) to (empty)
+                    - generic [ref=e2413]: 4/12/2026, 9:53:35 PM
+                  - generic [ref=e2415]:
+                    - generic [ref=e2416]:
+                      - generic [ref=e2417]: Megan Harrison
+                      - generic [ref=e2418]: create
+                      - generic [ref=e2419]: 06-1100 - Wood Framing
+                    - generic [ref=e2420]:
+                      - text: Changed
+                      - strong [ref=e2421]: Unit Cost
+                      - text: from (empty) to (empty)
+                    - generic [ref=e2422]: 4/12/2026, 9:53:35 PM
+                  - generic [ref=e2424]:
+                    - generic [ref=e2425]:
+                      - generic [ref=e2426]: Megan Harrison
+                      - generic [ref=e2427]: create
+                      - generic [ref=e2428]: 06-1100 - Wood Framing
+                    - generic [ref=e2429]:
+                      - text: Changed
+                      - strong [ref=e2430]: Quantity
+                      - text: from (empty) to (empty)
+                    - generic [ref=e2431]: 4/12/2026, 9:53:35 PM
+                  - generic [ref=e2433]:
+                    - generic [ref=e2434]:
+                      - generic [ref=e2435]: Megan Harrison
+                      - generic [ref=e2436]: create
+                      - generic [ref=e2437]: 05-4100 - Structural Metal Stud Framing
+                    - generic [ref=e2438]:
+                      - text: Changed
+                      - strong [ref=e2439]: Quantity
+                      - text: from (empty) to (empty)
+                    - generic [ref=e2440]: 4/7/2026, 8:57:01 PM
+                  - generic [ref=e2442]:
+                    - generic [ref=e2443]:
+                      - generic [ref=e2444]: Megan Harrison
+                      - generic [ref=e2445]: create
+                      - generic [ref=e2446]: 05-4100 - Structural Metal Stud Framing
+                    - generic [ref=e2447]:
+                      - text: Changed
+                      - strong [ref=e2448]: Description
+                      - text: from (empty) to (empty)
+                    - generic [ref=e2449]: 4/7/2026, 8:57:01 PM
+                  - generic [ref=e2451]:
+                    - generic [ref=e2452]:
+                      - generic [ref=e2453]: Megan Harrison
+                      - generic [ref=e2454]: create
+                      - generic [ref=e2455]: 05-4100 - Structural Metal Stud Framing
+                    - generic [ref=e2456]:
+                      - text: Changed
+                      - strong [ref=e2457]: Unit Cost
+                      - text: from (empty) to (empty)
+                    - generic [ref=e2458]: 4/7/2026, 8:57:01 PM
+                  - generic [ref=e2460]:
+                    - generic [ref=e2461]:
+                      - generic [ref=e2462]: Unknown User
+                      - generic [ref=e2463]: create
+                      - generic [ref=e2464]: 07-1000 - Dampproofing and Waterproofing
+                    - generic [ref=e2465]: HVAC — Precision Cooling Unit
+                    - generic [ref=e2466]:
+                      - text: Changed
+                      - strong [ref=e2467]: Description
+                      - text: from (empty) to HVAC — Precision Cooling Unit
+                    - generic [ref=e2468]: 4/7/2026, 6:09:12 PM
+                  - generic [ref=e2470]:
+                    - generic [ref=e2471]:
+                      - generic [ref=e2472]: Unknown User
+                      - generic [ref=e2473]: update
+                      - generic [ref=e2474]: 07-4113 - Metal Roof Panels
+                    - generic [ref=e2475]: Server Room Build-Out Materials
+                    - generic [ref=e2476]:
+                      - text: Changed
+                      - strong [ref=e2477]: Description
+                      - text: from (empty) to Server Room Build-Out Materials
+                    - generic [ref=e2478]: 4/7/2026, 6:09:12 PM
+                  - generic [ref=e2480]:
+                    - generic [ref=e2481]:
+                      - generic [ref=e2482]: Unknown User
+                      - generic [ref=e2483]: create
+                      - generic [ref=e2484]: 01-3128 - Project Manager
+                    - generic [ref=e2485]: General Conditions & Site Overhead
+                    - generic [ref=e2486]:
+                      - text: Changed
+                      - strong [ref=e2487]: Quantity
+                      - text: from (empty) to (empty)
+                    - generic [ref=e2488]: 4/7/2026, 6:09:12 PM
+                  - generic [ref=e2490]:
+                    - generic [ref=e2491]:
+                      - generic [ref=e2492]: Unknown User
+                      - generic [ref=e2493]: create
+                      - generic [ref=e2494]: 01-3128 - Project Manager
+                    - generic [ref=e2495]: General Conditions & Site Overhead
+                    - generic [ref=e2496]:
+                      - text: Changed
+                      - strong [ref=e2497]: Unit Cost
+                      - text: from (empty) to (empty)
+                    - generic [ref=e2498]: 4/7/2026, 6:09:12 PM
+                  - generic [ref=e2500]:
+                    - generic [ref=e2501]:
+                      - generic [ref=e2502]: Unknown User
+                      - generic [ref=e2503]: create
+                      - generic [ref=e2504]: 01-3128 - Project Manager
+                    - generic [ref=e2505]: General Conditions & Site Overhead
+                    - generic [ref=e2506]:
+                      - text: Changed
+                      - strong [ref=e2507]: Description
+                      - text: from (empty) to General Conditions & Site Overhead
+                    - generic [ref=e2508]: 4/7/2026, 6:09:12 PM
+                  - generic [ref=e2510]:
+                    - generic [ref=e2511]:
+                      - generic [ref=e2512]: Unknown User
+                      - generic [ref=e2513]: create
+                      - generic [ref=e2514]: 01-3120 - Vice President
+                    - generic [ref=e2515]: Low-Voltage & Data Cabling
+                    - generic [ref=e2516]:
+                      - text: Changed
+                      - strong [ref=e2517]: Quantity
+                      - text: from (empty) to (empty)
+                    - generic [ref=e2518]: 4/7/2026, 6:09:12 PM
+                  - generic [ref=e2520]:
+                    - generic [ref=e2521]:
+                      - generic [ref=e2522]: Unknown User
+                      - generic [ref=e2523]: create
+                      - generic [ref=e2524]: 01-3120 - Vice President
+                    - generic [ref=e2525]: Low-Voltage & Data Cabling
+                    - generic [ref=e2526]:
+                      - text: Changed
+                      - strong [ref=e2527]: Unit Cost
+                      - text: from (empty) to (empty)
+                    - generic [ref=e2528]: 4/7/2026, 6:09:12 PM
+                  - generic [ref=e2530]:
+                    - generic [ref=e2531]:
+                      - generic [ref=e2532]: Unknown User
+                      - generic [ref=e2533]: create
+                      - generic [ref=e2534]: 01-3120 - Vice President
+                    - generic [ref=e2535]: Low-Voltage & Data Cabling
+                    - generic [ref=e2536]:
+                      - text: Changed
+                      - strong [ref=e2537]: Description
+                      - text: from (empty) to Low-Voltage & Data Cabling
+                    - generic [ref=e2538]: 4/7/2026, 6:09:12 PM
+                  - generic [ref=e2540]:
+                    - generic [ref=e2541]:
+                      - generic [ref=e2542]: Unknown User
+                      - generic [ref=e2543]: create
+                      - generic [ref=e2544]: 07-4113 - Metal Roof Panels
+                    - generic [ref=e2545]: Workstation & Furniture Package
+                    - generic [ref=e2546]:
+                      - text: Changed
+                      - strong [ref=e2547]: Quantity
+                      - text: from (empty) to (empty)
+                    - generic [ref=e2548]: 4/7/2026, 6:09:12 PM
+                  - generic [ref=e2550]:
+                    - generic [ref=e2551]:
+                      - generic [ref=e2552]: Unknown User
+                      - generic [ref=e2553]: create
+                      - generic [ref=e2554]: 07-4113 - Metal Roof Panels
+                    - generic [ref=e2555]: Workstation & Furniture Package
+                    - generic [ref=e2556]:
+                      - text: Changed
+                      - strong [ref=e2557]: Unit Cost
+                      - text: from (empty) to (empty)
+                    - generic [ref=e2558]: 4/7/2026, 6:09:12 PM
+                  - generic [ref=e2560]:
+                    - generic [ref=e2561]:
+                      - generic [ref=e2562]: Unknown User
+                      - generic [ref=e2563]: create
+                      - generic [ref=e2564]: 07-4113 - Metal Roof Panels
+                    - generic [ref=e2565]: Workstation & Furniture Package
+                    - generic [ref=e2566]:
+                      - text: Changed
+                      - strong [ref=e2567]: Description
+                      - text: from (empty) to Workstation & Furniture Package
+                    - generic [ref=e2568]: 4/7/2026, 6:09:12 PM
+                  - generic [ref=e2570]:
+                    - generic [ref=e2571]:
+                      - generic [ref=e2572]: Unknown User
+                      - generic [ref=e2573]: create
+                      - generic [ref=e2574]: 07-1000 - Dampproofing and Waterproofing
+                    - generic [ref=e2575]: HVAC — Precision Cooling Unit
+                    - generic [ref=e2576]:
+                      - text: Changed
+                      - strong [ref=e2577]: Quantity
+                      - text: from (empty) to (empty)
+                    - generic [ref=e2578]: 4/7/2026, 6:09:12 PM
+                  - generic [ref=e2580]:
+                    - generic [ref=e2581]:
+                      - generic [ref=e2582]: Unknown User
+                      - generic [ref=e2583]: create
+                      - generic [ref=e2584]: 07-1000 - Dampproofing and Waterproofing
+                    - generic [ref=e2585]: HVAC — Precision Cooling Unit
+                    - generic [ref=e2586]:
+                      - text: Changed
+                      - strong [ref=e2587]: Unit Cost
+                      - text: from (empty) to (empty)
+                    - generic [ref=e2588]: 4/7/2026, 6:09:12 PM
+                  - generic [ref=e2590]:
+                    - generic [ref=e2591]:
+                      - generic [ref=e2592]: Unknown User
+                      - generic [ref=e2593]: update
+                      - generic [ref=e2594]: 01-3120 - Vice President
+                    - generic [ref=e2595]: Design & Architecture Fees
+                    - generic [ref=e2596]:
+                      - text: Changed
+                      - strong [ref=e2597]: Description
+                      - text: from (empty) to Design & Architecture Fees
+                    - generic [ref=e2598]: 4/7/2026, 6:09:12 PM
+                  - generic [ref=e2600]:
+                    - generic [ref=e2601]:
+                      - generic [ref=e2602]: Unknown User
+                      - generic [ref=e2603]: update
+                      - generic [ref=e2604]: 01-3126 - Pre-construction
+                    - generic [ref=e2605]: Project Management Services
+                    - generic [ref=e2606]:
+                      - text: Changed
+                      - strong [ref=e2607]: Description
+                      - text: from (empty) to Project Management Services
+                    - generic [ref=e2608]: 4/7/2026, 6:09:12 PM
+                  - generic [ref=e2610]:
+                    - generic [ref=e2611]:
+                      - generic [ref=e2612]: Unknown User
+                      - generic [ref=e2613]: update
+                      - generic [ref=e2614]: 07-1000 - Dampproofing and Waterproofing
+                    - generic [ref=e2615]: IT Infrastructure Rough-In
+                    - generic [ref=e2616]:
+                      - text: Changed
+                      - strong [ref=e2617]: Description
+                      - text: from (empty) to IT Infrastructure Rough-In
+                    - generic [ref=e2618]: 4/7/2026, 6:09:12 PM
+                  - generic [ref=e2620]:
+                    - generic [ref=e2621]:
+                      - generic [ref=e2622]: Megan Harrison
+                      - generic [ref=e2623]: create
+                      - generic [ref=e2624]: 01-3126 - Pre-construction
+                    - generic [ref=e2625]: Project Management Services
+                    - generic [ref=e2626]:
+                      - text: Changed
+                      - strong [ref=e2627]: Quantity
+                      - text: from (empty) to 1.0000
+                    - generic [ref=e2628]: 3/8/2026, 12:24:48 AM
+                  - generic [ref=e2630]:
+                    - generic [ref=e2631]:
+                      - generic [ref=e2632]: Megan Harrison
+                      - generic [ref=e2633]: create
+                      - generic [ref=e2634]: 01-3126 - Pre-construction
+                    - generic [ref=e2635]: Project Management Services
+                    - generic [ref=e2636]:
+                      - text: Changed
+                      - strong [ref=e2637]: Unit Cost
+                      - text: from (empty) to 25000.0000
+                    - generic [ref=e2638]: 3/8/2026, 12:24:48 AM
+                  - generic [ref=e2640]:
+                    - generic [ref=e2641]:
+                      - generic [ref=e2642]: Megan Harrison
+                      - generic [ref=e2643]: create
+                      - generic [ref=e2644]: 01-3126 - Pre-construction
+                    - generic [ref=e2645]: Project Management Services
+                    - generic [ref=e2646]:
+                      - text: Changed
+                      - strong [ref=e2647]: Description
+                      - text: from (empty) to (empty)
+                    - generic [ref=e2648]: 3/8/2026, 12:24:48 AM
+                  - generic [ref=e2650]:
+                    - generic [ref=e2651]:
+                      - generic [ref=e2652]: Megan Harrison
+                      - generic [ref=e2653]: create
+                      - generic [ref=e2654]: 01-3120 - Vice President
+                    - generic [ref=e2655]: Design & Architecture Fees
+                    - generic [ref=e2656]:
+                      - text: Changed
+                      - strong [ref=e2657]: Unit Cost
+                      - text: from (empty) to 50000.0000
+                    - generic [ref=e2658]: 3/8/2026, 12:24:48 AM
+                  - generic [ref=e2660]:
+                    - generic [ref=e2661]:
+                      - generic [ref=e2662]: Megan Harrison
+                      - generic [ref=e2663]: create
+                      - generic [ref=e2664]: 01-3120 - Vice President
+                    - generic [ref=e2665]: Design & Architecture Fees
+                    - generic [ref=e2666]:
+                      - text: Changed
+                      - strong [ref=e2667]: Description
+                      - text: from (empty) to (empty)
+                    - generic [ref=e2668]: 3/8/2026, 12:24:48 AM
+                  - generic [ref=e2670]:
+                    - generic [ref=e2671]:
+                      - generic [ref=e2672]: Megan Harrison
+                      - generic [ref=e2673]: create
+                      - generic [ref=e2674]: 01-3120 - Vice President
+                    - generic [ref=e2675]: Design & Architecture Fees
+                    - generic [ref=e2676]:
+                      - text: Changed
+                      - strong [ref=e2677]: Quantity
+                      - text: from (empty) to 1.0000
+                    - generic [ref=e2678]: 3/8/2026, 12:24:48 AM
+                  - generic [ref=e2680]:
+                    - generic [ref=e2681]:
+                      - generic [ref=e2682]: Megan Harrison
+                      - generic [ref=e2683]: create
+                      - generic [ref=e2684]: 07-4113 - Metal Roof Panels
+                    - generic [ref=e2685]: Server Room Build-Out Materials
+                    - generic [ref=e2686]:
+                      - text: Changed
+                      - strong [ref=e2687]: Description
+                      - text: from (empty) to (empty)
+                    - generic [ref=e2688]: 3/8/2026, 12:24:19 AM
+                  - generic [ref=e2690]:
+                    - generic [ref=e2691]:
+                      - generic [ref=e2692]: Megan Harrison
+                      - generic [ref=e2693]: create
+                      - generic [ref=e2694]: 07-4113 - Metal Roof Panels
+                    - generic [ref=e2695]: Server Room Build-Out Materials
+                    - generic [ref=e2696]:
+                      - text: Changed
+                      - strong [ref=e2697]: Unit Cost
+                      - text: from (empty) to 1000.0000
+                    - generic [ref=e2698]: 3/8/2026, 12:24:19 AM
+                  - generic [ref=e2700]:
+                    - generic [ref=e2701]:
+                      - generic [ref=e2702]: Megan Harrison
+                      - generic [ref=e2703]: create
+                      - generic [ref=e2704]: 07-4113 - Metal Roof Panels
+                    - generic [ref=e2705]: Server Room Build-Out Materials
+                    - generic [ref=e2706]:
+                      - text: Changed
+                      - strong [ref=e2707]: Quantity
+                      - text: from (empty) to 1.0000
+                    - generic [ref=e2708]: 3/8/2026, 12:24:19 AM
+                  - generic [ref=e2710]:
+                    - generic [ref=e2711]:
+                      - generic [ref=e2712]: Megan Harrison
+                      - generic [ref=e2713]: create
+                      - generic [ref=e2714]: 07-1000 - Dampproofing and Waterproofing
+                    - generic [ref=e2715]: IT Infrastructure Rough-In
+                    - generic [ref=e2716]:
+                      - text: Changed
+                      - strong [ref=e2717]: Description
+                      - text: from (empty) to (empty)
+                    - generic [ref=e2718]: 3/8/2026, 12:24:19 AM
+                  - generic [ref=e2720]:
+                    - generic [ref=e2721]:
+                      - generic [ref=e2722]: Megan Harrison
+                      - generic [ref=e2723]: create
+                      - generic [ref=e2724]: 07-1000 - Dampproofing and Waterproofing
+                    - generic [ref=e2725]: IT Infrastructure Rough-In
+                    - generic [ref=e2726]:
+                      - text: Changed
+                      - strong [ref=e2727]: Unit Cost
+                      - text: from (empty) to 5000.0000
+                    - generic [ref=e2728]: 3/8/2026, 12:24:19 AM
+                  - generic [ref=e2730]:
+                    - generic [ref=e2731]:
+                      - generic [ref=e2732]: Megan Harrison
+                      - generic [ref=e2733]: create
+                      - generic [ref=e2734]: 07-1000 - Dampproofing and Waterproofing
+                    - generic [ref=e2735]: IT Infrastructure Rough-In
+                    - generic [ref=e2736]:
+                      - text: Changed
+                      - strong [ref=e2737]: Quantity
+                      - text: from (empty) to 1.0000
+                    - generic [ref=e2738]: 3/8/2026, 12:24:19 AM
+              - paragraph [ref=e2740]:
+                - strong [ref=e2741]: "Note:"
+                - text: All budget changes are automatically tracked and logged. This audit trail is permanent and cannot be modified to ensure data integrity.
+        - generic [ref=e197]:
+          - navigation [ref=e198]:
+            - button "Admin" [ref=e200]:
+              - text: Admin
+              - img [ref=e201]
+          - paragraph [ref=e203]: © 2026 Alleato Group. All rights reserved.
+  - region "Notifications alt+T"
+  - button "Feedback mode" [ref=e205]:
+    - img [ref=e206]
+  - button "🎨 2" [ref=e207]:
+    - generic [ref=e3]: 🎨
+    - generic [ref=e208]: "2"
+  - button "Open Next.js Dev Tools" [ref=e214] [cursor=pointer]:
+    - img [ref=e215]
+  - alert [ref=e218]
+  - button "MCP Connected v3.0.2 Output Detail Standard React Components Hide Until Restart Marker Color Clear on copy/send Block page interactions Manage MCP & Webhooks Manage MCP & Webhooks MCP Connection Connected MCP connection allows agents to receive and act on annotations. Learn more Webhooks Auto-Send The webhook URL will receive live annotation changes and annotation data." [ref=e990] [cursor=pointer]:
+    - img [ref=e222]
+    - generic:
+      - generic:
+        - button:
+          - img
+      - generic:
+        - button:
+          - img
+      - generic:
+        - button [disabled]:
+          - img
+      - generic:
+        - button [disabled]:
+          - img
+      - generic:
+        - button [disabled]:
+          - img
+      - generic:
+        - button [disabled]:
+          - img
+      - generic:
+        - button:
+          - img
+        - generic "MCP Connected"
+      - generic:
+        - button:
+          - img
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - link:
+              - /url: https://agentation.com
+              - img
+            - paragraph: v3.0.2
+            - button "Switch to light mode":
+              - generic:
+                - generic:
+                  - img
+          - generic:
+            - generic:
+              - generic:
+                - text: Output Detail
+                - generic:
+                  - img
+              - button "Standard":
+                - generic: Standard
+            - generic:
+              - generic:
+                - text: React Components
+                - generic:
+                  - img
+              - generic:
+                - checkbox [checked]
+            - generic:
+              - generic:
+                - text: Hide Until Restart
+                - generic:
+                  - img
+              - generic:
+                - checkbox
+          - generic:
+            - generic: Marker Color
+            - generic:
+              - button "Indigo"
+              - button "Blue"
+              - button "Cyan"
+              - button "Green"
+              - button "Yellow"
+              - button "Orange"
+              - button "Red"
+          - generic:
+            - generic:
+              - generic:
+                - checkbox "Clear on copy/send"
+                - img
+              - generic: Clear on copy/send
+              - generic:
+                - img
+            - generic:
+              - generic:
+                - checkbox "Block page interactions"
+                - img
+              - generic: Block page interactions
+          - button "Manage MCP & Webhooks":
+            - generic: Manage MCP & Webhooks
+            - generic:
+              - img
+        - generic:
+          - button "Manage MCP & Webhooks":
+            - img
+            - generic: Manage MCP & Webhooks
+          - generic:
+            - generic:
+              - generic:
+                - text: MCP Connection
+                - generic:
+                  - img
+              - generic "Connected"
+            - paragraph:
+              - text: MCP connection allows agents to receive and act on annotations.
+              - link "Learn more":
+                - /url: https://agentation.dev/mcp
+          - generic:
+            - generic:
+              - generic:
+                - text: Webhooks
+                - generic:
+                  - img
+              - generic:
+                - generic: Auto-Send
+                - generic:
+                  - checkbox "Auto-Send" [checked] [disabled]
+            - paragraph: The webhook URL will receive live annotation changes and annotation data.
+            - textbox "Webhook URL"
+  - generic [ref=e835]:
+    - link "Liveblocks" [ref=e836] [cursor=pointer]:
+      - /url: https://lblcks.io/badge
+      - img [ref=e837]
+    - button [ref=e845] [cursor=pointer]:
+      - img [ref=e846]

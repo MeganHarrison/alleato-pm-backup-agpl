@@ -61,6 +61,38 @@ describe("VeltAuthProvider", () => {
     expect(mockVeltProvider).not.toHaveBeenCalled();
   });
 
+  it("skips Velt without logging an error when no API key is configured", () => {
+    delete process.env.NEXT_PUBLIC_VELT_API_KEY;
+    const consoleError = jest
+      .spyOn(console, "error")
+      .mockImplementation(() => undefined);
+
+    render(
+      <VeltAuthProvider>
+        <div>Applicant Tracker</div>
+      </VeltAuthProvider>,
+    );
+
+    expect(screen.getByText("Applicant Tracker")).toBeInTheDocument();
+    expect(mockVeltProvider).not.toHaveBeenCalled();
+    expect(consoleError).not.toHaveBeenCalled();
+
+    consoleError.mockRestore();
+  });
+
+  it("treats a whitespace-only API key as unconfigured", () => {
+    process.env.NEXT_PUBLIC_VELT_API_KEY = "   ";
+
+    render(
+      <VeltAuthProvider>
+        <div>Applicant Tracker</div>
+      </VeltAuthProvider>,
+    );
+
+    expect(screen.getByText("Applicant Tracker")).toBeInTheDocument();
+    expect(mockVeltProvider).not.toHaveBeenCalled();
+  });
+
   it("mounts Velt once the authenticated profile is available", () => {
     mockIsLoading = false;
     mockProfile = {

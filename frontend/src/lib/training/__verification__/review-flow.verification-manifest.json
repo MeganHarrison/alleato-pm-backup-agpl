@@ -1,0 +1,97 @@
+{
+  "contractVersion": 1,
+  "taskId": "ALL-24",
+  "riskLevel": "high",
+  "feature": "Training resource reviewer and publish flow",
+  "route": "/training/review",
+  "flows": [
+    {
+      "name": "Gate the review queue",
+      "steps": [
+        "Open /training/review as an ordinary authenticated user",
+        "Open /training/review as an active app admin",
+        "Compare the visible navigation and queue data"
+      ],
+      "expectedOutcome": "The ordinary user is denied before review data loads; the app admin sees the contextual Review queue action and pending queue."
+    },
+    {
+      "name": "Publish or archive a pending resource",
+      "steps": [
+        "Open and inspect a pending source",
+        "Submit Publish or Archive",
+        "Refresh the reviewer queue and learner library"
+      ],
+      "expectedOutcome": "Only review rows are decided, audit fields are recorded, stale decisions fail loudly, and published rows become learner-visible."
+    }
+  ],
+  "requiredEvidence": [
+    "actionLog",
+    "databaseReadback",
+    "regressionTest",
+    "visualReview"
+  ],
+  "visual": {
+    "viewports": [
+      "desktop",
+      "mobile"
+    ],
+    "checks": [
+      "The review queue is a plain resource list with no wrapper panels or KPI cards.",
+      "Publish is the primary action and Archive remains clearly secondary.",
+      "The empty queue and decision result are explicit at desktop and mobile widths."
+    ]
+  },
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "reviewer-permission-boundary",
+      "description": "Only app admins can read or decide pending training resources.",
+      "evidence": [
+        {
+          "key": "databaseReadback",
+          "min": 1
+        },
+        {
+          "key": "regressionTest",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "review-only-audited-decision",
+      "description": "Publish/archive decisions compare-and-set review rows and write audit fields without silently overwriting stale state.",
+      "evidence": [
+        {
+          "key": "databaseReadback",
+          "min": 1
+        },
+        {
+          "key": "regressionTest",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "production-review-surface",
+      "description": "The reviewer route is responsive, quiet, and failure-loud.",
+      "evidence": [
+        {
+          "key": "visualReview",
+          "min": 2
+        }
+      ]
+    },
+    {
+      "id": "independent-review",
+      "description": "An independent reviewer approves the permission and stale-write boundary.",
+      "evidence": [
+        {
+          "key": "visualReview",
+          "min": 1
+        }
+      ]
+    }
+  ]
+}

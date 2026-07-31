@@ -79,22 +79,6 @@ export const tasksFilters: FilterConfig[] = [
       { value: "Complete", label: "complete" },
     ],
   },
-  {
-    id: "priority",
-    label: "Priority",
-    type: "select" as const,
-    options: [
-      { value: "low", label: "Low" },
-      { value: "medium", label: "Medium" },
-      { value: "high", label: "High" },
-      { value: "urgent", label: "Urgent" },
-    ],
-  },
-  {
-    id: "due_date",
-    label: "Due date",
-    type: "dateRange" as const,
-  },
 ];
 
 export function buildTasksFilters(items: TasksRow[]): FilterConfig[] {

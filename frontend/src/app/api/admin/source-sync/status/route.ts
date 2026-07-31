@@ -238,7 +238,7 @@ async function buildRagLifecycleStatus(
 
   const chunkRows: Array<{ document_id: string; source_type: string | null; updated_at: string | null }> = [];
   const taskRows: Array<{
-    metadata_id: string;
+    metadata_id: string | null;
     project_id: number | null;
     created_at: string;
   }> = [];
@@ -258,7 +258,7 @@ async function buildRagLifecycleStatus(
           .not("embedding", "is", null)
           .limit(1000),
       ),
-      readSupabaseRows<{ metadata_id: string; project_id: number | null; created_at: string }>("extracted tasks", () =>
+      readSupabaseRows<{ metadata_id: string | null; project_id: number | null; created_at: string }>("extracted tasks", () =>
         serviceDb.from("tasks")
           .select("metadata_id,source_system,project_id,created_at")
           .in("metadata_id", batch)
@@ -317,7 +317,11 @@ async function buildRagLifecycleStatus(
       .filter((row) => row.source_type === "meeting_transcript")
       .map((row) => row.document_id),
   );
-  const taskIds = new Set(taskRows.map((row) => row.metadata_id));
+  const taskIds = new Set(
+    taskRows
+      .map((row) => row.metadata_id)
+      .filter((id): id is string => id !== null),
+  );
   const jobMetadataByDocumentId = latestJobMetadataByDocumentId(jobRows);
   const evidenceIds = new Set(
     evidenceRows
@@ -394,7 +398,7 @@ async function buildRagLifecycleStatus(
     );
     const latestTaskAt = newest(
       [
-        ...taskRows.filter((row) => ids.has(row.metadata_id)).map((row) => row.created_at),
+        ...taskRows.filter((row) => row.metadata_id !== null && ids.has(row.metadata_id)).map((row) => row.created_at),
         ...familyRows
           .filter((row) => hasTaskExtractionOutcome(row.id, taskIds, jobMetadataByDocumentId))
           .map((row) => jobMetadataByDocumentId.get(row.id)?._updated_at as string | undefined),

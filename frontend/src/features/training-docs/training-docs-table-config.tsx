@@ -14,6 +14,7 @@ import {
 import {
   getPublishedTrainingDocUrl,
   TRAINING_DOC_AUDIENCES,
+  TRAINING_DOC_QA_STATUSES,
   TRAINING_DOC_STATUSES,
 } from "@/lib/training-docs/constants";
 import type { TrainingDocWithAssets } from "@/lib/training-docs/types";
@@ -29,6 +30,7 @@ export const trainingDocColumns: ColumnConfig[] = [
   { id: "assets", label: "Screenshots", defaultVisible: true },
   { id: "steps", label: "Steps", defaultVisible: true },
   { id: "published", label: "Published", defaultVisible: true },
+  { id: "qa", label: "QA", defaultVisible: true },
 ];
 
 export const trainingDocDefaultVisibleColumns = trainingDocColumns
@@ -52,6 +54,15 @@ export const trainingDocFilters: FilterConfig[] = [
     options: TRAINING_DOC_AUDIENCES.map((audience) => ({
       value: audience,
       label: formatTrainingDocValue(audience),
+    })),
+  },
+  {
+    id: "qa_status",
+    label: "QA",
+    type: "select",
+    options: TRAINING_DOC_QA_STATUSES.map((status) => ({
+      value: status,
+      label: formatTrainingDocValue(status),
     })),
   },
 ];
@@ -209,6 +220,17 @@ export function buildTrainingDocTableColumns(
       sortable: true,
       sortValue: (doc) => doc.last_published_at ?? "",
       csvValue: (doc) => doc.last_published_at ?? "",
+    },
+    {
+      ...trainingDocColumns[10],
+      render: (doc) => (
+        <span title={doc.qa_notes ?? undefined}>
+          <CellStatus value={formatTrainingDocValue(doc.qa_status)} />
+        </span>
+      ),
+      sortable: true,
+      sortValue: (doc) => doc.qa_status,
+      csvValue: (doc) => doc.qa_status,
     },
   ];
 }

@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+
+# Kept LF-only through .gitattributes so this gate runs identically on Windows.
 # Check for Next.js dynamic route conflicts
 # This script ensures consistent naming of dynamic route parameters
 

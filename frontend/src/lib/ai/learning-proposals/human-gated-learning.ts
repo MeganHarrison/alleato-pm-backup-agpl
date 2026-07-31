@@ -301,7 +301,7 @@ function buildProposedLearning(params: {
     content: normalizeText(candidate.content),
     rationale: normalizeText(candidate.rationale),
     sourceSurface: "ai_assistant_chat",
-    sourceRoute: "/ai",
+    sourceRoute: "/ai-assistant",
     sourceUserId: params.userId,
     sourceSessionId: params.sessionId,
     sourceEventId: params.eventId,
@@ -596,7 +596,7 @@ export async function proposeHumanGatedLearningCandidates(
       signal: "needs_review",
       reasonCategory: "post_response_learning_review",
       sourceContext: {
-        route: "/ai",
+        route: "/ai-assistant",
         sessionId: params.sessionId,
         responseMessageId: params.responseMessageId ?? null,
         messageIds,

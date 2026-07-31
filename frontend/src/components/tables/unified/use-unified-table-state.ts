@@ -3,6 +3,75 @@
 import * as React from "react";
 import type { ReadonlyURLSearchParams } from "next/navigation";
 import type { ViewMode } from "./table-toolbar";
+import { reportNonCriticalFailure } from "@/lib/report-non-critical-failure";
+
+export const UNIFIED_TABLE_PREFERENCES_STORAGE_KEY =
+  "alleato:unified-table-preferences:v1";
+
+export type TablePaginationBehavior = "pages" | "scroll";
+
+export interface UnifiedTablePreferences {
+  perPage?: number;
+  paginationBehavior?: TablePaginationBehavior;
+}
+
+function isValidPerPage(value: unknown): value is number {
+  return (
+    typeof value === "number" &&
+    Number.isInteger(value) &&
+    value > 0 &&
+    value <= 150
+  );
+}
+
+/**
+ * Read the cross-table preference without allowing a malformed local value to
+ * become a broken table state. Callers retain their supplied table default.
+ */
+export function readUnifiedTablePreferences(): UnifiedTablePreferences {
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = window.localStorage.getItem(
+      UNIFIED_TABLE_PREFERENCES_STORAGE_KEY,
+    );
+    if (!raw) return {};
+    const stored = JSON.parse(raw) as UnifiedTablePreferences;
+    return {
+      perPage: isValidPerPage(stored.perPage) ? stored.perPage : undefined,
+      paginationBehavior:
+        stored.paginationBehavior === "pages" ||
+        stored.paginationBehavior === "scroll"
+          ? stored.paginationBehavior
+          : undefined,
+    };
+  } catch {
+    return {};
+  }
+}
+
+/**
+ * Persist only the supplied fields so row density and loading behavior do not
+ * overwrite one another when they are changed from separate shared controls.
+ */
+export function saveUnifiedTablePreferences(
+  updates: UnifiedTablePreferences,
+): void {
+  if (typeof window === "undefined") return;
+  const current = readUnifiedTablePreferences();
+  window.localStorage.setItem(
+    UNIFIED_TABLE_PREFERENCES_STORAGE_KEY,
+    JSON.stringify({ ...current, ...updates }),
+  );
+}
+
+export function resolveUnifiedTablePerPage(
+  candidate: string | null | undefined,
+  fallback: number,
+): number {
+  const parsed = Number(candidate);
+  if (Number.isFinite(parsed) && parsed > 0) return Math.min(parsed, 150);
+  return readUnifiedTablePreferences().perPage ?? fallback;
+}
 
 export type FilterValue =
   | string
@@ -131,8 +200,9 @@ export function useUnifiedTableState({
   const initialSearch = searchParams.get("search") ?? defaults.search ?? "";
   const initialView = resolveView(searchParams.get("view"));
   const initialPage = Number(searchParams.get("page") ?? String(defaults.page));
-  const initialPerPage = Number(
-    searchParams.get("per_page") ?? String(defaults.perPage),
+  const initialPerPage = resolveUnifiedTablePerPage(
+    searchParams.get("per_page"),
+    defaults.perPage,
   );
   const initialSortBy = searchParams.get("sort") ?? defaults.sortBy ?? null;
   const initialSortDirection =
@@ -209,6 +279,21 @@ export function useUnifiedTableState({
   }, [entityKey, visibleColumns]);
 
   React.useEffect(() => {
+    try {
+      saveUnifiedTablePreferences({ perPage });
+    } catch (error) {
+      reportNonCriticalFailure({
+        area: "unified-table-state",
+        operation: "save-row-count-preference",
+        error,
+        userVisibleFallback:
+          "Your row count preference could not be saved. The current table remains unchanged.",
+        metadata: { entityKey, perPage },
+      });
+    }
+  }, [entityKey, perPage]);
+
+  React.useEffect(() => {
     const timeout = window.setTimeout(() => {
       setDebouncedSearch(searchInput);
     }, 250);
@@ -243,8 +328,9 @@ export function useUnifiedTableState({
     const nextView = resolveView(searchParams.get("view"));
     const nextSearch = searchParams.get("search") ?? defaults.search ?? "";
     const nextPage = Number(searchParams.get("page") ?? String(defaults.page));
-    const nextPerPage = Number(
-      searchParams.get("per_page") ?? String(defaults.perPage),
+    const nextPerPage = resolveUnifiedTablePerPage(
+      searchParams.get("per_page"),
+      defaults.perPage,
     );
     const nextSortBy = searchParams.get("sort") ?? defaults.sortBy ?? null;
     const nextSortDirection =
@@ -282,10 +368,7 @@ export function useUnifiedTableState({
 
     const normalizedPage =
       Number.isFinite(nextPage) && nextPage > 0 ? nextPage : defaults.page;
-    const normalizedPerPage =
-      Number.isFinite(nextPerPage) && nextPerPage > 0
-        ? Math.min(nextPerPage, 150)
-        : defaults.perPage;
+    const normalizedPerPage = nextPerPage;
     setPage((prev) => (prev === normalizedPage ? prev : normalizedPage));
     setPerPage((prev) =>
       prev === normalizedPerPage ? prev : normalizedPerPage,

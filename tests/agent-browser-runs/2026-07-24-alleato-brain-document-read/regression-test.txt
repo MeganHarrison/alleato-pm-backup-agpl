@@ -1,0 +1,19 @@
+Alleato Brain document-read regression: PASS
+
+PASS  Node syntax check.
+PASS  Exact migration compiled live and rolled back.
+PASS  Guarded exact migration application.
+PASS  Remote migration ledger contains 20260724100000.
+PASS  Both restrictive ALL policies have USING and WITH CHECK.
+PASS  Internal nonmember completes unrestricted Business Area CRUD.
+PASS  Internal nonmember is denied Finance read/insert/re-scope/delete.
+PASS  Inactive Finance membership remains denied.
+PASS  Temporary active Finance member completes Finance CRUD.
+PASS  App-admin completes Finance CRUD with inactive membership.
+PASS  Same externalized identity is denied Business Area read/insert/update/delete.
+PASS  Unscoped legacy read/insert/update/delete behavior is preserved.
+PASS  Fixture transaction rolled back.
+
+UNRELATED DEBT
+npm run db:migrations:verify-clean reports historical remote migration versions
+that do not exist in this checkout. The exact task migration ledger check passes.

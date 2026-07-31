@@ -1,0 +1,1163 @@
+/*
+ * Visual language for the /training hub landing page — ported from the
+ * standalone "Own Your Growth" redesign (alleato-own-your-growth.html).
+ * CSS Modules auto-scope every local class name so none of this can leak
+ * onto the rest of the app — this route is an owner-approved exception to
+ * DESIGN-SYSTEM-GATE.md, same as the rest of /training (see
+ * specs/LAYOUT-REFERENCE.md). The persisted Skill Wheel assessment remains
+ * owned by `SkillGrowthClient`; this file styles only the read-only hub demo.
+ */
+
+.page {
+  --orange: hsl(var(--primary));
+  --orange-2: hsl(var(--primary));
+  --orange-soft: hsl(var(--brand-orange-50));
+  --ink: #0c0b0a;
+  --ink-2: #1c1a18;
+  --paper: #f4f0ea;
+  --paper-2: #ebe5db;
+  /* The library uses the exact neutral surface requested for this canonical section. */
+  --library-surface: #f9fafb;
+  --card: #ffffff;
+  --grey: #454545;
+  --grey-2: #6d6862;
+  --line: #dcd5c9;
+  --line-2: #c9c0b1;
+  --lightgrey: #9c9998;
+  --shadow:
+    0 2px 0 rgba(12, 11, 10, 0.06), 0 18px 40px -22px rgba(12, 11, 10, 0.4);
+  --disp: var(--font-work-sans), "Work Sans", system-ui, sans-serif;
+  --body: var(--font-lato), "Lato", system-ui, sans-serif;
+  --mono: var(--font-jetbrains-mono), "JetBrains Mono", ui-monospace, monospace;
+
+  font-family: var(--body);
+  background: var(--paper);
+  color: var(--ink);
+  line-height: 1.55;
+  overflow-x: hidden;
+}
+
+.page * {
+  box-sizing: border-box;
+}
+
+.page a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.wrap {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 28px;
+}
+
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--orange);
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+}
+.eyebrow::before {
+  content: "";
+  width: 26px;
+  height: 2px;
+  background: var(--orange);
+  display: inline-block;
+}
+.page h1,
+.page h2,
+.page h3 {
+  font-family: var(--disp);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+}
+.hSec {
+  font-size: clamp(30px, 4.6vw, 52px);
+  font-weight: 800;
+  text-transform: uppercase;
+  margin: 14px 0 10px;
+}
+.sub {
+  color: var(--grey);
+  max-width: 640px;
+  font-size: 16.5px;
+}
+
+/* ============ HERO ============ */
+.hero {
+  position: relative;
+  background: var(--ink);
+  color: #fff;
+  overflow: hidden;
+  padding: 96px 0 108px;
+}
+.heroGridBg {
+  position: absolute;
+  inset: 0;
+  opacity: 0.5;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(120% 120% at 20% 10%, #000 30%, transparent 80%);
+}
+.heroGlow {
+  position: absolute;
+  right: -160px;
+  top: -140px;
+  width: 620px;
+  height: 620px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    hsl(var(--primary) / 0.55),
+    hsl(var(--primary) / 0) 62%
+  );
+  filter: blur(6px);
+}
+.heroInner {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 40px;
+  align-items: center;
+}
+.heroH1 {
+  font-size: clamp(3rem, 6.6vw, 5.25rem);
+  font-weight: 900;
+  text-transform: uppercase;
+  margin: 18px 0 6px;
+  line-height: 0.9;
+}
+.heroOwn {
+  display: block;
+  color: #fff;
+  white-space: nowrap;
+}
+.heroGrow {
+  display: block;
+  color: var(--orange);
+  position: relative;
+}
+.heroLead {
+  color: #d9d3ca;
+  max-width: 520px;
+  font-size: 18px;
+  margin: 20px 0 30px;
+}
+.heroCtas {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.btn {
+  cursor: pointer;
+  border: none;
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-weight: 500;
+  padding: 15px 26px;
+  border-radius: 9px;
+  transition: 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.btnPrimary {
+  background: var(--orange);
+  color: #fff;
+}
+.btnPrimary:hover {
+  background: hsl(var(--brand-orange-600));
+  transform: translateY(-2px);
+}
+.btnGhost {
+  background: transparent;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+}
+.btnGhost:hover {
+  border-color: #fff;
+  background: rgba(255, 255, 255, 0.06);
+}
+.heroVisual {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.heroWheelSvg {
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+  filter: drop-shadow(0 30px 50px rgba(0, 0, 0, 0.5));
+  animation: spinIn 1.1s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@media (max-width: 900px) {
+  .heroInner {
+    grid-template-columns: 1fr;
+  }
+  .heroVisual {
+    order: -1;
+    max-width: 320px;
+    margin: 0 auto;
+  }
+}
+
+.section {
+  padding: 88px 0;
+}
+.secHead {
+  margin-bottom: 44px;
+}
+
+/* ============ METHOD LOOP ============ */
+.method {
+  background: var(--ink);
+  color: #fff;
+}
+.methodSub {
+  color: #cbc4bb;
+}
+.loop {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-top: 12px;
+}
+.loopCard {
+  background: var(--ink-2);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 14px;
+  padding: 24px 22px;
+  position: relative;
+  transition: border-color 0.18s;
+  overflow: hidden;
+}
+.loopCard:hover {
+  border-color: var(--orange);
+}
+.loopCardN {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  color: #b8b1a8;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.loopCard h3 {
+  font-size: 21px;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin: 12px 0 8px;
+}
+.loopCardP {
+  color: #b8b1a8;
+  font-size: 14px;
+}
+.loopCardBar {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  background: var(--orange);
+  width: 100%;
+  transform-origin: left;
+}
+@media (max-width: 880px) {
+  .loop {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 520px) {
+  .loop {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============ LIBRARY ============ */
+.library {
+  background: var(--library-surface);
+}
+
+.demoWheelRing {
+  stroke: rgba(12, 11, 10, 0.14);
+  stroke-width: 1;
+}
+
+.demoWheelTrack {
+  fill: rgba(12, 11, 10, 0.055);
+}
+
+.demoWheelFill {
+  fill: var(--orange);
+}
+
+.demoWheelLabel {
+  fill: var(--grey-2);
+  font-family: var(--mono);
+  font-size: 11px;
+}
+
+.demoWheelCore {
+  fill: var(--ink);
+  stroke: var(--orange);
+  stroke-width: 2;
+}
+
+.demoWheelScore {
+  fill: #f7f4ef;
+  font-family: var(--disp);
+  font-size: 42px;
+  font-weight: 800;
+}
+
+.demoWheelCaption {
+  fill: var(--orange);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+}
+
+/* ============ CTA ============ */
+.final {
+  background: var(--paper-2);
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.revealIn {
+  opacity: 1;
+  transform: none;
+}
+
+@keyframes hwIn {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+    transform-origin: center;
+  }
+  to {
+    opacity: 0.92;
+    transform: scale(1);
+  }
+}
+.hw {
+  animation: hwIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@keyframes spinIn {
+  from {
+    opacity: 0;
+    transform: rotate(-16deg) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ============ ROLE WHEEL STORY (pinned illustrative progression) ============ */
+.story {
+  position: relative;
+}
+
+.storyInner {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 40px;
+  align-items: start;
+}
+
+.storyNarrative {
+  position: relative;
+}
+
+.storyChapter + .storyChapter {
+  margin-top: 72px;
+}
+
+.storyChapterTitle {
+  margin: 14px 0 12px;
+  max-width: 18ch;
+  font-family: var(--disp);
+  font-size: clamp(24px, 3.4vw, 34px);
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+}
+
+.storyChapterBody {
+  max-width: 46ch;
+  color: var(--grey);
+  font-size: 16.5px;
+}
+
+@media (min-width: 640px) and (max-width: 999px) {
+  .storyChapterTitle {
+    max-width: none;
+  }
+}
+
+.storyPair {
+  display: grid;
+  gap: 12px;
+  margin: 22px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.storyPair li {
+  display: grid;
+  gap: 3px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: hsl(var(--primary) / 0.06);
+}
+
+.storyPair li b {
+  font-family: var(--disp);
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.storyPair li span {
+  color: var(--grey-2);
+  font-size: 13.5px;
+  line-height: 1.4;
+}
+
+.storyWheel {
+  position: sticky;
+  top: 84px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  margin: 0;
+}
+
+.storyWheelSvg {
+  display: block;
+  width: min(100%, 460px);
+  height: auto;
+}
+
+.storyProgressLabel {
+  margin: 0;
+  color: var(--grey-2);
+  font-size: 13px;
+  text-align: center;
+}
+
+.demoWheelOf {
+  fill: rgba(247, 244, 239, 0.72);
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.05em;
+}
+
+@media (min-width: 1000px) {
+  .storyInner {
+    grid-template-columns: minmax(0, 1fr) minmax(420px, 520px);
+    gap: 72px;
+    min-height: 100vh;
+    align-items: center;
+  }
+
+  .storyNarrative {
+    min-height: 360px;
+  }
+
+  .storyChapter {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .storyChapter + .storyChapter {
+    margin-top: 0;
+  }
+
+  .storyWheel {
+    position: static;
+    top: auto;
+  }
+}
+
+/* Reduced motion: no pin/scrub, so chapters must return to normal flow and
+ * stack vertically instead of overlapping in the absolute desktop layout. */
+@media (prefers-reduced-motion: reduce) {
+  .storyChapter {
+    position: static;
+    inset: auto;
+  }
+
+  .storyChapter + .storyChapter {
+    margin-top: 56px;
+  }
+
+  .storyNarrative {
+    min-height: 0;
+  }
+
+  .storyWheel {
+    position: sticky;
+    top: 84px;
+  }
+}
+
+/* ============ SKILL WHEEL STORY — DARK TREATMENT ============
+ * The story is the page's one narrative act, so it gets the same committed
+ * dark ground as the hero and method sections. Every override is scoped under
+ * `.storySection` / `.story`, which beats the light base rules on specificity
+ * without editing them — nothing here can affect a wheel rendered elsewhere.
+ */
+.storySection {
+  background: var(--ink);
+  color: #f4f0ea;
+  overflow: hidden;
+}
+
+.storySection .storyChapterTitle {
+  color: #f7f4ef;
+}
+
+.storySection .storyChapterBody {
+  color: #b9b1a7;
+}
+
+.storySection .storyProgressLabel {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #7d746a;
+}
+
+.storySection .storyPair li {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.storySection .storyPair li b {
+  color: #f7f4ef;
+}
+
+.storySection .storyPair li span {
+  color: #a49b91;
+}
+
+/* --- wheel, on dark --- */
+.story .demoWheelTrack {
+  fill: rgba(255, 255, 255, 0.075);
+}
+
+.story .demoWheelRing {
+  stroke: rgba(255, 255, 255, 0.09);
+}
+
+.story .demoWheelLabel {
+  fill: #7d746a;
+}
+
+.story .demoWheelCore {
+  fill: var(--ink);
+}
+
+/* The Solo bar. A halo (paint-order) keeps the label legible wherever a wedge
+ * sits behind it, and the ring paints above the fills so the threshold always
+ * reads as a line still to be crossed. */
+.demoWheelThreshold {
+  stroke: rgba(255, 255, 255, 0.34);
+  stroke-width: 1;
+  stroke-dasharray: 3 5;
+}
+
+.demoWheelThresholdLabel {
+  fill: #f4f0ea;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  paint-order: stroke fill;
+  stroke: var(--ink);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+
+/* --- role picker: what replaced the six-row accordion --- */
+.storyRoles {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.storyRolesLabel {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #7d746a;
+}
+
+.storyRoleTabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.storyRoleTab {
+  min-height: 40px;
+  padding: 9px 15px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  background: transparent;
+  color: #b9b1a7;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition:
+    color 0.2s,
+    border-color 0.2s,
+    background 0.2s;
+}
+
+.storyRoleTab:hover {
+  color: #f7f4ef;
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.storyRoleTab[aria-pressed="true"] {
+  background: var(--orange);
+  border-color: var(--orange);
+  color: #f7f4ef;
+}
+
+.storyRoleTab:focus-visible {
+  outline: 3px solid hsl(var(--primary) / 0.45);
+  outline-offset: 3px;
+}
+
+/* Mobile: the wheel leads and stays put while the chapters scroll under it,
+ * so the growth is still visible on a phone. It needs its own ground or the
+ * chapters show through as they pass beneath. */
+@media (max-width: 999px) {
+  .storyWheel {
+    order: -1;
+    align-self: start;
+    top: 0;
+    z-index: 1;
+    padding: 10px 0 14px;
+    background: var(--ink);
+  }
+
+  .storySection .storyWheelSvg {
+    width: min(100%, 320px);
+  }
+}
+
+@media (min-width: 1000px) {
+  .storyInner {
+    grid-template-areas:
+      "narrative wheel"
+      "roles wheel";
+    grid-template-rows: auto auto;
+  }
+
+  .storyNarrative {
+    grid-area: narrative;
+  }
+
+  .storyWheel {
+    grid-area: wheel;
+  }
+
+  .storyRoles {
+    grid-area: roles;
+  }
+
+  /* The pinned stage is exactly one viewport tall, so the section's own
+   * vertical padding would push the role picker off the bottom edge while
+   * pinned. `.storyInner`'s min-height owns the height here instead. */
+  .storySection {
+    padding: 0;
+  }
+}
+
+/* ============ LIBRARY LIST ============
+ * Eight equal cards gave every module the same weight and pushed the page
+ * long. A numbered list scans in one pass and each row is a single target.
+ */
+.libHead {
+  display: grid;
+  gap: 20px;
+  margin-bottom: 40px;
+  align-items: end;
+}
+
+/* `.page a { color: inherit }` outranks a bare class, so a link that has to
+ * set its own colour needs the extra class to win — otherwise this button
+ * inherits the section's dark ink onto its own dark ground and goes blank. */
+.page .libBrowse {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 22px;
+  border-radius: 9px;
+  background: var(--ink);
+  color: #f7f4ef;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition:
+    background 0.2s,
+    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.page .libBrowse:hover {
+  background: var(--orange);
+  transform: translateY(-2px);
+}
+
+.page .libBrowse:focus-visible {
+  outline: 3px solid hsl(var(--primary) / 0.35);
+  outline-offset: 3px;
+}
+
+.libList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--line);
+}
+
+.libItem {
+  border-bottom: 1px solid var(--line);
+}
+
+.libRow {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 4px 12px;
+  align-items: baseline;
+  padding: 22px 4px;
+  transition: background 0.18s;
+}
+
+.libRow:hover {
+  background: rgba(12, 11, 10, 0.025);
+}
+
+.libRow:focus-visible {
+  outline: 3px solid hsl(var(--primary) / 0.35);
+  outline-offset: -3px;
+}
+
+.libRow[data-unavailable="true"] {
+  cursor: default;
+}
+
+.libNumber {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--orange);
+  letter-spacing: 0.08em;
+}
+
+.libText {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.libTitle {
+  font-family: var(--disp);
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.libDesc {
+  color: var(--grey);
+  font-size: 14.5px;
+  line-height: 1.5;
+  max-width: 68ch;
+}
+
+.libMeta {
+  grid-column: 2;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.libTag {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--grey-2);
+}
+
+.libArrow {
+  color: var(--orange);
+  font-size: 15px;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.libRow:hover .libArrow {
+  transform: translateX(5px);
+}
+
+.libRow[data-unavailable="true"] .libArrow {
+  display: none;
+}
+
+@media (min-width: 860px) {
+  .libHead {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 40px;
+  }
+
+  .libBrowse {
+    justify-self: end;
+  }
+
+  .libRow {
+    grid-template-columns: 56px minmax(0, 1fr) minmax(0, auto);
+    align-items: center;
+    gap: 24px;
+    padding: 24px 4px;
+  }
+
+  .libMeta {
+    grid-column: auto;
+    margin-top: 0;
+    justify-content: flex-end;
+  }
+}
+
+/* ============ FINAL CTA ============ */
+.final {
+  background: var(--ink);
+  color: #f4f0ea;
+}
+
+.finalRow {
+  display: grid;
+  gap: 32px;
+  align-items: end;
+}
+
+.finalStatement {
+  display: grid;
+  gap: 14px;
+  justify-items: start;
+}
+
+.finalTitle {
+  margin: 0;
+  font-family: var(--disp);
+  font-size: clamp(30px, 4.2vw, 48px);
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  color: #f7f4ef;
+  max-width: 16ch;
+  text-transform: none;
+}
+
+.finalLead {
+  margin: 0;
+  color: #b9b1a7;
+  font-size: 16.5px;
+  line-height: 1.6;
+  max-width: 48ch;
+}
+
+.finalActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 22px;
+}
+
+.page .finalSecondary {
+  color: #b9b1a7;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.24);
+  padding-bottom: 3px;
+  transition:
+    color 0.2s,
+    border-color 0.2s;
+}
+
+.page .finalSecondary:hover {
+  color: #f7f4ef;
+  border-color: var(--orange);
+}
+
+.page .finalSecondary:focus-visible {
+  outline: 3px solid hsl(var(--primary) / 0.45);
+  outline-offset: 3px;
+}
+
+@media (min-width: 900px) {
+  .finalRow {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 64px;
+  }
+}
+
+/* ============ PROFICIENCY LADDER ============
+ * A staircase: each rung is wider than the last, so the progression is legible
+ * before you read a word. Selecting a rung explains it in the panel alongside.
+ */
+.ladderSection {
+  background: var(--paper);
+}
+
+.ladderIntro {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  margin-bottom: 52px;
+}
+
+.ladderIntroLead {
+  color: var(--grey);
+  font-size: 16.5px;
+  max-width: 52ch;
+}
+
+.ladder {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 40px;
+  align-items: start;
+}
+
+.ladderSteps {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ladderStep {
+  /* --step is the rung index; each rung reaches further than the one below it */
+  width: calc(58% + var(--step) * 10.5%);
+  min-width: 250px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  text-align: left;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    background 0.2s,
+    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ladderStep:hover {
+  border-color: var(--line-2);
+  transform: translateX(3px);
+}
+
+.ladderStep[aria-pressed="true"] {
+  border-color: var(--orange);
+  background: hsl(var(--primary) / 0.06);
+}
+
+.ladderStep:focus-visible {
+  outline: 3px solid hsl(var(--primary) / 0.35);
+  outline-offset: 3px;
+}
+
+.ladderStepValue {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: hsl(var(--primary) / 0.12);
+  color: var(--orange);
+  font-family: var(--disp);
+  font-size: 17px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.ladderStep[aria-pressed="true"] .ladderStepValue {
+  background: var(--orange);
+  color: #f7f4ef;
+}
+
+.ladderStepText {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.ladderStepText b {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.ladderStepText small {
+  color: var(--grey-2);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* --- the explanation panel --- */
+.ladderDetail {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 34px 34px 32px;
+  border-radius: 16px;
+  background: var(--ink);
+  color: #f4f0ea;
+}
+
+/* Concentric rings echoing the Skill Wheel, so the two sections read as one
+ * system. Decorative only — kept faint and behind the content. */
+.ladderDetail::after {
+  content: "";
+  position: absolute;
+  right: -110px;
+  bottom: -130px;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background:
+    radial-gradient(
+      circle,
+      transparent 38%,
+      hsl(var(--primary) / 0.16) 39%,
+      hsl(var(--primary) / 0.16) 46%,
+      transparent 47%
+    ),
+    radial-gradient(
+      circle,
+      transparent 62%,
+      hsl(var(--primary) / 0.1) 63%,
+      hsl(var(--primary) / 0.1) 70%,
+      transparent 71%
+    );
+  pointer-events: none;
+}
+
+.ladderDetail > * {
+  position: relative;
+  z-index: 1;
+}
+
+.ladderDetailEyebrow {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--orange);
+  font-variant-numeric: tabular-nums;
+}
+
+.ladderDetailTitle {
+  margin: 0;
+  font-family: var(--disp);
+  font-size: clamp(24px, 2.9vw, 34px);
+  font-weight: 800;
+  line-height: 1.06;
+  letter-spacing: -0.02em;
+  color: #f7f4ef;
+  max-width: 18ch;
+}
+
+.ladderDetailBody {
+  margin: 0;
+  color: #b9b1a7;
+  font-size: 15.5px;
+  line-height: 1.6;
+  max-width: 46ch;
+}
+
+.ladderReady {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 8px 0 0;
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: #d9d3ca;
+  max-width: 46ch;
+}
+
+.ladderReady b {
+  color: #f7f4ef;
+}
+
+.ladderReadyMark {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  margin-top: 1px;
+  border-radius: 6px;
+  background: var(--orange);
+  color: #f7f4ef;
+  font-size: 12px;
+  line-height: 1;
+}
+
+@media (min-width: 900px) {
+  .ladderIntro {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: end;
+    gap: 48px;
+  }
+
+  .ladder {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    gap: 56px;
+    align-items: center;
+  }
+}

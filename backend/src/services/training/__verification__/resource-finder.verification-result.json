@@ -1,0 +1,55 @@
+{
+  "status": "PASS",
+  "observedStatus": "PASS",
+  "taskId": "ALL-22",
+  "evidence": {
+    "actionLog": [
+      "docs/ops/tasks/2026-07-26-training-resource-finder.md",
+      "docs/ops/handoffs/2026-07-26-S227-training-resource-finder.md"
+    ],
+    "databaseReadback": [
+      "docs/ops/handoffs/2026-07-26-S227-training-resource-finder.md"
+    ],
+    "regressionTest": [
+      "backend/tests/test_training_resource_finder.py",
+      "backend/tests/test_research_agent.py"
+    ],
+    "visualReview": [
+      "docs/ops/handoffs/2026-07-26-S227-training-resource-finder.md"
+    ]
+  },
+  "claims": {
+    "deterministic-eligibility": {
+      "regressionTest": [
+        "backend/tests/test_training_resource_finder.py"
+      ],
+      "actionLog": [
+        "docs/ops/tasks/2026-07-26-training-resource-finder.md"
+      ]
+    },
+    "review-only-write-boundary": {
+      "databaseReadback": [
+        "docs/ops/handoffs/2026-07-26-S227-training-resource-finder.md"
+      ],
+      "regressionTest": [
+        "backend/tests/test_training_resource_finder.py"
+      ]
+    },
+    "provider-and-deployment-readiness": {
+      "actionLog": [
+        "docs/ops/handoffs/2026-07-26-S227-training-resource-finder.md"
+      ]
+    },
+    "independent-review": {
+      "visualReview": [
+        "docs/ops/handoffs/2026-07-26-S227-training-resource-finder.md"
+      ]
+    }
+  },
+  "independentReview": {
+    "reviewer": "/root/training_finder_review",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-26T20:39:57Z",
+    "artifact": "docs/ops/handoffs/2026-07-26-S227-training-resource-finder.md"
+  }
+}

@@ -1,0 +1,6 @@
+payment_application_id,sov_item_id,change_order_id,item_number,description,budget_code,scheduled_value,work_completed_previous,work_completed_this_period,materials_stored,retainage_this_period_work_pct,retainage_this_period_work,retainage_this_period_materials_pct,retainage_this_period_materials,retainage_previous_work,retainage_previous_materials,retainage_released_work,retainage_released_materials,sort_order
+00000000-0000-0000-0000-000000000pa4,,,1,General Conditions,01-1000,100000.0,40000.0,10000.0,0.0,10.0,1000.0,10.0,0.0,4000.0,0.0,0.0,0.0,1
+00000000-0000-0000-0000-000000000pa4,,,2,Cast-in-Place Concrete,03-3000,400000.0,200000.0,50000.0,20000.0,10.0,5000.0,10.0,2000.0,20000.0,0.0,0.0,0.0,2
+00000000-0000-0000-0000-000000000pa4,,,3,Structural Steel,05-1200,500000.0,0.0,100000.0,30000.0,10.0,10000.0,10.0,3000.0,0.0,0.0,0.0,0.0,3
+00000000-0000-0000-0000-000000000pa4,,,CO-001,Dock levelers,11-1300,50000.0,20000.0,10000.0,0.0,10.0,1000.0,10.0,0.0,2000.0,0.0,0.0,0.0,4
+00000000-0000-0000-0000-000000000pa4,,,CO-002,Roof insulation revision,07-2100,25000.0,0.0,5000.0,0.0,10.0,500.0,10.0,0.0,0.0,0.0,0.0,0.0,5

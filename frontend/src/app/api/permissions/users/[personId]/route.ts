@@ -6,6 +6,7 @@ import { GuardrailError } from "@/lib/guardrails/errors";
 import { requireUserManagementAccess } from "@/lib/auth/user-management-access";
 import { createServiceClient } from "@/lib/supabase/service";
 import { serviceDb } from "@/lib/supabase/service-db";
+import type { Database } from "@/types/database.types";
 
 async function requireAdmin(where: string) {
   return requireUserManagementAccess(where);
@@ -81,7 +82,7 @@ export const PATCH = withApiGuardrails(
     if (person.auth_user_id) {
       const firstName = parsed.data.first_name ?? person.first_name ?? "";
       const lastName = parsed.data.last_name ?? person.last_name ?? "";
-      const profileUpdates: Record<string, string> = {
+      const profileUpdates: Database["public"]["Tables"]["user_profiles"]["Update"] = {
         updated_at: new Date().toISOString(),
       };
 

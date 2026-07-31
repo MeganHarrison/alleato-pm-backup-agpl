@@ -15,6 +15,7 @@ const config = {
     '/.next/'
   ],
   moduleNameMapper: {
+    '\\.module\\.css$': '<rootDir>/src/test-utils/css-module-mock.js',
     '^@/(.*)$': '<rootDir>/src/$1',
     '^chat$': '<rootDir>/node_modules/chat/dist/index.js',
     '^chat/(.*)$': '<rootDir>/node_modules/chat/dist/$1',

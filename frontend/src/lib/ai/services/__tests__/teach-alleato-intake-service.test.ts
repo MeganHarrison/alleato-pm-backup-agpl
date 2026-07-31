@@ -16,9 +16,10 @@ jest.mock("../feedback-event-service", () => ({
 const recordAiFeedbackEventMock = recordAiFeedbackEvent as jest.MockedFunction<
   typeof recordAiFeedbackEvent
 >;
-const createLearningPromotionMock = createLearningPromotion as jest.MockedFunction<
-  typeof createLearningPromotion
->;
+const createLearningPromotionMock =
+  createLearningPromotion as jest.MockedFunction<
+    typeof createLearningPromotion
+  >;
 
 const USER_ID = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
 const EVENT_ID = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
@@ -42,7 +43,7 @@ function intake(
       "This prevents Alleato from approving unsupported stored materials.",
     perceivedRiskLevel: "medium",
     projectId: 1009,
-    route: "/ai/teach",
+    route: "/ai-assistant/teach",
     sessionId: "teach-session-1",
     metadata: {
       source: "unit-test",
@@ -97,6 +98,9 @@ describe("submitTeachAlleatoIntake", () => {
           ruleKind: "teach_alleato_skill_candidate",
           sourceEventId: EVENT_ID,
           proposedDestination: "ai_memories",
+          content: expect.stringContaining("pay apps"),
+          type: "lesson",
+          visibility: "team",
           skillCandidate: expect.objectContaining({
             body: expect.stringContaining("pay apps"),
             category: "pay_app_review",
@@ -130,6 +134,39 @@ describe("submitTeachAlleatoIntake", () => {
         riskLevel: "high",
         proposedLearning: expect.objectContaining({
           proposedDestination: "agent_learnings",
+          source: "admin_feedback",
+          problemSignature: expect.stringContaining(
+            "wrong_assumption_prevention",
+          ),
+          symptoms: expect.stringContaining("prevents Alleato"),
+          preventionPrompt: expect.stringContaining("pay apps"),
+          scopeTags: ["teach_alleato", "wrong_assumption_prevention", "team"],
+          pagePath: "/ai-assistant/teach",
+        }),
+      }),
+    );
+  });
+
+  it("stages personal teaching as private memory owned by the source user", async () => {
+    await submitTeachAlleatoIntake({
+      userId: USER_ID,
+      intake: intake({
+        appliesTo: "personal",
+        projectId: null,
+        workflowCategory: "communication_preference",
+      }),
+    });
+
+    expect(createLearningPromotionMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        promotionType: "user_preference",
+        projectId: null,
+        destinationTable: "ai_memories",
+        proposedLearning: expect.objectContaining({
+          sourceUserId: USER_ID,
+          content: expect.stringContaining("pay apps"),
+          type: "preference",
+          visibility: "private",
         }),
       }),
     );

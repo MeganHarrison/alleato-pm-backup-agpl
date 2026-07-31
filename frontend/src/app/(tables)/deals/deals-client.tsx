@@ -408,9 +408,8 @@ export function DealsClient(): ReactElement {
         setStages(stagesPayload.data ?? []);
         setCompanies(Array.isArray(companiesPayload) ? companiesPayload : []);
         setEmployees(peoplePayload.people ?? peoplePayload.data ?? []);
-      } catch (dropdownError) {
-        // Dropdown data is non-fatal; dialogs surface their own errors.
-        console.error("[Deals] Failed to load dropdown data:", dropdownError);
+      } catch (loadError) {
+        console.error("Failed to load deal form options", loadError);
       }
     })();
     return () => {

@@ -1,0 +1,30 @@
+{
+  "observedAt": "2026-07-27T23:46:35Z",
+  "projectBootstrapRoleTrigger": {
+    "migrationVersion": "20260728001500",
+    "localLedger": true,
+    "remoteLedger": true,
+    "attached": true,
+    "securityDefiner": true,
+    "appRoleDirectExecuteRevoked": true
+  },
+  "liveReviewQueues": {
+    "trainingResourcesAwaitingReview": 29,
+    "learningCandidates": 2,
+    "learningApprovedAwaitingApply": 0,
+    "learningRejected": 0,
+    "activeAgentLearnings": 50
+  },
+  "taskFixtureCleanup": [
+    {
+      "projectId": 1153,
+      "archived": true,
+      "phase": "Archive"
+    },
+    {
+      "projectId": 1158,
+      "archived": true,
+      "phase": "Archive"
+    }
+  ]
+}

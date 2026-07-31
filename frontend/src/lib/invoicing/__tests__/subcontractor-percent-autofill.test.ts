@@ -1,6 +1,7 @@
 import {
   calculateCompletionPercentFromCurrentAmount,
   calculateCurrentAmountFromCompletionPercent,
+  validateBillingComponentSigns,
   validateCurrentAmount,
 } from "../subcontractor-percent-autofill";
 
@@ -47,6 +48,65 @@ describe("subcontractor percent autofill", () => {
       }),
     ).toEqual({
       error: "Current plus previous billing exceeds the scheduled value.",
+    });
+  });
+
+  it("supports applying a deductive change order through signed billing", () => {
+    expect(
+      calculateCurrentAmountFromCompletionPercent({
+        scheduledValue: -5000,
+        previouslyBilled: -1000,
+        completionPercent: 60,
+      }),
+    ).toEqual({ amount: -2000, error: null });
+
+    expect(
+      calculateCompletionPercentFromCurrentAmount({
+        scheduledValue: -5000,
+        previouslyBilled: -1000,
+        currentAmount: -2000,
+      }),
+    ).toBe(60);
+
+    expect(
+      validateCurrentAmount({
+        scheduledValue: -5000,
+        previouslyBilled: -1000,
+        currentAmount: -2000,
+      }),
+    ).toEqual({ error: null });
+  });
+
+  it("rejects deductive billing beyond the signed scheduled value", () => {
+    expect(
+      validateCurrentAmount({
+        scheduledValue: -5000,
+        previouslyBilled: -4000,
+        currentAmount: -1001,
+      }),
+    ).toEqual({
+      error: "Current plus previous billing exceeds the scheduled value.",
+    });
+
+    expect(
+      validateCurrentAmount({
+        scheduledValue: -5000,
+        previouslyBilled: -1000,
+        currentAmount: 500,
+      }),
+    ).toEqual({
+      error:
+        "Current-period billing must follow the sign of the scheduled value.",
+    });
+  });
+
+  it("rejects mixed-sign work and materials that cancel on a deductive row", () => {
+    expect(validateBillingComponentSigns(-5000, [-6000, 1000])).toEqual({
+      error:
+        "Work and materials billing must each follow the sign of the scheduled value.",
+    });
+    expect(validateBillingComponentSigns(-5000, [-3000, -1000])).toEqual({
+      error: null,
     });
   });
 });

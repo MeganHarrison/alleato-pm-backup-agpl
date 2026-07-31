@@ -298,6 +298,12 @@ interface CellTextProps {
   muted?: boolean;
   className?: string;
   style?: React.CSSProperties;
+  /**
+   * Supplementary detail shown as a native hover tooltip — the sanctioned way
+   * to keep a secondary datum accessible without stacking a second line in the
+   * cell (design-system: one column, one visible attribute).
+   */
+  title?: string;
 }
 
 /** Plain text cell. Renders `emptyLabel` when value is falsy. */
@@ -307,10 +313,15 @@ export function CellText({
   muted = false,
   className,
   style,
+  title,
 }: CellTextProps): React.ReactElement {
   const display = value?.trim() || emptyLabel;
   return (
-    <span className={cn(muted ? "text-muted-foreground" : undefined, className)} style={style}>
+    <span
+      className={cn(muted ? "text-muted-foreground" : undefined, className)}
+      style={style}
+      title={title}
+    >
       {display}
     </span>
   );

@@ -1,0 +1,20 @@
+{
+  "observedAt": "2026-07-27T01:43:13.726223Z",
+  "endpoint": "https://alleato-backend-rbnj.onrender.com/health/training-library",
+  "httpStatus": 503,
+  "reconciliation": {
+    "lastStage": "upsert-training_guide",
+    "lastErrorType": "APIError",
+    "lastErrorCode": "23503",
+    "lastErrorFingerprint": "3e4a0c2452c3"
+  },
+  "schemaEvidence": {
+    "foreignKey": "document_metadata_document_type_fkey",
+    "column": "document_metadata.document_type",
+    "referencedTable": "document_type_taxonomy",
+    "referencedColumn": "type_key",
+    "sourceTypeValues": ["training_guide", "training_resource"]
+  },
+  "rootCause": "Training source categories were incorrectly written into the controlled document taxonomy foreign key.",
+  "fix": "Keep training source values in type/category and omit document_type; a focused regression enforces this for both source types."
+}

@@ -193,6 +193,33 @@ class TestDateValidation:
         assert _valid_iso_date(raw) == expected
 
 
+class _FakeMessage:
+    def __init__(self, content: str) -> None:
+        self.content = content
+
+
+class _FakeChoice:
+    def __init__(self, content: str) -> None:
+        self.message = _FakeMessage(content)
+
+
+class _FakeResponse:
+    def __init__(self, content: str) -> None:
+        self.choices = [_FakeChoice(content)]
+
+
+class _FakeOpenAIClient:
+    """Minimal stand-in for the OpenAI client returning a canned chat response."""
+
+    def __init__(self, content: str) -> None:
+        self._content = content
+        self.chat = self  # type: ignore[assignment]
+        self.completions = self  # type: ignore[assignment]
+
+    def create(self, *args, **kwargs):  # noqa: ANN002, ANN003 - test stub
+        return _FakeResponse(self._content)
+
+
 class _FakeTaskTable:
     def __init__(self) -> None:
         self.upserted = None
@@ -256,6 +283,72 @@ class TestExtractorTaskProjectLinks:
         assert data["project_id"] == 1009
         assert data["project_ids"] == [1009]
         assert data["source_system"] == "fireflies"
+
+
+class TestMeetingMemoryExtraction:
+    """Guards the meeting → ai_memories path against structural code bugs.
+
+    Regression: `_extract_meeting_memories` referenced `_openai_provider_configs`,
+    `_client_for_provider`, and `_model_for_provider` — none of which exist in the
+    module — so every meeting ingest raised NameError. It was swallowed by the
+    caller's try/except, silently disabling memory extraction for every Fireflies
+    meeting. This test exercises the chat path so that class of bug can't recur
+    undetected.
+    """
+
+    def test_extraction_reaches_chat_without_undefined_helpers(self, monkeypatch):
+        from src.services.ingestion import fireflies_pipeline
+
+        monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+        monkeypatch.setattr(
+            fireflies_pipeline,
+            "get_openai_client",
+            lambda: _FakeOpenAIClient("[]"),
+        )
+
+        pipeline = FirefliesIngestionPipeline.__new__(FirefliesIngestionPipeline)
+        # An empty "[]" response returns before any Supabase/embedder access, so
+        # __init__ collaborators are not needed. Before the fix this raised
+        # NameError: name '_openai_provider_configs' is not defined.
+        result = pipeline._extract_meeting_memories(
+            document_id="doc-1",
+            project_id=1009,
+            title="Weekly Design Sync",
+            content="We agreed to ship the CAD file by Friday.",
+            action_items=["Deliver the CAD file by Friday"],
+        )
+        assert result is None
+
+    def test_valid_memory_runs_full_parse_path(self, monkeypatch):
+        from src.services.ingestion import fireflies_pipeline
+
+        monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+        # Clear Supabase creds so the method stops at the storage guard *after*
+        # parsing + validating memories — exercising the JSON/validation path
+        # without any network write.
+        monkeypatch.delenv("SUPABASE_URL", raising=False)
+        monkeypatch.delenv("NEXT_PUBLIC_SUPABASE_URL", raising=False)
+        monkeypatch.delenv("SUPABASE_SERVICE_ROLE_KEY", raising=False)
+        memory_json = (
+            '[{"type": "commitment", "content": "Colin delivers the CAD file by '
+            'Friday.", "importance": 0.8, "confidence": 0.9}]'
+        )
+        monkeypatch.setattr(
+            fireflies_pipeline,
+            "get_openai_client",
+            lambda: _FakeOpenAIClient(memory_json),
+        )
+
+        pipeline = FirefliesIngestionPipeline.__new__(FirefliesIngestionPipeline)
+        # Returns at the missing-Supabase-creds guard, never touching the network.
+        result = pipeline._extract_meeting_memories(
+            document_id="doc-2",
+            project_id=1009,
+            title="Weekly Design Sync",
+            content="Colin will deliver the CAD file by Friday.",
+            action_items=[],
+        )
+        assert result is None
 
 
 class _SkipGuardStore:
@@ -370,15 +463,6 @@ No material updates.
             "record_source_processing_status",
             lambda *args, **kwargs: None,
         )
-        workflow_calls = []
-        monkeypatch.setattr(
-            fireflies_pipeline,
-            "enqueue_document_workflow",
-            lambda metadata_id, **kwargs: workflow_calls.append(
-                {"metadata_id": metadata_id, **kwargs}
-            )
-            or {"runId": "workflow-run-1", "status": "queued"},
-        )
 
         pipeline = FirefliesIngestionPipeline.__new__(FirefliesIngestionPipeline)
         pipeline.store = _MissingChunksStore()
@@ -386,6 +470,7 @@ No material updates.
         pipeline._fireflies_api_key = None
         pipeline._project_assigner = None
         pipeline._infer_project_id_from_context = lambda *args, **kwargs: None
+        pipeline._extract_meeting_memories = lambda *args, **kwargs: None
         pipeline._update_ingestion_job_state = lambda *args, **kwargs: None
 
         markdown = """# Weekly Design Sync
@@ -408,13 +493,7 @@ No material updates.
         assert result.document_id == "doc-existing"
         assert result.skipped is False
         assert result.chunk_count == 1
-        assert workflow_calls == [
-            {
-                "metadata_id": "doc-existing",
-                "project_hint": 1009,
-                "source_type": "fireflies",
-            }
-        ]
+        assert len(pipeline.store.chunks) == 1
 
     def test_skipped_unchanged_branch_links_meeting_and_upserts_structured_row(self, monkeypatch):
         """Regression: commit 61903b9cb fixed an UnboundLocalError where

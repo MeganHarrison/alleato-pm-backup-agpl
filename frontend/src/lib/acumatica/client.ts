@@ -707,7 +707,9 @@ class AcumaticaClient {
     // We filter in-memory instead.
     const invoices = await this.getInvoices({
       $top: 500,
-      $select: "ReferenceNbr,DueDate,Balance,Customer,CustomerName,Status",
+      // Keep this projection minimal. Selecting a field that is absent from the
+      // live Invoice contract makes Acumatica's OData binder fail the whole read.
+      $select: "DueDate,Balance",
     });
 
     const now = new Date();
@@ -762,20 +764,24 @@ class AcumaticaClient {
     const [payments, checks] = await Promise.all([
       this.getPayments({
         $top: 500,
-        $select: "ReferenceNbr,Date,PaymentAmount,Status",
+        $select: "ReferenceNbr,ApplicationDate,PaymentAmount,Status",
       }),
       this.getChecks({
         $top: 500,
-        $select: "ReferenceNbr,Date,PaymentAmount,Status",
+        $select: "ReferenceNbr,ApplicationDate,PaymentAmount,Status",
       }),
     ]);
 
     const sinceDate = since.getTime();
     const recentPayments = payments.filter(
-      (p) => p.Date && new Date(p.Date).getTime() >= sinceDate,
+      (p) =>
+        p.ApplicationDate &&
+        new Date(p.ApplicationDate).getTime() >= sinceDate,
     );
     const recentChecks = checks.filter(
-      (c) => c.Date && new Date(c.Date).getTime() >= sinceDate,
+      (c) =>
+        c.ApplicationDate &&
+        new Date(c.ApplicationDate).getTime() >= sinceDate,
     );
 
     const totalInflows = recentPayments.reduce(

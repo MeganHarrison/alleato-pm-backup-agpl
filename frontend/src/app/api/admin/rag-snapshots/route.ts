@@ -368,7 +368,7 @@ export const GET = withApiGuardrails(WHERE, async ({ request }) => {
   );
   const meetingIds = meetingRows.map((row) => row.id);
   const chunkRows: Array<{ document_id: string; updated_at: string | null }> = [];
-  const taskRows: Array<{ metadata_id: string; created_at: string | null }> = [];
+  const taskRows: Array<{ metadata_id: string | null; created_at: string }> = [];
   const evidenceRows: Array<{ source_document_id: string | null; created_at: string | null }> = [];
   const jobRows: LifecycleJobRow[] = [];
 
@@ -431,7 +431,11 @@ export const GET = withApiGuardrails(WHERE, async ({ request }) => {
   }
 
   const embeddedIds = new Set(chunkRows.map((row) => row.document_id));
-  const taskIds = new Set(taskRows.map((row) => row.metadata_id));
+  const taskIds = new Set(
+    taskRows
+      .map((row) => row.metadata_id)
+      .filter((id): id is string => id !== null),
+  );
   const evidenceIds = new Set(
     evidenceRows
       .map((row) => row.source_document_id)
@@ -484,7 +488,7 @@ export const GET = withApiGuardrails(WHERE, async ({ request }) => {
   );
   const outlookIds = outlookRows.map((row) => row.id);
   const outlookChunkRows: Array<{ document_id: string; updated_at: string | null }> = [];
-  const outlookTaskRows: Array<{ metadata_id: string; created_at: string | null }> = [];
+  const outlookTaskRows: Array<{ metadata_id: string | null; created_at: string }> = [];
   const outlookEvidenceRows: Array<{ source_document_id: string | null; created_at: string | null }> = [];
   const outlookJobRows: LifecycleJobRow[] = [];
 
@@ -547,7 +551,11 @@ export const GET = withApiGuardrails(WHERE, async ({ request }) => {
   }
 
   const outlookEmbeddedIds = new Set(outlookChunkRows.map((row) => row.document_id));
-  const outlookTaskIds = new Set(outlookTaskRows.map((row) => row.metadata_id));
+  const outlookTaskIds = new Set(
+    outlookTaskRows
+      .map((row) => row.metadata_id)
+      .filter((id): id is string => id !== null),
+  );
   const outlookEvidenceIds = new Set(
     outlookEvidenceRows
       .map((row) => row.source_document_id)

@@ -3,20 +3,36 @@ import { z } from "zod";
 import { parseJsonBody, withApiGuardrails } from "@/lib/guardrails/api";
 import { GuardrailError } from "@/lib/guardrails/errors";
 import { createClient, getApiRouteUser } from "@/lib/supabase/server";
+import type { Database } from "@/types/database.types";
 
 const OptionalString = z.string().trim().min(1).nullish();
+const OptionalJson = z.unknown().nullish();
+// Mirrors the `company_context` table (expanded for the AI Company Knowledge
+// Base — see supabase/migrations/20260304000001_expand_company_context_for_ai.sql)
+// and the `CompanyContext` type in `@/hooks/use-company-knowledge`.
 const CompanyContextUpsertSchema = z.object({
-  company_name: OptionalString,
-  industry: OptionalString,
-  company_size: OptionalString,
-  headquarters: OptionalString,
-  timezone: OptionalString,
-  website_url: z.string().url().nullish(),
   mission: OptionalString,
-  values: z.array(z.string().trim().min(1)).nullish(),
-  communication_style: OptionalString,
-  preferred_response_format: OptionalString,
-}).passthrough();
+  vision: OptionalString,
+  company_history: OptionalString,
+  core_values: OptionalJson,
+  key_differentiators: OptionalJson,
+  competitive_landscape: OptionalJson,
+  target_markets: OptionalJson,
+  goals: OptionalJson,
+  okrs: OptionalJson,
+  strategic_initiatives: OptionalJson,
+  org_structure: OptionalJson,
+  policies: OptionalJson,
+  resource_constraints: OptionalJson,
+  annual_revenue_range: OptionalString,
+  employee_count: z.number().int().nullish(),
+  founded_year: z.number().int().nullish(),
+  headquarters: OptionalString,
+  service_areas: OptionalJson,
+  certifications: OptionalJson,
+  key_clients: OptionalJson,
+  notes: OptionalString,
+});
 
 async function requireAdmin(where: string) {
   const supabase = await createClient();
@@ -103,7 +119,7 @@ export const PUT = withApiGuardrails("/api/admin/company-context#PUT", async ({ 
       .update({
         ...body,
         updated_at: new Date().toISOString(),
-      })
+      } as Database["public"]["Tables"]["company_context"]["Update"])
       .eq("id", existing.id)
       .select()
       .single();
@@ -115,7 +131,7 @@ export const PUT = withApiGuardrails("/api/admin/company-context#PUT", async ({ 
       .insert({
         ...body,
         updated_at: new Date().toISOString(),
-      })
+      } as Database["public"]["Tables"]["company_context"]["Insert"])
       .select()
       .single();
     result = { data, error };

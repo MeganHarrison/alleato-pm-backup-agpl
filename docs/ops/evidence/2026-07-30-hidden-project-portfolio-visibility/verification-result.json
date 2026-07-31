@@ -1,0 +1,5 @@
+{
+  "taskId": "hidden-project-portfolio-visibility",
+  "status": "BLOCKED",
+  "reason": "The release and database change are complete, but required authenticated production screenshot proof is unavailable because every saved owner browser session redirects to /auth/login. No fresh credential-backed owner session is available in this task."
+}

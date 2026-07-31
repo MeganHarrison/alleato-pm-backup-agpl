@@ -16,8 +16,18 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 FRONTEND_DIR="${REPO_ROOT}/frontend"
-ESLINT_BIN="${FRONTEND_DIR}/node_modules/.bin/eslint"
+ESLINT_JS="${FRONTEND_DIR}/node_modules/eslint/bin/eslint.js"
 STAGED_FILTER="${REPO_ROOT}/scripts/lint-staged/filter-eslint-to-staged-lines.mjs"
+PNPM_NODE_MODULES="${FRONTEND_DIR}/node_modules/.pnpm/node_modules"
+
+# pnpm's generated Unix shim can retain a WSL-style NODE_PATH even when the
+# Windows Node binary is running under Git Bash. Build the module path from the
+# current checkout so ESLint can resolve its peer plugins on both platforms.
+if command -v cygpath >/dev/null 2>&1; then
+  PNPM_NODE_MODULES="$(cygpath -w "$PNPM_NODE_MODULES")"
+fi
+NODE_PATH_DELIMITER="$(node -p "require('path').delimiter")"
+export NODE_PATH="${PNPM_NODE_MODULES}${NODE_PATH:+${NODE_PATH_DELIMITER}${NODE_PATH}}"
 
 mode="${1:-}"
 shift || true
@@ -56,8 +66,7 @@ for file in "${existing_files[@]}"; do
       ;;
     # Design template files: intentional use of hardcoded colors/arbitrary values
     src/components/ds/futuristic-id-card.tsx|\
-    src/components/ds/liquid-metal-id-card.tsx|\
-    src/components/research-console.tsx)
+    src/components/ds/liquid-metal-id-card.tsx)
       ;;
     # Transactional email templates: rendered by Resend/React Email to static
     # HTML for external inboxes, which cannot resolve CSS variables. Inline hex
@@ -68,6 +77,16 @@ for file in "${existing_files[@]}"; do
     # Redirect-only pages: no JSX rendered, page-shell rule does not apply
     src/app/\(main\)/\[projectId\]/estimates/new/page.tsx)
       ;;
+    # Training module: owner-approved exception to the whole design system —
+    # see specs/LAYOUT-REFERENCE.md and DESIGN-SYSTEM-GATE.md. This route
+    # faithfully ports the standalone "Own Your Growth" hub's own brand
+    # system, not ds/ui components — the CLI --rule escalation below would
+    # otherwise force-error the exact patterns this route intentionally uses.
+    src/app/\(main\)/training/*|\
+    src/app/\(main\)/training/**/*|\
+    src/features/training/*|\
+    src/features/training/**/*)
+      ;;
     *)
       strict_files+=("$file")
       ;;
@@ -76,7 +95,7 @@ done
 
 case "$mode" in
   fix)
-    exec "$ESLINT_BIN" --no-warn-ignored --fix "${existing_files[@]}"
+    exec node "$ESLINT_JS" --no-warn-ignored --fix "${existing_files[@]}"
     ;;
   strict)
     if [[ ${#strict_files[@]} -eq 0 && ${#kanban_files[@]} -eq 0 ]]; then
@@ -85,7 +104,7 @@ case "$mode" in
 
     if [[ ${#strict_files[@]} -gt 0 ]]; then
       json_output="$(mktemp)"
-      if ! "$ESLINT_BIN" --no-warn-ignored --format json --rule '{"design-system/require-api-client":"error","design-system/no-hardcoded-colors":"error","design-system/no-arbitrary-spacing":"error","design-system/require-semantic-colors":"error","design-system/no-design-violations":"error","design-system/require-page-shell":"error","design-system/no-oversized-shadows":"error","design-system/no-raw-button":"error","design-system/no-raw-form-controls":"error","design-system/no-raw-search-input":"error","design-system/require-money-field":"error","design-system/require-info-alert":"error","design-system/no-raw-table-primitives":"error","design-system/no-raw-page-grid":"error","design-system/no-stacked-table-cell":"error","design-system/no-external-fetch-in-api-routes":"error","no-restricted-imports":["error",{"paths":[{"name":"@/components/ui/dialog","message":"Use \"@/components/ui/unified-modal\" for app-level modals to keep animation, positioning, and spacing consistent."}]}]}' "${strict_files[@]}" > "$json_output"; then
+      if ! node "$ESLINT_JS" --no-warn-ignored --format json --rule '{"design-system/require-api-client":"error","design-system/no-hardcoded-colors":"error","design-system/no-arbitrary-spacing":"error","design-system/require-semantic-colors":"error","design-system/no-design-violations":"error","design-system/require-page-shell":"error","design-system/no-oversized-shadows":"error","design-system/no-raw-button":"error","design-system/no-raw-form-controls":"error","design-system/no-raw-search-input":"error","design-system/require-money-field":"error","design-system/require-info-alert":"error","design-system/no-raw-table-primitives":"error","design-system/no-raw-page-grid":"error","design-system/no-stacked-table-cell":"error","design-system/no-external-fetch-in-api-routes":"error","no-restricted-imports":["error",{"paths":[{"name":"@/components/ui/dialog","message":"Use \"@/components/ui/unified-modal\" for app-level modals to keep animation, positioning, and spacing consistent."}]}]}' "${strict_files[@]}" > "$json_output"; then
         node "$STAGED_FILTER" "$json_output" "${strict_files[@]}"
         status=$?
         rm -f "$json_output"
@@ -96,7 +115,7 @@ case "$mode" in
 
     if [[ ${#kanban_files[@]} -gt 0 ]]; then
       json_output="$(mktemp)"
-      if ! "$ESLINT_BIN" --no-warn-ignored --format json --rule '{"design-system/require-api-client":"error","design-system/no-hardcoded-colors":"error","design-system/no-arbitrary-spacing":"off","design-system/require-semantic-colors":"error","design-system/no-design-violations":"off","design-system/require-page-shell":"error","design-system/no-oversized-shadows":"error","design-system/no-raw-button":"error","design-system/no-raw-form-controls":"error","design-system/no-raw-search-input":"error","design-system/require-money-field":"error","design-system/require-info-alert":"error","design-system/no-raw-table-primitives":"error","design-system/no-raw-page-grid":"error","design-system/no-stacked-table-cell":"error","design-system/no-external-fetch-in-api-routes":"error","no-restricted-imports":["error",{"paths":[{"name":"@/components/ui/dialog","message":"Use \"@/components/ui/unified-modal\" for app-level modals to keep animation, positioning, and spacing consistent."}]}]}' "${kanban_files[@]}" > "$json_output"; then
+      if ! node "$ESLINT_JS" --no-warn-ignored --format json --rule '{"design-system/require-api-client":"error","design-system/no-hardcoded-colors":"error","design-system/no-arbitrary-spacing":"off","design-system/require-semantic-colors":"error","design-system/no-design-violations":"off","design-system/require-page-shell":"error","design-system/no-oversized-shadows":"error","design-system/no-raw-button":"error","design-system/no-raw-form-controls":"error","design-system/no-raw-search-input":"error","design-system/require-money-field":"error","design-system/require-info-alert":"error","design-system/no-raw-table-primitives":"error","design-system/no-raw-page-grid":"error","design-system/no-stacked-table-cell":"error","design-system/no-external-fetch-in-api-routes":"error","no-restricted-imports":["error",{"paths":[{"name":"@/components/ui/dialog","message":"Use \"@/components/ui/unified-modal\" for app-level modals to keep animation, positioning, and spacing consistent."}]}]}' "${kanban_files[@]}" > "$json_output"; then
         node "$STAGED_FILTER" "$json_output" "${kanban_files[@]}"
         status=$?
         rm -f "$json_output"

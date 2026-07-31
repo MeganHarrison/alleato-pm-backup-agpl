@@ -1,15 +1,16 @@
 import { PageShell } from "@/components/layout";
+import { requireAppAdminPageAccess } from "@/lib/auth/require-app-admin";
 import { serviceDb } from "@/lib/supabase/service-db";
-import { requireAdmin } from "@/app/api/admin/_shared";
 
 import { AiLearningPromotionsClient } from "./promotions-client";
 
 export const dynamic = "force-dynamic";
 
 export default async function AiLearningPromotionsPage() {
-  await requireAdmin("ai-learning-promotions-page");
+  await requireAppAdminPageAccess();
 
-    const { data, error } = await serviceDb.from("ai_learning_promotions")
+  const { data, error } = await serviceDb
+    .from("ai_learning_promotions")
     .select("*")
     .eq("status", "candidate")
     .order("created_at", { ascending: false })

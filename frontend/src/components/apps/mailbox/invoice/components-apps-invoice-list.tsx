@@ -286,6 +286,10 @@ const ComponentsAppsInvoiceList = () => {
                             },
                         ]}
                         highlightOnHover
+                        fontSize="sm"
+                        striped={false}
+                        horizontalSpacing="xs"
+                        verticalSpacing="xs"
                         totalRecords={initialRecords.length}
                         recordsPerPage={pageSize}
                         page={page}

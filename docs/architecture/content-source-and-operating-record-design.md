@@ -83,6 +83,7 @@ The two-DB split is a **real seam** (two adapters exist: PM-APP reads for `docum
 
 - `lib/executive/brandon-daily-update.ts:1440,1549,1575,1602,1656,2669`
 - `scripts/intelligence/daily-executive-brief.mjs:293,353`
+- `lib/ai/retrieval/source-specific-rag.ts:493–650`
 - `lib/executive/canonical-operating-packet.ts:48,88`
 - `lib/ai/tools/operational.ts:2321,2389`
 - `lib/executive/daily-deep-read-promotion.ts:253,269`
@@ -146,7 +147,7 @@ Delete the `.mjs` writer → no complexity reappears (pure pass-through). Delete
 Each slice is verified end-to-end as the real user before the next (BATCHING-GATE). No consumer moves until the module proves parity against it.
 
 1. **Build A, wire zero consumers.** Ship `content-source.ts` + a **parity test**: `getProjectContent({granularity:"full"})` returns the same document set as `loadRecentMeetingTranscriptItems` for a live window. Additive, non-breaking.
-2. **Migrate one read at a time, prove parity each.** Order by blast radius, lowest first: `operational.searchMeetings` → `canonical-operating-packet` → `brandon-daily-update` → the two `.mjs` scripts (these keep their `pg` transport but call a shared window/resolve helper). Delete each copy as its caller flips.
+2. **Migrate one read at a time, prove parity each.** Order by blast radius, lowest first: `operational.searchMeetings` → `source-specific-rag` → `canonical-operating-packet` → `brandon-daily-update` → the two `.mjs` scripts (these keep their `pg` transport but call a shared window/resolve helper). Delete each copy as its caller flips.
 3. **B: packet emits `PacketOperatingRecord[]`.** Add the structured block to the deep-read compiler; add `packetToOperatingRecords`; point it at `apply_source_operating_record_projection`. Verify `/intelligence` shows health/risks/financials refreshing **together** with the summary. Retire the `current_summary`-only `.mjs` write.
 4. **Retire or repurpose the Python synthesis sweep** once B drives the record. Remove the suspended cron or repoint it.
 5. **C/D/E** as mechanical cleanups.

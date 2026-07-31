@@ -43,7 +43,7 @@ export function KpiBlock({
       {/* Tier 1: Eyebrow */}
       <span
         className={cn(
-          "font-bold uppercase tracking-[0.08em] text-muted-foreground/60",
+          "font-bold uppercase tracking-[0.08em] text-muted-foreground",
           resolvedSize === "small" ? "text-[9px]" : "text-[10px]"
         )}
       >
@@ -85,7 +85,7 @@ export function KpiBlock({
       {context && (
         <span
           className={cn(
-            "mt-1 block text-muted-foreground/60",
+            "mt-1 block text-muted-foreground",
             resolvedSize === "small" ? "text-[10px]" : "text-[11px]"
           )}
         >

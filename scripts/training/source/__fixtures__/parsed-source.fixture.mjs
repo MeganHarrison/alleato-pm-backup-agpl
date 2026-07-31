@@ -1,0 +1,65 @@
+// Small synthetic fixture in the REAL window.ALLEATO_RESOURCES shape
+// (roles/topics/items), not the real business data. Used only to test
+// buildNormalizedLibrary/validateResourceLibrary/buildSeedMigrationSql logic.
+
+export const parsedSourceFixture = {
+  generated: "2026-07-24",
+  roles: [
+    { id: "project-manager", name: "Project Manager" },
+    { id: "superintendent", name: "Superintendent" },
+  ],
+  topics: [
+    { id: "reading-reviewing-drawings", name: "Reading & Reviewing Drawings", track: "pm" },
+    { id: "safety-management", name: "Safety Management", track: "field" },
+  ],
+  items: [
+    {
+      id: "seed-1",
+      title: "Reading Drawings — 10-Min Crash Course",
+      url: "https://www.youtube.com/watch?v=example1",
+      source: "YouTube",
+      type: "video",
+      cost: "free",
+      level: "all",
+      track: "pm",
+      topic: "Reading & Reviewing Drawings",
+      topicId: "reading-reviewing-drawings",
+      roles: ["project-manager"],
+      dateAdded: "2026-07-24",
+      status: "published",
+      note: "",
+    },
+    {
+      id: "seed-2",
+      title: "Writing a Change Order",
+      url: "https://example.com/construction-management/change-order",
+      source: "Workyard",
+      type: "article",
+      cost: "free",
+      level: "deep",
+      track: "pm",
+      topic: "Reading & Reviewing Drawings",
+      topicId: "reading-reviewing-drawings",
+      roles: ["project-manager", "superintendent"],
+      dateAdded: "2026-07-24",
+      status: "review",
+      note: "Detailed guide on writing change orders",
+    },
+    {
+      id: "seed-3",
+      title: "Jobsite Safety Fundamentals",
+      url: "https://example.com/safety/fundamentals",
+      source: "OSHA",
+      type: "course",
+      cost: "free",
+      level: "all",
+      track: "field",
+      topic: "Safety Management",
+      topicId: "safety-management",
+      roles: ["superintendent"],
+      dateAdded: "2026-07-20",
+      status: "published",
+      note: "",
+    },
+  ],
+};

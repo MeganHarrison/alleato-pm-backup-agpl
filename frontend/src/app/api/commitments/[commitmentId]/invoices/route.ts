@@ -9,6 +9,7 @@ type CommitmentType = "subcontract" | "purchase_order";
 
 interface CommitmentInvoiceLineItem {
   id: string;
+  source_sov_item_id: string;
   line_number: number | null;
   budget_code: string | null;
   description: string;
@@ -35,6 +36,7 @@ interface CommitmentInvoiceSummary {
 interface CommitmentInvoiceResponse {
   summary: CommitmentInvoiceSummary;
   line_items: CommitmentInvoiceLineItem[];
+  change_order_billed_to_date: Record<string, number>;
   billing_context: {
     commitment_type: CommitmentType;
     project_id: number | null;
@@ -134,7 +136,92 @@ async function fetchLineItemsForCommitment(
         return { error: error.message as string };
       }
 
-      sovItems = (data || []) as Array<Record<string, unknown>>;
+      const approvedItems = (data || []) as Array<Record<string, unknown>>;
+      const { data: canonicalRows, error: canonicalError } = await supabase
+        .from("subcontract_sov_items")
+        .select("*")
+        .eq("subcontract_id", commitmentId)
+        .order("line_number", { ascending: true });
+
+      if (canonicalError) {
+        return { error: canonicalError.message };
+      }
+
+      const canonicalItems = (canonicalRows ?? []) as Array<
+        Record<string, unknown>
+      >;
+      const reconciliationError =
+        "Approved subcontractor SOV must contain every commitment SOV line exactly once. Reconcile the SOV before creating an invoice.";
+      const claimedSourceIds = new Set<string>();
+      sovItems = [];
+      for (const approvedItem of approvedItems) {
+        const explicitSourceId =
+          typeof approvedItem.source_sov_item_id === "string"
+            ? approvedItem.source_sov_item_id
+            : null;
+        const explicitSource = explicitSourceId
+          ? canonicalItems.find(
+              (canonicalItem) =>
+                String(canonicalItem.id) === explicitSourceId,
+            )
+          : null;
+        const metadataCandidates = explicitSourceId
+          ? []
+          : canonicalItems.filter(
+              (canonicalItem) =>
+                String(canonicalItem.budget_code ?? "")
+                  .trim()
+                  .toLowerCase() ===
+                  String(approvedItem.budget_code ?? "")
+                    .trim()
+                    .toLowerCase() &&
+                String(canonicalItem.description ?? "")
+                  .trim()
+                  .toLowerCase() ===
+                  String(approvedItem.description ?? "")
+                    .trim()
+                    .toLowerCase(),
+            );
+        const source =
+          explicitSource ??
+          (explicitSourceId
+            ? null
+            : metadataCandidates.length === 1
+              ? metadataCandidates[0]
+              : approvedItems.length === 1 && canonicalItems.length === 1
+                ? canonicalItems[0]
+                : null);
+
+        if (!source) {
+          return {
+            error: reconciliationError,
+          };
+        }
+
+        const sourceId = String(source.id);
+        if (claimedSourceIds.has(sourceId)) {
+          return { error: reconciliationError };
+        }
+        claimedSourceIds.add(sourceId);
+
+        sovItems.push({
+          ...approvedItem,
+          source_sov_item_id: sourceId,
+          amount: source.amount,
+          budget_code: source.budget_code,
+          description: source.description,
+        });
+      }
+
+      if (
+        claimedSourceIds.size !== canonicalItems.length ||
+        canonicalItems.some(
+          (canonicalItem) =>
+            !claimedSourceIds.has(String(canonicalItem.id)),
+        )
+      ) {
+        return { error: reconciliationError };
+      }
     }
   }
 
@@ -153,6 +240,51 @@ async function fetchLineItemsForCommitment(
   }
 
   return { data: sovItems };
+}
+
+async function fetchChangeOrderBilledToDate(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  commitmentId: string,
+  commitmentType: CommitmentType,
+) {
+  const commitmentColumn =
+    commitmentType === "subcontract" ? "subcontract_id" : "purchase_order_id";
+  const { data: invoices, error: invoiceError } = await supabase
+    .from("subcontractor_invoices")
+    .select("id")
+    .eq(commitmentColumn, commitmentId)
+    .neq("status", "void");
+
+  if (invoiceError) {
+    return { error: invoiceError.message };
+  }
+
+  const invoiceIds = (invoices ?? []).map((invoice) => Number(invoice.id));
+  if (invoiceIds.length === 0) {
+    return { data: {} as Record<string, number> };
+  }
+
+  const { data: lines, error: lineError } = await supabase
+    .from("subcontractor_invoice_line_items")
+    .select(
+      "source_change_order_id, work_completed_period, materials_stored",
+    )
+    .in("invoice_id", invoiceIds)
+    .not("source_change_order_id", "is", null);
+
+  if (lineError) {
+    return { error: lineError.message };
+  }
+
+  const billedByChangeOrder: Record<string, number> = {};
+  for (const line of lines ?? []) {
+    if (!line.source_change_order_id) continue;
+    billedByChangeOrder[line.source_change_order_id] =
+      (billedByChangeOrder[line.source_change_order_id] ?? 0) +
+      Number(line.work_completed_period ?? 0) +
+      Number(line.materials_stored ?? 0);
+  }
+  return { data: billedByChangeOrder };
 }
 
 /**
@@ -191,6 +323,18 @@ export const GET = withApiGuardrails<{ commitmentId: string }>(
 
     if ("error" in lineItemsResult) {
       return NextResponse.json({ error: lineItemsResult.error }, { status: 400 });
+    }
+
+    const changeOrderBillingResult = await fetchChangeOrderBilledToDate(
+      supabase,
+      commitmentId,
+      context.commitmentType,
+    );
+    if ("error" in changeOrderBillingResult) {
+      return NextResponse.json(
+        { error: changeOrderBillingResult.error },
+        { status: 400 },
+      );
     }
 
     const retainagePercentage = context.commitment.retainagePercentage;
@@ -234,6 +378,10 @@ export const GET = withApiGuardrails<{ commitmentId: string }>(
 
       return {
         id: String(item.id),
+        source_sov_item_id:
+          typeof item.source_sov_item_id === "string"
+            ? item.source_sov_item_id
+            : String(item.id),
         line_number:
           typeof item.line_number === "number"
             ? item.line_number
@@ -261,6 +409,7 @@ export const GET = withApiGuardrails<{ commitmentId: string }>(
     const responseData: CommitmentInvoiceResponse = {
       summary: invoiceSummary,
       line_items: invoiceLineItems,
+      change_order_billed_to_date: changeOrderBillingResult.data,
       billing_context: {
         commitment_type: context.commitmentType,
         project_id: context.commitment.projectId,

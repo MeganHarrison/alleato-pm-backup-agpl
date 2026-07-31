@@ -3,7 +3,9 @@ import { GET, POST } from "../route";
 import { mockProject } from "@/test-utils/mocks";
 import { getApiRouteUser } from "@/lib/supabase/server";
 
-const mockGetApiRouteUser = getApiRouteUser as jest.MockedFunction<typeof getApiRouteUser>;
+const mockGetApiRouteUser = getApiRouteUser as jest.MockedFunction<
+  typeof getApiRouteUser
+>;
 
 // Create a thenable mock that can be both chained and awaited
 const createMockQuery = (resolveValue: {
@@ -48,10 +50,12 @@ let mockServiceClient: MockServiceClient;
 // Mock auth client
 const mockAuthClient = {
   auth: {
-    getUser: jest.fn(() => Promise.resolve({
-      data: { user: { id: 'test-user-id', email: 'test@example.com' } },
-      error: null
-    })),
+    getUser: jest.fn(() =>
+      Promise.resolve({
+        data: { user: { id: "test-user-id", email: "test@example.com" } },
+        error: null,
+      }),
+    ),
   },
 };
 
@@ -62,17 +66,131 @@ jest.mock("@/lib/supabase/service", () => ({
 
 jest.mock("@/lib/supabase/server", () => ({
   createClient: jest.fn(() => Promise.resolve(mockAuthClient)),
-  getApiRouteUser: jest.fn(() => Promise.resolve({ id: 'test-user-id', email: 'test@example.com' })),
+  getApiRouteUser: jest.fn(() =>
+    Promise.resolve({ id: "test-user-id", email: "test@example.com" }),
+  ),
 }));
 
 describe("/api/projects", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     // Reset auth mock
-    mockGetApiRouteUser.mockResolvedValue({ id: 'test-user-id', email: 'test@example.com' });
+    mockGetApiRouteUser.mockResolvedValue({
+      id: "test-user-id",
+      email: "test@example.com",
+    });
   });
 
   describe("GET", () => {
+    it("hides Hidden-phase projects from employee portfolio queries", async () => {
+      const projectsQuery = createMockQuery({
+        data: [],
+        error: null,
+        count: 0,
+      });
+
+      mockServiceClient = {
+        from: jest.fn((table: string) => {
+          if (table === "users_auth") {
+            return createMockQuery({
+              data: { person_id: "person-123" },
+              error: null,
+              count: null,
+            });
+          }
+          if (table === "user_profiles") {
+            return createMockQuery({
+              data: { is_admin: false, is_developer: false },
+              error: null,
+              count: null,
+            });
+          }
+          if (table === "project_directory_memberships") {
+            return createMockQuery({
+              data: [{ project_id: 67 }],
+              error: null,
+              count: null,
+            });
+          }
+          if (table === "project_role_members") {
+            return createMockQuery({ data: [], error: null, count: null });
+          }
+          if (table === "projects") return projectsQuery;
+          return createMockQuery({ data: null, error: null, count: null });
+        }),
+      };
+
+      const response = await GET(
+        new NextRequest("http://localhost:3000/api/projects"),
+      );
+
+      expect(response.status).toBe(200);
+      expect(projectsQuery.or).toHaveBeenCalledWith(
+        "phase.is.null,phase.neq.Hidden",
+      );
+    });
+
+    it("lets Megan retrieve Hidden-phase projects but not the secondary owner", async () => {
+      const buildOwnerClient = () => {
+        const projectsQuery = createMockQuery({
+          data: [],
+          error: null,
+          count: 0,
+        });
+        const client = {
+          from: jest.fn((table: string) => {
+            if (table === "users_auth") {
+              return createMockQuery({
+                data: { person_id: "person-123" },
+                error: null,
+                count: null,
+              });
+            }
+            if (table === "user_profiles") {
+              return createMockQuery({
+                data: { is_admin: true, is_developer: false },
+                error: null,
+                count: null,
+              });
+            }
+            if (table === "projects") return projectsQuery;
+            return createMockQuery({ data: null, error: null, count: null });
+          }),
+        };
+        return { client, projectsQuery };
+      };
+
+      const megan = buildOwnerClient();
+      mockServiceClient = megan.client;
+      mockGetApiRouteUser.mockResolvedValue({
+        id: "megan-id",
+        email: "megan@megankharrison.com",
+      });
+
+      expect(
+        (await GET(new NextRequest("http://localhost:3000/api/projects")))
+          .status,
+      ).toBe(200);
+      expect(megan.projectsQuery.or).not.toHaveBeenCalledWith(
+        "phase.is.null,phase.neq.Hidden",
+      );
+
+      const brandon = buildOwnerClient();
+      mockServiceClient = brandon.client;
+      mockGetApiRouteUser.mockResolvedValue({
+        id: "brandon-id",
+        email: "bclymer@alleatogroup.com",
+      });
+
+      expect(
+        (await GET(new NextRequest("http://localhost:3000/api/projects")))
+          .status,
+      ).toBe(200);
+      expect(brandon.projectsQuery.or).toHaveBeenCalledWith(
+        "phase.is.null,phase.neq.Hidden",
+      );
+    });
+
     it("returns projects with default pagination", async () => {
       // Setup mock service client with different responses for different tables
       mockServiceClient = {
@@ -120,7 +238,7 @@ describe("/api/projects", () => {
             });
           }
           return createMockQuery({ data: null, error: null, count: null });
-        })
+        }),
       };
 
       const request = new NextRequest("http://localhost:3000/api/projects");
@@ -145,7 +263,10 @@ describe("/api/projects", () => {
     it("prefers project-level client relationships over prime contract test owners", async () => {
       // Unfiltered portfolio view is owner-only; sign in as the owner so the
       // membership filter is skipped and client-name resolution is exercised.
-      mockGetApiRouteUser.mockResolvedValue({ id: "owner-id", email: "megan@megankharrison.com" });
+      mockGetApiRouteUser.mockResolvedValue({
+        id: "owner-id",
+        email: "megan@megankharrison.com",
+      });
 
       const project = {
         ...mockProject,
@@ -225,7 +346,10 @@ describe("/api/projects", () => {
 
     it("supports lightweight project option fields without resolving clients", async () => {
       // Owner gets the unfiltered list; this test focuses on field selection.
-      mockGetApiRouteUser.mockResolvedValue({ id: "owner-id", email: "megan@megankharrison.com" });
+      mockGetApiRouteUser.mockResolvedValue({
+        id: "owner-id",
+        email: "megan@megankharrison.com",
+      });
 
       const projectsQuery = createMockQuery({
         data: [
@@ -260,7 +384,9 @@ describe("/api/projects", () => {
             return projectsQuery;
           }
           if (table === "prime_contracts" || table === "companies") {
-            throw new Error(`${table} should not be queried for lightweight project options`);
+            throw new Error(
+              `${table} should not be queried for lightweight project options`,
+            );
           }
           return createMockQuery({ data: null, error: null, count: null });
         }),
@@ -274,10 +400,12 @@ describe("/api/projects", () => {
 
       expect(response.status).toBe(200);
       expect(projectsQuery.select).toHaveBeenCalledWith(
-        "id,name,\"job number\",phase",
+        'id,name,"job number",phase',
         { count: "exact" },
       );
-      expect(mockServiceClient.from).not.toHaveBeenCalledWith("prime_contracts");
+      expect(mockServiceClient.from).not.toHaveBeenCalledWith(
+        "prime_contracts",
+      );
       expect(mockServiceClient.from).not.toHaveBeenCalledWith("companies");
       expect(data.data).toEqual([
         {
@@ -362,6 +490,109 @@ describe("/api/projects", () => {
       ]);
     });
 
+    it("lets a company-template holder see every project", async () => {
+      const projectsQuery = createMockQuery({
+        data: [
+          { id: 1, name: "Project One", archived: false },
+          { id: 2, name: "Project Two", archived: false },
+        ],
+        error: null,
+        count: 2,
+      });
+
+      mockServiceClient = {
+        from: jest.fn((table: string) => {
+          if (table === "users_auth") {
+            return createMockQuery({
+              data: { person_id: "person-pm" },
+              error: null,
+              count: null,
+            });
+          }
+          if (table === "user_profiles") {
+            return createMockQuery({
+              data: { is_admin: false, is_developer: false },
+              error: null,
+              count: null,
+            });
+          }
+          if (table === "person_company_templates") {
+            return createMockQuery({
+              data: { template_id: "company-project-manager" },
+              error: null,
+              count: null,
+            });
+          }
+          if (
+            table === "project_directory_memberships" ||
+            table === "project_role_members"
+          ) {
+            throw new Error(
+              "company access must not be narrowed by membership",
+            );
+          }
+          if (table === "projects") {
+            return projectsQuery;
+          }
+          return createMockQuery({ data: null, error: null, count: null });
+        }),
+      };
+
+      const request = new NextRequest(
+        "http://localhost:3000/api/projects?fields=id,name,archived&includeClient=false&limit=100",
+      );
+      const response = await GET(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(projectsQuery.in).not.toHaveBeenCalled();
+      expect(data.data).toHaveLength(2);
+    });
+
+    it("denies portfolio access to an inactive company-template holder", async () => {
+      const usersAuthQuery = createMockQuery({
+        // The active-person inner join removes the auth link for this inactive
+        // person before company-template resolution can run.
+        data: null,
+        error: null,
+        count: null,
+      });
+
+      mockServiceClient = {
+        from: jest.fn((table: string) => {
+          if (table === "users_auth") {
+            return usersAuthQuery;
+          }
+          if (table === "user_profiles") {
+            return createMockQuery({
+              data: { is_admin: false, is_developer: false },
+              error: null,
+              count: null,
+            });
+          }
+          if (table === "person_company_templates") {
+            throw new Error(
+              "inactive people must be denied before template lookup",
+            );
+          }
+          return createMockQuery({ data: null, error: null, count: null });
+        }),
+      };
+
+      const request = new NextRequest(
+        "http://localhost:3000/api/projects?fields=id,name&includeClient=false",
+      );
+      const response = await GET(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.data).toEqual([]);
+      expect(usersAuthQuery.select).toHaveBeenCalledWith(
+        "person_id, person:people!inner(status)",
+      );
+      expect(usersAuthQuery.eq).toHaveBeenCalledWith("person.status", "active");
+    });
+
     it("restricts non-owner admins to only their assigned projects", async () => {
       // Regression: admins must NOT see every project. Only the workspace owner
       // gets the unfiltered portfolio. A non-owner admin assigned to a single
@@ -380,13 +611,25 @@ describe("/api/projects", () => {
       mockServiceClient = {
         from: jest.fn((table: string) => {
           if (table === "users_auth") {
-            return createMockQuery({ data: { person_id: "person-admin" }, error: null, count: null });
+            return createMockQuery({
+              data: { person_id: "person-admin" },
+              error: null,
+              count: null,
+            });
           }
           if (table === "user_profiles") {
-            return createMockQuery({ data: { is_admin: true }, error: null, count: null });
+            return createMockQuery({
+              data: { is_admin: true },
+              error: null,
+              count: null,
+            });
           }
           if (table === "project_directory_memberships") {
-            return createMockQuery({ data: [{ project_id: 5 }], error: null, count: null });
+            return createMockQuery({
+              data: [{ project_id: 5 }],
+              error: null,
+              count: null,
+            });
           }
           if (table === "project_role_members") {
             return createMockQuery({ data: [], error: null, count: null });
@@ -407,7 +650,9 @@ describe("/api/projects", () => {
       expect(response.status).toBe(200);
       // The membership filter MUST be applied even though the user is an admin.
       expect(projectsQuery.in).toHaveBeenCalledWith("id", [5]);
-      expect(data.data).toEqual([{ id: 5, name: "Assigned Project", archived: false }]);
+      expect(data.data).toEqual([
+        { id: 5, name: "Assigned Project", archived: false },
+      ]);
     });
 
     it("lets the workspace owner see every project without a membership filter", async () => {
@@ -428,12 +673,23 @@ describe("/api/projects", () => {
       mockServiceClient = {
         from: jest.fn((table: string) => {
           if (table === "users_auth") {
-            return createMockQuery({ data: { person_id: "person-owner" }, error: null, count: null });
+            return createMockQuery({
+              data: { person_id: "person-owner" },
+              error: null,
+              count: null,
+            });
           }
           if (table === "user_profiles") {
-            return createMockQuery({ data: { is_admin: true }, error: null, count: null });
+            return createMockQuery({
+              data: { is_admin: true },
+              error: null,
+              count: null,
+            });
           }
-          if (table === "project_directory_memberships" || table === "project_role_members") {
+          if (
+            table === "project_directory_memberships" ||
+            table === "project_role_members"
+          ) {
             throw new Error("owner must not be filtered by membership");
           }
           if (table === "projects") {
@@ -473,7 +729,9 @@ describe("/api/projects", () => {
             });
           }
           if (table === "projects") {
-            throw new Error("projects should not be queried without assignment identity");
+            throw new Error(
+              "projects should not be queried without assignment identity",
+            );
           }
           return createMockQuery({ data: null, error: null, count: null });
         }),
@@ -516,7 +774,9 @@ describe("/api/projects", () => {
             });
           }
           if (table === "projects") {
-            throw new Error("projects should not be queried when assignments fail");
+            throw new Error(
+              "projects should not be queried when assignments fail",
+            );
           }
           return createMockQuery({ data: null, error: null, count: null });
         }),
@@ -527,7 +787,12 @@ describe("/api/projects", () => {
       const data = await response.json();
 
       expect(response.status).toBe(500);
-      expect(data).toEqual(expect.objectContaining({ success: false, error_code: "INTERNAL_ERROR" }));
+      expect(data).toEqual(
+        expect.objectContaining({
+          success: false,
+          error_code: "INTERNAL_ERROR",
+        }),
+      );
       expect(mockServiceClient.from).not.toHaveBeenCalledWith("projects");
     });
 
@@ -563,11 +828,11 @@ describe("/api/projects", () => {
             });
           }
           return createMockQuery({ data: null, error: null, count: null });
-        })
+        }),
       };
 
       const request = new NextRequest(
-        "http://localhost:3000/api/projects?page=2&limit=20"
+        "http://localhost:3000/api/projects?page=2&limit=20",
       );
       const response = await GET(request);
       const data = await response.json();
@@ -608,11 +873,11 @@ describe("/api/projects", () => {
             return mockQuery;
           }
           return createMockQuery({ data: null, error: null, count: null });
-        })
+        }),
       };
 
       const request = new NextRequest(
-        "http://localhost:3000/api/projects?search=test"
+        "http://localhost:3000/api/projects?search=test",
       );
       const response = await GET(request);
 
@@ -651,7 +916,7 @@ describe("/api/projects", () => {
             });
           }
           return createMockQuery({ data: null, error: null, count: null });
-        })
+        }),
       };
 
       const request = new NextRequest("http://localhost:3000/api/projects");
@@ -659,14 +924,19 @@ describe("/api/projects", () => {
       const data = await response.json();
 
       expect(response.status).toBe(500);
-      expect(data).toEqual(expect.objectContaining({ success: false, error_code: "INTERNAL_ERROR" }));
+      expect(data).toEqual(
+        expect.objectContaining({
+          success: false,
+          error_code: "INTERNAL_ERROR",
+        }),
+      );
     });
 
     it("handles unexpected errors", async () => {
       mockServiceClient = {
         from: jest.fn(() => {
           throw new Error("Unexpected error");
-        })
+        }),
       };
 
       const request = new NextRequest("http://localhost:3000/api/projects");
@@ -674,7 +944,12 @@ describe("/api/projects", () => {
       const data = await response.json();
 
       expect(response.status).toBe(500);
-      expect(data).toEqual(expect.objectContaining({ success: false, error_code: "INTERNAL_ERROR" }));
+      expect(data).toEqual(
+        expect.objectContaining({
+          success: false,
+          error_code: "INTERNAL_ERROR",
+        }),
+      );
     });
 
     it("returns 401 when user is not authenticated", async () => {
@@ -685,7 +960,9 @@ describe("/api/projects", () => {
       const data = await response.json();
 
       expect(response.status).toBe(401);
-      expect(data).toEqual(expect.objectContaining({ error_code: "AUTH_EXPIRED" }));
+      expect(data).toEqual(
+        expect.objectContaining({ error_code: "AUTH_EXPIRED" }),
+      );
     });
   });
 
@@ -702,24 +979,43 @@ describe("/api/projects", () => {
     return {
       from: jest.fn((table: string) => {
         if (table === "users_auth") {
-          return createMockQuery({ data: { person_id: "person-1" }, error: null, count: null });
+          return createMockQuery({
+            data: { person_id: "person-1" },
+            error: null,
+            count: null,
+          });
         }
         if (table === "user_profiles") {
-          return createMockQuery({ data: { is_admin: false }, error: null, count: null });
+          return createMockQuery({
+            data: { is_admin: false },
+            error: null,
+            count: null,
+          });
         }
         if (table === "permission_templates") {
-          return createMockQuery({ data: { id: "admin-template-id" }, error: null, count: null });
+          return createMockQuery({
+            data: { id: "admin-template-id" },
+            error: null,
+            count: null,
+          });
         }
         if (table === "projects") {
           const q = createMockQuery({
             data: projectError
               ? null
-              : { ...projectData, id: projectId, phase: projectData.phase ?? "Current" },
+              : {
+                  ...projectData,
+                  id: projectId,
+                  phase: projectData.phase ?? "Current",
+                },
             error: projectError,
             count: null,
           });
           if (captureInsert) {
-            q.insert = jest.fn((data) => { captureInsert(data as Record<string, unknown>); return q; });
+            q.insert = jest.fn((data) => {
+              captureInsert(data as Record<string, unknown>);
+              return q;
+            });
           }
           return q;
         }
@@ -762,7 +1058,9 @@ describe("/api/projects", () => {
       };
 
       let insertedData: Record<string, unknown> | null = null;
-      mockServiceClient = buildPostMockServiceClient(newProject, 3, (data) => { insertedData = data; });
+      mockServiceClient = buildPostMockServiceClient(newProject, 3, (data) => {
+        insertedData = data;
+      });
 
       const request = new NextRequest("http://localhost:3000/api/projects", {
         method: "POST",
@@ -841,7 +1139,9 @@ describe("/api/projects", () => {
       };
 
       let insertedData: Record<string, unknown> | null = null;
-      mockServiceClient = buildPostMockServiceClient(newProject, 5, (data) => { insertedData = data; });
+      mockServiceClient = buildPostMockServiceClient(newProject, 5, (data) => {
+        insertedData = data;
+      });
 
       const request = new NextRequest("http://localhost:3000/api/projects", {
         method: "POST",
@@ -861,7 +1161,9 @@ describe("/api/projects", () => {
       };
 
       let insertedData: Record<string, unknown> | null = null;
-      mockServiceClient = buildPostMockServiceClient(newProject, 4, (data) => { insertedData = data; });
+      mockServiceClient = buildPostMockServiceClient(newProject, 4, (data) => {
+        insertedData = data;
+      });
 
       const request = new NextRequest("http://localhost:3000/api/projects", {
         method: "POST",
@@ -875,11 +1177,13 @@ describe("/api/projects", () => {
 
     it("handles creation errors when prerequisites are missing", async () => {
       mockServiceClient = {
-        from: jest.fn(() => createMockQuery({
-          data: null,
-          error: { message: "Duplicate project name" },
-          count: null,
-        }))
+        from: jest.fn(() =>
+          createMockQuery({
+            data: null,
+            error: { message: "Duplicate project name" },
+            count: null,
+          }),
+        ),
       };
 
       const request = new NextRequest("http://localhost:3000/api/projects", {
@@ -897,11 +1201,13 @@ describe("/api/projects", () => {
 
     it("handles invalid JSON", async () => {
       mockServiceClient = {
-        from: jest.fn(() => createMockQuery({
-          data: null,
-          error: null,
-          count: null
-        }))
+        from: jest.fn(() =>
+          createMockQuery({
+            data: null,
+            error: null,
+            count: null,
+          }),
+        ),
       };
 
       const request = new NextRequest("http://localhost:3000/api/projects", {
@@ -929,7 +1235,9 @@ describe("/api/projects", () => {
       const data = await response.json();
 
       expect(response.status).toBe(401);
-      expect(data).toEqual(expect.objectContaining({ error_code: "AUTH_EXPIRED" }));
+      expect(data).toEqual(
+        expect.objectContaining({ error_code: "AUTH_EXPIRED" }),
+      );
     });
   });
 });

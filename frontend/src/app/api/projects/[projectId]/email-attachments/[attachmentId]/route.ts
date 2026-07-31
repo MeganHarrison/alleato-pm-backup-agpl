@@ -5,6 +5,7 @@ import { createClient, getApiRouteUser } from "@/lib/supabase/server";
 import { createOutlookIntakeServiceClient } from "@/lib/supabase/service";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import type { Database } from "@/types/database.types";
 
 async function assertAdminAccess(where: string) {
   const supabase = await createClient();
@@ -82,7 +83,7 @@ export const PATCH = withApiGuardrails<{ projectId: string; attachmentId: string
       });
     }
 
-    const updates: Record<string, string | null> = {};
+    const updates: Database["public"]["Tables"]["email_attachments"]["Update"] = {};
     if (parsed.data.attachmentType !== undefined) {
       updates.attachment_type = parsed.data.attachmentType;
     }

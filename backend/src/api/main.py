@@ -422,6 +422,37 @@ async def readiness_check() -> JSONResponse:
     return JSONResponse(status_code=200 if ready else 503, content=payload)
 
 
+@app.get(
+    "/health/training-library",
+    tags=["System"],
+    summary="Training library RAG health",
+)
+async def training_library_health() -> JSONResponse:
+    """Expose count-only index health without exposing source content or credentials."""
+    from src.services.training.rag_index import training_rag_index_health
+
+    try:
+        result = await asyncio.to_thread(training_rag_index_health)
+    except Exception:
+        logger.exception("[TrainingRagIndex] health readback failed")
+        return JSONResponse(
+            status_code=503,
+            content={
+                "status": "unavailable",
+                "detail": (
+                    "Training library index health could not be read. "
+                    "Check TrainingRagIndex logs and RAG database configuration."
+                ),
+                "timestamp": datetime.now().isoformat(),
+            },
+        )
+
+    return JSONResponse(
+        status_code=200 if result["status"] == "healthy" else 503,
+        content={**result, "timestamp": datetime.now().isoformat()},
+    )
+
+
 @app.get("/api/mcp/status", tags=["System"], summary="Hosted MCP status")
 async def hosted_mcp_status() -> Dict[str, Any]:
     return alleato_system_mcp_status()
@@ -1267,6 +1298,12 @@ async def graph_webhook_lifecycle_endpoint(
         raise HTTPException(status_code=500, detail=f"Graph lifecycle handling failed: {exc}") from exc
 
 
+class PipelineStageRequest(BaseModel):
+    metadataId: str
+    sourceType: Optional[str] = None
+    projectHint: Optional[int] = None
+
+
 @app.post(
     "/api/graph/subscriptions/reconcile",
     tags=["Ingestion"],
@@ -1294,10 +1331,8 @@ async def graph_subscriptions_reconcile_endpoint(
         raise HTTPException(status_code=500, detail=f"Graph subscription reconcile failed: {exc}") from exc
 
 
-class PipelineStageRequest(BaseModel):
+class PipelineProcessRequest(BaseModel):
     metadataId: str
-    sourceType: Optional[str] = None
-    projectHint: Optional[int] = None
 
 
 class ProjectSynthesizeRequest(BaseModel):
@@ -1311,6 +1346,39 @@ class ProjectSynthesizeRequest(BaseModel):
 
 def _env_flag_enabled(name: str, default: str = "false") -> bool:
     return os.getenv(name, default).lower() in ("1", "true", "yes")
+
+
+@app.post(
+    "/api/pipeline/process",
+    tags=["Ingestion"],
+    summary="Queue the durable RAG workflow for a document",
+)
+async def pipeline_process_endpoint(
+    payload: PipelineProcessRequest,
+    _: None = Depends(require_admin_api_key),
+) -> Dict[str, Any]:
+    """Authenticated compatibility ingress for the durable Vercel Workflow.
+
+    This endpoint never executes or orders processing stages. Bounded callers
+    authenticate here and receive the durable Workflow run identifier.
+    """
+    try:
+        from src.services.supabase_helpers import get_rag_read_client
+
+        get_rag_read_client().table("rag_document_metadata").select("id").limit(1).execute()
+    except Exception as exc:
+        raise HTTPException(
+            status_code=503,
+            detail=_public_backend_error("RAG pipeline is unavailable", exc),
+        ) from exc
+
+    try:
+        return enqueue_document_workflow(payload.metadataId)
+    except Exception as exc:
+        raise HTTPException(
+            status_code=503,
+            detail=_public_backend_error("RAG workflow enqueue failed", exc),
+        ) from exc
 
 
 @app.post(
@@ -1349,7 +1417,7 @@ async def pipeline_stage_endpoint(
     summary="Reprocess an existing Fireflies document through the canonical Fireflies-native path",
 )
 async def fireflies_process_existing_endpoint(
-    payload: PipelineStageRequest,
+    payload: PipelineProcessRequest,
     _: None = Depends(require_admin_api_key),
 ) -> Dict[str, Any]:
     """Queue Fireflies-native reprocessing for an existing Fireflies meeting row."""
@@ -1873,9 +1941,44 @@ async def recompute_source_sync_health_status(
 
 # === Scheduled Analysis Engine ===
 
+def _schedule_training_rag_reconciliation() -> None:
+    """Keep the training index current without delaying backend readiness."""
+    from src.services.training.rag_index import keep_training_rag_index_current
+
+    app.state.training_rag_reconciliation_task = asyncio.create_task(
+        keep_training_rag_index_current(), name="training-rag-reconciliation"
+    )
+
+
+@app.post(
+    "/api/admin/training/library/reconcile",
+    dependencies=[Depends(require_admin_api_key)],
+    tags=["Admin"],
+)
+async def reconcile_training_library_index() -> Dict[str, Any]:
+    """Run an authenticated, serialized training-index reconciliation on demand."""
+    from src.services.training.rag_index import reconcile_training_rag_index
+
+    try:
+        result = await asyncio.to_thread(reconcile_training_rag_index)
+        return {"status": "completed", **result}
+    except Exception as exc:
+        logger.exception("[TrainingRagIndex] admin reconciliation failed")
+        raise HTTPException(
+            status_code=500,
+            detail=_public_backend_error(
+                "Training library index reconciliation failed",
+                exc,
+            ),
+        ) from exc
+
+
 @app.on_event("startup")
 async def start_scheduler():
     """Initialize the scheduled analysis engine on server startup."""
+    _schedule_training_rag_reconciliation()
+
+
     try:
         from src.services.scheduler import init_scheduler
         init_scheduler()
@@ -1967,6 +2070,14 @@ async def emit_langsmith_tracing_probe() -> None:
 @app.on_event("shutdown")
 async def stop_scheduler():
     """Gracefully shut down the scheduler."""
+    training_task = getattr(app.state, "training_rag_reconciliation_task", None)
+    if training_task is not None:
+        training_task.cancel()
+        try:
+            await training_task
+        except asyncio.CancelledError:
+            pass
+
     try:
         from src.services.scheduler import shutdown_scheduler
         shutdown_scheduler()

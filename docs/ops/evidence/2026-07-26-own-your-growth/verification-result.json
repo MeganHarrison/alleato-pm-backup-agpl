@@ -1,0 +1,79 @@
+{
+  "status": "PASS",
+  "taskId": "LOCAL-2026-07-26-OWN-YOUR-GROWTH-T14",
+  "verifiedAt": "2026-07-27T01:39:46.5372774Z",
+  "evidence": {
+    "screenshots": [
+      "docs/ops/evidence/2026-07-26-own-your-growth/growth-desktop.png",
+      "docs/ops/evidence/2026-07-26-own-your-growth/growth-mobile-viewport.png",
+      "docs/ops/evidence/2026-07-26-own-your-growth/growth-focus-plan.png",
+      "docs/ops/evidence/2026-07-26-own-your-growth/growth-cadence.png",
+      "docs/ops/evidence/2026-07-26-own-your-growth/growth-reload-history.png",
+      "docs/ops/evidence/2026-07-26-own-your-growth/growth-trend-history.png",
+      "docs/ops/evidence/2026-07-26-own-your-growth/growth-mobile-trend.png"
+    ],
+    "actionLog": [
+      "docs/ops/evidence/2026-07-26-own-your-growth/browser-readback.md"
+    ],
+    "summary": [
+      "docs/ops/evidence/2026-07-26-own-your-growth/summary.md",
+      "docs/ops/tasks/2026-07-26-own-your-growth-assessment.md"
+    ],
+    "databaseReadback": [
+      "docs/ops/evidence/2026-07-26-own-your-growth/database-readback.md"
+    ],
+    "reloadProof": [
+      "docs/ops/evidence/2026-07-26-own-your-growth/reload-proof.md",
+      "docs/ops/evidence/2026-07-26-own-your-growth/growth-reload-history.png",
+      "docs/ops/evidence/2026-07-26-own-your-growth/growth-trend-history.png"
+    ],
+    "negativePath": [
+      "docs/ops/evidence/2026-07-26-own-your-growth/negative-path.md"
+    ],
+    "visualReview": [
+      "docs/ops/evidence/2026-07-26-own-your-growth/visual-review.md"
+    ],
+    "regressionTest": [
+      "docs/ops/evidence/2026-07-26-own-your-growth/regression-test.md",
+      "frontend/tests/e2e/training-growth.spec.ts"
+    ]
+  },
+  "claims": {
+    "complete-port": {
+      "screenshots": [
+        "docs/ops/evidence/2026-07-26-own-your-growth/growth-desktop.png",
+        "docs/ops/evidence/2026-07-26-own-your-growth/growth-mobile-viewport.png",
+        "docs/ops/evidence/2026-07-26-own-your-growth/growth-focus-plan.png"
+      ],
+      "actionLog": [
+        "docs/ops/evidence/2026-07-26-own-your-growth/browser-readback.md"
+      ],
+      "visualReview": [
+        "docs/ops/evidence/2026-07-26-own-your-growth/visual-review.md"
+      ]
+    },
+    "private-persistence": {
+      "databaseReadback": [
+        "docs/ops/evidence/2026-07-26-own-your-growth/database-readback.md"
+      ],
+      "reloadProof": [
+        "docs/ops/evidence/2026-07-26-own-your-growth/reload-proof.md",
+        "docs/ops/evidence/2026-07-26-own-your-growth/growth-trend-history.png"
+      ]
+    },
+    "fail-closed": {
+      "negativePath": [
+        "docs/ops/evidence/2026-07-26-own-your-growth/negative-path.md"
+      ],
+      "regressionTest": [
+        "docs/ops/evidence/2026-07-26-own-your-growth/regression-test.md"
+      ]
+    }
+  },
+  "independentReview": {
+    "reviewer": "/root/independent_code_review + /root/independent_security_review",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-27T01:39:46.5372774Z",
+    "artifact": "docs/ops/evidence/2026-07-26-own-your-growth/independent-review.md"
+  }
+}

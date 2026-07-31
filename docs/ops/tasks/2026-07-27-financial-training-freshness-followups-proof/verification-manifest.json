@@ -1,0 +1,119 @@
+{
+  "contractVersion": 1,
+  "taskId": "APP-FINANCIAL-TRAINING-FRESHNESS-20260727",
+  "riskLevel": "high",
+  "feature": "Financial workflow reliability and human-reviewed training/document freshness automation",
+  "route": "/[projectId]/budget, /[projectId]/commitments/new, /training/review",
+  "flows": [
+    {
+      "name": "Complete the canonical financial journey",
+      "steps": [
+        "Create a project and prime contract with SOV",
+        "Add budget lines and lock the budget",
+        "Create a balanced modification",
+        "Verify active modification blocks unlock",
+        "Create purchase order and subcontract commitments",
+        "Open invoice creation with contract context",
+        "Archive the generated project"
+      ],
+      "expectedOutcome": "Every user action reaches its exact API/navigation boundary and the serial journey completes without a dev-server reload"
+    },
+    {
+      "name": "Review training discovery and freshness findings",
+      "steps": [
+        "Discover candidates into review status only",
+        "Require admin feedback for Archive",
+        "Persist Publish/Archive decisions",
+        "Promote repeated freshness evidence to the admin queue",
+        "Bridge Keep/Archive feedback into canonical resource memory",
+        "Use published and archived examples in future candidate selection"
+      ],
+      "expectedOutcome": "Automation never publishes directly, admin decisions are durable, and future selection consumes the good/bad examples"
+    },
+    {
+      "name": "Deliver weekday documentation freshness",
+      "steps": [
+        "Run canonical generators in scratch worktrees",
+        "Format actionable findings",
+        "Post to Linear ALL-30",
+        "Read the exact comment back",
+        "Fail after delivery for blocked or failed findings"
+      ],
+      "expectedOutcome": "The schedule has a real admin-owned delivery surface and cannot silently report success"
+    }
+  ],
+  "requiredEvidence": [
+    "summary",
+    "databaseReadback",
+    "visualReview",
+    "regressionTest",
+    "actionLog"
+  ],
+  "visual": {
+    "viewports": [
+      "desktop"
+    ],
+    "checks": [
+      "The existing training review queue remains the canonical owner",
+      "Review feedback is visibly labeled and attached to the candidate",
+      "Archive removes the reviewed candidate from the queue"
+    ]
+  },
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "financial-journey",
+      "description": "The canonical financial workflow completes with exact request and response assertions",
+      "evidence": [
+        {
+          "key": "regressionTest",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "training-human-review",
+      "description": "Admin candidate and freshness decisions persist feedback without automation bypassing review",
+      "evidence": [
+        {
+          "key": "databaseReadback",
+          "min": 1
+        },
+        {
+          "key": "visualReview",
+          "min": 1
+        },
+        {
+          "key": "actionLog",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "training-feedback-consumption",
+      "description": "Keep/Archive feedback reaches canonical resource memory and future finder selection",
+      "evidence": [
+        {
+          "key": "regressionTest",
+          "min": 1
+        },
+        {
+          "key": "actionLog",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "docs-freshness-delivery",
+      "description": "Weekday documentation scans deliver an actionable Linear report and verify readback",
+      "evidence": [
+        {
+          "key": "summary",
+          "min": 1
+        }
+      ]
+    }
+  ]
+}

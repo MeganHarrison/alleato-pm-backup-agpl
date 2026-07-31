@@ -1,0 +1,20 @@
+{
+  "check": {
+    "id": "6bcdd0a8-8950-41e1-847d-5a30e9646e4b",
+    "resource_id": "00113471-9eb3-46fb-b0c3-4e09694a3120",
+    "review_status": "rejected",
+    "reviewer_notes": "Automated reachability was blocked by the source; keep this approved resource until a future verified content change.",
+    "reviewed_at": "2026-07-28T01:06:39.950365+00:00",
+    "occurrence_count": 2
+  },
+  "resource": {
+    "id": "00113471-9eb3-46fb-b0c3-4e09694a3120",
+    "status": "published",
+    "title": "Closeout: Docs, Checklist & Tips"
+  },
+  "assertions": {
+    "feedback_recorded": true,
+    "published_resource_unchanged": true,
+    "pending_queue_cleared": true
+  }
+}

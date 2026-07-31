@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
-import type { Database } from "@/types/database.types";
+import type { Database, Json } from "@/types/database.types";
 
 const sourceTypeSchema = z.enum([
   "source_signal_candidate",
@@ -104,7 +104,7 @@ export async function createExecutiveAttentionItem(
 ): Promise<string> {
   const parsed = executiveAttentionInputSchema.parse(input);
   const { data, error } = await db.rpc("create_executive_attention_item", {
-    p_input: parsed,
+    p_input: parsed as unknown as Json,
   });
   if (error || !data) {
     return throwDomainError("attention creation", error?.message ?? "missing attention id");
@@ -119,7 +119,7 @@ export async function createExecutiveClaimConflict(
 ): Promise<string> {
   const parsed = executiveConflictInputSchema.parse(input);
   const { data, error } = await db.rpc("create_executive_claim_conflict", {
-    p_input: parsed,
+    p_input: parsed as unknown as Json,
   });
   if (error || !data) {
     return throwDomainError("conflict creation", error?.message ?? "missing conflict id");
@@ -155,8 +155,8 @@ export async function transitionExecutiveAttentionItem(
     p_actor_label: parsed.actor_label,
     p_actor_user_id: parsed.actor_user_id,
     p_lifecycle: parsed.lifecycle,
-    p_escalation_level: parsed.escalation_level ?? null,
-    p_assigned_at: parsed.assigned_at ?? null,
+    p_escalation_level: parsed.escalation_level ?? undefined,
+    p_assigned_at: parsed.assigned_at ?? undefined,
   });
   if (error) throwDomainError("attention transition", error.message);
 }
@@ -174,7 +174,7 @@ export async function resolveExecutiveClaimConflict(
     p_actor_user_id: parsed.actor_user_id,
     p_actor_kind: parsed.actor_kind,
     p_resolution_summary: parsed.resolution_summary,
-    p_resolution: resolution,
+    p_resolution: resolution as Json,
     p_dismiss: parsed.dismiss ?? false,
   });
   if (error) throwDomainError("conflict resolution", error.message);

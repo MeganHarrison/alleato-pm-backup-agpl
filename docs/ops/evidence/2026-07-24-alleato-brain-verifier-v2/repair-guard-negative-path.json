@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "recordedAt": "2026-07-24T05:51:15Z",
+  "command": "ALLEATO_ENV_FILE=.env node scripts/database/verify-alleato-brain-foundation.mjs --self-test-repair-guard",
+  "error": "RAG_SCOPE_REPAIR_COUNT_MISMATCH expected=2 candidates=1 documents=1",
+  "rollbackVerified": true,
+  "method": "Updated one exact fixture row's updated_at inside the guarded transaction, deliberately required two matched rows, confirmed the provider returned the named count error, then read the fixture back and confirmed updated_at was unchanged."
+}

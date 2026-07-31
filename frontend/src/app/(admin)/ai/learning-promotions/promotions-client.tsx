@@ -19,6 +19,13 @@ import { EmptyState } from "@/components/ds/empty-state";
 import { SectionRuleHeading } from "@/components/layout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Modal,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalTitle,
+} from "@/components/ui/unified-modal";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
@@ -28,6 +35,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
 import {
   firstSourceEvent,
   isSkillLibraryPromotion,
@@ -50,15 +58,12 @@ type AiLearningPromotionWithWeight = AiLearningPromotionRow & {
   sourceEvents?: AiFeedbackEventRow[] | null;
 };
 type PromotionStatus =
-  | "candidate"
-  | "approved"
-  | "applied"
-  | "rejected"
-  | "superseded";
+  "candidate" | "approved" | "applied" | "rejected" | "superseded";
 type PromotionAction =
   | "approve"
   | "reject"
   | "apply"
+  | "retry_feedback"
   | "pause"
   | "resume"
   | "supersede";
@@ -278,6 +283,9 @@ export function AiLearningPromotionsClient({
     AiFeedbackEventRow[]
   >([]);
   const [activityLoading, setActivityLoading] = React.useState(false);
+  const [rejectionPromotion, setRejectionPromotion] =
+    React.useState<AiLearningPromotionRow | null>(null);
+  const [rejectionNotes, setRejectionNotes] = React.useState("");
 
   const loadPromotions = React.useCallback(async () => {
     setLoading(true);
@@ -350,40 +358,78 @@ export function AiLearningPromotionsClient({
   }, [loadPromotions]);
 
   const reviewPromotion = React.useCallback(
-    async (promotionId: string, action: PromotionAction) => {
+    async (
+      promotionId: string,
+      action: PromotionAction,
+      reviewNotes?: string,
+    ) => {
       setBusyId(promotionId);
       try {
-        await apiFetch("/api/admin/ai-learning-promotions", {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({ promotionId, action }),
-        });
+        const result = await apiFetch<{ auditWarning?: string }>(
+          "/api/admin/ai-learning-promotions",
+          {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ promotionId, action, reviewNotes }),
+          },
+        );
         await loadPromotions();
         await loadActivityEvents();
-        toast.success(
+        const successMessage =
           action === "approve"
             ? "Promotion approved"
             : action === "apply"
               ? "Promotion applied"
-              : action === "pause"
-                ? "Retrieval weight paused"
-                : action === "resume"
-                  ? "Retrieval weight resumed"
-                  : action === "supersede"
-                    ? "Retrieval weight superseded"
-                    : "Promotion rejected",
-        );
+              : action === "retry_feedback"
+                ? "Corrective teaching activated"
+                : action === "pause"
+                  ? "Retrieval weight paused"
+                  : action === "resume"
+                    ? "Retrieval weight resumed"
+                    : action === "supersede"
+                      ? "Retrieval weight superseded"
+                      : "Promotion rejected";
+        if (result.auditWarning) {
+          toast.warning(successMessage, {
+            description: result.auditWarning,
+          });
+        } else {
+          toast.success(successMessage);
+        }
+        return true;
       } catch (error) {
         toast.error("Review action failed", {
           description:
             error instanceof Error ? error.message : "Unexpected error",
         });
+        return false;
       } finally {
         setBusyId(null);
       }
     },
     [loadActivityEvents, loadPromotions],
   );
+
+  const openRejection = React.useCallback(
+    (promotion: AiLearningPromotionRow) => {
+      setRejectionPromotion(promotion);
+      setRejectionNotes("");
+    },
+    [],
+  );
+
+  const submitRejection = React.useCallback(async () => {
+    if (!rejectionPromotion || rejectionNotes.trim().length < 10) return;
+    const succeeded = await reviewPromotion(
+      rejectionPromotion.id,
+      "reject",
+      rejectionNotes.trim(),
+    );
+    if (succeeded) {
+      setRejectionPromotion(null);
+      setRejectionNotes("");
+    }
+  }, [rejectionNotes, rejectionPromotion, reviewPromotion]);
 
   const loadImpactPreview = React.useCallback(async (promotionId: string) => {
     setPreviewBusyId(promotionId);
@@ -625,9 +671,7 @@ export function AiLearningPromotionsClient({
                                   size="icon"
                                   disabled={disabled}
                                   aria-label="Reject promotion"
-                                  onClick={() =>
-                                    void reviewPromotion(promotion.id, "reject")
-                                  }
+                                  onClick={() => openRejection(promotion)}
                                 >
                                   <X className="h-4 w-4" />
                                 </Button>
@@ -666,6 +710,24 @@ export function AiLearningPromotionsClient({
                                 )}
                               </div>
                             )}
+                            {promotion.status === "rejected" &&
+                              promotion.review_notes &&
+                              !promotion.destination_record_id && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  disabled={disabled}
+                                  onClick={() =>
+                                    void reviewPromotion(
+                                      promotion.id,
+                                      "retry_feedback",
+                                      promotion.review_notes ?? undefined,
+                                    )
+                                  }
+                                >
+                                  Retry teaching
+                                </Button>
+                              )}
                             {promotion.status === "applied" &&
                               retrievalWeight?.status === "active" && (
                                 <Button
@@ -1014,6 +1076,16 @@ export function AiLearningPromotionsClient({
                                   </div>
                                 </div>
                               )}
+                              {promotion.review_notes && (
+                                <div className="border-t border-border pt-3">
+                                  <div className="text-xs font-medium uppercase text-muted-foreground">
+                                    Reviewer feedback
+                                  </div>
+                                  <p className="mt-1 whitespace-pre-wrap text-sm text-foreground">
+                                    {promotion.review_notes}
+                                  </p>
+                                </div>
+                              )}
                               <pre className="max-h-72 overflow-auto rounded-md bg-muted p-3 text-xs text-foreground">
                                 {JSON.stringify(
                                   promotion.proposed_learning,
@@ -1039,128 +1111,6 @@ export function AiLearningPromotionsClient({
                                     Preview impact
                                   </Button>
                                 )}
-                                {promotion.status === "candidate" && (
-                                  <>
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      disabled={disabled}
-                                      onClick={() =>
-                                        void reviewPromotion(
-                                          promotion.id,
-                                          "reject",
-                                        )
-                                      }
-                                    >
-                                      <X className="mr-1.5 h-3.5 w-3.5" />
-                                      Reject
-                                    </Button>
-                                    <Button
-                                      size="sm"
-                                      disabled={disabled}
-                                      onClick={() =>
-                                        void reviewPromotion(
-                                          promotion.id,
-                                          "approve",
-                                        )
-                                      }
-                                    >
-                                      <Check className="mr-1.5 h-3.5 w-3.5" />
-                                      Approve
-                                    </Button>
-                                  </>
-                                )}
-                                {promotion.status === "approved" && (
-                                  <div className="flex flex-col items-start gap-1">
-                                    <Button
-                                      size="sm"
-                                      disabled={
-                                        disabled ||
-                                        !canApplyPromotion(promotion)
-                                      }
-                                      onClick={() =>
-                                        void reviewPromotion(
-                                          promotion.id,
-                                          "apply",
-                                        )
-                                      }
-                                    >
-                                      {applyPromotionLabel(promotion)}
-                                    </Button>
-                                    {!canApplyPromotion(promotion) && (
-                                      <span className="text-xs text-muted-foreground">
-                                        Apply is disabled until the Skill
-                                        Library approval writer exists.
-                                      </span>
-                                    )}
-                                  </div>
-                                )}
-                                {promotion.status === "applied" &&
-                                  retrievalWeight?.status === "active" && (
-                                    <>
-                                      <Button
-                                        variant="outline"
-                                        size="sm"
-                                        disabled={disabled}
-                                        onClick={() =>
-                                          void reviewPromotion(
-                                            promotion.id,
-                                            "pause",
-                                          )
-                                        }
-                                      >
-                                        <PauseCircle className="mr-1.5 h-3.5 w-3.5" />
-                                        Pause
-                                      </Button>
-                                      <Button
-                                        variant="outline"
-                                        size="sm"
-                                        disabled={disabled}
-                                        onClick={() =>
-                                          void reviewPromotion(
-                                            promotion.id,
-                                            "supersede",
-                                          )
-                                        }
-                                      >
-                                        <Ban className="mr-1.5 h-3.5 w-3.5" />
-                                        Supersede
-                                      </Button>
-                                    </>
-                                  )}
-                                {promotion.status === "applied" &&
-                                  retrievalWeight?.status === "paused" && (
-                                    <>
-                                      <Button
-                                        variant="outline"
-                                        size="sm"
-                                        disabled={disabled}
-                                        onClick={() =>
-                                          void reviewPromotion(
-                                            promotion.id,
-                                            "resume",
-                                          )
-                                        }
-                                      >
-                                        <Play className="mr-1.5 h-3.5 w-3.5" />
-                                        Resume
-                                      </Button>
-                                      <Button
-                                        variant="outline"
-                                        size="sm"
-                                        disabled={disabled}
-                                        onClick={() =>
-                                          void reviewPromotion(
-                                            promotion.id,
-                                            "supersede",
-                                          )
-                                        }
-                                      >
-                                        <Ban className="mr-1.5 h-3.5 w-3.5" />
-                                        Supersede
-                                      </Button>
-                                    </>
-                                  )}
                               </div>
                               {impactPreview && (
                                 <div className="space-y-3 border-t border-border pt-3">
@@ -1341,6 +1291,58 @@ export function AiLearningPromotionsClient({
           )}
         </div>
       </section>
+
+      <Modal
+        open={Boolean(rejectionPromotion)}
+        onOpenChange={(open) => {
+          if (!open && !busyId) {
+            setRejectionPromotion(null);
+            setRejectionNotes("");
+          }
+        }}
+      >
+        <ModalContent size="lg">
+          <ModalHeader>
+            <ModalTitle>Reject learning candidate</ModalTitle>
+          </ModalHeader>
+          <div className="space-y-2">
+            <label
+              htmlFor="learning-rejection-correction"
+              className="text-sm font-medium text-foreground"
+            >
+              What is wrong, and what should the agent do instead?
+            </label>
+            <Textarea
+              id="learning-rejection-correction"
+              autoFocus
+              value={rejectionNotes}
+              onChange={(event) => setRejectionNotes(event.target.value)}
+              placeholder="Give the specific correction the agent should follow."
+              className="min-h-28"
+              maxLength={2000}
+            />
+          </div>
+          <ModalFooter>
+            <Button
+              variant="ghost"
+              disabled={Boolean(busyId)}
+              onClick={() => {
+                setRejectionPromotion(null);
+                setRejectionNotes("");
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={Boolean(busyId) || rejectionNotes.trim().length < 10}
+              onClick={() => void submitRejection()}
+            >
+              Reject and teach
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </div>
   );
 }

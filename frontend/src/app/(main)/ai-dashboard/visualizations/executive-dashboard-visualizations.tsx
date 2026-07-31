@@ -127,7 +127,7 @@ function ErrorVisualization({ error }: { error: unknown }) {
         {sourceError(error, "Executive dashboard sources")}
       </p>
       <Link
-        href="/pipeline"
+        href="/ai-dashboard/rag-pipeline"
         className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
       >
         Review source pipeline <ArrowUpRight className="size-3" />

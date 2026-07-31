@@ -1,0 +1,15 @@
+{
+  "task": "AAI-PLANE-MIGRATION",
+  "deliveryLane": "High-risk",
+  "requiredChecks": [
+    "focused-plane-contracts",
+    "workspace-shell-navigation",
+    "home-link-regression",
+    "stickies-focused",
+    "route-gate",
+    "task-scoped-diff-check",
+    "production-schema-readback",
+    "migration-ledger",
+    "independent-source-review"
+  ]
+}

@@ -6,6 +6,7 @@ import { resolve } from "node:path";
 const repoRoot = resolve(import.meta.dirname, "..", "..");
 
 const files = {
+  chatRoute: "frontend/src/app/api/ai-assistant/chat/route.ts",
   timelineRoute: "frontend/src/app/api/ai-assistant/timeline/route.ts",
   operationalTools: "frontend/src/lib/ai/tools/operational.ts",
 };
@@ -22,6 +23,17 @@ function requireFragments(label, content, fragments) {
 }
 
 const failures = [];
+
+const chatRoute = read(files.chatRoute);
+failures.push(
+  ...requireFragments(files.chatRoute, chatRoute, [
+    "adminOnlyKinds",
+    "recent_emails",
+    "recent_teams_discussions",
+    "Blocked by permissions (user is not an admin).",
+    "createToolGuardrails(",
+  ]),
+);
 
 const operationalTools = read(files.operationalTools);
 failures.push(

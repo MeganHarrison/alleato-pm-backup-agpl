@@ -93,6 +93,9 @@ export function createCommitmentWriteTools(internals: ActionToolInternals) {
           lineItems,
           confirmed,
         } = input;
+        const normalizedStartDate = startDate?.trim() || undefined;
+        const normalizedEstimatedCompletionDate =
+          estimatedCompletionDate?.trim() || undefined;
         const access = await enforceProjectWriteAccess(projectId);
         if (!access.ok) return { success: false, error: access.error };
 
@@ -145,8 +148,8 @@ export function createCommitmentWriteTools(internals: ActionToolInternals) {
             contract_company_id: contractCompanyId,
             vendor_name_resolved: contractCompanyId ? vendorName : vendorName ? `${vendorName} (not found in project directory — will need to be linked manually)` : null,
             description: description ?? null,
-            start_date: startDate ?? null,
-            estimated_completion_date: estimatedCompletionDate ?? null,
+            start_date: normalizedStartDate ?? null,
+            estimated_completion_date: normalizedEstimatedCompletionDate ?? null,
             default_retainage_percent: defaultRetainagePercent ?? null,
             line_items: lineItems ?? [],
           };
@@ -159,8 +162,8 @@ export function createCommitmentWriteTools(internals: ActionToolInternals) {
             vendorName: vendorName ?? null,
             contractCompanyId,
             description: description ?? null,
-            startDate: startDate ?? null,
-            estimatedCompletionDate: estimatedCompletionDate ?? null,
+            startDate: normalizedStartDate ?? null,
+            estimatedCompletionDate: normalizedEstimatedCompletionDate ?? null,
             defaultRetainagePercent: defaultRetainagePercent ?? null,
             lineItems,
           });
@@ -295,15 +298,17 @@ export function createCommitmentWriteTools(internals: ActionToolInternals) {
         };
 
         if (type === "subcontract") {
-          insertPayload.start_date = startDate ?? null;
-          insertPayload.estimated_completion_date = estimatedCompletionDate ?? null;
+          insertPayload.start_date = normalizedStartDate ?? null;
+          insertPayload.estimated_completion_date =
+            normalizedEstimatedCompletionDate ?? null;
           insertPayload.is_private = true;
           insertPayload.allow_non_admin_view_sov_items = false;
           insertPayload.non_admin_user_ids = [];
           insertPayload.invoice_contact_ids = [];
         } else {
           // purchase_order uses delivery_date instead of estimated_completion_date
-          insertPayload.delivery_date = estimatedCompletionDate ?? null;
+          insertPayload.delivery_date =
+            normalizedEstimatedCompletionDate ?? null;
           insertPayload.is_private = true;
           insertPayload.allow_non_admin_view_sov_items = false;
           insertPayload.non_admin_user_ids = [];

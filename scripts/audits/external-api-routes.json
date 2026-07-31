@@ -1,0 +1,31 @@
+{
+  "description": "API entry points intentionally retained without an in-app caller. Each entry requires an external, scheduled, embedded, or manual operational owner.",
+  "routes": [
+    { "path": "/api/accounting/sync", "owner": "Accounting integration", "reason": "Provider/manual synchronization ingress." },
+    { "path": "/api/admin/feedback/dispatch", "owner": "Feedback operations", "reason": "Manual external delivery dispatch." },
+    { "path": "/api/admin/portfolio-brief/preview", "owner": "Executive intelligence operations", "reason": "CRON_SECRET-protected operational preview." },
+    { "path": "/api/admin/source-sync/active-alerts", "owner": "Source sync operations", "reason": "Administrative source-sync control surface." },
+    { "path": "/api/admin/source-sync/graph-sync", "owner": "Source sync operations", "reason": "Administrative Microsoft Graph synchronization." },
+    { "path": "/api/admin/source-sync/onedrive-project-backfill", "owner": "Source sync operations", "reason": "Administrative OneDrive backfill operation." },
+    { "path": "/api/admin/source-sync/summary", "owner": "Source sync operations", "reason": "Administrative source-sync status readback." },
+    { "path": "/api/avatar/[personId]", "owner": "Public media delivery", "reason": "Externally embeddable person-avatar URL." },
+    { "path": "/api/bot/teams/notify", "owner": "Microsoft Teams integration", "reason": "Bot/provider notification ingress." },
+    { "path": "/api/cron/rfi-email-replies", "owner": "Scheduled RFI ingestion", "reason": "Scheduled job invoked outside the browser application." },
+    { "path": "/api/executive/artifacts/[artifactKind]", "owner": "Executive artifact delivery", "reason": "Externally linked artifact download URL." },
+    { "path": "/api/executive/brandon-daily-update/widget", "owner": "Executive update delivery", "reason": "Externally embedded executive widget." },
+    { "path": "/api/executive/daily-brief/tasks", "owner": "Executive brief automation", "reason": "Operational brief task endpoint." },
+    { "path": "/api/executive/intelligence-stats", "owner": "Executive intelligence delivery", "reason": "External executive intelligence readback." },
+    { "path": "/api/files/read", "owner": "File integration", "reason": "Generic authenticated file read boundary used by external/tool callers." },
+    { "path": "/api/knowledge/categories", "owner": "Knowledge operations", "reason": "Operational knowledge taxonomy endpoint." },
+    { "path": "/api/knowledge/sync-sharepoint", "owner": "SharePoint knowledge sync", "reason": "Manual/provider synchronization ingress." },
+    { "path": "/api/notifications/trigger", "owner": "Notification delivery", "reason": "External/manual notification trigger." },
+    { "path": "/api/og/fetch", "owner": "Link preview service", "reason": "Server-side Open Graph fetch boundary." },
+    { "path": "/api/og/proxy", "owner": "Link preview service", "reason": "Server-side Open Graph media proxy." },
+    { "path": "/api/settings/teams/register-webhook", "owner": "Microsoft Teams integration", "reason": "Manual provider webhook registration." },
+    { "path": "/api/settings/telegram/register-webhook", "owner": "Telegram integration", "reason": "Manual provider webhook registration." },
+    { "path": "/api/team-chat/previews", "owner": "Team chat integration", "reason": "External chat link-preview boundary." },
+    { "path": "/api/teams-inbox", "owner": "Microsoft Teams integration", "reason": "Teams inbox/provider ingress." },
+    { "path": "/api/webhooks/github", "owner": "GitHub integration", "reason": "GitHub webhook receiver." },
+    { "path": "/api/webhooks/resend", "owner": "Resend integration", "reason": "Resend webhook receiver." }
+  ]
+}

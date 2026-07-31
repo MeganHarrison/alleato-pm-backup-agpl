@@ -32,6 +32,7 @@ import {
   sortByUrgencyDesc,
   type InsightCardWithTarget,
 } from "@/lib/ai/insight-cards";
+import { resolveProjectLabel } from "./project-label";
 
 import { type AnyRow } from "./types";
 
@@ -1285,21 +1286,21 @@ export function createProjectTools(
             : scopedProjectIds.length === 1
               ? scopedProjectIds[0]
               : undefined;
-        let resolvedName = projectName;
+        let resolvedName = projectName?.trim() || undefined;
 
-        if (!resolvedId && projectName) {
+        if (!resolvedId && resolvedName) {
           const { data } = await supabase
             .from("projects")
             .select("id, name")
             .in("id", scopedProjectIds)
-            .ilike("name", `%${projectName}%`)
+            .ilike("name", `%${resolvedName}%`)
             .limit(1)
             .single();
           if (data) {
             resolvedId = data.id;
             resolvedName = data.name ?? undefined;
           } else {
-            return { error: `No project found matching "${projectName}"` };
+            return { error: `No project found matching "${resolvedName}"` };
           }
         }
 
@@ -1434,11 +1435,17 @@ export function createProjectTools(
           return sev === "critical" || sev === "high";
         });
 
+        const projectLabel = resolveProjectLabel(
+          resolvedName,
+          project?.name,
+          resolvedId,
+        );
+
         return {
-          sourceRef: `[Source: Risk Analysis - ${resolvedName ?? project?.name ?? `Project ${resolvedId}`}]`,
+          sourceRef: `[Source: Risk Analysis - ${projectLabel}]`,
           project: {
             id: resolvedId,
-            name: resolvedName ?? project?.name,
+            name: projectLabel,
             phase: project?.phase,
             healthStatus: project?.health_status,
             healthScore: project?.health_score,

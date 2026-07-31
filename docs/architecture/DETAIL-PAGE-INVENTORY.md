@@ -44,7 +44,7 @@ This is the source-of-truth inventory of record-detail routes in the frontend. A
 
 | Record | Canonical route | Route owner | Notes |
 | --- | --- | --- | --- |
-| Feature request | `/ai/feature-requests/:requestId` | `frontend/src/app/(main)/ai/feature-requests/[requestId]/page.tsx` | Global record detail |
+| Feature request | `/ai-assistant/feature-requests/:requestId` | `frontend/src/app/(main)/ai-assistant/feature-requests/[requestId]/page.tsx` | Global record detail |
 | Company | `/directory/companies/:companyId` | `frontend/src/app/(main)/directory/companies/[companyId]/page.tsx` | Global record detail |
 | Contact | `/directory/contacts/:contactId` | `frontend/src/app/(main)/directory/contacts/[contactId]/page.tsx` | Global record detail |
 | Vendor | `/directory/vendors/:vendorId` | `frontend/src/app/(main)/directory/vendors/[vendorId]/page.tsx` | Global record detail |

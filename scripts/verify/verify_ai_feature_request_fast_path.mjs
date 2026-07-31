@@ -4,54 +4,60 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 const repoRoot = resolve(import.meta.dirname, "..", "..");
-const read = (path) =>
-  readFileSync(resolve(repoRoot, path), "utf8");
+const routePath = "frontend/src/lib/ai/chat-handler.ts";
+const content = readFileSync(resolve(repoRoot, routePath), "utf8");
 
-const agentTools = read(
-  "agents/alleato-assistant/agent/tools/production_read_tools.ts",
-);
-const bridge = read(
-  "frontend/src/app/api/ai-assistant/eve/tools/route.ts",
-);
-const client = read(
-  "frontend/src/hooks/use-alleato-eve-chat.ts",
-);
+const featureFlagIndex = content.indexOf("const featureRequestPacketRequest = shouldCaptureFeatureRequest(lastUserContent)");
+const streamIndex = content.indexOf("const stream = createUIMessageStream");
+const fastPathIndex = content.indexOf("if (featureRequestPacketRequest)");
+const promptAssemblyIndex = content.indexOf("assembleSystemPrompt({");
+const streamTextIndex = content.indexOf("const result = streamText({");
+const oldInlineCaptureIndex = content.indexOf("if (shouldCaptureFeatureRequest(lastUserContent))");
 
-const required = [
-  [agentTools, 'from "eve/tools/approval"', "native Eve approval import"],
-  [agentTools, "approval: always()", "per-call write approval"],
-  [agentTools, "eveContext.callId", "Eve call binding"],
-  [agentTools, "x-alleato-eve-signature", "signed bridge request"],
-  [bridge, "GovernedCreateRfiInput", "server-owned RFI action schema"],
-  [bridge, 'hasPermission(permissions, "rfis", "write")', "live RFI permission check"],
-  [bridge, "confirmed: true", "server-owned legacy execution control"],
-  [bridge, "receipt.idempotencyKey", "server-owned idempotency receipt"],
-  [client, "inputResponses:", "Eve continuation response"],
-  [client, 'optionId: response.approved ? "approve" : "deny"', "approval outcome mapping"],
-];
+const failures = [];
 
-const failures = required
-  .filter(([source, fragment]) => !source.includes(fragment))
-  .map(([, , label]) => `missing governed Eve contract: ${label}`);
-
-if (bridge.includes("randomUUID()")) {
-  failures.push(
-    "the bridge invents a tool-call ID instead of using Eve's approved call",
-  );
+if (featureFlagIndex === -1) {
+  failures.push("feature request packet detection is not computed before stream execution");
 }
-if (
-  agentTools.includes("attributes?.accessToken") ||
-  agentTools.includes("authorization: `Bearer ${accessToken}`")
-) {
-  failures.push(
-    "the durable Eve tool resolver still depends on a persisted user access token",
-  );
+
+if (fastPathIndex === -1) {
+  failures.push("feature request packet fast path is missing");
+}
+
+if (featureFlagIndex > streamIndex) {
+  failures.push("feature request packet detection moved inside the stream instead of before it");
+}
+
+if (fastPathIndex > promptAssemblyIndex) {
+  failures.push("feature request packet fast path runs after full prompt assembly");
+}
+
+if (fastPathIndex > streamTextIndex) {
+  failures.push("feature request packet fast path runs after streamText");
+}
+
+if (oldInlineCaptureIndex !== -1) {
+  failures.push("old inline feature request capture still exists on the long model path");
+}
+
+for (const required of [
+  "Feature request packet capture timed out before a durable packet could be confirmed.",
+  "deterministicFastPath: true",
+  "I stopped at packet capture so this turn does not time out",
+  "writeAssistantWidgetParts(",
+  "return;",
+]) {
+  if (!content.includes(required)) {
+    failures.push(`missing fast-path contract marker: ${required}`);
+  }
 }
 
 if (failures.length > 0) {
-  console.error("Governed Eve action verification failed:");
-  for (const failure of failures) console.error(`- ${failure}`);
+  console.error("AI feature request fast-path verification failed:");
+  for (const failure of failures) {
+    console.error(`- ${failure}`);
+  }
   process.exit(1);
 }
 
-console.log("Governed Eve action verification passed.");
+console.log("AI feature request fast-path verification passed.");

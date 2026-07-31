@@ -4,8 +4,8 @@ import { createClient, getApiRouteUser } from '@/lib/supabase/server';
 import { createServiceClient } from '@/lib/supabase/service';
 import {
   resolvePatternCEntity,
-  uploadAndLinkPatternCDocument,
 } from '@/lib/documents/pattern-c-attachments';
+import { uploadAndLinkPatternCDocument } from '@/lib/documents/pattern-c-attachments.server';
 
 export const dynamic = 'force-dynamic';
 

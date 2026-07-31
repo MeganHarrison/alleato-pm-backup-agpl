@@ -6,6 +6,12 @@ import path from 'path';
 dotenv.config({ path: path.join(__dirname, '../../.env.local') });
 dotenv.config({ path: path.join(__dirname, '../../.env') });
 
+const baseURL =
+  process.env.PLAYWRIGHT_BASE_URL ||
+  process.env.BASE_URL ||
+  'http://localhost:3000';
+const serverPort = new URL(baseURL).port || (baseURL.startsWith('https:') ? '443' : '80');
+
 export default defineConfig({
   testDir: '../../tests',
   testMatch: '**/*.spec.{ts,js}',
@@ -20,10 +26,7 @@ export default defineConfig({
     ['list'],
   ],
   use: {
-    baseURL:
-      process.env.PLAYWRIGHT_BASE_URL ||
-      process.env.BASE_URL ||
-      'http://localhost:3000',
+    baseURL,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'on',
@@ -60,10 +63,13 @@ export default defineConfig({
   outputDir: '../../tests/test-results',
   webServer: {
     command: 'npm run dev',
-    url:
-      process.env.PLAYWRIGHT_BASE_URL ||
-      process.env.BASE_URL ||
-      'http://localhost:3000',
-    reuseExistingServer: !process.env.CI,
+    url: baseURL,
+    env: {
+      NEXT_DEV_ENGINE: 'turbopack',
+      PORT: serverPort,
+    },
+    // Reusing an arbitrary healthy localhost can run the suite against another
+    // checkout or a webpack server in the middle of a Fast Refresh reload.
+    reuseExistingServer: false,
   },
 });

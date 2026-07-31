@@ -8,13 +8,15 @@ from src.services.supabase_helpers import SupabaseRagStore
 class _CapturingTable:
     def __init__(self, sink):
         self._sink = sink
+        self._payload = None
 
     def upsert(self, payload, on_conflict=None):
         self._sink.append(payload)
+        self._payload = payload
         return self
 
     def execute(self):
-        return None
+        return _ScopeResult([self._payload] if self._payload else [])
 
 
 class _CapturingClient:
@@ -127,6 +129,41 @@ def test_rag_store_preserves_business_area_in_each_database_contract():
     assert "business_area_id" not in rag_payload
     assert rag_payload["source_metadata"]["business_area_id"] == 3
     assert rag_payload.get("project_id") is None
+
+
+def test_rag_store_materializes_replica_before_ocr_text_exists():
+    app_client = _CapturingClient()
+    rag_client = _CapturingClient()
+    store = SupabaseRagStore(client=app_client, rag_client=rag_client)
+
+    store.upsert_document_metadata(
+        {
+            "id": "sharepoint-scanned-drawing",
+            "title": "Scanned drawing",
+            "source_system": "sharepoint",
+            "document_type": "drawing",
+            "status": "no_text",
+            "parsing_status": "no_text",
+            "embedding_status": "pending",
+            "content": None,
+            "raw_text": None,
+        }
+    )
+
+    assert app_client.upserts == [
+        {
+            "id": "sharepoint-scanned-drawing",
+            "title": "Scanned drawing",
+            "source_system": "sharepoint",
+            "document_type": "drawing",
+            "status": "no_text",
+        }
+    ]
+    assert rag_client.upserts[0]["id"] == "sharepoint-scanned-drawing"
+    assert rag_client.upserts[0]["app_document_id"] == "sharepoint-scanned-drawing"
+    assert rag_client.upserts[0]["parsing_status"] == "no_text"
+    assert rag_client.upserts[0]["embedding_status"] == "pending"
+    assert "content" not in rag_client.upserts[0]
 
 
 def test_set_document_scope_clears_project_and_sets_business_area_in_both_databases():

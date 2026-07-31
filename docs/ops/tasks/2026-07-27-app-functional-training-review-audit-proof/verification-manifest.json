@@ -1,0 +1,147 @@
+{
+  "contractVersion": 1,
+  "taskId": "APP-TRAINING-REVIEW-AUDIT-20260727",
+  "riskLevel": "high",
+  "feature": "Project application audit and human-reviewed agent learning loop",
+  "route": "/, /projects, /ai/learning-promotions, /api/projects/bootstrap",
+  "flows": [
+    {
+      "name": "Use the canonical project portfolio",
+      "steps": [
+        "Open the authenticated portfolio",
+        "Exercise search, scope filters, view settings, and table settings",
+        "Open the create-project form",
+        "Navigate through the legacy /projects entry point"
+      ],
+      "expectedOutcome": "The canonical portfolio owns the route and its shared controls respond without a duplicate page implementation"
+    },
+    {
+      "name": "Create an accessible bootstrap project",
+      "steps": [
+        "Create the bootstrap project",
+        "Verify default roles and request-scoped identity",
+        "Verify creator membership",
+        "Open a protected project route"
+      ],
+      "expectedOutcome": "The project is created once, its role trigger passes RLS, and its creator can immediately open project pages"
+    },
+    {
+      "name": "Reject and correct an agent learning candidate",
+      "steps": [
+        "Open the learning-review queue as an app admin",
+        "Reject a candidate",
+        "Provide meaningful corrective feedback",
+        "Activate and link the correction",
+        "Surface any late audit-write failure accurately"
+      ],
+      "expectedOutcome": "The unapproved proposal is rejected, the administrator's correction becomes scoped active learning, and partial outcomes never report false success or false failure"
+    },
+    {
+      "name": "Identify automatic training ownership",
+      "steps": [
+        "Inspect the deployed weekly resource finder",
+        "Read live review-queue counts",
+        "Trace admin publication and learning promotion consumers",
+        "Record missing refresh/schedule seams"
+      ],
+      "expectedOutcome": "Existing automation and review owners are proven, while no-op or incomplete automation is reported explicitly"
+    }
+  ],
+  "requiredEvidence": [
+    "actionLog",
+    "summary",
+    "databaseReadback",
+    "negativePath",
+    "visualReview",
+    "regressionTest"
+  ],
+  "visual": {
+    "viewports": [
+      "desktop"
+    ],
+    "checks": [
+      "Canonical portfolio controls remain usable",
+      "Learning queue remains focused on the review decision",
+      "Corrective feedback is visibly required before rejection"
+    ]
+  },
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "canonical-project-owner",
+      "description": "The legacy projects route resolves to the canonical portfolio and representative shared controls work",
+      "evidence": [
+        {
+          "key": "visualReview",
+          "min": 1
+        },
+        {
+          "key": "regressionTest",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "accessible-bootstrap",
+      "description": "Bootstrap project creation is repeatable, creates roles under RLS, and grants the creator protected-route access",
+      "evidence": [
+        {
+          "key": "databaseReadback",
+          "min": 1
+        },
+        {
+          "key": "negativePath",
+          "min": 1
+        },
+        {
+          "key": "regressionTest",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "reviewed-correction-loop",
+      "description": "App admins can review candidates and meaningful rejection feedback reaches active scoped learning",
+      "evidence": [
+        {
+          "key": "visualReview",
+          "min": 1
+        },
+        {
+          "key": "regressionTest",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "partial-outcomes-fail-loudly",
+      "description": "Activation, destination linking, and audit recording have accurate, recoverable outcomes",
+      "evidence": [
+        {
+          "key": "negativePath",
+          "min": 1
+        },
+        {
+          "key": "regressionTest",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "training-automation-ownership",
+      "description": "Scheduled resource discovery, review queues, runtime consumers, and remaining automation gaps are identified",
+      "evidence": [
+        {
+          "key": "actionLog",
+          "min": 1
+        },
+        {
+          "key": "summary",
+          "min": 1
+        }
+      ]
+    }
+  ]
+}

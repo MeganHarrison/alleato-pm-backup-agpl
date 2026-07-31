@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Resource Library Preview</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #171717;
+        --muted: #6b7280;
+        --border: #e5e7eb;
+        --accent: #f58219;
+        --surface: #ffffff;
+      }
+
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--surface);
+        color: var(--ink);
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      .shell { display: grid; min-height: 100vh; grid-template-columns: 72px 1fr; }
+      .rail {
+        border-right: 1px solid #f0f0f0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 28px;
+        padding: 20px 0;
+      }
+      .logo {
+        display: grid;
+        width: 40px;
+        height: 32px;
+        place-items: center;
+        color: #222;
+        font-size: 25px;
+        font-weight: 800;
+      }
+      .rail-mark {
+        width: 18px;
+        height: 18px;
+        border: 1.5px solid #9ca3af;
+        border-radius: 4px;
+      }
+      .rail-mark.active { border-color: var(--accent); box-shadow: inset 3px 0 var(--accent); }
+      .workspace { min-width: 0; }
+      .topbar { height: 52px; border-bottom: 1px solid #f0f0f0; }
+      main { width: min(100%, 1500px); margin: 0 auto; padding: 54px 42px 80px; }
+      .eyebrow {
+        margin: 0 0 10px;
+        color: var(--accent);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+      }
+      h1 { margin: 0; font-size: clamp(34px, 5vw, 48px); line-height: 1; letter-spacing: -0.035em; }
+      .lede { max-width: 660px; margin: 14px 0 0; color: var(--muted); font-size: 15px; line-height: 1.55; }
+      .filters {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(130px, 1fr)) minmax(240px, 1.5fr);
+        gap: 10px;
+        margin: 44px 0 12px;
+      }
+      .control {
+        height: 40px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: white;
+        color: #4b5563;
+        padding: 0 12px;
+        font-size: 13px;
+        text-align: left;
+      }
+      .result { color: var(--muted); font-size: 13px; }
+      .chapters { display: grid; gap: 46px; margin-top: 34px; }
+      .chapter-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        margin-bottom: 16px;
+        border-left: 3px solid var(--accent);
+        padding-left: 12px;
+      }
+      .chapter-heading h2 { margin: 0; font-size: 20px; line-height: 1.25; }
+      .chapter-heading span { color: var(--muted); font-size: 12px; }
+      .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+      .card {
+        display: flex;
+        min-height: 206px;
+        flex-direction: column;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 20px;
+        color: inherit;
+        text-decoration: none;
+        transition: border-color 150ms ease, transform 150ms ease;
+      }
+      .card:hover { border-color: rgba(245, 130, 25, 0.6); transform: translateY(-1px); }
+      .card-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+      .format { color: var(--accent); font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+      .depth { color: var(--muted); font-size: 12px; }
+      .card h3 { margin: 21px 0 0; font-size: 17px; line-height: 1.35; }
+      .card-copy { margin: 8px 0 18px; color: var(--muted); font-size: 13px; line-height: 1.5; }
+      .card-bottom {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        margin-top: auto;
+        border-top: 1px solid var(--border);
+        padding-top: 13px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .open { flex: 0 0 auto; color: var(--accent); font-weight: 700; }
+
+      @media (max-width: 980px) {
+        .filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .filters .search { grid-column: 1 / -1; }
+        .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      }
+
+      @media (max-width: 640px) {
+        .shell { grid-template-columns: 1fr; }
+        .rail { display: none; }
+        main { padding: 36px 20px 64px; }
+        .topbar { height: 48px; }
+        .filters { grid-template-columns: 1fr; margin-top: 32px; }
+        .filters .search { grid-column: auto; grid-row: 1; }
+        .grid { grid-template-columns: 1fr; }
+        .chapter-heading { align-items: baseline; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="rail" aria-hidden="true">
+        <div class="logo">A</div>
+        <div class="rail-mark"></div>
+        <div class="rail-mark active"></div>
+        <div class="rail-mark"></div>
+        <div class="rail-mark"></div>
+      </aside>
+      <div class="workspace">
+        <div class="topbar"></div>
+        <main>
+          <header>
+            <p class="eyebrow">Field integrity &amp; execution playbooks</p>
+            <h1>Resource Library</h1>
+            <p class="lede">Vetted field and management training, organized by topic and role.</p>
+          </header>
+
+          <section class="filters" aria-label="Resource filters">
+            <button class="control">All roles</button>
+            <button class="control">All tracks</button>
+            <button class="control">All formats</button>
+            <button class="control">All depths</button>
+            <input class="control search" value="" placeholder="Search by resource, provider, or topic" />
+          </section>
+          <p class="result">8 resources across 3 topics</p>
+
+          <div class="chapters">
+            <section>
+              <div class="chapter-heading">
+                <h2>Reading &amp; Reviewing Drawings</h2>
+                <span>3 modules</span>
+              </div>
+              <div class="grid">
+                <a class="card" href="#">
+                  <div class="card-top"><span class="format">Video</span><span class="depth">Intro</span></div>
+                  <h3>Drawing Symbols &amp; Legends</h3>
+                  <p class="card-copy">Master architectural symbology, annotations, detail callouts, and dimension constraints.</p>
+                  <div class="card-bottom"><span>Alleato Academy · Field</span><span class="open">Open lesson →</span></div>
+                </a>
+                <a class="card" href="#">
+                  <div class="card-top"><span class="format">Course</span><span class="depth">Deep dive</span></div>
+                  <h3>Reading Architectural Plan Sets</h3>
+                  <p class="card-copy">Follow a complete plan set and locate the details that control field execution.</p>
+                  <div class="card-bottom"><span>Procore · Field</span><span class="open">Open lesson →</span></div>
+                </a>
+                <a class="card" href="#">
+                  <div class="card-top"><span class="format">Document</span><span class="depth">Intro</span></div>
+                  <h3>Drawing Review Checklist</h3>
+                  <p class="card-copy">A practical preconstruction and field checklist for coordinated drawing review.</p>
+                  <div class="card-bottom"><span>Alleato Guide · PM</span><span class="open">Open lesson →</span></div>
+                </a>
+              </div>
+            </section>
+
+            <section>
+              <div class="chapter-heading">
+                <h2>Planning &amp; Scheduling</h2>
+                <span>3 modules</span>
+              </div>
+              <div class="grid">
+                <a class="card" href="#">
+                  <div class="card-top"><span class="format">Video</span><span class="depth">Intro</span></div>
+                  <h3>Pull Planning Fundamentals</h3>
+                  <p class="card-copy">Build a reliable phase plan with trade partners and measurable handoffs.</p>
+                  <div class="card-bottom"><span>Lean Construction · Field</span><span class="open">Open lesson →</span></div>
+                </a>
+                <a class="card" href="#">
+                  <div class="card-top"><span class="format">Course</span><span class="depth">Deep dive</span></div>
+                  <h3>Look-Ahead Planning</h3>
+                  <p class="card-copy">Turn the master schedule into constraints, commitments, and weekly work plans.</p>
+                  <div class="card-bottom"><span>Alleato Academy · PM</span><span class="open">Open lesson →</span></div>
+                </a>
+                <a class="card" href="#">
+                  <div class="card-top"><span class="format">Document</span><span class="depth">Intro</span></div>
+                  <h3>Schedule Review Guide</h3>
+                  <p class="card-copy">A concise guide to logic, milestones, float, and schedule quality.</p>
+                  <div class="card-bottom"><span>Alleato Guide · PM</span><span class="open">Open lesson →</span></div>
+                </a>
+              </div>
+            </section>
+          </div>
+        </main>
+      </div>
+    </div>
+  </body>
+</html>

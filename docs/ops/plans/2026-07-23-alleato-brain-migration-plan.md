@@ -1,8 +1,44 @@
 # Alleato Brain — Migration Plan (for approval)
 
 Date: 2026-07-23
-Status: **Owner-approved product direction. Phase 1A additive foundation is in progress; governance gates remain open. No content migration, routing cutover, UI release, or project archival has occurred.**
+Status: **Implementation is complete through the additive data/access
+foundation, safe Phase 3 retrieval and ingestion contracts, and the Phase 4
+Brain UI. Phase 2 remains owner-gated; Phase 5 and Phase 6 require real elapsed
+run windows. No owner-gated content relabel, routing activation, project
+archival, or cutover has occurred.**
 Delivery lane: High-risk (schema change, permissions, AI/RAG, migration)
+
+### Implementation checkpoint — 2026-07-24
+
+Completed and published:
+
+- Phase 0 inventory and classification.
+- Phase 1A/1B Business Area tables, permanent project map, operational scope,
+  migration ledger, generated types, and restrictive read/write guards.
+- Safe Phase 3 prerequisites: archived-project routing guard, typed scope
+  persistence, exact app/RAG scope reconciliation, server-side Business Area
+  search filtering/authorization, and parallel mapped reads.
+- Phase 4 `/brain` and `/brain/[businessAreaId]` UI, including Knowledge,
+  Meetings, Tasks, Files, branch-scoped upload, source links, internal-user
+  admission, and Finance fail-closed behavior. The release is on
+  `origin/main` at `83ea23c6d4ca881795b25956316ab99c286d9452`;
+  its task closeout is `20cc518d01aa7ed8e0ab8412e1b225e375b93df7`.
+
+Explicit remaining gates:
+
+- Phase 2 cannot mutate content or access until Linear records the five branch
+  owners, exact Finance membership, and task disposition. None are inferred.
+- Remaining Phase 3 rule cloning/activation and comparison mode follow the same
+  owner gate. The Fireflies typed-scope source fix is published and live drift
+  was repaired, but provider-level deployment revision and one clean scheduled
+  run remain uncertified because no Render API credential, CLI, or connector is
+  available and production health does not expose a Git SHA.
+- Phase 5 requires a minimum of two actual weeks of daily comparison evidence.
+- Phase 6 requires seven consecutive days with zero new records in the five
+  containers plus owner sign-off before any XOR cutover or archival.
+
+This checkpoint supersedes older “in progress” wording below where it describes
+Phase 1 or the UI. It does not waive Appendix B or either elapsed-time gate.
 
 Decision log: the original draft put internal files in a new SharePoint
 site. On 2026-07-23 the owner chose the **Alleato Brain** direction
@@ -378,14 +414,14 @@ UI (`frontend/src/`):
 Read-only inventory complete; five containers confirmed; three
 "Internal"-typed real jobs identified and excluded. ✔
 
-**Phase 1 — Branch records & schema (no user-visible change)**
+**Phase 1 — Branch records & schema (COMPLETE 2026-07-24; no user-visible change)**
 
-1. **Phase 1A — foundation (in progress):** add `business_areas`,
+1. **Phase 1A — foundation (complete):** add `business_areas`,
    memberships, permanent fake-project → branch mapping
    (756→Leads, 767→AI, 60→Finance, 90→Internal Operations,
    89→Marketing), `document_metadata.business_area_id`, and additive
    branch-member RLS. Existing rows remain unchanged.
-1. **Phase 1B — operational scope:** add branch scope to meetings,
+1. **Phase 1B — operational scope (complete):** add branch scope to meetings,
    tasks, files, and attribution rules; add the per-run migration
    ledger. Do not add final XOR checks yet.
 
@@ -400,7 +436,8 @@ Read-only inventory complete; five containers confirmed; three
 1. Checkpoint: counts before/after match per branch and record type
    (Section 7); every mutation is present in the run ledger.
 
-**Phase 3 — Rewire routing, permissions, and search**
+**Phase 3 — Rewire routing, permissions, and search (safe prerequisites
+complete; activation owner-gated)**
 
 1. Clone the 43 rules to branch targets; fix the archived-project bug;
    compare routing decisions before deactivating the source rules.
@@ -408,7 +445,7 @@ Read-only inventory complete; five containers confirmed; three
    default to project 767/89/60.
 1. Deploy in comparison mode; old and new labels now coexist.
 
-**Phase 4 — Brain section UI**
+**Phase 4 — Brain section UI (COMPLETE 2026-07-24)**
 
 1. Ship the Brain section (branch list; Knowledge, Meetings, Tasks,
    Files tabs; upload; restricted Finance). People can now browse by

@@ -11,7 +11,7 @@ client_visible: false
 ai_visible: false
 order: 621
 related_routes:
-  - /ai
+  - /ai-assistant
   - /docs/project-intelligence
 related_actions: []
 ---
@@ -268,8 +268,7 @@ Allowed outcomes:
 
 ### User Chat And AI Assistant
 
-1. User message enters the Eve client and authenticated
-   `frontend/src/app/api/ai-assistant/eve/proxy/[...path]/route.ts`.
+1. User message enters `frontend/src/app/api/ai-assistant/chat/route.ts`.
 2. Intent chooses packet-first advisor path, source lookup path, action/tool path, or memory path.
 3. Assistant metadata records tool trace, retrieved sources, response quality, data parts/widgets, and selected learnings.
 4. Post-response jobs run conversation memory extraction, learning usage recording, and retrieval trace recording.
@@ -278,9 +277,7 @@ Allowed outcomes:
 
 ### Task Generation
 
-1. A task proposal originates from extraction or a supported application
-   workflow. Eve's current production bridge is read-only and does not create
-   the task from chat.
+1. Assistant proposes or creates a task through action tools.
 2. Task snapshot is captured in `ai_task_feedback` when user rates it.
 3. Good feedback can become a promoted positive example after review.
 4. Bad feedback creates or updates an `agent_learnings` candidate with a prevention prompt.

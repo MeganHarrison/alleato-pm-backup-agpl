@@ -4,11 +4,19 @@ export type TradeScheduleActivity = {
   assigneePersonId: string | null;
 };
 
-/** Trade views fail closed: an activity is visible only to its named assignee. */
+/**
+ * Trade views fail closed: an activity is visible only when its assignee is in
+ * the project-scoped person list authorized by the API.
+ */
 export function selectTradePublishedActivities<T extends TradeScheduleActivity>(
   activities: T[],
-  personId: string | null,
+  authorizedPersonIds: readonly string[],
 ): T[] {
-  if (!personId) return [];
-  return activities.filter((activity) => activity.assigneePersonId === personId);
+  const authorized = new Set(authorizedPersonIds);
+  if (authorized.size === 0) return [];
+  return activities.filter(
+    (activity) =>
+      activity.assigneePersonId !== null
+      && authorized.has(activity.assigneePersonId),
+  );
 }

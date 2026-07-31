@@ -20,7 +20,7 @@ jest.mock("@react-pdf/renderer", () => {
   };
 });
 
-import { Page } from "@react-pdf/renderer";
+import { Page, View } from "@react-pdf/renderer";
 import { SubcontractorInvoicePdfDocument } from "@/lib/subcontractor-invoice-pdf";
 
 function makeBaseData() {
@@ -138,6 +138,12 @@ function collectElements(
   return matches.concat(collectElements(children, predicate));
 }
 
+function resolveStyle(
+  style: Record<string, unknown> | Array<Record<string, unknown>> | undefined,
+): Record<string, unknown> {
+  return Array.isArray(style) ? Object.assign({}, ...style) : style ?? {};
+}
+
 describe("subcontractor invoice pdf helpers", () => {
   it("builds a Procore-style filename from project metadata", () => {
     const filename = buildSubcontractorInvoicePdfFilename(
@@ -238,7 +244,7 @@ describe("subcontractor invoice pdf helpers", () => {
     }
   });
 
-  it("narrows the continuation table container to fit the landscape page", () => {
+  it("keeps continuation columns within the table and closes the right edge", () => {
     const document = SubcontractorInvoicePdfDocument({ data: makeBaseData() });
     const pages = React.Children.toArray(document.props.children).filter(
       (child): child is React.ReactElement<{ children?: React.ReactNode }> =>
@@ -255,17 +261,72 @@ describe("subcontractor invoice pdf helpers", () => {
       const rendered = component.type(component.props) as React.ReactElement<{
         style?: Record<string, unknown> | Array<Record<string, unknown>>;
       }>;
-      const style = Array.isArray(rendered.props.style)
-        ? Object.assign({}, ...rendered.props.style)
-        : rendered.props.style ?? {};
+      const style = resolveStyle(rendered.props.style);
 
       expect(style).toEqual(
         expect.objectContaining({
           width: "98.5%",
           alignSelf: "flex-start",
           borderTopWidth: 1,
+          borderRightWidth: 1,
         }),
       );
+
+      const letterRow = React.Children.toArray(
+        (rendered.props as { children?: React.ReactNode }).children,
+      )[0] as React.ReactElement<{ children?: React.ReactNode }>;
+      const columnWidthTotal = React.Children.toArray(
+        letterRow.props.children,
+      ).reduce((total, cell) => {
+        if (
+          !React.isValidElement<{
+            style?:
+              | Record<string, unknown>
+              | Array<Record<string, unknown>>;
+          }>(cell)
+        ) {
+          return total;
+        }
+        const width = resolveStyle(cell.props.style).width;
+        return total + (typeof width === "string" ? Number.parseFloat(width) : 0);
+      }, 0);
+
+      expect(columnWidthTotal).toBe(100);
+    }
+  });
+
+  it("closes the right edge of the page-one financial tables", () => {
+    const document = SubcontractorInvoicePdfDocument({ data: makeBaseData() });
+    const pages = React.Children.toArray(document.props.children).filter(
+      (child): child is React.ReactElement<{ children?: React.ReactNode }> =>
+        React.isValidElement(child) && child.type === Page,
+    );
+
+    const tableFrames = collectElements(pages[0], (element) => {
+      if (element.type !== View) return false;
+      const style = resolveStyle(
+        (element.props as {
+          style?: Record<string, unknown> | Array<Record<string, unknown>>;
+        }).style,
+      );
+      if (style.borderTopWidth !== 1 || style.borderLeftWidth !== 1) {
+        return false;
+      }
+      const text = collectRenderedText(element);
+      return (
+        text.includes("Original Contract Sum") ||
+        text.includes("CHANGE ORDER SUMMARY")
+      );
+    });
+
+    expect(tableFrames).toHaveLength(2);
+    for (const frame of tableFrames) {
+      const style = resolveStyle(
+        (frame.props as {
+          style?: Record<string, unknown> | Array<Record<string, unknown>>;
+        }).style,
+      );
+      expect(style.borderRightWidth).toBe(1);
     }
   });
 });

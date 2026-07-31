@@ -1,6 +1,7 @@
 import { requireAdminDashboardAccess } from "@/lib/auth/admin-dashboard";
 import { usesAppAdminPageAccess } from "@/lib/auth/admin-page-access";
 import { requireAppAdminPageAccess } from "@/lib/auth/require-app-admin";
+import { AuthenticatedAppProviders } from "@/components/providers/authenticated-app-providers";
 import { headers } from "next/headers";
 import { AdminLayoutClient } from "./admin-layout-client";
 
@@ -20,5 +21,9 @@ export default async function AdminLayout({
     await requireAdminDashboardAccess();
   }
 
-  return <AdminLayoutClient>{children}</AdminLayoutClient>;
+  return (
+    <AuthenticatedAppProviders>
+      <AdminLayoutClient>{children}</AdminLayoutClient>
+    </AuthenticatedAppProviders>
+  );
 }

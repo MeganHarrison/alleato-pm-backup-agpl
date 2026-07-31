@@ -2,6 +2,7 @@ import {
   CHANGE_REQUEST_SCOPE_OPTIONS,
   CHANGE_REQUEST_TYPE_OPTIONS,
 } from "@/lib/ai/workflow-registry";
+import type { RetrievalContext } from "@/lib/ai/retrieval/types";
 
 export type ChangeEventWorkflowChecklistKey =
   | "project"
@@ -753,7 +754,7 @@ function evidenceDateFromResult(result: SemanticResult): string | null {
 }
 
 export function buildChangeEventRelatedEvidence(
-  retrievalCtx: { semanticVectorResults?: unknown } | null | undefined,
+  retrievalCtx: Pick<RetrievalContext, "semanticVectorResults"> | null | undefined,
 ): ChangeEventWorkflowEvidenceSuggestion[] {
   const wrapper = readRecord(retrievalCtx?.semanticVectorResults);
   const results = Array.isArray(wrapper?.results) ? (wrapper.results as SemanticResult[]) : [];

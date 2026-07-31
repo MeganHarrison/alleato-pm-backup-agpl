@@ -1,21 +1,5 @@
 {
   "mcpServers": {
-    "playwright-test": {
-      "command": "node",
-      "args": [
-        "scripts/verify/verify-playwright-runtime-alignment.mjs",
-        "--serve"
-      ]
-    },
-
-    "agentation": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "agentation-mcp",
-        "server"
-      ]
-    },
     "fireflies-docs": {
       "type": "http",
       "url": "https://docs.fireflies.ai/mcp"

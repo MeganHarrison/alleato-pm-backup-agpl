@@ -1,0 +1,1025 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e5]:
+      - generic [ref=e7]:
+        - link "Alleato" [ref=e8] [cursor=pointer]:
+          - /url: /
+          - img "Alleato" [ref=e9]
+        - button "Expand sidebar" [ref=e10]:
+          - img [ref=e11]
+      - generic [ref=e15]:
+        - generic [ref=e102]:
+          - button "Financial" [ref=e103]:
+            - img [ref=e104]
+          - generic:
+            - generic:
+              - generic: Financial
+              - generic:
+                - link "Budget":
+                  - /url: /767/budget
+                  - generic: Budget
+                - link "Prime Contracts":
+                  - /url: /767/prime-contracts
+                  - generic: Prime Contracts
+                - link "Commitments":
+                  - /url: /767/commitments
+                  - generic: Commitments
+                - link "Change Orders":
+                  - /url: /767/change-orders
+                  - generic: Change Orders
+                - link "Change Events":
+                  - /url: /767/change-events
+                  - generic: Change Events
+                - link "Direct Costs":
+                  - /url: /767/direct-costs
+                  - generic: Direct Costs
+                - link "Invoicing":
+                  - /url: /767/invoices
+                  - generic: Invoicing
+        - generic [ref=e16]:
+          - button "Operations" [ref=e17]:
+            - img [ref=e18]
+          - generic:
+            - generic:
+              - generic: Operations
+              - generic:
+                - link "Project Directory":
+                  - /url: /767/directory
+                  - generic: Project Directory
+                - link "Schedule":
+                  - /url: /767/schedule
+                  - generic: Schedule
+                - link "Meetings":
+                  - /url: /767/meetings
+                  - generic: Meetings
+                - link "Daily Log":
+                  - /url: /767/daily-log
+                  - generic: Daily Log
+                - link "Punch List":
+                  - /url: /767/punch-list
+                  - generic: Punch List
+                - link "RFIs":
+                  - /url: /767/rfis
+                  - generic: RFIs
+                - link "Submittals":
+                  - /url: /767/submittals
+                  - generic: Submittals
+                - link "Transmittals":
+                  - /url: /767/transmittals
+                  - generic: Transmittals
+                - link "Emails":
+                  - /url: /767/emails
+                  - generic: Emails
+                - link "Photos":
+                  - /url: /767/photos
+                  - generic: Photos
+                - link "Drawings":
+                  - /url: /767/drawings
+                  - generic: Drawings
+                - link "Specifications":
+                  - /url: /767/specifications
+                  - generic: Specifications
+                - link "Documents":
+                  - /url: /767/documents
+                  - generic: Documents
+        - generic [ref=e19]:
+          - button "Company" [ref=e20]:
+            - img [ref=e21]
+          - generic:
+            - generic:
+              - generic: Company
+              - generic:
+                - link "Company Directory":
+                  - /url: /directory/companies
+                  - generic: Company Directory
+                - link "Meetings":
+                  - /url: /767/meetings
+                  - generic: Meetings
+                - link "Knowledge Base":
+                  - /url: /knowledge
+                  - generic: Knowledge Base
+                - link "AI Strategist":
+                  - /url: /ai-assistant
+                  - generic: AI Strategist
+                - link "Documents":
+                  - /url: /767/documents
+                  - generic: Documents
+        - generic [ref=e23]:
+          - button "Admin" [ref=e24]:
+            - img [ref=e25]
+          - generic:
+            - generic:
+              - generic: Admin
+              - generic:
+                - link "Settings":
+                  - /url: /settings
+                  - generic: Settings
+                - link "Company Knowledge":
+                  - /url: /admin/company-knowledge
+                  - generic: Company Knowledge
+      - list [ref=e106]:
+        - listitem [ref=e107]:
+          - button "test1" [ref=e108]:
+            - img "test1" [ref=e110]
+      - button "Toggle Sidebar" [ref=e27]
+    - main [ref=e28]:
+      - generic [ref=e30]:
+        - generic [ref=e32]:
+          - link "Projects" [ref=e34] [cursor=pointer]:
+            - /url: /
+          - generic [ref=e35]:
+            - img [ref=e36]
+            - link "Alleato AI" [ref=e231] [cursor=pointer]:
+              - /url: /767/home
+          - generic [ref=e39]:
+            - img [ref=e40]
+            - generic [ref=e42]: Budget
+        - generic [ref=e43]:
+          - button "Budget" [ref=e44]:
+            - generic [ref=e45]: Budget
+            - img
+          - combobox [ref=e46]:
+            - generic [ref=e48]: Alleato AI
+            - img
+          - button "Comments" [ref=e49]:
+            - img
+          - button "Toggle Procore reference panel" [ref=e50]:
+            - img [ref=e51]
+          - link "Feedback inbox" [ref=e56] [cursor=pointer]:
+            - /url: /feedback-inbox
+            - img [ref=e57]
+          - link "Annotation inbox" [ref=e111] [cursor=pointer]:
+            - /url: /annotation-inbox
+            - img [ref=e112]
+          - button "Notifications" [ref=e60]:
+            - img
+      - generic [ref=e62]:
+        - main [ref=e63]:
+          - generic [ref=e64]:
+            - generic [ref=e117]:
+              - heading "Budget" [level=1] [ref=e120]
+              - generic [ref=e123]:
+                - button "Create" [ref=e124]:
+                  - img
+                  - text: Create
+                  - img
+                - button "Lock Budget" [ref=e125]:
+                  - img
+                  - generic [ref=e126]: Lock Budget
+                - button "Sync to ERP" [ref=e127]:
+                  - img
+                - button "Export" [ref=e128]:
+                  - img
+                - button [ref=e129]:
+                  - img
+            - navigation "Tabs" [ref=e131]:
+              - generic [ref=e133]:
+                - button "Budget" [ref=e134]
+                - button "Budget Details" [active] [ref=e135]
+                - button "Budget Modifications" [ref=e136]
+                - button "Cost Codes" [ref=e137]
+                - button "Forecasting" [ref=e138]
+                - button "Project Status Snapshots" [ref=e139]
+                - button "Change History" [ref=e140]
+                - button "Settings" [ref=e141]
+              - generic [ref=e143]:
+                - button "View options" [ref=e144]:
+                  - img
+                  - generic [ref=e145]: View
+                - button "Analyze variance" [ref=e146]:
+                  - img
+                - button "Enter full page view" [ref=e147]:
+                  - img
+            - generic [ref=e232]:
+              - generic [ref=e235]:
+                - img
+                - textbox "Search budget codes, descriptions, vendors..." [ref=e236]
+              - table [ref=e239]:
+                - rowgroup [ref=e240]:
+                  - row "Budget Code Vendor Item Detail Type Original Mods Pending Approved COs Committed Pending Changes Direct Costs Proj. +/- Forecast" [ref=e241]:
+                    - columnheader "Budget Code" [ref=e242] [cursor=pointer]:
+                      - generic [ref=e243]:
+                        - generic [ref=e244]: Budget Code
+                        - img [ref=e245]
+                    - columnheader "Vendor" [ref=e248] [cursor=pointer]:
+                      - generic [ref=e249]:
+                        - generic [ref=e250]: Vendor
+                        - img [ref=e251]
+                    - columnheader "Item" [ref=e254] [cursor=pointer]:
+                      - generic [ref=e255]:
+                        - generic [ref=e256]: Item
+                        - img [ref=e257]
+                    - columnheader "Detail Type" [ref=e260] [cursor=pointer]:
+                      - generic [ref=e261]:
+                        - generic [ref=e262]: Detail Type
+                        - img [ref=e263]
+                    - columnheader "Original" [ref=e266] [cursor=pointer]:
+                      - generic [ref=e267]:
+                        - generic [ref=e268]: Original
+                        - img [ref=e269]
+                    - columnheader "Mods" [ref=e272] [cursor=pointer]:
+                      - generic [ref=e273]:
+                        - generic [ref=e274]: Mods
+                        - img [ref=e275]
+                    - columnheader "Pending" [ref=e278] [cursor=pointer]:
+                      - generic [ref=e279]:
+                        - generic [ref=e280]: Pending
+                        - img [ref=e281]
+                    - columnheader "Approved COs" [ref=e284] [cursor=pointer]:
+                      - generic [ref=e285]:
+                        - generic [ref=e286]: Approved COs
+                        - img [ref=e287]
+                    - columnheader "Committed" [ref=e290] [cursor=pointer]:
+                      - generic [ref=e291]:
+                        - generic [ref=e292]: Committed
+                        - img [ref=e293]
+                    - columnheader "Pending Changes" [ref=e296] [cursor=pointer]:
+                      - generic [ref=e297]:
+                        - generic [ref=e298]: Pending Changes
+                        - img [ref=e299]
+                    - columnheader "Direct Costs" [ref=e302] [cursor=pointer]:
+                      - generic [ref=e303]:
+                        - generic [ref=e304]: Direct Costs
+                        - img [ref=e305]
+                    - columnheader "Proj. +/-" [ref=e308] [cursor=pointer]:
+                      - generic [ref=e309]:
+                        - generic [ref=e310]: Proj. +/-
+                        - img [ref=e311]
+                    - columnheader "Forecast" [ref=e314] [cursor=pointer]:
+                      - generic [ref=e315]:
+                        - generic [ref=e316]: Forecast
+                        - img [ref=e317]
+                - rowgroup [ref=e320]:
+                  - row "05-4100 Structural Metal Stud Framing - - Original Budget $0.00 - - - - - - $0.00 -" [ref=e321]:
+                    - cell "05-4100 Structural Metal Stud Framing" [ref=e322]:
+                      - generic [ref=e323]:
+                        - generic [ref=e324]: 05-4100
+                        - generic [ref=e325]: Structural Metal Stud Framing
+                    - cell "-" [ref=e326]
+                    - cell "-" [ref=e327]
+                    - cell "Original Budget" [ref=e328]
+                    - cell "$0.00" [ref=e329]
+                    - cell "-" [ref=e330]
+                    - cell "-" [ref=e331]
+                    - cell "-" [ref=e332]
+                    - cell "-" [ref=e333]
+                    - cell "-" [ref=e334]
+                    - cell "-" [ref=e335]
+                    - cell "$0.00" [ref=e336]
+                    - cell "-" [ref=e337]
+                  - row "06-1100 Wood Framing - - Original Budget $0.00 - - - - - - $0.00 -" [ref=e338]:
+                    - cell "06-1100 Wood Framing" [ref=e339]:
+                      - generic [ref=e340]:
+                        - generic [ref=e341]: 06-1100
+                        - generic [ref=e342]: Wood Framing
+                    - cell "-" [ref=e343]
+                    - cell "-" [ref=e344]
+                    - cell "Original Budget" [ref=e345]
+                    - cell "$0.00" [ref=e346]
+                    - cell "-" [ref=e347]
+                    - cell "-" [ref=e348]
+                    - cell "-" [ref=e349]
+                    - cell "-" [ref=e350]
+                    - cell "-" [ref=e351]
+                    - cell "-" [ref=e352]
+                    - cell "$0.00" [ref=e353]
+                    - cell "-" [ref=e354]
+                  - row "01-3128 Project Manager - - Original Budget $15,500.00 - - - - - - $15,500.00 -" [ref=e355]:
+                    - cell "01-3128 Project Manager" [ref=e356]:
+                      - generic [ref=e357]:
+                        - generic [ref=e358]: 01-3128
+                        - generic [ref=e359]: Project Manager
+                    - cell "-" [ref=e360]
+                    - cell "-" [ref=e361]
+                    - cell "Original Budget" [ref=e362]
+                    - cell "$15,500.00" [ref=e363]
+                    - cell "-" [ref=e364]
+                    - cell "-" [ref=e365]
+                    - cell "-" [ref=e366]
+                    - cell "-" [ref=e367]
+                    - cell "-" [ref=e368]
+                    - cell "-" [ref=e369]
+                    - cell "$15,500.00" [ref=e370]
+                    - cell "-" [ref=e371]
+                  - row "01-3120 Vice President - - Original Budget $38,000.00 - - - - - - $38,000.00 -" [ref=e372]:
+                    - cell "01-3120 Vice President" [ref=e373]:
+                      - generic [ref=e374]:
+                        - generic [ref=e375]: 01-3120
+                        - generic [ref=e376]: Vice President
+                    - cell "-" [ref=e377]
+                    - cell "-" [ref=e378]
+                    - cell "Original Budget" [ref=e379]
+                    - cell "$38,000.00" [ref=e380]
+                    - cell "-" [ref=e381]
+                    - cell "-" [ref=e382]
+                    - cell "-" [ref=e383]
+                    - cell "-" [ref=e384]
+                    - cell "-" [ref=e385]
+                    - cell "-" [ref=e386]
+                    - cell "$38,000.00" [ref=e387]
+                    - cell "-" [ref=e388]
+                  - row "07-4113 Metal Roof Panels - - Original Budget $52,000.00 - - - - - - $52,000.00 -" [ref=e389]:
+                    - cell "07-4113 Metal Roof Panels" [ref=e390]:
+                      - generic [ref=e391]:
+                        - generic [ref=e392]: 07-4113
+                        - generic [ref=e393]: Metal Roof Panels
+                    - cell "-" [ref=e394]
+                    - cell "-" [ref=e395]
+                    - cell "Original Budget" [ref=e396]
+                    - cell "$52,000.00" [ref=e397]
+                    - cell "-" [ref=e398]
+                    - cell "-" [ref=e399]
+                    - cell "-" [ref=e400]
+                    - cell "-" [ref=e401]
+                    - cell "-" [ref=e402]
+                    - cell "-" [ref=e403]
+                    - cell "$52,000.00" [ref=e404]
+                    - cell "-" [ref=e405]
+                  - row "07-1000 Dampproofing and Waterproofing - - Original Budget $67,500.00 - - - - - - $67,500.00 -" [ref=e406]:
+                    - cell "07-1000 Dampproofing and Waterproofing" [ref=e407]:
+                      - generic [ref=e408]:
+                        - generic [ref=e409]: 07-1000
+                        - generic [ref=e410]: Dampproofing and Waterproofing
+                    - cell "-" [ref=e411]
+                    - cell "-" [ref=e412]
+                    - cell "Original Budget" [ref=e413]
+                    - cell "$67,500.00" [ref=e414]
+                    - cell "-" [ref=e415]
+                    - cell "-" [ref=e416]
+                    - cell "-" [ref=e417]
+                    - cell "-" [ref=e418]
+                    - cell "-" [ref=e419]
+                    - cell "-" [ref=e420]
+                    - cell "$67,500.00" [ref=e421]
+                    - cell "-" [ref=e422]
+                  - row "07-1000 Dampproofing and Waterproofing - - Original Budget $85,000.00 - - - - - - $85,000.00 -" [ref=e423]:
+                    - cell "07-1000 Dampproofing and Waterproofing" [ref=e424]:
+                      - generic [ref=e425]:
+                        - generic [ref=e426]: 07-1000
+                        - generic [ref=e427]: Dampproofing and Waterproofing
+                    - cell "-" [ref=e428]
+                    - cell "-" [ref=e429]
+                    - cell "Original Budget" [ref=e430]
+                    - cell "$85,000.00" [ref=e431]
+                    - cell "-" [ref=e432]
+                    - cell "-" [ref=e433]
+                    - cell "-" [ref=e434]
+                    - cell "-" [ref=e435]
+                    - cell "-" [ref=e436]
+                    - cell "-" [ref=e437]
+                    - cell "$85,000.00" [ref=e438]
+                    - cell "-" [ref=e439]
+                  - row "07-4113 Metal Roof Panels - - Original Budget $120,000.00 - - - - - - $120,000.00 -" [ref=e440]:
+                    - cell "07-4113 Metal Roof Panels" [ref=e441]:
+                      - generic [ref=e442]:
+                        - generic [ref=e443]: 07-4113
+                        - generic [ref=e444]: Metal Roof Panels
+                    - cell "-" [ref=e445]
+                    - cell "-" [ref=e446]
+                    - cell "Original Budget" [ref=e447]
+                    - cell "$120,000.00" [ref=e448]
+                    - cell "-" [ref=e449]
+                    - cell "-" [ref=e450]
+                    - cell "-" [ref=e451]
+                    - cell "-" [ref=e452]
+                    - cell "-" [ref=e453]
+                    - cell "-" [ref=e454]
+                    - cell "$120,000.00" [ref=e455]
+                    - cell "-" [ref=e456]
+                  - row "01-3120 Vice President - - Original Budget $45,500.00 - - - - - - $45,500.00 -" [ref=e457]:
+                    - cell "01-3120 Vice President" [ref=e458]:
+                      - generic [ref=e459]:
+                        - generic [ref=e460]: 01-3120
+                        - generic [ref=e461]: Vice President
+                    - cell "-" [ref=e462]
+                    - cell "-" [ref=e463]
+                    - cell "Original Budget" [ref=e464]
+                    - cell "$45,500.00" [ref=e465]
+                    - cell "-" [ref=e466]
+                    - cell "-" [ref=e467]
+                    - cell "-" [ref=e468]
+                    - cell "-" [ref=e469]
+                    - cell "-" [ref=e470]
+                    - cell "-" [ref=e471]
+                    - cell "$45,500.00" [ref=e472]
+                    - cell "-" [ref=e473]
+                  - row "01-3126 Pre-construction - - Original Budget $28,000.00 - - - - - - $28,000.00 -" [ref=e474]:
+                    - cell "01-3126 Pre-construction" [ref=e475]:
+                      - generic [ref=e476]:
+                        - generic [ref=e477]: 01-3126
+                        - generic [ref=e478]: Pre-construction
+                    - cell "-" [ref=e479]
+                    - cell "-" [ref=e480]
+                    - cell "Original Budget" [ref=e481]
+                    - cell "$28,000.00" [ref=e482]
+                    - cell "-" [ref=e483]
+                    - cell "-" [ref=e484]
+                    - cell "-" [ref=e485]
+                    - cell "-" [ref=e486]
+                    - cell "-" [ref=e487]
+                    - cell "-" [ref=e488]
+                    - cell "$28,000.00" [ref=e489]
+                    - cell "-" [ref=e490]
+                  - row "01-3120 Vice President - BM-0001 - Smoke Test Modification Budget Changes - - $5,000.00 - - - - $0.00 -" [ref=e491]:
+                    - cell "01-3120 Vice President" [ref=e492]:
+                      - generic [ref=e493]:
+                        - generic [ref=e494]: 01-3120
+                        - generic [ref=e495]: Vice President
+                    - cell "-" [ref=e496]
+                    - cell "BM-0001 - Smoke Test Modification" [ref=e497]
+                    - cell "Budget Changes" [ref=e498]
+                    - cell "-" [ref=e499]
+                    - cell "-" [ref=e500]
+                    - cell "$5,000.00" [ref=e501]
+                    - cell "-" [ref=e502]
+                    - cell "-" [ref=e503]
+                    - cell "-" [ref=e504]
+                    - cell "-" [ref=e505]
+                    - cell "$0.00" [ref=e506]
+                    - cell "-" [ref=e507]
+                  - row "- 001 - Browser Verification Test Event - EDITED Change Events - - - - - - - $0.00 -" [ref=e508]:
+                    - cell [ref=e509]
+                    - cell "-" [ref=e510]
+                    - cell "001 - Browser Verification Test Event - EDITED" [ref=e511]
+                    - cell "Change Events" [ref=e512]
+                    - cell "-" [ref=e513]
+                    - cell "-" [ref=e514]
+                    - cell "-" [ref=e515]
+                    - cell "-" [ref=e516]
+                    - cell "-" [ref=e517]
+                    - cell "-" [ref=e518]
+                    - cell "-" [ref=e519]
+                    - cell "$0.00" [ref=e520]
+                    - cell "-" [ref=e521]
+                  - row "- CE-001 - Unforeseen Rock Excavation at Grid Lines A-C Change Events - - - - - - - $0.00 -" [ref=e522]:
+                    - cell [ref=e523]
+                    - cell "-" [ref=e524]
+                    - cell "CE-001 - Unforeseen Rock Excavation at Grid Lines A-C" [ref=e525]
+                    - cell "Change Events" [ref=e526]
+                    - cell "-" [ref=e527]
+                    - cell "-" [ref=e528]
+                    - cell "-" [ref=e529]
+                    - cell "-" [ref=e530]
+                    - cell "-" [ref=e531]
+                    - cell "-" [ref=e532]
+                    - cell "-" [ref=e533]
+                    - cell "$0.00" [ref=e534]
+                    - cell "-" [ref=e535]
+                  - row "- CE-001 - Unforeseen Rock Excavation at Grid Lines A-C Change Events - - - - - - - $0.00 -" [ref=e536]:
+                    - cell [ref=e537]
+                    - cell "-" [ref=e538]
+                    - cell "CE-001 - Unforeseen Rock Excavation at Grid Lines A-C" [ref=e539]
+                    - cell "Change Events" [ref=e540]
+                    - cell "-" [ref=e541]
+                    - cell "-" [ref=e542]
+                    - cell "-" [ref=e543]
+                    - cell "-" [ref=e544]
+                    - cell "-" [ref=e545]
+                    - cell "-" [ref=e546]
+                    - cell "-" [ref=e547]
+                    - cell "$0.00" [ref=e548]
+                    - cell "-" [ref=e549]
+                  - row "- CE-001 - Unforeseen Rock Excavation at Grid Lines A-C Change Events - - - - - - - $0.00 -" [ref=e550]:
+                    - cell [ref=e551]
+                    - cell "-" [ref=e552]
+                    - cell "CE-001 - Unforeseen Rock Excavation at Grid Lines A-C" [ref=e553]
+                    - cell "Change Events" [ref=e554]
+                    - cell "-" [ref=e555]
+                    - cell "-" [ref=e556]
+                    - cell "-" [ref=e557]
+                    - cell "-" [ref=e558]
+                    - cell "-" [ref=e559]
+                    - cell "-" [ref=e560]
+                    - cell "-" [ref=e561]
+                    - cell "$0.00" [ref=e562]
+                    - cell "-" [ref=e563]
+                  - row "- CE-002 - Owner-Requested Lobby Finish Upgrade Change Events - - - - - - - $0.00 -" [ref=e564]:
+                    - cell [ref=e565]
+                    - cell "-" [ref=e566]
+                    - cell "CE-002 - Owner-Requested Lobby Finish Upgrade" [ref=e567]
+                    - cell "Change Events" [ref=e568]
+                    - cell "-" [ref=e569]
+                    - cell "-" [ref=e570]
+                    - cell "-" [ref=e571]
+                    - cell "-" [ref=e572]
+                    - cell "-" [ref=e573]
+                    - cell "-" [ref=e574]
+                    - cell "-" [ref=e575]
+                    - cell "$0.00" [ref=e576]
+                    - cell "-" [ref=e577]
+                  - row "- CE-002 - Owner-Requested Lobby Finish Upgrade Change Events - - - - - - - $0.00 -" [ref=e578]:
+                    - cell [ref=e579]
+                    - cell "-" [ref=e580]
+                    - cell "CE-002 - Owner-Requested Lobby Finish Upgrade" [ref=e581]
+                    - cell "Change Events" [ref=e582]
+                    - cell "-" [ref=e583]
+                    - cell "-" [ref=e584]
+                    - cell "-" [ref=e585]
+                    - cell "-" [ref=e586]
+                    - cell "-" [ref=e587]
+                    - cell "-" [ref=e588]
+                    - cell "-" [ref=e589]
+                    - cell "$0.00" [ref=e590]
+                    - cell "-" [ref=e591]
+                  - row "- CE-002 - Owner-Requested Lobby Finish Upgrade Change Events - - - - - - - $0.00 -" [ref=e592]:
+                    - cell [ref=e593]
+                    - cell "-" [ref=e594]
+                    - cell "CE-002 - Owner-Requested Lobby Finish Upgrade" [ref=e595]
+                    - cell "Change Events" [ref=e596]
+                    - cell "-" [ref=e597]
+                    - cell "-" [ref=e598]
+                    - cell "-" [ref=e599]
+                    - cell "-" [ref=e600]
+                    - cell "-" [ref=e601]
+                    - cell "-" [ref=e602]
+                    - cell "-" [ref=e603]
+                    - cell "$0.00" [ref=e604]
+                    - cell "-" [ref=e605]
+                  - 'row "- CE-004 - RFI #23 — Structural Connection Detail Revision Change Events - - - - - - - $0.00 -" [ref=e606]':
+                    - cell [ref=e607]
+                    - cell "-" [ref=e608]
+                    - 'cell "CE-004 - RFI #23 — Structural Connection Detail Revision" [ref=e609]'
+                    - cell "Change Events" [ref=e610]
+                    - cell "-" [ref=e611]
+                    - cell "-" [ref=e612]
+                    - cell "-" [ref=e613]
+                    - cell "-" [ref=e614]
+                    - cell "-" [ref=e615]
+                    - cell "-" [ref=e616]
+                    - cell "-" [ref=e617]
+                    - cell "$0.00" [ref=e618]
+                    - cell "-" [ref=e619]
+                  - 'row "- CE-004 - RFI #23 — Structural Connection Detail Revision Change Events - - - - - - - $0.00 -" [ref=e620]':
+                    - cell [ref=e621]
+                    - cell "-" [ref=e622]
+                    - 'cell "CE-004 - RFI #23 — Structural Connection Detail Revision" [ref=e623]'
+                    - cell "Change Events" [ref=e624]
+                    - cell "-" [ref=e625]
+                    - cell "-" [ref=e626]
+                    - cell "-" [ref=e627]
+                    - cell "-" [ref=e628]
+                    - cell "-" [ref=e629]
+                    - cell "-" [ref=e630]
+                    - cell "-" [ref=e631]
+                    - cell "$0.00" [ref=e632]
+                    - cell "-" [ref=e633]
+                  - 'row "- CE-004 - RFI #23 — Structural Connection Detail Revision Change Events - - - - - - - $0.00 -" [ref=e634]':
+                    - cell [ref=e635]
+                    - cell "-" [ref=e636]
+                    - 'cell "CE-004 - RFI #23 — Structural Connection Detail Revision" [ref=e637]'
+                    - cell "Change Events" [ref=e638]
+                    - cell "-" [ref=e639]
+                    - cell "-" [ref=e640]
+                    - cell "-" [ref=e641]
+                    - cell "-" [ref=e642]
+                    - cell "-" [ref=e643]
+                    - cell "-" [ref=e644]
+                    - cell "-" [ref=e645]
+                    - cell "$0.00" [ref=e646]
+                    - cell "-" [ref=e647]
+                  - row "- CE-006 - IT Room HVAC Supplemental Cooling Change Events - - - - - - - $0.00 -" [ref=e648]:
+                    - cell [ref=e649]
+                    - cell "-" [ref=e650]
+                    - cell "CE-006 - IT Room HVAC Supplemental Cooling" [ref=e651]
+                    - cell "Change Events" [ref=e652]
+                    - cell "-" [ref=e653]
+                    - cell "-" [ref=e654]
+                    - cell "-" [ref=e655]
+                    - cell "-" [ref=e656]
+                    - cell "-" [ref=e657]
+                    - cell "-" [ref=e658]
+                    - cell "-" [ref=e659]
+                    - cell "$0.00" [ref=e660]
+                    - cell "-" [ref=e661]
+                  - row "- CE-006 - IT Room HVAC Supplemental Cooling Change Events - - - - - - - $0.00 -" [ref=e662]:
+                    - cell [ref=e663]
+                    - cell "-" [ref=e664]
+                    - cell "CE-006 - IT Room HVAC Supplemental Cooling" [ref=e665]
+                    - cell "Change Events" [ref=e666]
+                    - cell "-" [ref=e667]
+                    - cell "-" [ref=e668]
+                    - cell "-" [ref=e669]
+                    - cell "-" [ref=e670]
+                    - cell "-" [ref=e671]
+                    - cell "-" [ref=e672]
+                    - cell "-" [ref=e673]
+                    - cell "$0.00" [ref=e674]
+                    - cell "-" [ref=e675]
+                  - row "- CE-006 - IT Room HVAC Supplemental Cooling Change Events - - - - - - - $0.00 -" [ref=e676]:
+                    - cell [ref=e677]
+                    - cell "-" [ref=e678]
+                    - cell "CE-006 - IT Room HVAC Supplemental Cooling" [ref=e679]
+                    - cell "Change Events" [ref=e680]
+                    - cell "-" [ref=e681]
+                    - cell "-" [ref=e682]
+                    - cell "-" [ref=e683]
+                    - cell "-" [ref=e684]
+                    - cell "-" [ref=e685]
+                    - cell "-" [ref=e686]
+                    - cell "-" [ref=e687]
+                    - cell "$0.00" [ref=e688]
+                    - cell "-" [ref=e689]
+                  - row "- CE-006 - IT Room HVAC Supplemental Cooling Change Events - - - - - - - $0.00 -" [ref=e690]:
+                    - cell [ref=e691]
+                    - cell "-" [ref=e692]
+                    - cell "CE-006 - IT Room HVAC Supplemental Cooling" [ref=e693]
+                    - cell "Change Events" [ref=e694]
+                    - cell "-" [ref=e695]
+                    - cell "-" [ref=e696]
+                    - cell "-" [ref=e697]
+                    - cell "-" [ref=e698]
+                    - cell "-" [ref=e699]
+                    - cell "-" [ref=e700]
+                    - cell "-" [ref=e701]
+                    - cell "$0.00" [ref=e702]
+                    - cell "-" [ref=e703]
+                  - row "- 009 - Vendor FK Collapse Demo - 360 Electric Change Events - - - - - - - $0.00 -" [ref=e704]:
+                    - cell [ref=e705]
+                    - cell "-" [ref=e706]
+                    - cell "009 - Vendor FK Collapse Demo - 360 Electric" [ref=e707]
+                    - cell "Change Events" [ref=e708]
+                    - cell "-" [ref=e709]
+                    - cell "-" [ref=e710]
+                    - cell "-" [ref=e711]
+                    - cell "-" [ref=e712]
+                    - cell "-" [ref=e713]
+                    - cell "-" [ref=e714]
+                    - cell "-" [ref=e715]
+                    - cell "$0.00" [ref=e716]
+                    - cell "-" [ref=e717]
+                  - row "8ca3dce9-3388-4f6f-a081-8f872e658aa5 - 010 - change event test Change Events - - - - - - - $0.00 -" [ref=e718]:
+                    - cell "8ca3dce9-3388-4f6f-a081-8f872e658aa5" [ref=e719]:
+                      - generic [ref=e721]: 8ca3dce9-3388-4f6f-a081-8f872e658aa5
+                    - cell "-" [ref=e722]
+                    - cell "010 - change event test" [ref=e723]
+                    - cell "Change Events" [ref=e724]
+                    - cell "-" [ref=e725]
+                    - cell "-" [ref=e726]
+                    - cell "-" [ref=e727]
+                    - cell "-" [ref=e728]
+                    - cell "-" [ref=e729]
+                    - cell "-" [ref=e730]
+                    - cell "-" [ref=e731]
+                    - cell "$0.00" [ref=e732]
+                    - cell "-" [ref=e733]
+                  - row "- 011 - Smoke Test CE - UPDATED Change Events - - - - - - - $0.00 -" [ref=e734]:
+                    - cell [ref=e735]
+                    - cell "-" [ref=e736]
+                    - cell "011 - Smoke Test CE - UPDATED" [ref=e737]
+                    - cell "Change Events" [ref=e738]
+                    - cell "-" [ref=e739]
+                    - cell "-" [ref=e740]
+                    - cell "-" [ref=e741]
+                    - cell "-" [ref=e742]
+                    - cell "-" [ref=e743]
+                    - cell "-" [ref=e744]
+                    - cell "-" [ref=e745]
+                    - cell "$0.00" [ref=e746]
+                    - cell "-" [ref=e747]
+                  - row "- 012 - Smoke CE 1776154400 Updated Change Events - - - - - - - $0.00 -" [ref=e748]:
+                    - cell [ref=e749]
+                    - cell "-" [ref=e750]
+                    - cell "012 - Smoke CE 1776154400 Updated" [ref=e751]
+                    - cell "Change Events" [ref=e752]
+                    - cell "-" [ref=e753]
+                    - cell "-" [ref=e754]
+                    - cell "-" [ref=e755]
+                    - cell "-" [ref=e756]
+                    - cell "-" [ref=e757]
+                    - cell "-" [ref=e758]
+                    - cell "-" [ref=e759]
+                    - cell "$0.00" [ref=e760]
+                    - cell "-" [ref=e761]
+                  - row "bd81304f-a7c5-4d89-9dc7-a8ae7e9e4f11 - CE-003 - Added Emergency Generator & Transfer Switch Change Events - - - - - - - $0.00 -" [ref=e762]:
+                    - cell "bd81304f-a7c5-4d89-9dc7-a8ae7e9e4f11" [ref=e763]:
+                      - generic [ref=e765]: bd81304f-a7c5-4d89-9dc7-a8ae7e9e4f11
+                    - cell "-" [ref=e766]
+                    - cell "CE-003 - Added Emergency Generator & Transfer Switch" [ref=e767]
+                    - cell "Change Events" [ref=e768]
+                    - cell "-" [ref=e769]
+                    - cell "-" [ref=e770]
+                    - cell "-" [ref=e771]
+                    - cell "-" [ref=e772]
+                    - cell "-" [ref=e773]
+                    - cell "-" [ref=e774]
+                    - cell "-" [ref=e775]
+                    - cell "$0.00" [ref=e776]
+                    - cell "-" [ref=e777]
+                  - row "05-4100 Forecast - - Forecast to Complete - - - - - - - $0.00 $0.00" [ref=e778]:
+                    - cell "05-4100 Forecast" [ref=e779]:
+                      - generic [ref=e780]:
+                        - generic [ref=e781]: 05-4100
+                        - generic [ref=e782]: Forecast
+                    - cell "-" [ref=e783]
+                    - cell "-" [ref=e784]
+                    - cell "Forecast to Complete" [ref=e785]
+                    - cell "-" [ref=e786]
+                    - cell "-" [ref=e787]
+                    - cell "-" [ref=e788]
+                    - cell "-" [ref=e789]
+                    - cell "-" [ref=e790]
+                    - cell "-" [ref=e791]
+                    - cell "-" [ref=e792]
+                    - cell "$0.00" [ref=e793]
+                    - cell "$0.00" [ref=e794]
+                  - row "06-1100 Forecast - - Forecast to Complete - - - - - - - $0.00 $0.00" [ref=e795]:
+                    - cell "06-1100 Forecast" [ref=e796]:
+                      - generic [ref=e797]:
+                        - generic [ref=e798]: 06-1100
+                        - generic [ref=e799]: Forecast
+                    - cell "-" [ref=e800]
+                    - cell "-" [ref=e801]
+                    - cell "Forecast to Complete" [ref=e802]
+                    - cell "-" [ref=e803]
+                    - cell "-" [ref=e804]
+                    - cell "-" [ref=e805]
+                    - cell "-" [ref=e806]
+                    - cell "-" [ref=e807]
+                    - cell "-" [ref=e808]
+                    - cell "-" [ref=e809]
+                    - cell "$0.00" [ref=e810]
+                    - cell "$0.00" [ref=e811]
+                  - row "01-3128 Forecast - - Forecast to Complete - - - - - - - $0.00 $15,500.00" [ref=e812]:
+                    - cell "01-3128 Forecast" [ref=e813]:
+                      - generic [ref=e814]:
+                        - generic [ref=e815]: 01-3128
+                        - generic [ref=e816]: Forecast
+                    - cell "-" [ref=e817]
+                    - cell "-" [ref=e818]
+                    - cell "Forecast to Complete" [ref=e819]
+                    - cell "-" [ref=e820]
+                    - cell "-" [ref=e821]
+                    - cell "-" [ref=e822]
+                    - cell "-" [ref=e823]
+                    - cell "-" [ref=e824]
+                    - cell "-" [ref=e825]
+                    - cell "-" [ref=e826]
+                    - cell "$0.00" [ref=e827]
+                    - cell "$15,500.00" [ref=e828]
+                  - row "01-3120 Forecast - - Forecast to Complete - - - - - - - $0.00 $88,500.00" [ref=e829]:
+                    - cell "01-3120 Forecast" [ref=e830]:
+                      - generic [ref=e831]:
+                        - generic [ref=e832]: 01-3120
+                        - generic [ref=e833]: Forecast
+                    - cell "-" [ref=e834]
+                    - cell "-" [ref=e835]
+                    - cell "Forecast to Complete" [ref=e836]
+                    - cell "-" [ref=e837]
+                    - cell "-" [ref=e838]
+                    - cell "-" [ref=e839]
+                    - cell "-" [ref=e840]
+                    - cell "-" [ref=e841]
+                    - cell "-" [ref=e842]
+                    - cell "-" [ref=e843]
+                    - cell "$0.00" [ref=e844]
+                    - cell "$88,500.00" [ref=e845]
+                  - row "07-4113 Forecast - - Forecast to Complete - - - - - - - $0.00 $172,000.00" [ref=e846]:
+                    - cell "07-4113 Forecast" [ref=e847]:
+                      - generic [ref=e848]:
+                        - generic [ref=e849]: 07-4113
+                        - generic [ref=e850]: Forecast
+                    - cell "-" [ref=e851]
+                    - cell "-" [ref=e852]
+                    - cell "Forecast to Complete" [ref=e853]
+                    - cell "-" [ref=e854]
+                    - cell "-" [ref=e855]
+                    - cell "-" [ref=e856]
+                    - cell "-" [ref=e857]
+                    - cell "-" [ref=e858]
+                    - cell "-" [ref=e859]
+                    - cell "-" [ref=e860]
+                    - cell "$0.00" [ref=e861]
+                    - cell "$172,000.00" [ref=e862]
+                  - row "07-1000 Forecast - - Forecast to Complete - - - - - - - $0.00 $152,500.00" [ref=e863]:
+                    - cell "07-1000 Forecast" [ref=e864]:
+                      - generic [ref=e865]:
+                        - generic [ref=e866]: 07-1000
+                        - generic [ref=e867]: Forecast
+                    - cell "-" [ref=e868]
+                    - cell "-" [ref=e869]
+                    - cell "Forecast to Complete" [ref=e870]
+                    - cell "-" [ref=e871]
+                    - cell "-" [ref=e872]
+                    - cell "-" [ref=e873]
+                    - cell "-" [ref=e874]
+                    - cell "-" [ref=e875]
+                    - cell "-" [ref=e876]
+                    - cell "-" [ref=e877]
+                    - cell "$0.00" [ref=e878]
+                    - cell "$152,500.00" [ref=e879]
+                  - row "01-3126 Forecast - - Forecast to Complete - - - - - - - $0.00 $28,000.00" [ref=e880]:
+                    - cell "01-3126 Forecast" [ref=e881]:
+                      - generic [ref=e882]:
+                        - generic [ref=e883]: 01-3126
+                        - generic [ref=e884]: Forecast
+                    - cell "-" [ref=e885]
+                    - cell "-" [ref=e886]
+                    - cell "Forecast to Complete" [ref=e887]
+                    - cell "-" [ref=e888]
+                    - cell "-" [ref=e889]
+                    - cell "-" [ref=e890]
+                    - cell "-" [ref=e891]
+                    - cell "-" [ref=e892]
+                    - cell "-" [ref=e893]
+                    - cell "-" [ref=e894]
+                    - cell "$0.00" [ref=e895]
+                    - cell "$28,000.00" [ref=e896]
+                  - row "Forecast - - Forecast to Complete - - - - - - - $0.00 $0.00" [ref=e897]:
+                    - cell "Forecast" [ref=e898]:
+                      - generic [ref=e900]: Forecast
+                    - cell "-" [ref=e901]
+                    - cell "-" [ref=e902]
+                    - cell "Forecast to Complete" [ref=e903]
+                    - cell "-" [ref=e904]
+                    - cell "-" [ref=e905]
+                    - cell "-" [ref=e906]
+                    - cell "-" [ref=e907]
+                    - cell "-" [ref=e908]
+                    - cell "-" [ref=e909]
+                    - cell "-" [ref=e910]
+                    - cell "$0.00" [ref=e911]
+                    - cell "$0.00" [ref=e912]
+                  - row "8ca3dce9-3388-4f6f-a081-8f872e658aa5 Forecast - - Forecast to Complete - - - - - - - $0.00 $0.00" [ref=e913]:
+                    - cell "8ca3dce9-3388-4f6f-a081-8f872e658aa5 Forecast" [ref=e914]:
+                      - generic [ref=e915]:
+                        - generic [ref=e916]: 8ca3dce9-3388-4f6f-a081-8f872e658aa5
+                        - generic [ref=e917]: Forecast
+                    - cell "-" [ref=e918]
+                    - cell "-" [ref=e919]
+                    - cell "Forecast to Complete" [ref=e920]
+                    - cell "-" [ref=e921]
+                    - cell "-" [ref=e922]
+                    - cell "-" [ref=e923]
+                    - cell "-" [ref=e924]
+                    - cell "-" [ref=e925]
+                    - cell "-" [ref=e926]
+                    - cell "-" [ref=e927]
+                    - cell "$0.00" [ref=e928]
+                    - cell "$0.00" [ref=e929]
+                  - row "bd81304f-a7c5-4d89-9dc7-a8ae7e9e4f11 Forecast - - Forecast to Complete - - - - - - - $0.00 $0.00" [ref=e930]:
+                    - cell "bd81304f-a7c5-4d89-9dc7-a8ae7e9e4f11 Forecast" [ref=e931]:
+                      - generic [ref=e932]:
+                        - generic [ref=e933]: bd81304f-a7c5-4d89-9dc7-a8ae7e9e4f11
+                        - generic [ref=e934]: Forecast
+                    - cell "-" [ref=e935]
+                    - cell "-" [ref=e936]
+                    - cell "Forecast to Complete" [ref=e937]
+                    - cell "-" [ref=e938]
+                    - cell "-" [ref=e939]
+                    - cell "-" [ref=e940]
+                    - cell "-" [ref=e941]
+                    - cell "-" [ref=e942]
+                    - cell "-" [ref=e943]
+                    - cell "-" [ref=e944]
+                    - cell "$0.00" [ref=e945]
+                    - cell "$0.00" [ref=e946]
+              - table [ref=e949]:
+                - rowgroup [ref=e950]:
+                  - row "Grand Totals $451,500.00 $0.00 $5,000.00 $0.00 $0.00 $0.00 $0.00 $451,500.00 $456,500.00" [ref=e951]:
+                    - cell "Grand Totals" [ref=e952]
+                    - cell "$451,500.00" [ref=e953]
+                    - cell "$0.00" [ref=e954]
+                    - cell "$5,000.00" [ref=e955]
+                    - cell "$0.00" [ref=e956]
+                    - cell "$0.00" [ref=e957]
+                    - cell "$0.00" [ref=e958]
+                    - cell "$0.00" [ref=e959]
+                    - cell "$451,500.00" [ref=e960]
+                    - cell "$456,500.00" [ref=e961]
+        - generic [ref=e70]:
+          - navigation [ref=e71]:
+            - button "Admin" [ref=e73]:
+              - text: Admin
+              - img [ref=e74]
+          - paragraph [ref=e76]: © 2026 Alleato Group. All rights reserved.
+  - region "Notifications alt+T"
+  - button "Feedback mode" [ref=e78]:
+    - img [ref=e79]
+  - button "🎨 2" [ref=e229]:
+    - generic [ref=e82]: 🎨
+    - generic [ref=e230]: "2"
+  - button "Open Next.js Dev Tools" [ref=e88] [cursor=pointer]:
+    - img [ref=e89]
+  - alert [ref=e92]
+  - button "MCP Connected v3.0.2 Output Detail Standard React Components Hide Until Restart Marker Color Clear on copy/send Block page interactions Manage MCP & Webhooks Manage MCP & Webhooks MCP Connection Connected MCP connection allows agents to receive and act on annotations. Learn more Webhooks Auto-Send The webhook URL will receive live annotation changes and annotation data." [ref=e94] [cursor=pointer]:
+    - img [ref=e96]
+    - generic:
+      - generic:
+        - button:
+          - img
+      - generic:
+        - button:
+          - img
+      - generic:
+        - button [disabled]:
+          - img
+      - generic:
+        - button [disabled]:
+          - img
+      - generic:
+        - button [disabled]:
+          - img
+      - generic:
+        - button [disabled]:
+          - img
+      - generic:
+        - button:
+          - img
+        - generic "MCP Connected"
+      - generic:
+        - button:
+          - img
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - link:
+              - /url: https://agentation.com
+              - img
+            - paragraph: v3.0.2
+            - button "Switch to light mode":
+              - generic:
+                - generic:
+                  - img
+          - generic:
+            - generic:
+              - generic:
+                - text: Output Detail
+                - generic:
+                  - img
+              - button "Standard":
+                - generic: Standard
+            - generic:
+              - generic:
+                - text: React Components
+                - generic:
+                  - img
+              - generic:
+                - checkbox [checked]
+            - generic:
+              - generic:
+                - text: Hide Until Restart
+                - generic:
+                  - img
+              - generic:
+                - checkbox
+          - generic:
+            - generic: Marker Color
+            - generic:
+              - button "Indigo"
+              - button "Blue"
+              - button "Cyan"
+              - button "Green"
+              - button "Yellow"
+              - button "Orange"
+              - button "Red"
+          - generic:
+            - generic:
+              - generic:
+                - checkbox "Clear on copy/send"
+                - img
+              - generic: Clear on copy/send
+              - generic:
+                - img
+            - generic:
+              - generic:
+                - checkbox "Block page interactions"
+                - img
+              - generic: Block page interactions
+          - button "Manage MCP & Webhooks":
+            - generic: Manage MCP & Webhooks
+            - generic:
+              - img
+        - generic:
+          - button "Manage MCP & Webhooks":
+            - img
+            - generic: Manage MCP & Webhooks
+          - generic:
+            - generic:
+              - generic:
+                - text: MCP Connection
+                - generic:
+                  - img
+              - generic "Connected"
+            - paragraph:
+              - text: MCP connection allows agents to receive and act on annotations.
+              - link "Learn more":
+                - /url: https://agentation.dev/mcp
+          - generic:
+            - generic:
+              - generic:
+                - text: Webhooks
+                - generic:
+                  - img
+              - generic:
+                - generic: Auto-Send
+                - generic:
+                  - checkbox "Auto-Send" [checked] [disabled]
+            - paragraph: The webhook URL will receive live annotation changes and annotation data.
+            - textbox "Webhook URL"
+  - generic [ref=e962]:
+    - link "Liveblocks" [ref=e963] [cursor=pointer]:
+      - /url: https://lblcks.io/badge
+      - img [ref=e964]
+    - button [ref=e972] [cursor=pointer]:
+      - img [ref=e973]

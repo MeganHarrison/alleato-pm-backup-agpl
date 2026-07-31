@@ -1,0 +1,33 @@
+{
+  "contractVersion": 1,
+  "taskId": "ALL-11-FIREFLIES",
+  "riskLevel": "high",
+  "feature": "Fireflies typed Business Area routing",
+  "route": "FirefliesIngestionPipeline.ingest_markdown_text",
+  "flows": [
+    {
+      "name": "Ingest a mapped Finance transcript",
+      "steps": [
+        "Resolve the canonical Business Area target",
+        "Persist Business Area-only app and RAG scope",
+        "Write Business Area-only chunk metadata"
+      ],
+      "expectedOutcome": "No new Fireflies document or chunk is written to fake project 60"
+    },
+    {
+      "name": "Repair unchanged legacy transcript",
+      "steps": [
+        "Hydrate existing scope",
+        "Detect mapped project drift before skip",
+        "Reprocess once through exact-scope persistence"
+      ],
+      "expectedOutcome": "The stale project is cleared and future unchanged runs may skip"
+    }
+  ],
+  "requiredEvidence": [
+    "regressionTest",
+    "databaseReadback",
+    "independentReview"
+  ],
+  "independentReview": { "required": true }
+}

@@ -21,9 +21,6 @@ services:
         sync: false
       - key: SUPABASE_URL
         sync: false
-      # get_supabase_client() hard-requires this (no legacy-key fallback since
-      # #98/36472fc45). This service went without it declared here entirely,
-      # so every run raised RuntimeError and exited 1 — see incident 2026-07-24.
       - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false
 
@@ -41,7 +38,7 @@ services:
       - key: PYTHONUNBUFFERED
         value: 1
       - key: APP_DB_PRESSURE_GUARD_REQUIRED
-        value: "false"
+        value: "true"
       - key: DATABASE_URL
         sync: false
       - key: SUPABASE_URL
@@ -52,9 +49,17 @@ services:
         sync: false
       - key: RAG_SUPABASE_SERVICE_ROLE_KEY
         sync: false
+      - key: AI_GATEWAY_API_KEY
+        sync: false
       - key: RAG_DATABASE_WRITES_ENABLED
         value: "true"
       - key: RAG_DATABASE_READS_ENABLED
+        value: "true"
+      - key: AI_GATEWAY_REQUIRED
+        value: "true"
+      - key: PIPELINE_DAILY_MODEL_BUDGET_USD
+        value: "10"
+      - key: PIPELINE_BUDGET_REQUIRED
         value: "true"
       - key: GRAPH_DELTA_MAX_PAGES
         value: "3"
@@ -83,7 +88,7 @@ services:
       - key: PYTHONUNBUFFERED
         value: 1
       - key: APP_DB_PRESSURE_GUARD_REQUIRED
-        value: "false"
+        value: "true"
       - key: DATABASE_URL
         sync: false
       - key: SUPABASE_URL
@@ -94,9 +99,17 @@ services:
         sync: false
       - key: RAG_SUPABASE_SERVICE_ROLE_KEY
         sync: false
+      - key: AI_GATEWAY_API_KEY
+        sync: false
       - key: RAG_DATABASE_WRITES_ENABLED
         value: "true"
       - key: RAG_DATABASE_READS_ENABLED
+        value: "true"
+      - key: AI_GATEWAY_REQUIRED
+        value: "true"
+      - key: PIPELINE_DAILY_MODEL_BUDGET_USD
+        value: "10"
+      - key: PIPELINE_BUDGET_REQUIRED
         value: "true"
       - key: GRAPH_DELTA_MAX_PAGES
         value: "3"
@@ -118,7 +131,8 @@ services:
         value: "2"
 
   # Runs Outlook/SharePoint sync every 2 hours, staggered away from
-  # Teams-only crons. Embedding is capped at 25 documents per run.
+  # Teams-only crons. Embedding is capped at 100 documents per run and remains
+  # protected by the required $10 daily model budget.
   - type: cron
     name: alleato-graph-sync
     runtime: docker
@@ -126,7 +140,7 @@ services:
     dockerContext: ./backend
     schedule: "20 */2 * * *"
     dockerCommand: >-
-      timeout 25m python3 scripts/run_graph_sync.py
+      timeout 55m python3 scripts/run_graph_sync.py
     envVars:
       - key: PYTHONPATH
         value: /app:/app/src:/app/src/services
@@ -144,6 +158,8 @@ services:
         sync: false
       - key: RAG_SUPABASE_SERVICE_ROLE_KEY
         sync: false
+      - key: AI_GATEWAY_API_KEY
+        sync: false
       - key: RAG_DATABASE_WRITES_ENABLED
         value: "true"
       - key: RAG_DATABASE_READS_ENABLED
@@ -160,8 +176,26 @@ services:
         value: bclymer@alleatogroup.com
       - key: OUTLOOK_SYNC_MAX_USERS
         value: "2"
-      - key: SHAREPOINT_SYNC_MAX_FOLDERS
+      - key: SHAREPOINT_PROJECT_DISCOVERY_ENABLED
+        value: "true"
+      - key: SHAREPOINT_PROJECT_SITE
+        value: alleato.sharepoint.com/AlleatoGroup
+      - key: SHAREPOINT_PROJECTS_BASE
+        value: Alleato Group/Alleato Group-Shared
+      - key: RAG_PIPELINE_WORKFLOW_URL
+        value: https://projects.alleatogroup.com/api/rag-pipeline/process
+      - key: RAG_PIPELINE_WORKFLOW_SECRET
+        sync: false
+      - key: SHAREPOINT_PROJECT_YEAR_LOOKBACK
+        value: "4"
+      - key: SHAREPOINT_PROJECT_DISCOVERY_MAX_SCOPES
+        value: "250"
+      - key: SHAREPOINT_BOOTSTRAP_MAX_FOLDERS
         value: "2"
+      - key: SHAREPOINT_INCREMENTAL_MAX_FOLDERS
+        value: "200"
+      - key: GRAPH_INGEST_MAX_FILE_SIZE_MB
+        value: "250"
       - key: INTELLIGENCE_OPERATING_SYNTHESIS_ENABLED
         # graph-sync can't project L2 to PM APP; skip the operating-read LLM synthesis here (daily sweep owns it).
         value: "false"
@@ -178,11 +212,17 @@ services:
       - key: GRAPH_SYNC_SHAREPOINT
         value: "true"
       - key: GRAPH_EMBEDDING_LIMIT
-        value: "25"
-      - key: RAG_PIPELINE_WORKFLOW_URL
-        value: https://projects.alleatogroup.com/api/rag-pipeline/process
-      - key: RAG_PIPELINE_WORKFLOW_SECRET
-        sync: false
+        value: "100"
+      - key: GRAPH_SYNC_RUN_EMBEDDING
+        value: "true"
+      - key: GRAPH_SYNC_PHASE_TIMEOUT_SECONDS
+        value: "480"
+      - key: PIPELINE_DAILY_MODEL_BUDGET_USD
+        value: "10"
+      - key: PIPELINE_BUDGET_REQUIRED
+        value: "true"
+      - key: AI_GATEWAY_REQUIRED
+        value: "true"
 
   # Syncs new Fireflies meeting transcripts every 30 minutes.
   # Replaced the former APScheduler-based Fireflies sync that was disabled
@@ -202,12 +242,16 @@ services:
       - key: PYTHONUNBUFFERED
         value: 1
       - key: APP_DB_PRESSURE_GUARD_REQUIRED
-        value: "false"
+        value: "true"
       - key: ALLOW_PM_APP_FINAL_PROJECTIONS
         value: "true"
       - key: PM_APP_PROJECTION_MAX_TOTAL_ROWS
         value: "50"
       - key: DATABASE_URL
+        sync: false
+      - key: RAG_PIPELINE_WORKFLOW_URL
+        value: https://projects.alleatogroup.com/api/rag-pipeline/process
+      - key: RAG_PIPELINE_WORKFLOW_SECRET
         sync: false
       - key: SUPABASE_URL
         sync: false
@@ -227,10 +271,12 @@ services:
         sync: false
       - key: OPENAI_API_KEY
         sync: false
-      - key: RAG_PIPELINE_WORKFLOW_URL
-        value: https://projects.alleatogroup.com/api/rag-pipeline/process
-      - key: RAG_PIPELINE_WORKFLOW_SECRET
-        sync: false
+      - key: AI_GATEWAY_REQUIRED
+        value: "true"
+      - key: PIPELINE_DAILY_MODEL_BUDGET_USD
+        value: "10"
+      - key: PIPELINE_BUDGET_REQUIRED
+        value: "true"
 
   # Daily email triage digest — 7:00 AM ET (12:00 UTC). Queries yesterday's
   # outlook_email_intake grouped by triage_action and sends a summary Teams DM
@@ -249,7 +295,7 @@ services:
       - key: PYTHONUNBUFFERED
         value: 1
       - key: APP_DB_PRESSURE_GUARD_REQUIRED
-        value: "false"
+        value: "true"
       - key: DATABASE_URL
         sync: false
       - key: MICROSOFT_EXECUTIVE_ASSISTANT_MAILBOX
@@ -262,9 +308,6 @@ services:
         value: "https://projects.alleatogroup.com"
       - key: SUPABASE_URL
         sync: false
-      # get_outlook_intake_read_client() falls back to get_supabase_client(),
-      # which hard-requires this (no legacy-key fallback since #98/36472fc45).
-      # Missing here caused RuntimeError on every run — see incident 2026-07-24.
       - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false
 
@@ -287,7 +330,7 @@ services:
       - key: PYTHONUNBUFFERED
         value: 1
       - key: APP_DB_PRESSURE_GUARD_REQUIRED
-        value: "false"
+        value: "true"
       - key: DATABASE_URL
         sync: false
       - key: MICROSOFT_CLIENT_ID
@@ -335,7 +378,7 @@ services:
       - key: PYTHONUNBUFFERED
         value: 1
       - key: APP_DB_PRESSURE_GUARD_REQUIRED
-        value: "false"
+        value: "true"
       - key: DATABASE_URL
         sync: false
       - key: SUPABASE_URL
@@ -375,7 +418,7 @@ services:
       - key: PYTHONUNBUFFERED
         value: 1
       - key: APP_DB_PRESSURE_GUARD_REQUIRED
-        value: "false"
+        value: "true"
       - key: DATABASE_URL
         sync: false
       - key: MICROSOFT_EXECUTIVE_ASSISTANT_SCHEDULED_ENABLED
@@ -390,6 +433,10 @@ services:
         sync: false
       - key: OPENAI_API_KEY
         sync: false
+      - key: AI_GATEWAY_REQUIRED
+        value: "true"
+      - key: PIPELINE_DAILY_MODEL_BUDGET_USD
+        value: "10"
       - key: MICROSOFT_CLIENT_ID
         sync: false
       - key: MICROSOFT_CLIENT_SECRET
@@ -434,14 +481,11 @@ services:
       - key: PYTHONUNBUFFERED
         value: 1
       - key: APP_DB_PRESSURE_GUARD_REQUIRED
-        value: "false"
+        value: "true"
       - key: DATABASE_URL
         sync: false
       - key: SUPABASE_URL
         sync: false
-      # get_supabase_client() hard-requires this (no legacy-key fallback since
-      # #98/36472fc45). Missing here caused RuntimeError on every run — see
-      # incident 2026-07-24.
       - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false
       - key: MICROSOFT_CLIENT_ID
@@ -469,7 +513,7 @@ services:
       - key: PYTHONUNBUFFERED
         value: 1
       - key: APP_DB_PRESSURE_GUARD_REQUIRED
-        value: "false"
+        value: "true"
       - key: DATABASE_URL
         sync: false
       - key: SUPABASE_URL
@@ -482,6 +526,10 @@ services:
         value: "true"
       - key: AI_GATEWAY_API_KEY
         sync: false
+      - key: AI_GATEWAY_REQUIRED
+        value: "true"
+      - key: PIPELINE_DAILY_MODEL_BUDGET_USD
+        value: "10"
       - key: OPENAI_API_KEY
         sync: false
       - key: SLACK_WEBHOOK_URL
@@ -505,16 +553,13 @@ services:
       - key: PYTHONUNBUFFERED
         value: 1
       - key: APP_DB_PRESSURE_GUARD_REQUIRED
-        value: "false"
+        value: "true"
       - key: PROJECT_INTELLIGENCE_STALENESS_CHECK_DAYS
         value: "2"
       - key: DATABASE_URL
         sync: false
       - key: SUPABASE_URL
         sync: false
-      # get_supabase_client() hard-requires this (no legacy-key fallback since
-      # #98/36472fc45). Missing here caused RuntimeError on every run — see
-      # incident 2026-07-24.
       - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false
       - key: SLACK_WEBHOOK_URL
@@ -548,7 +593,7 @@ services:
       - key: OPENAI_API_KEY
         sync: false
       - key: APP_DB_PRESSURE_GUARD_REQUIRED
-        value: "false"
+        value: "true"
       - key: DATABASE_URL
         sync: false
       # Slack incoming webhook (set via Render API 2026-06-14). Secondary record.
@@ -579,7 +624,7 @@ services:
       - key: PYTHONUNBUFFERED
         value: 1
       - key: APP_DB_PRESSURE_GUARD_REQUIRED
-        value: "false"
+        value: "true"
       - key: DATABASE_URL
         sync: false
       - key: SUPABASE_URL
@@ -591,6 +636,8 @@ services:
       - key: RAG_SUPABASE_SERVICE_ROLE_KEY
         sync: false
       - key: RAG_DATABASE_READS_ENABLED
+        value: "true"
+      - key: SHAREPOINT_PROJECT_DISCOVERY_ENABLED
         value: "true"
       - key: NEXT_PUBLIC_APP_URL
         sync: false
@@ -622,7 +669,7 @@ services:
       - key: PYTHONUNBUFFERED
         value: 1
       - key: APP_DB_PRESSURE_GUARD_REQUIRED
-        value: "false"
+        value: "true"
       - key: DATABASE_URL
         sync: false
       - key: SUPABASE_URL
@@ -731,6 +778,14 @@ services:
         sync: false
       - key: OPENAI_API_KEY
         sync: false
+      - key: AI_GATEWAY_API_KEY
+        sync: false
+      - key: AI_GATEWAY_REQUIRED
+        value: "true"
+      - key: PIPELINE_DAILY_MODEL_BUDGET_USD
+        value: "10"
+      - key: PIPELINE_BUDGET_REQUIRED
+        value: "true"
       - key: SYNTHESIS_SWEEP_MAX_PROJECTS
         value: "200"
       - key: SYNTHESIS_SWEEP_MAX_EXTRACTIONS
@@ -750,6 +805,8 @@ services:
     dockerContext: .
     schedule: "*/15 10-13 * * 1-5"
     envVars:
+      - key: APP_DB_PRESSURE_GUARD_REQUIRED
+        value: "true"
       - key: DATABASE_URL
         sync: false
       - key: RAG_DATABASE_URL
@@ -767,6 +824,61 @@ services:
       - key: EXECUTIVE_DAILY_BRIEF_TARGET_WEEKDAYS
         value: "1,2,3,4,5"
 
+  # ALL-23: each Monday at 13:15 UTC, rotate through one curated role/topic
+  # target and submit at most one eligible result to the human review queue.
+  # The runner is read-only unless --commit is explicit; the finder and RPC
+  # retain free-only, canonical-dedupe, and review-only ownership.
+  - type: cron
+    name: alleato-training-resource-finder-weekly
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    schedule: "15 13 * * 1"
+    dockerCommand: >-
+      timeout 20m python3 -m src.scripts.run_training_resource_finder_weekly --commit
+    envVars:
+      - key: PYTHONPATH
+        value: /app:/app/src:/app/src/services
+      - key: PYTHONUNBUFFERED
+        value: 1
+      - key: APP_DB_PRESSURE_GUARD_REQUIRED
+        value: "true"
+      - key: DATABASE_URL
+        sync: false
+      - key: RAG_PIPELINE_WORKFLOW_URL
+        value: https://projects.alleatogroup.com/api/rag-pipeline/process
+      - key: RAG_PIPELINE_WORKFLOW_SECRET
+        sync: false
+      - key: TAVILY_API_KEY
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+
+  - type: cron
+    name: alleato-training-resource-freshness-weekday
+    runtime: docker
+    schedule: "45 13 * * 1-5"
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    dockerCommand: >-
+      timeout 20m python3 -m src.scripts.run_training_resource_freshness_weekday
+      --max-resources 20
+    envVars:
+      - key: PYTHONPATH
+        value: /app
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: APP_DB_PRESSURE_GUARD_REQUIRED
+        value: "true"
+      - key: DATABASE_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+
   - type: web
     name: alleato-backend
     runtime: docker
@@ -781,7 +893,7 @@ services:
       - key: PYTHONUNBUFFERED
         value: 1
       - key: APP_DB_PRESSURE_GUARD_REQUIRED
-        value: "false"
+        value: "true"
       - key: ALLOW_PM_APP_FINAL_PROJECTIONS
         value: "true"
       - key: PM_APP_PROJECTION_MAX_TOTAL_ROWS
@@ -794,6 +906,12 @@ services:
       # as explicit Render cron services so they can be suspended/throttled.
       - key: BACKEND_API_ONLY
         value: "true"
+      - key: AI_GATEWAY_REQUIRED
+        value: "true"
+      - key: PIPELINE_DAILY_MODEL_BUDGET_USD
+        value: "10"
+      - key: PIPELINE_BUDGET_REQUIRED
+        value: "true"
       - key: DISABLE_SCHEDULER
         value: "true"
       # Acumatica imports are manual-only. Keep this explicit so a future
@@ -805,9 +923,9 @@ services:
       - key: GRAPH_SYNC_ENABLED
         value: "false"
       - key: GRAPH_SUBSCRIPTIONS_ENABLED
-        value: "auto"
+        value: "false"
       - key: GRAPH_WEBHOOK_DRAIN_ENABLED
-        value: "auto"
+        value: "false"
       - key: GRAPH_SYNC_OUTLOOK
         value: "false"
       - key: GRAPH_SYNC_TEAMS
@@ -828,14 +946,12 @@ services:
       # Render API 2026-06-10; declared here so a Blueprint sync keeps it on.
       - key: DEEP_EXTRACTION_ENABLED
         value: "true"
-      - key: OPENAI_API_KEY
-        sync: false
       - key: AI_GATEWAY_API_KEY
         sync: false
-      - key: RAG_PIPELINE_WORKFLOW_URL
-        value: https://projects.alleatogroup.com/api/rag-pipeline/process
-      - key: RAG_PIPELINE_WORKFLOW_SECRET
-        sync: false
+      # Explicit blank override blocks an OPENAI_API_KEY inherited from a linked
+      # environment group. Raw legacy SDK callsites therefore cannot bill.
+      - key: OPENAI_API_KEY
+        value: " "
       # Backend Sentry DSN (set via Render API 2026-06-14). init_sentry() in
       # src/services/sentry_monitoring.py reads SENTRY_BACKEND_DSN || SENTRY_DSN;
       # without it backend exceptions go uncaptured — which is how the OpenAI
@@ -854,9 +970,6 @@ services:
         sync: false
       - key: SUPABASE_ANON_KEY
         sync: false
-      # The ~28 get_supabase_client() call sites across src/api/main.py hard-require
-      # this (no legacy-key fallback since #98/36472fc45) — documented here for
-      # blueprint parity even though live Render config is managed separately.
       - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false
       - key: RAG_SUPABASE_URL
@@ -943,6 +1056,10 @@ services:
       - key: DATABASE_URL
         sync: false
       - key: ADMIN_API_KEY
+        sync: false
+      - key: RAG_PIPELINE_WORKFLOW_URL
+        value: https://projects.alleatogroup.com/api/rag-pipeline/process
+      - key: RAG_PIPELINE_WORKFLOW_SECRET
         sync: false
       - key: FRONTEND_CORS_ORIGINS
         value: https://alleato-procore.vercel.app,https://www.alleato-procore.vercel.app,https://alleato-backend-rbnj.onrender.com

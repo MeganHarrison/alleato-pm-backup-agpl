@@ -1023,6 +1023,10 @@ export function createProjectDataReadTools(internals: OperationalToolInternals) 
             matches.length > 0
               ? String(matches[0].name ?? projectName)
               : projectName;
+          const resolvedProjectId =
+            matches.length > 0 && Number.isFinite(Number(matches[0].id))
+              ? Number(matches[0].id)
+              : undefined;
 
           // Step 2: Run communication searches using the resolved name.
           // Emails + Teams are admin-only; documents are allowed for all.
@@ -1039,6 +1043,7 @@ export function createProjectDataReadTools(internals: OperationalToolInternals) 
             matchCount: 4,
             sourceLabel: "document",
             scope,
+            filterProjectId: resolvedProjectId,
           });
 
           const emailPromise = commsAccess.ok
@@ -1050,6 +1055,7 @@ export function createProjectDataReadTools(internals: OperationalToolInternals) 
                 matchCount: 6,
                 sourceLabel: "email",
                 scope,
+                filterProjectId: resolvedProjectId,
               })
             : Promise.resolve({ error: commsAccess.error, results: [] });
 
@@ -1062,6 +1068,7 @@ export function createProjectDataReadTools(internals: OperationalToolInternals) 
                 matchCount: 6,
                 sourceLabel: "Teams message",
                 scope,
+                filterProjectId: resolvedProjectId,
               })
             : Promise.resolve({ error: commsAccess.error, results: [] });
 

@@ -1,20 +1,16 @@
 import { NextResponse } from "next/server";
 
 import { apiErrorResponse } from "@/lib/api-error";
+import { requireCrmAccess } from "@/lib/crm/server";
 import { withApiGuardrails } from "@/lib/guardrails/api";
-import { createClient } from "@/lib/supabase/server";
 
 export const GET = withApiGuardrails("crm/stages#GET", async () => {
-  const supabase = await createClient();
-
-  const { data, error } = await supabase
-    .from("crm_pipeline_stages")
-    .select("id, name, sort_order, is_terminal, outcome")
+  const { db } = await requireCrmAccess("read");
+  const { data, error } = await db
+    .from("crm_stages")
+    .select("id, pipeline_id, name, sort_order, stage_type, default_probability")
+    .is("archived_at", null)
     .order("sort_order", { ascending: true });
-
-  if (error) {
-    return apiErrorResponse(error);
-  }
-
+  if (error) return apiErrorResponse(error);
   return NextResponse.json({ data: data ?? [] });
 });

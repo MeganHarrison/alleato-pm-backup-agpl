@@ -157,13 +157,6 @@ const toPaymentApplicationStatus = (
   return "draft";
 };
 
-// Subcontractor invoices may only be CREATED as a draft or as submitted-for-review;
-// approved/paid are reached later through the approval workflow, not at creation.
-const toSubcontractorInvoiceStatus = (status: string): "draft" | "under_review" => {
-  if (status === "draft" || status === "void") return "draft";
-  return "under_review";
-};
-
 // ─── Schema ─────────────────────────────────────────────────────────────────
 
 const invoiceFormSchema = z.object({
@@ -214,7 +207,6 @@ export default function NewInvoicePage() {
     data: billingPeriods = [],
     isLoading: billingPeriodsLoading,
     error: billingPeriodsError,
-    isSuccess: billingPeriodsLoaded,
   } = useBillingPeriodsList(projectId);
 
   const form = useForm<InvoiceFormValues>({
@@ -543,61 +535,23 @@ export default function NewInvoicePage() {
           },
         );
       } else {
-        // A commitment invoice is a SUBCONTRACTOR invoice and must go to the
-        // subcontractor endpoint. It previously posted to /api/invoices, whose
-        // schema silently stripped commitment_id, the billing period, due date
-        // and retention, sent no line items at all, and wrote the row to the
-        // Acumatica AR mirror table — so the invoice vanished from the
-        // subcontractor tab with no error shown.
-        const commitment = commitmentOptions.find(
-          (option) => option.value === values.contractId,
-        );
-        if (!commitment) {
-          const message =
-            "The selected commitment is no longer available. Refresh the page and select another commitment.";
-          form.setError("contractId", { type: "validate", message });
-          toast.error(message);
-          return;
-        }
-
-        // The commitment id is the primary key of either subcontracts or
-        // purchase_orders; subcontractor_invoices holds a separate FK column for
-        // each and the endpoint requires exactly one of them.
-        const contractKey =
-          commitment.type === "purchase_order"
-            ? "purchase_order_id"
-            : "subcontract_id";
-
-        const result = await apiFetch<{ data: { id: string | number } }>(
-          `/api/projects/${projectId}/invoicing/subcontractor/invoices`,
-          {
-            method: "POST",
-            body: JSON.stringify({
-              [contractKey]: values.contractId,
-              billing_period_id: billingPeriod.id,
-              invoice_number: values.invoiceNumber.trim(),
-              period_start: billingPeriod.start_date,
-              period_end: billingPeriod.end_date,
-              billing_date: toDateOnly(values.invoiceDate),
-              status: toSubcontractorInvoiceStatus(values.status),
-              notes: values.description.trim() || null,
-              line_items: lineItems.map((item, index) => ({
-                description: item.description.trim(),
-                budget_code: item.costCode.trim() || null,
-                scheduled_value: parseAmount(item.contractAmount),
-                work_completed_previous: parseAmount(item.previouslyBilled),
-                work_completed_period: parseAmount(item.thisMonthAmount),
-                materials_stored: 0,
-                retainage_pct: values.includeRetention ? retentionPercentValue : 0,
-                retainage_amount: parseAmount(item.retention),
-                sort_order: index,
-              })),
-            }),
-          },
-        );
-
-        router.push(`/${projectId}/invoicing/subcontractor/${result.data.id}`);
-        return;
+        await apiFetch("/api/invoices", {
+          method: "POST",
+          body: JSON.stringify({
+            invoice_number: values.invoiceNumber.trim(),
+            project_id: parsedProjectId,
+            commitment_id: values.contractId,
+            billing_period_start: billingPeriod.start_date,
+            billing_period_end: billingPeriod.end_date,
+            invoice_date: values.invoiceDate.toISOString(),
+            due_date: values.dueDate?.toISOString() ?? null,
+            status: values.status,
+            amount: totals.thisMonthBilling,
+            retention_amount: totals.retentionAmount,
+            net_amount: totals.netDue,
+            notes: values.description.trim() || null,
+          }),
+        });
       }
 
       router.push(`/${projectId}/invoices`);
@@ -652,16 +606,9 @@ export default function NewInvoicePage() {
                   description={
                     billingPeriodsError
                       ? "Billing periods could not be loaded. Refresh the page before creating this invoice."
-                      : // Only claim the project HAS no billing periods once the query
-                        // actually succeeded. React Query reports isLoading as false
-                        // whenever a query is pending but not fetching (disabled, or
-                        // paused with no connection), so keying this off !isLoading
-                        // told users to go create periods that already exist.
-                        billingPeriodsLoaded && billingPeriodOptions.length === 0
+                      : !billingPeriodsLoading && billingPeriodOptions.length === 0
                         ? "No billing periods are available. Create or open one on the Billing Periods tab, then return here."
-                        : !billingPeriodsLoading && billingPeriodOptions.length === 0
-                          ? "Billing periods have not loaded yet. Refresh the page before creating this invoice."
-                          : undefined
+                        : undefined
                   }
                   options={billingPeriodOptions}
                   disabled={

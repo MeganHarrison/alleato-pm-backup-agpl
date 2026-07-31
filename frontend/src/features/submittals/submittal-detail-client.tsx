@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import {
   Building2,
   CalendarDays,
@@ -24,7 +24,6 @@ import {
   DetailLayout,
   DetailPanel,
   PageShell,
-  PageTabs,
   SectionAction,
   SectionRuleHeading,
   SummaryPanel,
@@ -85,13 +84,7 @@ import { appToast as toast } from "@/lib/toast/app-toast";
 import { useConfirm } from "@/hooks/use-confirm";
 import { useCurrentUserProfile } from "@/hooks/use-current-user-profile";
 import { SubmittalDistributeDialog } from "./submittal-distribute-dialog";
-import { SubmittalAIReviewPanel } from "./submittal-ai-review-panel";
 import { SubmittalExportPopover } from "./submittal-export-popover";
-import { parseAIReviewResponseComment } from "@/lib/submittals/ai-review/response-comment";
-import {
-  normalizeSubmittalDetailTab,
-  type SubmittalDetailTab,
-} from "@/lib/submittals/detail-tabs";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -126,39 +119,6 @@ function userMatchesResponder({
 }): boolean {
   if (!authUserId) return false;
   return responderId === authUserId || Boolean(personId && responderId === personId);
-}
-
-function AIReviewResponseSummary({ comment }: { comment: string }) {
-  const parsed = parseAIReviewResponseComment(comment);
-
-  if (!parsed) {
-    return <p className="text-sm leading-relaxed text-foreground">{comment}</p>;
-  }
-
-  return (
-    <div className="space-y-2">
-      {parsed.summary && (
-        <p className="text-sm leading-relaxed text-foreground">
-          {parsed.summary}
-        </p>
-      )}
-      {parsed.recommendation && (
-        <p className="text-sm font-medium leading-relaxed text-foreground">
-          {parsed.recommendation}
-        </p>
-      )}
-      {parsed.findings.length > 0 && (
-        <ul className="space-y-1 text-sm leading-relaxed text-muted-foreground">
-          {parsed.findings.map((finding) => (
-            <li key={finding} className="flex gap-2">
-              <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-muted-foreground" />
-              <span>{finding}</span>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
 }
 
 function getInitials(name: string): string {
@@ -546,8 +506,6 @@ export function SubmittalDetailClient({
   projectName,
 }: SubmittalDetailClientProps) {
   const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
   const queryClient = useQueryClient();
   const supabase = createClient();
   const { confirm, ConfirmDialog } = useConfirm();
@@ -633,11 +591,6 @@ export function SubmittalDetailClient({
     router.refresh();
   }
 
-  const tabFromUrl = normalizeSubmittalDetailTab(
-    searchParams?.get("tab") ?? searchParams?.get("view") ?? null,
-  );
-  const [activeTab, setActiveTab] =
-    React.useState<SubmittalDetailTab>(tabFromUrl);
   const [showAddStep, setShowAddStep] = React.useState(false);
 
   const workflowSteps = submittal.submittal_workflow_steps ?? [];
@@ -650,51 +603,6 @@ export function SubmittalDetailClient({
   const currentUser = allUsers.find((user) => user.id === currentUserId) ?? null;
   const currentUserPersonId =
     currentUser?.person_id ?? currentUserProfile?.personId ?? null;
-  const aiReviewWorkflowResponseStep = workflowSteps.find((step, index) => {
-    const isActive = getEffectiveStepState(workflowSteps, index) === "in-progress";
-    return (
-      isActive &&
-      currentUserId &&
-      step.submittal_responses?.some(
-        (response) =>
-          userMatchesResponder({
-            authUserId: currentUserId,
-            personId: currentUserPersonId,
-            responderId: response.responder_id,
-          }) &&
-          response.response_status === "Pending",
-      )
-    );
-  });
-
-  React.useEffect(() => {
-    setActiveTab(tabFromUrl);
-  }, [tabFromUrl]);
-
-  function handleTabChange(tab: string) {
-    const nextTab = normalizeSubmittalDetailTab(tab);
-    setActiveTab(nextTab);
-
-    const nextParams = new URLSearchParams(
-      typeof window === "undefined"
-        ? (searchParams?.toString() ?? "")
-        : window.location.search,
-    );
-    if (nextTab === "details") {
-      nextParams.delete("tab");
-      nextParams.delete("view");
-    } else {
-      nextParams.set("tab", nextTab);
-      nextParams.delete("view");
-    }
-
-    const query = nextParams.toString();
-    window.history.replaceState(
-      null,
-      "",
-      query ? `${pathname}?${query}` : pathname,
-    );
-  }
 
   React.useEffect(() => {
     let isMounted = true;
@@ -783,9 +691,7 @@ export function SubmittalDetailClient({
           responder: r.responder_id,
           status: r.response_status,
           comment: r.comments,
-          source:
-            responseHistorySources.get(r.id) ??
-            (parseAIReviewResponseComment(r.comments) ? "ai_review" : null),
+          source: responseHistorySources.get(r.id) ?? null,
         })),
     ),
     ...distributions.map((d) => ({
@@ -905,15 +811,6 @@ export function SubmittalDetailClient({
         }
       >
         <div>
-            <PageTabs
-              variant="inline"
-              tabs={[
-                { label: "Details", href: "details", isActive: activeTab === "details" },
-                { label: "AI Review", href: "ai-review", isActive: activeTab === "ai-review" },
-              ]}
-              onTabClick={handleTabChange}
-            />
-
             <DetailPropertyBar className="mb-0 pb-0 pt-6">
               <DetailPropertyItem icon={CircleDot}>
                 {submittal.status}
@@ -1083,7 +980,6 @@ export function SubmittalDetailClient({
               </DetailPropertyItem>
             </DetailPropertyBar>
 
-            {activeTab === "details" && (
           <ContentSectionStack className="pt-6">
             <DetailLayout
               sidebarAt="lg"
@@ -1364,7 +1260,7 @@ export function SubmittalDetailClient({
                                     {event.comment ? (
                                       <div className="mt-3 rounded-md border border-border bg-muted/30 px-3 py-2.5">
                                         <p className="mb-1 text-xs font-semibold text-muted-foreground">{event.status}</p>
-                                        <AIReviewResponseSummary comment={event.comment} />
+                                        <p className="text-sm leading-relaxed text-foreground">{event.comment}</p>
                                       </div>
                                     ) : (
                                       <p className="mt-2 text-sm text-muted-foreground">
@@ -1445,24 +1341,6 @@ export function SubmittalDetailClient({
                   </section>
             </DetailLayout>
           </ContentSectionStack>
-            )}
-
-            {activeTab === "ai-review" && (
-              <SubmittalAIReviewPanel
-                projectId={projectId}
-                submittalId={submittal.id}
-                workflowResponseStep={
-                  aiReviewWorkflowResponseStep
-                    ? {
-                        stepId: aiReviewWorkflowResponseStep.id,
-                        stepType: aiReviewWorkflowResponseStep.step_type,
-                      }
-                    : null
-                }
-                onOpenDetails={() => handleTabChange("details")}
-                onWorkflowResponseRecorded={() => router.refresh()}
-              />
-            )}
         </div>
       </PageShell>
     </>

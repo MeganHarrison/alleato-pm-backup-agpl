@@ -23,14 +23,23 @@ concurrency:
 
 jobs:
   manage:
+    # Agent-authored PRs land on codex/* and claude/* as well as autofix/*.
+    # Only autofix/* was matched before, so every Codex and Claude PR fell
+    # outside the lane: it opened as a draft with auto-merge off and then sat
+    # there indefinitely, because nothing was watching it and nobody was told.
+    # Those prefixes are included here so an agent PR is reviewed, fixed, and
+    # merged (or escalated to `autofix:needs-human`) without a manual nudge.
     if: |
       github.event.pull_request.state == 'open' &&
       (
         startsWith(github.event.pull_request.head.ref, 'autofix/') ||
+        startsWith(github.event.pull_request.head.ref, 'codex/') ||
+        startsWith(github.event.pull_request.head.ref, 'claude/') ||
         contains(github.event.pull_request.labels.*.name, 'automated-pr') ||
         (github.event_name == 'pull_request' && github.event.action == 'labeled' && github.event.label.name == 'automated-pr')
       ) &&
       !contains(github.event.pull_request.labels.*.name, 'autofix:needs-human') &&
+      !contains(github.event.pull_request.labels.*.name, 'needs-megan') &&
       (github.event_name != 'pull_request_review' || github.event.review.state == 'changes_requested')
     runs-on: ubuntu-latest
     timeout-minutes: 45

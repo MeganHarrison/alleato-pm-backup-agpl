@@ -1,0 +1,6 @@
+invoice_id,description,category,scheduled_value,work_completed_previous,work_completed_period,work_completed_pct,materials_stored,retainage_pct,retainage_amount,retainage_released,approved_amount,sort_order
+<owner_invoices.id>,General Conditions,Base Contract,100000.0,40000.0,10000.0,50.0,0.0,10.0,1000.0,0.0,,1
+<owner_invoices.id>,Cast-in-Place Concrete,Base Contract,400000.0,200000.0,50000.0,67.5,20000.0,10.0,7000.0,0.0,,2
+<owner_invoices.id>,Structural Steel,Base Contract,500000.0,0.0,100000.0,26.0,30000.0,10.0,13000.0,0.0,,3
+<owner_invoices.id>,CO-001 Dock levelers,Change Order,50000.0,20000.0,10000.0,60.0,0.0,10.0,1000.0,0.0,,4
+<owner_invoices.id>,CO-002 Roof insulation revision,Change Order,25000.0,0.0,5000.0,20.0,0.0,10.0,500.0,0.0,,5

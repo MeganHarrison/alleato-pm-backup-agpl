@@ -8,10 +8,11 @@ import { fileURLToPath } from "node:url";
 const __filename = fileURLToPath(import.meta.url);
 const repoRoot = path.resolve(path.dirname(__filename), "../..");
 const appRoot = path.join(repoRoot, "frontend/src/app");
+const helpRoot = path.join(repoRoot, "docs/alleato-os-docs/help/articles");
+const outputRoot = path.join(repoRoot, "docs/architecture/generated");
 const runtimeRoot = path.join(repoRoot, "backend/src/services/agents/app_expert/runtime");
 const runtimeGeneratedRoot = path.join(runtimeRoot, "generated");
 const runtimeHelpRoot = path.join(runtimeRoot, "help/articles");
-const helpRoot = runtimeHelpRoot;
 
 function titleCase(value) {
   return value
@@ -135,11 +136,10 @@ function parseScalar(value) {
 }
 
 function parseFrontmatter(raw) {
-  const normalized = raw.replace(/\r\n/gu, "\n");
-  if (!normalized.startsWith("---\n")) return null;
-  const end = normalized.indexOf("\n---", 4);
+  if (!raw.startsWith("---\n")) return null;
+  const end = raw.indexOf("\n---", 4);
   if (end < 0) return null;
-  const lines = normalized.slice(4, end).split("\n");
+  const lines = raw.slice(4, end).split("\n");
   const meta = {};
   let activeKey = null;
   for (const line of lines) {
@@ -157,9 +157,7 @@ function parseFrontmatter(raw) {
   }
   return {
     meta,
-    content: normalized
-      .slice(end + "\n---".length)
-      .trim(),
+    content: raw.slice(end + "\n---".length).trim(),
   };
 }
 
@@ -178,26 +176,32 @@ async function markdownFiles(dir) {
 }
 
 async function readHelpArticles() {
-  if (!existsSync(helpRoot)) {
+  const sourceRoot = existsSync(helpRoot) ? helpRoot : runtimeHelpRoot;
+  if (!existsSync(sourceRoot)) {
     throw new Error(
-      `Canonical app-help source is missing: ${path.relative(repoRoot, helpRoot)}`,
+      `APP_EXPERT_HELP_SOURCE_MISSING: neither ${path.relative(repoRoot, helpRoot)} nor ${path.relative(repoRoot, runtimeHelpRoot)} exists.`,
     );
   }
-  const files = await markdownFiles(helpRoot);
-  if (files.length === 0) {
-    throw new Error(
-      `Canonical app-help source contains no articles: ${path.relative(repoRoot, helpRoot)}`,
+  if (sourceRoot === runtimeHelpRoot) {
+    console.warn(
+      `[app-expert] ${path.relative(repoRoot, helpRoot)} is absent; preserving the bundled runtime help corpus from ${path.relative(repoRoot, runtimeHelpRoot)}.`,
     );
   }
+
+  const files = await markdownFiles(sourceRoot);
   const articles = [];
   for (const file of files) {
     const raw = await fs.readFile(file, "utf8");
     const parsed = parseFrontmatter(raw);
     if (!parsed) continue;
-    const relative = path.relative(helpRoot, file).replace(/\\/gu, "/");
+    const relative = path.relative(sourceRoot, file).replace(/\\/gu, "/");
     articles.push({
       slug: relative.replace(/\.mdx?$/iu, ""),
-      filePath: path.relative(repoRoot, file).replace(/\\/gu, "/"),
+      // Keep the logical docs path stable even when this repository has only
+      // the bundled runtime mirror. App Expert resolves the same relative path
+      // against both roots, so artifact regeneration cannot silently erase or
+      // relabel help coverage after the public docs repository split.
+      filePath: `docs/alleato-os-docs/help/articles/${relative}`,
       title: String(parsed.meta.title ?? titleCase(relative.replace(/\.mdx?$/iu, ""))),
       description: String(parsed.meta.description ?? ""),
       audience: String(parsed.meta.audience ?? "client"),
@@ -211,6 +215,11 @@ async function readHelpArticles() {
       relatedRoutes: Array.isArray(parsed.meta.related_routes) ? parsed.meta.related_routes.map(String) : [],
       relatedActions: Array.isArray(parsed.meta.related_actions) ? parsed.meta.related_actions.map(String) : [],
     });
+  }
+  if (articles.length === 0) {
+    throw new Error(
+      `APP_EXPERT_HELP_SOURCE_EMPTY: ${path.relative(repoRoot, sourceRoot)} contained no frontmatter-backed help articles.`,
+    );
   }
   return articles.sort((a, b) => a.order - b.order || a.title.localeCompare(b.title));
 }
@@ -300,25 +309,32 @@ function enrichRoutes(routes, features) {
 }
 
 async function writeJson(fileName, value) {
+  await fs.mkdir(outputRoot, { recursive: true });
   await fs.mkdir(runtimeGeneratedRoot, { recursive: true });
-  const target = path.join(runtimeGeneratedRoot, fileName);
+  const target = path.join(outputRoot, fileName);
+  const runtimeTarget = path.join(runtimeGeneratedRoot, fileName);
   await fs.writeFile(target, `${JSON.stringify(value, null, 2)}\n`, "utf8");
+  await fs.writeFile(runtimeTarget, `${JSON.stringify(value, null, 2)}\n`, "utf8");
   return target;
+}
+
+async function syncRuntimeHelpArticles() {
+  if (!existsSync(helpRoot)) return;
+  await fs.rm(runtimeHelpRoot, { recursive: true, force: true });
+  await fs.mkdir(runtimeHelpRoot, { recursive: true });
+  await fs.cp(helpRoot, runtimeHelpRoot, {
+    recursive: true,
+    filter: (source) => {
+      const name = path.basename(source);
+      return !name.startsWith(".") && (existsSync(source) ? true : false);
+    },
+  });
 }
 
 async function main() {
   const routes = await discoverRoutes();
   const articles = await readHelpArticles();
-  if (articles.length < 10) {
-    throw new Error(
-      `Only ${articles.length} canonical help articles parsed; refusing to publish an incomplete catalog.`,
-    );
-  }
-  if (routes.length === 0) {
-    throw new Error(
-      "App route discovery returned zero routes; refusing to publish an empty catalog.",
-    );
-  }
+  await syncRuntimeHelpArticles();
   const features = buildFeatureRegistry(routes, articles);
   const enrichedRoutes = enrichRoutes(routes, features);
   const generatedAt = new Date().toISOString();

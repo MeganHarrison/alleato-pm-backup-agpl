@@ -1,0 +1,46 @@
+{
+  "status": "PASS",
+  "taskId": "ALL-57",
+  "evidence": {
+    "actionLog": ["docs/ops/tasks/ALL-57-recruiting-uat-workflows.md"],
+    "databaseReadback": ["docs/ops/tasks/ALL-57-recruiting-uat-workflows.md"],
+    "negativePath": ["frontend/src/app/api/recruiting/uat-actions/__tests__/route.test.ts"],
+    "visualReview": [
+      "tests/agent-browser-runs/2026-07-31-recruiting-uat-workflows/desktop-settings-final.png",
+      "tests/agent-browser-runs/2026-07-31-recruiting-uat-workflows/mobile-settings-final.png"
+    ],
+    "regressionTest": [
+      "frontend/src/app/api/recruiting/uat-actions/__tests__/route.test.ts",
+      "frontend/src/lib/recruiting/__tests__/uat-feature-tests.test.ts",
+      "frontend/src/features/recruiting/__tests__/ApplicantTrackerWorkspace.test.tsx"
+    ]
+  },
+  "claims": {
+    "safe-actions": {
+      "actionLog": ["docs/ops/tasks/ALL-57-recruiting-uat-workflows.md"],
+      "visualReview": [
+        "tests/agent-browser-runs/2026-07-31-recruiting-uat-workflows/desktop-settings-final.png",
+        "tests/agent-browser-runs/2026-07-31-recruiting-uat-workflows/mobile-settings-final.png"
+      ]
+    },
+    "audited-expiry": {
+      "databaseReadback": ["docs/ops/tasks/ALL-57-recruiting-uat-workflows.md"]
+    },
+    "failure-boundary": {
+      "negativePath": ["frontend/src/app/api/recruiting/uat-actions/__tests__/route.test.ts"]
+    },
+    "regression-safety": {
+      "regressionTest": [
+        "frontend/src/app/api/recruiting/uat-actions/__tests__/route.test.ts",
+        "frontend/src/lib/recruiting/__tests__/uat-feature-tests.test.ts",
+        "frontend/src/features/recruiting/__tests__/ApplicantTrackerWorkspace.test.tsx"
+      ]
+    }
+  },
+  "independentReview": {
+    "reviewer": "recruiting_intake_code_review, recruiting_microsoft_security",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-31T19:02:00Z",
+    "artifact": "docs/ops/handoffs/2026-07-31-SROOT57-recruiting-uat-workflows.md"
+  }
+}

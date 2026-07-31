@@ -1,0 +1,38 @@
+{
+  "status": "PASS",
+  "taskId": "local-training-growth-shell-accessibility",
+  "evidence": {
+    "regressionTest": [
+      "docs/ops/evidence/2026-07-29-training-growth-shell-accessibility/regression-test.txt"
+    ],
+    "contrastAudit": [
+      "docs/ops/evidence/2026-07-29-training-growth-shell-accessibility/contrast-audit.txt"
+    ],
+    "independentReview": [
+      "docs/ops/evidence/2026-07-29-training-growth-shell-accessibility/independent-review.md"
+    ]
+  },
+  "claims": {
+    "single-main-owner": {
+      "regressionTest": [
+        "docs/ops/evidence/2026-07-29-training-growth-shell-accessibility/regression-test.txt"
+      ]
+    },
+    "aa-muted-text": {
+      "contrastAudit": [
+        "docs/ops/evidence/2026-07-29-training-growth-shell-accessibility/contrast-audit.txt"
+      ]
+    },
+    "independent-review": {
+      "independentReview": [
+        "docs/ops/evidence/2026-07-29-training-growth-shell-accessibility/independent-review.md"
+      ]
+    }
+  },
+  "independentReview": {
+    "reviewer": "/root/growth_accessibility_review",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-29T13:58:00Z",
+    "artifact": "docs/ops/evidence/2026-07-29-training-growth-shell-accessibility/independent-review.md"
+  }
+}

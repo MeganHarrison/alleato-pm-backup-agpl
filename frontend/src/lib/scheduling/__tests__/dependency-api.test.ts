@@ -3,11 +3,29 @@ import {
   removeScheduleDeadline,
   removeScheduleDependency,
   saveScheduleDeadline,
+  scheduleApiErrorMessage,
   updateScheduleDependency,
 } from "../dependency-api";
 
 describe("schedule dependency API client", () => {
   afterEach(() => jest.restoreAllMocks());
+
+  it("reads an actionable guardrail error message for schedule task updates", () => {
+    expect(scheduleApiErrorMessage({
+      success: false,
+      error_code: "PRECONDITION_FAILED",
+      error_message:
+        "Auto-scheduling could not calculate this change. Complete valid dates and duration for every affected task, then retry.",
+    }, "Failed to update task")).toBe(
+      "Auto-scheduling could not calculate this change. Complete valid dates and duration for every affected task, then retry.",
+    );
+  });
+
+  it("falls back safely when an error response has no usable message", () => {
+    expect(scheduleApiErrorMessage({ error_message: 42 }, "Failed to update task")).toBe(
+      "Failed to update task",
+    );
+  });
 
   it("creates a typed dependency through the project-scoped task endpoint", async () => {
     const fetchMock = jest.spyOn(global, "fetch").mockResolvedValue(new Response(JSON.stringify({
@@ -42,6 +60,21 @@ describe("schedule dependency API client", () => {
     await expect(removeScheduleDependency("43", "framing", "missing")).rejects.toThrow(
       "Dependency not found for this schedule task.",
     );
+  });
+
+  it("surfaces a guardrail error_message when dependency analysis is unavailable", async () => {
+    jest.spyOn(global, "fetch").mockResolvedValue(new Response(JSON.stringify({
+      success: false,
+      error_code: "PRECONDITION_FAILED",
+      error_message:
+        "Auto-scheduling could not calculate this change because the affected dependency chain is circular. Remove a circular dependency, then retry.",
+    }), { status: 412 }));
+
+    await expect(createScheduleDependency("43", "framing", {
+      predecessor_task_id: "foundation",
+      dependency_type: "finish_to_start",
+      lag_days: 0,
+    })).rejects.toThrow(/affected dependency chain is circular/);
   });
 
   it("saves a deadline through the project-scoped task endpoint", async () => {

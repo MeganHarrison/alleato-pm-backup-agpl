@@ -1,0 +1,10 @@
+{
+  "verified_at": "2026-07-28T01:31:00Z",
+  "resource": {
+    "id": "205eff56-d97b-40b8-b2fe-caf80b24832b",
+    "title": "Communication: The Secret Weapon In Construction Management",
+    "status": "archived",
+    "reviewer_notes": "Topic mismatch: this general communication video is not training for Safety Management."
+  },
+  "verification": "The admin review action archived the candidate and persisted the supplied feedback in training_resource.reviewer_notes."
+}

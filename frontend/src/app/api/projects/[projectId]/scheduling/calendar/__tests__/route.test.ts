@@ -32,6 +32,7 @@ describe("GET schedule calendar", () => {
       non_working_dates: [],
       working_date_overrides: [],
       exceptions: [],
+      timezone_name: "America/Indiana/Indianapolis",
       source: "default",
     });
   });
@@ -137,7 +138,16 @@ describe("PUT schedule calendar", () => {
 
   it("sends one normalized calendar payload to the atomic replacement RPC", async () => {
     const rpc = jest.fn().mockResolvedValue({ error: null });
-    createClientMock.mockResolvedValue({ rpc } as never);
+    const maybeSingle = jest.fn().mockResolvedValue({
+      data: { timezone_name: "America/Indiana/Indianapolis" },
+      error: null,
+    });
+    const eq = jest.fn().mockReturnValue({ maybeSingle });
+    const select = jest.fn().mockReturnValue({ eq });
+    createClientMock.mockResolvedValue({
+      rpc,
+      from: jest.fn().mockReturnValue({ select }),
+    } as never);
 
     const response = await PUT(
       new NextRequest("http://localhost/api/projects/43/scheduling/calendar", {
@@ -166,6 +176,18 @@ describe("PUT schedule calendar", () => {
       rpc: jest.fn(function (this: unknown) {
         expect(this).toBe(client);
         return Promise.resolve({ error: null });
+      }),
+      from: jest.fn(function (this: unknown) {
+        expect(this).toBe(client);
+        const query = {
+          select: () => query,
+          eq: () => query,
+          maybeSingle: () => Promise.resolve({
+            data: { timezone_name: "America/Indiana/Indianapolis" },
+            error: null,
+          }),
+        };
+        return query;
       }),
     };
     createClientMock.mockResolvedValue(client as never);

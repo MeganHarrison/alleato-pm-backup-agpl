@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { withApiGuardrails } from "@/lib/guardrails/api";
 import { serviceDb } from "@/lib/supabase/service-db";
-import type { Json } from "@/types/database.types";
+import type { Database, Json } from "@/types/database.types";
 import { BOARD_STATUSES } from "@/lib/admin-feedback/constants";
 
 export const DELETE = withApiGuardrails<{ itemId: string }>(
@@ -54,7 +54,7 @@ export const PATCH = withApiGuardrails<{ itemId: string }>(
         ...updates,
         updated_at: new Date().toISOString(),
         ...(mergedMetadataJson === undefined ? {} : { metadata: mergedMetadataJson }),
-      } as Record<string, unknown>)
+      } as Database["public"]["Tables"]["admin_feedback_items"]["Update"])
       .eq("id", params.itemId)
       .eq("request_type", "feature_request");
 

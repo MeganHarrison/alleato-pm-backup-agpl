@@ -16,6 +16,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -60,6 +61,13 @@ import {
   type BillingPeriodFrequency,
 } from "@/hooks/use-billing-periods";
 import { formatDate } from "@/lib/format";
+import {
+  getCalendarMonthDefaults,
+  isFirstDayOfMonth,
+  isLastDayOfMonth,
+  snapToFirstDayOfMonth,
+  snapToLastDayOfMonth,
+} from "@/lib/invoicing/billing-period-recurrence";
 import { validateBillingPeriodDraft } from "@/lib/invoicing/billing-period-validation";
 import { toast } from "sonner";
 
@@ -128,7 +136,7 @@ function sortPeriods(
 
 function suggestNextPeriod(periods: BillingPeriod[]) {
   const current = periods.find((period) => !period.is_closed);
-  if (!current) return { start: "", end: "", due: "" };
+  if (!current) return getCalendarMonthDefaults();
   const currentEnd = parseIsoDate(current.end_date);
   if (!currentEnd) return { start: "", end: "", due: "" };
 
@@ -222,6 +230,8 @@ export function BillingPeriodsWorkspace({
   const [dueDate, setDueDate] = React.useState("");
   const [frequency, setFrequency] =
     React.useState<BillingPeriodFrequency>("never");
+  const [startOnFirstDay, setStartOnFirstDay] = React.useState(true);
+  const [endOnLastDay, setEndOnLastDay] = React.useState(true);
   const [editing, setEditing] = React.useState<BillingPeriod | null>(null);
   const [editStartDate, setEditStartDate] = React.useState("");
   const [editEndDate, setEditEndDate] = React.useState("");
@@ -237,16 +247,45 @@ export function BillingPeriodsWorkspace({
     isFetching,
     error,
   } = useBillingPeriodsList(projectId);
-  const { data: settings } = useInvoicingSettings(projectId);
+  const {
+    data: settings,
+    isLoading: settingsLoading,
+    isError: settingsLoadFailed,
+  } = useInvoicingSettings(projectId);
   const createMutation = useCreateBillingPeriod(projectId);
   const updateMutation = useUpdateBillingPeriod(projectId);
   const deleteMutation = useDeleteBillingPeriod(projectId);
   const configureMutation = useConfigureAutomaticBillingPeriods(projectId);
 
+  const automaticFieldsHydrated = React.useRef(false);
+
   React.useEffect(() => {
-    if (!settings) return;
+    if (
+      !createOpen ||
+      createMode !== "automatic" ||
+      !settings ||
+      automaticFieldsHydrated.current
+    ) {
+      return;
+    }
+
+    const automaticStart = settings.automatic_anchor_start_date ?? startDate;
+    const automaticEnd = settings.automatic_anchor_end_date ?? endDate;
     setFrequency(settings.automatic_billing_frequency);
-  }, [settings]);
+    setStartDate(automaticStart);
+    setEndDate(automaticEnd);
+    setDueDate(settings.automatic_anchor_due_date ?? dueDate);
+    setStartOnFirstDay(isFirstDayOfMonth(automaticStart));
+    setEndOnLastDay(isLastDayOfMonth(automaticEnd));
+    automaticFieldsHydrated.current = true;
+  }, [
+    createMode,
+    createOpen,
+    dueDate,
+    endDate,
+    settings,
+    startDate,
+  ]);
 
   const columns = React.useMemo<TableColumn<BillingPeriod>[]>(
     () => [
@@ -351,6 +390,9 @@ export function BillingPeriodsWorkspace({
     setStartDate(suggestion.start);
     setEndDate(suggestion.end);
     setDueDate(suggestion.due);
+    setStartOnFirstDay(isFirstDayOfMonth(suggestion.start));
+    setEndOnLastDay(isLastDayOfMonth(suggestion.end));
+    automaticFieldsHydrated.current = false;
     setCreateMode("manual");
     setCreateOpen(true);
   };
@@ -577,11 +619,12 @@ export function BillingPeriodsWorkspace({
       />
 
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-h-[calc(100svh-1rem)] max-w-md gap-3 overflow-y-auto p-4 sm:max-h-[calc(100svh-2rem)] sm:gap-4 sm:p-6">
           <DialogHeader>
             <DialogTitle>Billing Period Setup</DialogTitle>
             <DialogDescription>
-              Add one period now or configure the next automatic cycle.
+              Add one period now or let a schedule create due periods
+              automatically.
             </DialogDescription>
           </DialogHeader>
           <PageTabs
@@ -589,12 +632,6 @@ export function BillingPeriodsWorkspace({
             onTabClick={(href) => {
               const mode = href as "manual" | "automatic";
               setCreateMode(mode);
-              if (mode === "automatic" && settings) {
-                setFrequency(settings.automatic_billing_frequency);
-                setStartDate(settings.automatic_anchor_start_date ?? startDate);
-                setEndDate(settings.automatic_anchor_end_date ?? endDate);
-                setDueDate(settings.automatic_anchor_due_date ?? dueDate);
-              }
             }}
             tabs={[
               {
@@ -635,9 +672,25 @@ export function BillingPeriodsWorkspace({
                 </label>
                 <Select
                   value={frequency}
-                  onValueChange={(value) =>
-                    setFrequency(value as BillingPeriodFrequency)
-                  }
+                  disabled={settingsLoading || settingsLoadFailed || !settings}
+                  onValueChange={(value) => {
+                    const nextFrequency = value as BillingPeriodFrequency;
+                    setFrequency(nextFrequency);
+                    if (nextFrequency !== "monthly") return;
+
+                    const defaults = getCalendarMonthDefaults();
+                    setStartDate((current) =>
+                      startOnFirstDay
+                        ? snapToFirstDayOfMonth(current || defaults.start)
+                        : current || defaults.start,
+                    );
+                    setEndDate((current) =>
+                      endOnLastDay
+                        ? snapToLastDayOfMonth(current || defaults.end)
+                        : current || defaults.end,
+                    );
+                    setDueDate((current) => current || defaults.due);
+                  }}
                 >
                   <SelectTrigger id="automatic-frequency">
                     <SelectValue />
@@ -649,26 +702,103 @@ export function BillingPeriodsWorkspace({
                   </SelectContent>
                 </Select>
               </div>
+              {settingsLoadFailed ? (
+                <p className="text-sm text-destructive" role="alert">
+                  Automatic billing settings could not be loaded. Close this
+                  window and try again before changing the schedule.
+                </p>
+              ) : null}
               {frequency === "never" ? (
                 <p className="text-sm text-muted-foreground">
                   No future billing periods will be created automatically.
                 </p>
               ) : (
                 <>
-                  {periods.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">
-                      Create the first period manually before enabling automatic
-                      creation.
-                    </p>
-                  ) : null}
+                  <p className="text-sm text-muted-foreground">
+                    Saving creates every period due through today. Future
+                    periods are created automatically.
+                  </p>
                   <BillingPeriodDateFields
                     startDate={startDate}
                     endDate={endDate}
                     dueDate={dueDate}
-                    onStartDateChange={setStartDate}
-                    onEndDateChange={setEndDate}
+                    onStartDateChange={(value) =>
+                      setStartDate(
+                        frequency === "monthly" && startOnFirstDay
+                          ? snapToFirstDayOfMonth(value)
+                          : value,
+                      )
+                    }
+                    onEndDateChange={(value) =>
+                      setEndDate(
+                        frequency === "monthly" && endOnLastDay
+                          ? snapToLastDayOfMonth(value)
+                          : value,
+                      )
+                    }
                     onDueDateChange={setDueDate}
                   />
+                  {frequency === "monthly" ? (
+                    <div className="space-y-3 rounded-md border bg-muted/25 p-3">
+                      <label
+                        className="flex cursor-pointer items-start gap-3 text-sm"
+                        htmlFor="automatic-start-first-day"
+                      >
+                        <Checkbox
+                          id="automatic-start-first-day"
+                          checked={startOnFirstDay}
+                          onCheckedChange={(checked) => {
+                            const enabled = checked === true;
+                            setStartOnFirstDay(enabled);
+                            if (enabled) {
+                              setStartDate((current) =>
+                                snapToFirstDayOfMonth(
+                                  current ||
+                                    getCalendarMonthDefaults().start,
+                                ),
+                              );
+                            }
+                          }}
+                        />
+                        <span>
+                          <span className="block font-medium">
+                            From: first day of the month
+                          </span>
+                          <span className="text-muted-foreground">
+                            Keeps each monthly period anchored to day 1.
+                          </span>
+                        </span>
+                      </label>
+                      <label
+                        className="flex cursor-pointer items-start gap-3 text-sm"
+                        htmlFor="automatic-end-last-day"
+                      >
+                        <Checkbox
+                          id="automatic-end-last-day"
+                          checked={endOnLastDay}
+                          onCheckedChange={(checked) => {
+                            const enabled = checked === true;
+                            setEndOnLastDay(enabled);
+                            if (enabled) {
+                              setEndDate((current) =>
+                                snapToLastDayOfMonth(
+                                  current || getCalendarMonthDefaults().end,
+                                ),
+                              );
+                            }
+                          }}
+                        />
+                        <span>
+                          <span className="block font-medium">
+                            To: last day of the month
+                          </span>
+                          <span className="text-muted-foreground">
+                            Automatically uses 28, 29, 30, or 31 as needed.
+                          </span>
+                        </span>
+                      </label>
+                    </div>
+                  ) : null}
                 </>
               )}
             </div>
@@ -678,7 +808,12 @@ export function BillingPeriodsWorkspace({
               Cancel
             </Button>
             <Button
-              disabled={createMutation.isPending || configureMutation.isPending}
+              disabled={
+                createMutation.isPending ||
+                configureMutation.isPending ||
+                (createMode === "automatic" &&
+                  (settingsLoading || settingsLoadFailed || !settings))
+              }
               onClick={createMode === "manual" ? saveManual : saveAutomatic}
             >
               {createMutation.isPending || configureMutation.isPending

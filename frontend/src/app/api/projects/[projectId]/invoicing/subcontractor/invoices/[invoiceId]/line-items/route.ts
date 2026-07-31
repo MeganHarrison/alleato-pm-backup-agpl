@@ -154,9 +154,6 @@ export const PATCH = withApiGuardrails<{ projectId: string; invoiceId: string }>
         previous_work_retainage: prevWorkRetained,
         previous_materials_retainage: prevMatRetained,
       });
-      const workCompletedPct = fin.work_completed_pct;
-      const workRetainageAmount = fin.retainage_amount;
-      const materialsRetainageAmount = fin.materials_retainage_amount;
       // Maximum releasable = withheld in prior periods + withheld this period.
       const maxWorkReleasable = fin.max_work_releasable;
       const maxMatReleasable = fin.max_materials_releasable;
@@ -190,51 +187,25 @@ export const PATCH = withApiGuardrails<{ projectId: string; invoiceId: string }>
       if (workRetainageReleased < 0) workRetainageReleased = 0;
       if (materialsRetainageReleased < 0) materialsRetainageReleased = 0;
 
-      const { error: updateError } = await supabase
-        .from("subcontractor_invoice_line_items")
-        .update({
-          work_completed_period: thisPeriod,
-          materials_stored: stored,
-          retainage_pct: workRetainagePct,
-          retainage_amount: workRetainageAmount,
-          materials_retainage_pct: materialsRetainagePct,
-          materials_retainage_amount: materialsRetainageAmount,
-          work_retainage_released: workRetainageReleased,
-          materials_retainage_released: materialsRetainageReleased,
-          work_completed_pct: workCompletedPct,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", id);
+      const { error: updateError } = await supabase.rpc(
+        "update_subcontractor_invoice_line_item",
+        {
+          p_project_id: projectIdNum,
+          p_invoice_id: invoiceIdNum,
+          p_line_item_id: id,
+          p_work_completed_period: thisPeriod,
+          p_materials_stored: stored,
+          p_retainage_pct: workRetainagePct,
+          p_materials_retainage_pct: materialsRetainagePct,
+          p_work_retainage_released: workRetainageReleased,
+          p_materials_retainage_released: materialsRetainageReleased,
+        },
+      );
 
       if (updateError) {
         results.push({ id, ok: false, error: updateError.message });
       } else {
         results.push({ id, ok: true });
-        await supabase.from("subcontractor_invoice_audit_log").insert({
-          invoice_id: invoiceIdNum,
-          actor_user_id: user.id,
-          actor_email: user.email ?? null,
-          event_type: "line_item.updated",
-          field_name: `line_item_${id}`,
-          old_value: {
-            work_completed_period: Number(existing.work_completed_period) || 0,
-            materials_stored: Number(existing.materials_stored) || 0,
-            retainage_pct: Number(existing.retainage_pct) || 0,
-            materials_retainage_pct: Number(existing.materials_retainage_pct) || 0,
-            work_retainage_released: Number(existing.work_retainage_released) || 0,
-            materials_retainage_released: Number(existing.materials_retainage_released) || 0,
-          },
-          new_value: {
-            work_completed_period: thisPeriod,
-            materials_stored: stored,
-            retainage_pct: workRetainagePct,
-            materials_retainage_pct: materialsRetainagePct,
-            retainage_amount: workRetainageAmount,
-            materials_retainage_amount: materialsRetainageAmount,
-            work_retainage_released: workRetainageReleased,
-            materials_retainage_released: materialsRetainageReleased,
-          },
-        });
       }
     }
 

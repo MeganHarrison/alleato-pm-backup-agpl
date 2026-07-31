@@ -1,5 +1,6 @@
 from src.services.integrations.microsoft_graph import sync
 from src.services.integrations.microsoft_graph import ocr_worker
+import pytest
 import time
 
 
@@ -52,10 +53,11 @@ def test_run_graph_sync_can_skip_heavy_embedding_and_compiler(monkeypatch):
     def fail_embed(*_args, **_kwargs):
         raise AssertionError("embedding should not run")
 
-    monkeypatch.setattr(sync, "embed_pending_graph_documents", fail_embed)
+    monkeypatch.setattr(sync, "enqueue_pending_graph_documents", fail_embed)
 
     result = sync.run_graph_sync(
         _FakeSupabase(),
+        run_sharepoint=False,
         run_embedding=False,
         run_ocr=False,
         run_attachment_promotion=False,
@@ -105,25 +107,31 @@ def test_run_graph_sync_runs_intelligence_for_fetch_only_communications(monkeypa
     monkeypatch.setattr(sync, "_record_sync_run_safe", lambda *_args, **_kwargs: None)
     monkeypatch.setattr(
         "src.services.project_intelligence.projections.project_communications.synthesize_new_comms_since",
-        lambda since, **_kwargs: extraction_calls.append(since) or {
+        lambda since, **_kwargs: (
+            extraction_calls.append(since)
+            or {
             "projects": 1,
             "cards_written": 0,
             "synthesis_packets_written": 0,
             "errors": [],
-        },
+            }
+        ),
     )
     monkeypatch.setattr(
         "src.services.ingestion.sync_followups.maybe_run_comm_project_backfill",
-        lambda supabase, *, since=None: backfill_calls.append((supabase, since)) or {
+        lambda supabase, *, since=None: (
+            backfill_calls.append((supabase, since))
+            or {
             "scanned": 2,
             "assigned": 1,
             "review_staged": 1,
             "failed": 0,
-        },
+            }
+        ),
     )
     monkeypatch.setattr(
         sync,
-        "embed_pending_graph_documents",
+        "enqueue_pending_graph_documents",
         lambda *_args, **_kwargs: (_ for _ in ()).throw(
             AssertionError("embedding should not run")
         ),
@@ -131,6 +139,7 @@ def test_run_graph_sync_runs_intelligence_for_fetch_only_communications(monkeypa
 
     result = sync.run_graph_sync(
         _FakeSupabase(),
+        run_sharepoint=False,
         run_embedding=False,
         run_ocr=False,
         run_attachment_promotion=False,
@@ -192,20 +201,31 @@ def test_run_graph_sync_reports_source_and_downstream_errors_separately(monkeypa
     )
     monkeypatch.setattr(
         "src.services.ingestion.sync_followups.maybe_run_comm_project_backfill",
-        lambda _supabase, *, since=None: {"scanned": 1, "assigned": 0, "review_staged": 0, "failed": 0},
+        lambda _supabase, *, since=None: {
+            "scanned": 1,
+            "assigned": 0,
+            "review_staged": 0,
+            "failed": 0,
+        },
     )
     monkeypatch.setattr(
         sync,
-        "embed_pending_graph_documents",
+        "enqueue_pending_graph_documents",
         lambda *_args, **_kwargs: (_ for _ in ()).throw(RuntimeError("embed blew up")),
     )
     monkeypatch.setattr(
         "src.services.project_intelligence.projections.project_communications.synthesize_new_comms_since",
-        lambda _since, **_kwargs: {"projects": 0, "cards_written": 0, "synthesis_packets_written": 0, "errors": []},
+        lambda _since, **_kwargs: {
+            "projects": 0,
+            "cards_written": 0,
+            "synthesis_packets_written": 0,
+            "errors": [],
+        },
     )
 
     result = sync.run_graph_sync(
         _FakeSupabase(),
+        run_sharepoint=False,
         run_embedding=True,
         run_ocr=False,
         run_attachment_promotion=False,
@@ -215,7 +235,7 @@ def test_run_graph_sync_reports_source_and_downstream_errors_separately(monkeypa
     assert result["source_sync"]["status"] == "complete"
     assert result["downstream"]["status"] == "complete_with_errors"
     assert result["source_sync_errors"] == []
-    assert result["downstream_errors"] == ["Embedding failed: embed blew up"]
+    assert result["downstream_errors"] == ["Workflow queue failed: embed blew up"]
     assert [(run["source"], run["status"]) for run in phase_runs] == [
         ("microsoft_graph_source_sync", "succeeded"),
         ("microsoft_graph_downstream", "failed"),
@@ -230,14 +250,118 @@ def test_run_graph_sync_reports_source_and_downstream_errors_separately(monkeypa
     }
 
 
-def test_graph_embedding_error_count_fails_downstream_without_exception(monkeypatch):
+def test_run_graph_sync_source_only_records_no_downstream_receipt(monkeypatch):
+    phase_runs = []
+
+    monkeypatch.setattr(sync, "get_graph_client", lambda: _FakeGraph())
     monkeypatch.setattr(
         sync,
-        "embed_pending_graph_documents",
+        "_run_graph_source_reconciliation",
         lambda *_args, **_kwargs: {
-            "embedded": 0,
+            "status": "complete",
+            "outlook": 2,
+            "teams": 0,
+            "teams_dm": 0,
+            "onedrive": 0,
+            "sharepoint": 0,
+            "communications_synced": 2,
+            "total_synced": 2,
+            "errors": [],
+        },
+    )
+    monkeypatch.setattr(
+        sync,
+        "_run_graph_downstream_processing",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(
+            AssertionError("downstream phase must not run")
+        ),
+    )
+    monkeypatch.setattr(
+        sync,
+        "_record_graph_phase_run_safe",
+        lambda *_args, **kwargs: phase_runs.append(kwargs),
+    )
+
+    result = sync.run_graph_sync(
+        _FakeSupabase(),
+        run_downstream=False,
+    )
+
+    assert result["status"] == "complete"
+    assert result["phases"]["downstream"] == "skipped"
+    assert [(run["source"], run["status"]) for run in phase_runs] == [
+        ("microsoft_graph_source_sync", "succeeded"),
+    ]
+
+
+def test_run_graph_sync_downstream_override_preserves_communication_followups(
+    monkeypatch,
+):
+    phase_runs = []
+    source_calls = []
+    downstream_calls = []
+    watermark = sync.datetime(2026, 7, 24, 12, 0, tzinfo=sync.timezone.utc)
+    source_summary = {
+        "status": "complete",
+        "outlook": 0,
+        "teams": 0,
+        "teams_dm": 0,
+        "onedrive": 0,
+        "sharepoint": 0,
+        "communications_synced": 1,
+        "total_synced": 0,
+        "errors": [],
+        "sync_emails_enabled": True,
+        "outlook_users_selected": ["owner@example.com"],
+    }
+
+    monkeypatch.setattr(sync, "get_graph_client", lambda: _FakeGraph())
+    monkeypatch.setattr(
+        sync,
+        "_run_graph_source_reconciliation",
+        lambda *_args, **_kwargs: source_calls.append(True),
+    )
+    monkeypatch.setattr(
+        sync,
+        "_run_graph_downstream_processing",
+        lambda *_args, **kwargs: (
+            downstream_calls.append(kwargs)
+            or {
+                "status": "complete",
+                "errors": [],
+                "phases": {"source_sync": "complete", "embedding": "complete"},
+            }
+        ),
+    )
+    monkeypatch.setattr(
+        sync,
+        "_record_graph_phase_run_safe",
+        lambda *_args, **kwargs: phase_runs.append(kwargs),
+    )
+
+    result = sync.run_graph_sync(
+        _FakeSupabase(),
+        source_summary_override=source_summary,
+        sync_started_at_override=watermark,
+        record_source_receipt=False,
+    )
+
+    assert result["status"] == "complete"
+    assert source_calls == []
+    assert downstream_calls[0]["source_summary"] == source_summary
+    assert downstream_calls[0]["sync_started_at"] == watermark
+    assert [(run["source"], run["status"]) for run in phase_runs] == [
+        ("microsoft_graph_downstream", "succeeded"),
+    ]
+
+
+def test_graph_workflow_queue_error_count_fails_downstream(monkeypatch):
+    monkeypatch.setattr(
+        sync,
+        "enqueue_pending_graph_documents",
+        lambda *_args, **_kwargs: {
+            "queued": 0,
             "errors": 18,
-            "total_chunks": 0,
         },
     )
 
@@ -259,18 +383,55 @@ def test_graph_embedding_error_count_fails_downstream_without_exception(monkeypa
 
     assert result["status"] == "complete_with_errors"
     assert result["embed"]["errors"] == 18
-    assert result["errors"] == ["Graph embedding failed for 18 document(s)"]
+    assert result["errors"] == [
+        "Graph durable workflow enqueue failed for 18 document(s)"
+    ]
 
 
-def test_unfetchable_embedding_candidates_fail_downstream(monkeypatch):
+def test_graph_workflow_queue_runs_once_after_ocr(monkeypatch):
+    calls = []
+
     monkeypatch.setattr(
         sync,
-        "embed_pending_graph_documents",
-        lambda *_args, **_kwargs: {
-            "embedded": 0,
-            "errors": 0,
-            "unfetchable_pending": 7,
+        "enqueue_pending_graph_documents",
+        lambda *_args, **_kwargs: calls.append("queue") or {"queued": 2, "errors": 0},
+    )
+    monkeypatch.setattr(
+        ocr_worker,
+        "run_ocr_pass",
+        lambda *_args, **_kwargs: (
+            calls.append("ocr") or {"ocr_full": 2, "ocr_partial": 0}
+        ),
+    )
+
+    result = sync._run_graph_downstream_processing(
+        _FakeSupabase(),
+        sync_started_at=sync.datetime.now(sync.timezone.utc),
+        source_summary={
+            "status": "complete",
+            "sync_emails_enabled": False,
+            "communications_synced": 0,
         },
+        run_embedding=True,
+        run_ocr=True,
+        run_attachment_promotion=False,
+        embed_limit=25,
+        ocr_batch_size=2,
+        attachment_promotion_limit=1,
+    )
+
+    assert result["status"] == "complete"
+    assert result["embed"]["queued"] == 2
+    assert calls == ["ocr", "queue"]
+
+
+def test_graph_workflow_candidate_discovery_failure_is_visible(monkeypatch):
+    monkeypatch.setattr(
+        sync,
+        "enqueue_pending_graph_documents",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(
+            RuntimeError("candidate query failed")
+        ),
     )
 
     result = sync._run_graph_downstream_processing(
@@ -290,50 +451,7 @@ def test_unfetchable_embedding_candidates_fail_downstream(monkeypatch):
     )
 
     assert result["status"] == "complete_with_errors"
-    assert result["errors"] == [
-        "Graph embedding candidate reconciliation failed: 7 pending document(s) were not fetchable"
-    ]
-
-
-def test_post_ocr_unfetchable_embedding_candidates_fail_downstream(monkeypatch):
-    embed_results = iter(
-        [
-            {"embedded": 0, "errors": 0, "unfetchable_pending": 0},
-            {"embedded": 0, "errors": 0, "unfetchable_pending": 2},
-        ]
-    )
-    monkeypatch.setattr(
-        sync,
-        "embed_pending_graph_documents",
-        lambda *_args, **_kwargs: next(embed_results),
-    )
-    monkeypatch.setattr(
-        ocr_worker,
-        "run_ocr_pass",
-        lambda *_args, **_kwargs: {"ocr_full": 2, "ocr_partial": 0},
-    )
-
-    result = sync._run_graph_downstream_processing(
-        _FakeSupabase(),
-        sync_started_at=sync.datetime.now(sync.timezone.utc),
-        source_summary={
-            "status": "complete",
-            "sync_emails_enabled": False,
-            "communications_synced": 0,
-        },
-        run_embedding=True,
-        run_ocr=True,
-        run_attachment_promotion=False,
-        embed_limit=25,
-        ocr_batch_size=2,
-        attachment_promotion_limit=1,
-    )
-
-    assert result["status"] == "complete_with_errors"
-    assert result["errors"] == [
-        "Post-OCR Graph embedding candidate reconciliation failed: "
-        "2 pending document(s) were not fetchable"
-    ]
+    assert result["errors"] == ["Workflow queue failed: candidate query failed"]
 
 
 def test_downstream_project_backfill_failures_are_downstream_errors(monkeypatch):
@@ -356,8 +474,12 @@ def test_downstream_project_backfill_failures_are_downstream_errors(monkeypatch)
             "errors": [],
         },
     )
-    monkeypatch.setattr(sync, "compile_outlook_conversations", lambda *_args, **_kwargs: {"compiled": 0})
-    monkeypatch.setattr(sync, "embed_pending_graph_documents", lambda *_args, **_kwargs: {"embedded": 0})
+    monkeypatch.setattr(
+        sync, "compile_outlook_conversations", lambda *_args, **_kwargs: {"compiled": 0}
+    )
+    monkeypatch.setattr(
+        sync, "enqueue_pending_graph_documents", lambda *_args, **_kwargs: {"queued": 0}
+    )
 
     result = sync._run_graph_downstream_processing(
         _FakeSupabase(),
@@ -382,13 +504,17 @@ def test_downstream_project_backfill_failures_are_downstream_errors(monkeypatch)
 
 def test_downstream_project_backfill_skips_when_no_communications_synced(monkeypatch):
     def fail_backfill(_supabase):
-        raise AssertionError("project backfill should not run without communication sync")
+        raise AssertionError(
+            "project backfill should not run without communication sync"
+        )
 
     monkeypatch.setattr(
         "src.services.ingestion.sync_followups.maybe_run_comm_project_backfill",
         fail_backfill,
     )
-    monkeypatch.setattr(sync, "embed_pending_graph_documents", lambda *_args, **_kwargs: {"embedded": 0})
+    monkeypatch.setattr(
+        sync, "enqueue_pending_graph_documents", lambda *_args, **_kwargs: {"queued": 0}
+    )
 
     result = sync._run_graph_downstream_processing(
         _FakeSupabase(),
@@ -413,15 +539,27 @@ def test_downstream_project_backfill_skips_when_no_communications_synced(monkeyp
     }
 
 
-def test_downstream_outlook_conversation_compile_errors_are_downstream_errors(monkeypatch):
+def test_downstream_outlook_conversation_compile_errors_are_downstream_errors(
+    monkeypatch,
+):
     monkeypatch.setenv("GRAPH_COMPILE_OUTLOOK_CONVERSATIONS", "true")
     monkeypatch.setattr(
         sync,
         "compile_outlook_conversations",
-        lambda *_args, **_kwargs: (_ for _ in ()).throw(RuntimeError("compiler blew up")),
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(
+            RuntimeError("compiler blew up")
+        ),
     )
-    monkeypatch.setattr(sync, "embed_pending_graph_documents", lambda *_args, **_kwargs: {"embedded": 0, "errors": 0})
-    monkeypatch.setattr(sync, "refresh_outlook_intake_vectorization_statuses", lambda **_kwargs: {"updated": 0})
+    monkeypatch.setattr(
+        sync,
+        "enqueue_pending_graph_documents",
+        lambda *_args, **_kwargs: {"queued": 0, "errors": 0},
+    )
+    monkeypatch.setattr(
+        sync,
+        "refresh_outlook_intake_vectorization_statuses",
+        lambda **_kwargs: {"updated": 0},
+    )
 
     result = sync._run_graph_downstream_processing(
         _FakeSupabase(),
@@ -449,6 +587,8 @@ def test_downstream_outlook_conversation_compile_errors_are_downstream_errors(mo
 
 
 def test_ocr_no_text_fetch_times_out_loudly(monkeypatch):
+    if not hasattr(ocr_worker.signal, "SIGALRM"):
+        pytest.skip("SIGALRM fetch timeout is not available on this platform")
     monkeypatch.setenv("GRAPH_OCR_FETCH_TIMEOUT_SECONDS", "1")
 
     try:
@@ -460,8 +600,9 @@ def test_ocr_no_text_fetch_times_out_loudly(monkeypatch):
 
 
 class _FakeQuery:
-    def __init__(self, rows):
+    def __init__(self, rows, filters=None):
         self.rows = rows
+        self.filters = filters
 
     def select(self, *_args, **_kwargs):
         return self
@@ -469,7 +610,10 @@ class _FakeQuery:
     def eq(self, *_args, **_kwargs):
         return self
 
-    def in_(self, *_args, **_kwargs):
+    def in_(self, key, values):
+        if self.filters is not None:
+            self.filters.append((key, values))
+        self.rows = [row for row in self.rows if row.get(key) in values]
         return self
 
     def execute(self):
@@ -479,10 +623,11 @@ class _FakeQuery:
 class _FakeStateSupabase:
     def __init__(self, rows):
         self.rows = rows
+        self.filters = []
 
     def from_(self, table):
         assert table == "graph_sync_state"
-        return _FakeQuery(self.rows)
+        return _FakeQuery(self.rows, self.filters)
 
 
 class _StateResult:
@@ -553,8 +698,14 @@ def test_limit_sync_users_selects_stalest_slice(monkeypatch):
     monkeypatch.setenv("TEAMS_DM_SYNC_MAX_USERS", "2")
     rag_supabase = _FakeStateSupabase(
         [
-            {"resource_id": "newer@example.com", "last_sync_at": "2026-05-13T23:00:00Z"},
-            {"resource_id": "older@example.com", "last_sync_at": "2026-05-13T20:00:00Z"},
+            {
+                "resource_id": "newer@example.com",
+                "last_sync_at": "2026-05-13T23:00:00Z",
+            },
+            {
+                "resource_id": "older@example.com",
+                "last_sync_at": "2026-05-13T20:00:00Z",
+            },
         ]
     )
     monkeypatch.setattr(sync, "_get_graph_sync_state_read_client", lambda: rag_supabase)
@@ -575,9 +726,18 @@ def test_limit_sync_users_always_includes_critical_mailbox(monkeypatch):
     monkeypatch.setenv("OUTLOOK_SYNC_ALWAYS_INCLUDE_USERS", "bclymer@alleatogroup.com")
     rag_supabase = _FakeStateSupabase(
         [
-            {"resource_id": "bclymer@alleatogroup.com", "last_sync_at": "2026-05-13T23:00:00Z"},
-            {"resource_id": "older@example.com", "last_sync_at": "2026-05-13T20:00:00Z"},
-            {"resource_id": "newer@example.com", "last_sync_at": "2026-05-13T22:00:00Z"},
+            {
+                "resource_id": "bclymer@alleatogroup.com",
+                "last_sync_at": "2026-05-13T23:00:00Z",
+            },
+            {
+                "resource_id": "older@example.com",
+                "last_sync_at": "2026-05-13T20:00:00Z",
+            },
+            {
+                "resource_id": "newer@example.com",
+                "last_sync_at": "2026-05-13T22:00:00Z",
+            },
         ]
     )
     monkeypatch.setattr(sync, "_get_graph_sync_state_read_client", lambda: rag_supabase)
@@ -594,12 +754,88 @@ def test_limit_sync_users_always_includes_critical_mailbox(monkeypatch):
     assert selected == ["bclymer@alleatogroup.com", "older@example.com"]
 
 
+def test_limit_sync_users_maps_prefixed_teams_dm_state(monkeypatch):
+    monkeypatch.setenv("TEAMS_DM_SYNC_MAX_USERS", "1")
+    rag_supabase = _FakeStateSupabase(
+        [
+            {
+                "resource_id": "user:acannon@example.com",
+                "last_sync_at": "2026-07-31T17:40:00Z",
+            },
+            {
+                "resource_id": "user:zolder@example.com",
+                "last_sync_at": "2026-06-24T01:17:00Z",
+            },
+        ]
+    )
+    monkeypatch.setattr(sync, "_get_graph_sync_state_read_client", lambda: rag_supabase)
+
+    selected = sync._limit_sync_users(
+        _FakeSupabase(),
+        source="teams_chat_export",
+        users=["acannon@example.com", "zolder@example.com"],
+        env_key="TEAMS_DM_SYNC_MAX_USERS",
+        default_limit=1,
+        resource_id_prefix="user:",
+    )
+
+    assert rag_supabase.filters == [
+        (
+            "resource_id",
+            ["user:acannon@example.com", "user:zolder@example.com"],
+        )
+    ]
+    assert selected == ["zolder@example.com"]
+
+
+def test_teams_dm_reconciliation_selects_with_prefixed_state_keys(monkeypatch):
+    captured = []
+    monkeypatch.setenv("GRAPH_SYNC_TEAMS", "false")
+    monkeypatch.setenv("GRAPH_SYNC_TEAMS_DM", "true")
+    monkeypatch.setenv("MICROSOFT_SYNC_USERS", "acannon@example.com,zolder@example.com")
+
+    def capture_limit(_supabase, **kwargs):
+        captured.append(kwargs)
+        return []
+
+    monkeypatch.setattr(sync, "_limit_sync_users", capture_limit)
+
+    result = sync._run_graph_source_reconciliation(
+        _FakeSupabase(),
+        run_outlook=False,
+        run_teams=True,
+        run_onedrive=False,
+        run_sharepoint=False,
+        outlook_users=None,
+        verify_outlook_persisted_count=False,
+    )
+
+    assert result["teams_dm_users_selected"] == []
+    assert captured == [
+        {
+            "source": "teams_chat_export",
+            "users": ["acannon@example.com", "zolder@example.com"],
+            "env_key": "TEAMS_DM_SYNC_MAX_USERS",
+            "default_limit": 1,
+            "resource_id_prefix": "user:",
+        }
+    ]
+
+
 def test_outlook_persisted_count_uses_raw_intake_rows(monkeypatch):
     rag_supabase = _MutableStateSupabase(
         {
             "outlook_email_intake": [
-                {"id": 1, "mailbox_user_id": "bclymer@alleatogroup.com", "deleted_at": None},
-                {"id": 2, "mailbox_user_id": "bclymer@alleatogroup.com", "deleted_at": "2026-06-20T00:00:00Z"},
+                {
+                    "id": 1,
+                    "mailbox_user_id": "bclymer@alleatogroup.com",
+                    "deleted_at": None,
+                },
+                {
+                    "id": 2,
+                    "mailbox_user_id": "bclymer@alleatogroup.com",
+                    "deleted_at": "2026-06-20T00:00:00Z",
+                },
                 {"id": 3, "mailbox_user_id": "other@example.com", "deleted_at": None},
             ],
             "document_metadata": [],
@@ -607,7 +843,12 @@ def test_outlook_persisted_count_uses_raw_intake_rows(monkeypatch):
     )
     monkeypatch.setattr(sync, "get_rag_read_client", lambda: rag_supabase)
 
-    assert sync._count_outlook_docs_for_mailbox(_FakeSupabase(), "bclymer@alleatogroup.com") == 1
+    assert (
+        sync._count_outlook_docs_for_mailbox(
+            _FakeSupabase(), "bclymer@alleatogroup.com"
+        )
+        == 1
+    )
 
 
 def test_outlook_mailbox_delta_does_not_load_project_keywords_by_default(monkeypatch):
@@ -616,7 +857,9 @@ def test_outlook_mailbox_delta_does_not_load_project_keywords_by_default(monkeyp
     def fail_project_keywords(_supabase):
         raise AssertionError("raw Outlook mailbox sync must not query projects")
 
-    def fake_sync_outlook_emails(_supabase, user_email, project_keywords, token, since_date):
+    def fake_sync_outlook_emails(
+        _supabase, user_email, project_keywords, token, since_date
+    ):
         calls["user_email"] = user_email
         calls["project_keywords"] = project_keywords
         calls["token"] = token
@@ -649,7 +892,9 @@ def test_outlook_mailbox_delta_does_not_load_project_keywords_by_default(monkeyp
 def test_outlook_mailbox_delta_passes_since_date_even_with_existing_token(monkeypatch):
     calls = {}
 
-    def fake_sync_outlook_emails(_supabase, user_email, project_keywords, token, since_date):
+    def fake_sync_outlook_emails(
+        _supabase, user_email, project_keywords, token, since_date
+    ):
         calls["user_email"] = user_email
         calls["project_keywords"] = project_keywords
         calls["token"] = token
@@ -657,7 +902,9 @@ def test_outlook_mailbox_delta_passes_since_date_even_with_existing_token(monkey
         return 0, token
 
     monkeypatch.setenv("OUTLOOK_SYNC_SINCE", "2026-06-20")
-    monkeypatch.setattr(sync, "_get_delta_token", lambda *_args, **_kwargs: "inbox:stale|sent:stale")
+    monkeypatch.setattr(
+        sync, "_get_delta_token", lambda *_args, **_kwargs: "inbox:stale|sent:stale"
+    )
     monkeypatch.setattr(sync, "sync_outlook_emails", fake_sync_outlook_emails)
     monkeypatch.setattr(sync, "_save_sync_state", lambda *_args, **_kwargs: None)
     monkeypatch.setattr(sync, "_record_sync_run_safe", lambda *_args, **_kwargs: None)
@@ -689,15 +936,21 @@ def test_outlook_mailbox_delta_recovers_from_retired_cursor(monkeypatch):
     calls = {}
     saved = {}
 
-    def fake_sync_outlook_emails(_supabase, user_email, project_keywords, token, since_date):
+    def fake_sync_outlook_emails(
+        _supabase, user_email, project_keywords, token, since_date
+    ):
         calls["token"] = token
         # A real full resync returns a fresh canonical cursor.
         return 3, "inbox:fresh|sent:fresh"
 
-    def fake_save_sync_state(_supabase, source, resource_id, resource_name, delta_token, *args, **kwargs):
+    def fake_save_sync_state(
+        _supabase, source, resource_id, resource_name, delta_token, *args, **kwargs
+    ):
         saved["delta_token"] = delta_token
 
-    monkeypatch.setattr(sync, "_get_delta_token", lambda *_args, **_kwargs: "retired-inbox-cursor")
+    monkeypatch.setattr(
+        sync, "_get_delta_token", lambda *_args, **_kwargs: "retired-inbox-cursor"
+    )
     monkeypatch.setattr(sync, "sync_outlook_emails", fake_sync_outlook_emails)
     monkeypatch.setattr(sync, "_save_sync_state", fake_save_sync_state)
     monkeypatch.setattr(sync, "_record_sync_run_safe", lambda *_args, **_kwargs: None)
@@ -722,11 +975,15 @@ def test_outlook_mailbox_delta_keeps_canonical_cursor(monkeypatch):
     """A well-formed canonical cursor is passed through untouched (no reset)."""
     calls = {}
 
-    def fake_sync_outlook_emails(_supabase, user_email, project_keywords, token, since_date):
+    def fake_sync_outlook_emails(
+        _supabase, user_email, project_keywords, token, since_date
+    ):
         calls["token"] = token
         return 0, token
 
-    monkeypatch.setattr(sync, "_get_delta_token", lambda *_args, **_kwargs: "inbox:stale|sent:stale")
+    monkeypatch.setattr(
+        sync, "_get_delta_token", lambda *_args, **_kwargs: "inbox:stale|sent:stale"
+    )
     monkeypatch.setattr(sync, "sync_outlook_emails", fake_sync_outlook_emails)
     monkeypatch.setattr(sync, "_save_sync_state", lambda *_args, **_kwargs: None)
     monkeypatch.setattr(sync, "_record_sync_run_safe", lambda *_args, **_kwargs: None)
@@ -746,8 +1003,12 @@ def test_outlook_mailbox_delta_keeps_canonical_cursor(monkeypatch):
 def test_outlook_mailbox_delta_allows_updates_without_net_new_intake_rows(monkeypatch):
     counts = [839, 839]
 
-    monkeypatch.setattr(sync, "_count_outlook_docs_for_mailbox", lambda *_args, **_kwargs: counts.pop(0))
-    monkeypatch.setattr(sync, "_get_delta_token", lambda *_args, **_kwargs: "inbox:next|sent:next")
+    monkeypatch.setattr(
+        sync, "_count_outlook_docs_for_mailbox", lambda *_args, **_kwargs: counts.pop(0)
+    )
+    monkeypatch.setattr(
+        sync, "_get_delta_token", lambda *_args, **_kwargs: "inbox:next|sent:next"
+    )
     monkeypatch.setattr(
         sync,
         "sync_outlook_emails",
@@ -792,14 +1053,16 @@ def test_drain_pending_outlook_mailboxes_processes_queued_rows(monkeypatch):
     )
     processed = []
     monkeypatch.setattr(sync, "_get_graph_sync_state_read_client", lambda: rag_supabase)
-    monkeypatch.setattr(sync, "_get_graph_sync_state_write_client", lambda: rag_supabase)
+    monkeypatch.setattr(
+        sync, "_get_graph_sync_state_write_client", lambda: rag_supabase
+    )
     monkeypatch.setattr(
         sync,
         "sync_outlook_mailbox_delta",
-        lambda _supabase, mailbox, *, reason, verify_persisted_count: processed.append(
-            (mailbox, reason, verify_persisted_count)
-        )
-        or {"status": "succeeded", "items_synced": 2},
+        lambda _supabase, mailbox, *, reason, verify_persisted_count: (
+            processed.append((mailbox, reason, verify_persisted_count))
+            or {"status": "succeeded", "items_synced": 2}
+        ),
     )
 
     result = sync.drain_pending_outlook_mailboxes(_FakeSupabase(), limit=1)

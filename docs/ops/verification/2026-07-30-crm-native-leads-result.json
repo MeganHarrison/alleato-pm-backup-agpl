@@ -1,0 +1,62 @@
+{
+  "status": "PASS",
+  "taskId": "S019FB13-CRM-NATIVE-LEADS",
+  "evidence": {
+    "actionLog": [
+      "docs/ops/verification/2026-07-30-crm-native-leads-action-log.md"
+    ],
+    "databaseReadback": [
+      "docs/ops/verification/2026-07-30-crm-native-leads-database-readback.md"
+    ],
+    "negativePath": [
+      "docs/ops/verification/2026-07-30-crm-native-leads-negative-path.md"
+    ],
+    "visualReview": [
+      "tests/agent-browser-runs/2026-07-30-crm-native-leads/crm-native-lead-desktop.png",
+      "tests/agent-browser-runs/2026-07-30-crm-native-leads/crm-native-lead-mobile.png"
+    ],
+    "regressionTest": [
+      "docs/ops/verification/2026-07-30-crm-native-leads-regression-test.md"
+    ]
+  },
+  "claims": {
+    "native-lead-schema": {
+      "databaseReadback": [
+        "docs/ops/verification/2026-07-30-crm-native-leads-database-readback.md"
+      ]
+    },
+    "shared-workflow": {
+      "databaseReadback": [
+        "docs/ops/verification/2026-07-30-crm-native-leads-database-readback.md"
+      ],
+      "regressionTest": [
+        "docs/ops/verification/2026-07-30-crm-native-leads-regression-test.md"
+      ]
+    },
+    "authenticated-workspace": {
+      "actionLog": [
+        "docs/ops/verification/2026-07-30-crm-native-leads-action-log.md"
+      ],
+      "visualReview": [
+        "tests/agent-browser-runs/2026-07-30-crm-native-leads/crm-native-lead-desktop.png",
+        "tests/agent-browser-runs/2026-07-30-crm-native-leads/crm-native-lead-mobile.png"
+      ]
+    },
+    "failure-boundary": {
+      "negativePath": [
+        "docs/ops/verification/2026-07-30-crm-native-leads-negative-path.md"
+      ]
+    },
+    "regression-safety": {
+      "regressionTest": [
+        "docs/ops/verification/2026-07-30-crm-native-leads-regression-test.md"
+      ]
+    }
+  },
+  "independentReview": {
+    "reviewer": "crm_final_code, crm_final_database, crm_final_security",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-30T02:15:00Z",
+    "artifact": "docs/ops/verification/2026-07-30-crm-native-leads-independent-review.md"
+  }
+}

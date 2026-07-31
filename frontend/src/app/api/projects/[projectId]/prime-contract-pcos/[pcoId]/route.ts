@@ -20,6 +20,7 @@ import {
   PRIME_CONTRACT_CHANGE_ORDER_STATUSES,
   type PrimeContractChangeOrderStatus,
 } from "@/lib/change-orders/prime-contract-change-order-statuses";
+import type { Database } from "@/types/database.types";
 
 // ---------------------------------------------------------------------------
 // Validation
@@ -234,7 +235,7 @@ export const PATCH = withApiGuardrails<{ projectId: string; pcoId: string }>(
     }
 
     // Build update payload
-    const updates: Record<string, unknown> = {
+    const updates: Database["public"]["Tables"]["prime_contract_pcos"]["Update"] = {
       updated_at: new Date().toISOString(),
       updated_by: membership.authUserId,
     };

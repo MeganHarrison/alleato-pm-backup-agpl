@@ -1,20 +1,14 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-if (!supabaseUrl) {
-  throw new Error("NEXT_PUBLIC_SUPABASE_URL environment variable is not set");
-}
-
-if (!serviceRoleKey) {
-  throw new Error("SUPABASE_SERVICE_ROLE_KEY environment variable is not set");
-}
-
-const supabase = createClient(supabaseUrl, serviceRoleKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false,
+// Preserve the long-standing helper surface while deferring credential
+// validation until a test actually performs a database operation. Playwright
+// must be able to discover and skip production-data tests without requiring
+// Supabase admin credentials during module evaluation.
+const supabase = new Proxy({} as SupabaseClient, {
+  get(_target, property) {
+    const client = getAdminClient();
+    const value = Reflect.get(client, property, client);
+    return typeof value === "function" ? value.bind(client) : value;
   },
 });
 
@@ -56,6 +50,112 @@ export async function createProject(name: string): Promise<number> {
   }
 
   return data.id as number;
+}
+
+export const DISPOSABLE_SCHEDULE_PROJECT_PREFIX = "E2E scheduling ";
+const DISPOSABLE_SCHEDULE_CREATION_RUN_PREFIX = "playwright-schedule:";
+
+export interface DisposableScheduleProjectFixture {
+  id: number;
+  name: string;
+  creationRunId: string;
+}
+
+export function assertDisposableScheduleProjectName(name: string): void {
+  if (!name.startsWith(DISPOSABLE_SCHEDULE_PROJECT_PREFIX)) {
+    throw new Error(
+      `Refusing destructive scheduling test operation for project "${name}". ` +
+        `Disposable project names must start with "${DISPOSABLE_SCHEDULE_PROJECT_PREFIX}".`,
+    );
+  }
+}
+
+export async function createDisposableScheduleProject(
+  label: string,
+): Promise<DisposableScheduleProjectFixture> {
+  const name = `${DISPOSABLE_SCHEDULE_PROJECT_PREFIX}${label} ${crypto.randomUUID()}`;
+  const creationRunId = `${DISPOSABLE_SCHEDULE_CREATION_RUN_PREFIX}${crypto.randomUUID()}`;
+  assertDisposableScheduleProjectName(name);
+  const { data, error } = await supabase
+    .from("projects")
+    .insert({
+      name,
+      created_by: null,
+      created_via: "automation",
+      creation_request_id: null,
+      creation_run_id: creationRunId,
+    })
+    .select("id, name")
+    .single();
+
+  if (error || !data) {
+    throw new Error(`Failed to create disposable scheduling project: ${error?.message}`);
+  }
+
+  return {
+    id: data.id as number,
+    name: data.name as string,
+    creationRunId,
+  };
+}
+
+export async function assertDisposableScheduleProject(
+  fixture: DisposableScheduleProjectFixture,
+): Promise<{ id: number; name: string }> {
+  assertDisposableScheduleProjectName(fixture.name);
+  if (!fixture.creationRunId.startsWith(DISPOSABLE_SCHEDULE_CREATION_RUN_PREFIX)) {
+    throw new Error("Disposable scheduling project ownership token is invalid.");
+  }
+
+  const { data, error } = await supabase
+    .from("projects")
+    .select("id, name, created_via, creation_run_id")
+    .eq("id", fixture.id)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`Failed to verify disposable scheduling project ${fixture.id}: ${error.message}`);
+  }
+
+  if (!data) {
+    throw new Error(`Disposable scheduling project ${fixture.id} does not exist.`);
+  }
+
+  assertDisposableScheduleProjectName(data.name);
+  if (
+    data.id !== fixture.id ||
+    data.name !== fixture.name ||
+    data.created_via !== "automation" ||
+    data.creation_run_id !== fixture.creationRunId
+  ) {
+    throw new Error(
+      `Refusing destructive scheduling test operation for project ${fixture.id}: ` +
+        "the persisted project does not match its disposable fixture ownership token.",
+    );
+  }
+  return { id: data.id as number, name: data.name as string };
+}
+
+export async function deleteDisposableScheduleProject(
+  fixture: DisposableScheduleProjectFixture,
+): Promise<void> {
+  await assertDisposableScheduleProject(fixture);
+  await deleteProjectMembers(fixture.id);
+  await deleteProject(fixture.id);
+
+  const { data, error } = await supabase
+    .from("projects")
+    .select("id")
+    .eq("id", fixture.id)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`Failed to verify deletion of disposable scheduling project ${fixture.id}: ${error.message}`);
+  }
+
+  if (data) {
+    throw new Error(`Disposable scheduling project ${fixture.id} still exists after cleanup.`);
+  }
 }
 
 export async function addProjectMember(
@@ -232,7 +332,10 @@ export function getAdminClient(): SupabaseClient {
   const serviceRoleKey = getRequiredEnv('SUPABASE_SERVICE_ROLE_KEY');
 
   adminClient = createClient(supabaseUrl, serviceRoleKey, {
-    auth: { persistSession: false },
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
   });
 
   return adminClient;
@@ -520,6 +623,13 @@ export async function deleteScheduleTasksByProject(projectId: number) {
   }
 }
 
+export async function deleteDisposableScheduleTasksByProject(
+  fixture: DisposableScheduleProjectFixture,
+) {
+  await assertDisposableScheduleProject(fixture);
+  await deleteScheduleTasksByProject(fixture.id);
+}
+
 export async function deleteScheduleTestTasks(projectId: number, prefix = "E2E-") {
   const { error } = await supabase
     .from("schedule_tasks")
@@ -530,6 +640,14 @@ export async function deleteScheduleTestTasks(projectId: number, prefix = "E2E-"
   if (error) {
     throw new Error(`Failed to delete test schedule tasks: ${error.message}`);
   }
+}
+
+export async function deleteDisposableScheduleTestTasks(
+  fixture: DisposableScheduleProjectFixture,
+  prefix = "E2E-",
+) {
+  await assertDisposableScheduleProject(fixture);
+  await deleteScheduleTestTasks(fixture.id, prefix);
 }
 
 // =============================================================================

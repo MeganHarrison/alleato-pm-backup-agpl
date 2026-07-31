@@ -171,7 +171,7 @@ function AccordionSection({
     <Collapsible open={open} onOpenChange={setOpen}>
       <CollapsibleTrigger className="flex w-full items-center justify-between group">
         {/* eslint-disable-next-line design-system/no-raw-heading */}
-        <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+        <h2 className="text-xs font-semibold uppercase tracking-widest text-heading-label">
           {label}
         </h2>
         <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
@@ -191,7 +191,7 @@ function SummarySubsection({
   return (
     <div className="space-y-3">
       {/* eslint-disable-next-line design-system/no-raw-heading */}
-      <h3 className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+      <h3 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-heading-label">
         {label}
       </h3>
       {children}
@@ -754,7 +754,7 @@ export function MeetingDetailContent({
         ) : null}
       </DetailPropertyBar>
 
-      <div className="grid gap-x-10 gap-y-10 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start">
+      <div className="grid gap-y-10 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start lg:gap-x-20">
         {/* Main content */}
         <div className="space-y-10">
           {/* Meeting Overview — leads with the prose read of the meeting. */}
@@ -882,7 +882,7 @@ export function MeetingDetailContent({
           {/* Attendees */}
           {participantsList.length > 0 && (
             <div className="space-y-3">
-              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-heading-label">
                 <Users className="h-3.5 w-3.5" />
                 Attendees ({participantsList.length})
               </div>
@@ -893,7 +893,7 @@ export function MeetingDetailContent({
           {/* Action Snapshot */}
           {hasActionSnapshot && (
             <div className="space-y-4">
-              <div className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+              <div className="text-xs font-semibold uppercase tracking-widest text-heading-label">
                 Action Snapshot
               </div>
 
@@ -966,14 +966,8 @@ export function MeetingDetailContent({
           {/* Related Meetings */}
           {relatedMeetings.length > 0 && relatedMeetingsBaseHref && (
             <div className="space-y-4">
-              <div className="space-y-1">
-                <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                  Related Meetings
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {relatedMeetings.length} recent meeting
-                  {relatedMeetings.length === 1 ? "" : "s"}
-                </p>
+              <div className="text-xs font-semibold uppercase tracking-widest text-heading-label">
+                Related Meetings ({relatedMeetings.length})
               </div>
               <div className="space-y-2">
                 {relatedMeetings.map((rm) => (
@@ -1011,7 +1005,7 @@ export function MeetingDetailContent({
           {/* Keywords */}
           {keywordList.length > 0 && (
             <div className="space-y-3">
-              <div className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+              <div className="text-xs font-semibold uppercase tracking-widest text-heading-label">
                 Keywords
               </div>
               <div className="flex flex-wrap gap-1.5">

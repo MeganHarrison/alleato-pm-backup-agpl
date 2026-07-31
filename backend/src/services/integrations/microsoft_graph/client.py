@@ -6,7 +6,10 @@ import os
 import time
 import logging
 import httpx
+from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, Optional
+from urllib.parse import urlparse
 
 # Transient OS/network errors that are safe to retry
 _RETRY_ERRNO = {35, 11, 110, 104}  # EAGAIN, EWOULDBLOCK, ETIMEDOUT, ECONNRESET
@@ -15,6 +18,22 @@ logger = logging.getLogger(__name__)
 
 GRAPH_BASE = "https://graph.microsoft.com/v1.0"
 TOKEN_URL = "https://login.microsoftonline.com/{tenant_id}/oauth2/v2.0/token"
+
+
+@dataclass(frozen=True)
+class DeltaFetchBatch:
+    """One bounded Graph delta inventory batch.
+
+    `next_cursor` is either the terminal ``@odata.deltaLink`` or the
+    intermediate ``@odata.nextLink`` needed to continue a capped inventory.
+    Callers that persist intermediate cursors can drain arbitrarily large delta
+    feeds without silently stranding items beyond a local safety limit.
+    """
+
+    items: list[dict]
+    next_cursor: str
+    complete: bool
+    pages_fetched: int
 
 
 def _bounded_int_env(name: str, default: int, minimum: int, maximum: int) -> int:
@@ -58,6 +77,21 @@ class GraphClient:
         self._token = data["access_token"]
         self._token_expiry = time.time() + int(data.get("expires_in", 3600))
         return self._token
+
+    def _download_headers(self, url: str) -> dict[str, str]:
+        """Return credentials only for Microsoft Graph API downloads.
+
+        Graph file metadata frequently returns a pre-authenticated SharePoint
+        download URL. Drawing uploads can also resolve to a public or signed
+        Supabase URL. Sending a Graph bearer token to either host would disclose
+        a Microsoft credential outside its intended audience.
+        """
+        hostname = (urlparse(url).hostname or "").lower()
+        if hostname == "graph.microsoft.com" or hostname.endswith(
+            ".graph.microsoft.com"
+        ):
+            return {"Authorization": f"Bearer {self._get_token()}"}
+        return {}
 
     def _get_with_retry(
         self,
@@ -183,6 +217,27 @@ class GraphClient:
         The fetch is capped by default so a reset token cannot drain an entire
         mailbox/folder/channel in one cron run.
         """
+        batch = self.get_delta_batch(
+            path,
+            delta_token,
+            max_pages=max_pages,
+            max_items=max_items,
+        )
+        # Preserve the historical contract for existing source lanes: a capped
+        # batch does not advance their saved delta token unless the caller
+        # explicitly opts into continuation-aware draining via get_delta_batch.
+        cursor = batch.next_cursor if batch.complete else (delta_token or "")
+        return batch.items, cursor
+
+    def get_delta_batch(
+        self,
+        path: str,
+        delta_token: Optional[str] = None,
+        *,
+        max_pages: Optional[int] = None,
+        max_items: Optional[int] = None,
+    ) -> DeltaFetchBatch:
+        """Fetch a bounded delta batch with explicit continuation state."""
         if delta_token:
             # delta_token is a full URL from the previous @odata.deltaLink
             url: Optional[str] = delta_token
@@ -209,16 +264,21 @@ class GraphClient:
                 current_url = None
 
         if current_url:
-            new_delta_token = delta_token or ""
+            new_delta_token = current_url
             logger.warning(
-                "[Graph] Delta fetch capped at pages=%d items=%d for %s; preserving prior delta token=%s",
+                "[Graph] Delta fetch capped at pages=%d items=%d for %s; "
+                "returning a continuation cursor",
                 pages_fetched,
                 len(items),
                 path,
-                bool(delta_token),
             )
 
-        return items, new_delta_token
+        return DeltaFetchBatch(
+            items=items,
+            next_cursor=new_delta_token,
+            complete=current_url is None and bool(new_delta_token),
+            pages_fetched=pages_fetched,
+        )
 
     def download_bytes(self, url: str) -> bytes:
         """Download a file's raw bytes (for OneDrive content)."""
@@ -227,7 +287,7 @@ class GraphClient:
         base_delay = 2.0
         for attempt in range(max_retries):
             try:
-                headers = {"Authorization": f"Bearer {self._get_token()}"}
+                headers = self._download_headers(url)
                 resp = httpx.get(url, headers=headers, timeout=120, follow_redirects=True)
                 if resp.status_code in (429, 503):
                     retry_after = int(resp.headers.get("Retry-After", base_delay * (2 ** attempt)))
@@ -260,6 +320,34 @@ class GraphClient:
             )
             time.sleep(delay)
         raise last_exc or RuntimeError(f"Graph download failed without a captured exception: {url}")
+
+    def download_to_path(
+        self,
+        url: str,
+        destination: str | Path,
+        *,
+        max_bytes: int,
+    ) -> int:
+        """Stream a governed download to disk with an explicit byte ceiling."""
+        headers = self._download_headers(url)
+        written = 0
+        with httpx.stream(
+            "GET",
+            url,
+            headers=headers,
+            timeout=120,
+            follow_redirects=True,
+        ) as response:
+            response.raise_for_status()
+            with open(destination, "wb") as output:
+                for chunk in response.iter_bytes():
+                    written += len(chunk)
+                    if written > max_bytes:
+                        raise RuntimeError(
+                            f"Graph download exceeded the {max_bytes}-byte limit"
+                        )
+                    output.write(chunk)
+        return written
 
 
 # Singleton

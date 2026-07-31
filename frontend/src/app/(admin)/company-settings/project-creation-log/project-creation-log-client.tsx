@@ -145,6 +145,7 @@ export function ProjectCreationLogClient() {
       }}
       layout={{
         fullBleedTable: true,
+        alignHeaderWithFullBleedTable: true,
         minWidth: 940,
         toolbarInlineWithHeader: false,
       }}

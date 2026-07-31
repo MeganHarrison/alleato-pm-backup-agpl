@@ -6,6 +6,24 @@ from typing import Any, Dict, Optional
 
 import httpx
 
+DEFAULT_WORKFLOW_URL = (
+    "https://frontend-iota-ochre-85.vercel.app/api/rag-pipeline/process"
+)
+
+
+def _workflow_secret() -> str:
+    """Resolve the server-to-server credential, preferring the scoped key."""
+    secret = (
+        os.getenv("RAG_PIPELINE_WORKFLOW_SECRET", "").strip()
+        or os.getenv("ADMIN_API_KEY", "").strip()
+    )
+    if not secret:
+        raise RuntimeError(
+            "RAG Workflow authentication is not configured. Set "
+            "RAG_PIPELINE_WORKFLOW_SECRET or ADMIN_API_KEY."
+        )
+    return secret
+
 
 def _workflow_url() -> str:
     configured = os.getenv("RAG_PIPELINE_WORKFLOW_URL", "").strip()
@@ -16,10 +34,11 @@ def _workflow_url() -> str:
     if frontend_url:
         return f"{frontend_url}/api/rag-pipeline/process"
 
-    raise RuntimeError(
-        "RAG workflow URL is not configured. Set RAG_PIPELINE_WORKFLOW_URL "
-        "or FRONTEND_URL."
-    )
+    # Render is managed through its API and can drift from render.yaml. Keep
+    # the stable Vercel production-project alias as a final operational
+    # fallback so ingestion does not become unavailable solely because the
+    # optional URL override is absent.
+    return DEFAULT_WORKFLOW_URL
 
 
 def enqueue_document_workflow(
@@ -28,9 +47,7 @@ def enqueue_document_workflow(
     source_type: Optional[str] = None,
     project_hint: Optional[int] = None,
 ) -> Dict[str, Any]:
-    secret = os.getenv("RAG_PIPELINE_WORKFLOW_SECRET", "").strip()
-    if not secret:
-        raise RuntimeError("RAG_PIPELINE_WORKFLOW_SECRET is not configured.")
+    secret = _workflow_secret()
 
     response = httpx.post(
         _workflow_url(),

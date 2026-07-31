@@ -2,6 +2,29 @@
 
 **Trigger:** Any time you are creating or editing a page or UI component.
 
+## Owner-approved exception: `/training`
+
+**Everything below this gate does not apply to `frontend/src/app/(main)/training/**`.**
+Owner decision (2026-07-26, see `specs/LAYOUT-REFERENCE.md`): the training
+module must faithfully reproduce the standalone "Own Your Growth" hub's own
+brand system (Work Sans/Lato, `#FD5602` orange, `#0D0D0D` black nav/hero,
+14px-radius cards with hover lift, pill tabs, the Skill Wheel dashboard) —
+**not** the app's quiet/operator-grade design system. This is intentional,
+not drift.
+
+- Do not convert `/training` pages to `ds/`/`ui/` components, semantic
+  tokens (`bg-card`, `text-primary`, etc.), or `PageShell`/`PageScaffold`.
+  Those components' tokens are shared app-wide; remapping them for one route
+  would either fight every other route or require forking the components —
+  neither is what the owner asked for.
+- Styling lives in `frontend/src/app/(main)/training/training-theme.module.css`,
+  a literal, scoped port of `training-source/styles.v2.css`. CSS Modules
+  auto-scope every class name, so nothing here can leak onto the rest of the
+  app. Extend that file for new training UI; do not add ad-hoc Tailwind
+  utility soup alongside it.
+- This exception is scoped to routes under `/training` only. Any other page
+  in the app still follows this gate exactly as written below.
+
 ## Step 0 — MANDATORY before any JSX
 
 ```bash

@@ -1,6 +1,3 @@
-// For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
-import storybook from "eslint-plugin-storybook";
-
 import path from "node:path";
 import { FlatCompat } from "@eslint/eslintrc";
 import turboPlugin from "eslint-plugin-turbo";
@@ -42,6 +39,10 @@ const IGNORE_PATTERNS = [
   "drizzle/**",
   "eslint-plugin-design-system/**", // Plugin source - excluded from linting but imported above
   "src/types/**",
+  // Vendored third-party drop: Supabase UI "Platform Kit" (platform-kit-nextjs
+  // registry). Kept verbatim so it stays updatable from the registry; it is
+  // stock shadcn/ui and intentionally does not follow the design-system gates.
+  "src/components/platform-kit/**",
 ];
 
 const config = [
@@ -199,13 +200,22 @@ const config = [
     rules: {
       "no-restricted-imports": "off",
     },
+  }, // Scheduling task mutations depend on current task/version state. Keep
+  // stale-closure detection mandatory on the two task-editing owners.
+  {
+    files: [
+      "src/app/(main)/[projectId]/schedule/page.tsx",
+      "src/components/scheduling/task-edit-modal.tsx",
+    ],
+    rules: {
+      "react-hooks/exhaustive-deps": "error",
+    },
   }, // Design template files: used as starting points / exploratory UI, not production components.
   // Intentional use of hardcoded colors, arbitrary values, and non-semantic tokens.
   {
     files: [
       "src/components/ds/futuristic-id-card.tsx",
       "src/components/ds/liquid-metal-id-card.tsx",
-      "src/components/research-console.tsx",
     ],
     rules: {
       "design-system/no-hardcoded-colors": "off",
@@ -220,6 +230,32 @@ const config = [
     files: ["src/app/**/estimates/new/page.tsx"],
     rules: {
       "design-system/require-page-shell": "off",
+    },
+  }, // Training module: owner-approved exception to the whole design system —
+  // see specs/LAYOUT-REFERENCE.md and DESIGN-SYSTEM-GATE.md "Owner-approved
+  // exception: /training". This route faithfully ports the standalone "Own
+  // Your Growth" hub's own brand system (training-theme.module.css), not
+  // ds/ui components or semantic tokens — every rule below exists to enforce
+  // exactly what this route is intentionally not doing.
+  {
+    files: ["src/app/(main)/training/**/*.tsx", "src/features/training/**/*.tsx"],
+    rules: {
+      "design-system/require-page-shell": "off",
+      "design-system/no-raw-heading": "off",
+      "design-system/no-hardcoded-colors": "off",
+      "design-system/no-arbitrary-spacing": "off",
+      "design-system/require-semantic-colors": "off",
+      "design-system/no-design-violations": "off",
+      "design-system/no-raw-button": "off",
+      "design-system/no-raw-form-controls": "off",
+      "design-system/no-raw-search-input": "off",
+      "design-system/require-empty-state": "off",
+      "design-system/require-error-state": "off",
+      "design-system/require-info-alert": "off",
+      "design-system/no-raw-detail-field": "off",
+      "design-system/no-raw-detail-grid": "off",
+      "design-system/no-raw-page-grid": "off",
+      "design-system/no-raw-table-primitives": "off",
     },
   }, // Transactional email templates: rendered by Resend/React Email to static HTML
   // for external inboxes, which cannot resolve CSS variables. Inline hex is
@@ -238,8 +274,16 @@ const config = [
       "design-system/no-arbitrary-spacing": "off",
       "design-system/no-design-violations": "off",
     },
+  }, // Platform Kit AI-SQL route: vendored Supabase management endpoint. Lives under
+  // app/api (so it cannot use the platform-kit dir ignore) and calls the Supabase
+  // Management API via openapi-fetch, which is the whole point of the route.
+  {
+    files: ["src/app/api/ai/sql/**/*.ts"],
+    rules: {
+      "design-system/no-external-fetch-in-api-routes": "off",
+      "@typescript-eslint/no-explicit-any": "off",
+    },
   },
-  ...storybook.configs["flat/recommended"],
 ];
 
 export default config;

@@ -235,7 +235,7 @@ describe("marketing-service", () => {
     expect(result.intelligenceItems).toHaveLength(1);
     expect(result.calendarItems).toHaveLength(1);
     expect(result.assets).toHaveLength(1);
-    expect(result.reviewHref).toBe("/ai/marketing");
+    expect(result.reviewHref).toBe("/ai-assistant/marketing");
     expect(calendarInsert.insert).toHaveBeenCalledWith(
       expect.arrayContaining([
         expect.objectContaining({

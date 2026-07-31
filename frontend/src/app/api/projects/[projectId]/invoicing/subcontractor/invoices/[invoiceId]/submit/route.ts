@@ -7,7 +7,6 @@ import { serviceDb } from "@/lib/supabase/service-db";
 import { sendEmail } from "@/lib/email/send";
 import InvoiceSubmittedToPM from "@/emails/subcontractor/InvoiceSubmittedToPM";
 import { APP_BASE_URL } from "@/lib/email/client";
-import { stampSubcontractorInvoiceStatusAuditActor } from "@/lib/invoicing/subcontractor-invoice-audit";
 
 interface NotificationResult {
   sent: string[];
@@ -45,7 +44,8 @@ export const POST = withApiGuardrails<{ projectId: string; invoiceId: string }>(
     const projectIdNum = parseInt(projectId, 10);
     const invoiceIdNum = parseInt(invoiceId, 10);
 
-    const { data: invoice, error: fetchError } = await serviceDb.from("subcontractor_invoices")
+    const { data: invoice, error: fetchError } = await supabase
+      .from("subcontractor_invoices")
       .select("id, status")
       .eq("id", invoiceIdNum)
       .eq("project_id", projectIdNum)
@@ -70,8 +70,12 @@ export const POST = withApiGuardrails<{ projectId: string; invoiceId: string }>(
       });
     }
 
-    const submittableStatuses = ["draft", "invited", "revise_and_resubmit"];
-    if (!submittableStatuses.includes(invoice.status)) {
+    const submittableStatuses = [
+      "draft",
+      "invited",
+      "revise_and_resubmit",
+    ] as const;
+    if (!(submittableStatuses as readonly string[]).includes(invoice.status)) {
       throw new GuardrailError({
         code: "INVALID_PAYLOAD",
         where: "projects/[projectId]/invoicing/subcontractor/invoices/[invoiceId]/submit#POST",
@@ -81,17 +85,33 @@ export const POST = withApiGuardrails<{ projectId: string; invoiceId: string }>(
       });
     }
 
-    const transitionStartedAt = new Date().toISOString();
-    const { data: updated, error: updateError } = await serviceDb.from("subcontractor_invoices")
+    const { data: updated, error: updateError } = await supabase
+      .from("subcontractor_invoices")
       .update({
         status: "under_review",
         submitted_at: new Date().toISOString(),
       })
       .eq("id", invoiceIdNum)
+      .eq("project_id", projectIdNum)
+      .in("status", submittableStatuses)
+      .is("acumatica_ref_nbr", null)
+      .is("acumatica_doc_type", null)
+      .is("acumatica_sync_at", null)
+      .is("acumatica_ap_bill_id", null)
       .select()
       .single();
 
     if (updateError) {
+      if (updateError.code === "PGRST116") {
+        throw new GuardrailError({
+          code: "INVALID_PAYLOAD",
+          where: "projects/[projectId]/invoicing/subcontractor/invoices/[invoiceId]/submit#POST",
+          message:
+            "The invoice status or accounting link changed. Refresh and try again.",
+          status: 409,
+          severity: "low",
+        });
+      }
       if (updateError.code === "42501") {
         throw new GuardrailError({
           code: "AUTH_FORBIDDEN",
@@ -101,29 +121,27 @@ export const POST = withApiGuardrails<{ projectId: string; invoiceId: string }>(
           severity: "medium",
         });
       }
+      if (
+        updateError.code === "23514" &&
+        updateError.message.toLowerCase().includes("schedule")
+      ) {
+        throw new GuardrailError({
+          code: "PRECONDITION_FAILED",
+          where: "projects/[projectId]/invoicing/subcontractor/invoices/[invoiceId]/submit#POST",
+          message:
+            "This invoice is out of sync with the commitment SOV or approved change orders. Return it to Draft and refresh the SOV before submitting.",
+          status: 409,
+          severity: "medium",
+          details: { reason: updateError.message },
+          cause: updateError,
+        });
+      }
       throw new GuardrailError({
         code: "INTERNAL_ERROR",
         where: "projects/[projectId]/invoicing/subcontractor/invoices/[invoiceId]/submit#POST",
         message: "Failed to submit invoice",
         details: { reason: updateError.message },
         cause: updateError,
-      });
-    }
-
-    const auditStamp = await stampSubcontractorInvoiceStatusAuditActor({
-      supabase,
-      invoiceId: invoiceIdNum,
-      fromStatus: invoice.status,
-      toStatus: "under_review",
-      transitionStartedAt,
-      actor: user,
-    });
-    if (!auditStamp.ok) {
-      throw new GuardrailError({
-        code: "INTERNAL_ERROR",
-        where: "projects/[projectId]/invoicing/subcontractor/invoices/[invoiceId]/submit#POST",
-        message: "Invoice submitted, but the audit actor could not be recorded.",
-        details: { reason: auditStamp.reason },
       });
     }
 

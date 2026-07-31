@@ -469,7 +469,7 @@ describe("createChangeEvent", () => {
             eq: jest.fn(() => ({
               eq: jest.fn(() => ({
                 eq: jest.fn(() => ({
-                  eq: jest.fn(() => ({
+                  in: jest.fn(() => ({
                     order: jest.fn(() => ({
                       limit: jest.fn(() => ({
                         maybeSingle: jest
@@ -627,7 +627,7 @@ describe("generated task DB contract normalization", () => {
             eq: jest.fn(() => ({
               eq: jest.fn(() => ({
                 eq: jest.fn(() => ({
-                  eq: jest.fn(() => ({
+                  in: jest.fn(() => ({
                     order: jest.fn(() => ({
                       limit: jest.fn(() => ({
                         maybeSingle: jest.fn().mockResolvedValue({ data: null, error: null }),
@@ -737,7 +737,7 @@ describe("generated task DB contract normalization", () => {
             eq: jest.fn(() => ({
               eq: jest.fn(() => ({
                 eq: jest.fn(() => ({
-                  eq: jest.fn(() => ({
+                  in: jest.fn(() => ({
                     order: jest.fn(() => ({
                       limit: jest.fn(() => ({
                         maybeSingle: jest.fn().mockResolvedValue({ data: null, error: null }),
@@ -844,7 +844,7 @@ describe("createSubmittal DB contract", () => {
             eq: jest.fn(() => ({
               eq: jest.fn(() => ({
                 eq: jest.fn(() => ({
-                  eq: jest.fn(() => ({
+                  in: jest.fn(() => ({
                     order: jest.fn(() => ({
                       limit: jest.fn(() => ({
                         maybeSingle: jest
@@ -1344,6 +1344,8 @@ describe("createCommitment previews", () => {
       title: "Electrical rough-in",
       vendorName: "Acme Electric",
       status: "Draft",
+      startDate: "",
+      estimatedCompletionDate: "",
       lineItems: [
         {
           budgetCode: "26-0000",
@@ -1540,7 +1542,7 @@ describe("createCommitment line-item writes", () => {
             eq: jest.fn(() => ({
               eq: jest.fn(() => ({
                 eq: jest.fn(() => ({
-                  eq: jest.fn(() => ({
+                  in: jest.fn(() => ({
                     order: jest.fn(() => ({
                       limit: jest.fn(() => ({
                         maybeSingle: jest.fn().mockResolvedValue({ data: null, error: null }),
@@ -1569,6 +1571,8 @@ describe("createCommitment line-item writes", () => {
       title: "Electrical rough-in",
       vendorName: "Acme Electric",
       status: "Draft",
+      startDate: "",
+      estimatedCompletionDate: "",
       lineItems: [
         {
           budgetCode: "26-0000",
@@ -1587,6 +1591,12 @@ describe("createCommitment line-item writes", () => {
       success: true,
       lineItemsCreated: 1,
     });
+    expect(subcontractInsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        start_date: null,
+        estimated_completion_date: null,
+      }),
+    );
     expect(sovInsert).toHaveBeenCalledWith([
       expect.objectContaining({
         subcontract_id: "subcontract-1",
@@ -1648,7 +1658,7 @@ describe("createCommitment line-item writes", () => {
             eq: jest.fn(() => ({
               eq: jest.fn(() => ({
                 eq: jest.fn(() => ({
-                  eq: jest.fn(() => ({
+                  in: jest.fn(() => ({
                     order: jest.fn(() => ({
                       limit: jest.fn(() => ({
                         maybeSingle: jest.fn().mockResolvedValue({ data: null, error: null }),

@@ -1,174 +1,177 @@
-# Design Principles
+# Alleato Design Principles
 
-## Philosophy: Subtract, Don't Add
+> Root [`DESIGN.md`](../../DESIGN.md) is authoritative. This document explains
+> the reasoning behind that contract. Use
+> [`page-archetypes.md`](page-archetypes.md) for positive page recipes.
 
-Alleato PM looks like **Linear meets Vercel Dashboard** — clean, minimal, confident. The #1 rule: **if you're about to add a visual element, ask whether removing something else would accomplish the same goal.** Borders, shadows, cards, icons, badges — every one must earn its place. When in doubt, leave it out.
+## The aim
 
-**The visual noise test:** After building a screen, mentally remove every border, card wrapper, and decorative element one at a time. If the layout still communicates the same information without it — delete it permanently.
+Alleato should feel like a precise construction operating system: calm,
+credible, fast, and built for consequential work. It borrows the discipline of
+Linear, the data clarity of Stripe, and the keyboard efficiency of Superhuman
+without copying their page structures.
 
-## Three Principles for Flow
+“Modern” does not mean more cards, larger radii, gradients, or animation.
+Modern means the information architecture is obvious, the content is useful,
+the system responds quickly, and recovery is clear.
 
-1. **Next action obvious.** The most likely action is always the most visually prominent element. No hunting.
-2. **Immediate feedback.** Every interaction produces an instant response — spring animations, optimistic updates, inline confirmation.
-3. **Minimize distraction.** No borders where tonal shift works. No shadows where the content speaks. No chrome that doesn't serve the user.
+## Five principles
 
-## The Gold Standard Products
+### 1. Design the decision
 
-| Product | What We Take |
-|---------|-------------|
-| **Superhuman** | Keyboard-first, zero-distraction, tonal elevation, spring animations |
-| **Linear** | Information density, clean tables, crisp typography |
-| **Stripe Dashboard** | Data hierarchy, metric presentation, professional feel |
-| **Airtable** | Dense tables, row-level interactions |
+Begin with the person, job, decision, evidence, and next action. A page is not a
+collection of available data. It is an interface for completing a job.
 
-## Hard Constraints
+The first viewport should make three things clear:
 
-These are non-negotiable. Every page, every component, every PR.
+1. Where am I?
+2. What needs my attention?
+3. What can I do next?
 
-| Rule | Why |
-|------|-----|
-| Never nest cards (`Card` inside `Card`) | Creates visual noise, breaks hierarchy |
-| Never wrap page sections in decorative cards | Cards are for grouped data, not scaffolding |
-| Max 2 visual container levels (page shell + section) | Prevents nesting hell |
-| **No shadows beyond `shadow-sm`** | We use tonal elevation, not shadow depth |
-| **No borders on cards** — use tonal shift (`bg-card` on `bg-background`) | The 3% lightness difference IS the visual separator |
-| 1px borders only (when borders are needed) | Thick borders add visual weight we don't want |
-| One accent color per page | Prevents visual chaos |
-| No custom className overrides on primitives | Breaks consistency at the source |
-| No raw HTML elements in pages | Always use design system components |
-| No inline styles (`style={{}}`) | Use Tailwind tokens only |
-| No hardcoded colors (hex, rgb, gray-*, neutral-*) | Use semantic CSS variables |
+### 2. Content carries the visual interest
 
-## Border Reduction Protocol
+Use real drawings, schedules, document previews, source excerpts, record
+hierarchies, and progress attached to the record it explains. These artifacts
+make Alleato construction-specific without requiring a 3D model.
 
-Borders create visual noise. Every border must earn its place.
+Do not fabricate architectural imagery. When no useful artifact exists, let
+typography, alignment, density, and interaction carry the design.
 
-### Use borders for:
-- Form inputs (accessibility requirement)
-- Table header/row dividers (structural clarity)
-- Explicit separators between distinct content zones
-- The chat input field (and nothing else in chat UI)
+### 3. Subtract before styling
 
-### Do NOT use borders for:
-- Cards (use tonal elevation: `bg-card` on `bg-background`)
-- Page sections (use spacing instead)
-- Decorative containers
-- Hover states (use background color shift: `hover:bg-muted`)
+Every visible element spends attention. Remove duplicates, helper copy,
+decorative icons, repeated actions, summary strips, and wrapper panels before
+adjusting colors or spacing.
 
-### Tonal Elevation System
+The removal test:
 
-Instead of borders, we use background color shifts to create hierarchy:
+- If the element disappears, is a decision harder?
+- Is an action slower?
+- Is an error more likely?
+- Is source confidence reduced?
+- Is recovery less clear?
 
-```
-bg-background (#F6F6F8)  →  Page surface (lowest)
-  └── bg-card (#FFFFFF)  →  Card content (elevated)
-       └── bg-muted (#F1F1F4)  →  Hover / active state
-            └── bg-accent (#EDEDFA)  →  Selected / interactive
-```
+If every answer is no, remove it.
 
-In dark mode, the hierarchy inverts — closer surfaces are lighter:
+### 4. Use proven owners
 
-```
-bg-background (#151518)  →  Page surface (deepest)
-  └── bg-card (#1F1F24)  →  Card content (lighter)
-       └── bg-muted (#272730)  →  Hover / active state
-            └── bg-popover (#2C2C35)  →  Floating / closest
-```
+Design consistency comes from shared ownership, not similar-looking local JSX.
+Find and reuse the canonical page shell, table definition, split workspace,
+form pattern, detail pattern, and data hook. Adapt data or scope at that owner.
 
-## Key Design Concepts
+Do not copy a component or rebuild its configuration. A new abstraction is
+earned only by a real interaction incompatibility.
 
-### Information Density
+### 5. Fail visibly and recoverably
 
-Amount of meaningful data visible per screen.
+Loading, empty, partial, permission, stale, offline, and error states are part
+of the design. Errors state the cause, affected work, and recovery action.
+Entered data survives a failed save. Silent fallback and generic errors are
+design failures.
 
-**Goal:** High density, Low noise
+## Positive composition
 
-Tables should occupy the primary viewport. Maximize visible rows. Avoid unnecessary containers.
+The normal page order is:
 
-### Visual Weight
+1. location and one clear title;
+2. at most one primary page action;
+3. one compact scope-control area when needed;
+4. the primary table, list, form, document, timeline, or work queue;
+5. context disclosed beside or beneath the selected work;
+6. recovery in the location where the work would appear.
 
-Heavy elements include: cards, shadows, borders, padding, colors, backgrounds. Too many heavy elements = cognitive fatigue.
+Do not place a welcome panel, KPI row, helper card, summary strip, or secondary
+CTA between the title and the primary work.
 
-**RULE:** Minimize heavy UI elements. Avoid shadows, thick borders, large cards, decorative containers.
+## Hierarchy
 
-### Signal vs Noise
+Use hierarchy in this order:
 
-Signal = useful data. Noise = decorative clutter.
+1. content priority;
+2. layout and alignment;
+3. typography;
+4. whitespace;
+5. row rhythm and indentation;
+6. subtle tonal elevation;
+7. a divider or bounded surface only when a real boundary remains unclear.
 
-Examples of noise: unnecessary icons, extra cards, empty rows, excessive spacing, labels that repeat column names.
+Borders are not hierarchy. Cards are not sections. Color is not decoration.
 
-Empty-state-specific noise to remove:
-- Do not show computed summary metrics that are guaranteed to be zero or placeholder-only in an empty state (example: showing `Total invoiced: $0.00` above a "No invoices yet" state).
-- In empty states, keep only what helps the user move forward: a clear title, a short explanation, and a primary action.
+## Visual language
 
-### Progressive Disclosure
+- Warm white and quiet neutral surfaces.
+- Near-black primary text and restrained muted text.
+- Alleato orange for brand emphasis and the primary brand action.
+- Slate only where the shared action primitive owns it.
+- Semantic success, warning, danger, and information colors only for state.
+- Inter for a neutral, legible product voice.
+- Tabular numerals for values that must align or compare.
+- Moderate radii controlled by shared primitives.
+- No gradients, glassmorphism, glows, or heavy shadows.
 
-Don't show everything at once.
+## Cards and containment
 
-**Pattern:** Overview → drill down → detail view
+Cards are allowed for:
 
-Use expandable rows, drawers, detail pages. Not modals stacked on modals.
+- a distinct previewable resource in a library or gallery;
+- a distinct mobile record;
+- an attachment or activity module with its own interaction;
+- a transient popover, sheet, dialog, or similar bounded surface.
 
-### Scanability
+Cards are not allowed for:
 
-Users should understand the page in 3 seconds.
+- page sections;
+- the full page body;
+- a search or filter toolbar;
+- a single metric;
+- explanatory text;
+- a grid or list wrapper;
+- another card.
 
-Achieved with alignment, consistent spacing, predictable layout.
+A resource tile is one clickable record. It contains a real preview when one
+exists, a title, one concise descriptor, and one metadata line. It does not
+need a decorative icon puck, badge stack, or repeated “Open” button.
 
-### Every Pixel Earns Its Place
+## Metrics
 
-Before adding an element ask:
-1. Does this communicate information?
-2. Does this improve readability?
-3. Does this improve interaction?
+Metrics are evidence, not page structure. A metric earns prominence only when
+monitoring it is the primary job, it changes a near-term decision, its source
+and time range are clear, and it opens the underlying records.
 
-If not, remove it.
+Prefer the smallest useful expression: an inline value, progress rail, trend,
+or table summary. Stat-card rows, KPI grids, and dashboards are prohibited
+unless the user explicitly requests a monitoring workflow in which simultaneous
+metrics are the primary work.
 
-## Visual Rhythm
+## Motion
 
-All spacing follows an 8px cadence:
+Motion confirms state change and preserves orientation. Use fast deceleration
+and opacity or transform transitions. Do not use bounce, elastic springs,
+decorative entrance sequences, or motion that delays input. Respect reduced
+motion.
 
-| Token | Value | Use |
-|-------|-------|-----|
-| `space-y-2` / `gap-2` | 8px | Tight groups (label + input) |
-| `space-y-4` / `gap-4` | 16px | Items within a section |
-| `space-y-6` / `gap-6` | 24px | Related sections |
-| `space-y-8` / `gap-8` | 32px | Top-level page sections |
+## Responsive behavior
 
-- Default section spacing: `space-y-8`
-- Default group spacing: `space-y-4`
-- Typography caps at `font-semibold` (no `font-bold` or `font-extrabold` in body content)
+Responsive design recomposes the workflow:
 
-## Card Usage Policy
+- toolbars collapse into purposeful controls or sheets;
+- split views become a list-to-detail route or bottom sheet;
+- tables use their canonical responsive owner or a semantically appropriate
+  record list;
+- preview grids reduce columns without shrinking typography;
+- actions remain reachable by keyboard, touch, and assistive technology.
 
-Cards are containers for grouped data. They are NOT page scaffolding.
+Do not merely stack every desktop block into a long mobile page.
 
-**Allowed:**
-- KPI metric tiles
-- Compact mobile record tiles
-- Isolated side modules (e.g., project checklist)
-- Summary blocks within a dashboard
+## Approval questions
 
-**Not allowed:**
-- Wrapping entire page sections
-- Nesting cards inside cards
-- Using as form section wrappers (use `<section>` with `border-b` instead)
-- Generic visual wrappers with no semantic purpose
+Before approving a screen, ask:
 
-## Responsive Baseline
-
-- Design mobile-first (375px minimum)
-- Breakpoints: `sm:` (640px), `md:` (768px), `lg:` (1024px), `xl:` (1280px)
-- All interactive elements must have visible keyboard focus states
-- Touch targets minimum 44px on mobile
-
-## Animation Philosophy
-
-Animation serves function, not decoration:
-
-- **Entrance animations** confirm that content appeared in response to user action (spring-in)
-- **Exit animations** confirm that content was dismissed/completed (slide-out-right)
-- **Transition animations** reduce cognitive load during state changes (row-fill)
-- **Hover animations** provide haptic-like feedback that elements are interactive
-
-Timing: fast enough to feel instant (100-200ms), slow enough to be perceived (not 0ms).
+- Can the primary job be named as a verb?
+- Is the work surface visible without promotional clutter?
+- Does every element improve a decision, action, confidence signal, or recovery?
+- Is the page using a canonical owner?
+- Is real content carrying the visual interest?
+- Does the empty state differ from a filtered no-result state?
+- Does mobile preserve the job?
+- How does this fail loudly?

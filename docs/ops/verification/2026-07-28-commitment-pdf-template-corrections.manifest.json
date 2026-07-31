@@ -1,0 +1,86 @@
+{
+  "contractVersion": 1,
+  "taskId": "LOCAL-2026-07-28-COMMITMENT-PDF",
+  "riskLevel": "high",
+  "feature": "Commitment contract authoritative data mapping and draft-stage Owner fallback",
+  "route": "server-side commitment document renderer",
+  "flows": [
+    {
+      "name": "Render a commitment contract from current records",
+      "steps": [
+        "Load the project canonical job number, Client, and address",
+        "Load the commitment Contract Company, SOV total, and retainage",
+        "Resolve Contractor from the linked prime contractor when present or the canonical Alleato identity when absent",
+        "Replace every required legal-template section",
+        "Render a blank legal Owner line when the project Client is not yet selected",
+        "Reject generation when a required Subcontractor, financial value, or template marker is missing"
+      ],
+      "expectedOutcome": "The rendered contract contains only current project and commitment values, works before a prime contract or Client exists, leaves an unset Owner visibly blank, and fails before PDF generation only when required commitment inputs are missing"
+    }
+  ],
+  "requiredEvidence": [
+    "screenshots",
+    "actionLog",
+    "negativePath",
+    "visualReview",
+    "regressionTest"
+  ],
+  "visual": {
+    "viewports": [
+      "print pages"
+    ],
+    "checks": [
+      "Correct amount and canonical job number are visible",
+      "The project address is not duplicated",
+      "Only the current subcontractor notice block is present",
+      "An unset Owner is a blank underline and never the text Not set"
+    ]
+  },
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "authoritative-values",
+      "description": "Current amount, retainage, canonical job number, and normalized address replace all legacy sample values",
+      "evidence": [
+        {
+          "key": "screenshots",
+          "min": 1
+        },
+        {
+          "key": "regressionTest",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "party-mapping",
+      "description": "Owner resolves exclusively from the project Client when present and otherwise renders blank; Subcontractor comes from the commitment Contract Company; Contractor remains complete without a prime contract",
+      "evidence": [
+        {
+          "key": "regressionTest",
+          "min": 1
+        },
+        {
+          "key": "visualReview",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "failure-path",
+      "description": "Missing required Subcontractor, financial inputs, or template markers stop generation with actionable errors while a missing draft-stage Owner remains downloadable",
+      "evidence": [
+        {
+          "key": "negativePath",
+          "min": 1
+        },
+        {
+          "key": "regressionTest",
+          "min": 1
+        }
+      ]
+    }
+  ]
+}

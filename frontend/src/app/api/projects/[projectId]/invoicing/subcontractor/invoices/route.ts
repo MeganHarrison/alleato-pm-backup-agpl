@@ -654,7 +654,16 @@ export const POST = withApiGuardrails<{ projectId: string }>(
 
     // Validate status. Retainage release invoices start as Not Invited by
     // default because the subcontractor must be invited before they can submit.
-    const allowedStatuses = ["draft", "under_review", "not_invited", "invited"];
+    if (statusRaw === "under_review") {
+      return NextResponse.json(
+        {
+          error:
+            "Create the invoice as Draft, then submit it through the guarded submission action.",
+        },
+        { status: 400 },
+      );
+    }
+    const allowedStatuses = ["draft", "not_invited", "invited"];
     const status =
       statusRaw && allowedStatuses.includes(statusRaw)
         ? statusRaw
@@ -842,6 +851,8 @@ export const POST = withApiGuardrails<{ projectId: string }>(
       const lineItemRows = effectiveLineItems.map(
         (
           item: {
+            source_sov_item_id?: string | null;
+            source_change_order_id?: string | null;
             description: string;
             budget_code?: string | null;
             scheduled_value: number;
@@ -896,6 +907,8 @@ export const POST = withApiGuardrails<{ projectId: string }>(
 
           return {
             invoice_id: invoice.id,
+            source_sov_item_id: item.source_sov_item_id ?? null,
+            source_change_order_id: item.source_change_order_id ?? null,
             description: item.description,
             budget_code: item.budget_code ?? null,
             scheduled_value: scheduled,

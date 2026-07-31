@@ -1,6 +1,11 @@
 "use client";
 
-import type { FileUIPart, UIMessage } from "ai";
+import {
+  DefaultChatTransport,
+  lastAssistantMessageIsCompleteWithApprovalResponses,
+  type FileUIPart,
+} from "ai";
+import { useChat, type UIMessage } from "@ai-sdk/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   BrainCircuit,
@@ -27,7 +32,6 @@ import {
   type AiAssistantModelId,
 } from "@/lib/ai/assistant-models";
 import type { BrandonDailyUpdatePacket } from "@/lib/executive/brandon-daily-update";
-import { useAlleatoEveChat } from "@/hooks/use-alleato-eve-chat";
 
 type PersistedDataPart = {
   type: `data-${string}`;
@@ -70,6 +74,19 @@ type StrategistLiveStatus = {
   status: "loading" | "success" | "warning" | "error";
   timestamp?: string;
 };
+
+function isStrategistLiveStatus(value: unknown): value is StrategistLiveStatus {
+  if (!value || typeof value !== "object") return false;
+  const record = value as Record<string, unknown>;
+  return typeof record.message === "string" && typeof record.stage === "string";
+}
+
+function stripRuntimeDataParts(messages: UIMessage[]): UIMessage[] {
+  return messages.map((message) => ({
+    ...message,
+    parts: message.parts.filter((part) => !part.type.startsWith("data-")),
+  }));
+}
 
 function normalizePersistedDataParts(
   message: ChatHistoryMessage,
@@ -256,34 +273,54 @@ function ExecutiveChatSession({
   );
   const hasSentFirstMessage = useRef(false);
   const lastQueuedPromptId = useRef<string | null>(null);
+  const skipNextMessagesSync = useRef(false);
+  const prevInitialMessagesRef = useRef(initialMessages);
   const sessionIdRef = useRef(sessionId);
+  const selectedModelRef = useRef(selectedModel);
 
   sessionIdRef.current = sessionId;
+  selectedModelRef.current = selectedModel;
 
   const {
     messages,
+    setMessages,
     sendMessage,
     status,
     stop,
     addToolApprovalResponse,
-    error,
-  } = useAlleatoEveChat({
-    sessionId,
-    initialMessages,
-    context: JSON.stringify({
-      assistantSurface: "executive",
-      conversationId: sessionId,
-      executiveBriefPacket: packet,
-      selectedModel,
+  } = useChat({
+    id: sessionId,
+    messages: initialMessages,
+    sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses,
+    transport: new DefaultChatTransport({
+      api: "/api/ai-assistant/chat",
+      prepareSendMessagesRequest(request) {
+        const cleanedMessages = stripRuntimeDataParts(request.messages);
+        const lastMessage = cleanedMessages.at(-1);
+        return {
+          body: {
+            id: sessionIdRef.current,
+            message: lastMessage,
+            messages: cleanedMessages,
+            selectedModel: selectedModelRef.current,
+            executiveBriefPacket: packet,
+          },
+        };
+      },
     }),
-    onFinish: () => {
+    onData: ({ data, type }) => {
+      if (type !== "data-status") return;
+      if (isStrategistLiveStatus(data)) setLiveStatus(data);
+    },
+    onFinish() {
       setLiveStatus(null);
       onFinishMessage(sessionIdRef.current);
     },
-    onError: (chatError) => {
+    onError(error) {
+      skipNextMessagesSync.current = false;
       setLiveStatus({
-        stage: "eve",
-        message: chatError.message,
+        stage: "fallback",
+        message: error.message,
         status: "error",
         timestamp: new Date().toISOString(),
       });
@@ -292,10 +329,21 @@ function ExecutiveChatSession({
 
   const sendExecutiveMessage = useCallback(
     (message: { text: string; files?: FileUIPart[] }) => {
+      skipNextMessagesSync.current = true;
       void sendMessage(message);
     },
     [sendMessage],
   );
+
+  useEffect(() => {
+    if (prevInitialMessagesRef.current === initialMessages) return;
+    prevInitialMessagesRef.current = initialMessages;
+    if (skipNextMessagesSync.current) {
+      skipNextMessagesSync.current = false;
+      return;
+    }
+    setMessages(initialMessages);
+  }, [initialMessages, setMessages]);
 
   useEffect(() => {
     if (pendingFirstMessage && !hasSentFirstMessage.current) {
@@ -321,7 +369,6 @@ function ExecutiveChatSession({
       responseQualityByMessageId={responseQualityByMessageId}
       traceDiagnosticsByMessageId={traceDiagnosticsByMessageId}
       liveStatus={liveStatus}
-      chatError={error?.message}
       isLoadingMessages={isLoadingMessages}
       isStreaming={status === "streaming" || status === "submitted"}
       input={input}

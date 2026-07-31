@@ -1,16 +1,22 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type APIResponse } from "@playwright/test";
 import { randomUUID } from "node:crypto";
-import path from "path";
-import { createScheduleTask, deleteScheduleTask, getAdminClient } from "../../helpers/db";
+import {
+  addProjectMember,
+  assertDisposableScheduleProject,
+  createDisposableScheduleProject,
+  createScheduleTask,
+  deleteDisposableScheduleProject,
+  deleteScheduleTask,
+  type DisposableScheduleProjectFixture,
+  getAdminClient,
+  getUserIdByEmail,
+} from "../../helpers/db";
 
-const PROJECT_ID = 67;
-const SCHEDULE_URL = `/${PROJECT_ID}/schedule`;
+let PROJECT_ID = 0;
+let SCHEDULE_URL = "";
+let projectFixture: DisposableScheduleProjectFixture | null = null;
 const TASK_START = "2026-07-27";
 const TASK_FINISH = "2026-07-29";
-const EVIDENCE_DIR = path.resolve(
-  __dirname,
-  "../../../../docs/ops/evidence/2026-07-22-schedule-resource-calendars-leveling",
-);
 
 interface Candidate {
   person_id: string;
@@ -24,6 +30,10 @@ interface Roster {
   resources: Array<{ id: string; person_id: string; display_name: string }>;
 }
 
+async function responseError(response: APIResponse) {
+  return `${response.status()} ${await response.text()}`;
+}
+
 let taskId = "";
 let revisionId = "";
 let selectedPersonId = "";
@@ -35,6 +45,13 @@ test.describe("Schedule project capacity and leveling preview", () => {
   test.use({ storageState: "tests/.auth/user.json" });
 
   test.beforeAll(async () => {
+    projectFixture = await createDisposableScheduleProject("resource-capacity");
+    PROJECT_ID = projectFixture.id;
+    await assertDisposableScheduleProject(projectFixture);
+    const userId = await getUserIdByEmail(process.env.TEST_USER_1 ?? "test1@mail.com");
+    await addProjectMember(PROJECT_ID, userId);
+    SCHEDULE_URL = `/${PROJECT_ID}/schedule`;
+
     const admin = getAdminClient();
     const suffix = randomUUID();
     selectedPersonId = randomUUID();
@@ -99,10 +116,19 @@ test.describe("Schedule project capacity and leveling preview", () => {
       const { error: personError } = await admin.from("people").delete().eq("id", selectedPersonId);
       if (personError) cleanupErrors.push(`person: ${personError.message}`);
     }
+    if (projectFixture) {
+      try {
+        await deleteDisposableScheduleProject(projectFixture);
+      } catch (error) {
+        cleanupErrors.push(
+          `project ${PROJECT_ID}: ${error instanceof Error ? error.message : String(error)}`,
+        );
+      }
+    }
     if (cleanupErrors.length > 0) throw new Error(`Phase 4B E2E cleanup failed: ${cleanupErrors.join("; ")}`);
   });
 
-  test("edits project-only capacity, previews leveling without writes, and snapshots capacity", async ({ page }) => {
+  test("edits project-only capacity, previews leveling without writes, and snapshots capacity", async ({ page }, testInfo) => {
     test.setTimeout(300_000);
     const rosterResponse = await page.request.get(`/api/projects/${PROJECT_ID}/scheduling/resources`);
     expect(rosterResponse.ok()).toBeTruthy();
@@ -117,9 +143,17 @@ test.describe("Schedule project capacity and leveling preview", () => {
 
     const assignmentResponse = await page.request.put(
       `/api/projects/${PROJECT_ID}/scheduling/tasks/${taskId}/assignments`,
-      { data: { assignments: [{ person_id: selectedPersonId, allocation_percent: 60 }] } },
+      {
+        data: {
+          assignments: [{ person_id: selectedPersonId, allocation_percent: 60 }],
+          expected_assignments: [],
+        },
+      },
     );
-    expect(assignmentResponse.ok()).toBeTruthy();
+    expect(
+      assignmentResponse.ok(),
+      await responseError(assignmentResponse),
+    ).toBeTruthy();
     const updatedRosterResponse = await page.request.get(`/api/projects/${PROJECT_ID}/scheduling/resources`);
     const updatedRoster = await updatedRosterResponse.json() as Roster;
     selectedResourceId = updatedRoster.resources.find((resource) => resource.person_id === selectedPersonId)?.id ?? "";
@@ -131,6 +165,9 @@ test.describe("Schedule project capacity and leveling preview", () => {
       page.getByText("E2E-P4B Project Capacity Task").first(),
       "the canonical schedule must finish loading the isolated task before the resource panel opens",
     ).toBeVisible({ timeout: 120_000 });
+    await page.getByRole("button", {
+      name: "Resources, costs, leveling, revisions & reports",
+    }).click();
     const projectResourceLoad = page.getByRole("button", { name: "Project resource load" });
     await expect(projectResourceLoad, "schedule data should settle after the temporary assignment").toBeVisible({ timeout: 60_000 });
     if (await projectResourceLoad.getAttribute("aria-expanded") !== "true") await projectResourceLoad.click();
@@ -143,7 +180,10 @@ test.describe("Schedule project capacity and leveling preview", () => {
     await finishField.fill("07/29/2026");
     await expect(page.getByText("Loading project resource load...")).toBeHidden({ timeout: 60_000 });
 
-    const resourceRow = page.getByRole("row").filter({ hasText: selectedDisplayName });
+    const resourceRow = page
+      .getByRole("row")
+      .filter({ has: page.getByRole("button", { name: "Edit project capacity" }) })
+      .filter({ hasText: selectedDisplayName });
     await expect(resourceRow).toBeVisible();
     await resourceRow.getByRole("button", { name: "Edit project capacity" }).click();
     await expect(page.getByRole("dialog")).toContainText(`Edit project capacity: ${selectedDisplayName}`);
@@ -180,7 +220,7 @@ test.describe("Schedule project capacity and leveling preview", () => {
     await page.getByRole("button", { name: "Preview leveling" }).click();
     await previewResponse;
     await expect(page.getByText(/Preview only\. No schedule dates were changed/i)).toBeVisible();
-    await expect(page.getByRole("button", { name: /apply/i })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: /^Apply$/i })).toHaveCount(0);
 
     const taskDatesAfterPreview = await getAdminClient()
       .from("schedule_tasks")
@@ -190,11 +230,11 @@ test.describe("Schedule project capacity and leveling preview", () => {
     if (taskDatesAfterPreview.error) throw new Error(taskDatesAfterPreview.error.message);
     expect(taskDatesAfterPreview.data).toEqual(taskDatesBeforePreview.data);
 
-    await page.screenshot({ path: path.join(EVIDENCE_DIR, "schedule-project-capacity-desktop.png"), fullPage: true });
+    await page.screenshot({ path: testInfo.outputPath("schedule-project-capacity-desktop.png"), fullPage: true });
     await page.setViewportSize({ width: 390, height: 844 });
     await expect(projectResourceLoad).toBeVisible();
     await expect(page.getByText(/Preview only\. No schedule dates were changed/i)).toBeVisible();
-    await page.screenshot({ path: path.join(EVIDENCE_DIR, "schedule-project-capacity-mobile.png"), fullPage: true });
+    await page.screenshot({ path: testInfo.outputPath("schedule-project-capacity-mobile.png"), fullPage: true });
 
     const revisionResponse = await page.request.post(
       `/api/projects/${PROJECT_ID}/scheduling/revisions`,

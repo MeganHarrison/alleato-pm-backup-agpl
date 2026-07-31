@@ -4,6 +4,7 @@ import { createServiceClient } from "@/lib/supabase/service";
 import { serviceDb } from "@/lib/supabase/service-db";
 import { getIsAdmin } from "@/lib/auth/current-user";
 import { resolvePersonId } from "@/lib/auth/identity";
+import { resolveProjectAccessForPerson } from "@/lib/auth/project-access";
 
 export interface ProjectMembership {
   membershipId: string;
@@ -82,15 +83,25 @@ export async function verifyProjectAccess(
     );
   }
 
-  // Step 4: Verify active membership in the project
-  const { data: membership, error: membershipError } = await serviceDb.from("project_directory_memberships")
-    .select("id, person_id, project_id, permission_template_id, user_type")
-    .eq("person_id", personId)
-    .eq("project_id", projectId)
-    .eq("status", "active")
-    .maybeSingle();
+  // Step 4: Resolve every supported project-access source through the same
+  // contract used by the page layout.
+  const access = await resolveProjectAccessForPerson(
+    serviceClient,
+    personId,
+    projectId,
+  );
 
-  if (membershipError || !membership) {
+  if (!access.authorized && access.reason === "project-access-query-failed") {
+    return NextResponse.json(
+      {
+        error: "Project access lookup failed",
+        details: access.error,
+      },
+      { status: 500 },
+    );
+  }
+
+  if (!access.authorized) {
     return NextResponse.json(
       { error: "You do not have access to this project" },
       { status: 403 },
@@ -99,12 +110,12 @@ export async function verifyProjectAccess(
 
   return {
     membership: {
-      membershipId: membership.id,
-      personId: membership.person_id,
+      membershipId: access.membershipId,
+      personId,
       authUserId: user.id,
-      projectId: membership.project_id,
-      permissionTemplateId: membership.permission_template_id,
-      userType: membership.user_type,
+      projectId,
+      permissionTemplateId: access.permissionTemplateId,
+      userType: access.userType,
     },
     serviceClient,
     userProfile: profile,

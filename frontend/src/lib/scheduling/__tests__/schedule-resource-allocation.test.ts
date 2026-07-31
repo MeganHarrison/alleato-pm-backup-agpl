@@ -60,6 +60,7 @@ function assignment(
     resource_id: resourceId,
     person_id: `person-${resourceId}`,
     allocation_percent: allocationPercent,
+    cost_version: 1,
   };
 }
 

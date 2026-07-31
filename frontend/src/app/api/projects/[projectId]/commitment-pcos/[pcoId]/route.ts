@@ -6,6 +6,7 @@ import { NextResponse } from "next/server";
 import { z, ZodError } from "zod";
 import { apiErrorResponse } from "@/lib/api-error";
 import { logger } from "@/lib/logger";
+import type { Database } from "@/types/database.types";
 
 const updateCommitmentPcoSchema = z.object({
   title: z.string().min(1).max(500).optional(),
@@ -178,7 +179,7 @@ export const PATCH = withApiGuardrails<{ projectId: string; pcoId: string }>(
     const validatedData = updateCommitmentPcoSchema.parse(body);
 
     // Build update object
-    const updates: Record<string, unknown> = {
+    const updates: Database["public"]["Tables"]["commitment_pcos"]["Update"] = {
       updated_at: new Date().toISOString(),
       updated_by: user.id,
     };

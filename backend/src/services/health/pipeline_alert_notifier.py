@@ -365,13 +365,24 @@ def _project_intelligence_staleness_alert() -> Optional[Dict[str, Any]]:
     if res.get("healthy", True):
         return None
     days = (
-        res.get("project_current_state_staleness_days")
+        res.get("project_current_state_business_days_stale")
+        or res.get("project_current_state_staleness_days")
         or res.get("intelligence_packets_staleness_days")
         or 0
     )
     reasons = "; ".join(
         a.get("message", "") for a in (res.get("alerts") or []) if a.get("message")
     )
+    # Surface the localized layer + exact recovery command so the page is
+    # actionable instead of "N days old, go dig" (AAI-1196 recurrence).
+    diagnosis = res.get("project_current_state_diagnosis") or {}
+    last_error = None
+    if diagnosis:
+        detail = diagnosis.get("detail", "")
+        recovery = diagnosis.get("recovery_hint")
+        last_error = detail
+        if recovery:
+            last_error = f"{detail} Recovery: {recovery}"
     return {
         "source": "project_intelligence_staleness",
         "label": "Project intelligence narratives (project pages)",
@@ -379,7 +390,7 @@ def _project_intelligence_staleness_alert() -> Optional[Dict[str, Any]]:
         "failed": days,
         "succeeded": 0,
         "successAgeMinutes": days * 24 * 60,
-        "lastError": None,
+        "lastError": last_error,
     }
 
 

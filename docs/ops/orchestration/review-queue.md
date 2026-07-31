@@ -1,6 +1,6 @@
 # Review Queue
 
-Last updated: 2026-06-18
+Last updated: 2026-07-26
 
 ## Verification acceptance gate
 
@@ -15,6 +15,8 @@ For tasks declaring `Verification contract: Required`, acceptance requires a con
 Leader reviews all pending handoffs here.
 
 | Handoff File | Session | Task ID | Submitted | Evidence Complete | Disposition | Reviewer Notes |
+| `docs/ops/handoffs/2026-07-26-S235-training-resource-finder-trigger.md` | S235 | ALL-23 | 2026-07-26 | Yes | Accepted | Product commit `ad7a15153` is live on Vercel and Render; the protected trigger moved the review queue 26 → 28 while learner content stayed unchanged; controlled retry proved deduplication and zero-result messaging; 19 backend and 17 focused frontend tests, strict contract PASS, responsive proof, and independent approval are present. |
+| `docs/ops/handoffs/2026-07-26-S220-training-module-foundation.md` | S220 | ALL-15 through ALL-18 | 2026-07-26 | Yes | Pending Review | Live migration `20260726143515`, exact ledger, transactional learner/admin/service RLS proof, typed helper tests, strict verification contract, and independent approval pass. ALL-17 seed is explicitly deferred because the real source export is unavailable; publication remains. |
 | `docs/ops/handoffs/2026-07-21-SROOT-ASRS-1243-dedicated-asrs-workspace.md` | SROOT-ASRS-1243 | AAI-1243 | 2026-07-22 | Yes | Accepted | Published at `3c46fde45`; Ready production deployment `dpl_4mvJig8eYf1B1x7jWpedLhbqJ3y4` cloned the exact commit. Dedicated chat/session boundary, revision-scoped search/evaluator, remote scoped-RPC migration, 11 focused suites / 41 tests, authenticated desktop/mobile proof, complete table/figure review UI, contract PASS, and independent approval are present. |
 | `docs/ops/handoffs/2026-07-21-SROOT1189A-field-updates.md` | SROOT1189A | AAI-1189 | 2026-07-21 | Yes | Accepted | Independent re-review passed at `f22236372`: two applied migrations reconciled, fractional duration rejected before RPC, and production mobile Playwright reachability passed at 390×844. Linear has canonical desktop/mobile screenshots and live audit evidence. |
 | `docs/ops/handoffs/2026-07-21-SROOT1188D-aai-1188-closeout.md` | SROOT1188D | AAI-1188 | 2026-07-21 | Yes | Accepted | Fresh independent review accepted persisted Gantt/CPM calendar propagation, working-day warnings, calendar-aware Gantt cues, receiver preservation, and direct-write hardening. AAI-1189 is unblocked. |

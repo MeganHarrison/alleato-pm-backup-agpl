@@ -506,6 +506,12 @@ export function buildBrandedDocumentHtml({
     .document-content .contract-template .legal-bullet-list {
       margin-left: 0.18in !important;
     }
+    .document-content .contract-template .legal-ordered-list {
+      margin-left: 0.3in !important;
+    }
+    .document-content .contract-template .legal-ordered-list li {
+      margin-bottom: 6px !important;
+    }
     .document-content .contract-template .legal-table {
       width: 100%;
       border-collapse: collapse;

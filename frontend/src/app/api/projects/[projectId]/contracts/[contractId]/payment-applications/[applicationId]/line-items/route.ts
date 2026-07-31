@@ -6,6 +6,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { ZodError } from "zod";
 import { requirePermission } from "@/lib/permissions-guard";
+import type { Database } from "@/types/database.types";
 
 interface RouteParams {
   params: Promise<{
@@ -300,7 +301,7 @@ export const PATCH = withApiGuardrails(
 
       const { error } = await supabase
         .from("payment_application_line_items")
-        .update(updateData)
+        .update(updateData as Database["public"]["Tables"]["payment_application_line_items"]["Update"])
         .eq("id", id)
         .eq("payment_application_id", applicationId);
 

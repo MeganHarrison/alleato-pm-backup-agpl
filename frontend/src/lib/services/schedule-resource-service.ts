@@ -20,6 +20,7 @@ import type {
   SchedulePersonWorkCalendar,
   ScheduleTask,
   ScheduleTaskAssignment,
+  ScheduleTaskAssignmentExpectation,
   ScheduleTaskAssignmentInput,
   ScheduleTaskSegmentInput,
   ScheduleTaskSegmentsResponse,
@@ -42,6 +43,15 @@ type DatabaseError = {
   message: string;
 };
 
+/**
+ * Supabase function Args do not encode SQL nullability for required
+ * PostgreSQL parameters. Preserve the runtime null while narrowing only the
+ * generated client-side type.
+ */
+function sqlNullableArgument<T>(value: T | null): T {
+  return value!;
+}
+
 type PersonRow = Pick<
   Database["public"]["Tables"]["people"]["Row"],
   "id" | "first_name" | "last_name" | "email" | "job_title" | "status"
@@ -59,8 +69,68 @@ type ResourceRow = Pick<
 
 type AssignmentRow = Pick<
   Database["public"]["Tables"]["schedule_task_assignments"]["Row"],
-  "id" | "project_id" | "task_id" | "resource_id" | "allocation_percent"
+  | "id"
+  | "project_id"
+  | "task_id"
+  | "resource_id"
+  | "allocation_percent"
+  | "cost_version"
 >;
+
+export type ScheduleCostResourceRecord = Pick<
+  Database["public"]["Tables"]["schedule_resources"]["Row"],
+  | "id"
+  | "project_id"
+  | "person_id"
+  | "resource_kind"
+  | "display_name"
+  | "standard_rate"
+  | "cost_per_use"
+  | "rate_unit"
+  | "cost_version"
+>;
+
+export type ScheduleCostAssignmentRecord = Pick<
+  Database["public"]["Tables"]["schedule_task_assignments"]["Row"],
+  | "id"
+  | "project_id"
+  | "task_id"
+  | "resource_id"
+  | "allocation_percent"
+  | "planned_units"
+  | "actual_units"
+  | "actual_rate"
+  | "actual_cost"
+  | "cost_version"
+>;
+
+export interface ScheduleCostModel {
+  project_id: number;
+  can_manage: boolean;
+  resources: ScheduleCostResourceRecord[];
+  assignments: ScheduleCostAssignmentRecord[];
+}
+
+export interface ScheduleCostResourceInput {
+  id?: string | null;
+  resource_kind: "person" | "equipment" | "material";
+  display_name: string;
+  standard_rate: number | null;
+  cost_per_use: number | null;
+  rate_unit: "hour" | "day" | "unit" | null;
+  expected_cost_version?: number | null;
+}
+
+export interface ScheduleCostAssignmentInput {
+  task_id: string;
+  resource_id: string;
+  allocation_percent: number;
+  planned_units: number | null;
+  actual_units: number | null;
+  actual_rate: number | null;
+  actual_cost: number | null;
+  expected_cost_version?: number | null;
+}
 
 const QUERY_PAGE_SIZE = 500;
 const PEOPLE_ID_BATCH_SIZE = 100;
@@ -547,6 +617,7 @@ export class ScheduleResourceService {
             .from("schedule_resources")
             .select("id,project_id,person_id")
             .eq("project_id", projectId)
+            .eq("resource_kind", "person")
             .order("id")
             .range(from, to),
       ),
@@ -555,7 +626,7 @@ export class ScheduleResourceService {
         (from, to) =>
           this.client
             .from("schedule_task_assignments")
-            .select("id,project_id,task_id,resource_id,allocation_percent")
+            .select("id,project_id,task_id,resource_id,allocation_percent,cost_version")
             .eq("project_id", projectId)
             .order("id")
             .range(from, to),
@@ -594,7 +665,9 @@ export class ScheduleResourceService {
     const personIds = [
       ...new Set([
         ...memberships.map((membership) => membership.person_id),
-        ...resourceRows.map((resource) => resource.person_id),
+        ...resourceRows.flatMap((resource) =>
+          resource.person_id ? [resource.person_id] : [],
+        ),
       ]),
     ];
     const peopleRows: PersonRow[] = [];
@@ -621,11 +694,19 @@ export class ScheduleResourceService {
       memberships.map((membership) => [membership.person_id, membership]),
     );
     const resourceByPersonId = new Map(
-      resourceRows.map((resource) => [resource.person_id, resource]),
+      resourceRows.flatMap((resource) =>
+        resource.person_id ? [[resource.person_id, resource] as const] : [],
+      ),
     );
 
     const resources: ScheduleResource[] = resourceRows
       .map((resource) => {
+        if (!resource.person_id) {
+          throw new ScheduleResourceServiceError(
+            `Person schedule resource ${resource.id} has no person identifier.`,
+            "integrity",
+          );
+        }
         const person = peopleById.get(resource.person_id);
         if (!person) {
           throw new ScheduleResourceServiceError(
@@ -685,6 +766,7 @@ export class ScheduleResourceService {
       resources.map((resource) => [resource.id, resource]),
     );
     const assignments: ScheduleTaskAssignment[] = assignmentRows
+      .filter((assignment) => resourcesById.has(assignment.resource_id))
       .map((assignment) => {
         const resource = resourcesById.get(assignment.resource_id);
         if (!resource) {
@@ -700,6 +782,7 @@ export class ScheduleResourceService {
           resource_id: assignment.resource_id,
           person_id: resource.person_id,
           allocation_percent: assignment.allocation_percent,
+          cost_version: assignment.cost_version,
         };
       })
       .sort(
@@ -1501,7 +1584,7 @@ export class ScheduleResourceService {
       (from, to) =>
         this.client
           .from("schedule_task_assignments")
-          .select("id,project_id,task_id,resource_id,allocation_percent")
+          .select("id,project_id,task_id,resource_id,allocation_percent,cost_version")
           .eq("project_id", projectId)
           .eq("task_id", taskId)
           .order("id")
@@ -1517,6 +1600,7 @@ export class ScheduleResourceService {
       .from("schedule_resources")
       .select("id,project_id,person_id")
       .eq("project_id", projectId)
+      .eq("resource_kind", "person")
       .in("id", resourceIds)
       .order("id");
     if (resourceResult.error)
@@ -1534,8 +1618,11 @@ export class ScheduleResourceService {
       .map((assignment) => {
         const resource = resourcesById.get(assignment.resource_id);
         if (!resource) {
+          return null;
+        }
+        if (!resource.person_id) {
           throw new ScheduleResourceServiceError(
-            `Schedule assignment ${assignment.id} has no resource in project ${projectId}.`,
+            `Person schedule resource ${resource.id} has no person identifier.`,
             "integrity",
           );
         }
@@ -1546,15 +1633,177 @@ export class ScheduleResourceService {
           resource_id: assignment.resource_id,
           person_id: resource.person_id,
           allocation_percent: assignment.allocation_percent,
+          cost_version: assignment.cost_version,
         };
       })
+      .filter((assignment): assignment is ScheduleTaskAssignment =>
+        assignment !== null,
+      )
       .sort((left, right) => left.resource_id.localeCompare(right.resource_id));
+  }
+
+  async getCostModel(projectId: number): Promise<ScheduleCostModel> {
+    assertProjectId(projectId);
+    const [resources, assignments, capabilityResult] = await Promise.all([
+      loadAllRows<ScheduleCostResourceRecord>(
+        "Unable to load schedule cost resources",
+        (from, to) =>
+          this.client
+            .from("schedule_resources")
+            .select(
+              "id,project_id,person_id,resource_kind,display_name,standard_rate,cost_per_use,rate_unit,cost_version",
+            )
+            .eq("project_id", projectId)
+            .order("display_name")
+            .order("id")
+            .range(from, to),
+      ),
+      loadAllRows<ScheduleCostAssignmentRecord>(
+        "Unable to load schedule cost assignments",
+        (from, to) =>
+          this.client
+            .from("schedule_task_assignments")
+            .select(
+              "id,project_id,task_id,resource_id,allocation_percent,planned_units,actual_units,actual_rate,actual_cost,cost_version",
+            )
+            .eq("project_id", projectId)
+            .order("task_id")
+            .order("resource_id")
+            .range(from, to),
+      ),
+      this.client.rpc("current_can_manage_schedule", {
+        p_project_id: projectId,
+      }),
+    ]);
+    if (capabilityResult.error) {
+      throwDatabaseFailure(
+        "Unable to resolve schedule cost capability",
+        capabilityResult.error,
+      );
+    }
+    requireProjectScope(resources, projectId, "Schedule cost resources");
+    requireProjectScope(assignments, projectId, "Schedule cost assignments");
+    const resourceIds = new Set(resources.map((resource) => resource.id));
+    const orphan = assignments.find(
+      (assignment) => !resourceIds.has(assignment.resource_id),
+    );
+    if (orphan) {
+      throw new ScheduleResourceServiceError(
+        `Schedule cost assignment ${orphan.id} has no project resource.`,
+        "integrity",
+      );
+    }
+    return {
+      project_id: projectId,
+      can_manage: capabilityResult.data === true,
+      resources,
+      assignments,
+    };
+  }
+
+  async upsertCostResource(
+    projectId: number,
+    input: ScheduleCostResourceInput,
+  ): Promise<ScheduleCostResourceRecord> {
+    // Supabase's generated function Args currently omit SQL nullability for
+    // required PostgreSQL parameters. The RPC deliberately accepts null for a
+    // new resource id and optional rate facts, as enforced by its migration.
+    const args = {
+      p_project_id: projectId,
+      p_resource_id: sqlNullableArgument(input.id ?? null),
+      p_resource_kind: input.resource_kind,
+      p_display_name: input.display_name,
+      p_standard_rate: sqlNullableArgument(input.standard_rate),
+      p_cost_per_use: sqlNullableArgument(input.cost_per_use),
+      p_rate_unit: sqlNullableArgument(input.rate_unit),
+      p_expected_cost_version: sqlNullableArgument(
+        input.expected_cost_version ?? null,
+      ),
+    };
+    const result = await this.client.rpc("upsert_schedule_cost_resource", args);
+    if (result.error) {
+      throw new ScheduleResourceServiceError(
+        `Unable to save schedule cost resource: ${result.error.message}`,
+        "rpc",
+        result.error,
+      );
+    }
+    return result.data as ScheduleCostResourceRecord;
+  }
+
+  async deleteCostResource(
+    projectId: number,
+    resourceId: string,
+    expectedCostVersion: number,
+  ): Promise<void> {
+    const result = await this.client.rpc("delete_schedule_cost_resource", {
+      p_project_id: projectId,
+      p_resource_id: resourceId,
+      p_expected_cost_version: expectedCostVersion,
+    });
+    if (result.error) {
+      throw new ScheduleResourceServiceError(
+        `Unable to delete schedule cost resource: ${result.error.message}`,
+        "rpc",
+        result.error,
+      );
+    }
+  }
+
+  async upsertCostAssignment(
+    projectId: number,
+    input: ScheduleCostAssignmentInput,
+  ): Promise<ScheduleCostAssignmentRecord> {
+    // These nullable cost facts are valid SQL inputs even though the generated
+    // function Args mark the parameters as non-nullable.
+    const args = {
+      p_project_id: projectId,
+      p_task_id: input.task_id,
+      p_resource_id: input.resource_id,
+      p_allocation_percent: input.allocation_percent,
+      p_planned_units: sqlNullableArgument(input.planned_units),
+      p_actual_units: sqlNullableArgument(input.actual_units),
+      p_actual_rate: sqlNullableArgument(input.actual_rate),
+      p_actual_cost: sqlNullableArgument(input.actual_cost),
+      p_expected_cost_version: sqlNullableArgument(
+        input.expected_cost_version ?? null,
+      ),
+    };
+    const result = await this.client.rpc("upsert_schedule_cost_assignment", args);
+    if (result.error) {
+      throw new ScheduleResourceServiceError(
+        `Unable to save schedule cost assignment: ${result.error.message}`,
+        "rpc",
+        result.error,
+      );
+    }
+    return result.data as ScheduleCostAssignmentRecord;
+  }
+
+  async deleteCostAssignment(
+    projectId: number,
+    assignmentId: string,
+    expectedCostVersion: number,
+  ): Promise<void> {
+    const result = await this.client.rpc("delete_schedule_cost_assignment", {
+      p_project_id: projectId,
+      p_assignment_id: assignmentId,
+      p_expected_cost_version: expectedCostVersion,
+    });
+    if (result.error) {
+      throw new ScheduleResourceServiceError(
+        `Unable to delete schedule cost assignment: ${result.error.message}`,
+        "rpc",
+        result.error,
+      );
+    }
   }
 
   async replaceTaskAssignments(
     projectId: number,
     taskId: string,
     assignments: ScheduleTaskAssignmentInput[],
+    expectedAssignments: ScheduleTaskAssignmentExpectation[],
   ): Promise<ScheduleTaskAssignment[]> {
     const result = await this.client.rpc("replace_schedule_task_assignments", {
       p_project_id: projectId,
@@ -1563,6 +1812,13 @@ export class ScheduleResourceService {
         person_id,
         allocation_percent,
       })),
+      p_expected_assignments: expectedAssignments.map(
+        ({ id, person_id, cost_version }) => ({
+          id,
+          person_id,
+          cost_version,
+        }),
+      ),
     });
     if (result.error) {
       throw new ScheduleResourceServiceError(

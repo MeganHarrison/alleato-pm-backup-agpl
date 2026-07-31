@@ -115,6 +115,22 @@ describe("supabase middleware", () => {
     );
   });
 
+  it.each(["/auth/login-v2", "/auth/login-v3"])(
+    "redirects legacy login route %s to the canonical login and preserves every query parameter",
+    async (legacyPath) => {
+      const response = await updateSession(
+        makeRequest(
+          `${legacyPath}?callbackUrl=%2F983%2Fbudget%3Ftab%3Dcosts&source=bookmark&error=expired`,
+        ),
+      );
+
+      expect(response.status).toBe(307);
+      expect(response.headers.get("location")).toBe(
+        "https://projects.alleatogroup.com/auth/login?callbackUrl=%2F983%2Fbudget%3Ftab%3Dcosts&source=bookmark&error=expired",
+      );
+    },
+  );
+
   it("redirects nearly expired Supabase auth cookies", async () => {
     const nearlyExpiredExp = Math.floor(Date.now() / 1000) + 5;
 
@@ -130,12 +146,12 @@ describe("supabase middleware", () => {
   it("allows the AI assistant for authenticated non-developer users", async () => {
     // Guardrail: the AI assistant is open to all authenticated users. The
     // makeAuthCookie JWT carries no developer claim, so this exercises the
-    // non-developer path. If "/ai" is added to
+    // non-developer path. If "/ai-assistant" is re-added to
     // DEVELOPER_ONLY_COMPANY_PREFIXES this redirects to /access-denied and fails.
     const futureExp = Math.floor(Date.now() / 1000) + 3600;
 
     const response = await updateSession(
-      makeRequest("/ai", [makeAuthCookie(futureExp)]),
+      makeRequest("/ai-assistant", [makeAuthCookie(futureExp)]),
     );
 
     expect(response.headers.get("location")).toBeNull();

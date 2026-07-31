@@ -55,8 +55,12 @@ export function WelcomeOnboarding({
     [currentUserProfile?.email, currentUserProfile?.fullName],
   );
 
+  const hasCurrentUserIdentity = Boolean(
+    currentUserProfile?.email || currentUserProfile?.fullName,
+  );
   const userName =
-    currentUserProfile?.fullName || personalizationProfile.displayName;
+    currentUserProfile?.fullName ||
+    (hasCurrentUserIdentity ? personalizationProfile.displayName : "");
   const firstName = userName.trim().split(/\s+/)[0] || undefined;
   const aiActionLinks = React.useMemo(
     () =>
@@ -93,7 +97,10 @@ export function WelcomeOnboarding({
 
     // Server-side flag is authoritative — if the DB says completed, never show again.
     if (currentUserProfile?.onboardingCompletedAt) {
-      window.localStorage.setItem(storageKey, currentUserProfile.onboardingCompletedAt);
+      window.localStorage.setItem(
+        storageKey,
+        currentUserProfile.onboardingCompletedAt,
+      );
       return;
     }
 
@@ -117,10 +124,14 @@ export function WelcomeOnboarding({
     window.dispatchEvent(
       new CustomEvent(ONBOARDING_VISIBILITY_EVENT, { detail: { open } }),
     );
-    document.documentElement.dataset.alleatoOnboardingOpen = open ? "true" : "false";
+    document.documentElement.dataset.alleatoOnboardingOpen = open
+      ? "true"
+      : "false";
     return () => {
       window.dispatchEvent(
-        new CustomEvent(ONBOARDING_VISIBILITY_EVENT, { detail: { open: false } }),
+        new CustomEvent(ONBOARDING_VISIBILITY_EVENT, {
+          detail: { open: false },
+        }),
       );
       document.documentElement.dataset.alleatoOnboardingOpen = "false";
     };
@@ -181,8 +192,12 @@ export function WelcomeOnboarding({
           </div>
 
           <div className="relative min-h-0 flex-1 overflow-y-auto px-6 py-6 sm:min-h-96 sm:px-12 sm:py-8">
-            {step === 0 && <IntroFeedbackStep firstName={firstName} stats={stats} />}
-            {step === 1 && <MissionStep onCreateTestProject={handleCreateTestProject} />}
+            {step === 0 && (
+              <IntroFeedbackStep firstName={firstName} stats={stats} />
+            )}
+            {step === 1 && (
+              <MissionStep onCreateTestProject={handleCreateTestProject} />
+            )}
           </div>
 
           <div className="relative flex flex-col gap-4 px-6 pb-6 pt-7 sm:px-12 sm:pb-8 sm:pt-10 md:flex-row md:items-center md:justify-between">
@@ -233,7 +248,10 @@ export function WelcomeOnboarding({
 
 function StepDots({ current, total }: { current: number; total: number }) {
   return (
-    <div className="flex items-center gap-1.5" aria-label={`Step ${current + 1} of ${total}`}>
+    <div
+      className="flex items-center gap-1.5"
+      aria-label={`Step ${current + 1} of ${total}`}
+    >
       {Array.from({ length: total }).map((_, index) => (
         <span
           key={index}

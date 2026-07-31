@@ -1,0 +1,757 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e5]:
+      - generic [ref=e7]:
+        - generic [ref=e730]:
+          - link "Alleato Group" [ref=e731] [cursor=pointer]:
+            - /url: /
+            - img "Alleato Group" [ref=e732]
+          - button "Collapse sidebar" [ref=e733]:
+            - img [ref=e734]
+        - combobox [ref=e737]:
+          - generic [ref=e739]: Alleato AI
+          - img
+      - generic [ref=e15]:
+        - generic [ref=e740]:
+          - generic [ref=e741]: Financial
+          - link "Budget" [ref=e742] [cursor=pointer]:
+            - /url: /767/budget
+            - generic [ref=e743]: Budget
+          - link "Prime Contracts" [ref=e744] [cursor=pointer]:
+            - /url: /767/prime-contracts
+            - generic [ref=e745]: Prime Contracts
+          - link "Commitments" [ref=e746] [cursor=pointer]:
+            - /url: /767/commitments
+            - generic [ref=e747]: Commitments
+          - link "Change Orders" [ref=e748] [cursor=pointer]:
+            - /url: /767/change-orders
+            - generic [ref=e749]: Change Orders
+          - link "Change Events" [ref=e750] [cursor=pointer]:
+            - /url: /767/change-events
+            - generic [ref=e751]: Change Events
+          - link "Direct Costs" [ref=e752] [cursor=pointer]:
+            - /url: /767/direct-costs
+            - generic [ref=e753]: Direct Costs
+          - link "Invoicing" [ref=e754] [cursor=pointer]:
+            - /url: /767/invoices
+            - generic [ref=e755]: Invoicing
+        - generic [ref=e756]:
+          - generic [ref=e757]: Operations
+          - link "Project Directory" [ref=e758] [cursor=pointer]:
+            - /url: /767/directory
+            - generic [ref=e759]: Project Directory
+          - link "Schedule" [ref=e760] [cursor=pointer]:
+            - /url: /767/schedule
+            - generic [ref=e761]: Schedule
+          - link "Meetings" [ref=e762] [cursor=pointer]:
+            - /url: /767/meetings
+            - generic [ref=e763]: Meetings
+          - link "Daily Log" [ref=e764] [cursor=pointer]:
+            - /url: /767/daily-log
+            - generic [ref=e765]: Daily Log
+          - link "Punch List" [ref=e766] [cursor=pointer]:
+            - /url: /767/punch-list
+            - generic [ref=e767]: Punch List
+          - link "RFIs" [ref=e768] [cursor=pointer]:
+            - /url: /767/rfis
+            - generic [ref=e769]: RFIs
+          - link "Submittals" [ref=e770] [cursor=pointer]:
+            - /url: /767/submittals
+            - generic [ref=e771]: Submittals
+          - link "Transmittals" [ref=e772] [cursor=pointer]:
+            - /url: /767/transmittals
+            - generic [ref=e773]: Transmittals
+          - link "Emails" [ref=e774] [cursor=pointer]:
+            - /url: /767/emails
+            - generic [ref=e775]: Emails
+          - link "Photos" [ref=e776] [cursor=pointer]:
+            - /url: /767/photos
+            - generic [ref=e777]: Photos
+          - link "Drawings" [ref=e778] [cursor=pointer]:
+            - /url: /767/drawings
+            - generic [ref=e779]: Drawings
+          - link "Specifications" [ref=e780] [cursor=pointer]:
+            - /url: /767/specifications
+            - generic [ref=e781]: Specifications
+          - link "Documents" [ref=e782] [cursor=pointer]:
+            - /url: /767/documents
+            - generic [ref=e783]: Documents
+        - generic [ref=e784]:
+          - generic [ref=e785]: Company
+          - link "Company Directory" [ref=e786] [cursor=pointer]:
+            - /url: /directory/companies
+            - generic [ref=e787]: Company Directory
+          - link "Meetings" [ref=e788] [cursor=pointer]:
+            - /url: /767/meetings
+            - generic [ref=e789]: Meetings
+          - link "Knowledge Base" [ref=e790] [cursor=pointer]:
+            - /url: /knowledge
+            - generic [ref=e791]: Knowledge Base
+          - link "AI Strategist" [ref=e792] [cursor=pointer]:
+            - /url: /ai-assistant
+            - generic [ref=e793]: AI Strategist
+          - link "Documents" [ref=e794] [cursor=pointer]:
+            - /url: /767/documents
+            - generic [ref=e795]: Documents
+        - generic [ref=e796]:
+          - generic [ref=e797]: Admin
+          - link "Settings" [ref=e798] [cursor=pointer]:
+            - /url: /settings
+            - generic [ref=e799]: Settings
+          - link "Company Knowledge" [ref=e800] [cursor=pointer]:
+            - /url: /admin/company-knowledge
+            - generic [ref=e801]: Company Knowledge
+      - list [ref=e112]:
+        - listitem [ref=e113]:
+          - button "test1 test1 test1@mail.com" [ref=e802]:
+            - img "test1" [ref=e116]
+            - generic:
+              - generic: test1
+              - generic: test1@mail.com
+            - img [ref=e803]
+      - button "Toggle Sidebar" [ref=e27]
+    - main [ref=e28]:
+      - generic [ref=e30]:
+        - generic [ref=e32]:
+          - link "Projects" [ref=e34] [cursor=pointer]:
+            - /url: /
+          - generic [ref=e35]:
+            - img [ref=e36]
+            - link "Alleato AI" [ref=e117] [cursor=pointer]:
+              - /url: /767/home
+          - generic [ref=e39]:
+            - img [ref=e40]
+            - generic [ref=e42]: Budget
+        - generic [ref=e43]:
+          - button "Budget" [ref=e44]:
+            - generic [ref=e45]: Budget
+            - img
+          - combobox [ref=e46]:
+            - generic [ref=e48]: Alleato AI
+            - img
+          - button "Comments" [ref=e49]:
+            - img
+          - button "Toggle Procore reference panel" [ref=e50]:
+            - img [ref=e51]
+          - link "Feedback inbox" [ref=e56] [cursor=pointer]:
+            - /url: /feedback-inbox
+            - img [ref=e57]
+          - link "Annotation inbox" [ref=e118] [cursor=pointer]:
+            - /url: /annotation-inbox
+            - img [ref=e119]
+          - button "Notifications" [ref=e60]:
+            - img
+      - generic [ref=e62]:
+        - main [ref=e63]:
+          - generic [ref=e64]:
+            - generic [ref=e124]:
+              - generic [ref=e126]:
+                - heading "Budget" [level=1] [ref=e127]
+                - generic [ref=e128]:
+                  - img
+                  - text: Locked
+              - generic [ref=e131]:
+                - button "Create" [ref=e132]:
+                  - img
+                  - text: Create
+                  - img
+                - button "Unlock Budget" [ref=e133]:
+                  - img
+                  - generic [ref=e134]: Unlock Budget
+                - button "Sync to ERP" [ref=e135]:
+                  - img
+                - button "Export" [ref=e136]:
+                  - img
+                - button [ref=e137]:
+                  - img
+            - navigation "Budget Tabs" [ref=e139]:
+              - generic [ref=e141]:
+                - button "Budget" [ref=e142]
+                - button "Budget Details" [ref=e143]
+                - button "Cost Codes" [ref=e144]
+                - button "Forecasting" [ref=e145]
+                - button "Project Status Snapshots" [ref=e146]
+                - button "Change History" [ref=e147]
+                - button "Settings" [ref=e148]
+              - generic [ref=e150]:
+                - button "View options" [ref=e151]:
+                  - img
+                  - generic [ref=e152]: View
+                - button "Analyze variance" [ref=e153]:
+                  - img
+                - button "Enter full page view" [ref=e154]:
+                  - img
+            - generic [ref=e158]:
+              - table [ref=e161]:
+                - rowgroup [ref=e162]:
+                  - row "Select all Description original mods Approved COs revised JTD Cost Detail Direct Costs pending Proj. Budget committed pending changes Proj. Costs forecast Est. Total Cost Proj. +/-" [ref=e163]:
+                    - columnheader "Select all" [ref=e164]:
+                      - checkbox "Select all" [ref=e165]
+                    - columnheader [ref=e166]
+                    - columnheader "Description" [ref=e167]:
+                      - generic [ref=e168]: Description
+                    - columnheader "original" [ref=e170]:
+                      - generic [ref=e171]: original
+                    - columnheader "mods" [ref=e173]:
+                      - generic [ref=e174]: mods
+                    - columnheader "Approved COs" [ref=e176]:
+                      - generic [ref=e177]: Approved COs
+                    - columnheader "revised" [ref=e179]:
+                      - generic [ref=e180]: revised
+                    - columnheader "JTD Cost Detail" [ref=e182]:
+                      - generic [ref=e183]: JTD Cost Detail
+                    - columnheader "Direct Costs" [ref=e185]:
+                      - generic [ref=e186]: Direct Costs
+                    - columnheader "pending" [ref=e188]:
+                      - generic [ref=e189]: pending
+                    - columnheader "Proj. Budget" [ref=e191]:
+                      - generic [ref=e192]: Proj. Budget
+                    - columnheader "committed" [ref=e194]:
+                      - generic [ref=e195]: committed
+                    - columnheader "pending changes" [ref=e197]:
+                      - generic [ref=e198]: pending changes
+                    - columnheader "Proj. Costs" [ref=e200]:
+                      - generic [ref=e201]: Proj. Costs
+                    - columnheader "forecast" [ref=e203]:
+                      - generic [ref=e204]: forecast
+                    - columnheader "Est. Total Cost" [ref=e206]:
+                      - generic [ref=e207]: Est. Total Cost
+                    - columnheader "Proj. +/-" [ref=e209]:
+                      - generic [ref=e210]: Proj. +/-
+                    - columnheader [ref=e212]
+                - rowgroup [ref=e214]:
+                  - row "Expand General Conditions General Conditions Edit $128,000.00 Add comment Edit $0.00 Add comment Edit $0.00 Add comment $128,000.00 Add comment Edit $0.00 Add comment Edit $0.00 Add comment Edit $0.00 Add comment $128,000.00 Add comment Edit $80,000.00 Add comment Edit $5,460.00 Add comment $85,460.00 Add comment Edit $84,040.00 Add comment $169,500.00 Add comment ($41,500.00) Add comment" [ref=e215]:
+                    - cell [ref=e216]
+                    - cell "Expand General Conditions" [ref=e217]:
+                      - button "Expand General Conditions" [ref=e218]:
+                        - img
+                    - cell "General Conditions" [ref=e219]:
+                      - generic "General Conditions" [ref=e220]:
+                        - generic [ref=e221]: General Conditions
+                    - cell "Edit $128,000.00 Add comment" [ref=e222]:
+                      - generic [ref=e223]:
+                        - button "Edit $128,000.00" [ref=e225] [cursor=pointer]:
+                          - generic [ref=e226]: $128,000.00
+                        - button "Add comment" [ref=e227]:
+                          - img [ref=e228]
+                    - cell "Edit $0.00 Add comment" [ref=e230]:
+                      - generic [ref=e231]:
+                        - button "Edit $0.00" [ref=e233] [cursor=pointer]:
+                          - generic [ref=e234]: $0.00
+                        - button "Add comment" [ref=e235]:
+                          - img [ref=e236]
+                    - cell "Edit $0.00 Add comment" [ref=e238]:
+                      - generic [ref=e239]:
+                        - button "Edit $0.00" [ref=e241] [cursor=pointer]:
+                          - generic [ref=e242]: $0.00
+                        - button "Add comment" [ref=e243]:
+                          - img [ref=e244]
+                    - cell "$128,000.00 Add comment" [ref=e246]:
+                      - generic [ref=e247]:
+                        - generic [ref=e249]: $128,000.00
+                        - button "Add comment" [ref=e250]:
+                          - img [ref=e251]
+                    - cell "Edit $0.00 Add comment" [ref=e253]:
+                      - generic [ref=e254]:
+                        - button "Edit $0.00" [ref=e256] [cursor=pointer]:
+                          - generic [ref=e257]: $0.00
+                        - button "Add comment" [ref=e258]:
+                          - img [ref=e259]
+                    - cell "Edit $0.00 Add comment" [ref=e261]:
+                      - generic [ref=e262]:
+                        - button "Edit $0.00" [ref=e264] [cursor=pointer]:
+                          - generic [ref=e265]: $0.00
+                        - button "Add comment" [ref=e266]:
+                          - img [ref=e267]
+                    - cell "Edit $0.00 Add comment" [ref=e269]:
+                      - generic [ref=e270]:
+                        - button "Edit $0.00" [ref=e272] [cursor=pointer]:
+                          - generic [ref=e273]: $0.00
+                        - button "Add comment" [ref=e274]:
+                          - img [ref=e275]
+                    - cell "$128,000.00 Add comment" [ref=e277]:
+                      - generic [ref=e278]:
+                        - generic [ref=e280]: $128,000.00
+                        - button "Add comment" [ref=e281]:
+                          - img [ref=e282]
+                    - cell "Edit $80,000.00 Add comment" [ref=e284]:
+                      - generic [ref=e285]:
+                        - button "Edit $80,000.00" [ref=e287] [cursor=pointer]:
+                          - generic [ref=e288]: $80,000.00
+                        - button "Add comment" [ref=e289]:
+                          - img [ref=e290]
+                    - cell "Edit $5,460.00 Add comment" [ref=e292]:
+                      - generic [ref=e293]:
+                        - button "Edit $5,460.00" [ref=e295] [cursor=pointer]:
+                          - generic [ref=e296]: $5,460.00
+                        - button "Add comment" [ref=e297]:
+                          - img [ref=e298]
+                    - cell "$85,460.00 Add comment" [ref=e300]:
+                      - generic [ref=e301]:
+                        - generic [ref=e303]: $85,460.00
+                        - button "Add comment" [ref=e304]:
+                          - img [ref=e305]
+                    - cell "Edit $84,040.00 Add comment" [ref=e307]:
+                      - generic [ref=e308]:
+                        - button "Edit $84,040.00" [ref=e310] [cursor=pointer]:
+                          - generic [ref=e311]: $84,040.00
+                        - button "Add comment" [ref=e312]:
+                          - img [ref=e313]
+                    - cell "$169,500.00 Add comment" [ref=e315]:
+                      - generic [ref=e316]:
+                        - generic [ref=e318]: $169,500.00
+                        - button "Add comment" [ref=e319]:
+                          - img [ref=e320]
+                    - cell "($41,500.00) Add comment" [ref=e322]:
+                      - generic [ref=e323]:
+                        - generic [ref=e325]: ($41,500.00)
+                        - button "Add comment" [ref=e326]:
+                          - img [ref=e327]
+                    - cell [ref=e329]
+                  - row "Expand Metals Metals Edit $0.00 Add comment Edit $0.00 Add comment Edit $0.00 Add comment $0.00 Add comment Edit $0.00 Add comment Edit $0.00 Add comment Edit $0.00 Add comment $0.00 Add comment Edit $0.00 Add comment Edit $0.00 Add comment $0.00 Add comment Edit $0.00 Add comment $0.00 Add comment $0.00 Add comment" [ref=e330]:
+                    - cell [ref=e331]
+                    - cell "Expand Metals" [ref=e332]:
+                      - button "Expand Metals" [ref=e333]:
+                        - img
+                    - cell "Metals" [ref=e334]:
+                      - generic "Metals" [ref=e335]:
+                        - generic [ref=e336]: Metals
+                    - cell "Edit $0.00 Add comment" [ref=e337]:
+                      - generic [ref=e338]:
+                        - button "Edit $0.00" [ref=e340] [cursor=pointer]:
+                          - generic [ref=e341]: $0.00
+                        - button "Add comment" [ref=e342]:
+                          - img [ref=e343]
+                    - cell "Edit $0.00 Add comment" [ref=e345]:
+                      - generic [ref=e346]:
+                        - button "Edit $0.00" [ref=e348] [cursor=pointer]:
+                          - generic [ref=e349]: $0.00
+                        - button "Add comment" [ref=e350]:
+                          - img [ref=e351]
+                    - cell "Edit $0.00 Add comment" [ref=e353]:
+                      - generic [ref=e354]:
+                        - button "Edit $0.00" [ref=e356] [cursor=pointer]:
+                          - generic [ref=e357]: $0.00
+                        - button "Add comment" [ref=e358]:
+                          - img [ref=e359]
+                    - cell "$0.00 Add comment" [ref=e361]:
+                      - generic [ref=e362]:
+                        - generic [ref=e364]: $0.00
+                        - button "Add comment" [ref=e365]:
+                          - img [ref=e366]
+                    - cell "Edit $0.00 Add comment" [ref=e368]:
+                      - generic [ref=e369]:
+                        - button "Edit $0.00" [ref=e371] [cursor=pointer]:
+                          - generic [ref=e372]: $0.00
+                        - button "Add comment" [ref=e373]:
+                          - img [ref=e374]
+                    - cell "Edit $0.00 Add comment" [ref=e376]:
+                      - generic [ref=e377]:
+                        - button "Edit $0.00" [ref=e379] [cursor=pointer]:
+                          - generic [ref=e380]: $0.00
+                        - button "Add comment" [ref=e381]:
+                          - img [ref=e382]
+                    - cell "Edit $0.00 Add comment" [ref=e384]:
+                      - generic [ref=e385]:
+                        - button "Edit $0.00" [ref=e387] [cursor=pointer]:
+                          - generic [ref=e388]: $0.00
+                        - button "Add comment" [ref=e389]:
+                          - img [ref=e390]
+                    - cell "$0.00 Add comment" [ref=e392]:
+                      - generic [ref=e393]:
+                        - generic [ref=e395]: $0.00
+                        - button "Add comment" [ref=e396]:
+                          - img [ref=e397]
+                    - cell "Edit $0.00 Add comment" [ref=e399]:
+                      - generic [ref=e400]:
+                        - button "Edit $0.00" [ref=e402] [cursor=pointer]:
+                          - generic [ref=e403]: $0.00
+                        - button "Add comment" [ref=e404]:
+                          - img [ref=e405]
+                    - cell "Edit $0.00 Add comment" [ref=e407]:
+                      - generic [ref=e408]:
+                        - button "Edit $0.00" [ref=e410] [cursor=pointer]:
+                          - generic [ref=e411]: $0.00
+                        - button "Add comment" [ref=e412]:
+                          - img [ref=e413]
+                    - cell "$0.00 Add comment" [ref=e415]:
+                      - generic [ref=e416]:
+                        - generic [ref=e418]: $0.00
+                        - button "Add comment" [ref=e419]:
+                          - img [ref=e420]
+                    - cell "Edit $0.00 Add comment" [ref=e422]:
+                      - generic [ref=e423]:
+                        - button "Edit $0.00" [ref=e425] [cursor=pointer]:
+                          - generic [ref=e426]: $0.00
+                        - button "Add comment" [ref=e427]:
+                          - img [ref=e428]
+                    - cell "$0.00 Add comment" [ref=e430]:
+                      - generic [ref=e431]:
+                        - generic [ref=e433]: $0.00
+                        - button "Add comment" [ref=e434]:
+                          - img [ref=e435]
+                    - cell "$0.00 Add comment" [ref=e437]:
+                      - generic [ref=e438]:
+                        - generic [ref=e440]: $0.00
+                        - button "Add comment" [ref=e441]:
+                          - img [ref=e442]
+                    - cell [ref=e444]
+                  - row "Expand Wood, Plastics & Composites Wood, Plastics & Composites Edit $0.00 Add comment Edit $0.00 Add comment Edit $0.00 Add comment $0.00 Add comment Edit $0.00 Add comment Edit $0.00 Add comment Edit $0.00 Add comment $0.00 Add comment Edit $65,000.00 Add comment Edit $0.00 Add comment $65,000.00 Add comment Edit $0.00 Add comment $65,000.00 Add comment ($65,000.00) Add comment" [ref=e445]:
+                    - cell [ref=e446]
+                    - cell "Expand Wood, Plastics & Composites" [ref=e447]:
+                      - button "Expand Wood, Plastics & Composites" [ref=e448]:
+                        - img
+                    - cell "Wood, Plastics & Composites" [ref=e449]:
+                      - generic "Wood, Plastics & Composites" [ref=e450]:
+                        - generic [ref=e451]: Wood, Plastics & Composites
+                    - cell "Edit $0.00 Add comment" [ref=e452]:
+                      - generic [ref=e453]:
+                        - button "Edit $0.00" [ref=e455] [cursor=pointer]:
+                          - generic [ref=e456]: $0.00
+                        - button "Add comment" [ref=e457]:
+                          - img [ref=e458]
+                    - cell "Edit $0.00 Add comment" [ref=e460]:
+                      - generic [ref=e461]:
+                        - button "Edit $0.00" [ref=e463] [cursor=pointer]:
+                          - generic [ref=e464]: $0.00
+                        - button "Add comment" [ref=e465]:
+                          - img [ref=e466]
+                    - cell "Edit $0.00 Add comment" [ref=e468]:
+                      - generic [ref=e469]:
+                        - button "Edit $0.00" [ref=e471] [cursor=pointer]:
+                          - generic [ref=e472]: $0.00
+                        - button "Add comment" [ref=e473]:
+                          - img [ref=e474]
+                    - cell "$0.00 Add comment" [ref=e476]:
+                      - generic [ref=e477]:
+                        - generic [ref=e479]: $0.00
+                        - button "Add comment" [ref=e480]:
+                          - img [ref=e481]
+                    - cell "Edit $0.00 Add comment" [ref=e483]:
+                      - generic [ref=e484]:
+                        - button "Edit $0.00" [ref=e486] [cursor=pointer]:
+                          - generic [ref=e487]: $0.00
+                        - button "Add comment" [ref=e488]:
+                          - img [ref=e489]
+                    - cell "Edit $0.00 Add comment" [ref=e491]:
+                      - generic [ref=e492]:
+                        - button "Edit $0.00" [ref=e494] [cursor=pointer]:
+                          - generic [ref=e495]: $0.00
+                        - button "Add comment" [ref=e496]:
+                          - img [ref=e497]
+                    - cell "Edit $0.00 Add comment" [ref=e499]:
+                      - generic [ref=e500]:
+                        - button "Edit $0.00" [ref=e502] [cursor=pointer]:
+                          - generic [ref=e503]: $0.00
+                        - button "Add comment" [ref=e504]:
+                          - img [ref=e505]
+                    - cell "$0.00 Add comment" [ref=e507]:
+                      - generic [ref=e508]:
+                        - generic [ref=e510]: $0.00
+                        - button "Add comment" [ref=e511]:
+                          - img [ref=e512]
+                    - cell "Edit $65,000.00 Add comment" [ref=e514]:
+                      - generic [ref=e515]:
+                        - button "Edit $65,000.00" [ref=e517] [cursor=pointer]:
+                          - generic [ref=e518]: $65,000.00
+                        - button "Add comment" [ref=e519]:
+                          - img [ref=e520]
+                    - cell "Edit $0.00 Add comment" [ref=e522]:
+                      - generic [ref=e523]:
+                        - button "Edit $0.00" [ref=e525] [cursor=pointer]:
+                          - generic [ref=e526]: $0.00
+                        - button "Add comment" [ref=e527]:
+                          - img [ref=e528]
+                    - cell "$65,000.00 Add comment" [ref=e530]:
+                      - generic [ref=e531]:
+                        - generic [ref=e533]: $65,000.00
+                        - button "Add comment" [ref=e534]:
+                          - img [ref=e535]
+                    - cell "Edit $0.00 Add comment" [ref=e537]:
+                      - generic [ref=e538]:
+                        - button "Edit $0.00" [ref=e540] [cursor=pointer]:
+                          - generic [ref=e541]: $0.00
+                        - button "Add comment" [ref=e542]:
+                          - img [ref=e543]
+                    - cell "$65,000.00 Add comment" [ref=e545]:
+                      - generic [ref=e546]:
+                        - generic [ref=e548]: $65,000.00
+                        - button "Add comment" [ref=e549]:
+                          - img [ref=e550]
+                    - cell "($65,000.00) Add comment" [ref=e552]:
+                      - generic [ref=e553]:
+                        - generic [ref=e555]: ($65,000.00)
+                        - button "Add comment" [ref=e556]:
+                          - img [ref=e557]
+                    - cell [ref=e559]
+                  - row "Expand Thermal & Moisture Protection Thermal & Moisture Protection Edit $324,500.00 Add comment Edit $0.00 Add comment Edit $0.00 Add comment $324,500.00 Add comment Edit $0.00 Add comment Edit $0.00 Add comment Edit $0.00 Add comment $324,500.00 Add comment Edit $20,000.00 Add comment Edit $0.00 Add comment $20,000.00 Add comment Edit $304,500.00 Add comment $324,500.00 Add comment $0.00 Add comment" [ref=e560]:
+                    - cell [ref=e561]
+                    - cell "Expand Thermal & Moisture Protection" [ref=e562]:
+                      - button "Expand Thermal & Moisture Protection" [ref=e563]:
+                        - img
+                    - cell "Thermal & Moisture Protection" [ref=e564]:
+                      - generic "Thermal & Moisture Protection" [ref=e565]:
+                        - generic [ref=e566]: Thermal & Moisture Protection
+                    - cell "Edit $324,500.00 Add comment" [ref=e567]:
+                      - generic [ref=e568]:
+                        - button "Edit $324,500.00" [ref=e570] [cursor=pointer]:
+                          - generic [ref=e571]: $324,500.00
+                        - button "Add comment" [ref=e572]:
+                          - img [ref=e573]
+                    - cell "Edit $0.00 Add comment" [ref=e575]:
+                      - generic [ref=e576]:
+                        - button "Edit $0.00" [ref=e578] [cursor=pointer]:
+                          - generic [ref=e579]: $0.00
+                        - button "Add comment" [ref=e580]:
+                          - img [ref=e581]
+                    - cell "Edit $0.00 Add comment" [ref=e583]:
+                      - generic [ref=e584]:
+                        - button "Edit $0.00" [ref=e586] [cursor=pointer]:
+                          - generic [ref=e587]: $0.00
+                        - button "Add comment" [ref=e588]:
+                          - img [ref=e589]
+                    - cell "$324,500.00 Add comment" [ref=e591]:
+                      - generic [ref=e592]:
+                        - generic [ref=e594]: $324,500.00
+                        - button "Add comment" [ref=e595]:
+                          - img [ref=e596]
+                    - cell "Edit $0.00 Add comment" [ref=e598]:
+                      - generic [ref=e599]:
+                        - button "Edit $0.00" [ref=e601] [cursor=pointer]:
+                          - generic [ref=e602]: $0.00
+                        - button "Add comment" [ref=e603]:
+                          - img [ref=e604]
+                    - cell "Edit $0.00 Add comment" [ref=e606]:
+                      - generic [ref=e607]:
+                        - button "Edit $0.00" [ref=e609] [cursor=pointer]:
+                          - generic [ref=e610]: $0.00
+                        - button "Add comment" [ref=e611]:
+                          - img [ref=e612]
+                    - cell "Edit $0.00 Add comment" [ref=e614]:
+                      - generic [ref=e615]:
+                        - button "Edit $0.00" [ref=e617] [cursor=pointer]:
+                          - generic [ref=e618]: $0.00
+                        - button "Add comment" [ref=e619]:
+                          - img [ref=e620]
+                    - cell "$324,500.00 Add comment" [ref=e622]:
+                      - generic [ref=e623]:
+                        - generic [ref=e625]: $324,500.00
+                        - button "Add comment" [ref=e626]:
+                          - img [ref=e627]
+                    - cell "Edit $20,000.00 Add comment" [ref=e629]:
+                      - generic [ref=e630]:
+                        - button "Edit $20,000.00" [ref=e632] [cursor=pointer]:
+                          - generic [ref=e633]: $20,000.00
+                        - button "Add comment" [ref=e634]:
+                          - img [ref=e635]
+                    - cell "Edit $0.00 Add comment" [ref=e637]:
+                      - generic [ref=e638]:
+                        - button "Edit $0.00" [ref=e640] [cursor=pointer]:
+                          - generic [ref=e641]: $0.00
+                        - button "Add comment" [ref=e642]:
+                          - img [ref=e643]
+                    - cell "$20,000.00 Add comment" [ref=e645]:
+                      - generic [ref=e646]:
+                        - generic [ref=e648]: $20,000.00
+                        - button "Add comment" [ref=e649]:
+                          - img [ref=e650]
+                    - cell "Edit $304,500.00 Add comment" [ref=e652]:
+                      - generic [ref=e653]:
+                        - button "Edit $304,500.00" [ref=e655] [cursor=pointer]:
+                          - generic [ref=e656]: $304,500.00
+                        - button "Add comment" [ref=e657]:
+                          - img [ref=e658]
+                    - cell "$324,500.00 Add comment" [ref=e660]:
+                      - generic [ref=e661]:
+                        - generic [ref=e663]: $324,500.00
+                        - button "Add comment" [ref=e664]:
+                          - img [ref=e665]
+                    - cell "$0.00 Add comment" [ref=e667]:
+                      - generic [ref=e668]:
+                        - generic [ref=e670]: $0.00
+                        - button "Add comment" [ref=e671]:
+                          - img [ref=e672]
+                    - cell [ref=e674]
+              - table [ref=e676]:
+                - rowgroup [ref=e677]:
+                  - row "Grand Totals $452,500.00 $0.00 $0.00 $452,500.00 $0.00 $0.00 $0.00 $452,500.00 $165,000.00 $5,460.00 $170,460.00 $388,540.00 $559,000.00 ($106,500.00)" [ref=e678]:
+                    - cell [ref=e679]
+                    - cell [ref=e680]
+                    - cell "Grand Totals" [ref=e681]
+                    - cell "$452,500.00" [ref=e682]:
+                      - generic [ref=e683]: $452,500.00
+                    - cell "$0.00" [ref=e684]:
+                      - generic [ref=e685]: $0.00
+                    - cell "$0.00" [ref=e686]:
+                      - generic [ref=e687]: $0.00
+                    - cell "$452,500.00" [ref=e688]:
+                      - generic [ref=e689]: $452,500.00
+                    - cell "$0.00" [ref=e690]:
+                      - generic [ref=e691]: $0.00
+                    - cell "$0.00" [ref=e692]:
+                      - generic [ref=e693]: $0.00
+                    - cell "$0.00" [ref=e694]:
+                      - generic [ref=e695]: $0.00
+                    - cell "$452,500.00" [ref=e696]:
+                      - generic [ref=e697]: $452,500.00
+                    - cell "$165,000.00" [ref=e698]:
+                      - generic [ref=e699]: $165,000.00
+                    - cell "$5,460.00" [ref=e700]:
+                      - generic [ref=e701]: $5,460.00
+                    - cell "$170,460.00" [ref=e702]:
+                      - generic [ref=e703]: $170,460.00
+                    - cell "$388,540.00" [ref=e704]:
+                      - generic [ref=e705]: $388,540.00
+                    - cell "$559,000.00" [ref=e706]:
+                      - generic [ref=e707]: $559,000.00
+                    - cell "($106,500.00)" [ref=e708]:
+                      - generic [ref=e709]: ($106,500.00)
+                    - cell [ref=e710]
+        - generic [ref=e70]:
+          - navigation [ref=e71]:
+            - button "Admin" [ref=e73]:
+              - text: Admin
+              - img [ref=e74]
+          - paragraph [ref=e76]: © 2026 Alleato Group. All rights reserved.
+  - region "Notifications alt+T"
+  - button "Feedback mode" [ref=e78]:
+    - img [ref=e79]
+  - button "🎨 2" [ref=e711]:
+    - generic [ref=e82]: 🎨
+    - generic [ref=e712]: "2"
+  - generic [ref=e87] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e88]:
+      - img [ref=e89]
+    - generic [ref=e92]:
+      - button "Open issues overlay" [ref=e93]:
+        - generic [ref=e713]:
+          - generic [ref=e714]: "1"
+          - generic [ref=e715]: "2"
+        - generic [ref=e97]:
+          - text: Issue
+          - generic [ref=e716]: s
+      - button "Collapse issues badge" [ref=e98]:
+        - img [ref=e99]
+  - alert [ref=e101]
+  - button "MCP Connected v3.0.2 Output Detail Standard React Components Hide Until Restart Marker Color Clear on copy/send Block page interactions Manage MCP & Webhooks Manage MCP & Webhooks MCP Connection Connected MCP connection allows agents to receive and act on annotations. Learn more Webhooks Auto-Send The webhook URL will receive live annotation changes and annotation data." [ref=e103] [cursor=pointer]:
+    - img [ref=e105]
+    - generic:
+      - generic:
+        - button:
+          - img
+      - generic:
+        - button:
+          - img
+      - generic:
+        - button [disabled]:
+          - img
+      - generic:
+        - button [disabled]:
+          - img
+      - generic:
+        - button [disabled]:
+          - img
+      - generic:
+        - button [disabled]:
+          - img
+      - generic:
+        - button:
+          - img
+        - generic "MCP Connected"
+      - generic:
+        - button:
+          - img
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - link:
+              - /url: https://agentation.com
+              - img
+            - paragraph: v3.0.2
+            - button "Switch to light mode":
+              - generic:
+                - generic:
+                  - img
+          - generic:
+            - generic:
+              - generic:
+                - text: Output Detail
+                - generic:
+                  - img
+              - button "Standard":
+                - generic: Standard
+            - generic:
+              - generic:
+                - text: React Components
+                - generic:
+                  - img
+              - generic:
+                - checkbox [checked]
+            - generic:
+              - generic:
+                - text: Hide Until Restart
+                - generic:
+                  - img
+              - generic:
+                - checkbox
+          - generic:
+            - generic: Marker Color
+            - generic:
+              - button "Indigo"
+              - button "Blue"
+              - button "Cyan"
+              - button "Green"
+              - button "Yellow"
+              - button "Orange"
+              - button "Red"
+          - generic:
+            - generic:
+              - generic:
+                - checkbox "Clear on copy/send"
+                - img
+              - generic: Clear on copy/send
+              - generic:
+                - img
+            - generic:
+              - generic:
+                - checkbox "Block page interactions"
+                - img
+              - generic: Block page interactions
+          - button "Manage MCP & Webhooks":
+            - generic: Manage MCP & Webhooks
+            - generic:
+              - img
+        - generic:
+          - button "Manage MCP & Webhooks":
+            - img
+            - generic: Manage MCP & Webhooks
+          - generic:
+            - generic:
+              - generic:
+                - text: MCP Connection
+                - generic:
+                  - img
+              - generic "Connected"
+            - paragraph:
+              - text: MCP connection allows agents to receive and act on annotations.
+              - link "Learn more":
+                - /url: https://agentation.dev/mcp
+          - generic:
+            - generic:
+              - generic:
+                - text: Webhooks
+                - generic:
+                  - img
+              - generic:
+                - generic: Auto-Send
+                - generic:
+                  - checkbox "Auto-Send" [checked] [disabled]
+            - paragraph: The webhook URL will receive live annotation changes and annotation data.
+            - textbox "Webhook URL"
+  - generic [ref=e717]:
+    - link "Liveblocks" [ref=e718] [cursor=pointer]:
+      - /url: https://lblcks.io/badge
+      - img [ref=e719]
+    - button [ref=e727] [cursor=pointer]:
+      - img [ref=e728]

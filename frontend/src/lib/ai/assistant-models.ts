@@ -5,14 +5,14 @@ export const AI_ASSISTANT_MODELS = [
     description: "Backend strategist harness",
   },
   {
-    id: "openai/gpt-5.4",
-    label: "GPT-5.4",
+    id: "openai/gpt-5.5",
+    label: "GPT-5.5",
     description: "Primary strategist model",
   },
   {
-    id: "openai/gpt-5.5",
-    label: "GPT-5.5",
-    description: "Newest general model",
+    id: "openai/gpt-5.4",
+    label: "GPT-5.4",
+    description: "Previous strategist model",
   },
   {
     id: "openai/gpt-5.4-mini",
@@ -26,7 +26,7 @@ export type AiAssistantModelId = (typeof AI_ASSISTANT_MODELS)[number]["id"];
 export const DEEP_AGENTS_STRATEGIST_MODEL: AiAssistantModelId =
   "deep-agents/strategist";
 
-export const DEFAULT_AI_ASSISTANT_MODEL: AiAssistantModelId = "openai/gpt-5.4";
+export const DEFAULT_AI_ASSISTANT_MODEL: AiAssistantModelId = "openai/gpt-5.5";
 
 export function isAiAssistantModelId(value: unknown): value is AiAssistantModelId {
   return (

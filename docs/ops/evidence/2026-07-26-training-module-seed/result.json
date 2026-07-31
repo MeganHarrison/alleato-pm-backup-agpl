@@ -1,0 +1,23 @@
+{
+  "taskId": "ALL-17",
+  "status": "PASS",
+  "evidence": {
+    "databaseReadback": ["docs/ops/evidence/2026-07-26-training-module-seed/db-readback.md"],
+    "regressionTest": ["docs/ops/evidence/2026-07-26-training-module-seed/test-run.md"]
+  },
+  "claims": {
+    "seed-counts-match": {
+      "databaseReadback": ["docs/ops/evidence/2026-07-26-training-module-seed/db-readback.md"]
+    },
+    "idempotent-and-deduped": {
+      "regressionTest": ["docs/ops/evidence/2026-07-26-training-module-seed/test-run.md"]
+    }
+  },
+  "findings": [],
+  "independentReview": {
+    "reviewer": "code-review (Standards + Spec axes, two independent parallel sub-agents)",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-26T20:04:00Z",
+    "artifact": "docs/ops/tasks/2026-07-26-training-module-seed.md"
+  }
+}

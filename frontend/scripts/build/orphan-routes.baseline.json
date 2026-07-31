@@ -1,0 +1,20 @@
+{
+  "note": "Top-level static page routes with no literal in-code reference. See docs/architecture/orphan-route-gate.md. Membership means 'not statically linked', NOT 'dead code'. Only fully-static routes are gated; dynamic ([param]) and project-scoped (/[projectId]/...) routes are out of scope because they are linked via runtime template literals a static scan cannot resolve.",
+  "updatedAt": "2026-07-30",
+  "count": 13,
+  "routes": [
+    "/acumatica-sync-logs",
+    "/admin/errors",
+    "/ai-dashboard/company-brain",
+    "/ai-vision",
+    "/design-ideas",
+    "/eval-runs",
+    "/executive/capabilities",
+    "/executive/daily-deep-read-review",
+    "/intelligence-vision",
+    "/invoice/list",
+    "/megans-dashboard",
+    "/monthly-executive-operating-review",
+    "/weekly-operating-review"
+  ]
+}

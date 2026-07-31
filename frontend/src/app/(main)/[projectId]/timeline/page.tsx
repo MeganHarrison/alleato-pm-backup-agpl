@@ -19,7 +19,7 @@ export default async function ProjectTimelinePage({ params }: Props) {
   const supabase = await createClient();
 
   const { data, error } = await supabase
-    .from('project_timeline_events' as 'projects') // view not in generated types — cast to satisfy TS
+    .from('project_timeline_events')
     .select('occurred_at, kind, title, summary, status, entity_id, project_id')
     .eq('project_id', projectIdNum)
     .order('occurred_at', { ascending: false });

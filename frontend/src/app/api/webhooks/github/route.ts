@@ -126,7 +126,7 @@ export const POST = withApiGuardrails(
 
     const branch = branchFromRef(payload.ref);
     const rows = commits
-      .filter((commit) => commit.id)
+      .filter((commit): commit is GitHubCommit & { id: string } => Boolean(commit.id))
       .map((commit) => ({
         repository_full_name: repositoryFullName,
         branch,

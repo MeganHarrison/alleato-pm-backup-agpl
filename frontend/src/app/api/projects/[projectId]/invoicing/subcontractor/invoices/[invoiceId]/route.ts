@@ -1,17 +1,17 @@
 import { withApiGuardrails } from "@/lib/guardrails/api";
 import { GuardrailError } from "@/lib/guardrails/errors";
 import { NextResponse } from "next/server";
+import { enrichInvoiceScheduleLines } from "@/lib/invoicing/subcontractor-invoice-sov-integrity";
 import { createClient, getApiRouteUser } from "@/lib/supabase/server";
 import { apiErrorResponse } from "@/lib/api-error";
-import {
-  stampSubcontractorInvoiceStatusAuditActor,
-  type SubcontractorInvoiceStatus,
-} from "@/lib/invoicing/subcontractor-invoice-audit";
 import { resolveGeneralContractorCompany } from "@/lib/invoicing/subcontractor-invoice-company";
+import { getSubcontractorInvoiceEditability } from "@/lib/invoicing/subcontractor-invoice-editability";
+import { requirePermission } from "@/lib/permissions-guard";
 import {
   computeSubcontractorRollup,
   type PaymentApplicationRollupLine,
 } from "@/lib/invoicing/payment-application";
+import type { Database } from "@/types/database.types";
 
 // GET /api/projects/[projectId]/invoicing/subcontractor/invoices/[invoiceId]
 // Fetch a single subcontractor invoice with line items, commitment, and billing period joins
@@ -97,16 +97,15 @@ export const GET = withApiGuardrails<{ projectId: string; invoiceId: string }>(
     // Original contract sum = sum of commitment SOV items
     let originalContractSum = 0;
     if (contractId) {
-      const sovTable = invoice.subcontract_id
-        ? "subcontract_sov_items"
-        : "purchase_order_sov_items";
-      const sovForeignKey = invoice.subcontract_id
-        ? "subcontract_id"
-        : "purchase_order_id";
-      const { data: sovRows } = await supabase
-        .from(sovTable)
-        .select("amount")
-        .eq(sovForeignKey, contractId);
+      const { data: sovRows } = invoice.subcontract_id
+        ? await supabase
+            .from("subcontract_sov_items")
+            .select("amount")
+            .eq("subcontract_id", contractId)
+        : await supabase
+            .from("purchase_order_sov_items")
+            .select("amount")
+            .eq("purchase_order_id", contractId);
       originalContractSum = (sovRows ?? []).reduce(
         (sum, row) => sum + (Number(row.amount) || 0),
         0,
@@ -128,6 +127,7 @@ export const GET = withApiGuardrails<{ projectId: string; invoiceId: string }>(
     // Enrich line items with SOV data (budget_code, commitment_value, change_value)
     const rawLineItems = (invoice.subcontractor_invoice_line_items ?? []) as Array<Record<string, unknown>>;
     let sovItems: Array<{
+      id: string;
       sort_order: number | null;
       budget_code: string | null;
       description: string | null;
@@ -137,15 +137,16 @@ export const GET = withApiGuardrails<{ projectId: string; invoiceId: string }>(
       const sovResult = invoice.subcontract_id
         ? await supabase
             .from("subcontract_sov_items")
-            .select("line_number, budget_code, description, amount")
+            .select("id, line_number, budget_code, description, amount")
             .eq("subcontract_id", contractId)
             .order("line_number", { ascending: true })
         : await supabase
             .from("purchase_order_sov_items")
-            .select("sort_order, line_number, budget_code, description, amount")
+            .select("id, sort_order, line_number, budget_code, description, amount")
             .eq("purchase_order_id", contractId)
             .order("line_number", { ascending: true });
       const sov = (sovResult.data ?? []) as Array<{
+        id: string;
         sort_order?: number | null;
         line_number?: number | null;
         budget_code?: string | null;
@@ -153,44 +154,56 @@ export const GET = withApiGuardrails<{ projectId: string; invoiceId: string }>(
         amount?: number | null;
       }>;
       sovItems = sov.map((row) => ({
+        id: row.id,
         sort_order: Number(row.sort_order ?? row.line_number ?? 0),
         budget_code: row.budget_code ?? null,
         description: row.description ?? null,
         amount: row.amount ?? null,
       }));
     }
-    // Map SOV items by sort_order for fast lookup
-    const sovBySort = new Map(
-      sovItems.map((s) => [s.sort_order, s]),
-    );
-    const enrichedLineItems = rawLineItems.map((li) => {
-      const sortOrder = Number(li.sort_order) || 0;
-      const sovMatch = sovBySort.get(sortOrder);
-      const storedLineItemType =
-        typeof li.line_item_type === "string" ? li.line_item_type : null;
-      const isChangeOrderLine =
-        storedLineItemType?.toLowerCase().includes("change") ?? false;
-      const commitmentValue = isChangeOrderLine
-        ? Number(li.commitment_value ?? 0) || 0
-        : sovMatch
-          ? (Number(sovMatch.amount) || 0)
-          : null;
+    const enrichedLineItems = enrichInvoiceScheduleLines(
+      rawLineItems.map((li) => ({
+        ...li,
+        source_sov_item_id:
+          typeof li.source_sov_item_id === "string"
+            ? li.source_sov_item_id
+            : null,
+        source_change_order_id:
+          typeof li.source_change_order_id === "string"
+            ? li.source_change_order_id
+            : null,
+        scheduled_value: Number(li.scheduled_value) || 0,
+        sort_order: Number(li.sort_order) || 0,
+        line_item_type:
+          typeof li.line_item_type === "string" ? li.line_item_type : null,
+        commitment_value:
+          li.commitment_value == null ? null : Number(li.commitment_value),
+        change_value:
+          li.change_value == null ? null : Number(li.change_value),
+      })),
+      sovItems.map((item) => ({
+        ...item,
+        sort_order: Number(item.sort_order) || 0,
+      })),
+    ).map((li) => {
+      const lineRecord = li as Record<string, unknown>;
+      const sovMatch = sovItems.find(
+        (item) =>
+          item.id === li.source_sov_item_id ||
+          Number(item.sort_order) === Number(li.sort_order),
+      );
       const scheduledValue = Number(li.scheduled_value) || 0;
-      const changeValue = isChangeOrderLine
-        ? Number(li.change_value ?? scheduledValue) || 0
-        : commitmentValue != null
-          ? scheduledValue - commitmentValue
-          : null;
-      const workPrev = Number(li.work_completed_previous) || 0;
-      const workPrevPct = scheduledValue > 0 ? (workPrev / scheduledValue) * 100 : 0;
+      const workPrev = Number(lineRecord.work_completed_previous) || 0;
+      const workPrevPct =
+        scheduledValue !== 0 ? (workPrev / scheduledValue) * 100 : 0;
       return {
         ...li,
         budget_code:
           sovMatch?.budget_code ??
-          (typeof li.budget_code === "string" ? li.budget_code : null),
-        line_item_type: storedLineItemType ?? "SOV",
-        commitment_value: commitmentValue,
-        change_value: changeValue,
+          (typeof lineRecord.budget_code === "string"
+            ? lineRecord.budget_code
+            : null),
+        line_item_type: li.line_item_type ?? "SOV",
         work_completed_previous_pct: workPrevPct,
       };
     });
@@ -389,7 +402,8 @@ export const GET = withApiGuardrails<{ projectId: string; invoiceId: string }>(
 );
 
 // PATCH /api/projects/[projectId]/invoicing/subcontractor/invoices/[invoiceId]
-// Update a subcontractor invoice (only when status is draft, invited, or revise_and_resubmit)
+// Update a subcontractor invoice. Under-review invoices may only return to
+// draft when they have not been linked or synced to accounting.
 export const PATCH = withApiGuardrails<{ projectId: string; invoiceId: string }>(
   "projects/[projectId]/invoicing/subcontractor/invoices/[invoiceId]#PATCH",
   async ({ request, params }) => {
@@ -440,7 +454,9 @@ export const PATCH = withApiGuardrails<{ projectId: string; invoiceId: string }>
     // Verify the invoice exists and belongs to the project
     const { data: existing, error: fetchError } = await supabase
       .from("subcontractor_invoices")
-      .select("id, status")
+      .select(
+        "id, status, acumatica_ref_nbr, acumatica_doc_type, acumatica_sync_at, acumatica_ap_bill_id",
+      )
       .eq("id", invoiceIdNum)
       .eq("project_id", projectIdNum)
       .single();
@@ -458,8 +474,58 @@ export const PATCH = withApiGuardrails<{ projectId: string; invoiceId: string }>
       );
     }
 
-    const editableStatuses = ["draft", "invited", "revise_and_resubmit"];
-    if (!editableStatuses.includes(existing.status)) {
+    const editability = getSubcontractorInvoiceEditability(existing);
+    const isReturnToDraft =
+      existing.status === "under_review" &&
+      updatePayload.status === "draft";
+    const isStatusOnlyUpdate =
+      Object.keys(updatePayload).length === 1 && "status" in updatePayload;
+
+    if (isReturnToDraft) {
+      const permission = await requirePermission(
+        projectIdNum,
+        "commitments",
+        "write",
+      );
+      if (permission.denied) {
+        return permission.response;
+      }
+    }
+
+    if (existing.status === "under_review" && !isReturnToDraft) {
+      return NextResponse.json(
+        {
+          error: "Cannot edit invoice",
+          message:
+            "Return the invoice to Draft before editing its fields.",
+        },
+        { status: 400 },
+      );
+    }
+
+    if (isReturnToDraft && !isStatusOnlyUpdate) {
+      return NextResponse.json(
+        {
+          error: "Cannot edit invoice",
+          message:
+            "Return the invoice to Draft first, then save invoice edits.",
+        },
+        { status: 400 },
+      );
+    }
+
+    if (isReturnToDraft && !editability.canReturnToDraft) {
+      return NextResponse.json(
+        {
+          error: "Cannot return invoice to Draft",
+          message:
+            "This invoice is already linked or synced to accounting. Correct it through the accounting workflow instead.",
+        },
+        { status: 409 },
+      );
+    }
+
+    if (!isReturnToDraft && !editability.canEdit) {
       return NextResponse.json(
         {
           error: "Cannot edit invoice",
@@ -469,22 +535,51 @@ export const PATCH = withApiGuardrails<{ projectId: string; invoiceId: string }>
       );
     }
 
-    // Fetch current values for audit comparison (non-status fields)
-    const { data: currentData } = await supabase
-      .from("subcontractor_invoices")
-      .select("invoice_number, period_start, period_end, billing_date, notes")
-      .eq("id", invoiceIdNum)
-      .single();
+    if (
+      !isReturnToDraft &&
+      "status" in updatePayload &&
+      updatePayload.status !== existing.status
+    ) {
+      return NextResponse.json(
+        {
+          error: "Invalid status transition",
+          message:
+            "Status changes must use the invoice workflow actions.",
+        },
+        { status: 400 },
+      );
+    }
 
-    const transitionStartedAt = new Date().toISOString();
-    const { data: updated, error: updateError } = await supabase
+    let updateQuery = supabase
       .from("subcontractor_invoices")
-      .update(updatePayload)
+      .update(updatePayload as Database["public"]["Tables"]["subcontractor_invoices"]["Update"])
       .eq("id", invoiceIdNum)
+      .eq("project_id", projectIdNum)
+      .eq("status", existing.status);
+
+    if (isReturnToDraft) {
+      updateQuery = updateQuery
+        .is("acumatica_ref_nbr", null)
+        .is("acumatica_doc_type", null)
+        .is("acumatica_sync_at", null)
+        .is("acumatica_ap_bill_id", null);
+    }
+
+    const { data: updated, error: updateError } = await updateQuery
       .select()
       .single();
 
     if (updateError) {
+      if (updateError.code === "PGRST116") {
+        return NextResponse.json(
+          {
+            error: "Invoice changed while editing",
+            message:
+              "The invoice status or accounting link changed. Refresh the page and try again.",
+          },
+          { status: 409 },
+        );
+      }
       if (updateError.code === "42501") {
         return NextResponse.json(
           { error: "Permission denied" },
@@ -495,56 +590,6 @@ export const PATCH = withApiGuardrails<{ projectId: string; invoiceId: string }>
         { error: "Failed to update invoice", details: updateError.message },
         { status: 500 },
       );
-    }
-
-    const nextStatus =
-      typeof updatePayload.status === "string"
-        ? (updatePayload.status as SubcontractorInvoiceStatus)
-        : null;
-
-    if (nextStatus && nextStatus !== existing.status) {
-      const auditStamp = await stampSubcontractorInvoiceStatusAuditActor({
-        supabase,
-        invoiceId: invoiceIdNum,
-        fromStatus: existing.status,
-        toStatus: nextStatus,
-        transitionStartedAt,
-        actor: user,
-      });
-      if (!auditStamp.ok) {
-        throw new GuardrailError({
-          code: "INTERNAL_ERROR",
-          where: "projects/[projectId]/invoicing/subcontractor/invoices/[invoiceId]#PATCH",
-          message: "Invoice status changed, but the audit actor could not be recorded.",
-          details: { reason: auditStamp.reason },
-        });
-      }
-    }
-
-    // Log field-level edits to audit log.
-    if (currentData) {
-      const fieldsToLog = ["invoice_number", "period_start", "period_end", "billing_date", "notes"];
-      const toJsonValue = (v: unknown): string | number | boolean | null =>
-        v === undefined || v === null
-          ? null
-          : typeof v === "string" || typeof v === "number" || typeof v === "boolean"
-            ? v
-            : JSON.stringify(v);
-      const auditRows = fieldsToLog
-        .filter((f) => f in updatePayload && (currentData as Record<string, unknown>)[f] !== updatePayload[f])
-        .map((f) => ({
-          invoice_id: invoiceIdNum,
-          event_type: "field.updated",
-          field_name: f,
-          old_value: toJsonValue((currentData as Record<string, unknown>)[f]),
-          new_value: toJsonValue(updatePayload[f]),
-          actor_user_id: user.id,
-          actor_email: user.email ?? null,
-          notes: `Updated ${f.replace(/_/g, " ")}`,
-        }));
-      if (auditRows.length > 0) {
-        await supabase.from("subcontractor_invoice_audit_log").insert(auditRows);
-      }
     }
 
     return NextResponse.json({ data: updated });

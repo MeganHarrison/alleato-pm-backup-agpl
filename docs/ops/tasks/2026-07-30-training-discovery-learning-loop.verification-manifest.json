@@ -1,0 +1,92 @@
+{
+  "contractVersion": 1,
+  "taskId": "ALL-54",
+  "riskLevel": "high",
+  "feature": "Self-improving training resource discovery loop",
+  "route": "/training/review",
+  "flows": [
+    {
+      "name": "Discover, review, and learn",
+      "steps": [
+        "Run bounded multi-strategy discovery",
+        "Queue non-duplicate candidates for administrator review",
+        "Publish or archive with structured feedback",
+        "Use accumulated outcomes in subsequent ranking and policy evaluation"
+      ],
+      "expectedOutcome": "Discovery improves from auditable administrator decisions without bypassing human publication approval"
+    }
+  ],
+  "requiredEvidence": [
+    "databaseReadback",
+    "negativePath",
+    "independentReview",
+    "regressionTest",
+    "productionReadback",
+    "visualReview"
+  ],
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "database-contract",
+      "description": "The live database supports atomic candidates, structured feedback, duplicate prevention, and reversible policies",
+      "evidence": [
+        {
+          "key": "databaseReadback",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "negative-paths",
+      "description": "Stale review, concurrent duplicate, and unexpected run failure paths fail loudly",
+      "evidence": [
+        {
+          "key": "negativePath",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "regression",
+      "description": "Focused backend and frontend regression suites pass",
+      "evidence": [
+        {
+          "key": "regressionTest",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "independent-review",
+      "description": "Independent functional and standards reviewers approve the implementation",
+      "evidence": [
+        {
+          "key": "independentReview",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "production-runtime",
+      "description": "The frontend, backend, and scheduled discovery owner expose the published contracts",
+      "evidence": [
+        {
+          "key": "productionReadback",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "authenticated-visuals",
+      "description": "Authenticated desktop and mobile screenshots prove the structured review and learning interfaces",
+      "evidence": [
+        {
+          "key": "visualReview",
+          "min": 2
+        }
+      ]
+    }
+  ]
+}

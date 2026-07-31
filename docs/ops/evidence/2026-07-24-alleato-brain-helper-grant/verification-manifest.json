@@ -1,0 +1,31 @@
+{
+  "contractVersion": 1,
+  "riskLevel": "high",
+  "taskId": "ALL-11-HELPER-GRANT",
+  "feature": "Restricted Business Area membership helper ACL",
+  "route": "database://pm-app/current_is_business_area_member",
+  "flows": [
+    {
+      "name": "Verify effective helper execution roles",
+      "steps": ["Apply exact migration", "Read remote ledger", "Read exact function ACL", "Run live foundation verifier"],
+      "expectedOutcome": "Anonymous execution is denied while authenticated and service-role execution remain available."
+    }
+  ],
+  "requiredEvidence": ["databaseReadback", "regressionTest", "summary"],
+  "independentReview": { "required": true },
+  "claims": [
+    {
+      "id": "exact-helper-acl",
+      "description": "The exact helper signature is not executable by anon or PUBLIC.",
+      "evidence": [
+        { "key": "databaseReadback", "min": 1 },
+        { "key": "regressionTest", "min": 1 }
+      ]
+    },
+    {
+      "id": "migration-applied",
+      "description": "The exact helper ACL migration is present in the remote ledger.",
+      "evidence": [{ "key": "databaseReadback", "min": 1 }]
+    }
+  ]
+}

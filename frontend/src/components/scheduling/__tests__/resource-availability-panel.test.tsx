@@ -48,12 +48,31 @@ const roster: ScheduleResourceRosterResponse = {
     resource_id: resource.id,
     person_id: resource.person_id,
     allocation_percent: 60,
+    cost_version: 1,
   })),
   can_manage: true,
   legacy_assignment_count: 0,
 };
 
 describe("ResourceAvailabilityPanel", () => {
+  it("can expose planning tools immediately when the owning workspace requests it", () => {
+    render(
+      <ResourceAvailabilityPanel
+        roster={roster}
+        tasks={tasks}
+        calendar={{ working_weekdays: [1, 2, 3, 4, 5], non_working_dates: [] }}
+        today="2026-08-03"
+        defaultOpen
+      />,
+    );
+
+    expect(
+      screen.getByRole("button", { name: "Project resource load" }),
+    ).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByText("120% assigned")).toBeInTheDocument();
+    expect(screen.getByText("20% over capacity")).toBeInTheDocument();
+  });
+
   it("opens on demand and exposes daily overallocation without changing task dates", () => {
     render(
       <ResourceAvailabilityPanel
@@ -85,6 +104,7 @@ describe("ResourceAvailabilityPanel", () => {
             resource_id: resource.id,
             person_id: resource.person_id,
             allocation_percent: 50,
+            cost_version: 1,
           }],
         }}
         tasks={[unscheduled]}

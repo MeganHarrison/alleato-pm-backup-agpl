@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Download, File, Loader2, MoreVertical, Pencil, Trash2, Upload, X } from 'lucide-react';
 import { toast } from 'sonner';
 
+import { SectionRuleHeading } from '@/components/layout/spacing';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -49,6 +50,7 @@ export type DocumentPickerEntityType =
   | 'rfi'
   | 'drawing'
   | 'company'
+  | 'crm_deal'
   | 'meeting'
   | 'meeting_item';
 
@@ -549,7 +551,7 @@ export function EntityAttachments({
 
   return (
     <section className="space-y-4">
-      {showLabel && <h2 className="text-sm font-semibold text-foreground">Files</h2>}
+      {showLabel && <SectionRuleHeading label="Files" />}
       {content}
     </section>
   );

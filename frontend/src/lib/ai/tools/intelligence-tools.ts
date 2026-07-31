@@ -1,7 +1,10 @@
 import { z } from "zod";
 import { createServiceClient } from "@/lib/supabase/service";
 import { loadCurrentIntelligencePacket } from "@/lib/ai/intelligence/packet-service";
-import { PACKET_STALE_AFTER_HOURS } from "@/lib/ai/intelligence/types";
+import {
+  PACKET_STALE_AFTER_HOURS,
+} from "@/lib/ai/intelligence/types";
+import { currentPacketFreshnessStatus } from "./intelligence-freshness";
 import { defineReadTool, type ToolTracePayload } from "./tool-utils";
 import { type ToolContext } from "./tool-context";
 
@@ -178,7 +181,7 @@ export function createIntelligenceTools(options: IntelligenceToolsOptions = {}) 
             ageHours: packet.ageHours,
             isStale: packet.isStale,
             staleAfterHours: PACKET_STALE_AFTER_HOURS,
-            freshnessStatus: packet.freshnessStatus,
+            freshnessStatus: currentPacketFreshnessStatus(packet),
             coveredStartAt: packet.coveredStartAt,
             coveredEndAt: packet.coveredEndAt,
             executiveSummary: packet.executiveSummary,

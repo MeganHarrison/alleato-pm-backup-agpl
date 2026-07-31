@@ -6,7 +6,7 @@ import type {
 } from "@/components/tables/unified";
 import {
   CellDate,
-  CellStackText,
+  CellStatus,
   CellText,
   TABLE_LINK_CLASSNAME,
 } from "@/components/tables/unified";
@@ -39,9 +39,11 @@ const SOURCE_LABELS: Record<string, string> = {
 
 export const projectCreationLogColumnConfig: ColumnConfig[] = [
   { id: "project", label: "Project", alwaysVisible: true },
+  { id: "job", label: "Job", defaultVisible: true },
   { id: "actor", label: "Actor", defaultVisible: true },
   { id: "created_at", label: "Created", defaultVisible: true },
-  { id: "created_via", label: "Source / evidence", defaultVisible: true },
+  { id: "source", label: "Source", defaultVisible: true },
+  { id: "attribution", label: "Attribution", defaultVisible: true },
   { id: "reference", label: "Reference", defaultVisible: true },
 ];
 
@@ -88,37 +90,39 @@ export function buildProjectCreationLogColumns(): TableColumn<ProjectCreationLog
         const name =
           item.project_name?.trim() ||
           `Project ${item.project_id ?? "unknown"}`;
-        const content = (
-          <CellStackText
-            primary={name}
-            secondary={
-              item.project_number ? `Job ${item.project_number}` : undefined
-            }
-          />
-        );
 
         return item.project_exists && item.project_id ? (
           <Link
             href={`/${item.project_id}/home`}
             className={TABLE_LINK_CLASSNAME}
           >
-            {content}
+            {name}
           </Link>
         ) : (
-          content
+          <CellText value={name} />
         );
       },
       csvValue: (item) => item.project_name ?? String(item.project_id ?? ""),
+    },
+    {
+      id: "job",
+      label: "Job",
+      defaultVisible: true,
+      width: 130,
+      render: (item) => <CellText value={item.project_number} muted />,
+      csvValue: (item) => item.project_number ?? "",
     },
     {
       id: "actor",
       label: "Actor",
       defaultVisible: true,
       width: 190,
+      // The raw created_by UUID is forensic supporting detail, not a second
+      // stacked line — expose it on hover, not under the name.
       render: (item) => (
-        <CellStackText
-          primary={projectActor(item)}
-          secondary={item.created_by ?? undefined}
+        <CellText
+          value={projectActor(item)}
+          title={item.created_by ?? undefined}
         />
       ),
       csvValue: projectActor,
@@ -132,22 +136,29 @@ export function buildProjectCreationLogColumns(): TableColumn<ProjectCreationLog
       csvValue: (item) => item.created_at,
     },
     {
-      id: "created_via",
-      label: "Source / evidence",
+      id: "source",
+      label: "Source",
       defaultVisible: true,
-      width: 170,
+      width: 150,
       render: (item) => (
-        <CellStackText
-          primary={SOURCE_LABELS[item.created_via] ?? item.created_via}
-          secondary={
+        <CellText value={SOURCE_LABELS[item.created_via] ?? item.created_via} />
+      ),
+      csvValue: (item) => SOURCE_LABELS[item.created_via] ?? item.created_via,
+    },
+    {
+      id: "attribution",
+      label: "Attribution",
+      defaultVisible: true,
+      width: 140,
+      render: (item) => (
+        <CellStatus
+          value={
             item.attribution_status === "legacy_gap" ? "Legacy gap" : "Complete"
           }
         />
       ),
       csvValue: (item) =>
-        `${SOURCE_LABELS[item.created_via] ?? item.created_via}; ${
-          item.attribution_status === "legacy_gap" ? "Legacy gap" : "Complete"
-        }`,
+        item.attribution_status === "legacy_gap" ? "Legacy gap" : "Complete",
     },
     {
       id: "reference",

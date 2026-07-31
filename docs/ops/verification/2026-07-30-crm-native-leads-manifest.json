@@ -1,0 +1,71 @@
+{
+  "contractVersion": 1,
+  "taskId": "S019FB13-CRM-NATIVE-LEADS",
+  "riskLevel": "high",
+  "feature": "CRM-native leads and shared follow-up tasks",
+  "route": "/crm",
+  "flows": [
+    {
+      "name": "Prospect to account workflow",
+      "steps": [
+        "Create a CRM-native lead with an organization and optional contact details",
+        "Create lead-targeted deals, activities, and shared follow-up tasks",
+        "Progress the lead and its deal without creating an Acumatica company",
+        "Explicitly link the lead to an approved CRM account when conversion is appropriate",
+        "Atomically reparent deals, activities, and tasks to the linked account"
+      ],
+      "expectedOutcome": "A prospect can move through real deal flow without appearing in Acumatica until an explicit, authorized conversion"
+    }
+  ],
+  "requiredEvidence": [
+    "actionLog",
+    "databaseReadback",
+    "negativePath",
+    "visualReview",
+    "regressionTest"
+  ],
+  "visual": {
+    "viewports": ["desktop", "mobile"],
+    "checks": [
+      "Add Lead asks for an organization rather than an Acumatica company",
+      "The dialog and CRM relationship workspace are not stacked or clipped",
+      "Table and card views remain usable at their intended viewports"
+    ]
+  },
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "native-lead-schema",
+      "description": "Production supports CRM-native leads without inserting or updating companies",
+      "evidence": [{ "key": "databaseReadback", "min": 1 }]
+    },
+    {
+      "id": "shared-workflow",
+      "description": "Lead deals, activities, and follow-up tasks use the governed CRM and Tasks boundaries",
+      "evidence": [
+        { "key": "databaseReadback", "min": 1 },
+        { "key": "regressionTest", "min": 1 }
+      ]
+    },
+    {
+      "id": "authenticated-workspace",
+      "description": "The authenticated Add Lead workflow renders correctly on desktop and mobile",
+      "evidence": [
+        { "key": "visualReview", "min": 2 },
+        { "key": "actionLog", "min": 1 }
+      ]
+    },
+    {
+      "id": "failure-boundary",
+      "description": "Invalid lead, relationship, owner, and conversion states fail closed",
+      "evidence": [{ "key": "negativePath", "min": 1 }]
+    },
+    {
+      "id": "regression-safety",
+      "description": "Focused UI, API, SQL, lint, type, and review checks pass",
+      "evidence": [{ "key": "regressionTest", "min": 1 }]
+    }
+  ]
+}

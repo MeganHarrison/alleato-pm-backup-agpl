@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getApiRouteUser } from "@/lib/supabase/server";
 import { GET, POST } from "../route";
 
 process.env.NEXT_PUBLIC_SUPABASE_URL ??= "https://example.supabase.co";
@@ -8,14 +8,20 @@ process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??= "test-anon-key";
 
 jest.mock("@/lib/supabase/server", () => ({
   createClient: jest.fn(),
+  getApiRouteUser: jest.fn(),
 }));
 
 const createClientMock = createClient as jest.MockedFunction<typeof createClient>;
+const getApiRouteUserMock =
+  getApiRouteUser as jest.MockedFunction<typeof getApiRouteUser>;
 
 function createQueryChain<T>(payload: T) {
   return {
     select: jest.fn().mockReturnThis(),
     eq: jest.fn().mockReturnThis(),
+    neq: jest.fn().mockReturnThis(),
+    in: jest.fn().mockReturnThis(),
+    not: jest.fn().mockReturnThis(),
     order: jest.fn().mockReturnThis(),
     single: jest.fn(async () => ({ data: payload, error: null })),
     maybeSingle: jest.fn(async () => ({ data: payload, error: null })),
@@ -28,6 +34,10 @@ function createQueryChain<T>(payload: T) {
 describe("/api/commitments/[commitmentId]/invoices", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    getApiRouteUserMock.mockResolvedValue({
+      id: "user-1",
+      email: "pm@example.com",
+    });
   });
 
   it("returns a retainage-aware billing summary for commitment SOV items", async () => {
@@ -39,10 +49,14 @@ describe("/api/commitments/[commitmentId]/invoices", () => {
       title: "Test Subcontract",
       status: "draft",
     });
-    const submissionChain = createQueryChain(null);
+    const submissionChain = createQueryChain({
+      id: "submission-1",
+      status: "approved",
+    });
     const itemsChain = createQueryChain([
       {
         id: "line-1",
+        source_sov_item_id: "canonical-line-1",
         line_number: 1,
         budget_code: "01 00 00",
         description: "Labor",
@@ -58,6 +72,23 @@ describe("/api/commitments/[commitmentId]/invoices", () => {
         billed_to_date: 100,
       },
     ]);
+    const canonicalItemsChain = createQueryChain([
+      {
+        id: "canonical-line-1",
+        line_number: 1,
+        budget_code: "01 00 00",
+        description: "Labor",
+        amount: 1000,
+      },
+      {
+        id: "line-2",
+        line_number: 2,
+        budget_code: "02 00 00",
+        description: "Materials",
+        amount: 500,
+      },
+    ]);
+    const priorInvoicesChain = createQueryChain([]);
 
     const fromMock = jest.fn((table: string) => {
       switch (table) {
@@ -67,8 +98,12 @@ describe("/api/commitments/[commitmentId]/invoices", () => {
           return commitmentChain;
         case "subcontractor_sov_submissions":
           return submissionChain;
-        case "subcontract_sov_items":
+        case "subcontractor_sov_items":
           return itemsChain;
+        case "subcontract_sov_items":
+          return canonicalItemsChain;
+        case "subcontractor_invoices":
+          return priorInvoicesChain;
         default:
           throw new Error(`Unexpected table: ${table}`);
       }
@@ -97,6 +132,7 @@ describe("/api/commitments/[commitmentId]/invoices", () => {
       line_items: [
         {
           id: "line-1",
+          source_sov_item_id: "canonical-line-1",
           line_number: 1,
           budget_code: "01 00 00",
           description: "Labor",
@@ -110,6 +146,7 @@ describe("/api/commitments/[commitmentId]/invoices", () => {
         },
         {
           id: "line-2",
+          source_sov_item_id: "line-2",
           line_number: 2,
           budget_code: "02 00 00",
           description: "Materials",
@@ -122,6 +159,7 @@ describe("/api/commitments/[commitmentId]/invoices", () => {
           percent_complete: 20,
         },
       ],
+      change_order_billed_to_date: {},
       billing_context: {
         commitment_type: "subcontract",
         project_id: 42,
@@ -173,5 +211,146 @@ describe("/api/commitments/[commitmentId]/invoices", () => {
         "Commitment invoice creation is not implemented yet. The retainage billing tab is currently read-only.",
     });
     expect(fromMock).not.toHaveBeenCalledWith("owner_invoices");
+  });
+
+  it("rejects an approved subcontractor SOV that maps two rows to one source", async () => {
+    const unifiedChain = createQueryChain({ commitment_type: "subcontract" });
+    const commitmentChain = createQueryChain({
+      project_id: 42,
+      default_retainage_percent: 10,
+      contract_number: "SC-001",
+      title: "Test Subcontract",
+      status: "draft",
+    });
+    const submissionChain = createQueryChain({
+      id: "submission-duplicate",
+      status: "approved",
+    });
+    const itemsChain = createQueryChain([
+      {
+        id: "approved-1",
+        source_sov_item_id: "canonical-1",
+        line_number: 1,
+      },
+      {
+        id: "approved-2",
+        source_sov_item_id: "canonical-1",
+        line_number: 2,
+      },
+    ]);
+    const canonicalItemsChain = createQueryChain([
+      {
+        id: "canonical-1",
+        line_number: 1,
+        budget_code: "01",
+        description: "Labor",
+        amount: 1000,
+      },
+      {
+        id: "canonical-2",
+        line_number: 2,
+        budget_code: "02",
+        description: "Materials",
+        amount: 500,
+      },
+    ]);
+
+    const fromMock = jest.fn((table: string) => {
+      switch (table) {
+        case "commitments_unified":
+          return unifiedChain;
+        case "subcontracts":
+          return commitmentChain;
+        case "subcontractor_sov_submissions":
+          return submissionChain;
+        case "subcontractor_sov_items":
+          return itemsChain;
+        case "subcontract_sov_items":
+          return canonicalItemsChain;
+        default:
+          throw new Error(`Unexpected table: ${table}`);
+      }
+    });
+
+    createClientMock.mockResolvedValue({ from: fromMock } as never);
+
+    const response = await GET(
+      new NextRequest("http://localhost/api/commitments/commitment-1/invoices"),
+      { params: Promise.resolve({ commitmentId: "commitment-1" }) },
+    );
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({
+      error:
+        "Approved subcontractor SOV must contain every commitment SOV line exactly once. Reconcile the SOV before creating an invoice.",
+    });
+  });
+
+  it("rejects an approved subcontractor SOV that omits a commitment source", async () => {
+    const unifiedChain = createQueryChain({ commitment_type: "subcontract" });
+    const commitmentChain = createQueryChain({
+      project_id: 42,
+      default_retainage_percent: 10,
+      contract_number: "SC-001",
+      title: "Test Subcontract",
+      status: "draft",
+    });
+    const submissionChain = createQueryChain({
+      id: "submission-incomplete",
+      status: "approved",
+    });
+    const itemsChain = createQueryChain([
+      {
+        id: "approved-1",
+        source_sov_item_id: "canonical-1",
+        line_number: 1,
+      },
+    ]);
+    const canonicalItemsChain = createQueryChain([
+      {
+        id: "canonical-1",
+        line_number: 1,
+        budget_code: "01",
+        description: "Labor",
+        amount: 1000,
+      },
+      {
+        id: "canonical-2",
+        line_number: 2,
+        budget_code: "02",
+        description: "Materials",
+        amount: 500,
+      },
+    ]);
+
+    const fromMock = jest.fn((table: string) => {
+      switch (table) {
+        case "commitments_unified":
+          return unifiedChain;
+        case "subcontracts":
+          return commitmentChain;
+        case "subcontractor_sov_submissions":
+          return submissionChain;
+        case "subcontractor_sov_items":
+          return itemsChain;
+        case "subcontract_sov_items":
+          return canonicalItemsChain;
+        default:
+          throw new Error(`Unexpected table: ${table}`);
+      }
+    });
+
+    createClientMock.mockResolvedValue({ from: fromMock } as never);
+
+    const response = await GET(
+      new NextRequest("http://localhost/api/commitments/commitment-1/invoices"),
+      { params: Promise.resolve({ commitmentId: "commitment-1" }) },
+    );
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({
+      error:
+        "Approved subcontractor SOV must contain every commitment SOV line exactly once. Reconcile the SOV before creating an invoice.",
+    });
   });
 });

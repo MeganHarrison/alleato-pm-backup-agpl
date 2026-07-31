@@ -97,7 +97,7 @@ describe("scheduling actions dispatcher", () => {
       applyLevelingRun.mockRejectedValue(new ScheduleResourceServiceError(
         "The schedule changed after preview.",
         "rpc",
-        { code: "40001", message: "The schedule changed after preview." },
+        { code: "PT409", message: "The schedule changed after preview." },
       ));
       const response = await postAction({ entity_type: "resource_leveling_run", action: "apply", entity_id: runId, payload: { reason: null } });
       expect(response.status).toBe(409);

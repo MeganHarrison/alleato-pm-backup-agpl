@@ -25,6 +25,7 @@ import { GuardrailError } from "@/lib/guardrails/errors";
 import { logEvent } from "@/lib/guardrails/observability";
 import { logger } from "@/lib/logger";
 import { serviceDb } from "@/lib/supabase/service-db";
+import type { Database, Json } from "@/types/database.types";
 import {
   buildFeedbackPullRequestIndex,
   checkGitHubIssueExistence,
@@ -91,9 +92,9 @@ export const POST = withApiGuardrails(
     const applyUpdate = async (
       id: string,
       status: string | null,
-      metadata: Record<string, unknown>,
+      metadata: Record<string, Json>,
     ) => {
-      const payload: Record<string, unknown> = { metadata };
+      const payload: Database["public"]["Tables"]["admin_feedback_items"]["Update"] = { metadata };
       if (status) payload.status = status;
       const { error: updateError } = await serviceDb.from("admin_feedback_items")
         .update(payload)
@@ -115,7 +116,7 @@ export const POST = withApiGuardrails(
 
       const existingMetadata =
         item.metadata && typeof item.metadata === "object" && !Array.isArray(item.metadata)
-          ? (item.metadata as Record<string, unknown>)
+          ? (item.metadata as Record<string, Json>)
           : {};
 
       try {

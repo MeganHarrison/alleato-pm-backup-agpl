@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Own Your Growth — Alleato Training Library</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700;800;900&family=Lato:wght@300;400;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --orange:#FD5602;
+    --orange-2:#DB802E;
+    --orange-soft:#ffe9dd;
+    --ink:#0c0b0a;
+    --ink-2:#1c1a18;
+    --paper:#F9FAFB;
+    --paper-2:#fff;
+    --card:#ffffff;
+    --grey:#454545;
+    --grey-2:#6d6862;
+    --line:#dcd5c9;
+    --line-2:#c9c0b1;
+    --lightgrey:#9C9998;
+    --green:#2f7d54;
+    --shadow:0 2px 0 rgba(12,11,10,.06), 0 18px 40px -22px rgba(12,11,10,.4);
+    --disp:'Work Sans',system-ui,sans-serif;
+    --body:'Lato',system-ui,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:var(--body);
+    background:var(--paper);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    line-height:1.55;
+    overflow-x:hidden;
+  }
+  ::selection{background:var(--orange);color:#fff}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1240px;margin:0 auto;padding:0 28px}
+  .mono{font-family:var(--mono)}
+
+  /* eyebrow / section labels */
+  .eyebrow{
+    font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--orange);display:inline-flex;align-items:center;gap:9px;
+  }
+  .eyebrow::before{content:"";width:26px;height:2px;background:var(--orange);display:inline-block}
+  h1,h2,h3{font-family:var(--disp);line-height:1.02;letter-spacing:-.02em}
+  .h-sec{font-size:clamp(30px,4.6vw,52px);font-weight:800;text-transform:uppercase;margin:14px 0 10px}
+  .sub{color:var(--grey);max-width:640px;font-size:16.5px}
+
+  /* ============ NAV ============ */
+  header.nav{
+    position:sticky;top:0;z-index:60;background:rgba(12,11,10,.86);
+    backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,.08);
+  }
+  .nav-inner{display:flex;align-items:center;justify-content:space-between;height:62px}
+  .logo{display:flex;align-items:baseline;gap:9px;color:#fff;font-family:var(--disp);
+    font-weight:800;letter-spacing:.02em;font-size:18px}
+  .logo .tri{display:inline-block;width:0;height:0;border-left:6px solid transparent;
+    border-right:6px solid transparent;border-bottom:12px solid var(--orange);transform:translateY(1px)}
+  .logo small{font-family:var(--mono);font-size:9.5px;letter-spacing:.32em;color:var(--lightgrey);font-weight:400}
+  nav.links{display:flex;gap:4px}
+  nav.links a{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;
+    color:#cfc9c1;padding:8px 12px;border-radius:6px;transition:.18s}
+  nav.links a:hover{color:#fff;background:rgba(255,255,255,.07)}
+  .nav-cta{background:var(--orange);color:#fff;padding:9px 16px;border-radius:7px;
+    font-family:var(--mono);font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;font-weight:500}
+  .nav-cta:hover{background:#ff6a1f}
+  @media(max-width:960px){nav.links{display:none}}
+
+  /* ============ HERO ============ */
+  .hero{position:relative;background:var(--ink);color:#fff;overflow:hidden;
+    padding:96px 0 108px}
+  .hero .grid-bg{position:absolute;inset:0;opacity:.5;
+    background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);
+    background-size:44px 44px;mask-image:radial-gradient(120% 120% at 20% 10%,#000 30%,transparent 80%)}
+  .hero .glow{position:absolute;right:-160px;top:-140px;width:620px;height:620px;border-radius:50%;
+    background:radial-gradient(circle,rgba(253,86,2,.55),rgba(253,86,2,0) 62%);filter:blur(6px)}
+  .hero-inner{position:relative;display:grid;grid-template-columns:1.15fr .85fr;gap:40px;align-items:center}
+  .tagcap{font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--lightgrey)}
+  .hero h1{font-size:clamp(52px,8.4vw,104px);font-weight:900;text-transform:uppercase;margin:18px 0 6px;line-height:.9}
+  .hero h1 .own{display:block;color:#fff}
+  .hero h1 .grow{display:block;color:var(--orange);position:relative}
+  .hero p.lead{color:#d9d3ca;max-width:520px;font-size:18px;margin:20px 0 30px}
+  .hero-ctas{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+  .btn{cursor:pointer;border:none;font-family:var(--mono);font-size:13px;letter-spacing:.04em;
+    text-transform:uppercase;font-weight:500;padding:15px 26px;border-radius:9px;transition:.2s;display:inline-flex;align-items:center;gap:10px}
+  .btn-primary{background:var(--orange);color:#fff}
+  .btn-primary:hover{background:#ff6a1f;transform:translateY(-2px)}
+  .btn-ghost{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.28)}
+  .btn-ghost:hover{border-color:#fff;background:rgba(255,255,255,.06)}
+  .hero .partner{margin-top:26px;font-family:var(--body);font-style:italic;color:var(--orange-2);font-size:15px}
+  .hero-visual{display:flex;justify-content:center;align-items:center}
+  #heroWheel{width:100%;max-width:400px;height:auto;filter:drop-shadow(0 30px 50px rgba(0,0,0,.5))}
+  @media(max-width:900px){.hero-inner{grid-template-columns:1fr}.hero-visual{order:-1;max-width:320px;margin:0 auto}}
+
+  .statbar{position:relative;background:var(--ink-2);border-top:1px solid rgba(255,255,255,.08)}
+  .statbar .wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:0}
+  .stat{padding:22px 24px;border-right:1px solid rgba(255,255,255,.08)}
+  .stat:last-child{border-right:none}
+  .stat b{font-family:var(--disp);font-size:30px;font-weight:800;color:#fff;display:block}
+  .stat b .u{color:var(--orange);font-size:20px}
+  .stat span{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--lightgrey)}
+  @media(max-width:760px){.statbar .wrap{grid-template-columns:repeat(2,1fr)}.stat:nth-child(2){border-right:none}}
+
+  section{padding:88px 0}
+  .sec-head{margin-bottom:44px}
+
+  /* ============ METHOD LOOP ============ */
+  .method{background:var(--ink);color:#fff}
+  .method .sub{color:#cbc4bb}
+  .loop{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:12px}
+  .loop-card{background:var(--ink-2);border:1px solid rgba(255,255,255,.09);border-radius:14px;padding:24px 22px;position:relative;transition:.25s;overflow:hidden}
+  .loop-card:hover{border-color:var(--orange);transform:translateY(-4px)}
+  .loop-card .n{font-family:var(--mono);font-size:12px;color:var(--orange);letter-spacing:.1em}
+  .loop-card h3{font-size:21px;font-weight:700;text-transform:uppercase;margin:14px 0 8px}
+  .loop-card p{color:#b8b1a8;font-size:14px}
+  .loop-card .bar{position:absolute;left:0;bottom:0;height:3px;background:var(--orange);width:0;transition:width .5s}
+  .loop-card:hover .bar{width:100%}
+  @media(max-width:880px){.loop{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:520px){.loop{grid-template-columns:1fr}}
+
+  /* ============ LIBRARY ============ */
+  .lib-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  .course{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;
+    display:flex;flex-direction:column;transition:.22s;position:relative;overflow:hidden}
+  .course::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--orange);transform:scaleX(0);transform-origin:left;transition:transform .3s}
+  .course:hover{transform:translateY(-5px);box-shadow:var(--shadow);border-color:var(--line-2)}
+  .course:hover::before{transform:scaleX(1)}
+  .course .tag{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--orange);font-weight:500;margin-bottom:10px}
+  .course h3{font-size:19px;font-weight:700;line-height:1.08;margin-bottom:9px}
+  .course p{font-size:13.5px;color:var(--grey-2);flex:1;margin-bottom:16px}
+  .chips{display:flex;flex-wrap:wrap;gap:7px}
+  .chip{font-family:var(--mono);font-size:10.5px;letter-spacing:.03em;padding:6px 11px;border-radius:20px;
+    border:1px solid var(--line-2);color:var(--grey);display:inline-flex;align-items:center;gap:5px;cursor:pointer;transition:.15s;background:#fff}
+  .chip:hover{border-color:var(--orange);color:var(--orange)}
+  .chip.solid{background:var(--orange);color:#fff;border-color:var(--orange)}
+  .chip.solid:hover{background:#ff6a1f;color:#fff}
+  @media(max-width:1080px){.lib-grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:560px){.lib-grid{grid-template-columns:1fr}}
+  .notice{margin-top:20px;background:var(--orange-soft);border:1px solid #f6c9b1;border-radius:12px;
+    padding:16px 20px;font-size:14px;color:#7a3410}
+  .notice b{color:var(--orange)}
+
+  /* ============ ASSESSMENT ============ */
+  .assess{background:var(--paper-2)}
+  .assess-shell{display:grid;grid-template-columns:400px 1fr;gap:34px;align-items:start}
+  @media(max-width:1000px){.assess-shell{grid-template-columns:1fr}}
+
+  .wheel-panel{position:sticky;top:82px}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:26px;box-shadow:var(--shadow)}
+  .wheel-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+  .wheel-head .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--grey-2)}
+  #wheelSvg{width:100%;height:auto;display:block;margin:2px auto 8px}
+  .readout{text-align:center;margin-top:2px}
+  .readout .big{font-family:var(--disp);font-weight:800;font-size:54px;line-height:1;color:var(--ink)}
+  .readout .big .pct{font-size:26px;color:var(--orange)}
+  .readout .cap{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--grey-2);margin-top:4px}
+  .focus-box{margin-top:20px;border-top:1px dashed var(--line-2);padding-top:16px}
+  .focus-box .ttl{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--orange);margin-bottom:11px;display:flex;align-items:center;gap:8px}
+  .focus-item{display:flex;align-items:center;gap:11px;padding:8px 0;font-size:13.5px}
+  .focus-item .gaprank{font-family:var(--mono);font-size:11px;width:22px;height:22px;border-radius:50%;
+    background:var(--orange);color:#fff;display:grid;place-items:center;font-weight:700;flex-shrink:0}
+  .focus-item .fname{flex:1;font-weight:700}
+  .focus-item .fgap{font-family:var(--mono);font-size:12px;color:var(--grey-2)}
+  .focus-empty{font-size:13px;color:var(--grey-2);font-style:italic}
+  .save-row{margin-top:18px;display:flex;gap:10px}
+  .save-row .btn{flex:1;justify-content:center;padding:12px}
+  .btn-dark{background:var(--ink);color:#fff}
+  .btn-dark:hover{background:#000}
+  .btn-out{background:#fff;color:var(--ink);border:1px solid var(--line-2)}
+  .btn-out:hover{border-color:var(--ink)}
+
+  /* right: role + skills */
+  .role-tabs{margin-bottom:8px}
+  .role-select{font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;
+    padding:12px 40px 12px 16px;border-radius:8px;border:1px solid var(--line-2);background:#fff;cursor:pointer;transition:.16s;
+    color:var(--ink);width:100%;max-width:340px;
+    appearance:none;-webkit-appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23454545' stroke-width='2'%3E%3Cpath d='M5 8l5 5 5-5'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 14px center;background-size:15px}
+  .role-select:hover,.role-select:focus{border-color:var(--orange);outline:none}
+  .skills-note{font-size:13.5px;color:var(--grey-2);margin:14px 0 18px}
+  .skills-note b{color:var(--ink)}
+
+  .skill-group-lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
+    color:#fff;background:var(--ink);display:inline-block;padding:6px 12px;border-radius:6px;margin:22px 0 12px}
+  .skill-group-lbl:first-child{margin-top:0}
+
+  .skill-row{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:15px 17px;margin-bottom:10px;transition:.16s}
+  .skill-row.hot{border-color:var(--orange);box-shadow:0 0 0 3px rgba(253,86,2,.1)}
+  .sr-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+  .sr-name{font-family:var(--disp);font-weight:700;font-size:15.5px}
+  .sr-desc{font-size:12.5px;color:var(--grey-2);margin-top:2px}
+  .sr-score{font-family:var(--mono);font-weight:700;font-size:22px;color:var(--ink);min-width:56px;text-align:right}
+  .sr-score .lvl{display:block;font-size:9px;letter-spacing:.12em;color:var(--orange);font-weight:500;margin-top:1px}
+  .seg{display:flex;gap:5px;margin-top:13px}
+  .seg button{flex:1;font-family:var(--mono);font-size:10.5px;font-weight:500;letter-spacing:.02em;
+    padding:8px 4px;border-radius:7px;border:1px solid var(--line-2);background:#fbf9f6;color:var(--grey);cursor:pointer;transition:.14s;line-height:1.15}
+  .seg button:hover{border-color:var(--orange);color:var(--orange)}
+  .seg button.sel{background:var(--orange);color:#fff;border-color:var(--orange)}
+  .seg button b{display:block;font-size:12px}
+  .seg button span{font-size:8.5px;letter-spacing:.08em;text-transform:uppercase;opacity:.85}
+
+  /* ============ SCORE SCALE ============ */
+  .scale-wrap{display:grid;grid-template-columns:1fr 1fr;gap:34px;align-items:center}
+  @media(max-width:820px){.scale-wrap{grid-template-columns:1fr}}
+  .scale-list{display:flex;flex-direction:column;gap:2px}
+  .scale-item{display:grid;grid-template-columns:78px 1fr;gap:16px;align-items:center;padding:16px 18px;border-radius:12px;transition:.18s;cursor:default;border:1px solid transparent}
+  .scale-item:hover{background:var(--card);border-color:var(--line)}
+  .scale-num{font-family:var(--disp);font-weight:800;font-size:34px;color:var(--orange);text-align:right}
+  .scale-item h4{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:3px}
+  .scale-item p{font-size:13.5px;color:var(--grey-2)}
+  .scale-viz{background:var(--ink);border-radius:18px;padding:30px;color:#fff}
+  .scale-viz .vh{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--lightgrey);margin-bottom:20px}
+  .ladder{display:flex;align-items:flex-end;gap:16px;height:230px;padding:10px 4px 0}
+  .lad-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
+  .lad-val{font-family:var(--mono);font-weight:700;font-size:14px;color:#fff;margin-bottom:8px}
+  .lad-bar{width:100%;max-width:44px;border-radius:8px 8px 3px 3px;background:linear-gradient(180deg,var(--orange-2),var(--orange));transition:height .5s}
+  .lad-name{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:#d9d3ca;margin-top:12px;text-align:center;line-height:1.3}
+
+  /* ============ TOOLKIT ============ */
+  .toolkit{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  @media(max-width:900px){.toolkit{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:520px){.toolkit{grid-template-columns:1fr}}
+  .tool{border:1px solid var(--line);border-radius:14px;padding:22px;background:var(--card);transition:.2s}
+  .tool:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+  .tool .ti{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--orange)}
+  .tool h4{font-family:var(--disp);font-size:17px;font-weight:700;margin:12px 0 8px}
+  .tool p{font-size:13.5px;color:var(--grey-2)}
+
+  /* ============ READY ============ */
+  .ready{background:var(--ink);color:#fff}
+  .ready .sub{color:#cbc4bb}
+  .check-list{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:12px}
+  @media(max-width:720px){.check-list{grid-template-columns:1fr}}
+  .check{display:flex;gap:15px;background:var(--ink-2);border:1px solid rgba(255,255,255,.09);
+    border-radius:14px;padding:20px;transition:.2s}
+  .check:hover{border-color:var(--orange)}
+  .check .cico{width:34px;height:34px;border-radius:8px;background:rgba(253,86,2,.15);color:var(--orange);
+    display:grid;place-items:center;flex-shrink:0;font-family:var(--mono);font-weight:700}
+  .check p{font-size:14.5px;color:#e4ddd4}
+  .check p b{color:#fff}
+
+  /* ============ CTA ============ */
+  .final{background:linear-gradient(180deg,var(--paper),var(--paper-2))}
+  .final-card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:56px 40px;text-align:center;box-shadow:var(--shadow);position:relative;overflow:hidden}
+  .final-card::before{content:"";position:absolute;top:-90px;left:50%;transform:translateX(-50%);width:400px;height:200px;background:radial-gradient(circle,rgba(253,86,2,.14),transparent 70%)}
+  .final-card h2{font-size:clamp(30px,4.5vw,48px);font-weight:800;text-transform:uppercase;position:relative}
+  .final-card p{color:var(--grey);max-width:520px;margin:14px auto 28px;position:relative}
+  .steps-mini{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:30px;position:relative}
+  .step-pill{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
+    padding:8px 13px;border-radius:20px;background:var(--paper-2);border:1px solid var(--line);color:var(--grey)}
+  .step-pill b{color:var(--orange)}
+
+  /* ============ FOOTER ============ */
+  footer.foot{background:var(--ink);color:#fff;padding:34px 0;border-top:3px solid var(--orange)}
+  .foot-inner{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+  .foot-inner .l{display:flex;align-items:baseline;gap:9px;font-family:var(--disp);font-weight:800}
+  .foot-inner .partner{font-style:italic;color:var(--orange-2);font-size:14px}
+
+  /* toast */
+  .toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(30px);opacity:0;
+    background:var(--ink);color:#fff;font-family:var(--mono);font-size:12px;letter-spacing:.04em;
+    padding:13px 22px;border-radius:10px;z-index:200;transition:.3s;pointer-events:none;border:1px solid rgba(255,255,255,.15)}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .toast b{color:var(--orange)}
+
+  .reveal{opacity:0;transform:translateY(24px);transition:.7s cubic-bezier(.2,.7,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="logo" href="#top">ALLEATO<span class="tri"></span><small>GROUP</small></a>
+    <nav class="links">
+      <a href="#library">Library</a>
+      <a href="#method">The Method</a>
+      <a href="#assess">Skill Wheel</a>
+      <a href="#ready">What's Ready</a>
+    </nav>
+    <a class="nav-cta" href="#assess">Build Your Wheel →</a>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <div class="grid-bg"></div>
+  <div class="glow"></div>
+  <div class="wrap hero-inner">
+    <div>
+      <span class="tagcap">Alleato Training Library · Own Your Growth</span>
+      <h1><span class="own">Own</span><span class="grow">Your Growth</span></h1>
+      <p class="lead">A learning system built to last. Master your craft one precise rep at a time — read it, listen to it, quiz yourself, and chat with it. Your growth, your pace, your ownership.</p>
+      <div class="hero-ctas">
+        <button class="btn btn-primary" onclick="go('#assess')">Build Your Wheel →</button>
+        <button class="btn btn-ghost" onclick="go('#library')">Browse the Library</button>
+      </div>
+      <div class="partner">Your partner from the ground up.</div>
+    </div>
+    <div class="hero-visual">
+      <svg id="heroWheel" viewBox="0 0 400 400" aria-hidden="true"></svg>
+    </div>
+  </div>
+</section>
+
+<!-- METHOD -->
+<section class="method" id="method">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">How it works</span>
+      <h2 class="h-sec">The method, at a glance</h2>
+      <p class="sub">Broad goals like "get better at construction" don't move the needle. Precise ones do. Here's the whole loop — no download needed.</p>
+    </div>
+    <div class="loop">
+      <div class="loop-card reveal"><div class="n">01 / OWN IT</div><h3>Own It</h3><p>Nobody cares about your development more than you. You lead this, not your manager. Open your list, add, remove, or rename until it's the real work you do.</p><div class="bar"></div></div>
+      <div class="loop-card reveal"><div class="n">02 / HONEST</div><h3>Be Brutally Honest</h3><p>You can only fix a weakness you're willing to name. Score each skill against the rubric — the exact number, not a rounded-up guess.</p><div class="bar"></div></div>
+      <div class="loop-card reveal"><div class="n">03 / SPECIFIC</div><h3>Get Specific</h3><p>"Read drawings better" is a wish. "30 min/day on civil sheets, RFI one thing per job" is a plan. Break each score into a precise, repeatable rep.</p><div class="bar"></div></div>
+      <div class="loop-card reveal"><div class="n">04 / FOCUS</div><h3>Focus Your Energy</h3><p>Don't spread thin. Pick a few — where focus goes, energy flows. Your top 2–4 gaps become the target. Re-score on a cadence and watch the wheel fill.</p><div class="bar"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- LIBRARY -->
+<section id="library">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Courses · Own Your Growth + Running a Project</span>
+      <h2 class="h-sec">The Alleato Training Library</h2>
+      <p class="sub">Every module pairs a written how-to guide with curated resources. Start anywhere — the library grows as we do.</p>
+    </div>
+    <div class="lib-grid" id="libGrid"></div>
+  </div>
+</section>
+
+<!-- ASSESSMENT -->
+<section class="assess" id="assess">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Start here · Your role's skill wheel</span>
+      <h2 class="h-sec">Score yourself. Watch the wheel.</h2>
+      <p class="sub">Don't start from a blank page. Pick your role, then rate each skill honestly against the rubric. Your scores draw the wheel automatically and surface your top gaps.</p>
+    </div>
+
+    <div class="assess-shell">
+      <!-- LEFT: wheel -->
+      <div class="wheel-panel">
+        <div class="panel">
+          <div class="wheel-head">
+            <div>
+              <div class="lbl">Live Skill Wheel</div>
+            </div>
+            <div class="lbl" id="roleTag">Project Engineer</div>
+          </div>
+          <svg id="wheelSvg" viewBox="0 0 340 340"></svg>
+          <div class="readout">
+            <div class="big"><span id="overall">0</span><span class="pct">%</span></div>
+            <div class="cap">Overall readiness for this role</div>
+          </div>
+          <div class="focus-box">
+            <div class="ttl">◆ Focus your energy — biggest gaps</div>
+            <div id="focusList"></div>
+          </div>
+          <div class="save-row">
+            <button class="btn btn-dark" onclick="saveWheel()">Save to Dashboard</button>
+            <button class="btn btn-out" onclick="resetWheel()">Reset</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: skills -->
+      <div class="skill-side">
+        <div class="role-tabs" id="roleTabs"></div>
+        <div class="skills-note">Set each skill to the number that's <b>actually true</b> — the score a fair observer watching your work would give. Core skills apply to everyone; role skills are specific to your job.</div>
+        <div id="skillList"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SCORE SCALE -->
+<section id="scale">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Score honestly</span>
+      <h2 class="h-sec">What each score really means</h2>
+      <p class="sub">These are reference points, not buckets. Put the exact number that's true (23, 71 — whatever a fair observer would give). For each score, name one recent example that proves it.</p>
+    </div>
+    <div class="scale-wrap">
+      <div class="scale-list" id="scaleList"></div>
+      <div class="scale-viz reveal">
+        <div class="vh">The proficiency ladder</div>
+        <div class="ladder" id="ladder"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TOOLKIT -->
+<section id="toolkit">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Sharpen your habits</span>
+      <h2 class="h-sec">Quick toolkit</h2>
+    </div>
+    <div class="toolkit">
+      <div class="tool reveal"><div class="ti">1·3·1</div><h4>The 1-3-1 Rule</h4><p>When you're stuck, bring one problem, three possible solutions, and your one recommendation. Turns "I'm stuck" into leadership.</p></div>
+      <div class="tool reveal"><div class="ti">↗</div><h4>The Learning Ladder</h4><p>1) Try it yourself → 2) Look it up (YouTube, AI, Claude, the drawings, the field) → 3) Bring a specific question → 4) Get coached → 5) Teach someone else.</p></div>
+      <div class="tool reveal"><div class="ti">✕</div><h4>The "Stop-Doing" List</h4><p>Skill-building needs time. Use the Eisenhower Matrix: important-not-urgent gets scheduled, urgent-not-important gets delegated, the rest gets dropped.</p></div>
+      <div class="tool reveal"><div class="ti">◎</div><h4>Mentor Match</h4><p>For each focus skill, name someone at Alleato near 100% at it — and book a 15-minute "sharper question" session.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- READY -->
+<section class="ready" id="ready">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Proficiency before promotion</span>
+      <h2 class="h-sec">What "ready" looks like</h2>
+      <p class="sub">Advancement at Alleato follows capability, not tenure. Use this to see the reps between here and the next role.</p>
+    </div>
+    <div class="check-list">
+      <div class="check reveal"><div class="cico">✓</div><p>You've <b>mastered the core skills</b> of your current role — mostly 80%+ on your wheel.</p></div>
+      <div class="check reveal"><div class="cico">✓</div><p>You <b>run your work solo</b>, document decisions, and escalate with a recommendation — not just a problem.</p></div>
+      <div class="check reveal"><div class="cico">✓</div><p>You've <b>done the reps on real projects</b> (field / superintendent time counts) — not just watched.</p></div>
+      <div class="check reveal"><div class="cico">✓</div><p>You make people around you better and can <b>teach "the Alleato way."</b></p></div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final">
+  <div class="wrap">
+    <div class="final-card reveal">
+      <span class="eyebrow" style="justify-content:center">My Growth · Own It</span>
+      <h2>Own your growth. Let's get real.</h2>
+      <p>A guided walk-through: pick your role, score yourself honestly, see your wheel, confirm your focus, and build your plan. About 15 minutes — and it lives right here.</p>
+      <div class="steps-mini">
+        <span class="step-pill"><b>1</b> Pick role</span>
+        <span class="step-pill"><b>2</b> Choose skills</span>
+        <span class="step-pill"><b>3</b> Score 0–100</span>
+        <span class="step-pill"><b>4</b> Read wheel</span>
+        <span class="step-pill"><b>5</b> Confirm focus</span>
+        <span class="step-pill"><b>6</b> Build plan</span>
+      </div>
+      <button class="btn btn-primary" onclick="go('#assess')" style="margin:0 auto">Build Your Wheel →</button>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap foot-inner">
+    <div class="l">ALLEATO<span style="width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:10px solid var(--orange);display:inline-block"></span> <span style="font-weight:400;font-family:var(--mono);font-size:10px;letter-spacing:.28em;color:var(--lightgrey)">GROUP</span></div>
+    <div style="font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--lightgrey);text-transform:uppercase">Training &amp; Development</div>
+    <div class="partner">Your partner from the ground up.</div>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------- DATA ---------- */
+const LEVELS = [
+  {v:10, name:'Aware',    desc:"I've heard of it but haven't really done it."},
+  {v:40, name:'Assisted', desc:"I can do it with an SOP or Claude, but a PM/Super needs to double-check my work."},
+  {v:65, name:'Capable',  desc:"I can do it on my own most of the time; still hit edge cases I'm unsure of."},
+  {v:80, name:'Solo',     desc:"I do it solo, document decisions, and escalate problems with a recommendation (1-3-1)."},
+  {v:100,name:'Teach',    desc:'I can teach "the Alleato way" of doing this to a new hire.'}
+];
+function levelFor(v){ if(v>=100)return'Teach'; if(v>=80)return'Solo'; if(v>=65)return'Capable'; if(v>=40)return'Assisted'; if(v>0)return'Aware'; return'—'; }
+
+const CORE = [
+  {n:'Ownership & Reliability', d:'Own your work and your growth. Do what you said you\u2019d do, on time, without being chased.'},
+  {n:'Communication & Documentation', d:'Clear and timely, written and verbal. Leave a clean record others can follow.'},
+  {n:'Self-Teaching & AI', d:'Learn first \u2014 try it, look it up, use Claude \u2014 then bring a sharper question.'},
+  {n:'Problem-Solving (1-3-1)', d:'Bring one problem, three possible solutions, and your one recommendation.'},
+  {n:'The Alleato Way (SOPs)', d:'Know and follow our standard process \u2014 and help make it better.'}
+];
+
+const ROLES = {
+  'Project Engineer':[
+    {n:'Reading Drawings', d:'Civil, architectural, structural & MEP sets \u2014 reading them together, catching conflicts.'},
+    {n:'RFIs & Submittals', d:'Writing clear RFIs and logging/tracking submittals against the specs.'},
+    {n:'Scheduling Logic', d:'Look-aheads and MS Project \u2014 sequence, float, start-to-start, lag.'},
+    {n:'Subcontractor Coordination', d:'Coordinating trades in the field, holding scope, running short interval work.'},
+    {n:'SOP & Process Adherence', d:'Doing it the Alleato way \u2014 following the standard process every time.'},
+    {n:'Budget & Cost Awareness', d:'Cost codes, change orders, understanding how field decisions hit the budget.'},
+    {n:'Construction Software & AI', d:'Our platform, Bluebeam, MS Project, and using Claude to teach yourself faster.'}
+  ],
+  'Assistant Superintendent':[
+    {n:'Site Logistics & Planning', d:'Daily reports, look-aheads & pull planning (Last Planner) on the ground.'},
+    {n:'Quality Control', d:'OSHA, IOSHA, JHAs, toolbox talks \u2014 layout & trade coordination.'},
+    {n:'Inspections & The AHJ', d:'Scheduling inspections and working with the authority having jurisdiction.'},
+    {n:'Field Leadership', d:'Running the crew, holding the schedule, setting the standard on site.'},
+    {n:'Reading Drawings', d:'Reading the full set in the field and catching conflicts early.'},
+    {n:'SOP & Process Adherence', d:'Following the standard site process every time.'},
+    {n:'Construction Software & AI', d:'Our platform, field tools, and Claude for faster answers.'}
+  ],
+  'Superintendent':[
+    {n:'Master Scheduling', d:'Owning the schedule \u2014 sequence, float, recovery, look-aheads.'},
+    {n:'Field Leadership', d:'Leading multiple crews and trades; setting the site culture.'},
+    {n:'Safety & Compliance', d:'OSHA/IOSHA, JHAs, and a zero-incident standard.'},
+    {n:'Subcontractor Management', d:'Holding subs to scope, schedule and quality.'},
+    {n:'Quality Control', d:'Owning the punch, inspections, and the AHJ relationship.'},
+    {n:'Budget & Cost Awareness', d:'Field decisions, change orders, and cost impact.'},
+    {n:'SOP & Process Adherence', d:'Running the Alleato way and improving it.'}
+  ],
+  'Assistant Project Manager':[
+    {n:'Buyout & Subcontracts', d:'Scopes of work, buyout, and writing tight subcontracts.'},
+    {n:'RFIs & Submittals', d:'Owning the RFI and submittal logs end to end.'},
+    {n:'Change Order Management', d:'Pricing, documenting and tracking changes.'},
+    {n:'Scheduling Logic', d:'Look-aheads, MS Project, float and critical path.'},
+    {n:'Budget & Cost Control', d:'Cost codes, projections, and cost reports.'},
+    {n:'Communication & Documentation', d:'Meeting minutes, owner comms, clean written record.'},
+    {n:'Construction Software & AI', d:'Our platform, procurement logs, and Claude.'}
+  ],
+  'Project Manager':[
+    {n:'Reading Drawings & Specs', d:'The full set + specs, catching conflicts before they cost.'},
+    {n:'Submittals, RFIs & Buyout', d:'Owning submittal review, RFIs, subcontractor buyout & scopes.'},
+    {n:'Change Orders & Contracts', d:'Change orders, pay apps (G702/G703), cost control, contracts.'},
+    {n:'Scheduling & Sequencing', d:'Master schedule, critical path, recovery planning.'},
+    {n:'Budget & Financials', d:'Projections, WIP, margin protection, owner billings.'},
+    {n:'Client & Team Leadership', d:'Owner relationship, running the team, closeout.'},
+    {n:'Construction Software & AI', d:'Our platform, procurement logs, and Claude for leverage.'}
+  ],
+  'Estimator':[
+    {n:'Quantity Takeoff', d:'Accurate takeoffs from drawings across trades.'},
+    {n:'Reading Drawings & Specs', d:'Reading civil, arch, structural, MEP together with the specs.'},
+    {n:'Pricing & Unit Costs', d:'Building pricing from historicals, quotes and unit costs.'},
+    {n:'Bid Assembly', d:'Assembling clean, competitive, complete bids.'},
+    {n:'Scope Review', d:'Catching gaps and overlaps in trade scopes.'},
+    {n:'Subcontractor Quotes', d:'Soliciting, leveling and comparing sub quotes.'},
+    {n:'Construction Software & AI', d:'Estimating tools, Bluebeam, and Claude to move faster.'}
+  ]
+};
+
+const LIBRARY = [
+  {tag:'Module 1', h:'The Method', p:'Start here. Four principles, six steps: list the real skills of your role, score each honestly 0\u2013100, see the gaps, and build precise daily reps. 45 minutes, once \u2014 then a habit.', chips:[['Workbook (PDF)',1],['Audio overview',0],['Ask questions',0]]},
+  {tag:'Module 2', h:'The Skill Wheel Exercise', p:'The core rep. Label eight wedges with your real skills, shade each to your honest score, and let the short wedges tell you exactly where to aim. Re-shade at 30/60/90 days and watch it fill out.', chips:[['Do the exercise',1],['Worked example',0],['Quiz yourself',0]]},
+  {tag:'Module 3', h:'For Managers: Coaching It', p:'Run it as a coaching tool, never a scorecard. Right-size scores both ways, hold the line at 2\u20134 focus areas, and give feedback that actually moves the wheel.', chips:[['Facilitator guide',1],['Coaching prompts',0]]},
+  {tag:'Module 4', h:'Self-Teaching with AI', p:'Learn first, then ask a sharper question. Ready-to-use prompts for drawings, scheduling, RFIs and SOPs \u2014 plus the 15\u201330 minute daily micro-routine that compounds. Always verify against real specs.', chips:[['Prompt library',1],['Listen',0]]},
+  {tag:'PM Track', h:'Running a Project \u2014 PM / PE', p:'Everything the office side needs to run a job: drawings & specs, submittals, RFIs, buyout, change orders, pay apps, cost control, contracts and closeout \u2014 paired with the best videos and courses.', chips:[['PM Handbook',1],['Resource Library',0]]},
+  {tag:'Field Track', h:'Running a Jobsite \u2014 Superintendent', p:'Everything the field side needs: site logistics & planning, daily reports, look-aheads & pull planning, QC, safety, layout, coordination, inspections & the AHJ \u2014 how-to for each, with curated resources.', chips:[['Superintendent Handbook',1],['Resource Library',0]]},
+  {tag:'Our Software', h:'Alleato PM Software \u2014 How to Use It', p:'Our project management platform that replaced Job Planner. Budgets, commitments, change events, invoices, meetings, documents, scheduling \u2014 with a worked "Create a Change Event" example.', chips:[['Software Guide',1],["SOP & Training Hub",0]]},
+  {tag:'AI · Always-On', h:'Training Finder (AI Skill)', p:'A reusable AI skill that finds training material on ANY construction topic on demand. It searches the web, vets the sources, and hands back curated videos, courses and a draft how-to guide \u2014 you keep growing without starting from scratch.', chips:[['How to use it',1]]}
+];
+
+/* ---------- STATE ---------- */
+let currentRole = 'Project Engineer';
+let scores = {}; // {skillName: value}
+const SKILL_COLORS = []; // computed per render
+
+function skillsForRole(role){
+  return [
+    ...CORE.map(s=>({...s, group:'Core'})),
+    ...ROLES[role].map(s=>({...s, group:'Role'}))
+  ];
+}
+
+/* ---------- WHEEL RENDERING ---------- */
+function polar(cx,cy,r,a){ return [cx + r*Math.cos(a), cy + r*Math.sin(a)]; }
+function annular(cx,cy,rIn,rOut,a0,a1){
+  const [x0o,y0o]=polar(cx,cy,rOut,a0), [x1o,y1o]=polar(cx,cy,rOut,a1);
+  const [x1i,y1i]=polar(cx,cy,rIn,a1),  [x0i,y0i]=polar(cx,cy,rIn,a0);
+  const large=(a1-a0)>Math.PI?1:0;
+  return `M ${x0o} ${y0o} A ${rOut} ${rOut} 0 ${large} 1 ${x1o} ${y1o} L ${x1i} ${y1i} A ${rIn} ${rIn} 0 ${large} 0 ${x0i} ${y0i} Z`;
+}
+
+let displayScores = {}; // animated values
+let animFrame = null;
+
+function renderWheel(svgId, size, hub, interactive){
+  const svg = document.getElementById(svgId);
+  const skills = skillsForRole(currentRole);
+  const cx=size/2, cy=size/2;
+  const rIn=hub, rOut=size/2-14;
+  const n=skills.length;
+  const gap=0.03;
+  const step=(Math.PI*2)/n;
+  let html='';
+  // rings
+  [.25,.5,.75,1].forEach(f=>{
+    const r=rIn+(rOut-rIn)*f;
+    html+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(0,0,0,.06)" stroke-width="1"/>`;
+  });
+  skills.forEach((s,i)=>{
+    const a0=-Math.PI/2 + i*step + gap;
+    const a1=-Math.PI/2 + (i+1)*step - gap;
+    const val = displayScores[s.n] ?? 0;
+    // track
+    html+=`<path d="${annular(cx,cy,rIn,rOut,a0,a1)}" fill="rgba(0,0,0,.045)"/>`;
+    // fill
+    if(val>0){
+      const rf = rIn + (rOut-rIn)*(val/100);
+      const grad = i%2===0 ? 'url(#gA)' : 'url(#gB)';
+      html+=`<path class="wedge" data-skill="${enc(s.n)}" d="${annular(cx,cy,rIn,rf,a0,a1)}" fill="${grad}"/>`;
+    }
+  });
+  // hub
+  html+=`<circle cx="${cx}" cy="${cy}" r="${rIn-3}" fill="#0c0b0a"/>`;
+  const avg = Math.round(skills.reduce((t,s)=>t+(scores[s.n]||0),0)/n);
+  html+=`<text x="${cx}" y="${cy-3}" text-anchor="middle" font-family="'Work Sans'" font-weight="800" font-size="${rIn*0.62}" fill="#fff">${avg}</text>`;
+  html+=`<text x="${cx}" y="${cy+rIn*0.42}" text-anchor="middle" font-family="'JetBrains Mono'" font-size="${rIn*0.2}" letter-spacing="1.5" fill="#FD5602">AVG</text>`;
+  const defs=`<defs>
+    <linearGradient id="gA" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FD5602"/><stop offset="1" stop-color="#ff8a4a"/></linearGradient>
+    <linearGradient id="gB" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#DB802E"/><stop offset="1" stop-color="#FD5602"/></linearGradient>
+  </defs>`;
+  svg.innerHTML=defs+html;
+}
+
+function enc(s){return s.replace(/"/g,'&quot;');}
+
+function tweenWheel(){
+  if(animFrame) cancelAnimationFrame(animFrame);
+  const skills=skillsForRole(currentRole);
+  function frame(){
+    let moving=false;
+    skills.forEach(s=>{
+      const target=scores[s.n]||0;
+      const cur=displayScores[s.n]??0;
+      const diff=target-cur;
+      if(Math.abs(diff)>0.5){ displayScores[s.n]=cur+diff*0.28; moving=true; }
+      else displayScores[s.n]=target;
+    });
+    renderWheel('wheelSvg',340,58,true);
+    if(moving) animFrame=requestAnimationFrame(frame);
+  }
+  frame();
+}
+
+/* ---------- READOUTS ---------- */
+function updateReadout(){
+  const skills=skillsForRole(currentRole);
+  const overall=Math.round(skills.reduce((t,s)=>t+(scores[s.n]||0),0)/skills.length);
+  document.getElementById('overall').textContent=overall;
+  // focus = lowest 3 non-zero-priority (largest gap to 100 among rated, but include unrated as biggest gaps)
+  const ranked=[...skills].map(s=>({n:s.n, v:scores[s.n]||0})).sort((a,b)=>a.v-b.v);
+  const list=document.getElementById('focusList');
+  const focus=ranked.slice(0,3);
+  if(overall===0){
+    list.innerHTML=`<div class="focus-empty">Start scoring skills — your top gaps will appear here.</div>`;
+  } else {
+    list.innerHTML=focus.map((f,i)=>`<div class="focus-item"><div class="gaprank">${i+1}</div><div class="fname">${f.n}</div><div class="fgap">${f.v} → 80</div></div>`).join('');
+  }
+  document.getElementById('roleTag').textContent=currentRole;
+}
+
+/* ---------- SKILL LIST ---------- */
+function renderSkills(){
+  const wrap=document.getElementById('skillList');
+  const skills=skillsForRole(currentRole);
+  let html='';
+  let lastGroup='';
+  skills.forEach(s=>{
+    if(s.group!==lastGroup){
+      html+=`<div class="skill-group-lbl">${s.group==='Core'?'The Alleato Core · Everyone':currentRole+' · Role Skills'}</div>`;
+      lastGroup=s.group;
+    }
+    const v=scores[s.n]||0;
+    const lvl=levelFor(v);
+    html+=`<div class="skill-row" data-skill="${enc(s.n)}">
+      <div class="sr-top">
+        <div><div class="sr-name">${s.n}</div><div class="sr-desc">${s.d}</div></div>
+        <div class="sr-score">${v}<span class="lvl">${lvl}</span></div>
+      </div>
+      <div class="seg">
+        ${LEVELS.map(l=>`<button data-v="${l.v}" class="${v===l.v?'sel':''}" onclick="setScore('${enc(s.n)}',${l.v})"><b>${l.v}</b><span>${l.name}</span></button>`).join('')}
+      </div>
+    </div>`;
+  });
+  wrap.innerHTML=html;
+}
+
+function setScore(skill, v){
+  const name=skill.replace(/&quot;/g,'"');
+  scores[name]= (scores[name]===v)?0:v; // toggle off if same
+  renderSkills();
+  tweenWheel();
+  updateReadout();
+  hotHighlight(name);
+}
+
+function hotHighlight(name){
+  document.querySelectorAll('.skill-row').forEach(r=>{
+    r.classList.toggle('hot', r.dataset.skill.replace(/&quot;/g,'"')===name && (scores[name]||0)>0);
+  });
+  setTimeout(()=>document.querySelectorAll('.skill-row.hot').forEach(r=>r.classList.remove('hot')),1200);
+}
+
+/* ---------- ROLE TABS ---------- */
+function renderRoleTabs(){
+  const wrap=document.getElementById('roleTabs');
+  wrap.innerHTML=`<select class="role-select" onchange="switchRole(this.value)">
+    ${Object.keys(ROLES).map(r=>`<option value="${r}" ${r===currentRole?'selected':''}>${r}</option>`).join('')}
+  </select>`;
+}
+function switchRole(r){
+  currentRole=r;
+  renderRoleTabs();
+  renderSkills();
+  displayScores={};
+  tweenWheel();
+  updateReadout();
+}
+
+/* ---------- SCORE SCALE + LADDER ---------- */
+function renderScale(){
+  document.getElementById('scaleList').innerHTML=LEVELS.map(l=>
+    `<div class="scale-item"><div class="scale-num">${l.v}</div><div><h4>${l.name}</h4><p>${l.desc}</p></div></div>`
+  ).join('');
+  document.getElementById('ladder').innerHTML=LEVELS.map(l=>
+    `<div class="lad-col"><div class="lad-val">${l.v}</div><div class="lad-bar" style="height:${l.v*1.5}px"></div><div class="lad-name">${l.name}</div></div>`
+  ).join('');
+}
+
+/* ---------- LIBRARY ---------- */
+function renderLibrary(){
+  document.getElementById('libGrid').innerHTML=LIBRARY.map(c=>
+    `<div class="course reveal">
+      <div class="tag">${c.tag}</div>
+      <h3>${c.h}</h3>
+      <p>${c.p}</p>
+      <div class="chips">${c.chips.map(ch=>`<span class="chip ${ch[1]?'solid':''}">${ch[1]?'▸ ':''}${ch[0]}</span>`).join('')}</div>
+    </div>`
+  ).join('');
+}
+
+/* ---------- SAVE / LOAD (persistent) ---------- */
+async function saveWheel(){
+  const skills=skillsForRole(currentRole);
+  const overall=Math.round(skills.reduce((t,s)=>t+(scores[s.n]||0),0)/skills.length);
+  const payload={role:currentRole, scores, overall, saved:new Date().toISOString()};
+  try{
+    if(window.storage&&window.storage.set){
+      await window.storage.set('alleato:wheel', JSON.stringify(payload));
+      toast(`Saved — ${currentRole} at ${overall}%`);
+    } else { toast(`Saved locally — ${currentRole} at ${overall}%`); }
+  }catch(e){ toast('Saved for this session'); }
+}
+async function loadWheel(){
+  try{
+    if(window.storage&&window.storage.get){
+      const r=await window.storage.get('alleato:wheel');
+      if(r&&r.value){
+        const d=JSON.parse(r.value);
+        if(d.role&&ROLES[d.role]){ currentRole=d.role; scores=d.scores||{}; }
+      }
+    }
+  }catch(e){}
+  boot();
+}
+function resetWheel(){
+  scores={}; displayScores={};
+  renderSkills(); tweenWheel(); updateReadout();
+  toast('Wheel reset');
+}
+
+/* ---------- HERO DECOR WHEEL ---------- */
+function renderHeroWheel(){
+  const size=400,cx=200,cy=200,rIn=64,rOut=182;
+  const vals=[92,74,58,80,42,66,88,50,71,95,60,78,45];
+  const n=vals.length, gap=.028, step=(Math.PI*2)/n;
+  let html=`<defs>
+    <linearGradient id="hA" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FD5602"/><stop offset="1" stop-color="#ff9a5c"/></linearGradient>
+  </defs>`;
+  [.33,.66,1].forEach(f=>{ const r=rIn+(rOut-rIn)*f; html+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(255,255,255,.09)"/>`; });
+  vals.forEach((v,i)=>{
+    const a0=-Math.PI/2+i*step+gap, a1=-Math.PI/2+(i+1)*step-gap;
+    html+=`<path d="${annular(cx,cy,rIn,rOut,a0,a1)}" fill="rgba(255,255,255,.04)"/>`;
+    const rf=rIn+(rOut-rIn)*(v/100);
+    html+=`<path class="hw" style="animation-delay:${i*70}ms" d="${annular(cx,cy,rIn,rf,a0,a1)}" fill="url(#hA)" opacity="0.92"/>`;
+  });
+  html+=`<circle cx="${cx}" cy="${cy}" r="${rIn-4}" fill="#0c0b0a" stroke="#FD5602" stroke-width="1.5"/>`;
+  html+=`<text x="${cx}" y="${cy-4}" text-anchor="middle" font-family="'Work Sans'" font-weight="800" font-size="44" fill="#fff">72</text>`;
+  html+=`<text x="${cx}" y="${cy+26}" text-anchor="middle" font-family="'JetBrains Mono'" font-size="11" letter-spacing="2" fill="#FD5602">READINESS</text>`;
+  document.getElementById('heroWheel').innerHTML=html;
+}
+
+/* ---------- UTIL ---------- */
+function go(id){ document.querySelector(id).scrollIntoView({behavior:'smooth'}); }
+let toastTimer;
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.innerHTML=msg.replace(/(\d+%|—)/g,'<b>$1</b>');
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+function boot(){
+  renderRoleTabs();
+  renderSkills();
+  updateReadout();
+  displayScores={};
+  tweenWheel();
+}
+
+/* ---------- INIT ---------- */
+renderHeroWheel();
+renderLibrary();
+renderScale();
+loadWheel();
+
+/* reveal on scroll */
+const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}})},{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+<style>
+@keyframes hwIn{from{opacity:0;transform:scale(.6);transform-origin:center}to{opacity:.92;transform:scale(1)}}
+.hw{animation:hwIn .8s cubic-bezier(.2,.8,.2,1) both}
+#heroWheel{animation:spinIn 1.1s cubic-bezier(.2,.8,.2,1) both}
+@keyframes spinIn{from{opacity:0;transform:rotate(-16deg) scale(.9)}to{opacity:1;transform:none}}
+</style>
+</body>
+</html>

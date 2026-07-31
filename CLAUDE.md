@@ -417,9 +417,47 @@ After any deep research session, save a new snapshot to the memory directory fol
 
 ## Git Workflow
 
-**This app is live in production. `main` is production.** When *you* (a human or an
-interactive agent) make a change, never commit directly to `main` and never push straight
-to it — branch, open a PR, and let the preview deploy gate it (steps below).
+**This app is live in production. `main` is production.** Megan works however she chooses —
+including directly on `main` when she wants to. There is no hard rule forbidding it. The
+branch + PR + preview-deploy flow below is the **recommended default** because it gets a
+Vercel preview and CI gate before production, but it is a preference, not a gate. Follow
+whatever Megan asks for in the moment: if she says work on `main`, work on `main`; if she
+says branch it, branch it. When she hasn't specified and the change is risky (API routes,
+Supabase/auth, financial/contract code, migrations), lean toward a branch + PR and say so —
+otherwise just do the work where she is.
+
+**Megan can commit and push directly to `main`. Never tell her a PR is required.** The
+branch ruleset on the default branch (`main`, ruleset id `19076583`) does require
+`pull_request` + `required_status_checks` — but it carries
+`bypass_actors: [{ actor_type: "OrganizationAdmin", bypass_mode: "always" }]`, and Megan
+(`MeganHarrison`) is an org **admin** on `The-Alleato-Group` with repo `admin: true`. The
+ruleset therefore does not bind her account. Verified live 2026-07-31 via
+`gh api repos/The-Alleato-Group/project-management/rulesets/19076583` +
+`gh api user/memberships/orgs/The-Alleato-Group`. There is no classic branch protection on
+`main` (that endpoint 404s).
+
+The ruleset **does** bind every non-admin actor — in particular the Codex/automation lane's
+bot account, which is why that lane must keep going through PRs (see below). Do not
+generalize the bot's constraint to Megan: seeing "a ruleset exists" is not the same as
+"a PR is required." Check the bypass list before claiming anything is blocked. If a push to
+`main` is rejected, the cause is almost always that local `main` is behind `origin/main`
+(rebase and push again) — not permissions.
+
+**Commit frequently and keep the tree flat — this is the priority that matters most.** The
+recurring disaster here is sprawl: dozens of stale worktrees, branches hundreds of commits
+ahead of `main`, and giant piles of uncommitted files, so nobody can tell what has landed,
+what is in flight, or what is safe to throw away. Prevent it:
+- **Commit small and often.** Every coherent slice of work becomes a commit the same session
+  it's done — never let uncommitted changes pile into the dozens. A working tree with 100+
+  uncommitted files is a failure state, not a checkpoint.
+- **When working directly on `main`, push to `main`.** Don't leave committed-but-unpushed
+  work sitting locally — push it so `origin/main` is the single source of truth everyone sees.
+- **Don't spawn worktrees or long-lived branches unless there's a concrete reason** (genuine
+  parallel work, or a risky change that needs its own preview). Default to working in the
+  primary checkout on the branch Megan is on. If you do create a worktree, remove it as soon
+  as its work merges — never let stale worktrees accumulate.
+- **Clean up as you go.** Delete merged branches, remove finished worktrees, and pop or drop
+  stale stashes. Leaving the repo tidier than you found it is part of finishing the task.
 
 **The Codex automation lane** (`.github/workflows/codex-fix-issue.yml`) still goes through
 a PR — it never pushes to `main` directly (the branch ruleset requires status checks that a
@@ -471,10 +509,14 @@ decision, not the default for interactive work.
 conflicts (and is what motivated this workflow). If a branch must live a while, merge
 `main` into it frequently (daily-ish), never let it fall many commits behind.
 
-**For your own work, never** commit to `main` directly or push a feature/fix branch onto
-`main` — the PR + preview deploy is the record and the safety gate. The Codex automation
-lane also goes through a PR; its only special behavior is auto-merging the low-risk ones
-once checks pass (described above).
+**The branch + PR flow is the default, not a cage.** It's the recommended path because the
+PR + preview deploy is the record and the safety gate — but Megan can commit to `main`
+directly or push a branch straight to `main` whenever she chooses, and you should follow her
+lead — her admin account bypasses the ruleset entirely (see the bypass note at the top of
+this section). The Codex automation lane is the one exception that *must* stay on PRs: its
+bot account is **not** an org admin, so it does not bypass the ruleset and a direct push
+cannot satisfy the required checks (and past attempts corrupted `main`). Its only special
+behavior is auto-merging the low-risk ones once checks pass (described above).
 
 **Resolving merge conflicts (the two file classes):**
 - **Append-log files** (`WORKING_CONTEXT.md`, `AI-RAG-ARCHITECTURE.md` "Last verified"

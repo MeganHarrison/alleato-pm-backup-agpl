@@ -40,6 +40,16 @@ export function cleanSourceTitle(ref: DailyBriefSourceRef): string {
   return title;
 }
 
+/** Prefer Alleato's authenticated source detail over provider provenance links. */
+export function internalSourceHref(ref: DailyBriefSourceRef): string | null {
+  const sourceRecordId = ref.sourceRecordId?.trim();
+  if (!sourceRecordId) return null;
+  const sourceId = encodeURIComponent(sourceRecordId);
+  return ref.projectId == null
+    ? `/intelligence/sources/${sourceId}`
+    : `/${encodeURIComponent(String(ref.projectId))}/intelligence/sources/${sourceId}`;
+}
+
 export interface DailyBriefSourceIndex {
   /**
    * Resolve a citation token from the brief markdown to its source. A token is

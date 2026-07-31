@@ -61,6 +61,7 @@ export const PAGE_ACCESS_MODULES: PermissionModule[] = [
   "change_orders",
   "change_events",
   "emails",
+  "crm",
 ];
 
 export const PAGE_ACCESS_MODULE_LABELS: Record<PermissionModule, string> = {
@@ -76,6 +77,7 @@ export const PAGE_ACCESS_MODULE_LABELS: Record<PermissionModule, string> = {
   change_orders: "Change Orders",
   change_events: "Change Events",
   emails: "Emails",
+  crm: "CRM",
 };
 
 export function accessLevelRequiresModule(accessLevel: PageAccessLevel): boolean {
@@ -101,6 +103,10 @@ export function inferPageAccessDefaults(input: {
 
   if (file.includes("/(admin)/") || route.startsWith("/admin") || category === "admin") {
     return { accessLevel: "app_admin", permissionModule: null };
+  }
+
+  if (route === "/crm" || route.startsWith("/crm/")) {
+    return { accessLevel: "module_read", permissionModule: "crm" };
   }
 
   if (!route.includes("[projectid]")) {

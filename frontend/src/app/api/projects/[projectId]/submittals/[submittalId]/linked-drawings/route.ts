@@ -1,6 +1,6 @@
 import { withApiGuardrails } from "@/lib/guardrails/api";
 import { GuardrailError } from "@/lib/guardrails/errors";
-import { createSubmittalAIReviewService } from "@/lib/submittals/ai-review/review-run-service";
+import { createSubmittalLinkedDrawingsService } from "@/lib/submittals/linked-drawings-service";
 import { createClient, getApiRouteUser } from "@/lib/supabase/server";
 import { z } from "zod";
 
@@ -28,9 +28,9 @@ export const GET = withApiGuardrails<{
     });
   }
 
-  const reviewService = createSubmittalAIReviewService(user.id);
-  const linkedDrawings = await reviewService.listLinkedDrawings(
-    reviewService.parseProjectId(projectId),
+  const linkedDrawingsService = createSubmittalLinkedDrawingsService(user.id);
+  const linkedDrawings = await linkedDrawingsService.listLinkedDrawings(
+    linkedDrawingsService.parseProjectId(projectId),
     submittalId,
   );
 
@@ -83,10 +83,13 @@ export const POST = withApiGuardrails<{
     });
   }
 
-  const reviewService = createSubmittalAIReviewService(user.id);
-  const projectIdNumber = reviewService.parseProjectId(projectId);
-  await reviewService.getScopedSubmittal(projectIdNumber, submittalId);
-  await reviewService.getDrawingByScope(projectIdNumber, parsed.drawingId);
+  const linkedDrawingsService = createSubmittalLinkedDrawingsService(user.id);
+  const projectIdNumber = linkedDrawingsService.parseProjectId(projectId);
+  await linkedDrawingsService.getScopedSubmittal(projectIdNumber, submittalId);
+  await linkedDrawingsService.getDrawingByScope(
+    projectIdNumber,
+    parsed.drawingId,
+  );
 
   const { data, error } = await supabase
     .from("submittal_linked_drawings")

@@ -6,6 +6,7 @@ import { GuardrailError } from "@/lib/guardrails/errors";
 import { projectPublishedLookahead } from "@/lib/scheduling/schedule-lookahead";
 import { buildScheduleRiskSummary } from "@/lib/scheduling/schedule-risk-summary";
 import { throwScheduleDatabaseError, throwScheduleRequestError } from "@/lib/scheduling/schedule-route-errors";
+import { selectTradePublishedActivities } from "@/lib/scheduling/schedule-trade-visibility";
 import { evaluateLinkedSubmittalRisk } from "@/lib/scheduling/submittal-risk";
 import { isAuthError, verifyProjectAccess } from "@/lib/supabase/auth-guard";
 import { createClient, getApiRouteUser } from "@/lib/supabase/server";
@@ -187,9 +188,10 @@ async function loadRiskSummary(projectIdValue: string) {
 }
 
 async function loadTradeActivities(projectIdValue: string) {
+  const where = `${ROUTE_WHERE}:trade-activities`;
   const parsedProjectId = projectIdSchema.safeParse(projectIdValue);
   if (!parsedProjectId.success) {
-    throwScheduleRequestError(`${ROUTE_WHERE}:trade-activities`, "Select a valid project before loading assigned activities.");
+    throwScheduleRequestError(where, "Select a valid project before loading assigned activities.");
   }
   const access = await verifyProjectAccess(parsedProjectId.data);
   if (isAuthError(access)) return access;
@@ -202,23 +204,79 @@ async function loadTradeActivities(projectIdValue: string) {
     .eq("status", "published")
     .order("revision_number", { ascending: false })
     .maybeSingle();
-  if (revisionError) return NextResponse.json({ error: revisionError.message }, { status: 400 });
-  if (!revision) return NextResponse.json({ error: "No published schedule revision is available for trade visibility." }, { status: 404 });
+  if (revisionError) throwScheduleDatabaseError(where, revisionError);
+  if (!revision) {
+    throwScheduleRequestError(
+      where,
+      "No published schedule revision is available for trade visibility.",
+      { code: "NOT_FOUND", status: 404 },
+    );
+  }
+
+  const { data: actorPerson, error: actorError } = await serviceClient
+    .from("people")
+    .select("company_id, company:companies!people_company_id_fkey(name)")
+    .eq("id", membership.personId)
+    .maybeSingle();
+  if (actorError) throwScheduleDatabaseError(where, actorError);
+
+  const actorCompany = actorPerson?.company;
+  const companyName = Array.isArray(actorCompany)
+    ? actorCompany[0]?.name ?? null
+    : actorCompany?.name ?? null;
+  let authorizedPersonIds = [membership.personId];
+
+  if (actorPerson?.company_id) {
+    const { data: companyPeople, error: companyPeopleError } = await serviceClient
+      .from("people")
+      .select("id")
+      .eq("company_id", actorPerson.company_id)
+      .eq("status", "active");
+    if (companyPeopleError) throwScheduleDatabaseError(where, companyPeopleError);
+
+    const companyPersonIds = (companyPeople ?? []).map((person) => person.id);
+    if (companyPersonIds.length > 0) {
+      const { data: activeMemberships, error: membershipError } =
+        await serviceClient
+          .from("project_directory_memberships")
+          .select("person_id")
+          .eq("project_id", parsedProjectId.data)
+          .eq("status", "active")
+          .in("person_id", companyPersonIds);
+      if (membershipError) throwScheduleDatabaseError(where, membershipError);
+      authorizedPersonIds = Array.from(new Set([
+        membership.personId,
+        ...(activeMemberships ?? []).map((item) => item.person_id),
+      ]));
+    }
+  }
 
   const { data: snapshots, error: snapshotError } = await serviceClient
     .from("schedule_revision_task_snapshots")
     .select("source_task_id, name, assignee_person_id")
     .eq("revision_id", revision.id)
-    .eq("assignee_person_id", membership.personId)
+    .in("assignee_person_id", authorizedPersonIds)
     .order("sort_order", { ascending: true });
-  if (snapshotError) return NextResponse.json({ error: snapshotError.message }, { status: 400 });
+  if (snapshotError) throwScheduleDatabaseError(where, snapshotError);
+  const activities = (snapshots ?? []).map((snapshot) => ({
+    sourceTaskId: snapshot.source_task_id,
+    name: snapshot.name,
+    assigneePersonId: snapshot.assignee_person_id,
+  }));
   return NextResponse.json({
     revisionId: revision.id,
-    data: (snapshots ?? []).map((snapshot) => ({
-      sourceTaskId: snapshot.source_task_id,
-      name: snapshot.name,
-      assigneePersonId: snapshot.assignee_person_id,
-    })),
+    visibility: actorPerson?.company_id
+      ? {
+          type: "company",
+          companyId: actorPerson.company_id,
+          label: companyName ?? "Your company",
+        }
+      : {
+          type: "person",
+          companyId: null,
+          label: "Your assignments",
+        },
+    data: selectTradePublishedActivities(activities, authorizedPersonIds),
   });
 }
 

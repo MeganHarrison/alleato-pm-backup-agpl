@@ -1,0 +1,395 @@
+- generic [ref=e4]:
+  - generic [ref=e5]:
+    - generic [ref=e8]:
+      - generic [ref=e10]:
+        - link "Alleato" [ref=e11] [cursor=pointer]:
+          - /url: /
+          - img "Alleato" [ref=e12]
+        - button "Expand sidebar" [ref=e13]:
+          - img [ref=e14]
+      - generic [ref=e18]:
+        - generic [ref=e19]:
+          - button "Financial" [ref=e20]:
+            - img [ref=e21]
+          - generic:
+            - generic:
+              - generic: Financial
+              - generic:
+                - link "Budget":
+                  - /url: /767/budget
+                  - generic: Budget
+                - link "Prime Contracts":
+                  - /url: /767/prime-contracts
+                  - generic: Prime Contracts
+                - link "Commitments":
+                  - /url: /767/commitments
+                  - generic: Commitments
+                - link "Change Orders":
+                  - /url: /767/change-orders
+                  - generic: Change Orders
+                - link "Change Events":
+                  - /url: /767/change-events
+                  - generic: Change Events
+                - link "Direct Costs":
+                  - /url: /767/direct-costs
+                  - generic: Direct Costs
+                - link "Invoicing":
+                  - /url: /767/invoices
+                  - generic: Invoicing
+        - generic [ref=e23]:
+          - button "Operations" [ref=e24]:
+            - img [ref=e25]
+          - generic:
+            - generic:
+              - generic: Operations
+              - generic:
+                - link "Project Directory":
+                  - /url: /767/directory
+                  - generic: Project Directory
+                - link "Schedule":
+                  - /url: /767/schedule
+                  - generic: Schedule
+                - link "Meetings":
+                  - /url: /767/meetings
+                  - generic: Meetings
+                - link "Daily Log":
+                  - /url: /767/daily-log
+                  - generic: Daily Log
+                - link "Punch List":
+                  - /url: /767/punch-list
+                  - generic: Punch List
+                - link "RFIs":
+                  - /url: /767/rfis
+                  - generic: RFIs
+                - link "Submittals":
+                  - /url: /767/submittals
+                  - generic: Submittals
+                - link "Transmittals":
+                  - /url: /767/transmittals
+                  - generic: Transmittals
+                - link "Emails":
+                  - /url: /767/emails
+                  - generic: Emails
+                - link "Photos":
+                  - /url: /767/photos
+                  - generic: Photos
+                - link "Drawings":
+                  - /url: /767/drawings
+                  - generic: Drawings
+                - link "Specifications":
+                  - /url: /767/specifications
+                  - generic: Specifications
+                - link "Documents":
+                  - /url: /767/documents
+                  - generic: Documents
+        - generic [ref=e26]:
+          - button "Company" [ref=e27]:
+            - img [ref=e28]
+          - generic:
+            - generic:
+              - generic: Company
+              - generic:
+                - link "Company Directory":
+                  - /url: /directory/companies
+                  - generic: Company Directory
+                - link "Meetings":
+                  - /url: /767/meetings
+                  - generic: Meetings
+                - link "Knowledge Base":
+                  - /url: /knowledge
+                  - generic: Knowledge Base
+                - link "AI Strategist":
+                  - /url: /ai-assistant
+                  - generic: AI Strategist
+                - link "Documents":
+                  - /url: /767/documents
+                  - generic: Documents
+        - generic [ref=e30]:
+          - button "Admin" [ref=e31]:
+            - img [ref=e32]
+          - generic:
+            - generic:
+              - generic: Admin
+              - generic:
+                - link "Settings":
+                  - /url: /settings
+                  - generic: Settings
+                - link "Company Knowledge":
+                  - /url: /admin/company-knowledge
+                  - generic: Company Knowledge
+      - list [ref=e34]:
+        - listitem [ref=e35]:
+          - button "test1" [ref=e36]:
+            - img "test1" [ref=e38]
+      - button "Toggle Sidebar" [ref=e39]
+    - main [ref=e40]:
+      - generic [ref=e42]:
+        - generic [ref=e44]:
+          - link "Projects" [ref=e46] [cursor=pointer]:
+            - /url: /
+          - generic [ref=e47]:
+            - img [ref=e48]
+            - link "Alleato AI" [ref=e231] [cursor=pointer]:
+              - /url: /767/home
+          - generic [ref=e51]:
+            - img [ref=e52]
+            - generic [ref=e54]: Budget
+        - generic [ref=e55]:
+          - button "Budget" [ref=e56]:
+            - generic [ref=e57]: Budget
+            - img
+          - combobox [ref=e58]:
+            - generic [ref=e60]: Alleato AI
+            - img
+          - button "Comments" [ref=e61]:
+            - img
+          - button "Toggle Procore reference panel" [ref=e62]:
+            - img [ref=e63]
+          - link "Feedback inbox" [ref=e68] [cursor=pointer]:
+            - /url: /feedback-inbox
+            - img [ref=e69]
+          - link "Annotation inbox" [ref=e72] [cursor=pointer]:
+            - /url: /annotation-inbox
+            - img [ref=e73]
+          - button "Notifications" [ref=e75]:
+            - img
+      - generic [ref=e77]:
+        - main [ref=e78]:
+          - generic [ref=e79]:
+            - generic [ref=e83]:
+              - heading "Budget" [level=1] [ref=e86]
+              - generic [ref=e89]:
+                - button "Create" [ref=e90]:
+                  - img
+                  - text: Create
+                  - img
+                - button "Lock Budget" [ref=e91]:
+                  - img
+                  - generic [ref=e92]: Lock Budget
+                - button "Sync to ERP" [ref=e93]:
+                  - img
+                - button "Export" [ref=e94]:
+                  - img
+                - button [ref=e95]:
+                  - img
+            - navigation "Tabs" [ref=e97]:
+              - generic [ref=e99]:
+                - button "Budget" [ref=e100]
+                - button "Budget Details" [ref=e101]
+                - button "Budget Modifications" [ref=e102]
+                - button "Cost Codes" [ref=e103]
+                - button "Forecasting" [ref=e104]
+                - button "Project Status Snapshots" [ref=e105]
+                - button "Change History" [ref=e106]
+                - button "Settings" [active] [ref=e107]
+            - generic [ref=e2993]:
+              - generic [ref=e2995]:
+                - generic [ref=e2996]:
+                  - generic [ref=e2997]:
+                    - text: Vertical Markup Settings
+                    - button [ref=e2998]:
+                      - img [ref=e2999]
+                  - generic [ref=e3001]: Configure markup percentages applied to contracts and change orders
+                - generic [ref=e3002]:
+                  - button "Test Calculator" [ref=e3003]:
+                    - img
+                    - text: Test Calculator
+                  - button "Add Markup" [ref=e3004]:
+                    - img
+                    - text: Add Markup
+              - generic [ref=e3005]:
+                - generic [ref=e3006]:
+                  - generic [ref=e3007]:
+                    - generic [ref=e3008]: "#"
+                    - generic [ref=e3009]: Type
+                    - generic [ref=e3010]: Percentage
+                    - generic [ref=e3011]: Compound
+                    - generic [ref=e3012]: Actions
+                  - generic [ref=e3013]:
+                    - generic [ref=e3014]:
+                      - img [ref=e3015]
+                      - generic [ref=e3022]: "1"
+                    - textbox [ref=e3024]: fee
+                    - generic [ref=e3026]:
+                      - spinbutton [ref=e3027]: "10"
+                      - generic [ref=e3028]: "%"
+                    - generic [ref=e3029]:
+                      - switch [checked] [ref=e3030]
+                      - generic [ref=e3032]: Compound
+                    - button [ref=e3034]:
+                      - img
+                  - generic [ref=e3035]:
+                    - generic [ref=e3036]:
+                      - img [ref=e3037]
+                      - generic [ref=e3044]: "2"
+                    - textbox [ref=e3046]: insurance
+                    - generic [ref=e3048]:
+                      - spinbutton [ref=e3049]: "1.35"
+                      - generic [ref=e3050]: "%"
+                    - generic [ref=e3051]:
+                      - switch [checked] [ref=e3052]
+                      - generic [ref=e3054]: Compound
+                    - button [ref=e3056]:
+                      - img
+                - generic [ref=e3057]:
+                  - img [ref=e3058]
+                  - generic [ref=e3060]:
+                    - heading "How Vertical Markup Works" [level=4] [ref=e3061]
+                    - list [ref=e3062]:
+                      - listitem [ref=e3063]:
+                        - strong [ref=e3064]: "Simple Markup:"
+                        - text: Calculated on the original base amount only
+                      - listitem [ref=e3065]:
+                        - strong [ref=e3066]: "Compound Markup:"
+                        - text: Calculated on the running total (base + previous markups)
+                      - listitem [ref=e3067]:
+                        - strong [ref=e3068]: "Order matters:"
+                        - text: Markups are applied in the order shown above
+        - generic [ref=e197]:
+          - navigation [ref=e198]:
+            - button "Admin" [ref=e200]:
+              - text: Admin
+              - img [ref=e201]
+          - paragraph [ref=e203]: © 2026 Alleato Group. All rights reserved.
+  - region "Notifications alt+T"
+  - button "Feedback mode" [ref=e205]:
+    - img [ref=e206]
+  - button "🎨 2" [ref=e207]:
+    - generic [ref=e3]: 🎨
+    - generic [ref=e208]: "2"
+  - generic [ref=e213] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e214]:
+      - img [ref=e215]
+    - generic [ref=e2983]:
+      - button "Open issues overlay" [ref=e2984]:
+        - generic [ref=e2985]:
+          - generic [ref=e2986]: "5"
+          - generic [ref=e2987]: "6"
+        - generic [ref=e2988]:
+          - text: Issue
+          - generic [ref=e2989]: s
+      - button "Collapse issues badge" [ref=e2990]:
+        - img [ref=e2991]
+  - alert [ref=e218]
+  - button "MCP Connected v3.0.2 Output Detail Standard React Components Hide Until Restart Marker Color Clear on copy/send Block page interactions Manage MCP & Webhooks Manage MCP & Webhooks MCP Connection Connected MCP connection allows agents to receive and act on annotations. Learn more Webhooks Auto-Send The webhook URL will receive live annotation changes and annotation data." [ref=e990] [cursor=pointer]:
+    - img [ref=e222]
+    - generic:
+      - generic:
+        - button:
+          - img
+      - generic:
+        - button:
+          - img
+      - generic:
+        - button [disabled]:
+          - img
+      - generic:
+        - button [disabled]:
+          - img
+      - generic:
+        - button [disabled]:
+          - img
+      - generic:
+        - button [disabled]:
+          - img
+      - generic:
+        - button:
+          - img
+        - generic "MCP Connected"
+      - generic:
+        - button:
+          - img
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - link:
+              - /url: https://agentation.com
+              - img
+            - paragraph: v3.0.2
+            - button "Switch to light mode":
+              - generic:
+                - generic:
+                  - img
+          - generic:
+            - generic:
+              - generic:
+                - text: Output Detail
+                - generic:
+                  - img
+              - button "Standard":
+                - generic: Standard
+            - generic:
+              - generic:
+                - text: React Components
+                - generic:
+                  - img
+              - generic:
+                - checkbox [checked]
+            - generic:
+              - generic:
+                - text: Hide Until Restart
+                - generic:
+                  - img
+              - generic:
+                - checkbox
+          - generic:
+            - generic: Marker Color
+            - generic:
+              - button "Indigo"
+              - button "Blue"
+              - button "Cyan"
+              - button "Green"
+              - button "Yellow"
+              - button "Orange"
+              - button "Red"
+          - generic:
+            - generic:
+              - generic:
+                - checkbox "Clear on copy/send"
+                - img
+              - generic: Clear on copy/send
+              - generic:
+                - img
+            - generic:
+              - generic:
+                - checkbox "Block page interactions"
+                - img
+              - generic: Block page interactions
+          - button "Manage MCP & Webhooks":
+            - generic: Manage MCP & Webhooks
+            - generic:
+              - img
+        - generic:
+          - button "Manage MCP & Webhooks":
+            - img
+            - generic: Manage MCP & Webhooks
+          - generic:
+            - generic:
+              - generic:
+                - text: MCP Connection
+                - generic:
+                  - img
+              - generic "Connected"
+            - paragraph:
+              - text: MCP connection allows agents to receive and act on annotations.
+              - link "Learn more":
+                - /url: https://agentation.dev/mcp
+          - generic:
+            - generic:
+              - generic:
+                - text: Webhooks
+                - generic:
+                  - img
+              - generic:
+                - generic: Auto-Send
+                - generic:
+                  - checkbox "Auto-Send" [checked] [disabled]
+            - paragraph: The webhook URL will receive live annotation changes and annotation data.
+            - textbox "Webhook URL"
+  - generic [ref=e835]:
+    - link "Liveblocks" [ref=e836] [cursor=pointer]:
+      - /url: https://lblcks.io/badge
+      - img [ref=e837]
+    - button [ref=e845] [cursor=pointer]:
+      - img [ref=e846]

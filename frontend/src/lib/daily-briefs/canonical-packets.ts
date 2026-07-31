@@ -35,6 +35,8 @@ export type DailyBriefMarkdownSection = {
 export type DailyBriefSourceRef = {
   id: string;
   alias: string | null;
+  sourceRecordId: string | null;
+  appDocumentId: string | null;
   title: string;
   lane: string;
   projectId: number | null;
@@ -172,6 +174,8 @@ function mapSourceRefs(packetJson: JsonRecord): DailyBriefSourceRef[] {
     refs.push({
       id,
       alias: stringValue(raw.alias),
+      sourceRecordId: stringValue(raw.sourceRecordId),
+      appDocumentId: stringValue(raw.appDocumentId),
       title: stringValue(raw.title) ?? id,
       lane: stringValue(raw.lane) ?? "documents",
       projectId: numberOrNull(raw.projectId),

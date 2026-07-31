@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
 /**
- * The scheduling fast-feedback entry point. It intentionally composes the
- * focused TDD suite and canonical browser-auth verifier instead of creating a
- * second test or authentication path.
+ * The scheduling release entry point. It composes the complete scheduling
+ * suite and canonical browser-auth verifier while retaining an explicit
+ * fast-feedback option.
  */
 
 import { spawnSync } from "node:child_process";
@@ -16,18 +16,25 @@ const canonicalOrigin = "https://projects.alleatogroup.com";
 
 function usage() {
   return [
-    "Usage: npm run schedule:preflight -- --project-id <positive-integer> [--base-url <origin>] [--session <name>] [--skip-tests]",
+    "Usage: npm run schedule:preflight -- --project-id <positive-integer> [--base-url <origin>] [--session <name>] [--fast-tests] [--skip-tests]",
     "Example: npm run schedule:preflight -- --project-id 43 --session schedule-proof",
   ].join("\n");
 }
 
 export function parseArgs(argv) {
-  const options = { projectId: "", baseUrl: canonicalOrigin, session: "schedule-proof", skipTests: false };
+  const options = {
+    projectId: "",
+    baseUrl: canonicalOrigin,
+    session: "schedule-proof",
+    skipTests: false,
+    fastTests: false,
+  };
   for (let index = 0; index < argv.length; index += 1) {
     const token = argv[index];
     if (token === "--project-id") options.projectId = argv[++index] ?? "";
     else if (token === "--base-url") options.baseUrl = argv[++index] ?? "";
     else if (token === "--session") options.session = argv[++index] ?? "";
+    else if (token === "--fast-tests") options.fastTests = true;
     else if (token === "--skip-tests") options.skipTests = true;
     else throw new Error(`Unknown argument: ${token}\n${usage()}`);
   }
@@ -50,12 +57,33 @@ function commandLabel(command, args) {
   return [command, ...args].join(" ");
 }
 
-function run(command, args) {
-  const label = commandLabel(command, args);
+export function buildNpmInvocation(
+  args,
+  {
+    platform = process.platform,
+    npmExecPath = process.env.npm_execpath,
+    nodeExecPath = process.execPath,
+  } = {},
+) {
+  if (platform !== "win32") return { command: "npm", args };
+  if (!npmExecPath) {
+    throw new Error(
+      "Windows schedule preflight must be launched through `npm run schedule:preflight` so npm_execpath is available.",
+    );
+  }
+  return { command: nodeExecPath, args: [npmExecPath, ...args] };
+}
+
+function runNpm(args) {
+  const label = commandLabel("npm", args);
   console.log(`Running: ${label}`);
   if (process.env.SCHEDULE_PREFLIGHT_DRY_RUN === "1") return;
 
-  const result = spawnSync(command, args, { cwd: repoRoot, encoding: "utf8" });
+  const invocation = buildNpmInvocation(args);
+  const result = spawnSync(invocation.command, invocation.args, {
+    cwd: repoRoot,
+    encoding: "utf8",
+  });
   if (result.stdout) process.stdout.write(result.stdout);
   if (result.stderr) process.stderr.write(result.stderr);
   if (result.error) throw result.error;
@@ -63,9 +91,11 @@ function run(command, args) {
 }
 
 export function main(argv = process.argv.slice(2)) {
-  const { projectId, baseUrl, route, session, skipTests } = parseArgs(argv);
-  if (!skipTests) run("npm", ["run", "test:schedule"]);
-  run("npm", ["run", "verify:browser-auth", "--", "--base-url", baseUrl, "--route", route, "--session", session]);
+  const { projectId, baseUrl, route, session, skipTests, fastTests } = parseArgs(argv);
+  if (!skipTests) {
+    runNpm(["run", fastTests ? "test:schedule" : "test:schedule:release"]);
+  }
+  runNpm(["run", "verify:browser-auth", "--", "--base-url", baseUrl, "--route", route, "--session", session]);
   console.log(`Schedule preflight ready: ${baseUrl}${route} (session=${session}, project=${projectId})`);
 }
 

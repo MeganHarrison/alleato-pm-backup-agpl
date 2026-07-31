@@ -10,15 +10,18 @@ import {
   buildBrandedDocumentHtml,
   buildBrandedFooterTemplate,
 } from "@/lib/documents/branded-letterhead";
+import { APP_CANONICAL_URL, APP_PRODUCT_NAME } from "@/lib/app-metadata";
 import {
   renderLegalBulletList,
   renderLegalClause,
   renderLegalInlineValueOrBlank,
+  renderLegalOrderedList,
   renderLegalParagraph,
   renderLegalSpacer,
   renderLegalSignatureBlock,
   renderLegalTable,
 } from "@/lib/documents/legal-template-primitives";
+import { resolveGeneralContractorCompany } from "@/lib/invoicing/subcontractor-invoice-company";
 
 export type DocumentRecordType =
   | "prime-contract"
@@ -223,6 +226,7 @@ interface ProjectRow {
   id: number;
   name: string | null;
   address: string | null;
+  "job number": string | null;
   project_number: string | null;
   company_id: string | null;
   state?: string | null;
@@ -238,6 +242,7 @@ interface CompanyProfileRow {
   address: string | null;
   city: string | null;
   state: string | null;
+  zip_code: string | null;
   title?: string | null;
 }
 
@@ -343,9 +348,18 @@ function formatCurrency(value: number | null | undefined): string {
   }).format(normalized);
 }
 
+function parseDocumentDate(value: string): Date {
+  const dateOnlyMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (dateOnlyMatch) {
+    const [, year, month, day] = dateOnlyMatch;
+    return new Date(Number(year), Number(month) - 1, Number(day));
+  }
+  return new Date(value);
+}
+
 function formatDate(value: string | null | undefined): string {
   if (!value) return "Not set";
-  const parsed = new Date(value);
+  const parsed = parseDocumentDate(value);
   if (Number.isNaN(parsed.getTime())) return value;
   return parsed.toLocaleDateString("en-US", {
     year: "numeric",
@@ -478,7 +492,7 @@ function renderHtmlValue(value: string): string {
 
 function formatLegalDate(value: string | null | undefined): string {
   if (!value) return "____ day of __________, ______";
-  const parsed = new Date(value);
+  const parsed = parseDocumentDate(value);
   if (Number.isNaN(parsed.getTime())) return value;
   const day = parsed.getDate();
   const suffix =
@@ -504,7 +518,7 @@ function getSectionField(
 }
 
 function getTotal(bundle: DocumentBundle, label: string): string {
-  return bundle.totals.find((item) => item.label === label)?.value ?? "$0.00";
+  return bundle.totals.find((item) => item.label === label)?.value ?? "Not set";
 }
 
 let cachedCommitmentTemplateHtml: string | null = null;
@@ -517,7 +531,7 @@ function getCommitmentTemplateHtml(): string {
   cachedCommitmentTemplateHtml = readFileSync(
     path.join(process.cwd(), "src", "lib", "documents", "templates", "commitment-subcontract-template.html"),
     "utf8",
-  );
+  ).replace(/\r\n?/g, "\n");
   return cachedCommitmentTemplateHtml;
 }
 
@@ -531,6 +545,112 @@ function formatAddressLine2(
   const zip = postalCode?.trim();
   if (base && zip) return `${base} ${zip}`;
   return base || zip || null;
+}
+
+export interface CommitmentProjectSource {
+  name: string | null;
+  address: string | null;
+  "job number": string | null;
+  project_number: string | null;
+  state?: string | null;
+  summary_metadata?: {
+    city?: string | null;
+    postal_code?: string | null;
+  } | null;
+}
+
+export const COMMITMENT_PROJECT_SELECT =
+  'id, name, address, "job number", project_number, company_id, state, summary_metadata';
+
+export function resolveCommitmentOwnerCompanyId(
+  project: Pick<ProjectRow, "company_id">,
+): string | null {
+  return project.company_id;
+}
+
+export function resolveCommitmentContractorCompany(
+  company: CompanyProfileRow | null,
+) {
+  return resolveGeneralContractorCompany(company);
+}
+
+function normalizedAddressPart(value: string | null | undefined): string | null {
+  const normalized = value?.replace(/\s+/g, " ").trim();
+  return normalized || null;
+}
+
+function containsDelimitedAddressPart(address: string, value: string | null): boolean {
+  if (!value) return false;
+  const escapedValue = value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`(?:^|[\\s,])${escapedValue}(?=$|[\\s,])`, "i").test(address);
+}
+
+/**
+ * Converts the project record into the one canonical identity/address shape used
+ * throughout a commitment contract. Some imported projects store a complete
+ * address in `address`; do not append city/state metadata to those records.
+ */
+export function buildCommitmentProjectSummary(
+  project: CommitmentProjectSource | null,
+): NonNullable<DocumentBundle["project"]> {
+  const name = normalizedAddressPart(project?.name) || "Not set";
+  const addressLine1 = normalizedAddressPart(project?.address) || "Not set";
+  const city = normalizedAddressPart(project?.summary_metadata?.city);
+  const state = normalizedAddressPart(project?.state);
+  const postalCode = normalizedAddressPart(project?.summary_metadata?.postal_code);
+
+  const addressAlreadyIncludesLocality =
+    addressLine1 !== "Not set" &&
+    (containsDelimitedAddressPart(addressLine1, postalCode) ||
+      (containsDelimitedAddressPart(addressLine1, city) &&
+        containsDelimitedAddressPart(addressLine1, state)));
+
+  const cityDuplicatesStreet =
+    city !== null &&
+    (city.toLocaleLowerCase() === addressLine1.toLocaleLowerCase() ||
+      (/^\d/.test(city) &&
+        /\b(?:st|street|ave|avenue|rd|road|dr|drive|blvd|boulevard|ln|lane|ct|court|pkwy|parkway)\b/i.test(
+          city,
+        )));
+
+  const addressLine2 = addressAlreadyIncludesLocality
+    ? null
+    : formatAddressLine2(cityDuplicatesStreet ? null : city, state, postalCode);
+
+  return {
+    name,
+    address: addressLine1,
+    jobNumber:
+      normalizedAddressPart(project?.["job number"]) ||
+      normalizedAddressPart(project?.project_number) ||
+      "Not set",
+    addressLine1,
+    addressLine2,
+  };
+}
+
+export async function loadCommitmentProjectSummary(
+  supabase: TypedSupabaseClient,
+  projectId: number,
+): Promise<{
+  row: ProjectRow;
+  summary: NonNullable<DocumentBundle["project"]>;
+}> {
+  const { data, error } = await supabase
+    .from("projects")
+    .select(COMMITMENT_PROJECT_SELECT)
+    .eq("id", projectId)
+    .single();
+
+  if (error || !data) {
+    throw new Error(`Failed to load commitment project: ${error?.message || "project not found"}`);
+  }
+
+  const row = data as ProjectRow;
+  return {
+    row,
+    summary: buildCommitmentProjectSummary(row),
+  };
 }
 
 function formatContactName(person: PersonRow | null | undefined): string | null {
@@ -562,22 +682,27 @@ function isMeaningfulValue(value: string | null | undefined): value is string {
   return Boolean(value && value.trim() && value.trim() !== "Not set");
 }
 
-function replaceHtmlRangeByMarkers(
+export function replaceRequiredHtmlRangeByMarkers(
   html: string,
   startMarker: string,
   endMarker: string,
   replacement: string,
+  sectionName: string,
 ): string {
   const startTextIndex = html.indexOf(startMarker);
-  const endTextIndex = html.indexOf(endMarker);
+  const endTextIndex = html.indexOf(endMarker, startTextIndex + startMarker.length);
   if (startTextIndex === -1 || endTextIndex === -1 || endTextIndex <= startTextIndex) {
-    return html;
+    throw new Error(
+      `Cannot generate commitment contract: required ${sectionName} template markers are missing`,
+    );
   }
 
   const startTagIndex = html.lastIndexOf("<p", startTextIndex);
   const endTagIndex = html.lastIndexOf("<p", endTextIndex);
   if (startTagIndex === -1 || endTagIndex === -1 || endTagIndex <= startTagIndex) {
-    return html;
+    throw new Error(
+      `Cannot generate commitment contract: required ${sectionName} paragraph boundaries are invalid`,
+    );
   }
 
   return `${html.slice(0, startTagIndex)}${replacement}${html.slice(endTagIndex)}`;
@@ -712,6 +837,104 @@ function buildCommitmentExhibitAHtml(bundle: DocumentBundle): string {
       { marginBottom: "0.08in" },
     )}
   `;
+}
+
+/**
+ * Exhibit "C" — billing instructions.
+ *
+ * These steps describe the real Alleato Project Management subcontractor billing
+ * flow (SSOV submit → PM approval → per-period invoice invitation), using the exact
+ * on-screen labels a subcontractor sees. When any of those labels or steps change,
+ * update this builder — it is the instruction sheet subcontractors are contractually
+ * held to. Superseded the legacy Procore billing instructions that shipped with the
+ * imported Word template.
+ */
+function buildCommitmentExhibitCHtml(bundle: DocumentBundle): string {
+  const paymentTerms = getSectionField(bundle, "Commercial Terms", "Payment Terms");
+  const retainage = getSectionField(bundle, "Commercial Terms", "Retainage");
+
+  const sovSteps = [
+    `Open the invitation email from ${APP_PRODUCT_NAME} and click <b>Create account &amp; submit SOV</b>. First-time users are walked through setting a password. The invitation link expires in 24 hours; if it expires, ask the Contractor's Project Manager to resend it.`,
+    `The link opens your commitment on the <b>Subcontractor SOV</b> tab.`,
+    `Your contract amount appears as one or more Contractor schedule of values lines. Beneath a line, click <b>Add line item</b> and enter the <b>Description</b> and <b>Amount</b> for each line of your schedule of values. These line items become the line items of your AIA G703 when invoicing.`,
+    `As amounts are entered, <b>Remaining to Allocate</b> decreases. It must reach <b>$0.00</b> before the schedule of values can be submitted.`,
+    `Click <b>Save Changes</b> at any time to save a draft and return later.`,
+    `When the schedule of values is complete, click <b>Submit for Review</b>. The status changes to <b>Under Review</b>.`,
+    `The Contractor will either approve the schedule of values or return it as <b>Revise &amp; Resubmit</b>. Subcontractor is notified by email either way. If it is returned, make the requested corrections and click <b>Submit for Review</b> again.`,
+    `Billing cannot begin until the Subcontractor schedule of values is <b>Approved</b>.`,
+  ];
+
+  const invoiceSteps = [
+    `Click <b>Open Invoice</b> in the invitation email and log in.`,
+    `On the <b>Summary</b> tab, choose <b>Actions &rarr; Edit</b>, enter the <b>Invoice #</b>, and click <b>Save</b>.`,
+    `Open the <b>Detail</b> tab and click <b>Edit SOV</b>. For each line item, enter the dollar amount earned during this billing period in the <b>This Period</b> column. Enter stored materials in the <b>Materials Stored</b> column. Percent complete, <b>Total Completed</b>, and <b>Balance To Finish</b> are calculated automatically and cannot be typed over.`,
+    `Click <b>Save</b> to save the invoice and finish it later.`,
+    `Submit the required lien waivers and any supporting documentation (stored-material photographs, certificates of insurance, bills of sale) by email to the Contractor's Project Manager, by replying to the invoice invitation email, in the same billing period as the invoice. An invoice is not complete until the required waivers are received.`,
+    `When the invoice is ready, click <b>Submit for Review</b>.`,
+    `To save a PDF copy of the invoice, choose <b>Actions &rarr; Export</b>.`,
+  ];
+
+  const retainageSteps = [
+    `Click <b>Open Invoice</b> in the invitation email and log in. A release invoice is identified on screen as a <b>Release of Retainage Invoice</b>.`,
+    `On the <b>Summary</b> tab, choose <b>Actions &rarr; Edit</b>, enter the <b>Invoice #</b>, and click <b>Save</b>.`,
+    `Open the <b>Detail</b> tab and click <b>Edit Release Amounts</b>. Enter the dollar amount of retainage requested in the <b>Released This Period</b> columns &mdash; <b>Work $</b> for retainage held on completed work and <b>Materials $</b> for retainage held on stored materials. Current-period billing and stored-materials fields are read-only on a release invoice.`,
+    `Click <b>Save</b>, then click <b>Submit for Review</b>.`,
+    `To save a PDF copy of the invoice, choose <b>Actions &rarr; Export</b>.`,
+  ];
+
+  return `
+    ${renderLegalParagraph('EXHIBIT "C"', { align: "center", marginTop: "0in", marginBottom: "0in", bold: true, className: "legal-page-break" })}
+    ${renderLegalParagraph("BILLING PROCESSING AND PAYMENT SCHEDULE", { align: "center", marginTop: "0in", marginBottom: "0in", bold: true })}
+    ${renderLegalSpacer()}
+    ${renderLegalParagraph("Payment Schedule", { bold: true, marginBottom: "0.08in" })}
+    ${renderLegalParagraph(
+      isMeaningfulValue(paymentTerms)
+        ? `Contractor shall pay Subcontractor on the following terms: ${renderHtmlValue(paymentTerms)}.`
+        : "Contractor shall pay Subcontractor within <u>ten days</u> of Contractor's receipt of payment from the Owner.",
+      { marginBottom: "0.14in" },
+    )}
+    ${renderLegalParagraph(`${APP_PRODUCT_NAME} Billing Instructions`, { bold: true, marginBottom: "0.08in" })}
+    ${renderLegalParagraph(
+      `This project is billed in ${APP_PRODUCT_NAME}, the Contractor's project management system, at <u>${APP_CANONICAL_URL}</u>. Any invoice submitted outside of ${APP_PRODUCT_NAME} will not be processed. Billing is a two-step process: Subcontractor first submits its schedule of values for Contractor approval, and is then invited to invoice against the approved schedule of values in each billing period.`,
+      { marginBottom: "0.14in" },
+    )}
+    ${renderLegalParagraph("STEP 1 &mdash; SUBMITTING YOUR SCHEDULE OF VALUES", { bold: true, marginBottom: "0.08in" })}
+    ${renderLegalParagraph(
+      `Subcontractor will receive an email inviting it to submit its schedule of values for this commitment.`,
+      { marginBottom: "0.08in" },
+    )}
+    ${renderLegalOrderedList(sovSteps, { type: "a" })}
+    ${renderLegalParagraph("STEP 2 &mdash; SUBMITTING A PROGRESS INVOICE", { bold: true, marginBottom: "0.08in" })}
+    ${renderLegalParagraph(
+      `The current billing period is the 15th through the 20th of each month, and the invoice must be submitted before the end of the billing period. Sworn conditional lien waivers must be submitted with each invoice, and sworn unconditional lien waivers must be submitted when payment is received. Retainage of ${isMeaningfulValue(retainage) ? renderHtmlValue(retainage) : "the amount stated in this Agreement"} is withheld from each payment.`,
+      { marginBottom: "0.08in" },
+    )}
+    ${renderLegalParagraph(
+      `If materials being billed are stored, the related amount must be entered in the <b>Materials Stored</b> column. Subcontractor shall submit, with the invoice, a Certificate of Insurance for the amount of stored materials, a Bill of Sale or similar support detailing the materials, the location of the stored material if it is not at Subcontractor's facility, and pictures or other evidence of the stored materials. The amounts supported by that documentation must match the amounts entered in the <b>Materials Stored</b> column.`,
+      { marginBottom: "0.08in" },
+    )}
+    ${renderLegalParagraph(
+      `Once the schedule of values is approved, Subcontractor will receive an email inviting it to submit an invoice each time a billing period is opened.`,
+      { marginBottom: "0.08in" },
+    )}
+    ${renderLegalOrderedList(invoiceSteps, { type: "a" })}
+    ${renderLegalParagraph("STEP 3 &mdash; SUBMITTING A RETAINAGE RELEASE INVOICE", { bold: true, marginBottom: "0.08in" })}
+    ${renderLegalParagraph(
+      `Retainage for the project must be submitted on a separate invoice. Multiple invoices may be submitted in a billing period; however, they must be a final base invoice followed by a separate retainage invoice. Subcontractor will receive an email inviting it to submit the retainage release invoice when the billing period is opened.`,
+      { marginBottom: "0.08in" },
+    )}
+    ${renderLegalOrderedList(retainageSteps, { type: "a" })}
+  `;
+}
+
+function buildCommitmentPaymentIntroHtml(bundle: DocumentBundle): string {
+  const originalAmount = getTotal(bundle, "Original Amount");
+  const retainage = getSectionField(bundle, "Commercial Terms", "Retainage");
+
+  return renderLegalParagraph(
+    `<strong>a. Payment.</strong> Contractor agrees to pay Subcontractor, subject to other provisions hereof, the total sum of <u>${renderHtmlValue(originalAmount)}</u>, to be paid only for actual work performed to the satisfaction of Contractor and Owner, less retainage of ${renderHtmlValue(retainage)} which Contractor shall withhold from payments due Subcontractor. Additional terms and conditions concerning payment to Subcontractor are as follows:`,
+    { marginBottom: "0in" },
+  );
 }
 
 function buildCommitmentLegalClausesHtml(bundle: DocumentBundle): string {
@@ -967,12 +1190,12 @@ function buildCommitmentProjectFactsHtml(bundle: DocumentBundle): string {
 }
 
 function buildCommitmentProjectRecitalsHtml(bundle: DocumentBundle): string {
-  const ownerName = bundle.commitmentContractTemplate?.ownerName || "Not set";
+  const ownerName = bundle.commitmentContractTemplate?.ownerName;
 
   return `
     <p align="justify">
       A. Contractor is the General Contractor or Design-Builder engaged by
-      <u>${renderHtmlValue(ownerName)}</u> ("Owner") to furnish labor and materials and
+      ${renderLegalInlineValueOrBlank(ownerName, "240px")} ("Owner") to furnish labor and materials and
       perform work required by Owner for the following project ("Project"):
     </p>
     ${buildCommitmentProjectFactsHtml(bundle)}
@@ -981,6 +1204,22 @@ function buildCommitmentProjectRecitalsHtml(bundle: DocumentBundle): string {
 
 function renderCommitmentContractHtml(bundle: DocumentBundle): string {
   const templateData = bundle.commitmentContractTemplate;
+  if (!isMeaningfulValue(bundle.parties?.counterparty)) {
+    throw new Error(
+      "Cannot generate commitment contract: Subcontractor is missing. Set the commitment Contract Company before generating the PDF.",
+    );
+  }
+  if (!isMeaningfulValue(getTotal(bundle, "Original Amount"))) {
+    throw new Error(
+      "Cannot generate commitment contract: Original Amount is missing. Complete the commitment SOV before generating the PDF.",
+    );
+  }
+  if (!isMeaningfulValue(getSectionField(bundle, "Commercial Terms", "Retainage"))) {
+    throw new Error(
+      "Cannot generate commitment contract: Retainage is missing. Set commitment retainage before generating the PDF.",
+    );
+  }
+
   const templateRoot = parse(getCommitmentTemplateHtml());
   templateRoot.querySelector('div[title="header"]')?.remove();
   templateRoot.querySelector('div[title="footer"]')?.remove();
@@ -989,7 +1228,7 @@ function renderCommitmentContractHtml(bundle: DocumentBundle): string {
   const projectAddressLine2 = bundle.project?.addressLine2 || "Not set";
   const contractorName = bundle.parties?.contractor || "Alleato Group";
   const counterpartyName = bundle.parties?.counterparty || "Not set";
-  const ownerName = templateData?.ownerName || "Not set";
+  const ownerName = templateData?.ownerName || "";
   const contractorNotice = templateData?.contractorNotice;
   const counterpartyNotice = templateData?.counterpartyNotice;
 
@@ -1035,37 +1274,66 @@ function renderCommitmentContractHtml(bundle: DocumentBundle): string {
     [/ProcoreGeneralContractorSignHere/g, ""],
     [/ProcoreGeneralContractorSignedDate/g, ""],
     [/RECITALS:/g, "RECITALS"],
+    // The imported template pointed subcontractors at Procore for payment
+    // applications. Billing now happens in this app (see Exhibit "C").
+    [/Contractor’s Procore system/g, `Contractor’s ${APP_PRODUCT_NAME} system`],
+    [/Contractor's Procore system/g, `Contractor's ${APP_PRODUCT_NAME} system`],
+    // Procore's column was "Stored Materials"; this app's G703 column reads
+    // "Materials Stored". Name the column the subcontractor actually sees.
+    [/([‘'"“])Stored Materials([’'"”])/g, "$1Materials Stored$2"],
   ]);
 
-  const recitalsNormalizedBody = replaceHtmlRangeByMarkers(
+  const paymentNormalizedBody = replaceRequiredHtmlRangeByMarkers(
     bodyHtml,
+    "a.\n\tPayment.",
+    "Subcontractor\nshall complete monthly AIA G702/G703",
+    buildCommitmentPaymentIntroHtml(bundle),
+    "payment clause",
+  );
+
+  const recitalsNormalizedBody = replaceRequiredHtmlRangeByMarkers(
+    paymentNormalizedBody,
     "A.\n\tContractor is the General Contractor or Design-Builder engaged by",
     "B.\n\tSubcontractor has agreed",
     buildCommitmentProjectRecitalsHtml(bundle),
+    "project recitals",
   );
 
-  const clausesNormalizedBody = replaceHtmlRangeByMarkers(
+  const clausesNormalizedBody = replaceRequiredHtmlRangeByMarkers(
     recitalsNormalizedBody,
     "c.\n\tAttorneys Fees.",
-    "IN TENDING TO BE LEGALLY BOUND",
+    "TENDING TO BE LEGALLY BOUND",
     buildCommitmentLegalClausesHtml(bundle),
+    "miscellaneous clauses",
   );
 
-  const signatureNormalizedBody = replaceHtmlRangeByMarkers(
+  const signatureNormalizedBody = replaceRequiredHtmlRangeByMarkers(
     clausesNormalizedBody,
     "TENDING TO BE LEGALLY BOUND",
     "EXHIBIT\n&quot;A&quot;",
     buildCommitmentSignatureHtml(bundle),
+    "signature block",
   );
 
-  const exhibitNormalizedBody = replaceHtmlRangeByMarkers(
+  const exhibitNormalizedBody = replaceRequiredHtmlRangeByMarkers(
     signatureNormalizedBody,
     "EXHIBIT\n&quot;A&quot;",
     "EXHIBIT\n&quot;B&quot;",
     buildCommitmentExhibitAHtml(bundle),
+    "Exhibit A",
   );
 
-  const normalizedBody = exhibitNormalizedBody
+  // Exhibit C ships as legacy Procore billing instructions in the imported Word
+  // template. Replace it wholesale with the current app's billing flow.
+  const exhibitCNormalizedBody = replaceRequiredHtmlRangeByMarkers(
+    exhibitNormalizedBody,
+    'EXHIBIT\n&quot;C&quot;',
+    'EXHIBIT\n&quot;D&quot;',
+    buildCommitmentExhibitCHtml(bundle),
+    "Exhibit C",
+  );
+
+  const normalizedBody = exhibitCNormalizedBody
     .replace(/<p[^>]*>,<\/p>/g, "<p></p>")
     .replace(/<p[^>]*>\s*,\s*<\/p>/g, contractorNoticeAddressLine1 ? `<p>${renderHtmlValue(contractorNoticeAddressLine1)}</p>` : "<p></p>")
     .replace(/<p[^>]*>\s*<\/p>\s*<p[^>]*>Cell:\s*<\/p>/g, "<p></p><p></p>");
@@ -1609,9 +1877,6 @@ async function loadCommitmentBundle(
   const isSubcontract = commitmentType === "subcontract";
   const tableName = isSubcontract ? "subcontracts" : "purchase_orders";
   const totalsTable = isSubcontract ? "subcontracts_with_totals" : "purchase_orders_with_totals";
-  const lineItemsTable = isSubcontract ? "subcontract_sov_items" : "purchase_order_sov_items";
-  const lineItemsForeignKey = isSubcontract ? "subcontract_id" : "purchase_order_id";
-
   const { data: baseData, error: baseError } = await supabase
     .from(tableName)
     .select("*")
@@ -1624,7 +1889,9 @@ async function loadCommitmentBundle(
 
   const [totalsResult, lineItemsResult] = await Promise.all([
     supabase.from(totalsTable).select("total_sov_amount, total_billed_to_date, total_amount_remaining").eq("id", recordId).single(),
-    supabase.from(lineItemsTable).select("*").eq(lineItemsForeignKey, recordId).order("line_number", { ascending: true }),
+    isSubcontract
+      ? supabase.from("subcontract_sov_items").select("*").eq("subcontract_id", recordId).order("line_number", { ascending: true })
+      : supabase.from("purchase_order_sov_items").select("*").eq("purchase_order_id", recordId).order("line_number", { ascending: true }),
   ]);
 
   if (totalsResult.error && totalsResult.error.code !== "PGRST116") {
@@ -1638,6 +1905,17 @@ async function loadCommitmentBundle(
   const base = baseData as unknown as CommitmentBaseRow;
   const totals = (totalsResult.data ?? {}) as CommitmentTotalsRow;
   const lineItems = (lineItemsResult.data ?? []) as CommitmentLineItemRow[];
+
+  if (totals.total_sov_amount == null) {
+    throw new Error(
+      "Cannot generate commitment contract: Original Amount is missing. Complete the commitment SOV before generating the PDF.",
+    );
+  }
+  if (base.default_retainage_percent == null) {
+    throw new Error(
+      "Cannot generate commitment contract: Retainage is missing. Set commitment retainage before generating the PDF.",
+    );
+  }
 
   let vendor: VendorRecipientRow | null = null;
   if (base.contract_company_id) {
@@ -1654,13 +1932,10 @@ async function loadCommitmentBundle(
     vendor = (vendorData ?? null) as VendorRecipientRow | null;
   }
 
-  const { data: projectData } = await supabase
-    .from("projects")
-    .select('id, name, address, project_number, company_id, state, summary_metadata')
-    .eq("id", base.project_id)
-    .single();
-
-  const project = (projectData ?? null) as ProjectRow | null;
+  const { row: project, summary: projectSummary } = await loadCommitmentProjectSummary(
+    supabase,
+    base.project_id,
+  );
 
   const [projectPrimeContractResult, vendorPeopleResult] = await Promise.all([
     base.prime_contract_id
@@ -1714,7 +1989,7 @@ async function loadCommitmentBundle(
   if (companyIds.length > 0) {
     const { data: companyProfiles, error: companyProfilesError } = await supabase
       .from("companies")
-      .select("id, name, address, city, state, title")
+      .select("id, name, address, city, state, zip_code, title")
       .in("id", companyIds);
 
     if (companyProfilesError) {
@@ -1726,21 +2001,14 @@ async function loadCommitmentBundle(
     }
   }
 
-  const contractorCompany =
-    (project?.company_id ? companyProfilesById.get(project.company_id) : null) ??
+  const linkedContractorCompany =
     (projectPrimeContract?.contractor_id ? companyProfilesById.get(projectPrimeContract.contractor_id) : null) ??
-    (projectPrimeContract?.contract_company_id
-      ? companyProfilesById.get(projectPrimeContract.contract_company_id)
-      : null) ??
     null;
-  const ownerCompany =
-    (projectPrimeContract?.client_id ? companyProfilesById.get(projectPrimeContract.client_id) : null) ??
-    (projectPrimeContract?.contract_company_id
-      ? companyProfilesById.get(projectPrimeContract.contract_company_id)
-      : null) ??
-    null;
+  const contractorCompany = resolveCommitmentContractorCompany(linkedContractorCompany);
+  const ownerCompanyId = resolveCommitmentOwnerCompanyId(project);
+  const ownerCompany = ownerCompanyId ? companyProfilesById.get(ownerCompanyId) ?? null : null;
 
-  const contractorCompanyId = contractorCompany?.id ?? null;
+  const contractorCompanyId = linkedContractorCompany?.id ?? null;
   const contractorPeopleResult = contractorCompanyId
     ? await supabase
         .from("people")
@@ -1756,7 +2024,7 @@ async function loadCommitmentBundle(
 
   const contractorPeople = (contractorPeopleResult.data ?? []) as PersonRow[];
   const contractorSigner = pickAuthorizedSigner(contractorPeople);
-  const contractorName = contractorCompany?.name || "Alleato Group";
+  const contractorName = contractorCompany.name || "Alleato Group";
 
   const contactRecipients = await fetchPeopleSuggestions(
     supabase,
@@ -1810,28 +2078,21 @@ async function loadCommitmentBundle(
       contractor: contractorName,
       counterparty: vendor?.name || "Not set",
     },
-    project: {
-      name: project?.name || "Not set",
-      address: project?.address || "Not set",
-      jobNumber: project?.project_number || String(base.project_id),
-      addressLine1: project?.address || "Not set",
-      addressLine2:
-        formatAddressLine2(
-          project?.summary_metadata?.city ?? null,
-          project?.state ?? null,
-          project?.summary_metadata?.postal_code ?? null,
-        ) || null,
-    },
+    project: projectSummary,
     commitmentContractTemplate: {
       ownerName: ownerCompany?.name || null,
       contractorNotice: {
-        companyName: contractorCompany?.name || contractorName,
+        companyName: contractorCompany.name || contractorName,
         name: null,
         title: null,
         email: null,
         phone: null,
-        addressLine1: contractorCompany?.address || null,
-        addressLine2: formatAddressLine2(contractorCompany?.city, contractorCompany?.state),
+        addressLine1: contractorCompany.address || null,
+        addressLine2: formatAddressLine2(
+          contractorCompany.city,
+          contractorCompany.state,
+          contractorCompany.zip_code,
+        ),
       },
       counterpartyNotice: {
         companyName: vendor?.name || null,
@@ -1870,7 +2131,7 @@ async function loadCommitmentBundle(
         title: "Commercial Terms",
         fields: [
           { label: "Payment Terms", value: formatPlainValue(base.payment_terms) },
-          { label: "Retainage", value: `${base.default_retainage_percent ?? 0}%` },
+          { label: "Retainage", value: `${base.default_retainage_percent}%` },
           { label: "Bill To", value: formatPlainValue(base.bill_to) },
           { label: "Ship To", value: formatPlainValue(base.ship_to) },
           { label: "Ship Via", value: formatPlainValue(base.ship_via) },
@@ -1878,7 +2139,7 @@ async function loadCommitmentBundle(
       },
     ],
     totals: [
-      { label: "Original Amount", value: formatCurrency(totals.total_sov_amount ?? 0) },
+      { label: "Original Amount", value: formatCurrency(totals.total_sov_amount) },
       { label: "Billed To Date", value: formatCurrency(totals.total_billed_to_date ?? 0) },
       { label: "Balance To Finish", value: formatCurrency(totals.total_amount_remaining ?? 0) },
     ],

@@ -1,0 +1,12 @@
+{
+  "task": "LOCAL-20260731-RAG-VECTOR-HANDOFF",
+  "deliveryLane": "High-risk",
+  "requiredChecks": [
+    "focused-regressions",
+    "independent-review",
+    "rag-env-readback",
+    "migration-ledger",
+    "staged-python-compile",
+    "release-candidate"
+  ]
+}

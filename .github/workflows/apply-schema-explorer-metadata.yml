@@ -1,0 +1,35 @@
+name: Apply schema explorer metadata migrations
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      RAG_DATABASE_URL: ${{ secrets.RAG_DATABASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+      - name: Require protected database connections
+        run: |
+          test -n "$DATABASE_URL"
+          test -n "$RAG_DATABASE_URL"
+      - name: Apply PM App metadata RPC and record its ledger entry
+        run: |
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/migrations/20260727120000_create_schema_explorer_metadata.sql
+          supabase migration repair --status applied --db-url "$DATABASE_URL" 20260727120000 --yes
+      - name: Apply RAG metadata RPC and record its ledger entry
+        run: |
+          psql "$RAG_DATABASE_URL" -v ON_ERROR_STOP=1 -f scripts/database/rag/migrations/20260727120000_create_schema_explorer_metadata.sql
+          supabase migration repair --status applied --db-url "$RAG_DATABASE_URL" 20260727120000 --yes
+      - name: Verify both RPCs are internal-only
+        run: |
+          for url in "$DATABASE_URL" "$RAG_DATABASE_URL"; do
+            psql "$url" -v ON_ERROR_STOP=1 -Atc "select has_function_privilege('anon', 'public.get_schema_explorer_metadata()', 'execute') = false and has_function_privilege('authenticated', 'public.get_schema_explorer_metadata()', 'execute') = false and has_function_privilege('service_role', 'public.get_schema_explorer_metadata()', 'execute');" | grep -qx true
+          done

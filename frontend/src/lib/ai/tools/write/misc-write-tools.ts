@@ -835,7 +835,7 @@ Keep the total under 800 words. Do not use markdown headers larger than ###.`,
         const { type, title, description, severity, projectId, pagePath, confirmed } = input;
 
         const requestType = type === "feature_request" ? "feature_request" : "bug";
-        const resolvedPath = pagePath ?? "/ai";
+        const resolvedPath = pagePath ?? "/ai-assistant";
         const resolvedTitle = buildAdminFeedbackTitle({
           providedTitle: title,
           requestType,
@@ -1061,8 +1061,8 @@ Keep the total under 800 words. Do not use markdown headers larger than ###.`,
           created_by: userId,
           title,
           comment: description,
-          page_url: "/ai",
-          page_path: "/ai",
+          page_url: "/ai-assistant",
+          page_path: "/ai-assistant",
           page_title: "AI Assistant",
           request_type: "feature_request",
           board_status,

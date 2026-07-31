@@ -5,6 +5,11 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
+import {
+  checkCapabilities,
+  linkWorkspace,
+  provisionWorkspaceDependencies,
+} from "./machine-capabilities.mjs";
 
 function fail(message) {
   throw new Error(message);
@@ -37,14 +42,16 @@ function blobAt(cwd, ref, file) {
 
 function usage() {
   return `Usage:
-  node scripts/ops/isolated-session-workspace.mjs create --session <id> --task <id> --paths <path[,path...]> --expires-hours <n>
+  node scripts/ops/isolated-session-workspace.mjs create --session <id> --task <id> --paths <path[,path...]> --expires-hours <n> [--capabilities <profile[,profile...]>]
   node scripts/ops/isolated-session-workspace.mjs status
   node scripts/ops/isolated-session-workspace.mjs handoff --session <id> --task <id>
   node scripts/ops/isolated-session-workspace.mjs retire --session <id> --task <id>
   node scripts/ops/isolated-session-workspace.mjs publish --session <id>
   node scripts/ops/isolated-session-workspace.mjs sweep --retire-published yes
 
-Mutating sessions work in separate Git worktrees and indexes. The canonical main checkout is integration-only.`;
+This is an opt-in exception for a user-requested or confirmed runtime/dependency
+isolation need. Routine single-session work uses the canonical main checkout,
+path-scoped leases, and codex:finish.`;
 }
 
 function parseArgs(argv) {
@@ -118,6 +125,25 @@ function activeWorkspaces(registry) {
   });
 }
 
+function recoverMissingActiveWorkspaces(repo, registry) {
+  // `git worktree prune` only removes Git metadata for paths that are already
+  // missing; it never removes a workspace directory. Do this before deciding
+  // whether an active registry entry can still own a path.
+  git(repo.root, ["worktree", "prune"]);
+  const registered = git(repo.root, ["worktree", "list", "--porcelain"]);
+  const missing = [];
+  for (const workspace of activeWorkspaces(registry)) {
+    const stillRegistered = registered.includes(`worktree ${workspace.worktree}\n`);
+    if (stillRegistered || fs.existsSync(workspace.worktree)) continue;
+    workspace.status = "missing";
+    workspace.missingAt = new Date().toISOString();
+    workspace.missingReason = "Workspace directory and Git worktree record were both missing during create recovery.";
+    missing.push(`${workspace.session} / ${workspace.task}`);
+  }
+  if (missing.length > 0) writeRegistry(repo, registry);
+  return missing;
+}
+
 function findOwned(registry, options) {
   const workspace = activeWorkspaces(registry).find((candidate) => candidate.session === options.session && candidate.task === options.task);
   if (!workspace) fail(`No active workspace exists for ${options.session} / ${options.task}.`);
@@ -125,15 +151,45 @@ function findOwned(registry, options) {
   return workspace;
 }
 
-function create(repo, registry, options) {
+function inferredCapabilities(ownedPaths, requested = "") {
+  if (requested) return requested;
+  const runtimeOwned = ownedPaths.some(
+    (owned) =>
+      owned === "backend" ||
+      owned.startsWith("backend/") ||
+      owned === "agents" ||
+      owned.startsWith("agents/") ||
+      owned === "render.yaml",
+  );
+  if (runtimeOwned) return "full";
+  const databaseOwned = ownedPaths.some(
+    (owned) =>
+      owned === "supabase" ||
+      owned.startsWith("supabase/") ||
+      owned.endsWith("database.types.ts"),
+  );
+  if (databaseOwned) return "database";
+  const frontendOwned = ownedPaths.some(
+    (owned) => owned === "frontend" || owned.startsWith("frontend/"),
+  );
+  return frontendOwned ? "browser" : "core";
+}
+
+async function create(repo, registry, options) {
   if (!options.session || !options.task || !options.paths || !options["expires-hours"]) fail(`create requires --session, --task, --paths, and --expires-hours.\n\n${usage()}`);
   const hours = Number(options["expires-hours"]);
   if (!Number.isFinite(hours) || hours <= 0 || hours > 168) fail("--expires-hours must be between 0 and 168.");
   const ownedPaths = normalizeOwnedPaths(options.paths);
+  const capabilities = inferredCapabilities(ownedPaths, options.capabilities);
+  const recoveredMissing = recoverMissingActiveWorkspaces(repo, registry);
+  for (const workspace of recoveredMissing) {
+    console.warn(`Recovered missing workspace registry entry: ${workspace}`);
+  }
   for (const existing of activeWorkspaces(registry)) {
     const collision = ownedPaths.find((candidate) => existing.paths.some((owned) => overlaps(candidate, owned)));
     if (collision) fail(`Owned path '${collision}' overlaps ${existing.session} / ${existing.task}. Split ownership or finish that workspace first.`);
   }
+  const capabilityResult = await checkCapabilities({ profile: capabilities });
   git(repo.root, ["fetch", "origin", "main", "--quiet"]);
   const baseRoot = path.resolve(process.env.CODEX_ISOLATED_WORKSPACE_ROOT || path.join(os.homedir(), ".codex", "isolated-workspaces"));
   if (baseRoot === repo.canonical || baseRoot.startsWith(`${repo.canonical}${path.sep}`)) fail("Isolated workspace root must be outside the canonical checkout.");
@@ -142,6 +198,49 @@ function create(repo, registry, options) {
   const workspacePath = path.join(baseRoot, `${slug(options.session)}-${slug(options.task)}-${suffix}`);
   const branch = `codex/${slug(options.session)}-${slug(options.task)}-${suffix}`;
   git(repo.root, ["worktree", "add", "-b", branch, workspacePath, "origin/main"]);
+  let providerLinkage;
+  try {
+    provisionWorkspaceDependencies(workspacePath, capabilityResult.profiles);
+    providerLinkage = linkWorkspace(
+      workspacePath,
+      {},
+      capabilityResult.profiles,
+    );
+  } catch (error) {
+    const cleanupFailures = [];
+    try {
+      git(repo.root, ["worktree", "remove", "--force", workspacePath]);
+    } catch (cleanupError) {
+      try {
+        fs.rmSync(workspacePath, {
+          recursive: true,
+          force: true,
+          maxRetries: 5,
+          retryDelay: 200,
+        });
+        git(repo.root, ["worktree", "prune"]);
+      } catch (fallbackError) {
+        cleanupFailures.push(
+          fallbackError instanceof Error
+            ? fallbackError.message
+            : String(fallbackError),
+        );
+      }
+    }
+    try {
+      git(repo.root, ["branch", "-D", branch]);
+    } catch (cleanupError) {
+      cleanupFailures.push(
+        cleanupError instanceof Error ? cleanupError.message : String(cleanupError),
+      );
+    }
+    const cause = error instanceof Error ? error.message : String(error);
+    fail(
+      cleanupFailures.length > 0
+        ? `${cause}\nTransactional cleanup also failed: ${cleanupFailures.join(" | ")}`
+        : cause,
+    );
+  }
   const record = {
     session: options.session,
     task: options.task,
@@ -153,12 +252,24 @@ function create(repo, registry, options) {
     createdAt: new Date().toISOString(),
     expiresAt: new Date(Date.now() + hours * 3_600_000).toISOString(),
     status: "active",
+    capabilities: capabilityResult.profiles,
+    providerLinkage,
   };
   registry.workspaces.push(record);
   writeRegistry(repo, registry);
   console.log(`Workspace: ${workspacePath}`);
   console.log(`Branch: ${branch}`);
   console.log(`Expires: ${record.expiresAt}`);
+  console.log(
+    `Machine capabilities: ${record.capabilities.join(",")} (${capabilityResult.cached ? "cached" : "refreshed"})`,
+  );
+  console.log(
+    `Provider linkage: Supabase ${providerLinkage.linked ? providerLinkage.supabaseProjectRef : "not-applicable"}; Vercel ${
+      providerLinkage.vercelProject
+        ? `${providerLinkage.vercelTeam}/${providerLinkage.vercelProject}`
+        : "not-applicable"
+    }`,
+  );
 }
 
 function status(registry) {
@@ -262,7 +373,7 @@ try {
   else {
     const repo = repository();
     const registry = readRegistry(repo);
-    if (options.command === "create") create(repo, registry, options);
+    if (options.command === "create") await create(repo, registry, options);
     else if (options.command === "status") status(registry);
     else if (options.command === "handoff") handoff(repo, registry, options);
     else if (options.command === "retire") retire(repo, registry, options);

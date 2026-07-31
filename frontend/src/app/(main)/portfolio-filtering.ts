@@ -63,12 +63,8 @@ export function matchesPortfolioScope(
 ): boolean {
   const normalizedPhase = (project.phase ?? "").toLowerCase();
   const normalizedType = (project.type ?? "").toLowerCase();
-  const normalizedCategory = (project.category ?? "").toLowerCase();
   const isCurrent = normalizedPhase === "current";
-  // A project counts as internal if EITHER its type or its category is
-  // "internal" — the two columns are used interchangeably for this tag.
-  const isInternal =
-    normalizedType === "internal" || normalizedCategory === "internal";
+  const isInternal = normalizedType === "internal";
 
   switch (scope) {
     case "all":
@@ -78,9 +74,7 @@ export function matchesPortfolioScope(
     case "estimating":
       return normalizedPhase === "estimating";
     case "internal":
-      // The Internal tab is driven purely by project type — any project whose
-      // type is "internal" belongs here, regardless of phase.
-      return isInternal;
+      return isCurrent && isInternal;
   }
 }
 

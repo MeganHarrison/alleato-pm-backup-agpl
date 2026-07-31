@@ -1,0 +1,1688 @@
+<title>Alleato AI — What we built</title>
+
+<!--FONT_FACE-->
+
+<style>
+/* ================================================================
+   ALLEATO · AI CAPABILITY SHOWCASE
+   Palette is the Alleato design system (DESIGN.md): brand orange
+   #DC822E and action slate #3B4C63 on the dark carbon surfaces.
+   Status colours are lifted in lightness for legibility on carbon
+   while keeping the system's hues.
+   Deliberately single-theme — this is a presentation surface.
+   ================================================================ */
+
+:root, :root[data-theme="dark"], :root[data-theme="light"] {
+  /* brand */
+  --brand:        #dc822e;
+  --brand-hi:     #eb9a4d;
+  --brand-lo:     #c26d24;
+  --slate:        #3b4c63;
+  --slate-hi:     #55698a;
+
+  /* carbon surfaces (design-system dark tokens) */
+  --canvas:       #161618;
+  --surface:      #1f1f23;
+  --raised:       #27272b;
+  --edge:         #2e2e33;
+  --edge-hi:      #3c3c44;
+
+  /* ink */
+  --fg:           #ebebeb;
+  --fg-2:         #b6b6bd;
+  --fg-3:         #8b8b94;
+  --fg-4:         #62626b;
+
+  /* status — design-system hues, lifted for dark ground */
+  --ok:           #2ea97b;
+  --info:         #5c9bff;
+  --alert:        var(--brand);
+  --idle:         #7e7e88;
+
+  --sp:   clamp(20px, 4vw, 60px);
+  --maxw: 1400px;
+  --r:    10px;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--canvas);
+  color: var(--fg);
+  font-family: InterVar, Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* ambient brand bloom, fixed and very restrained */
+.bloom {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(60vw 46vw at 78% -8%, color-mix(in srgb, var(--brand) 14%, transparent), transparent 62%),
+    radial-gradient(50vw 40vw at 6% 8%, color-mix(in srgb, var(--slate) 22%, transparent), transparent 60%);
+}
+.wrap { position: relative; z-index: 2; max-width: var(--maxw); margin: 0 auto; padding: 0 var(--sp); width: 100%; }
+
+/* ---------- type ----------
+   Display: the brand condensed face where installed, condensed
+   fallbacks elsewhere. Body: Inter. Data: mono.               */
+h1, h2, h3, .disp {
+  font-family: tungsten, Oswald, "Haettenschweiler", "Arial Narrow", InterVar, Inter, sans-serif;
+  font-weight: 500;
+  text-transform: uppercase;
+  text-wrap: balance;
+  letter-spacing: .005em;
+  margin: 0;
+}
+h1 { font-size: clamp(46px, 8.6vw, 132px); line-height: .9; }
+h2 { font-size: clamp(30px, 5vw, 68px);   line-height: .95; }
+h3 { font-size: clamp(19px, 1.8vw, 25px); line-height: 1.1; }
+
+.mono { font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-variant-numeric: tabular-nums; }
+.eyebrow {
+  font-family: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  font-size: 11px; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--fg-4); font-weight: 500;
+}
+p { margin: 0; max-width: 64ch; }
+.lede  { font-size: clamp(16px, 1.4vw, 19px); color: var(--fg-2); }
+.small { font-size: 13.5px; color: var(--fg-3); line-height: 1.55; }
+a { color: inherit; text-decoration: none; }
+:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; border-radius: 4px; }
+
+/* ============================ CHROME ============================ */
+.topbar {
+  position: fixed; inset: 0 0 auto; z-index: 80; height: 62px;
+  backdrop-filter: blur(18px);
+  background: color-mix(in srgb, var(--canvas) 80%, transparent);
+  border-bottom: 1px solid var(--edge);
+}
+.topbar-in { max-width: var(--maxw); margin: 0 auto; padding: 0 var(--sp); height: 100%; display: flex; align-items: center; gap: 20px; }
+.mark { display: flex; align-items: center; gap: 11px; }
+.mark b { font-family: tungsten, Oswald, "Arial Narrow", sans-serif; font-size: 17px; letter-spacing: .12em; text-transform: uppercase; font-weight: 500; }
+.topbar nav { margin-left: auto; display: flex; gap: 2px; }
+.navlink {
+  font-size: 12.5px; font-weight: 500; letter-spacing: .02em;
+  color: var(--fg-3); padding: 8px 13px; border-radius: 6px;
+  transition: color .2s, background .2s;
+}
+.navlink:hover { color: var(--fg); background: var(--raised); }
+@media (max-width: 760px) { .navlink.hide-sm { display: none; } }
+.prog { position: fixed; top: 61px; left: 0; height: 2px; background: var(--brand); width: 0; z-index: 81; }
+
+/* ============================ BUTTONS ============================ */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+  font: inherit; font-size: 13.5px; font-weight: 600; letter-spacing: .01em;
+  padding: 12px 20px; border-radius: 7px; cursor: pointer;
+  border: 1px solid var(--edge-hi); background: var(--raised); color: var(--fg);
+  transition: background .2s, border-color .2s, color .2s, transform .15s;
+}
+.btn:hover { background: var(--edge); border-color: var(--slate-hi); }
+.btn:active { transform: translateY(1px); }
+.btn-key { background: var(--brand); border-color: var(--brand); color: #1a0f04; }
+.btn-key:hover { background: var(--brand-hi); border-color: var(--brand-hi); color: #1a0f04; }
+.btn-sm { padding: 8px 13px; font-size: 12.5px; border-radius: 6px; }
+.btn[disabled] { opacity: .45; pointer-events: none; }
+
+/* ============================ HERO ============================ */
+.hero { min-height: 100svh; display: flex; align-items: center; padding: 110px 0 70px; }
+.hero-in { display: flex; flex-direction: column; gap: 30px; align-items: flex-start; }
+.hero h1 { max-width: 20ch; }
+.hero h1 .b { color: var(--brand); }
+.tagrow { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.livedot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); flex: none; }
+.cta { display: flex; flex-wrap: wrap; gap: 12px; }
+
+.hero-strip { display: flex; flex-wrap: wrap; gap: 34px; margin-top: 8px; }
+.hs { display: flex; flex-direction: column; gap: 2px; }
+.hs b { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 30px; font-weight: 600; letter-spacing: -.03em; line-height: 1; font-variant-numeric: tabular-nums; }
+.hs span { font-size: 12px; color: var(--fg-4); }
+
+/* ============================ SECTIONS ============================ */
+.band { padding: clamp(76px, 13vh, 156px) 0; position: relative; z-index: 2; }
+.sechead { display: flex; flex-direction: column; gap: 16px; margin-bottom: 44px; max-width: 62ch; }
+.rule { height: 1px; background: var(--edge); transform-origin: left; }
+.lmask { display: block; overflow: hidden; padding-bottom: .08em; margin-bottom: -.08em; }
+
+/* --- the swap --- */
+.swap-act { min-height: 100svh; display: grid; place-items: center; text-align: center; }
+.swap-in { display: flex; flex-direction: column; align-items: center; gap: 30px; width: 100%; }
+.swap-num {
+  font-family: tungsten, Oswald, "Arial Narrow", sans-serif; font-weight: 500;
+  font-size: clamp(72px, 16vw, 210px); line-height: .84; letter-spacing: .01em;
+  font-variant-numeric: tabular-nums; color: var(--fg-3);
+}
+.swap-num .u { font-size: .28em; letter-spacing: .04em; margin-left: .12em; }
+.swapsvg { width: min(100%, 980px); height: 46px; overflow: visible; }
+.swapsvg .cap { stroke: var(--edge-hi); stroke-width: 1.5; }
+.swapsvg .run { stroke: var(--fg-4); stroke-width: 4; stroke-linecap: round; }
+.swap-cap { font-size: clamp(13px, 1.5vw, 16px); color: var(--fg-3); max-width: 52ch; }
+
+/* ============================ CONSOLE ============================ */
+.console { display: grid; grid-template-columns: 296px minmax(0, 1fr); gap: 26px; align-items: start; }
+@media (max-width: 1040px) { .console { grid-template-columns: 1fr; } }
+
+.rail { display: flex; flex-direction: column; gap: 2px; position: sticky; top: 86px; }
+@media (max-width: 1040px) { .rail { position: static; flex-direction: row; overflow-x: auto; padding-bottom: 8px; gap: 8px; } }
+.rail-g { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--fg-4); padding: 16px 12px 7px; }
+@media (max-width: 1040px) { .rail-g { display: none; } }
+.ritem {
+  display: flex; align-items: center; gap: 11px;
+  padding: 10px 12px; border-radius: 8px; cursor: pointer;
+  border: 1px solid transparent; background: transparent;
+  color: var(--fg-2); font: inherit; font-size: 14px; text-align: left;
+  transition: background .2s, color .2s, border-color .2s;
+  white-space: nowrap; width: 100%;
+}
+.ritem:hover { background: var(--surface); color: var(--fg); }
+.ritem[aria-selected="true"] { background: var(--raised); border-color: var(--edge-hi); color: var(--fg); font-weight: 600; }
+.ritem .sd { width: 7px; height: 7px; border-radius: 50%; flex: none; }
+.ritem .rc { margin-left: auto; font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 10px; color: var(--fg-4); }
+@media (max-width: 1040px) { .ritem { width: auto; } .ritem .rc { display: none; } }
+
+.sd-live { background: var(--ok); }
+.sd-build { background: var(--info); }
+.sd-parked { background: var(--brand); }
+.sd-draft { background: var(--idle); }
+
+/* the fake app window every demo runs inside */
+.app {
+  background: var(--surface); border: 1px solid var(--edge);
+  border-radius: var(--r); overflow: hidden;
+  display: flex; flex-direction: column; min-height: 540px;
+  box-shadow: 0 24px 60px -30px #000;
+}
+.app-bar { display: flex; align-items: center; gap: 8px; padding: 12px 16px; background: var(--canvas); border-bottom: 1px solid var(--edge); flex: none; }
+.app-bar i { width: 9px; height: 9px; border-radius: 50%; background: var(--edge-hi); }
+.app-bar .t { margin-left: 8px; font-size: 12.5px; color: var(--fg-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.app-bar .lk { margin-left: auto; font-size: 12px; color: var(--fg-3); white-space: nowrap; }
+.app-bar .lk:hover { color: var(--brand); }
+.app-body { flex: 1; padding: 20px; display: flex; flex-direction: column; gap: 16px; position: relative; }
+
+.tb { display: flex; flex-wrap: wrap; gap: 9px; align-items: center; }
+.tb .sp { margin-left: auto; }
+.hint { font-size: 12px; color: var(--fg-4); }
+
+/* generic demo primitives */
+.rows { display: flex; flex-direction: column; gap: 7px; }
+.row {
+  border: 1px solid var(--edge); border-radius: 8px; background: var(--canvas);
+  padding: 11px 13px; display: grid; grid-template-columns: 20px 1fr auto; gap: 12px; align-items: center;
+  transition: border-color .2s, background .2s;
+}
+.row.click { cursor: pointer; }
+.row.click:hover { border-color: var(--edge-hi); background: var(--raised); }
+.row .ic { width: 20px; height: 20px; border-radius: 5px; display: grid; place-items: center; font-size: 11px; font-weight: 700; }
+.ic-ok { background: color-mix(in srgb, var(--ok) 18%, transparent); color: var(--ok); }
+.ic-no { background: color-mix(in srgb, var(--brand) 20%, transparent); color: var(--brand-hi); }
+.ic-q  { background: color-mix(in srgb, var(--info) 18%, transparent); color: var(--info); }
+.row .tx { min-width: 0; }
+.row .tx b { display: block; font-size: 13.5px; font-weight: 600; line-height: 1.35; }
+.row .tx em { font-style: normal; font-size: 11.5px; color: var(--fg-4); }
+.row .rt { font-size: 11.5px; color: var(--fg-4); white-space: nowrap; }
+.row-x { grid-column: 1 / -1; display: none; padding-top: 11px; margin-top: 4px; border-top: 1px solid var(--edge); }
+.row.open .row-x { display: block; }
+
+.pill { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; padding: 4px 9px; border-radius: 999px; white-space: nowrap; }
+.p-ok    { background: color-mix(in srgb, var(--ok) 15%, transparent);    color: var(--ok); }
+.p-alert { background: color-mix(in srgb, var(--brand) 16%, transparent); color: var(--brand-hi); }
+.p-info  { background: color-mix(in srgb, var(--info) 15%, transparent);  color: var(--info); }
+.p-idle  { background: var(--raised); color: var(--fg-3); }
+
+.track { height: 4px; border-radius: 3px; background: var(--raised); overflow: hidden; }
+.track i { display: block; height: 100%; width: 0; background: var(--brand); border-radius: 3px; }
+.kv { display: grid; grid-template-columns: 118px 1fr; gap: 9px 14px; align-items: center; }
+.kv .k { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--fg-4); }
+.kv .v { font-size: 13.5px; }
+.conf { display: flex; align-items: center; gap: 8px; }
+.conf .bar { width: 46px; height: 3px; border-radius: 2px; background: var(--raised); overflow: hidden; }
+.conf .bar i { display: block; height: 100%; width: 0; background: var(--ok); }
+.conf .n { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 10.5px; color: var(--fg-4); }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip-b {
+  font: inherit; font-size: 12.5px; padding: 8px 13px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--edge-hi); background: var(--canvas); color: var(--fg-2); transition: all .18s;
+}
+.chip-b:hover { border-color: var(--brand); color: var(--fg); }
+.chip-b[aria-pressed="true"] { background: var(--brand); border-color: var(--brand); color: #1a0f04; font-weight: 600; }
+
+.say { font-size: 14px; color: var(--fg-2); line-height: 1.6; }
+.say .cur { display: inline-block; width: 2px; height: 1em; background: var(--brand); vertical-align: -2px; }
+.note { font-size: 13.5px; color: var(--fg-2); line-height: 1.6; padding: 10px 0 10px 14px; border-left: 2px solid var(--edge); }
+.note.a { border-left-color: var(--brand); }
+.note.g { border-left-color: var(--ok); }
+.note b { color: var(--fg); font-weight: 600; }
+.cite { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 10.5px; color: var(--fg-4); }
+
+.wave { display: flex; align-items: center; gap: 3px; height: 46px; }
+.wave i { flex: 1; height: 10%; background: var(--brand); border-radius: 2px; opacity: .8; }
+.sheetgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 9px; }
+.sheetcard { aspect-ratio: 4/5; border: 1px solid var(--edge); border-radius: 7px; background: var(--canvas); padding: 8px; cursor: pointer; position: relative; overflow: hidden; transition: border-color .2s; }
+.sheetcard:hover, .sheetcard.on { border-color: var(--brand); }
+.sheetcard .ln { height: 2px; background: var(--edge-hi); border-radius: 2px; margin-bottom: 4px; }
+.sheetcard .no { position: absolute; left: 8px; bottom: 6px; font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 9.5px; color: var(--fg-3); }
+.sheetcard .scan { position: absolute; left: 0; right: 0; height: 26px; top: -26px; background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--brand) 30%, transparent), transparent); border-bottom: 1px solid var(--brand); }
+.dial { display: flex; align-items: center; gap: 18px; }
+.dial svg { flex: none; }
+.mini { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+.funnel { display: flex; flex-direction: column; gap: 9px; }
+.fstage { display: grid; grid-template-columns: 1fr 52px; align-items: center; gap: 12px; }
+.fbar { height: 32px; border-radius: 6px; background: var(--raised); position: relative; overflow: hidden; }
+.fbar i { position: absolute; inset: 0 auto 0 0; width: 0; background: linear-gradient(90deg, var(--slate), var(--brand)); }
+.fbar .l { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 12px; font-weight: 600; z-index: 2; }
+.fstage .n { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 14px; font-weight: 600; text-align: right; }
+
+.split2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: start; }
+@media (max-width: 620px) { .split2 { grid-template-columns: 1fr; } }
+
+/* ============================ MACHINE ============================ */
+.machsvg { width: 100%; max-width: 1080px; height: auto; overflow: visible; margin-inline: auto; display: block; }
+.mpath { fill: none; stroke: var(--edge-hi); stroke-width: 1.2; }
+.mlab { font-family: InterVar, Inter, sans-serif; font-size: 11px; fill: var(--fg-3); }
+.mhub { font-family: tungsten, Oswald, "Arial Narrow", sans-serif; font-size: 17px; letter-spacing: .1em; fill: var(--fg); text-transform: uppercase; }
+
+/* ============================ LEDGER ============================ */
+.ledger { border-top: 1px solid var(--edge); }
+.lrow {
+  display: grid; grid-template-columns: 62px minmax(0,1fr) minmax(0,1.6fr) 150px;
+  gap: 20px; align-items: center; padding: 18px 0; border-bottom: 1px solid var(--edge);
+  cursor: pointer; transition: background .22s, padding-left .22s;
+}
+.lrow:hover { background: var(--surface); padding-left: 12px; }
+.lrow .lc { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 11.5px; color: var(--brand); }
+.lrow .ln2 { font-family: tungsten, Oswald, "Arial Narrow", sans-serif; font-size: 21px; text-transform: uppercase; font-weight: 500; }
+.lrow .lw { font-size: 13.5px; color: var(--fg-3); }
+.lrow .lp { justify-self: end; }
+@media (max-width: 900px) { .lrow { grid-template-columns: 52px 1fr auto; } .lrow .lw { display: none; } }
+
+/* ============================ DETAIL ============================ */
+.view { display: none; }
+.view.on { display: block; }
+.crumb { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--fg-3); padding: 92px 0 0; }
+.crumb:hover { color: var(--brand); }
+.d-hero { padding: 26px 0 40px; display: flex; flex-direction: column; gap: 18px; }
+.d-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.d-grid { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1.15fr); gap: clamp(24px, 3.4vw, 48px); align-items: start; }
+@media (max-width: 1000px) { .d-grid { grid-template-columns: 1fr; } }
+.panel { background: var(--surface); border: 1px solid var(--edge); border-radius: var(--r); padding: 24px; }
+.panel-t { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--fg-4); margin-bottom: 16px; display: block; }
+ul.ticks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 13px; }
+ul.ticks li { display: grid; grid-template-columns: 14px 1fr; gap: 12px; font-size: 14.5px; color: var(--fg-2); line-height: 1.55; }
+ul.ticks li::before { content: ""; width: 6px; height: 6px; border-radius: 50%; margin-top: 9px; background: var(--brand); }
+.swaprow { display: grid; grid-template-columns: 84px 1fr auto; align-items: center; gap: 14px; padding: 13px 0; border-bottom: 1px solid var(--edge); }
+.swaprow:last-of-type { border-bottom: 0; }
+.swaprow .k { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--fg-4); }
+.swaprow .tk { position: relative; height: 18px; display: flex; align-items: center; }
+.swaprow .tk .base { position: absolute; inset: 50% 0 auto; height: 1px; background: var(--edge); }
+.swaprow .tk i { position: relative; height: 5px; border-radius: 3px; width: 0; min-width: 8px; display: block; }
+.swaprow .tk i.a { background: var(--fg-4); }
+.swaprow .tk i.b { background: var(--brand); }
+.swaprow .v { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 13.5px; font-weight: 600; min-width: 96px; text-align: right; }
+.impact { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-top: 32px; }
+.imp { background: var(--surface); border: 1px solid var(--edge); border-radius: var(--r); padding: 22px; display: flex; flex-direction: column; gap: 6px; }
+.imp b { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 30px; font-weight: 600; letter-spacing: -.03em; line-height: 1; }
+.imp span { font-size: 12.5px; color: var(--fg-3); line-height: 1.45; }
+.imp .src { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase; margin-top: 3px; }
+.src.v { color: var(--ok); } .src.p { color: var(--fg-4); }
+.pager { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--edge); margin-top: 70px; }
+.pager a { padding: 26px var(--sp); display: flex; flex-direction: column; gap: 4px; transition: background .2s; }
+.pager a + a { border-left: 1px solid var(--edge); text-align: right; align-items: flex-end; }
+.pager a:hover { background: var(--surface); }
+.pager .k { font-size: 11.5px; color: var(--fg-4); }
+.pager .t { font-family: tungsten, Oswald, "Arial Narrow", sans-serif; font-size: 21px; text-transform: uppercase; font-weight: 500; }
+@media (max-width: 640px) { .pager { grid-template-columns: 1fr; } .pager a + a { border-left: 0; border-top: 1px solid var(--edge); text-align: left; align-items: flex-start; } }
+
+.foot { border-top: 1px solid var(--edge); padding: 40px 0 66px; display: flex; flex-wrap: wrap; gap: 18px; align-items: center; }
+.legend { display: flex; flex-wrap: wrap; gap: 18px; margin-left: auto; }
+.legend span { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: var(--fg-3); }
+.legend i { width: 7px; height: 7px; border-radius: 50%; }
+
+/* preloader */
+.pre { position: fixed; inset: 0; z-index: 1000; background: var(--canvas); display: grid; place-items: center; }
+.pre-in { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+.pre-n { font-family: tungsten, Oswald, "Arial Narrow", sans-serif; font-size: clamp(64px, 14vw, 170px); line-height: 1; color: var(--fg); font-variant-numeric: tabular-nums; }
+.pre-bar { width: min(260px, 56vw); height: 2px; background: var(--raised); overflow: hidden; }
+.pre-bar i { display: block; height: 100%; width: 0; background: var(--brand); }
+.pre-l { font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: var(--fg-4); }
+.curtain { position: fixed; inset: 0; z-index: 999; background: var(--canvas); pointer-events: none; }
+</style>
+
+<div class="bloom"></div>
+
+<div class="topbar">
+  <div class="topbar-in">
+    <a class="mark" href="#/">
+      <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true">
+        <path d="M11 2 20.5 20H1.5L11 2Z" fill="none" stroke="#dc822e" stroke-width="1.6"/>
+        <path d="M11 8.6 15.9 18H6.1L11 8.6Z" fill="#dc822e" opacity=".3"/>
+      </svg>
+      <b>Alleato AI</b>
+    </a>
+    <nav>
+      <a class="navlink hide-sm" href="#/">Overview</a>
+      <a class="navlink hide-sm" data-jump="console">Try it</a>
+      <a class="navlink hide-sm" data-jump="ledger">Status</a>
+      <a class="navlink" data-jump="console">Start a demo</a>
+    </nav>
+  </div>
+</div>
+<div class="prog" id="prog"></div>
+
+<!-- ==================== OVERVIEW ==================== -->
+<section class="view on" id="view-index">
+
+  <div class="wrap">
+    <div class="hero">
+      <div class="hero-in">
+        <div class="tagrow" data-fade>
+          <i class="livedot"></i>
+          <span class="eyebrow">Running in production · Alleato Group</span>
+        </div>
+        <h1 id="title">Fourteen things that now <span class="b">run themselves.</span></h1>
+        <p class="lede" data-fade>
+          The drawing set. The submittal log. The daily log. The money. The morning brief.
+          Every one of these is real code inside the platform your team already opens —
+          and on this page you can click each one and watch it work.
+        </p>
+        <div class="cta" data-fade>
+          <button class="btn btn-key" data-jump="console">Run a live demo →</button>
+          <button class="btn" data-jump="swap">See what changed</button>
+        </div>
+        <div class="hero-strip" data-fade>
+          <div class="hs"><b data-count="14">0</b><span>capabilities built</span></div>
+          <div class="hs"><b data-count="110">0</b><span>actions the assistant can take</span></div>
+          <div class="hs"><b data-count="7">0</b><span>specialist agents</span></div>
+          <div class="hs"><b data-count="375">0</b><span>screens it can reach</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- the swap -->
+  <div class="swap-act" id="swap">
+    <div class="wrap">
+      <div class="swap-in">
+        <span class="eyebrow" data-fade>What actually changed</span>
+        <div class="swap-num" id="swapNum">3<span class="u">hrs 40</span></div>
+        <svg class="swapsvg" viewBox="0 0 980 46" preserveAspectRatio="none" aria-hidden="true">
+          <line class="cap" x1="2" y1="9" x2="2" y2="37"/>
+          <line class="cap" x1="978" y1="9" x2="978" y2="37" id="swapCapEnd"/>
+          <line class="run" x1="2" y1="23" x2="978" y2="23" id="swapRun"/>
+        </svg>
+        <p class="swap-cap" id="swapCap">One engineer, one submittal, the whole drawing set checked by hand</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- THE CONSOLE -->
+  <div class="wrap">
+    <div class="band" id="console">
+      <div class="sechead">
+        <div class="rule" data-rule></div>
+        <span class="eyebrow" data-fade>Live demo console</span>
+        <h2 data-split>Pick one. Watch it work.</h2>
+        <p class="lede" data-fade>
+          These are working demonstrations, not screenshots. Press the buttons — scan a drawing set,
+          run a review, talk to the daily log, compose the brief. Every one mirrors what the real
+          feature does inside the platform.
+        </p>
+      </div>
+      <div class="console">
+        <div class="rail" id="rail" role="tablist" aria-label="AI capabilities"></div>
+        <div class="app" id="app">
+          <div class="app-bar">
+            <i></i><i></i><i></i>
+            <span class="t" id="appTitle">—</span>
+            <a class="lk" id="appLink" href="#/">Open full sheet →</a>
+          </div>
+          <div class="app-body" id="appBody"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- the machine -->
+  <div class="wrap">
+    <div class="band" id="machine">
+      <div class="sechead" style="align-items:center;text-align:center;margin-inline:auto">
+        <span class="eyebrow" data-fade>How it holds together</span>
+        <h2 data-split>Five sources. One corpus. Seven agents.</h2>
+      </div>
+      <svg class="machsvg" id="machSvg" viewBox="0 0 1080 440" aria-hidden="true"></svg>
+      <p class="small" data-fade style="text-align:center;max-width:66ch;margin:26px auto 0">
+        Everything in the console reads from the same corpus. That is the part that compounds —
+        each week of meetings, email and drawings makes all fourteen better at once, and it is the
+        part a competitor cannot buy.
+      </p>
+    </div>
+  </div>
+
+  <!-- ledger -->
+  <div class="wrap">
+    <div class="band" id="ledger">
+      <div class="sechead">
+        <div class="rule" data-rule></div>
+        <span class="eyebrow" data-fade>Where each one stands</span>
+        <h2 data-split>The honest status board.</h2>
+        <p class="lede" data-fade>
+          Three of these were deliberately held back so they could be reviewed and approved as AI
+          features before running against live projects. Those are decisions waiting on a person,
+          not things left unbuilt.
+        </p>
+      </div>
+      <div class="ledger" id="ledgerRows"></div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="foot">
+      <span class="small">Built for the Alleato AI review</span>
+      <div class="legend">
+        <span><i style="background:var(--ok)"></i>Live in production</span>
+        <span><i style="background:var(--info)"></i>Building</span>
+        <span><i style="background:var(--brand)"></i>Awaiting approval</span>
+        <span><i style="background:var(--idle)"></i>Data asset</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="view" id="view-detail"><div id="detailBody"></div></section>
+
+<!--GSAP_BUNDLE-->
+
+<script>
+(() => {
+  "use strict";
+  const RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  gsap.registerPlugin(ScrollTrigger, CustomEase, SplitText, DrawSVGPlugin);
+  CustomEase.create("al", "M0,0 C0.2,0.9 0.25,1 1,1");
+  gsap.defaults({ ease: "al" });
+
+  const $  = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+  /* ============================================================
+     DATA — real capabilities. `v:true` impact numbers are verified
+     in the codebase; `v:false` are projected and labelled so.
+     ============================================================ */
+  const GROUPS = [
+    { n: "AI-1", t: "Preconstruction" },
+    { n: "AI-2", t: "The field" },
+    { n: "AI-3", t: "Money & risk" },
+    { n: "AI-4", t: "The company" }
+  ];
+  const STATUS = {
+    live:   ["sd-live",   "p-ok",    "Live"],
+    build:  ["sd-build",  "p-info",  "Building"],
+    parked: ["sd-parked", "p-alert", "Awaiting approval"],
+    draft:  ["sd-draft",  "p-idle",  "Data asset"]
+  };
+
+  const SET = [
+    { id:"ai-101", g:"AI-1", code:"AI-101", status:"live", name:"Drawing Intelligence",
+      promise:"Every page of every drawing is read by a vision model — sheet number, discipline, scale, notes, and what it implies you'll need to submit.",
+      route:"/{project}/drawings/{id}",
+      was:{v:"Unsearchable",w:100,label:"PDFs in a folder — you had to know which sheet to open"},
+      now:{v:"Read on upload",w:10,label:"Rendered, seen by a vision model, summarised and indexed"},
+      what:["Each page is rendered to an image and read by a vision model — not just scanned for text.",
+            "It extracts sheet number, title, discipline, scale, detail references, notes and requirements.",
+            "It also extracts implied submittals — what this sheet says somebody will have to submit.",
+            "The page summary is indexed, so the assistant can answer questions about a drawing in plain English.",
+            "This is the layer everything else in this series reads from."],
+      turn:["Live — runs automatically on upload.","Backfilling older projects is the remaining work.","Capped at 25 pages per document today; larger sets need that raised."],
+      impact:[{n:"10",u:"",l:"disciplines classified automatically",v:true},
+              {n:"63",u:"",l:"drawings read on the Morrisville set",v:true},
+              {n:"0",u:"",l:"manual tagging required",v:true}] },
+
+    { id:"ai-102", g:"AI-1", code:"AI-102", status:"live", name:"Submittal Coverage",
+      promise:"Scans the drawing set and tells you which submittals the drawings require but nobody has logged yet.",
+      route:"/{project}/submittals → Scan Drawings",
+      was:{v:"Days + luck",w:100,label:"Build the submittal log by hand and hope nothing was missed"},
+      now:{v:"One scan",w:7,label:"Implied vs logged, compared across the whole set, gaps listed"},
+      what:["Reads the implied submittals that Drawing Intelligence pulled off every page.",
+            "Cross-references them against what is actually in the submittal log for that project.",
+            "Returns covered / missing, with the drawing that implied each one.",
+            "Missing items become real submittals in one click — the PM decides, the machine finds.",
+            "A missed submittal is a schedule hit nobody sees coming. This is the highest-leverage one here."],
+      turn:["Live in the Submittals tool.","Quality depends on drawings being uploaded and processed first.","Worth a side-by-side against a submittal log a person built, to prove it."],
+      impact:[{n:"1",u:"scan",l:"replaces a manual pass through the whole set",v:true},
+              {n:"100",u:"%",l:"of gaps carry the drawing that implied them",v:true},
+              {n:"1",u:"click",l:"from gap to a created submittal",v:true}] },
+
+    { id:"ai-103", g:"AI-1", code:"AI-103", status:"parked", name:"Submittal vs Drawing Review",
+      promise:"Reads a submittal against the actual drawing set and flags where it doesn't match — with the sheet it read. Built, and held back for approval.",
+      route:"Built · awaiting approval as an AI feature",
+      was:{v:"3 hrs 40",w:100,label:"An engineer reads the submittal, then hunts the drawing set by hand"},
+      now:{v:"~90 sec",w:8,label:"Every referenced sheet checked, findings cited to the page"},
+      what:["Assembles the submittal text, the linked drawings' extracted text and the drawing index into one review.",
+            "Produces pass / fail / warning checks with severity, expected vs submitted values, and source citations.",
+            "The reviewer accepts, edits or dismisses each check. The machine never approves anything.",
+            "It was taken out of production on purpose — so it can be reviewed and signed off as an AI feature before it runs against live submittals. The code and the database schema are both intact.",
+            "Turning it back on is an approval, not a build."],
+      turn:["The code exists and the schema is still live in the database.","It needs sign-off as an AI feature, then an owner to run it on real submittals and judge the output.","That is the whole ask — this is the cheapest win on the board."],
+      impact:[{n:"3.5",u:"hrs",l:"reviewer time returned per submittal",v:false},
+              {n:"4.3",u:"k",l:"lines of working code already written",v:true},
+              {n:"1",u:"",l:"approval between here and live",v:false}] },
+
+    { id:"ai-104", g:"AI-1", code:"AI-104", status:"draft", name:"ASRS Knowledge Base",
+      promise:"The FM Global rules that govern Alleato's specialty, turned into structured, citable data. The asset exists; the product is one review away.",
+      route:"Dedicated ASRS database",
+      was:{v:"Consultant",w:100,label:"Chase the data sheet, then a consultant, then wait days"},
+      now:{v:"Structured",w:22,label:"Tables and figures reviewed into a citable index"},
+      what:["The FM Global ASRS data sheet is broken into structured tables and figures, not stored as one flat PDF.",
+            "Reviewed tables and figures become their own indexed entries, so an answer can cite a specific table and figure.",
+            "It was moved to its own database so it can be productised or licensed separately from the PM platform.",
+            "This is Alleato's differentiator turned into an asset a competitor cannot buy.",
+            "Honest status: there is no ASRS question box yet. This is the raw material, and the gate is engineer review."],
+      turn:["225 native chunks are indexed; 2 tables and 7 figures are fully reviewed.","56 tables and 54 figures still need engineer review before they can be trusted in an answer.","That review is a person's time, not a build.","After that: a question box, and this becomes a product."],
+      impact:[{n:"225",u:"",l:"indexed entries from the FM data sheet",v:true},
+              {n:"9",u:"of 119",l:"tables and figures engineer-reviewed so far",v:true},
+              {n:"1",u:"",l:"reviewer needed to unlock the rest",v:false}] },
+
+    { id:"ai-201", g:"AI-2", code:"AI-201", status:"live", name:"Site Scribe",
+      promise:"The superintendent talks. The daily log writes itself — manpower, weather, delays, photos, all structured.",
+      route:"/{project}/daily-log/site-scribe",
+      was:{v:"45 min",w:100,label:"Typed at the end of the day, from memory, in the truck"},
+      now:{v:"Real time",w:6,label:"Spoken on site, structured into the log as it happens"},
+      what:["Real-time voice capture built for someone wearing gloves in a loud building.",
+            "Speech is parsed straight into daily-log structure — manpower by subcontractor, worker counts, hours, tagged notes, photos.",
+            "Every extracted field carries a confidence score and the audio timestamp it came from, so a reviewer can jump back to the exact moment it was said.",
+            "The super reviews and submits. Nothing posts without them.",
+            "Logs stop being written from memory at 6pm — which is where the detail was always lost."],
+      turn:["Live at /daily-log/site-scribe.","Needs a field rollout: two supers, two weeks, then judge it.","This is the best live demo in the building — watch it run before reading another word about it."],
+      impact:[{n:"8",u:"tags",l:"delivery, inspection, safety, visitor, issue, progress, equipment, other",v:true},
+              {n:"100",u:"%",l:"of fields carry a confidence score and audio timestamp",v:true},
+              {n:"45",u:"min",l:"of end-of-day typing removed per super per day",v:false}] },
+
+    { id:"ai-202", g:"AI-2", code:"AI-202", status:"live", name:"Meeting Intelligence",
+      promise:"Every meeting becomes decisions, promises, risks and open questions — attached to the right project, automatically.",
+      route:"/meetings",
+      was:{v:"Lost",w:100,label:"Notes in someone's notebook, or nowhere at all"},
+      now:{v:"Hourly",w:6,label:"Transcribed, segmented, extracted, linked to the project"},
+      what:["Transcripts sync every hour, get broken into segments, and are assigned to the right project and people.",
+            "Decisions, promises, risks and unresolved questions are pulled out as their own records.",
+            "Anyone can ask what was agreed about the loading dock and get the answer with the meeting and the moment.",
+            "Low-confidence extractions are flagged for review rather than silently becoming tasks.",
+            "The corpus compounds. This is what makes everything else here smarter over time."],
+      turn:["Ingestion is live and running hourly.","The deeper extraction pass is built but switched off by default — turning it on is the decision.","Sensitive meetings are default-deny across all retrieval, and stay that way."],
+      impact:[{n:"60",u:"min",l:"sync cadence — nobody has to remember to upload",v:true},
+              {n:"0.7",u:"",l:"confidence floor before anything becomes a task",v:true},
+              {n:"4",u:"kinds",l:"of signal: decisions, promises, risks, open questions",v:true}] },
+
+    { id:"ai-203", g:"AI-2", code:"AI-203", status:"build", name:"Change Event Capture",
+      promise:"Describe a change in plain English and it finds the evidence across meetings, email and Teams, then drafts the change event for you.",
+      route:"/ai → change event workflow",
+      was:{v:"Weeks late",w:100,label:"Discovered at billing, when it's already a fight"},
+      now:{v:"Minutes",w:9,label:"Evidence gathered, impact walked through, event drafted"},
+      what:["A PM says what happened. The assistant walks an eight-step checklist: project, what happened, cause, cost impact, schedule impact, supporting documents, related records, review.",
+            "It pulls evidence out of meetings, emails, Teams messages, documents and project records — each rated low, medium or high confidence.",
+            "It renders an editable change event and stops. Nothing is created until the PM explicitly confirms.",
+            "Today it is user-initiated. The build ahead is making it watch on its own and raise the flag first.",
+            "That is where the money is: catching a change while the other party still remembers agreeing to it."],
+      turn:["The guided workflow is live in the assistant.","Autonomous background detection is the remaining build — nothing scans for changes unprompted today.","Needs a PM to run it for 30 days so the evidence ranking can be tuned.","Change events stay approval-gated by design. That gate does not come off."],
+      impact:[{n:"8",u:"steps",l:"walked before anything is drafted",v:true},
+              {n:"6",u:"sources",l:"searched for evidence",v:true},
+              {n:"0",u:"",l:"change events created without a human confirming",v:true}] },
+
+    { id:"ai-301", g:"AI-3", code:"AI-301", status:"live", name:"Project Intelligence",
+      promise:"A live read on any project — what's moving, what's at risk, what needs a decision — sourced back to the document.",
+      route:"/{project}/intelligence",
+      was:{v:"Ask around",w:100,label:"Three calls and a spreadsheet to find out where a job stands"},
+      now:{v:"One screen",w:9,label:"Health, risks, timeline and the sources behind each claim"},
+      what:["Reads everything attached to a project — meetings, email, documents, financials — and produces a standing read.",
+            "Every insight links to the source document that produced it. Nothing is asserted without a receipt.",
+            "Risks, decisions and opportunities surface as their own objects, not buried in prose.",
+            "A human review queue sits in front of anything that would become a durable fact.",
+            "Turns “how is Morrisville going” from a two-day question into a five-second one."],
+      turn:["Live on every project with an ingested corpus.","Quality tracks corpus coverage — thin projects give thin reads.","Packets go stale on a timer, so a quiet project reads as stale rather than as fine."],
+      impact:[{n:"1",u:"screen",l:"replaces the status-chasing round trip",v:true},
+              {n:"100",u:"%",l:"of insights carry a source document link",v:true},
+              {n:"0",u:"",l:"claims promoted to durable without review",v:true}] },
+
+    { id:"ai-302", g:"AI-3", code:"AI-302", status:"live", name:"Daily Executive Brief",
+      promise:"Every business morning it reads yesterday — every transcript, email, message and document — and writes the brief before anyone is at a desk.",
+      route:"/daily-brief",
+      was:{v:"Never",w:100,label:"Portfolio-wide awareness only existed in one person's head"},
+      now:{v:"6:00 AM ET",w:6,label:"Composed overnight, ranked by what actually needs a decision"},
+      what:["Reads the prior day's full meeting transcripts, emails, Teams messages and documents — not summaries of them.",
+            "Produces a durable, source-linked report and updates the projections that feed project pages and the assistant.",
+            "It fails closed: incomplete source coverage, missing content or an unresolved citation blocks publication. A wrong brief is worse than no brief.",
+            "Access is role-gated three ways — none, summary only, or full.",
+            "This is what makes the rest of it legible to leadership."],
+      turn:["Live. Scheduled at 6:00 AM Eastern every business morning.","Delivery into Teams or email is the obvious next step — today you go to the page.","The open question is which of the three access levels leadership should sit at."],
+      impact:[{n:"6",u:"AM ET",l:"written before the day starts",v:true},
+              {n:"0",u:"",l:"briefs published with an unresolved citation",v:true},
+              {n:"3",u:"levels",l:"of access control on what each person sees",v:true}] },
+
+    { id:"ai-303", g:"AI-3", code:"AI-303", status:"live", name:"Financial Copilot",
+      promise:"Ask the budget, the commitments and the change orders a question in English — and get the number with its lineage.",
+      route:"/ai → budget & forecast questions",
+      was:{v:"Export → Excel",w:100,label:"Pull a report, pivot it, hope the join was right"},
+      now:{v:"Ask it",w:8,label:"Queried live against budget, commitments, PCOs and invoices"},
+      what:["Reads the live financial tables — budget lines, commitments, change orders, direct costs, invoices.",
+            "Forecast assistance sits on the same data the budget page shows, so the numbers cannot drift apart.",
+            "Every figure can be drilled to the rows that produced it.",
+            "Write-back on financial records stays gated behind human approval, deliberately.",
+            "The point is not chat. It is that nobody rebuilds the same pivot table twice."],
+      turn:["Live in the assistant.","Acumatica is wired in, so it reads the accounting side too.","Financial write-back stays approval-gated. That gate does not come off."],
+      impact:[{n:"6",u:"tools",l:"reading financial data directly",v:true},
+              {n:"1:1",u:"",l:"match to the on-screen budget totals",v:true},
+              {n:"0",u:"",l:"exports needed to answer a budget question",v:false}] },
+
+    { id:"ai-401", g:"AI-4", code:"AI-401", status:"live", name:"Alleato Assistant",
+      promise:"One place to ask the company anything — and to have it do the work, not just describe it.",
+      route:"/ai",
+      was:{v:"Ask a person",w:100,label:"Institutional knowledge lived in whoever had been here longest"},
+      now:{v:"Ask the system",w:5,label:"A strategist routing to six specialists, across 110 tools"},
+      what:["A strategist takes the question and routes it to the specialist who owns that domain — CFO, COO, CRO, CHRO, VP of Business Development, CMO.",
+            "Each specialist calls its own scoped tools against the company's real data: meetings, email, Teams, documents, drawings, financials.",
+            "It can act, not just answer — draft an RFI, create a task, update a record, send a reply — but every write is preview-then-confirm.",
+            "It learns from correction. Reviewed learnings get promoted into durable behaviour instead of being forgotten.",
+            "Everything else here is reachable through it."],
+      turn:["Live at /ai.","Write actions stay gated behind approvals by design. That gate does not come off.","The open question is which specialist to sharpen first."],
+      impact:[{n:"7",u:"agents",l:"a strategist plus six domain specialists",v:true},
+              {n:"110",u:"tools",l:"discrete actions it can take",v:true},
+              {n:"375",u:"pages",l:"of the platform it can reach into",v:true}] },
+
+    { id:"ai-402", g:"AI-4", code:"AI-402", status:"live", name:"Company Brain",
+      promise:"The corpus everything else reads from — every meeting, email, message and document, connected.",
+      route:"/ai/company-brain",
+      was:{v:"Siloed",w:100,label:"Outlook, Teams, SharePoint, meetings — none of them talking"},
+      now:{v:"One graph",w:10,label:"Ingested, indexed and linked to projects, people and clients"},
+      what:["Meetings, Outlook, Teams, SharePoint and OneDrive all feed one indexed corpus.",
+            "Entities are linked — a meeting connects to its project, its people, its decisions and its risks.",
+            "Permissions travel with the content, so restricted material stays default-deny across every surface.",
+            "This is the compounding asset. Every week it runs, everything else gets better for free.",
+            "It is also the moat: a competitor can buy the same models, not this corpus."],
+      turn:["Live and ingesting continuously.","OneDrive coverage and older-project backfill are the gaps.","The corpus figures are a snapshot — pull a live count before showing a client."],
+      impact:[{n:"109",u:"k",l:"indexed chunks in the corpus (snapshot)",v:true},
+              {n:"28.5",u:"k",l:"Teams messages indexed and searchable",v:true},
+              {n:"5",u:"sources",l:"feeding one corpus, continuously",v:true}] },
+
+    { id:"ai-403", g:"AI-4", code:"AI-403", status:"build", name:"Recruiting — Rails First",
+      promise:"The applicant tracker is live and deliberately has no AI in it yet. The guardrails were built before the model. That was the right order.",
+      route:"/recruiting",
+      was:{v:"2 weeks",w:100,label:"Resumes in an inbox, read when someone had a spare afternoon"},
+      now:{v:"Tracked",w:30,label:"Requisitions, candidates, stages, scorecards — no AI scoring"},
+      what:["The applicant tracker is live: requisitions, candidates, applications, stages, scorecards, dispositions.",
+            "There is no AI score, rank, recommendation or automatic stage change today. The screen says so out loud.",
+            "What landed instead is the governance layer: an audit ledger of every AI run, a citation requirement, and a mandatory human accept / edit / reject on anything a model produces.",
+            "Seven AI actions are defined and waiting — read a resume, draft a job description, draft a message, draft interview questions, summarise evidence, suggest a schedule, spot a duplicate.",
+            "Hiring is the one place where an unaccountable model is a legal problem, not just a bad answer. That is why it was built in this order."],
+      turn:["The tracker is live; the AI actions are defined but not switched on.","Turning one on is a small build now that the rails exist — start with resume reading, the lowest-risk of the seven.","No automated rejections, ever. That is a policy decision, not a technical limit."],
+      impact:[{n:"7",u:"actions",l:"defined and governed, waiting to be enabled",v:true},
+              {n:"100",u:"%",l:"of AI output requires a recorded human decision",v:true},
+              {n:"0",u:"",l:"automated rejections — by design",v:true}] },
+
+    { id:"ai-404", g:"AI-4", code:"AI-404", status:"live", name:"Marketing Agent",
+      promise:"Source-backed content plans and drafts built from real project work — approved before anything ships.",
+      route:"/ai-assistant/marketing",
+      was:{v:"Ad hoc",w:100,label:"Marketing written from scratch, disconnected from the work"},
+      now:{v:"Sourced",w:14,label:"Plans and drafts built from real projects, with citations"},
+      what:["Mines real project data — wins, owner updates, lessons, documents — for claims that can actually be proven.",
+            "Builds a content calendar and platform assets from what the company delivered, not from generic industry copy.",
+            "Drafts land in a review queue outside chat. Nothing posts anywhere.",
+            "If the source data is thin it says exactly what is missing rather than inventing a calendar.",
+            "Turns finished work into pipeline without adding a headcount."],
+      turn:["Live — the agent runs and drafts land in the review queue.","Nothing publishes. A person still ships it.","Needs one owner to run the weekly queue, or it just fills up."],
+      impact:[{n:"6",u:"tools",l:"from source-hunting to drafted asset",v:true},
+              {n:"0",u:"",l:"assets published without a human approving",v:true},
+              {n:"1",u:"owner",l:"needed to make it worth running",v:false}] }
+  ];
+  const byId = Object.fromEntries(SET.map(s => [s.id, s]));
+
+  /* ============================================================
+     DEMO KIT — small helpers every demo composes from
+     ============================================================ */
+  const D = {
+    tb: (...html) => `<div class="tb">${html.join("")}</div>`,
+    btn: (act, label, key) => `<button class="btn btn-sm ${key ? "btn-key" : ""}" data-act="${act}">${label}</button>`,
+    hint: t => `<span class="hint">${t}</span>`,
+    rows: id => `<div class="rows" id="${id}"></div>`,
+    row: ({ ic = "ok", mark = "✓", title, meta, right = "", x = "", cls = "" }) =>
+      `<div class="row ${cls}"><span class="ic ic-${ic}">${mark}</span>
+        <span class="tx"><b>${title}</b>${meta ? `<em>${meta}</em>` : ""}</span>
+        <span class="rt">${right}</span>${x ? `<div class="row-x">${x}</div>` : ""}</div>`,
+    note: (t, k = "") => `<div class="note ${k}">${t}</div>`,
+    pill: (k, t) => `<span class="pill ${k}">${t}</span>`
+  };
+
+  /** Reveal a list of prepared row HTML strings into a container, one at a time. */
+  function dealRows(container, html, tl, { each = .18, from = 10 } = {}) {
+    container.innerHTML = html.join("");
+    tl.from(container.children, { opacity: 0, y: from, duration: .42, stagger: each }, "<");
+    return [...container.children];
+  }
+  /** Type text into a node, character-grouped so long strings stay cheap. */
+  function typeInto(node, text, tl, dur = 1.2, at = ">") {
+    const o = { i: 0 };
+    node.textContent = "";
+    tl.to(o, {
+      i: text.length, duration: RM ? 0 : dur, ease: "none",
+      onUpdate: () => { node.textContent = text.slice(0, Math.round(o.i)); }
+    }, at);
+    return tl;
+  }
+  const countTo = (node, to, tl, { dur = 1, fmt = v => Math.round(v), at = "<" } = {}) => {
+    const o = { v: 0 };
+    tl.to(o, { v: to, duration: RM ? 0 : dur, onUpdate: () => node.textContent = fmt(o.v) }, at);
+    return tl;
+  };
+
+  /* ============================================================
+     THE DEMOS — each returns { title, html, play(root, tl), on? }
+     `on` wires click interactions that persist after the timeline.
+     ============================================================ */
+  const DEMOS = {
+
+    "ai-101": {
+      title: "Morrisville · Drawings — page extraction",
+      html: () => `
+        ${D.tb(D.hint("Click any sheet to see what the vision model pulled off it"))}
+        <div class="sheetgrid" id="sg">
+          ${["A-101","S-204","M-301","FP-201","E-120","A-210"].map((n,i)=>
+            `<div class="sheetcard" data-sheet="${i}">
+               ${Array.from({length:7},()=>'<div class="ln"></div>').join("")}
+               <div class="no">${n}</div><div class="scan" data-scan hidden></div>
+             </div>`).join("")}
+        </div>
+        <div class="kv" id="ex" style="opacity:0"></div>`,
+      play(root, tl) { tl.from("#sg .sheetcard", { opacity: 0, y: 14, duration: .4, stagger: .06 }); this.read(root, 3); },
+      read(root, i) {
+        const DATA = [
+          ["A-101","Architectural","Floor plan — Level 1",'1/8" = 1\'-0"',"Door hardware, storefront glazing"],
+          ["S-204","Structural","Rack support framing",'1/4" = 1\'-0"',"Rack post protection, anchor bolts"],
+          ["M-301","Mechanical","Rooftop unit schedule","NTS","Louver schedule, RTU curbs"],
+          ["FP-201","Fire Protection","Sprinkler head schedule",'1/8" = 1\'-0"',"ESFR heads, pipe hangers"],
+          ["E-120","Electrical","Power plan — warehouse",'1/8" = 1\'-0"',"Panelboards, feeder conduit"],
+          ["A-210","Architectural","Dock elevations",'1/4" = 1\'-0"',"Dock levelers, bumpers"]
+        ][i];
+        $$("#sg .sheetcard", root).forEach((c, n) => c.classList.toggle("on", n === i));
+        const card = $$("#sg .sheetcard", root)[i];
+        const scan = $("[data-scan]", card);
+        const ex = $("#ex", root);
+        ex.innerHTML = [["Sheet", DATA[0]], ["Discipline", DATA[1]], ["Title", DATA[2]], ["Scale", DATA[3]], ["Implied submittals", DATA[4]]]
+          .map(([k, v]) => `<span class="k">${k}</span><span class="v">${v}</span>`).join("");
+        const tl = gsap.timeline();
+        scan.hidden = false;
+        tl.fromTo(scan, { top: "-26px" }, { top: "100%", duration: .7, ease: "power1.inOut" })
+          .set(scan, { attr: { hidden: "" } })
+          .set(ex, { opacity: 1 })
+          .from(ex.children, { opacity: 0, x: 10, duration: .3, stagger: .06 }, "<");
+      },
+      on(root) { root.addEventListener("click", e => { const c = e.target.closest("[data-sheet]"); if (c) this.read(root, +c.dataset.sheet); }); }
+    },
+
+    "ai-102": {
+      title: "Morrisville · Submittals — Scan Drawings",
+      html: () => `
+        ${D.tb(D.btn("scan", "Scan 63 drawings", true), `<span class="hint" id="st">Ready</span>`,
+               `<span class="sp"></span>`, D.btn("reset", "Reset"))}
+        <div class="track"><i id="tr"></i></div>
+        ${D.rows("out")}`,
+      play(root, tl) { this.scan(root); },
+      scan(root) {
+        const st = $("#st", root), tr = $("#tr", root), out = $("#out", root);
+        out.innerHTML = ""; gsap.set(tr, { width: 0 });
+        const tl = gsap.timeline();
+        const o = { v: 0 };
+        tl.to(o, { v: 63, duration: RM ? 0 : 1.5, ease: "none",
+          onUpdate: () => { st.textContent = `Reading sheet ${Math.round(o.v)} of 63…`; } })
+          .to(tr, { width: "100%", duration: RM ? 0 : 1.5, ease: "none" }, "<")
+          .call(() => { st.textContent = "5 required submittals found · 2 missing from the log"; });
+        const rows = [
+          { ic: "ok", mark: "✓", title: "Fire sprinkler heads", meta: "implied by FP-201, FP-204", right: "SUB-041" },
+          { ic: "ok", mark: "✓", title: "Structural steel shop drawings", meta: "implied by S-101 → S-108", right: "SUB-012" },
+          { ic: "no", mark: "!", title: "Rack post protection", meta: "implied by S-204 · detail 6", right: "Not logged", cls: "click",
+            x: `<div class="kv"><span class="k">Source</span><span class="v">S-204 — “provide rack post protection at all exposed uprights”</span>
+                <span class="k">Spec section</span><span class="v">05 12 00</span></div>
+                <div class="tb" style="margin-top:12px">${D.btn("create-0", "Create submittal", true)}${D.hint("You decide. It only found it.")}</div>` },
+          { ic: "no", mark: "!", title: "Louver schedule", meta: "implied by M-301", right: "Not logged", cls: "click",
+            x: `<div class="kv"><span class="k">Source</span><span class="v">M-301 — louver schedule referenced, no submittal logged</span>
+                <span class="k">Spec section</span><span class="v">08 90 00</span></div>
+                <div class="tb" style="margin-top:12px">${D.btn("create-1", "Create submittal", true)}${D.hint("You decide. It only found it.")}</div>` },
+          { ic: "q", mark: "?", title: "Dock leveler", meta: "A-210 — the drawing note is ambiguous", right: "Needs a PM" }
+        ].map(D.row);
+        dealRows(out, rows, tl, { each: .14 });
+      },
+      on(root) {
+        root.addEventListener("click", e => {
+          const b = e.target.closest("[data-act]");
+          if (b && b.dataset.act === "scan") return this.scan(root);
+          if (b && b.dataset.act === "reset") { $("#out", root).innerHTML = ""; $("#st", root).textContent = "Ready"; gsap.set($("#tr", root), { width: 0 }); return; }
+          if (b && b.dataset.act.startsWith("create")) {
+            const row = b.closest(".row");
+            row.querySelector(".ic").className = "ic ic-ok";
+            row.querySelector(".ic").textContent = "✓";
+            row.querySelector(".rt").innerHTML = D.pill("p-ok", "Created");
+            row.classList.remove("open", "click");
+            gsap.fromTo(row, { backgroundColor: "rgba(46,169,123,.16)" }, { backgroundColor: "rgba(0,0,0,0)", duration: 1.1 });
+            return;
+          }
+          const r = e.target.closest(".row.click");
+          if (r) r.classList.toggle("open");
+        });
+      }
+    },
+
+    "ai-103": {
+      title: "Submittal 04-118 · Rack-supported sprinkler heads — AI Review",
+      html: () => `
+        ${D.tb(D.btn("run", "Run AI review", true), `<span class="hint" id="st">Not run</span>`,
+               `<span class="sp"></span>`, `<span class="pill p-alert">Awaiting approval to run in production</span>`)}
+        ${D.rows("out")}`,
+      play(root, tl) { this.run(root); },
+      run(root) {
+        const out = $("#out", root), st = $("#st", root);
+        out.innerHTML = ""; st.textContent = "Reading submittal + 4 linked drawings…";
+        const tl = gsap.timeline();
+        tl.to({}, { duration: RM ? 0 : .8 }).call(() => st.textContent = "5 checks · 1 mismatch · 1 for the reviewer");
+        const rows = [
+          { ic: "ok", mark: "✓", title: "Model ESFR-25 matches the FP-201 head schedule", meta: "FP-201 · line 14", right: "Pass" },
+          { ic: "ok", mark: "✓", title: "K-factor 25.2 within the specified range", meta: "Spec 21 13 13 · §2.3", right: "Pass" },
+          { ic: "no", mark: "!", title: "Deflector height 14″ — drawings call for 12″ max", meta: "FP-204 · detail 3", right: "Mismatch", cls: "click",
+            x: `<div class="split2">
+                  <div class="kv"><span class="k">Submitted</span><span class="v" style="color:var(--brand)">14″ below deck</span>
+                  <span class="k">Drawing calls for</span><span class="v">12″ max below deck</span>
+                  <span class="k">Severity</span><span class="v">High — affects coverage</span></div>
+                  <div class="note a"><b>Where this came from</b><br>FP-204, detail 3, sprinkler deflector mounting.
+                  <br><span class="cite">read at 00:41 into the review</span></div>
+                </div>
+                <div class="tb" style="margin-top:14px">${D.btn("accept", "Accept finding", true)}${D.btn("dismiss", "Dismiss")}${D.hint("The reviewer decides. The machine never approves.")}</div>` },
+          { ic: "q", mark: "?", title: "Rack row spacing not stated in the submittal", meta: "cannot be verified from what was submitted", right: "Reviewer" },
+          { ic: "ok", mark: "✓", title: "Listing confirmed for Class 3 commodity", meta: "FM DS 8-34 · table 5", right: "Pass" }
+        ].map(D.row);
+        dealRows(out, rows, tl, { each: .2 });
+      },
+      on(root) {
+        root.addEventListener("click", e => {
+          const b = e.target.closest("[data-act]");
+          if (b && b.dataset.act === "run") return this.run(root);
+          if (b && (b.dataset.act === "accept" || b.dataset.act === "dismiss")) {
+            const row = b.closest(".row"), ok = b.dataset.act === "accept";
+            row.querySelector(".rt").innerHTML = D.pill(ok ? "p-alert" : "p-idle", ok ? "Accepted — sent back to sub" : "Dismissed by reviewer");
+            row.classList.remove("open", "click");
+            return;
+          }
+          const r = e.target.closest(".row.click");
+          if (r) r.classList.toggle("open");
+        });
+      }
+    },
+
+    "ai-104": {
+      title: "ASRS knowledge base · engineer review progress",
+      html: () => `
+        ${D.tb(D.btn("review", "Review the next table", true), D.hint("Each reviewed table becomes an answer the system can cite"))}
+        <div class="dial">
+          <svg width="112" height="112" viewBox="0 0 112 112">
+            <circle cx="56" cy="56" r="47" fill="none" stroke="var(--raised)" stroke-width="9"/>
+            <circle id="ring" cx="56" cy="56" r="47" fill="none" stroke="var(--brand)" stroke-width="9"
+                    stroke-linecap="round" transform="rotate(-90 56 56)"
+                    stroke-dasharray="295" stroke-dashoffset="295"/>
+          </svg>
+          <div>
+            <div class="mono" style="font-size:30px;font-weight:600"><span id="rn">0</span> <span style="font-size:14px;color:var(--fg-4)">of 119 reviewed</span></div>
+            <div class="small" id="rl">56 tables and 54 figures still need an engineer before they can be trusted in an answer.</div>
+          </div>
+        </div>
+        ${D.rows("out")}`,
+      play(root, tl) { this.n = 9; this.paint(root, true); },
+      paint(root, first) {
+        const pct = this.n / 119;
+        gsap.to($("#ring", root), { strokeDashoffset: 295 * (1 - pct), duration: .7 });
+        countTo($("#rn", root), this.n, gsap.timeline(), { dur: .5 });
+        const out = $("#out", root);
+        if (first) {
+          dealRows(out, [
+            D.row({ ic: "ok", mark: "✓", title: "Table 12 — ceiling-only protection limits", meta: "reviewed · answers can cite it", right: "Trusted" }),
+            D.row({ ic: "ok", mark: "✓", title: "Figure 9 — in-rack head placement", meta: "reviewed · answers can cite it", right: "Trusted" }),
+            D.row({ ic: "q", mark: "?", title: "Table 14 — commodity classification", meta: "indexed, not yet reviewed", right: "Not used" })
+          ], gsap.timeline(), { each: .12 });
+        }
+      },
+      on(root) {
+        root.addEventListener("click", e => {
+          if (!e.target.closest('[data-act="review"]')) return;
+          if (this.n >= 119) return;
+          this.n = Math.min(119, this.n + 7);
+          this.paint(root);
+          const out = $("#out", root);
+          const el = document.createElement("div");
+          el.innerHTML = D.row({ ic: "ok", mark: "✓", title: `Table ${13 + this.n} — reviewed and released`, meta: "answers can now cite this table", right: "Trusted" });
+          out.prepend(el.firstElementChild);
+          gsap.from(out.firstElementChild, { opacity: 0, y: -10, duration: .35 });
+          if (this.n >= 119) $("#rl", root).textContent = "Fully reviewed. This is now a product, not a data asset.";
+        });
+      }
+    },
+
+    "ai-201": {
+      title: "Site Scribe · Bay 4 — 2:41 PM",
+      html: () => `
+        ${D.tb(D.btn("talk", "🎙 Start talking", true), D.hint("Speak on site — the log fills itself in"))}
+        <div class="wave" id="wv">${Array.from({ length: 46 }, () => "<i></i>").join("")}</div>
+        <div class="say" id="say"></div>
+        <div class="kv" id="fields"></div>
+        ${D.tb(D.btn("submit", "Review &amp; submit", true), D.hint("Nothing posts until the super submits"))}`,
+      play(root, tl) { this.talk(root); },
+      talk(root) {
+        const say = $("#say", root), fields = $("#fields", root), bars = $$("#wv i", root);
+        fields.innerHTML = "";
+        const tl = gsap.timeline();
+        const wave = RM ? null : gsap.to(bars, {
+          height: () => 20 + Math.random() * 70 + "%", duration: .42, repeat: -1, yoyo: true,
+          ease: "sine.inOut", stagger: { each: .03, from: "random" }
+        });
+        typeInto(say, "“Crew of nine on bay four today, concrete pour pushed to Thursday, waiting on the rebar delivery — Hendricks says Wednesday morning.”", tl, 2.4, 0);
+        tl.call(() => { if (wave) wave.kill(); gsap.to(bars, { height: "10%", duration: .3 }); });
+        const F = [
+          ["Date", "Thu · Jul 30 · 2:41 PM", 99], ["Manpower", "9 — Bay 4", 96],
+          ["Weather", "84°F, clear · auto-filled", 100], ["Delay", "Concrete pour → Thursday", 92],
+          ["Blocker", "Rebar delivery · Hendricks · Wed AM", 88]
+        ];
+        tl.call(() => {
+          fields.innerHTML = F.map(([k, v, c]) =>
+            `<span class="k">${k}</span><span class="v" style="display:flex;gap:12px;align-items:center;justify-content:space-between">
+               <span>${v}</span>
+               <span class="conf"><span class="bar"><i data-c="${c}"></i></span><span class="n">${c}%</span></span>
+             </span>`).join("");
+          gsap.from(fields.children, { opacity: 0, x: 10, duration: .35, stagger: .09 });
+          gsap.to($$("#fields .bar i", root), { width: (i, t) => t.dataset.c + "%", duration: .7, stagger: .09, delay: .2 });
+        });
+      },
+      on(root) {
+        root.addEventListener("click", e => {
+          const b = e.target.closest("[data-act]"); if (!b) return;
+          if (b.dataset.act === "talk") return this.talk(root);
+          if (b.dataset.act === "submit") {
+            b.textContent = "✓ Submitted by the super";
+            b.classList.remove("btn-key");
+            gsap.fromTo(b, { scale: .96 }, { scale: 1, duration: .35 });
+          }
+        });
+      }
+    },
+
+    "ai-202": {
+      title: "Weekly OAC · Morrisville — extraction",
+      html: () => `
+        ${D.tb(D.btn("play", "Play the meeting", true), D.hint("Watch decisions and actions separate themselves out"))}
+        <div class="split2">
+          <div class="rows" id="tx"></div>
+          <div class="rows" id="ex"></div>
+        </div>`,
+      play(root, tl) { this.run(root); },
+      run(root) {
+        const tx = $("#tx", root), ex = $("#ex", root);
+        tx.innerHTML = ""; ex.innerHTML = "";
+        const tl = gsap.timeline();
+        dealRows(tx, [
+          D.row({ ic: "q", mark: "D", title: "…we're going to move the dock doors six feet north to clear the rack line.", meta: "Dan · 12:04" }),
+          D.row({ ic: "q", mark: "R", title: "That's fine on our end but it changes the apron pour.", meta: "Ray · 12:04" }),
+          D.row({ ic: "q", mark: "M", title: "Then let's confirm with the owner before Friday.", meta: "Megan · 12:05" })
+        ], tl, { each: .55 });
+        tl.call(() => {
+          dealRows(ex, [
+            D.row({ ic: "ok", mark: "✓", title: "Dock doors relocated 6 ft north", meta: "Decision · 12:04", right: "0.94" }),
+            D.row({ ic: "ok", mark: "✓", title: "Confirm with owner · Megan · due Fri", meta: "Action · 12:05", right: "0.91" }),
+            D.row({ ic: "no", mark: "!", title: "Apron pour scope impacted", meta: "Risk · 12:04", right: "0.78" }),
+            D.row({ ic: "q", mark: "?", title: "Who pays for the apron change?", meta: "Open question · 12:05", right: "0.62 — flagged" })
+          ], gsap.timeline(), { each: .22 });
+        });
+      },
+      on(root) { root.addEventListener("click", e => { if (e.target.closest('[data-act="play"]')) this.run(root); }); }
+    },
+
+    "ai-203": {
+      title: "Change event · evidence assembly",
+      html: () => `
+        <div class="chips" id="chips">
+          <button class="chip-b" data-q="0">Owner changed the door hardware</button>
+          <button class="chip-b" data-q="1">Extra bollards at the east door</button>
+          <button class="chip-b" data-q="2">Rebar escalation</button>
+        </div>
+        <div class="say" id="say"></div>
+        ${D.rows("ev")}
+        <div class="kv" id="draft"></div>
+        <div class="tb" id="cta"></div>`,
+      play(root, tl) { this.ask(root, 0); },
+      ask(root, q) {
+        $$("#chips .chip-b", root).forEach((c, i) => c.setAttribute("aria-pressed", String(i === q)));
+        const Q = [
+          { say: "The owner had us swap the door hardware to the heavier set. Log it.",
+            ev: [["Teams · field channel · 07-28", "“owner asked us to swap the door hardware to the heavier set.”", "High"],
+                 ["Outlook · sub → PM · 07-29", "revised hardware pricing, +$14,200", "High"],
+                 ["OAC transcript · 07-28", "“let's just handle it, we'll sort the paperwork later.”", "Medium"]],
+            draft: [["Cause", "Owner-directed change"], ["Cost impact", "+$14,200"], ["Schedule impact", "None identified"], ["Status", "Draft — step 8 of 8"]] },
+          { say: "We added two extra bollards at the east door. Was that in scope?",
+            ev: [["Outlook · sub → PM · 07-22", "“per our call, we'll add the two extra bollards at the east door.”", "High"],
+                 ["Drawing A-210 · rev 2", "bollard count unchanged from rev 1", "High"],
+                 ["Daily log · 07-24", "bollard install noted by the super", "Medium"]],
+            draft: [["Cause", "Owner request, not on drawings"], ["Cost impact", "+$3,850"], ["Schedule impact", "None"], ["Status", "Draft — step 8 of 8"]] },
+          { say: "Rebar came in higher than we bought it. Where does that sit?",
+            ev: [["Acumatica · invoice 88214", "rebar unit cost +11% vs commitment", "High"],
+                 ["Outlook · supplier · 07-18", "escalation notice, effective immediately", "High"],
+                 ["Commitment SC-014", "no escalation clause", "High"]],
+            draft: [["Cause", "Market escalation"], ["Cost impact", "+$63,000"], ["Schedule impact", "8-day delivery slip"], ["Status", "Draft — step 8 of 8"]] }
+        ][q];
+        const tl = gsap.timeline();
+        typeInto($("#say", root), "› " + Q.say, tl, 1.1, 0);
+        const ev = $("#ev", root), draft = $("#draft", root), cta = $("#cta", root);
+        ev.innerHTML = ""; draft.innerHTML = ""; cta.innerHTML = "";
+        tl.call(() => {
+          dealRows(ev, Q.ev.map(([src, quote, conf]) => D.row({
+            ic: conf === "High" ? "ok" : "q", mark: conf === "High" ? "✓" : "~",
+            title: quote, meta: src, right: conf + " confidence"
+          })), gsap.timeline(), { each: .22 });
+        });
+        tl.call(() => {
+          draft.innerHTML = Q.draft.map(([k, v]) => `<span class="k">${k}</span><span class="v">${v}</span>`).join("");
+          cta.innerHTML = D.btn("create", "Create change event", true) + D.hint("Nothing is created until you confirm.");
+          gsap.from(draft.children, { opacity: 0, y: 8, duration: .3, stagger: .05 });
+          gsap.from(cta.children, { opacity: 0, duration: .35 });
+        }, null, "+=.9");
+      },
+      on(root) {
+        root.addEventListener("click", e => {
+          const c = e.target.closest("[data-q]"); if (c) return this.ask(root, +c.dataset.q);
+          const b = e.target.closest('[data-act="create"]');
+          if (b) { b.textContent = "✓ Change event created by the PM"; b.classList.remove("btn-key"); }
+        });
+      }
+    },
+
+    "ai-301": {
+      title: "Project Intelligence · Morrisville",
+      html: () => `${D.tb(D.btn("read", "Refresh the read", true), D.hint("Click any line to see the source behind it"))}${D.rows("out")}`,
+      play(root, tl) { this.run(root); },
+      run(root) {
+        const out = $("#out", root); out.innerHTML = "";
+        dealRows(out, [
+          D.row({ ic: "no", mark: "!", title: "Schedule risk — 8 days", meta: "rebar slipped twice; the apron pour is now critical path", right: "Risk", cls: "click",
+            x: D.note("<b>Sources</b><br>Daily log 07-29 · OAC transcript 07-28 · supplier email 07-18<br><span class='cite'>every claim links to the document that produced it</span>", "a") }),
+          D.row({ ic: "q", mark: "$", title: "Committed 82% against 76% complete", meta: "two PCOs still unpriced", right: "Budget", cls: "click",
+            x: D.note("<b>Sources</b><br>Budget lines · commitments · PCO log<br><span class='cite'>drills to the exact rows</span>") }),
+          D.row({ ic: "ok", mark: "✓", title: "Submittals clear", meta: "no open items older than 5 days", right: "Healthy" }),
+          D.row({ ic: "no", mark: "!", title: "Needs a decision — owner hasn't confirmed the dock door relocation", meta: "blocking the apron pour", right: "Decision", cls: "click",
+            x: D.note("<b>Source</b><br>OAC transcript 07-30 · 12:05<br><span class='cite'>“let's confirm with the owner before Friday”</span>", "a") })
+        ], gsap.timeline(), { each: .18 });
+      },
+      on(root) {
+        root.addEventListener("click", e => {
+          if (e.target.closest('[data-act="read"]')) return this.run(root);
+          const r = e.target.closest(".row.click"); if (r) r.classList.toggle("open");
+        });
+      }
+    },
+
+    "ai-302": {
+      title: "Daily Executive Brief · Thursday",
+      html: () => `${D.tb(D.btn("compose", "Compose today's brief", true), `<span class="hint" id="st">Reads yesterday in full — every transcript, email, message and document</span>`)}<div id="out"></div>`,
+      play(root, tl) { this.run(root); },
+      run(root) {
+        const out = $("#out", root), st = $("#st", root);
+        out.innerHTML = ""; st.textContent = "Reading 41 documents, 6 meetings, 214 messages…";
+        const L = [
+          ["", "<b>4 projects need you today.</b> Ranked by what's blocking, not by what's newest."],
+          ["a", "<b>Morrisville</b> — owner decision on dock doors is blocking the apron pour. 8-day exposure. <span class='cite'>OAC 07-30</span>"],
+          ["a", "<b>Greenfield</b> — 3 unbilled change events surfaced from email and Teams this week. <span class='cite'>AI-203</span>"],
+          ["", "<b>Cedar Point</b> — submittal 04-118 flagged a deflector-height mismatch. <span class='cite'>AI-103</span>"],
+          ["g", "<b>Northgate</b> — clean. No open risks, schedule holding. <span class='cite'>AI-301</span>"]
+        ];
+        const tl = gsap.timeline();
+        tl.to({}, { duration: RM ? 0 : .9 }).call(() => {
+          st.textContent = "Published 6:00 AM ET · every citation resolved";
+          out.innerHTML = L.map(([k, t]) => D.note(t, k)).join("");
+          gsap.from(out.children, { opacity: 0, x: 12, duration: .4, stagger: .16 });
+        });
+      },
+      on(root) { root.addEventListener("click", e => { if (e.target.closest('[data-act="compose"]')) this.run(root); }); }
+    },
+
+    "ai-303": {
+      title: "Alleato AI · financial questions",
+      html: () => `
+        <div class="chips" id="chips">
+          <button class="chip-b" data-q="0">Where are we over on Morrisville?</button>
+          <button class="chip-b" data-q="1">What's uncommitted on Greenfield?</button>
+        </div>
+        <div class="mono" id="big" style="font-size:44px;font-weight:600;letter-spacing:-.03em">$0</div>
+        <div id="out"></div>`,
+      play(root, tl) { this.ask(root, 0); },
+      ask(root, q) {
+        $$("#chips .chip-b", root).forEach((c, i) => c.setAttribute("aria-pressed", String(i === q)));
+        const Q = [
+          { n: 184000, lines: [
+            ["a", "<b>$184k over on committed cost</b> against the current Morrisville budget."],
+            ["", "<b>Driver:</b> two sitework PCOs ($121k) plus a rebar escalation ($63k). <span class='cite'>commitments · PCO log</span>"],
+            ["", "<b>Neither is in a change order yet</b> — the prime contract hasn't moved. <span class='cite'>change orders</span>"],
+            ["g", "<b>Recoverable:</b> $121k traces to owner-directed scope with a source quote attached. <span class='cite'>AI-203</span>"]] },
+          { n: 512000, lines: [
+            ["", "<b>$512k of the Greenfield budget is uncommitted</b> across 9 cost codes."],
+            ["a", "<b>Largest exposure:</b> $288k of sitework with no signed commitment. <span class='cite'>budget · commitments</span>"],
+            ["", "<b>Two codes</b> have buyout scheduled inside 30 days. <span class='cite'>schedule</span>"]] }
+        ][q];
+        const big = $("#big", root), out = $("#out", root);
+        out.innerHTML = "";
+        const tl = gsap.timeline();
+        countTo(big, Q.n, tl, { dur: 1, at: 0, fmt: v => "$" + Math.round(v).toLocaleString() });
+        tl.call(() => {
+          out.innerHTML = Q.lines.map(([k, t]) => D.note(t, k)).join("");
+          gsap.from(out.children, { opacity: 0, x: 12, duration: .4, stagger: .13 });
+        });
+      },
+      on(root) { root.addEventListener("click", e => { const c = e.target.closest("[data-q]"); if (c) this.ask(root, +c.dataset.q); }); }
+    },
+
+    "ai-401": {
+      title: "Alleato AI",
+      html: () => `
+        <div class="chips" id="chips">
+          <button class="chip-b" data-q="0">Draft the RFI about the dock door conflict</button>
+          <button class="chip-b" data-q="1">Who owes us a submittal this week?</button>
+        </div>
+        <div class="say" id="say"></div>
+        <div class="chips" id="tools"></div>
+        <div id="out"></div>
+        <div class="tb" id="cta"></div>`,
+      play(root, tl) { this.ask(root, 0); },
+      ask(root, q) {
+        $$("#chips .chip-b", root).forEach((c, i) => c.setAttribute("aria-pressed", String(i === q)));
+        const Q = [
+          { say: "Draft the RFI about the dock door conflict and attach the drawing.",
+            tools: ["findProjectDrawings", "readDrawingPage", "createRFI"],
+            lines: [["", "<b>Found it.</b> The conflict is between FP-204 (sprinkler drop) and A-301 (relocated dock door). <span class='cite'>2 drawings read</span>"],
+                    ["", "<b>RFI drafted</b> — subject, question, references and the marked-up sheet attached."],
+                    ["g", "<b>Ready to send</b> to Hendricks Design"]],
+            cta: "Approve &amp; send" },
+          { say: "Who owes us a submittal this week?",
+            tools: ["getSubmittalLog", "getDirectory"],
+            lines: [["a", "<b>3 subcontractors have submittals due inside 7 days.</b>"],
+                    ["", "Ridgeline Steel — shop drawings, due Tue. <span class='cite'>SUB-012</span>"],
+                    ["", "Apex Fire — head schedule revision, due Thu. <span class='cite'>SUB-041</span>"],
+                    ["", "Delta Glazing — storefront, overdue by 2 days. <span class='cite'>SUB-028</span>"]],
+            cta: "Draft chase emails" }
+        ][q];
+        const say = $("#say", root), tools = $("#tools", root), out = $("#out", root), cta = $("#cta", root);
+        tools.innerHTML = ""; out.innerHTML = ""; cta.innerHTML = "";
+        const tl = gsap.timeline();
+        typeInto(say, "› " + Q.say, tl, .9, 0);
+        tl.call(() => {
+          tools.innerHTML = Q.tools.map(t => `<span class="pill p-info">⚙ ${t}</span>`).join("");
+          gsap.from(tools.children, { opacity: 0, y: 8, duration: .3, stagger: .22 });
+        });
+        tl.call(() => {
+          out.innerHTML = Q.lines.map(([k, t]) => D.note(t, k)).join("");
+          gsap.from(out.children, { opacity: 0, x: 12, duration: .4, stagger: .16 });
+          cta.innerHTML = D.btn("do", Q.cta, true) + D.hint("No write action happens without this click.");
+          gsap.from(cta.children, { opacity: 0, duration: .4, delay: .5 });
+        }, null, "+=.7");
+      },
+      on(root) {
+        root.addEventListener("click", e => {
+          const c = e.target.closest("[data-q]"); if (c) return this.ask(root, +c.dataset.q);
+          const b = e.target.closest('[data-act="do"]');
+          if (b) { b.textContent = "✓ Done — and logged against your name"; b.classList.remove("btn-key"); }
+        });
+      }
+    },
+
+    "ai-402": {
+      title: "Company Brain · live knowledge graph",
+      html: () => `
+        <div class="chips" id="chips">
+          ${["All", "Meetings", "Email", "Teams", "Documents"].map((t, i) => `<button class="chip-b" data-f="${i}" ${i ? "" : 'aria-pressed="true"'}>${t}</button>`).join("")}
+        </div>
+        <div style="position:relative;flex:1;min-height:300px"><canvas class="mini" id="brain"></canvas></div>
+        <div class="small" id="bl">5 sources · 109k indexed chunks · every node carries the permissions of the thing it came from</div>`,
+      play(root) { this.mount(root); },
+      mount(root) {
+        const c = $("#brain", root), ctx = c.getContext("2d");
+        const dpr = Math.min(devicePixelRatio || 1, 2);
+        const COL = ["#dc822e", "#5c9bff", "#2ea97b", "#8b8b94"];
+        const N = 58;
+        const nodes = Array.from({ length: N }, (_, i) => ({
+          x: Math.random(), y: Math.random(), vx: (Math.random() - .5), vy: (Math.random() - .5),
+          t: i % 4, r: i % 9 === 0 ? 5 : 2.8
+        }));
+        let w = 0, h = 0, filter = -1;
+        const size = () => { const r = c.getBoundingClientRect(); w = r.width; h = r.height; c.width = w * dpr; c.height = h * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); };
+        const tick = () => {
+          if (!c.isConnected) { gsap.ticker.remove(tick); return; }
+          ctx.clearRect(0, 0, w, h);
+          if (!RM) nodes.forEach(n => {
+            n.x += n.vx * .0006; n.y += n.vy * .0006;
+            if (n.x < .04 || n.x > .96) n.vx *= -1;
+            if (n.y < .06 || n.y > .94) n.vy *= -1;
+          });
+          const P = nodes.map(n => ({ x: 18 + n.x * (w - 36), y: 18 + n.y * (h - 36) }));
+          for (let i = 0; i < P.length; i++) for (let j = i + 1; j < P.length; j++) {
+            const d = Math.hypot(P[i].x - P[j].x, P[i].y - P[j].y);
+            if (d < 92) {
+              const dim = filter >= 0 && nodes[i].t !== filter && nodes[j].t !== filter;
+              ctx.globalAlpha = (1 - d / 92) * (dim ? .07 : .3);
+              ctx.strokeStyle = "#3c3c44"; ctx.lineWidth = .9;
+              ctx.beginPath(); ctx.moveTo(P[i].x, P[i].y); ctx.lineTo(P[j].x, P[j].y); ctx.stroke();
+            }
+          }
+          nodes.forEach((n, i) => {
+            const on = filter < 0 || n.t === filter;
+            ctx.globalAlpha = on ? .2 : .05;
+            ctx.beginPath(); ctx.arc(P[i].x, P[i].y, n.r + 6, 0, 6.283); ctx.fillStyle = COL[n.t]; ctx.fill();
+            ctx.globalAlpha = on ? 1 : .18;
+            ctx.beginPath(); ctx.arc(P[i].x, P[i].y, n.r, 0, 6.283); ctx.fillStyle = COL[n.t]; ctx.fill();
+          });
+          ctx.globalAlpha = 1;
+        };
+        new ResizeObserver(() => { size(); tick(); }).observe(c);
+        size(); tick(); gsap.ticker.add(tick);
+        this.setFilter = f => { filter = f; };
+      },
+      on(root) {
+        root.addEventListener("click", e => {
+          const b = e.target.closest("[data-f]"); if (!b) return;
+          $$("#chips .chip-b", root).forEach(x => x.removeAttribute("aria-pressed"));
+          b.setAttribute("aria-pressed", "true");
+          const i = +b.dataset.f;
+          this.setFilter?.(i === 0 ? -1 : i - 1);
+          $("#bl", root).textContent = i === 0
+            ? "5 sources · 109k indexed chunks · every node carries the permissions of the thing it came from"
+            : `Showing ${b.textContent} only — the rest of the graph stays connected underneath.`;
+        });
+      }
+    },
+
+    "ai-403": {
+      title: "Recruiting · Project Manager — Southeast",
+      html: () => `
+        ${D.tb(D.btn("toggle", "Enable AI screening", true), `<span class="hint" id="st">AI is off today — deliberately</span>`)}
+        <div class="funnel" id="fn">
+          ${[["Applications", 148, 100], ["In the tracker", 148, 100], ["Manually screened", 34, 23], ["Shortlisted", 8, 12]]
+            .map(([l, n, w]) => `<div class="fstage"><div class="fbar"><span class="l">${l}</span><i data-w="${w}"></i></div><span class="n" data-n="${n}">0</span></div>`).join("")}
+        </div>
+        <div id="gate"></div>`,
+      play(root, tl) { this.run(root); },
+      run(root) {
+        const tl = gsap.timeline();
+        $$("#fn i", root).forEach((b, i) => tl.fromTo(b, { width: 0 }, { width: b.dataset.w + "%", duration: .8 }, i * .14));
+        $$("#fn .n", root).forEach((n, i) => countTo(n, +n.dataset.n, tl, { dur: .8, at: i * .14 }));
+      },
+      on(root) {
+        root.addEventListener("click", e => {
+          const b = e.target.closest('[data-act="toggle"]'); if (!b) return;
+          this.armed = !this.armed;
+          const gate = $("#gate", root), st = $("#st", root);
+          b.textContent = this.armed ? "Disable AI screening" : "Enable AI screening";
+          b.classList.toggle("btn-key", !this.armed);
+          if (!this.armed) { gate.innerHTML = ""; st.textContent = "AI is off today — deliberately"; return; }
+          st.textContent = "Every run below is logged, cited and human-reviewed";
+          gate.innerHTML = [
+            D.note("<b>Before a single resume is read, this is what has to be true:</b>"),
+            D.note("Every AI run is written to an audit ledger with its prompt version and input hash.", "g"),
+            D.note("Every output must carry citations back to what it read.", "g"),
+            D.note("A human must record accept, edit or reject on each one. Nothing advances on its own.", "g"),
+            D.note("<b>No automated rejections. Ever.</b> That is a policy decision, not a technical limit.", "a")
+          ].join("");
+          gsap.from(gate.children, { opacity: 0, x: 12, duration: .4, stagger: .13 });
+        });
+      }
+    },
+
+    "ai-404": {
+      title: "CMO Agent · Q3 content plan",
+      html: () => `${D.tb(D.btn("build", "Build the plan", true), D.hint("Only from work we actually delivered"))}${D.rows("out")}<div class="tb" id="cta"></div>`,
+      play(root, tl) { this.run(root); },
+      run(root) {
+        const out = $("#out", root), cta = $("#cta", root);
+        out.innerHTML = ""; cta.innerHTML = "";
+        const tl = gsap.timeline();
+        dealRows(out, [
+          D.row({ ic: "ok", mark: "✓", title: "Case study — Morrisville ASRS, 32 ft rack-supported", meta: "sourced from project 876 closeout", right: "Provable" }),
+          D.row({ ic: "ok", mark: "✓", title: "Technical post — what FM DS 8-34 requires above 25 ft", meta: "sourced from the ASRS knowledge base", right: "Provable" }),
+          D.row({ ic: "q", mark: "?", title: "Client testimonial — Greenfield", meta: "no owner quote on file — it says so instead of inventing one", right: "Blocked" })
+        ], tl, { each: .22 });
+        tl.call(() => {
+          cta.innerHTML = D.btn("approve", "Approve for publishing", true) + D.hint("Nothing posts anywhere until a person ships it.");
+          gsap.from(cta.children, { opacity: 0, duration: .35 });
+        });
+      },
+      on(root) {
+        root.addEventListener("click", e => {
+          if (e.target.closest('[data-act="build"]')) return this.run(root);
+          const b = e.target.closest('[data-act="approve"]');
+          if (b) { b.textContent = "✓ Approved — queued for a human to publish"; b.classList.remove("btn-key"); }
+        });
+      }
+    }
+  };
+
+  /* ============================================================
+     CONSOLE — rail + app window
+     ============================================================ */
+  const rail = $("#rail"), appBody = $("#appBody"), appTitle = $("#appTitle"), appLink = $("#appLink");
+
+  rail.innerHTML = GROUPS.map(g => `
+    <div class="rail-g">${g.t}</div>
+    ${SET.filter(s => s.g === g.n).map(s => `
+      <button class="ritem" role="tab" data-go="${s.id}" aria-selected="false">
+        <i class="sd ${STATUS[s.status][0]}"></i>${esc(s.name)}<span class="rc">${s.code}</span>
+      </button>`).join("")}`).join("");
+
+  let current = null;
+
+  /* Interactions are delegated per container, so a demo shown in both the
+     console and a detail sheet gets wired once for each — a single boolean on
+     the demo object would leave the second container dead. */
+  const wired = new WeakMap();
+  const hostCtx = new WeakMap();
+  function mountDemo(demo, host) {
+    // Stop the previous demo's animations before its nodes are replaced —
+    // otherwise they keep running against detached elements.
+    hostCtx.get(host)?.revert();
+    host.innerHTML = demo.html();
+    let set = wired.get(host);
+    if (!set) wired.set(host, (set = new Set()));
+    if (!set.has(demo)) { demo.on?.(host); set.add(demo); }
+    hostCtx.set(host, gsap.context(() => { demo.play?.(host, gsap.timeline()); }, host));
+  }
+
+  function openDemo(id, { scroll = false } = {}) {
+    const s = byId[id], demo = DEMOS[id];
+    if (!s || !demo) return;
+    current = id;
+    $$(".ritem", rail).forEach(b => b.setAttribute("aria-selected", String(b.dataset.go === id)));
+    appTitle.textContent = demo.title;
+    appLink.setAttribute("href", "#/" + id);
+
+    // Render first, animate second. Never gate content on a tween callback —
+    // a throttled or failed tween would leave the panel blank.
+    mountDemo(demo, appBody);
+    gsap.fromTo(appBody, { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: RM ? 0 : .3, clearProps: "y" });
+
+    if (scroll) $("#console").scrollIntoView({ behavior: RM ? "auto" : "smooth", block: "start" });
+  }
+
+  rail.addEventListener("click", e => {
+    const b = e.target.closest("[data-go]");
+    if (b) openDemo(b.dataset.go);
+  });
+  rail.addEventListener("keydown", e => {
+    if (!["ArrowDown", "ArrowUp"].includes(e.key)) return;
+    e.preventDefault();
+    const items = $$(".ritem", rail);
+    const i = items.findIndex(x => x.dataset.go === current);
+    const next = items[(i + (e.key === "ArrowDown" ? 1 : -1) + items.length) % items.length];
+    next.focus(); openDemo(next.dataset.go);
+  });
+
+  /* ledger */
+  $("#ledgerRows").innerHTML = SET.map(s => {
+    const [, pill, lab] = STATUS[s.status];
+    return `<a class="lrow" href="#/${s.id}">
+      <span class="lc">${esc(s.code)}</span>
+      <span class="ln2">${esc(s.name)}</span>
+      <span class="lw">${esc(s.turn[0])}</span>
+      <span class="pill ${pill} lp">${lab}</span>
+    </a>`;
+  }).join("");
+
+  /* machine schematic */
+  (function () {
+    const svg = $("#machSvg");
+    const SRC = ["Meetings", "Outlook", "Teams", "SharePoint", "OneDrive"];
+    const OUT = ["Executive Brief", "Project Intelligence", "Submittal Coverage", "Change Events", "Marketing Plans"];
+    const H = 440, hx = 540, hy = 220;
+    const y = (i, n) => 60 + i * ((H - 120) / (n - 1));
+    const curve = (x1, y1, x2, y2) => `M${x1},${y1} C${(x1 + x2) / 2},${y1} ${(x1 + x2) / 2},${y2} ${x2},${y2}`;
+    let g = "";
+    SRC.forEach((_, i) => { g += `<path class="mpath" data-flow d="${curve(190, y(i, 5), hx - 42, hy)}"/>`; });
+    OUT.forEach((_, i) => { g += `<path class="mpath" data-flow d="${curve(hx + 42, hy, 890, y(i, 5))}"/>`; });
+    SRC.forEach((s, i) => { g += `<g data-mn><circle cx="182" cy="${y(i, 5)}" r="4.5" fill="#dc822e"/><text class="mlab" x="166" y="${y(i, 5) + 4}" text-anchor="end">${s}</text></g>`; });
+    OUT.forEach((s, i) => { g += `<g data-mn><circle cx="898" cy="${y(i, 5)}" r="4.5" fill="#5c9bff"/><text class="mlab" x="914" y="${y(i, 5) + 4}">${s}</text></g>`; });
+    g += `<g data-mh>
+      <circle cx="${hx}" cy="${hy}" r="66" fill="#dc822e" opacity=".06"/>
+      <circle cx="${hx}" cy="${hy}" r="44" fill="#dc822e" opacity=".1"/>
+      <circle cx="${hx}" cy="${hy}" r="26" fill="#dc822e" opacity=".18"/>
+      <circle cx="${hx}" cy="${hy}" r="11" fill="#dc822e"/>
+      <text class="mhub" x="${hx}" y="${hy + 92}" text-anchor="middle">Company Brain</text>
+      <text class="mlab" x="${hx}" y="${hy + 112}" text-anchor="middle">109k indexed chunks · 7 agents · 110 tools</text>
+    </g>`;
+    svg.innerHTML = g;
+  })();
+
+  /* ============================================================
+     DETAIL VIEW
+     ============================================================ */
+  const vIndex = $("#view-index"), vDetail = $("#view-detail"), detailBody = $("#detailBody");
+  let indexCtx = null, detailCtx = null;
+
+  function renderDetail(s) {
+    const [, pill, lab] = STATUS[s.status];
+    const i = SET.indexOf(s), prev = SET[(i - 1 + SET.length) % SET.length], next = SET[(i + 1) % SET.length];
+    return `<div class="wrap">
+      <a class="crumb" href="#/">← All capabilities</a>
+      <div class="d-hero">
+        <div class="d-meta">
+          <span class="lc mono" style="color:var(--brand);font-size:12px">${esc(s.code)}</span>
+          <span class="pill ${pill}">${lab}</span>
+          <span class="small mono">${esc(s.route)}</span>
+        </div>
+        <h1 id="dTitle" style="font-size:clamp(38px,6.4vw,88px)">${esc(s.name)}</h1>
+        <p class="lede" data-dfade>${esc(s.promise)}</p>
+      </div>
+      <div class="d-grid">
+        <div style="display:flex;flex-direction:column;gap:24px">
+          <div class="panel" data-dfade>
+            <span class="panel-t">What it actually does</span>
+            <ul class="ticks">${s.what.map(w => `<li>${esc(w)}</li>`).join("")}</ul>
+          </div>
+          <div class="panel" data-dfade>
+            <span class="panel-t">The swap</span>
+            <div class="swaprow"><span class="k">Manual</span><span class="tk"><span class="base"></span><i class="a" data-seg data-w="${s.was.w}"></i></span><span class="v" style="color:var(--fg-3)">${esc(s.was.v)}</span></div>
+            <div class="swaprow"><span class="k">With AI</span><span class="tk"><span class="base"></span><i class="b" data-seg data-w="${s.now.w}"></i></span><span class="v" style="color:var(--brand)">${esc(s.now.v)}</span></div>
+            <p class="small" style="margin-top:14px"><b style="color:var(--fg-2)">Was:</b> ${esc(s.was.label)}<br><b style="color:var(--brand)">Now:</b> ${esc(s.now.label)}</p>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:24px">
+          <div class="app" data-dfade>
+            <div class="app-bar"><i></i><i></i><i></i><span class="t">${esc(DEMOS[s.id]?.title || s.name)}</span></div>
+            <div class="app-body" id="dDemo"></div>
+          </div>
+          <div class="panel" data-dfade>
+            <span class="panel-t">What it takes to turn on / keep on</span>
+            <ul class="ticks">${s.turn.map(t => `<li>${esc(t)}</li>`).join("")}</ul>
+          </div>
+        </div>
+      </div>
+      <div class="impact">
+        ${s.impact.map(x => `<div class="imp">
+          <b style="color:${x.v ? "var(--fg)" : "var(--brand)"}">${x.n}<span style="font-size:.48em;color:var(--brand);margin-left:4px">${x.u}</span></b>
+          <span>${x.l}</span><span class="src ${x.v ? "v" : "p"}">${x.v ? "● Verified" : "○ Projected"}</span>
+        </div>`).join("")}
+      </div>
+    </div>
+    <div class="pager">
+      <a href="#/${prev.id}"><span class="k">← ${prev.code}</span><span class="t">${esc(prev.name)}</span></a>
+      <a href="#/${next.id}"><span class="k">${next.code} →</span><span class="t">${esc(next.name)}</span></a>
+    </div>`;
+  }
+
+  /* ============================================================
+     SCROLL CHOREOGRAPHY
+     ============================================================ */
+  function maskedLines(target) {
+    const el = typeof target === "string" ? $(target) : target;
+    if (!el) return [];
+    const split = SplitText.create(el, { type: "lines" });
+    split.lines.forEach(line => {
+      const m = document.createElement("span");
+      m.className = "lmask";
+      line.parentNode.insertBefore(m, line);
+      m.appendChild(line);
+    });
+    return split.lines;
+  }
+
+  /**
+   * An entry animation hides content until it plays. If the ticker is ever
+   * throttled or paused (background tab, stalled rAF) that content would stay
+   * invisible, so every intro timeline gets a plain-setTimeout safety net —
+   * `progress(1)` renders synchronously and does not need the ticker.
+   */
+  function guard(tl) {
+    setTimeout(() => { if (tl.progress() < 1) tl.progress(1); }, 3000);
+    return tl;
+  }
+
+  function buildIndexScroll() {
+    indexCtx = gsap.context(() => {
+      guard(gsap.timeline({ delay: RM ? 0 : .1 })
+        .from(maskedLines("#title"), { yPercent: 112, duration: 1, stagger: .09 })
+        .from("[data-fade]", { y: 18, opacity: 0, duration: .7, stagger: .08 }, "-=.7"));
+
+      if (!RM) gsap.to(".livedot", { opacity: .3, duration: 1, repeat: -1, yoyo: true, ease: "sine.inOut" });
+
+      $$("[data-count]").forEach(el => {
+        const to = +el.dataset.count, o = { v: 0 };
+        gsap.to(o, { v: to, duration: 1.4, ease: "power3.out", delay: .7,
+          onUpdate: () => el.textContent = Math.round(o.v).toLocaleString() });
+      });
+
+      $$("[data-rule]").forEach(r => gsap.from(r, { scaleX: 0, duration: 1.1, scrollTrigger: { trigger: r, start: "top 88%" } }));
+      $$("[data-split]").forEach(h => gsap.from(maskedLines(h), { yPercent: 112, duration: .9, stagger: .08, scrollTrigger: { trigger: h, start: "top 86%" } }));
+
+      /* the swap — pinned, scrubbed */
+      const c = { v: 220 };
+      gsap.timeline({ scrollTrigger: { trigger: "#swap", start: "top top", end: "+=130%", pin: true, scrub: .7 } })
+        .to("#swapRun", { attr: { x2: 74 }, stroke: "var(--brand)", duration: 1, ease: "power2.inOut" })
+        .to("#swapCapEnd", { attr: { x1: 74, x2: 74 }, stroke: "var(--brand)", duration: 1, ease: "power2.inOut" }, "<")
+        .to(c, { v: 1.5, duration: 1, ease: "power2.inOut", onUpdate: () => {
+          const m = c.v, el = $("#swapNum");
+          if (m >= 60) { el.innerHTML = `${Math.floor(m / 60)}<span class="u">hrs ${String(Math.round(m % 60)).padStart(2, "0")}</span>`; el.style.color = "var(--fg-3)"; }
+          else if (m >= 1) { el.innerHTML = `${Math.round(m)}<span class="u">min</span>`; el.style.color = "var(--fg-2)"; }
+          else { el.innerHTML = `${Math.max(1, Math.round(m * 60))}<span class="u">sec</span>`; el.style.color = "var(--brand)"; }
+        } }, "<")
+        .to({}, { duration: 1, onUpdate: function () {
+          $("#swapCap").textContent = this.progress() > .5
+            ? "Every referenced sheet checked, every finding cited back to the page it came from"
+            : "One engineer, one submittal, the whole drawing set checked by hand";
+        } }, "<");
+
+      /* console reveal + auto-start the first demo when it lands */
+      gsap.from("#rail .ritem", { opacity: 0, x: -12, duration: .5, stagger: .035, scrollTrigger: { trigger: "#console", start: "top 72%" } });
+      gsap.from("#app", { opacity: 0, y: 26, duration: .8, scrollTrigger: { trigger: "#console", start: "top 72%" } });
+      ScrollTrigger.create({ trigger: "#console", start: "top 62%", once: true, onEnter: () => openDemo("ai-102") });
+
+      /* machine draws itself */
+      gsap.timeline({ scrollTrigger: { trigger: "#machine", start: "top 68%", end: "bottom 75%", scrub: .6 } })
+        .from("[data-mh]", { scale: .5, opacity: 0, transformOrigin: "540px 220px", duration: .8 })
+        .from("[data-flow]", { drawSVG: "0%", duration: 1.5, stagger: .05 }, "-=.4")
+        .from("[data-mn]", { opacity: 0, duration: .6, stagger: .04 }, "-=1.1");
+
+      gsap.from(".lrow", { y: 18, opacity: 0, duration: .5, stagger: .04, scrollTrigger: { trigger: "#ledgerRows", start: "top 84%" } });
+      gsap.to("#prog", { width: "100%", ease: "none", scrollTrigger: { trigger: vIndex, start: "top top", end: "bottom bottom", scrub: .3 } });
+    }, vIndex);
+  }
+
+  function buildDetailScroll(s) {
+    detailCtx = gsap.context(() => {
+      guard(gsap.timeline()
+        .from(maskedLines("#dTitle"), { yPercent: 112, duration: .9, stagger: .1 })
+        .from("[data-dfade]", { y: 20, opacity: 0, duration: .7, stagger: .08 }, "-=.6"));
+      $$("[data-seg]").forEach(seg => gsap.fromTo(seg, { width: 0 }, { width: seg.dataset.w + "%", duration: 1.1, delay: .5 }));
+      $$(".imp").forEach(el => gsap.from(el, { y: 16, opacity: 0, duration: .55, scrollTrigger: { trigger: el, start: "top 92%" } }));
+
+      const demo = DEMOS[s.id], host = $("#dDemo");
+      if (demo && host) mountDemo(demo, host);
+    }, vDetail);
+  }
+
+  /* ============================================================
+     ROUTER
+     ============================================================ */
+  function route() {
+    const h = location.hash.replace(/^#\/?/, "");
+    const s = byId[h];
+    indexCtx?.revert(); indexCtx = null;
+    detailCtx?.revert(); detailCtx = null;
+    ScrollTrigger.getAll().forEach(t => t.kill());
+
+    if (s) {
+      vIndex.classList.remove("on");
+      vDetail.classList.add("on");
+      detailBody.innerHTML = renderDetail(s);
+      document.title = `${s.code} ${s.name} — Alleato AI`;
+      window.scrollTo(0, 0);
+      buildDetailScroll(s);
+    } else {
+      vDetail.classList.remove("on");
+      detailBody.innerHTML = "";
+      vIndex.classList.add("on");
+      document.title = "Alleato AI — What we built";
+      window.scrollTo(0, 0);
+      buildIndexScroll();
+      openDemo(current || "ai-102");
+    }
+    ScrollTrigger.refresh();
+  }
+  addEventListener("hashchange", route);
+
+  document.addEventListener("click", e => {
+    const j = e.target.closest("[data-jump]");
+    if (!j) return;
+    e.preventDefault();
+    const go = () => $("#" + j.dataset.jump)?.scrollIntoView({ behavior: RM ? "auto" : "smooth", block: "start" });
+    if (!vIndex.classList.contains("on")) { location.hash = "#/"; setTimeout(go, 140); } else go();
+  });
+
+  /* ============================================================
+     BOOT — preloader injected by JS so a failure can never leave
+     a curtain over the page.
+     ============================================================ */
+  (function boot() {
+    if (RM) { route(); return; }
+    const pre = document.createElement("div");
+    pre.className = "pre";
+    pre.innerHTML = `<div class="pre-in"><div class="pre-n" id="preN">00</div>
+      <div class="pre-bar"><i id="preBar"></i></div><div class="pre-l">Alleato AI</div></div>`;
+    const curtain = document.createElement("div");
+    curtain.className = "curtain";
+    document.body.append(pre, curtain);
+
+    // Nodes are captured once. Re-querying inside onUpdate would throw the
+    // moment anything removes the preloader before the tween finishes.
+    const preN = $("#preN", pre);
+    const o = { v: 0 };
+
+    // The intro must never be able to trap the viewer. `reveal` is idempotent
+    // and a timer guarantees it runs even if the timeline is throttled or
+    // never completes (background tab, stalled rAF).
+    let revealed = false;
+    const reveal = () => {
+      if (revealed) return;
+      revealed = true;
+      pre.remove(); curtain.remove();
+      route();
+    };
+    setTimeout(reveal, 4000);
+
+    gsap.timeline({ onComplete: reveal })
+      .to(o, { v: SET.length, duration: 1, ease: "power2.inOut",
+        onUpdate: () => { preN.textContent = String(Math.round(o.v)).padStart(2, "0"); } })
+      .to("#preBar", { width: "100%", duration: 1, ease: "power2.inOut" }, 0)
+      .to(".pre-in", { opacity: 0, y: -12, duration: .35 }, "+=.15")
+      .to(pre, { yPercent: -100, duration: .65, ease: "expo.inOut" }, "-=.08")
+      .to(curtain, { yPercent: -100, duration: .65, ease: "expo.inOut" }, "-=.52");
+  })();
+})();
+</script>

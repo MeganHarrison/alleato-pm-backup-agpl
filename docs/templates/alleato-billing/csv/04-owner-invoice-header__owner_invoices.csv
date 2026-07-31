@@ -1,0 +1,2 @@
+prime_contract_id,payment_application_id,billing_period_id,invoice_number,period_start,period_end,billing_date,due_date,gross_amount,net_amount,paid_amount,percent_complete,status,notes
+00000000-0000-0000-0000-0000000000pc,00000000-0000-0000-0000-000000000pa4,00000000-0000-0000-0000-00000000bp04,INV-2026-118-004,2026-07-01,2026-07-31,2026-07-31,2026-08-30,175000.0,196500.0,0.0,45.12,draft,Application No. 4

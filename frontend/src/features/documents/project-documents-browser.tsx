@@ -128,6 +128,7 @@ export function ProjectDocumentsBrowser({
   return (
     <DocumentsBrowserTemplate
       title="Documents"
+      description="Files, drawings, and records ingested for this project."
       eyebrow={projectName}
       definition={definition}
       pageArea="project-documents-browser"

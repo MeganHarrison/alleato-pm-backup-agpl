@@ -18,7 +18,7 @@ exports[`operator presentation renders a deterministic Teams Adaptive Card paylo
     {
       "title": "Revise",
       "type": "Action.OpenUrl",
-      "url": "https://projects.alleatogroup.com/ai",
+      "url": "https://projects.alleatogroup.com/ai-assistant",
     },
   ],
   "body": [

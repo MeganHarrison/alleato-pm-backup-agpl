@@ -1,14 +1,13 @@
 {
   "name": "create-a-prime-contract",
   "base": "http://localhost:3000",
-  "startPath": "/1142/directory",
+  "startPath": "/767/prime-contracts/new",
   "viewport": { "width": 1440, "height": 900 },
   "frame": true,
   "tighten": { "maxDwell": 1.7, "minFreeze": 1.3 },
   "warm": [
-    "/1142/directory",
-    "/1142/prime-contracts",
-    "/1142/prime-contracts/new"
+    "/767/prime-contracts",
+    "/767/prime-contracts/new"
   ],
   "title": {
     "title": "Create a Prime Contract",
@@ -23,82 +22,7 @@
   "steps": [
     {
       "required": true,
-      "caption": "Start in Project Directory to verify the owner entity before contract entry.",
-      "expectText": "Project Directory",
-      "hold": 1800
-    },
-    {
-      "required": true,
-      "click": "button:has-text(\"440 West Inc.\")",
-      "timeout": 45000,
-      "caption": "Open the owner company and compare it with the signed agreement.",
-      "expectText": "Contacts (0)",
-      "hold": 1800
-    },
-    {
-      "required": true,
-      "zoom": "[role=\"dialog\"] section:first-of-type",
-      "caption": "Verify the legal company name, status, and full address; correct missing or mismatched facts before continuing.",
-      "expectTexts": ["440 West Inc.", "Status", "active", "Address", "440 S. Gulfview Blvd, Suite 203", "City", "Clearwater", "State", "Florida", "Postal Code", "33767"],
-      "hold": 2200
-    },
-    {
-      "required": true,
-      "zoom": "[role=\"dialog\"] section:has-text(\"Contacts\")",
-      "caption": "Confirm the owner invoice contact's name, billing email, job title, and Primary flag.",
-      "expectText": "Contacts",
-      "hold": 2100
-    },
-    {
-      "required": true,
-      "click": "[role=\"dialog\"] button:has-text(\"Add from company directory\")",
-      "caption": "If no invoice contact is linked, add one from the company directory.",
-      "expectText": "Create new person",
-      "hold": 1700
-    },
-    {
-      "required": true,
-      "click": "button:has-text(\"Create new person\")",
-      "caption": "Create a billing contact when the correct person is not listed.",
-      "expectText": "New Contact",
-      "hold": 1100
-    },
-    {
-      "required": true,
-      "type": { "selector": "input[placeholder=\"Enter first name\"]", "text": "Owner" },
-      "caption": "Enter the invoice contact's first name."
-    },
-    {
-      "required": true,
-      "type": { "selector": "input[placeholder=\"Enter last name\"]", "text": "Billing" },
-      "caption": "Enter the invoice contact's last name."
-    },
-    {
-      "required": true,
-      "type": { "selector": "input[placeholder=\"email@example.com\"]", "text": "billing@owner-example.com" },
-      "caption": "Use the billing email that should receive owner invoices."
-    },
-    {
-      "required": true,
-      "type": { "selector": "input[placeholder=\"(555) 123-4567\"]", "text": "(317) 555-0100" },
-      "caption": "Add the invoice contact's direct phone number."
-    },
-    {
-      "required": true,
-      "type": { "selector": "input[placeholder=\"Project Manager\"]", "text": "Accounts Payable" },
-      "caption": "Use a job title that identifies the billing responsibility."
-    },
-    {
-      "required": true,
-      "zoom": "[role=\"dialog\"]:has-text(\"New Contact\")",
-      "caption": "Confirm the owner company is selected, then save only after every detail is verified.",
-      "expectTexts": ["New Contact", "440 West Inc."],
-      "hold": 2300
-    },
-    {
-      "required": true,
-      "goto": "/1142/prime-contracts/new",
-      "caption": "With the owner record ready, open Create Prime Contract.",
+      "caption": "Open Create Prime Contract to enter the owner agreement details.",
       "expectText": "General Information",
       "hold": 1800
     },
@@ -120,21 +44,8 @@
     },
     {
       "required": true,
-      "click": "button:has-text(\"Select company\")",
-      "caption": "Select the verified owner business entity.",
-      "expectText": "440 West Inc.",
-      "hold": 1000
-    },
-    {
-      "required": true,
-      "click": "[role=\"option\"]:has-text(\"440 West Inc.\")",
-      "caption": "Set Owner / Client to the company on the signed contract.",
-      "hold": 1000
-    },
-    {
-      "required": true,
       "click": "button:has-text(\"Draft\")",
-      "caption": "Set the contract status to its current lifecycle stage.",
+      "caption": "Open the contract status picker.",
       "expectText": "Approved",
       "hold": 900
     },
@@ -162,12 +73,6 @@
     },
     {
       "required": true,
-      "zoom": "text=Attachments",
-      "caption": "Attach the executed contract, proposal, exhibits, bonds, and insurance files.",
-      "hold": 2000
-    },
-    {
-      "required": true,
       "date": {
         "label": "Start Date",
         "value": "2026-08-03"
@@ -186,53 +91,10 @@
     },
     {
       "required": true,
-      "click": "button:has-text(\"Import from Estimate\")",
-      "caption": "Import the Schedule of Values from the approved estimate or proposal.",
-      "expectText": "Import Excel SOV",
-      "hold": 1400
-    },
-    {
-      "required": true,
-      "upload": {
-        "selector": "[role=\"dialog\"] input[type=\"file\"]",
-        "path": "../../../../docs/ops/evidence/2026-07-20-prime-contract-chat-workbook-e2e/prime-contract-chat-valid-estimate.xlsx",
-        "settle": 2500
-      },
-      "caption": "Choose the completed estimate workbook and let Alleato preview it.",
-      "hold": 1600
-    },
-    {
-      "required": true,
-      "zoom": "[role=\"dialog\"] table",
-      "timeout": 45000,
-      "caption": "Review selected rows, amounts, mappings, and warnings before import.",
-      "expectVisible": "[role=\"dialog\"] table tbody tr",
-      "expectTexts": [
-        "01-3120",
-        "Vice President",
-        "$1,250.00",
-        "Mapped",
-        "01-3126",
-        "Pre-construction - Pre-construction services",
-        "$2,750.25",
-        "2 selected, $4,000.25"
-      ],
+      "zoom": "button:has-text(\"Import from Estimate\")",
+      "caption": "Build the Schedule of Values: import it from an approved estimate, or add line items by hand.",
+      "expectText": "Schedule of Values",
       "hold": 2400
-    },
-    {
-      "required": true,
-      "click": "[role=\"dialog\"] button:has-text(\"Import\")",
-      "timeout": 45000,
-      "caption": "Import the selected estimate rows into the contract SOV.",
-      "expectVisible": "[data-testid=\"sov-line-0\"]",
-      "hold": 1800
-    },
-    {
-      "required": true,
-      "zoom": "[data-testid=\"sov-table\"]",
-      "caption": "Confirm the imported descriptions, amounts, and SOV total.",
-      "expectTexts": ["01-3120.R", "Vice President", "$1,250.00", "01-3126.R", "$2,750.25", "$4,000.25"],
-      "hold": 2200
     },
     {
       "required": true,
@@ -253,7 +115,7 @@
     {
       "required": true,
       "zoom": "button:has-text(\"Create Prime Contract\")",
-      "caption": "Final check: owner, contact, dates, retainage, SOV, scope, and attachments.",
+      "caption": "Final check: owner, status, dates, retainage, SOV, and scope.",
       "hold": 2800
     }
   ]

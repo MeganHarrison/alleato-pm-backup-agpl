@@ -52,6 +52,7 @@ const AppErrorTelemetryProvider = dynamic(
 );
 
 const ENABLE_DEV_BRIDGE = process.env.NEXT_PUBLIC_ENABLE_DEV_BRIDGE === "true";
+const VELT_ENABLED = Boolean(process.env.NEXT_PUBLIC_VELT_API_KEY?.trim());
 
 export function RootClientWidgets() {
   const pathname = usePathname();
@@ -60,6 +61,7 @@ export function RootClientWidgets() {
     (state) => state.enabled,
   );
   const shouldMountCollaborationWidgets =
+    VELT_ENABLED &&
     !shouldHideGlobalCollaborationLayerForRoute(pathname) &&
     (userEnabledCollaboration ||
       (shouldMountDeferredWidgets && shouldForceCollaborationRuntime(pathname)));

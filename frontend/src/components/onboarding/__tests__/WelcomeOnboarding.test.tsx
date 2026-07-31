@@ -7,22 +7,25 @@ import "@testing-library/jest-dom";
 
 import { WelcomeOnboarding } from "../WelcomeOnboarding";
 
+const mockUseCurrentUserProfile = jest.fn();
+
 jest.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(),
 }));
 
 jest.mock("@/hooks/use-current-user-profile", () => ({
-  useCurrentUserProfile: () => ({
-    profile: {
-      email: "sub@example.com",
-      fullName: "Brandon Clymer",
-    },
-  }),
+  useCurrentUserProfile: () => mockUseCurrentUserProfile(),
 }));
 
 describe("WelcomeOnboarding", () => {
   beforeEach(() => {
     window.localStorage.clear();
+    mockUseCurrentUserProfile.mockReturnValue({
+      profile: {
+        email: "sub@example.com",
+        fullName: "Brandon Clymer",
+      },
+    });
   });
 
   it("suppresses automatic onboarding for project-scoped external users", async () => {
@@ -34,9 +37,9 @@ describe("WelcomeOnboarding", () => {
     );
 
     await waitFor(() => {
-      expect(window.localStorage.getItem("alleato_onboarding_completed_v3")).toBe(
-        "skipped:subcontractor",
-      );
+      expect(
+        window.localStorage.getItem("alleato_onboarding_completed_v3"),
+      ).toBe("skipped:subcontractor");
     });
     expect(screen.queryByText("Welcome to Alleato AI")).not.toBeInTheDocument();
   });
@@ -44,36 +47,51 @@ describe("WelcomeOnboarding", () => {
   it("still opens when explicitly forced", async () => {
     render(<WelcomeOnboarding forceOpen suppressAutoOpen />);
 
-    expect(await screen.findByText("Welcome to Alleato AI")).toBeInTheDocument();
+    expect(
+      await screen.findByText("Welcome to Alleato AI"),
+    ).toBeInTheDocument();
   });
 
   it("exposes route-backed AI actions during onboarding", async () => {
     render(<WelcomeOnboarding forceOpen suppressAutoOpen />);
 
-    expect(await screen.findByText("Welcome to Alleato AI")).toBeInTheDocument();
+    expect(
+      await screen.findByText("Welcome to Alleato AI"),
+    ).toBeInTheDocument();
     expect(
       screen.getByRole("navigation", { name: "AI onboarding actions" }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Review my AI profile" })).toHaveAttribute(
-      "href",
-      "/ai/profile",
-    );
-    expect(screen.getByRole("link", { name: "Review AI approvals" })).toHaveAttribute(
-      "href",
-      "/ai/approvals",
-    );
+    expect(
+      screen.getByRole("link", { name: "Review my AI profile" }),
+    ).toHaveAttribute("href", "/ai/profile");
+    expect(
+      screen.getByRole("link", { name: "Review AI approvals" }),
+    ).toHaveAttribute("href", "/ai/approvals");
   });
 
   it("combines the welcome and feedback screens into a two-step flow", async () => {
     render(<WelcomeOnboarding forceOpen suppressAutoOpen />);
 
     expect(await screen.findByText("Welcome, Brandon")).toBeInTheDocument();
-    expect(screen.getByText("Feedback is only a click away.")).toBeInTheDocument();
+    expect(
+      screen.getByText("Feedback is only a click away."),
+    ).toBeInTheDocument();
     expect(screen.getByLabelText("Step 1 of 2")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /continue/i }));
 
-    expect(await screen.findByText("Set up your first test project.")).toBeInTheDocument();
+    expect(
+      await screen.findByText("Set up your first test project."),
+    ).toBeInTheDocument();
     expect(screen.getByLabelText("Step 2 of 2")).toBeInTheDocument();
+  });
+
+  it("does not label an unknown normal session as the preview user", async () => {
+    mockUseCurrentUserProfile.mockReturnValue({ profile: null });
+
+    render(<WelcomeOnboarding forceOpen />);
+
+    expect(await screen.findByText("Welcome")).toBeInTheDocument();
+    expect(screen.queryByText("Welcome, Brandon")).not.toBeInTheDocument();
   });
 });

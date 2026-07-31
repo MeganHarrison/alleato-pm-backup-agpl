@@ -94,10 +94,9 @@ export const GET = withApiGuardrails(
   "outlook-intake#GET",
   async ({ request }) => {
     const supabase = await assertAdminAccess("outlook-intake#GET");
-    const { searchParams } = new URL(request.url);
-    const projectId = parseOptionalProjectId(searchParams.get("project_id"));
     const appService = createServiceClient();
     const intakeService = createOutlookIntakeServiceClient();
+    const { searchParams } = new URL(request.url);
     const matchStatus = searchParams.get("match_status");
     const classificationAction = searchParams.get("classification_action");
     const sentFrom = normalizeSearchParam(searchParams.get("sent_from"));
@@ -150,10 +149,6 @@ export const GET = withApiGuardrails(
       query = query.eq("match_status", matchStatus);
     } else {
       query = query.neq("match_status", "ignored");
-    }
-
-    if (projectId !== null) {
-      query = query.eq("project_id", projectId);
     }
 
     if (unassigned) {
@@ -294,7 +289,6 @@ export const GET = withApiGuardrails(
         triageAction: row.triage_action,
         triageReason: row.triage_reason,
         triageAt: row.triage_at,
-        planeIntakeState: normalizePlaneIntakeState(row.source_metadata),
         intakeClassification: normalizeIntakeClassification(row.source_metadata),
         project: project
           ? {
@@ -347,71 +341,9 @@ function normalizeIntakeClassification(
   };
 }
 
-function normalizePlaneIntakeState(
-  sourceMetadata: Record<string, unknown> | null,
-) {
-  const raw = sourceMetadata?.plane_intake;
-  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
-
-  const state = raw as Record<string, unknown>;
-  const decision = state.decision;
-  if (
-    decision !== "pending" &&
-    decision !== "accepted" &&
-    decision !== "declined" &&
-    decision !== "duplicate"
-  ) {
-    return null;
-  }
-
-  return {
-    decision,
-    snoozedTill:
-      typeof state.snoozed_till === "string" ? state.snoozed_till : null,
-    duplicateTaskId:
-      typeof state.duplicate_task_id === "string"
-        ? state.duplicate_task_id
-        : null,
-    acceptedTaskId:
-      typeof state.accepted_task_id === "string"
-        ? state.accepted_task_id
-        : null,
-    resolvedAt:
-      typeof state.resolved_at === "string" ? state.resolved_at : null,
-    updatedAt:
-      typeof state.updated_at === "string" ? state.updated_at : null,
-  };
-}
-
 function normalizeSearchParam(value: string | null): string | null {
   const normalized = value?.trim();
   return normalized ? normalized : null;
-}
-
-function parseOptionalProjectId(value: string | null): number | null {
-  if (value === null) return null;
-
-  const normalized = value.trim();
-  if (!/^[1-9]\d*$/.test(normalized)) {
-    throw new GuardrailError({
-      code: "VALIDATION_ERROR",
-      where: "outlook-intake#GET",
-      message: "project_id must be a positive integer.",
-      details: { parameter: "project_id" },
-    });
-  }
-
-  const projectId = Number(normalized);
-  if (!Number.isSafeInteger(projectId)) {
-    throw new GuardrailError({
-      code: "VALIDATION_ERROR",
-      where: "outlook-intake#GET",
-      message: "project_id must be a positive integer.",
-      details: { parameter: "project_id" },
-    });
-  }
-
-  return projectId;
 }
 
 function escapePostgrestLike(value: string): string {

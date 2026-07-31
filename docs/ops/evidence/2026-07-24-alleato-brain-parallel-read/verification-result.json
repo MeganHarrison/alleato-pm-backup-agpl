@@ -1,0 +1,51 @@
+{
+  "status": "PASS",
+  "observedStatus": "PASS",
+  "taskId": "ALL-11-PARALLEL-READ",
+  "evidence": {
+    "summary": [
+      "docs/ops/evidence/2026-07-24-alleato-brain-parallel-read/summary.md"
+    ],
+    "databaseReadback": [
+      "docs/ops/evidence/2026-07-24-alleato-brain-parallel-read/live-readback.md"
+    ],
+    "negativePath": [
+      "docs/ops/evidence/2026-07-24-alleato-brain-parallel-read/negative-path.md"
+    ],
+    "regressionTest": [
+      "docs/ops/evidence/2026-07-24-alleato-brain-parallel-read/regression-test.txt"
+    ]
+  },
+  "claims": {
+    "finance-fails-closed": {
+      "databaseReadback": [
+        "docs/ops/evidence/2026-07-24-alleato-brain-parallel-read/live-readback.md"
+      ],
+      "negativePath": [
+        "docs/ops/evidence/2026-07-24-alleato-brain-parallel-read/negative-path.md"
+      ]
+    },
+    "internal-legacy-read": {
+      "databaseReadback": [
+        "docs/ops/evidence/2026-07-24-alleato-brain-parallel-read/live-readback.md"
+      ],
+      "negativePath": [
+        "docs/ops/evidence/2026-07-24-alleato-brain-parallel-read/negative-path.md"
+      ]
+    },
+    "rls-bound-source-access": {
+      "regressionTest": [
+        "docs/ops/evidence/2026-07-24-alleato-brain-parallel-read/regression-test.txt"
+      ],
+      "summary": [
+        "docs/ops/evidence/2026-07-24-alleato-brain-parallel-read/summary.md"
+      ]
+    }
+  },
+  "independentReview": {
+    "reviewer": "Independent Codex closeout reviewer",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-24T08:14:00Z",
+    "artifact": "docs/ops/evidence/2026-07-24-alleato-brain-parallel-read/independent-review-final.md"
+  }
+}

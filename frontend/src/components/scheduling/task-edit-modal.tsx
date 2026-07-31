@@ -49,7 +49,7 @@ import {
 import { TaskDependenciesEditor } from "@/components/scheduling/task-dependencies-editor";
 import { TaskAssignmentsEditor } from "@/components/scheduling/task-assignments-editor";
 import { TaskSegmentEditor } from "@/components/scheduling/task-segment-editor";
-import { previewScheduleImpact } from "@/lib/scheduling/schedule-impact-preview";
+import { previewAutoScheduleUpdates } from "@/lib/scheduling/schedule-auto-scheduler";
 import {
   defaultScheduleCalendar,
   type ScheduleCalendar,
@@ -59,6 +59,7 @@ import type {
   ScheduleResourceCapacityProfile,
   ScheduleResourceRosterResponse,
   ScheduleTaskAssignmentInput,
+  ScheduleTaskAssignmentExpectation,
 } from "@/types/scheduling";
 
 // =============================================================================
@@ -99,7 +100,10 @@ interface TaskEditModalProps {
     isLoading: boolean;
     error: string | null;
     onRetry: () => void;
-    onSave: (assignments: ScheduleTaskAssignmentInput[]) => Promise<void>;
+    onSave: (
+      assignments: ScheduleTaskAssignmentInput[],
+      expectedAssignments: ScheduleTaskAssignmentExpectation[],
+    ) => Promise<void>;
     loadCapacityProfiles?: (
       start: string,
       finish: string,
@@ -243,10 +247,11 @@ export function TaskEditModal({
       formData.start_date !== (task.start_date ?? "") ||
       formData.finish_date !== (task.finish_date ?? "") ||
       formData.duration_days !== task.duration_days ||
+      formData.is_milestone !== task.is_milestone ||
       formData.constraint_type !== task.constraint_type ||
       formData.constraint_date !== (task.constraint_date ?? "");
     if (!hasSchedulingChange) return null;
-    return previewScheduleImpact({
+    return previewAutoScheduleUpdates({
       taskId: task.id,
       tasks: availableTasks,
       dependencies: availableTasks.flatMap(
@@ -256,6 +261,7 @@ export function TaskEditModal({
         start_date: formData.start_date || null,
         finish_date: formData.finish_date || null,
         duration_days: formData.duration_days,
+        is_milestone: formData.is_milestone,
         constraint_type: formData.constraint_type,
         constraint_date: formData.constraint_date || null,
       },
@@ -268,6 +274,7 @@ export function TaskEditModal({
     formData.constraint_type,
     formData.duration_days,
     formData.finish_date,
+    formData.is_milestone,
     formData.start_date,
     task,
   ]);
@@ -491,7 +498,7 @@ export function TaskEditModal({
         setIsSaving(false);
       }
     },
-    [formData, validateForm, isEditing, projectId, onSave, onOpenChange],
+    [formData, validateForm, isEditing, projectId, onSave, onOpenChange, task?.id],
   );
 
   return (
@@ -686,9 +693,24 @@ export function TaskEditModal({
                   <Checkbox
                     id="is_milestone"
                     checked={formData.is_milestone}
-                    onCheckedChange={(checked) =>
-                      handleChange("is_milestone", checked)
-                    }
+                    onCheckedChange={(checked) => {
+                      const isMilestone = checked === true;
+                      setFormData((previous) => ({
+                        ...previous,
+                        is_milestone: isMilestone,
+                        duration_days: isMilestone
+                          ? 0
+                          : previous.duration_days,
+                        finish_date:
+                          isMilestone && previous.start_date
+                            ? previous.start_date
+                            : previous.finish_date,
+                      }));
+                      setErrors((previous) => ({
+                        ...previous,
+                        duration_days: undefined,
+                      }));
+                    }}
                   />
                   <Label
                     htmlFor="is_milestone"

@@ -9,7 +9,14 @@ const durableTurnQuery: Record<string, jest.Mock> = {};
 durableTurnQuery.select = jest.fn(() => durableTurnQuery);
 durableTurnQuery.eq = jest.fn(() => durableTurnQuery);
 durableTurnQuery.maybeSingle = maybeSingle;
-const from = jest.fn(() => durableTurnQuery);
+const profileMaybeSingle = jest.fn();
+const profileQuery: Record<string, jest.Mock> = {};
+profileQuery.select = jest.fn(() => profileQuery);
+profileQuery.eq = jest.fn(() => profileQuery);
+profileQuery.maybeSingle = profileMaybeSingle;
+const from = jest.fn((table: string) =>
+  table === "user_profiles" ? profileQuery : durableTurnQuery,
+);
 const serviceClient = { from, rpc };
 const createServiceClient = jest.fn(() => serviceClient);
 const loadUserPermissionsWithClient = jest.fn(async () => ({
@@ -20,26 +27,36 @@ const executeReadTool = jest.fn(async (input) => ({ ok: true, input }));
 const executeWriteTool = jest.fn(async () => ({ mutated: true }));
 const createProductionEveRequestCatalog = jest.fn(
   ({
+    allowDelivery,
     allowWrites,
     surface,
   }: {
+    allowDelivery?: boolean;
     allowWrites?: boolean;
     surface: string;
   }) => {
     const readEntry = {
       name: "getProjectDetails",
+      requiresProjectScope: true,
       description: "Read the selected project.",
-      inputSchema: z.object({ includeBudget: z.boolean().optional() }),
+      inputSchema: z.object({
+        includeBudget: z.boolean().optional(),
+        projectId: z.number().optional(),
+      }),
       effect: "read",
       approvalRequirement: "none",
       tool: {
         description: "Read the selected project.",
-        inputSchema: z.object({ includeBudget: z.boolean().optional() }),
+        inputSchema: z.object({
+          includeBudget: z.boolean().optional(),
+          projectId: z.number().optional(),
+        }),
         execute: executeReadTool,
       },
     };
     const writeEntry = {
       name: "createRFI",
+      requiresProjectScope: true,
       description: "Create an RFI.",
       inputSchema: z.object({ projectId: z.number() }),
       effect: "write",
@@ -50,9 +67,91 @@ const createProductionEveRequestCatalog = jest.fn(
         execute: executeWriteTool,
       },
     };
+    const workspaceWriteEntry = {
+      name: "saveWorkspaceArtifact",
+      requiresProjectScope: false,
+      description: "Save a workspace artifact.",
+      inputSchema: z.object({
+        title: z.string(),
+        content: z.string(),
+        confirmed: z.boolean().optional(),
+        idempotencyKey: z.string().optional(),
+      }),
+      effect: "write",
+      approvalRequirement: "user",
+      tool: {
+        description: "Save a workspace artifact.",
+        inputSchema: z.object({
+          title: z.string(),
+          content: z.string(),
+          confirmed: z.boolean().optional(),
+          idempotencyKey: z.string().optional(),
+        }),
+        execute: executeWriteTool,
+      },
+    };
+    const deliveryEntry = {
+      name: "sendTeamsMessage",
+      requiresProjectScope: false,
+      description: "Send a Teams message.",
+      inputSchema: z.object({ channel: z.string(), message: z.string() }),
+      effect: "external_delivery",
+      approvalRequirement: "user",
+      tool: {
+        description: "Send a Teams message.",
+        inputSchema: z.object({ channel: z.string(), message: z.string() }),
+        execute: executeWriteTool,
+      },
+    };
+    const acumaticaBudgetEntry = {
+      name: "getAcumaticaProjectBudget",
+      requiresProjectScope: false,
+      description: "Read a project budget from Acumatica.",
+      inputSchema: z.object({
+        acumaticaProjectId: z.string(),
+        typeFilter: z.enum(["Expense", "Income", "all"]).optional(),
+      }),
+      effect: "read",
+      approvalRequirement: "none",
+      tool: {
+        description: "Read a project budget from Acumatica.",
+        inputSchema: z.object({
+          acumaticaProjectId: z.string(),
+          typeFilter: z.enum(["Expense", "Income", "all"]).optional(),
+        }),
+        execute: executeReadTool,
+      },
+    };
+    const marketingCalendarEntry = {
+      name: "getMarketingCalendar",
+      requiresProjectScope: false,
+      description: "Read the company marketing calendar.",
+      inputSchema: z.object({
+        dateRange: z.null(),
+        status: z.null(),
+        projectId: z.null(),
+      }),
+      effect: "read",
+      approvalRequirement: "none",
+      tool: {
+        description: "Read the company marketing calendar.",
+        inputSchema: z.object({
+          dateRange: z.null(),
+          status: z.null(),
+          projectId: z.null(),
+        }),
+        execute: executeReadTool,
+      },
+    };
     const entries =
       surface === "ai_assistant"
-        ? [readEntry, ...(allowWrites ? [writeEntry] : [])]
+        ? [
+            readEntry,
+            acumaticaBudgetEntry,
+            marketingCalendarEntry,
+            ...(allowWrites ? [writeEntry, workspaceWriteEntry] : []),
+            ...(allowDelivery ? [deliveryEntry] : []),
+          ]
         : [];
     return {
       report: { complete: true },
@@ -81,10 +180,14 @@ jest.mock("@/lib/permissions", () => ({
   hasPermission: (...args: unknown[]) => hasPermission(...args),
 }));
 
-jest.mock("@/lib/ai/eve-runtime", () => ({
-  createProductionEveRequestCatalog: (...args: unknown[]) =>
-    createProductionEveRequestCatalog(...args),
-}));
+jest.mock(
+  "@/lib/ai/eve-runtime",
+  () => ({
+    createProductionEveRequestCatalog: (...args: unknown[]) =>
+      createProductionEveRequestCatalog(...args),
+  }),
+  { virtual: true },
+);
 
 jest.mock("@/lib/guardrails/observability", () => ({
   getOrCreateRequestId: () => "request-1",
@@ -195,6 +298,10 @@ beforeEach(() => {
   loadUserPermissionsWithClient.mockResolvedValue({
     isAdmin: false,
   });
+  profileMaybeSingle.mockResolvedValue({
+    data: { is_admin: false },
+    error: null,
+  });
   maybeSingle.mockResolvedValue({
     data: { command_payload: { surface: "alleato_ai" } },
     error: null,
@@ -218,7 +325,25 @@ it("returns a serializable request-scoped read-only catalog", async () => {
       description: "Read the selected project.",
       inputSchema: expect.objectContaining({ type: "object" }),
     }),
+    expect.objectContaining({
+      name: "getAcumaticaProjectBudget",
+      inputSchema: expect.objectContaining({ type: "object" }),
+    }),
+    expect.objectContaining({
+      name: "getMarketingCalendar",
+      inputSchema: expect.objectContaining({ type: "object" }),
+    }),
   ]);
+  const acumaticaBudget = payload.tools.find(
+    (candidate: { name: string }) =>
+      candidate.name === "getAcumaticaProjectBudget",
+  );
+  expect(acumaticaBudget.inputSchema.properties).toHaveProperty(
+    "acumaticaProjectId",
+  );
+  expect(acumaticaBudget.inputSchema.properties).not.toHaveProperty(
+    "projectId",
+  );
   expect(createProductionEveRequestCatalog).toHaveBeenCalledWith(
     expect.objectContaining({
       actorPermissions: ["ai_assistant.tools.read"],
@@ -244,6 +369,51 @@ it("executes the existing implementation from that same filtered catalog", async
   });
   expect(executeReadTool).toHaveBeenCalledTimes(1);
   expect(executeReadTool.mock.calls[0][0]).toEqual({ includeBudget: true });
+});
+
+it("normalizes the model's zero project sentinel to the signed project for read tools", async () => {
+  const response = await POST(
+    request("POST", {
+      body: {
+        surface: "ai_assistant",
+        toolName: "getProjectDetails",
+        input: {
+          projectId: 0,
+        },
+      },
+    }),
+    routeArgs,
+  );
+
+  expect(response.status).toBe(200);
+  expect(executeReadTool).toHaveBeenCalledWith(
+    { projectId: 67 },
+    expect.objectContaining({ toolCallId: "call-1" }),
+  );
+});
+
+it("allows an unscoped read tool to keep an explicit null project filter in a pinned chat", async () => {
+  const input = {
+    dateRange: null,
+    status: null,
+    projectId: null,
+  };
+  const response = await POST(
+    request("POST", {
+      body: {
+        surface: "ai_assistant",
+        toolName: "getMarketingCalendar",
+        input,
+      },
+    }),
+    routeArgs,
+  );
+
+  expect(response.status).toBe(200);
+  expect(executeReadTool).toHaveBeenCalledWith(
+    input,
+    expect.objectContaining({ toolCallId: "call-1" }),
+  );
 });
 
 it("advertises and executes createRFI only through the governed write contract", async () => {
@@ -315,6 +485,79 @@ it("advertises and executes createRFI only through the governed write contract",
   );
 });
 
+it("advertises and executes the full governed catalog for an administrator", async () => {
+  profileMaybeSingle.mockResolvedValue({
+    data: { is_admin: true },
+    error: null,
+  });
+
+  const discovery = await GET(
+    request("GET", { projectId: "" }),
+    routeArgs,
+  );
+  const discoveryPayload = await discovery.json();
+
+  expect(discovery.status).toBe(200);
+  expect(discoveryPayload.tools).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({
+        approvalRequirement: "user",
+        effect: "write",
+        name: "saveWorkspaceArtifact",
+      }),
+      expect.objectContaining({
+        approvalRequirement: "user",
+        effect: "write",
+        name: "sendTeamsMessage",
+      }),
+    ]),
+  );
+  const workspaceTool = discoveryPayload.tools.find(
+    (tool: { name: string }) => tool.name === "saveWorkspaceArtifact",
+  );
+  expect(workspaceTool.inputSchema.properties).not.toHaveProperty("confirmed");
+  expect(workspaceTool.inputSchema.properties).not.toHaveProperty("idempotencyKey");
+  expect(createProductionEveRequestCatalog).toHaveBeenCalledWith(
+    expect.objectContaining({
+      actorPermissions: [
+        "ai_assistant.tools.read",
+        "ai_assistant.tools.write",
+        "ai_assistant.tools.deliver",
+      ],
+      allowWrites: true,
+      allowDelivery: true,
+    }),
+  );
+
+  const businessInput = {
+    title: "Verification note",
+    content: "Approved workspace artifact content.",
+  };
+  const execution = await POST(
+    request("POST", {
+      projectId: "",
+      body: {
+        surface: "ai_assistant",
+        toolName: "saveWorkspaceArtifact",
+        input: businessInput,
+      },
+    }),
+    routeArgs,
+  );
+  const payload = await execution.json();
+
+  expect(execution.status).toBe(200);
+  expect(payload.receipt.idempotencyKey).toMatch(/^[0-9a-f]{64}$/);
+  expect(executeWriteTool).toHaveBeenCalledWith(
+    {
+      ...businessInput,
+      confirmed: true,
+      idempotencyKey: payload.receipt.idempotencyKey,
+    },
+    expect.objectContaining({ toolCallId: "call-1" }),
+  );
+});
+
 it("rejects a governed payload whose projectId diverges from the signed scoped project", async () => {
   hasPermission.mockReturnValue(true);
   const response = await POST(
@@ -336,6 +579,73 @@ it("rejects a governed payload whose projectId diverges from the signed scoped p
 
   expect(response.status).toBe(403);
   expect(executeWriteTool).not.toHaveBeenCalled();
+});
+
+it("does not normalize the zero project sentinel for write tools", async () => {
+  hasPermission.mockReturnValue(true);
+  const response = await POST(
+    request("POST", {
+      body: {
+        surface: "ai_assistant",
+        toolName: "createRFI",
+        input: {
+          projectId: 0,
+          subject: "Invalid sentinel project",
+          question: "This write must remain rejected.",
+          costImpact: "no",
+          scheduleImpact: "no",
+        },
+      },
+    }),
+    routeArgs,
+  );
+
+  expect(response.status).toBe(400);
+  expect(executeWriteTool).not.toHaveBeenCalled();
+});
+
+it("executes an Acumatica project code without treating it as the selected Alleato projectId", async () => {
+  const response = await POST(
+    request("POST", {
+      body: {
+        surface: "ai_assistant",
+        toolName: "getAcumaticaProjectBudget",
+        input: {
+          acumaticaProjectId: "26119",
+          typeFilter: "all",
+        },
+      },
+    }),
+    routeArgs,
+  );
+
+  expect(response.status).toBe(200);
+  expect(executeReadTool).toHaveBeenCalledWith(
+    {
+      acumaticaProjectId: "26119",
+      typeFilter: "all",
+    },
+    expect.objectContaining({ toolCallId: "call-1" }),
+  );
+});
+
+it("rejects the obsolete Acumatica projectId payload before tool execution", async () => {
+  const response = await POST(
+    request("POST", {
+      body: {
+        surface: "ai_assistant",
+        toolName: "getAcumaticaProjectBudget",
+        input: {
+          projectId: "26119",
+          typeFilter: "all",
+        },
+      },
+    }),
+    routeArgs,
+  );
+
+  expect(response.status).toBe(400);
+  expect(executeReadTool).not.toHaveBeenCalled();
 });
 
 it("rejects a direct or tampered bridge request before authentication", async () => {

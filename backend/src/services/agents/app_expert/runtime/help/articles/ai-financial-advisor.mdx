@@ -1,33 +1,25 @@
 ---
 title: Ask the AI About Finances
-description: Use Eve's financial analysis skill for budgets, margins, cash flow, change order exposure, and live ERP data.
+description: Use the CFO advisor to analyze budgets, margins, cash flow, change order exposure, and live ERP data from Acumatica.
 audience: client
 visibility: published
 module: ai-assistant
 category: AI & Intelligence
-tags: [ai-assistant, eve, financial-analysis, budget, margin, cash-flow, acumatica, change-orders, commitments]
+tags: [ai-assistant, cfo, budget, margin, cash-flow, acumatica, change-orders, commitments]
 featured: false
 client_visible: true
 ai_visible: true
 order: 607
 related_routes:
-  - /ai
+  - /ai-assistant
 related_actions: []
 ---
 
 # Ask the AI About Finances
 
-Eve's financial analysis skill can use the financial records exposed by the
-app-owned tool bridge and the configured Acumatica integration. It analyzes
-margin protection, cash position, exposure, change-order lifecycle, billing,
-and collections.
+The CFO advisor has live access to every financial record in the platform — and to your Acumatica accounting system. It analyzes through five lenses: margin protection, cash position, exposure, change order lifecycle, and billing and collections.
 
-Financial answers should be grounded in retrieved structured data. Eve must
-state when required data is unavailable rather than estimate or guess.
-
-The current Eve bridge is read-only. Financial analysis can identify exposure
-and recommend a next step, but it cannot create a change record, commitment,
-invoice, payment, or accounting entry from chat.
+Every financial answer is grounded in live data. The CFO never estimates or guesses — it tells you what the data shows and flags what it cannot determine.
 
 ## Budget and Margin
 
@@ -39,8 +31,7 @@ invoice, payment, or accounting entry from chat.
 "Compare our original estimate margin vs. current projected margin."
 ```
 
-The financial skill traces margin erosion to specific change orders, cost
-overruns, or budget modifications.
+The CFO traces margin erosion to specific change orders, cost overruns, or budget modifications and explains how each affected the overall position.
 
 ## Cash Flow and Collections
 
@@ -52,8 +43,7 @@ overruns, or budget modifications.
 "When is the next owner payment expected on Vermillion Rise?"
 ```
 
-For cash-flow questions, the financial skill can combine Alleato receivables
-with available Acumatica balances.
+For cash flow questions, the CFO combines receivables from Alleato with live bank balances from Acumatica to give a complete picture.
 
 ## Change Order Exposure
 
@@ -64,8 +54,7 @@ with available Acumatica balances.
 "Are there any commitment adjustments missing for approved change orders?"
 ```
 
-The financial skill reviews the lifecycle from Change Event through owner
-change order and subcontract commitment adjustment.
+The CFO tracks the full lifecycle: Change Event → Change Order to Owner → Commitment Adjustment to Sub. When any step is missing, it flags the gap as unrecovered cost or untracked exposure.
 
 ## Commitments and Vendor Spend
 
@@ -88,12 +77,11 @@ When you want data directly from the accounting system:
 "What bills are due this week?"
 ```
 
-When Acumatica is available, Eve reads the returned AP/AR, cash, and vendor
-spend data rather than estimating it.
+The Acumatica integration is live and real-time. When you ask about AP/AR, cash, or vendor spend, the CFO reads your actual accounting system data — not estimates.
 
 ## Cross-Referencing Alleato and Acumatica
 
-Ask Eve to compare both systems:
+Ask the CFO to compare both systems:
 
 ```
 "Compare the Alleato budget vs. the Acumatica ERP budget for Vermillion Rise."

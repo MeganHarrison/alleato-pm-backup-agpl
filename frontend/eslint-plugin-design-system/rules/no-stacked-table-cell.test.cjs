@@ -70,6 +70,24 @@ tester.run("no-stacked-table-cell", rule, {
         }];
       `,
     },
+    {
+      // CellStackText with only primary (+ icon) is inline, not stacked.
+      code: `
+        const columns = [{
+          id: "file",
+          render: (item) => <CellStackText primary={item.fileName} icon={<Paperclip />} />,
+        }];
+      `,
+    },
+    {
+      // An explicit no-op secondary is allowed (renders nothing).
+      code: `
+        const columns = [{
+          id: "actor",
+          render: (item) => <CellStackText primary={item.name} secondary={undefined} />,
+        }];
+      `,
+    },
   ],
   invalid: [
     {
@@ -133,6 +151,29 @@ tester.run("no-stacked-table-cell", rule, {
         }];
       `,
       errors: [{ messageId: "noStackedTableCell" }],
+    },
+    {
+      // The shared CellStackText primitive with a live secondary value — the
+      // exact shape that slipped past the raw-JSX walk (project-creation-log).
+      code: `
+        const columns = [{
+          id: "actor",
+          render: (item) => (
+            <CellStackText primary={item.name} secondary={item.userId ?? undefined} />
+          ),
+        }];
+      `,
+      errors: [{ messageId: "noStackedCellComponent" }],
+    },
+    {
+      // A literal string secondary is still a stacked line.
+      code: `
+        const columns = [{
+          id: "file",
+          render: (item) => <CellStackText primary={item.fileName} secondary="PDF" />,
+        }];
+      `,
+      errors: [{ messageId: "noStackedCellComponent" }],
     },
   ],
 });

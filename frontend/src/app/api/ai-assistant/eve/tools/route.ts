@@ -31,8 +31,6 @@ const EVE_USER_HEADER = "x-alleato-eve-user-id";
 const EVE_PROVIDER = "eve";
 const SIGNATURE_MAX_AGE_MS = 5 * 60 * 1000;
 const SIGNATURE_MAX_FUTURE_SKEW_MS = 30 * 1000;
-const GOVERNED_WRITE_TOOLS = new Set(["createRFI"]);
-
 const EveRuntimeId = z
   .string()
   .trim()
@@ -387,6 +385,21 @@ async function canCreateRfi(
     hasPermission(permissions, "rfis", "write");
 }
 
+async function canUseAllGovernedTools(
+  context: VerifiedEveRequestContext,
+  surface: EveToolSurface,
+): Promise<boolean> {
+  if (surface !== "ai_assistant") return false;
+
+  const { data, error } = await context.serviceClient
+    .from("user_profiles")
+    .select("is_admin")
+    .eq("id", context.userId)
+    .maybeSingle();
+
+  return !error && data?.is_admin === true;
+}
+
 async function createGovernedCatalog({
   context,
   userId,
@@ -398,16 +411,24 @@ async function createGovernedCatalog({
   projectId: number | null;
   surface: EveToolSurface;
 }): Promise<RequestScopedToolCatalog> {
-  const rfiWriteAllowed = await canCreateRfi(context, surface);
+  const [rfiWriteAllowed, allGovernedToolsAllowed] = await Promise.all([
+    canCreateRfi(context, surface),
+    canUseAllGovernedTools(context, surface),
+  ]);
+  const writeAllowed = rfiWriteAllowed || allGovernedToolsAllowed;
+  const deliveryAllowed = allGovernedToolsAllowed;
   const { catalog } = createProductionEveRequestCatalog({
     actorPermissions: [
       "ai_assistant.tools.read",
-      ...(rfiWriteAllowed
+      ...(writeAllowed
         ? ["ai_assistant.tools.write"]
         : []),
+      ...(deliveryAllowed
+        ? ["ai_assistant.tools.deliver"]
+        : []),
     ],
-    allowWrites: rfiWriteAllowed,
-    allowDelivery: false,
+    allowWrites: writeAllowed,
+    allowDelivery: deliveryAllowed,
     userId,
     project:
       projectId === null
@@ -421,10 +442,8 @@ async function createGovernedCatalog({
     (entry) =>
       (entry.effect === "read" &&
         entry.approvalRequirement !== "none") ||
-      (entry.effect === "write" &&
-        GOVERNED_WRITE_TOOLS.has(entry.name) &&
-        entry.approvalRequirement !== "user") ||
-      entry.effect === "external_delivery",
+      (entry.effect !== "read" &&
+        entry.approvalRequirement !== "user"),
   );
   if (unsafeEntry) {
     throw new GuardrailError({
@@ -439,6 +458,7 @@ async function createGovernedCatalog({
   const entries = catalog.entries.filter(
     (entry) =>
       entry.effect === "read" ||
+      allGovernedToolsAllowed ||
       (rfiWriteAllowed && entry.name === "createRFI"),
   );
   return {
@@ -476,18 +496,19 @@ function serializableSchema(schema: unknown, toolName: string): unknown {
 function describeCatalog(
   catalog: RequestScopedToolCatalog,
 ): EveToolDescription[] {
-  return catalog.entries.map((entry) => ({
-    approvalRequirement: entry.approvalRequirement,
-    name: entry.name,
-    description: entry.description,
-    effect: entry.effect === "read" ? "read" : "write",
-    inputSchema: serializableSchema(
-      entry.name === "createRFI"
-        ? GovernedCreateRfiInput
-        : entry.inputSchema,
-      entry.name,
-    ),
-  }));
+  return catalog.entries.map((entry) => {
+    const governedTool = governedToolSchema(entry);
+    return {
+      approvalRequirement: entry.approvalRequirement,
+      name: entry.name,
+      description: entry.description,
+      effect: entry.effect === "read" ? "read" : "write",
+      inputSchema: serializableSchema(
+        governedTool.inputSchema ?? governedTool.parameters ?? entry.inputSchema,
+        entry.name,
+      ),
+    };
+  });
 }
 
 async function validateToolInput(
@@ -520,12 +541,24 @@ async function validateToolInput(
 function governedToolSchema(
   entry: RequestScopedToolCatalog["entries"][number],
 ): AiSdkStyleTool {
-  if (entry.name !== "createRFI") {
+  if (entry.effect === "read") {
     return entry.tool;
   }
+  const schema = entry.tool.inputSchema ?? entry.tool.parameters;
+  if (!(schema instanceof z.ZodObject)) return entry.tool;
+
+  const omitMask: Record<string, true> = {};
+  if ("confirmed" in schema.shape) omitMask.confirmed = true;
+  if ("idempotencyKey" in schema.shape) omitMask.idempotencyKey = true;
+
   return {
     ...entry.tool,
-    inputSchema: GovernedCreateRfiInput,
+    inputSchema:
+      entry.name === "createRFI"
+        ? GovernedCreateRfiInput
+        : Object.keys(omitMask).length > 0
+          ? schema.omit(omitMask)
+          : schema,
   };
 }
 
@@ -533,8 +566,10 @@ function requireScopedProjectMatch(
   context: VerifiedEveRequestContext,
   input: unknown,
   toolName: string,
+  enforceProjectScope: boolean,
 ): void {
   if (
+    !enforceProjectScope ||
     context.projectId === null ||
     !input ||
     typeof input !== "object" ||
@@ -562,6 +597,28 @@ function requireScopedProjectMatch(
       severity: "high",
     });
   }
+}
+
+function normalizeReadProjectSentinel(
+  context: VerifiedEveRequestContext,
+  input: unknown,
+  effect: RequestScopedToolCatalog["entries"][number]["effect"],
+): unknown {
+  if (
+    effect !== "read" ||
+    context.projectId === null ||
+    !input ||
+    typeof input !== "object" ||
+    Array.isArray(input) ||
+    (input as { projectId?: unknown }).projectId !== 0
+  ) {
+    return input;
+  }
+
+  return {
+    ...(input as Record<string, unknown>),
+    projectId: context.projectId,
+  };
 }
 
 function createExecutionReceipt({
@@ -675,18 +732,24 @@ export const POST = withApiGuardrails(
       });
     }
 
+    const normalizedInput = normalizeReadProjectSentinel(
+      context,
+      body.input,
+      entry.effect,
+    );
     const validatedInput = await validateToolInput(
       governedToolSchema(entry),
-      body.input,
+      normalizedInput,
       body.toolName,
     );
     requireScopedProjectMatch(
       context,
       validatedInput,
       body.toolName,
+      entry.requiresProjectScope || entry.effect !== "read",
     );
     const receipt =
-      entry.effect === "write"
+      entry.effect !== "read"
         ? createExecutionReceipt({
             assistantTurnId: requireAssistantTurnId(
               request,
@@ -698,7 +761,7 @@ export const POST = withApiGuardrails(
           })
         : null;
     const executionInput =
-      body.toolName === "createRFI" && receipt
+      receipt
         ? {
             ...(validatedInput as Record<string, unknown>),
             confirmed: true,

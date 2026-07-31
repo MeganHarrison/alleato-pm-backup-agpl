@@ -3,8 +3,8 @@
 import * as React from "react"
 import {
   Control,
-  FieldArray,
   FieldArrayPath,
+  FieldArrayPathValue,
   FieldValues,
   useFieldArray,
 } from "react-hook-form"
@@ -19,6 +19,20 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+
+// react-hook-form's top-level `FieldArray` export now shadows its own type of
+// the same name with the new `<FieldArray>` component (react-hook-form@7.71+),
+// so the item-shape type is reconstructed here from the still-exported
+// `FieldArrayPathValue` instead of importing the (now unavailable) type.
+type FieldArrayItem<
+  TFieldValues extends FieldValues,
+  TName extends FieldArrayPath<TFieldValues>,
+> = FieldArrayPathValue<TFieldValues, TName> extends
+  | ReadonlyArray<infer TItem>
+  | null
+  | undefined
+  ? TItem
+  : never
 
 type Column<TFieldValues extends FieldValues, TName extends FieldArrayPath<TFieldValues>> = {
   key: string
@@ -40,7 +54,7 @@ interface Props<
   label?: string
   description?: string
   columns: Column<TFieldValues, TName>[]
-  createRow: () => FieldArray<TFieldValues, TName>
+  createRow: () => FieldArrayItem<TFieldValues, TName>
   addLabel?: string
   minRows?: number
 }

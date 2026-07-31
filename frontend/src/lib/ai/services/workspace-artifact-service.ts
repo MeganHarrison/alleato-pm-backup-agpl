@@ -233,7 +233,7 @@ export async function updateArtifact(
   if (params.tags !== undefined) updates.tags = params.tags;
 
   const { error: updateError } = await serviceDb.from("workspace_artifacts")
-    .update(updates)
+    .update(updates as Database["public"]["Tables"]["workspace_artifacts"]["Update"])
     .eq("id", id)
     .eq("user_id", userId);
 

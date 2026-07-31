@@ -147,13 +147,7 @@ export function PlaneSurfaceDispatcher({
     <PlaneWorkspaceShell
       projectId={String(numericProjectId)}
       projectName={projectName}
-      activeSurface={
-        // The shared shell is under a separate active lease. Runtime accepts the
-        // segment; its navigation union will add Submittals during integration.
-        planeSurface as Parameters<
-          typeof PlaneWorkspaceShell
-        >[0]["activeSurface"]
-      }
+      activeSurface={planeSurface}
     >
       {surfaceContent}
     </PlaneWorkspaceShell>

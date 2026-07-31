@@ -59,6 +59,21 @@ interface DirectoryPeopleResponse {
   };
 }
 
+interface AlleatoEmployeesResponse {
+  data?: Array<{
+    id: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+    job_title: string;
+  }>;
+  pagination?: {
+    page?: number;
+    total?: number;
+    total_pages?: number;
+  };
+}
+
 interface CompanyOption {
   id: string;
   name: string;
@@ -380,37 +395,36 @@ export function AssignMemberDialog({
     const loadAllPeople = async () => {
       try {
         // Project Team roles are Alleato-internal positions (Superintendent, PM, etc.),
-        // so the role-assignment dropdown only lists employees. External contributors
-        // (architects, engineers, subs) are added via the "Add external contact" flow
-        // below and live in the directory without polluting role dropdowns.
-        const params = new URLSearchParams({
-          type: "employee",
-          status: "active",
-          page: "1",
-          per_page: "1000",
-        });
-        const result = await apiFetch<DirectoryPeopleResponse>(
-          `/api/people?${params}`,
-        );
+        // so use the same company-scoped roster as the Employees directory. The
+        // generic /api/people type=employee alias also includes app-user identities,
+        // including QA and system accounts that are not Alleato employees.
+        const employeeRows: NonNullable<AlleatoEmployeesResponse["data"]> = [];
+        let page = 1;
+        let totalPages = 1;
 
-        // Guardrail: surface silent truncation if the employee roster ever exceeds per_page.
-        const total = result.meta?.total;
-        const returned = result.data?.length ?? 0;
-        if (typeof total === "number" && total > returned) {
-           
-          console.warn(
-            `[AssignMemberDialog] /api/people returned ${returned}/${total} employees — increase per_page or paginate.`,
+        do {
+          const params = new URLSearchParams({
+            per_page: "150",
+            status: "active",
+            sort: "full_name:asc",
+            page: String(page),
+          });
+          const result = await apiFetch<AlleatoEmployeesResponse>(
+            `/api/directory/employees/table?${params}`,
           );
-        }
+          employeeRows.push(...(result.data ?? []));
+          totalPages = Math.max(1, result.pagination?.total_pages ?? 1);
+          page += 1;
+        } while (page <= totalPages);
 
         setPeople(
-          (result.data || []).map((p) => ({
+          employeeRows.map((p) => ({
             id: p.id,
             first_name: p.first_name,
             last_name: p.last_name,
             email: p.email ?? null,
             job_title: p.job_title ?? null,
-            company_name: p.company?.name ?? null,
+            company_name: "Alleato Group",
           })),
         );
       } catch (error) {

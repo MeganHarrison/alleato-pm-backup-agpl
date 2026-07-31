@@ -349,12 +349,12 @@ export class CompanyService {
     const projectIdNum = Number.parseInt(projectId, 10);
 
     // Update global company fields if provided
-    const globalFields: Record<string, unknown> = {};
+    const globalFields: Database["public"]["Tables"]["companies"]["Update"] = {};
     if (data.name !== undefined) globalFields.name = data.name;
     if (data.address !== undefined) globalFields.address = data.address;
     if (data.city !== undefined) globalFields.city = data.city;
     if (data.state !== undefined) globalFields.state = data.state;
-    if (data.zip !== undefined) globalFields.zip = data.zip;
+    if (data.zip !== undefined) globalFields.zip_code = data.zip;
     if (data.website !== undefined) globalFields.website = data.website;
     if (data.license_number !== undefined)
       globalFields.license_number = data.license_number;
@@ -380,7 +380,7 @@ export class CompanyService {
     }
 
     // Update project-specific fields
-    const projectFields: Record<string, unknown> = {};
+    const projectFields: Database["public"]["Tables"]["project_companies"]["Update"] = {};
     if (data.email_address !== undefined)
       projectFields.email_address = data.email_address;
     if (data.primary_contact_id !== undefined)

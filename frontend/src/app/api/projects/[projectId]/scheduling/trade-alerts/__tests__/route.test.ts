@@ -31,7 +31,7 @@ describe("trade schedule alerts API", () => {
     expect(rpc).not.toHaveBeenCalled();
   });
 
-  it("reports a replay as a non-duplicated delivery", async () => {
+  it("reports a replay as a duplicate without another delivery", async () => {
     getApiRouteUserMock.mockResolvedValue({ id: "user-1" } as Awaited<ReturnType<typeof getApiRouteUser>>);
     const rpc = jest.fn().mockResolvedValue({ data: null, error: null });
     createClientMock.mockResolvedValue({ rpc } as never);
@@ -40,6 +40,37 @@ describe("trade schedule alerts API", () => {
 
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toEqual({ delivered: false, duplicate: true });
+  });
+
+  it("recognizes PostgREST's null composite replay shape", async () => {
+    getApiRouteUserMock.mockResolvedValue({ id: "user-1" } as Awaited<ReturnType<typeof getApiRouteUser>>);
+    const rpc = jest.fn().mockResolvedValue({
+      data: { id: null, user_id: null, project_id: null },
+      error: null,
+    });
+    createClientMock.mockResolvedValue({ rpc } as never);
+
+    const response = await POST(new NextRequest("http://localhost/api/projects/43/scheduling/trade-alerts", { method: "POST", body: JSON.stringify(body) }), context);
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({ delivered: false, duplicate: true });
+  });
+
+  it("fails loudly when the alert RPC returns a malformed notification", async () => {
+    getApiRouteUserMock.mockResolvedValue({ id: "user-1" } as Awaited<ReturnType<typeof getApiRouteUser>>);
+    const rpc = jest.fn().mockResolvedValue({
+      data: { id: null, user_id: "unexpected-user", project_id: 43 },
+      error: null,
+    });
+    createClientMock.mockResolvedValue({ rpc } as never);
+
+    const response = await POST(new NextRequest("http://localhost/api/projects/43/scheduling/trade-alerts", { method: "POST", body: JSON.stringify(body) }), context);
+
+    expect(response.status).toBe(500);
+    await expect(response.json()).resolves.toMatchObject({
+      error_code: "DB_ERROR",
+      error_message: "Schedule alert delivery returned an invalid notification.",
+    });
   });
 
   it("emits one actionable notification from the published schedule source", async () => {

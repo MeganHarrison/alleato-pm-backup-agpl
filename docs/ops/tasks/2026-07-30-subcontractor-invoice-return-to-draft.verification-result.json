@@ -1,0 +1,64 @@
+{
+  "status": "PASS",
+  "observedStatus": "PASS",
+  "taskId": "ALL-55",
+  "evidence": {
+    "databaseReadback": [
+      "docs/ops/tasks/2026-07-30-subcontractor-invoice-return-to-draft.md",
+      "supabase/tests/subcontractor_invoice_draft_reopen.sql"
+    ],
+    "regressionTest": [
+      "frontend/src/lib/invoicing/__tests__/subcontractor-invoice-editability.test.ts",
+      "frontend/src/app/api/projects/[projectId]/invoicing/subcontractor/invoices/[invoiceId]/__tests__/route.test.ts"
+    ],
+    "negativePath": [
+      "docs/ops/tasks/2026-07-30-subcontractor-invoice-return-to-draft.md",
+      "supabase/tests/subcontractor_invoice_draft_reopen.sql"
+    ],
+    "browserProof": [
+      "tests/agent-browser-runs/2026-07-30-subcontractor-invoice-return-to-draft/01-under-review-action.png",
+      "tests/agent-browser-runs/2026-07-30-subcontractor-invoice-return-to-draft/02-draft-editable.png",
+      "tests/agent-browser-runs/2026-07-30-subcontractor-invoice-return-to-draft/03-draft-sov-editable.png",
+      "tests/agent-browser-runs/2026-07-30-subcontractor-invoice-return-to-draft/verification.md"
+    ],
+    "summary": [
+      "docs/ops/tasks/2026-07-30-subcontractor-invoice-return-to-draft.md"
+    ]
+  },
+  "claims": {
+    "draft-reopen": {
+      "browserProof": [
+        "tests/agent-browser-runs/2026-07-30-subcontractor-invoice-return-to-draft/01-under-review-action.png",
+        "tests/agent-browser-runs/2026-07-30-subcontractor-invoice-return-to-draft/02-draft-editable.png",
+        "tests/agent-browser-runs/2026-07-30-subcontractor-invoice-return-to-draft/03-draft-sov-editable.png"
+      ],
+      "regressionTest": [
+        "frontend/src/lib/invoicing/__tests__/subcontractor-invoice-editability.test.ts",
+        "frontend/src/app/api/projects/[projectId]/invoicing/subcontractor/invoices/[invoiceId]/__tests__/route.test.ts"
+      ]
+    },
+    "accounting-boundary": {
+      "negativePath": [
+        "docs/ops/tasks/2026-07-30-subcontractor-invoice-return-to-draft.md",
+        "supabase/tests/subcontractor_invoice_draft_reopen.sql"
+      ],
+      "databaseReadback": [
+        "supabase/tests/subcontractor_invoice_draft_reopen.sql"
+      ]
+    },
+    "audit-and-editing": {
+      "databaseReadback": [
+        "docs/ops/tasks/2026-07-30-subcontractor-invoice-return-to-draft.md"
+      ],
+      "regressionTest": [
+        "frontend/src/app/api/projects/[projectId]/invoicing/subcontractor/invoices/[invoiceId]/__tests__/route.test.ts"
+      ]
+    }
+  },
+  "independentReview": {
+    "reviewer": "code_review, react_review, and security_review",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-31T01:03:47Z",
+    "artifact": "docs/ops/tasks/2026-07-30-subcontractor-invoice-return-to-draft.md"
+  }
+}

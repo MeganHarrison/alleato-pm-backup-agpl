@@ -228,3 +228,23 @@ snapshot/timeline projections. Written by ONE deep module,
 `/[projectId]/intelligence` page reads the whole record. The Daily Deep Read packet must
 feed this writer through a **packet → operating-record adapter**, not a shallow `.mjs` that
 updates only `current_summary` and leaves the rest of the record stale.
+
+## CRM
+
+**CRM-native lead** — a pre-customer relationship created directly in the CRM. It has
+an organization name, optional primary-contact details, an internal owner, activity,
+deals, and follow-up tasks. It does not require or create an Acumatica-backed
+`companies` row.
+
+**CRM account** — a relationship overlay for an existing `companies` record. Company
+records remain owned by the ERP/directory boundary; CRM account profiles add
+relationship lifecycle, health, ownership, and follow-up state without changing that
+ownership.
+
+**Relationship target** — exactly one CRM-native lead or CRM account associated with a
+deal or activity. CRM follow-up tasks may target either kind of relationship and use
+the existing shared `tasks` system.
+
+**Lead conversion** — the explicit act of linking a CRM-native lead to an approved
+`companies` record after the prospect becomes a real customer or otherwise belongs in
+the company directory. Creating a lead is never an implicit conversion.

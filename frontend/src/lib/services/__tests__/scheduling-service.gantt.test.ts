@@ -147,4 +147,104 @@ describe("SchedulingService.getGanttData", () => {
       expect.objectContaining({ id: "predecessor", start_date: "2026-08-03", finish_date: "2026-08-03" }),
     ]);
   });
+
+  it("derives a missing start date from finish and duration", async () => {
+    const client = {
+      from: jest.fn(function (this: unknown, table: string) {
+        const dataByTable: Record<string, unknown[]> = {
+          schedule_tasks: [
+            task({
+              id: "backward-derived",
+              start_date: null,
+              finish_date: "2026-08-07",
+              duration_days: 5,
+            }),
+          ],
+          schedule_dependencies: [],
+          schedule_deadlines: [],
+        };
+        const query = {
+          select: () => query,
+          eq: () => query,
+          in: () => query,
+          order: () => query,
+          range: () => query,
+          maybeSingle: () => Promise.resolve({ data: dataByTable[table]?.[0] ?? null, error: null }),
+          then: (resolve: (value: { data: unknown[]; error: null }) => unknown) =>
+            Promise.resolve(resolve({ data: dataByTable[table], error: null })),
+        };
+        return query;
+      }),
+    };
+    const service = new SchedulingService(client as never);
+
+    const data = await service.getGanttData(projectId);
+
+    expect(data).toEqual([
+      expect.objectContaining({
+        id: "backward-derived",
+        start_date: "2026-08-03",
+        finish_date: "2026-08-07",
+      }),
+    ]);
+  });
+
+  it("preserves a fully unscheduled successor instead of fabricating today's date (regression: live Nexcom bug, 2026-07-29)", async () => {
+    const client = {
+      from: jest.fn(function (this: unknown, table: string) {
+        const dataByTable: Record<string, unknown[]> = {
+          schedule_tasks: [
+            task({
+              id: "pipe-prep",
+              name: "Pipe Prep",
+              start_date: "2026-08-11",
+              finish_date: "2026-08-12",
+              duration_days: 2,
+              sort_order: 1,
+            }),
+            task({
+              id: "pipe-installation",
+              name: "Pipe installation",
+              start_date: null,
+              finish_date: null,
+              duration_days: null,
+              sort_order: 2,
+            }),
+          ],
+          schedule_dependencies: [{
+            id: "dependency-1",
+            task_id: "pipe-installation",
+            predecessor_task_id: "pipe-prep",
+            dependency_type: "finish_to_start",
+            lag_days: 0,
+            created_at: "2026-07-24T17:39:45.454Z",
+          }],
+          schedule_deadlines: [],
+        };
+        const query = {
+          select: () => query,
+          eq: () => query,
+          in: () => query,
+          order: () => query,
+          range: () => query,
+          maybeSingle: () => Promise.resolve({ data: dataByTable[table]?.[0] ?? null, error: null }),
+          then: (resolve: (value: { data: unknown[]; error: null }) => unknown) =>
+            Promise.resolve(resolve({ data: dataByTable[table], error: null })),
+        };
+        return query;
+      }),
+    };
+    const service = new SchedulingService(client as never);
+
+    const data = await service.getGanttData(projectId);
+
+    expect(data.find((item) => item.id === "pipe-installation")).toEqual(
+      expect.objectContaining({
+        start_date: null,
+        finish_date: null,
+        duration_days: null,
+        schedule_warnings: ["missing_dates"],
+      }),
+    );
+  });
 });

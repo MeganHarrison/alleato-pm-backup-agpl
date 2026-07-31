@@ -15,7 +15,9 @@ from ..pipeline.model_usage import (
     PipelineModelBudgetExceeded,
     assert_background_model_budget_available,
     record_model_usage,
+    signal_completion_limit,
 )
+from ..ai_transport import get_ai_provider_path
 
 logger = logging.getLogger(__name__)
 
@@ -97,6 +99,8 @@ def extract_with_retry(
                 stage=context.stage,
                 operation=context.operation,
                 model=model,
+                budget_bucket=context.budget_bucket,
+                usage_context=context,
             )
             kwargs: Dict[str, Any] = {
                 "model": model,
@@ -104,6 +108,8 @@ def extract_with_retry(
                 "timeout": request_timeout,
                 "response_format": {"type": "json_object"},
             }
+            if context.budget_bucket == "signal":
+                kwargs["max_tokens"] = signal_completion_limit()
             # Only send temperature to models that accept a non-default value;
             # gpt-5/o-series reject it with a 400 that would silently fail extraction.
             if _supports_custom_temperature(model):
@@ -120,7 +126,13 @@ def extract_with_retry(
                 fallback_kwargs = dict(kwargs)
                 fallback_kwargs.pop("response_format", None)
                 response = _client().chat.completions.create(**fallback_kwargs)
-            record_model_usage(context, model=model, response=response, status="succeeded")
+            record_model_usage(
+                context,
+                model=model,
+                provider=get_ai_provider_path(),
+                response=response,
+                status="succeeded",
+            )
             raw = response.choices[0].message.content or ""
             raw = raw.strip()
             if raw.startswith("```"):

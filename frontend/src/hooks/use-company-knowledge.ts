@@ -58,7 +58,7 @@ export const KNOWLEDGE_CATEGORIES: {
   label: string;
   description: string;
 }[] = [
-  { value: "system_design", label: "System Design", description: "ASRS design, fire suppression, MEP systems" },
+  { value: "system_design", label: "System Design", description: "Fire suppression, MEP systems, structural design" },
   { value: "pricing_intel", label: "Pricing Intel", description: "Vendor pricing, cost benchmarks, quote analysis" },
   { value: "vendor_intel", label: "Vendor Intel", description: "Vendor capabilities, reliability, relationships" },
   { value: "client_education", label: "Client Education", description: "Knowledge for educating clients" },

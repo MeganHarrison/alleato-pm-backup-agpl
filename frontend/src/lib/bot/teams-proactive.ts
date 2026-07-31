@@ -1,5 +1,5 @@
 // frontend/src/lib/bot/teams-proactive.ts
-import { getTeamsDelivery } from "@/lib/bot/teams-delivery";
+import { getTeamsChat } from "@/lib/bot/teams-chat";
 import { serviceDb } from "@/lib/supabase/service-db";
 
 /**
@@ -28,7 +28,7 @@ export async function sendProactiveTeamsDM(
     return { sent: false, reason: "no_teams_mapping" };
   }
 
-  const chat = getTeamsDelivery();
+  const chat = getTeamsChat();
   try {
     const dmThread = await chat.openDM(mapping.platform_user_id);
     await dmThread.post(message);

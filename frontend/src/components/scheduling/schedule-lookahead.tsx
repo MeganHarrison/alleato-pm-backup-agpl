@@ -33,8 +33,8 @@ type Props = {
 
 const WEEK_OPTIONS = [2, 3, 6] as const;
 
-function downloadExport(bytes: BlobPart, filename: string, type: string) {
-  const url = URL.createObjectURL(new Blob([bytes], { type }));
+function downloadExport(bytes: BlobPart | Uint8Array, filename: string, type: string) {
+  const url = URL.createObjectURL(new Blob([bytes as BlobPart], { type }));
   const link = document.createElement("a");
   link.href = url;
   link.download = filename;

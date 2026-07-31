@@ -1,0 +1,68 @@
+{
+  "status": "PASS",
+  "observedStatus": "PASS",
+  "taskId": "DOCSANALYTICS0731",
+  "evidence": {
+    "screenshots": [
+      "tests/agent-browser-runs/2026-07-31-cross-site-training-analytics/product-training-docs-link-desktop.png",
+      "tests/agent-browser-runs/2026-07-31-cross-site-training-analytics/product-training-attributed-link-desktop.png",
+      "tests/agent-browser-runs/2026-07-31-cross-site-training-analytics/prime-contract-docs-desktop.png",
+      "tests/agent-browser-runs/2026-07-31-cross-site-training-analytics/owner-invoice-docs-desktop.png"
+    ],
+    "regressionTest": [
+      "frontend/src/lib/analytics/__tests__/docs-training-assertion.test.ts",
+      "frontend/src/lib/analytics/__tests__/docs-training-contract.test.ts",
+      "frontend/src/app/api/engagement/docs/link/__tests__/route.test.ts",
+      "frontend/src/app/api/engagement/docs/progress/__tests__/route.test.ts",
+      "frontend/src/lib/learning/__tests__/data-access.test.ts"
+    ],
+    "negativePath": [
+      "frontend/src/lib/analytics/__tests__/docs-training-assertion.test.ts",
+      "frontend/src/lib/analytics/__tests__/docs-training-contract.test.ts",
+      "frontend/src/app/api/engagement/docs/link/__tests__/route.test.ts",
+      "frontend/src/app/api/engagement/docs/progress/__tests__/route.test.ts"
+    ],
+    "summary": [
+      "docs/ops/tasks/2026-07-31-cross-site-training-analytics.md"
+    ],
+    "visualReview": [
+      "docs/ops/tasks/2026-07-31-cross-site-training-analytics.independent-review.md"
+    ]
+  },
+  "claims": {
+    "privacy-boundary": {
+      "negativePath": [
+        "frontend/src/lib/analytics/__tests__/docs-training-assertion.test.ts",
+        "frontend/src/app/api/engagement/docs/progress/__tests__/route.test.ts"
+      ],
+      "regressionTest": [
+        "frontend/src/lib/analytics/__tests__/docs-training-contract.test.ts",
+        "frontend/src/app/api/engagement/docs/link/__tests__/route.test.ts"
+      ]
+    },
+    "canonical-analytics": {
+      "regressionTest": [
+        "frontend/src/app/api/engagement/docs/progress/__tests__/route.test.ts"
+      ],
+      "summary": [
+        "docs/ops/tasks/2026-07-31-cross-site-training-analytics.md"
+      ]
+    },
+    "rendered-training-flow": {
+      "screenshots": [
+        "tests/agent-browser-runs/2026-07-31-cross-site-training-analytics/product-training-docs-link-desktop.png",
+        "tests/agent-browser-runs/2026-07-31-cross-site-training-analytics/prime-contract-docs-desktop.png",
+        "tests/agent-browser-runs/2026-07-31-cross-site-training-analytics/owner-invoice-docs-desktop.png"
+      ],
+      "visualReview": [
+        "docs/ops/tasks/2026-07-31-cross-site-training-analytics.independent-review.md"
+      ]
+    }
+  },
+  "independentReview": {
+    "reviewer": "privacy_review",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-31T20:00:00Z",
+    "artifact": "docs/ops/tasks/2026-07-31-cross-site-training-analytics.independent-review.md"
+  }
+}

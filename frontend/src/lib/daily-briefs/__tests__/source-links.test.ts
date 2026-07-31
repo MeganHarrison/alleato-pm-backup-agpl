@@ -3,6 +3,7 @@ import {
   buildSourceIndex,
   candidateSourceTokens,
   cleanSourceTitle,
+  internalSourceHref,
   markKnownSourceCitations,
   resolveCandidateSources,
 } from "../source-links";
@@ -11,6 +12,8 @@ function ref(overrides: Partial<DailyBriefSourceRef>): DailyBriefSourceRef {
   return {
     id: "id",
     alias: null,
+    sourceRecordId: null,
+    appDocumentId: null,
     title: "Title",
     lane: "documents",
     projectId: null,
@@ -116,6 +119,16 @@ describe("buildSourceIndex.resolve", () => {
   it("returns null for text that is not a source id", () => {
     expect(index.resolve("some inline code")).toBeNull();
     expect(index.resolve("")).toBeNull();
+  });
+});
+
+describe("internalSourceHref", () => {
+  it("uses the app-owned source page instead of Outlook", () => {
+    expect(internalSourceHref(ref({ sourceRecordId: "metadata-42", projectId: 876, url: "https://outlook.office365.com/owa" }))).toBe("/876/intelligence/sources/metadata-42");
+  });
+
+  it("uses the global app source page when the source is unassigned", () => {
+    expect(internalSourceHref(ref({ sourceRecordId: "meeting-source" }))).toBe("/intelligence/sources/meeting-source");
   });
 });
 

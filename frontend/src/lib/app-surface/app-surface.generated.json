@@ -492,6 +492,21 @@
       "description": "Enter contract details, financial markup, and SOV line items."
     },
     {
+      "url": "/[projectId]/procurement",
+      "title": null,
+      "description": null
+    },
+    {
+      "url": "/[projectId]/procurement/[procurementItemId]",
+      "title": null,
+      "description": null
+    },
+    {
+      "url": "/[projectId]/procurement/new",
+      "title": "Add Procurement Item",
+      "description": null
+    },
+    {
       "url": "/[projectId]/progress-reports",
       "title": null,
       "description": "List weekly progress reports with photos, recipients, and publication status"
@@ -538,7 +553,7 @@
     },
     {
       "url": "/[projectId]/schedule",
-      "title": "Schedule",
+      "title": "No tasks scheduled",
       "description": "Create tasks, set milestones, and track dependencies with Gantt charts and multiple view modes."
     },
     {
@@ -593,13 +608,13 @@
     },
     {
       "url": "/[projectId]/tasks",
-      "title": null,
+      "title": "Tasks",
       "description": "Project task inbox and workflow management interface"
     },
     {
       "url": "/[projectId]/tasks/kanban",
-      "title": null,
-      "description": null
+      "title": "Task Kanban",
+      "description": "Drag cards between statuses. Moves save immediately."
     },
     {
       "url": "/[projectId]/timeline",
@@ -692,6 +707,11 @@
       "description": "Manually run internal workflows, syncs, AI refreshes, and outbound notifications without exposing those controls on client-facing pages."
     },
     {
+      "url": "/actions/workflows",
+      "title": "Workflow builder",
+      "description": "Shape internal automation steps with collaborators in real time."
+    },
+    {
       "url": "/acumatica-sync-logs",
       "title": "Acumatica Sync Logs",
       "description": "Outbound app-to-Acumatica create/update/skip/error audit trail."
@@ -737,9 +757,34 @@
       "description": "AI chat interface for conversing with Alleato AI and running workflows"
     },
     {
+      "url": "/ai-assistant",
+      "title": "AI",
+      "description": "Redirect to /ai; AI assistant and chat interface for projects"
+    },
+    {
       "url": "/ai-assistant-debug",
       "title": "AI Assistant Debug Console",
       "description": "Inspect routing, retrieval, tools, agents, model path, sources, and quality signals for assistant answers."
+    },
+    {
+      "url": "/ai-assistant/feature-requests",
+      "title": "Feature requests could not load",
+      "description": "Durable AIS request packets, readiness state, and implementation handoffs."
+    },
+    {
+      "url": "/ai-assistant/feature-requests/[requestId]",
+      "title": null,
+      "description": "Feature request workspace and details for AI assistant improvements"
+    },
+    {
+      "url": "/ai-assistant/marketing",
+      "title": "Marketing calendar could not load",
+      "description": "Review source-backed CMO content plans, draft assets, citations, and approval states."
+    },
+    {
+      "url": "/ai-assistant/teach",
+      "title": null,
+      "description": "Redirect to /ai/teach; submit reviewed workflow knowledge to the AI system"
     },
     {
       "url": "/ai-avatar",
@@ -807,6 +852,11 @@
       "description": null
     },
     {
+      "url": "/ai-dashboard/rag-pipeline",
+      "title": null,
+      "description": null
+    },
+    {
       "url": "/ai-prompt-diagnostics",
       "title": "AI Prompt Diagnostics",
       "description": "Inspect the assembled AI assistant system prompt for a representative request."
@@ -818,8 +868,13 @@
     },
     {
       "url": "/ai-vision",
-      "title": "AI capabilities",
-      "description": "Capability status and planned work are maintained in the AI registry."
+      "title": "AI Vision & Roadmap",
+      "description": "One screen for the whole AI build — the vision, the agent team, the tools in priority order, and what's already live."
+    },
+    {
+      "url": "/ai-workflow",
+      "title": "Durable AI canary",
+      "description": "Vercel Workflow runtime with resumable streams"
     },
     {
       "url": "/ai/admin/agents",
@@ -837,69 +892,19 @@
       "description": null
     },
     {
+      "url": "/ai/company-brain",
+      "title": null,
+      "description": null
+    },
+    {
       "url": "/ai/email-learning",
       "title": "Email Learning",
-      "description": null
-    },
-    {
-      "url": "/ai/feature-requests",
-      "title": "Feature requests could not load",
-      "description": "Durable AIS request packets, readiness state, and implementation handoffs."
-    },
-    {
-      "url": "/ai/feature-requests/[requestId]",
-      "title": null,
-      "description": "Feature request workspace and implementation details"
-    },
-    {
-      "url": "/ai/features",
-      "title": null,
-      "description": null
-    },
-    {
-      "url": "/ai/features/ai-profile",
-      "title": null,
-      "description": null
-    },
-    {
-      "url": "/ai/features/approvals",
-      "title": null,
-      "description": null
-    },
-    {
-      "url": "/ai/features/assistant",
-      "title": null,
-      "description": null
-    },
-    {
-      "url": "/ai/features/memory-center",
-      "title": null,
-      "description": null
-    },
-    {
-      "url": "/ai/features/project-cost-allocation-wip",
-      "title": null,
-      "description": null
-    },
-    {
-      "url": "/ai/features/skill-library",
-      "title": null,
-      "description": null
-    },
-    {
-      "url": "/ai/features/teach-alleato",
-      "title": null,
       "description": null
     },
     {
       "url": "/ai/learning-promotions",
       "title": "AI Learning Promotions",
       "description": "Review candidate learnings before they can become durable assistant behavior, memory, attribution, or retrieval rules."
-    },
-    {
-      "url": "/ai/marketing",
-      "title": "Marketing calendar could not load",
-      "description": "Review source-backed CMO content plans, draft assets, citations, and approval states."
     },
     {
       "url": "/ai/profile",
@@ -932,41 +937,6 @@
       "description": "Manage issue annotations and feedback with priority scoring, dispatch to agents, and duplicate clustering"
     },
     {
-      "url": "/asrs",
-      "title": "ASRS Intelligence",
-      "description": "Revision-scoped FMDS 8-34 engineering answers with exact table, figure, and PDF evidence."
-    },
-    {
-      "url": "/asrs/figures",
-      "title": "ASRS Intelligence",
-      "description": null
-    },
-    {
-      "url": "/asrs/figures/[figureId]",
-      "title": null,
-      "description": null
-    },
-    {
-      "url": "/asrs/intake",
-      "title": "ASRS assessment",
-      "description": "Enter the storage, rack, and sprinkler details for an FMDS 8-34 review."
-    },
-    {
-      "url": "/asrs/intake/submitted/[submissionId]",
-      "title": null,
-      "description": null
-    },
-    {
-      "url": "/asrs/tables",
-      "title": "ASRS Intelligence",
-      "description": null
-    },
-    {
-      "url": "/asrs/tables/[tableId]",
-      "title": null,
-      "description": null
-    },
-    {
       "url": "/assignment-inbox",
       "title": null,
       "description": "View and manage assigned tasks and action items across projects"
@@ -992,16 +962,6 @@
       "description": "User login form for signing in to the Alleato PM application"
     },
     {
-      "url": "/auth/login-v2",
-      "title": null,
-      "description": "Login page design version 2 with modern UI"
-    },
-    {
-      "url": "/auth/login-v3",
-      "title": null,
-      "description": "Login page design version 3 with enhanced user experience"
-    },
-    {
       "url": "/auth/sign-up",
       "title": null,
       "description": "New user registration form for creating an account"
@@ -1025,6 +985,11 @@
       "url": "/billing-periods",
       "title": null,
       "description": "Redirect to project-scoped billing periods under the invoices tab"
+    },
+    {
+      "url": "/brandons-dashboard",
+      "title": "Brandon's Dashboard",
+      "description": null
     },
     {
       "url": "/calendar",
@@ -1062,9 +1027,89 @@
       "description": null
     },
     {
+      "url": "/content",
+      "title": null,
+      "description": null
+    },
+    {
+      "url": "/content/courses/[courseId]",
+      "title": null,
+      "description": null
+    },
+    {
+      "url": "/content/courses/new",
+      "title": "Create course",
+      "description": "Define the learning outcome first. Add existing guides, SOPs, and resources after the course is created."
+    },
+    {
+      "url": "/content/resources/new",
+      "title": "Submit resource",
+      "description": "Add an external video, document, or course. A reviewer must approve it before employees see it."
+    },
+    {
       "url": "/create-project",
       "title": "Create Project",
       "description": "Set up core project details, location, and delivery defaults."
+    },
+    {
+      "url": "/crm",
+      "title": null,
+      "description": null
+    },
+    {
+      "url": "/crm/activities",
+      "title": null,
+      "description": null
+    },
+    {
+      "url": "/crm/command-center",
+      "title": "CRM command center",
+      "description": "Forecast, source activity, pursuit priorities, and evidence-backed next moves"
+    },
+    {
+      "url": "/crm/companies/[companyId]",
+      "title": "Loading CRM company",
+      "description": "Return to relationships and choose an active CRM account."
+    },
+    {
+      "url": "/crm/deals",
+      "title": null,
+      "description": null
+    },
+    {
+      "url": "/crm/deals/[dealId]",
+      "title": null,
+      "description": null
+    },
+    {
+      "url": "/crm/growth",
+      "title": null,
+      "description": null
+    },
+    {
+      "url": "/crm/leads",
+      "title": null,
+      "description": null
+    },
+    {
+      "url": "/crm/pipeline",
+      "title": null,
+      "description": null
+    },
+    {
+      "url": "/crm/settings",
+      "title": null,
+      "description": null
+    },
+    {
+      "url": "/crm/settings/matching",
+      "title": null,
+      "description": null
+    },
+    {
+      "url": "/crm/tasks",
+      "title": "CRM actions",
+      "description": "Calls, emails, meetings, and follow-ups tied to CRM relationships"
     },
     {
       "url": "/daily-brief",
@@ -1102,9 +1147,19 @@
       "description": "Schema inventory of database tables with row counts, size, and gotchas"
     },
     {
+      "url": "/database-inventory/[tableName]",
+      "title": null,
+      "description": null
+    },
+    {
       "url": "/db-audit-log",
       "title": null,
       "description": null
+    },
+    {
+      "url": "/db-console",
+      "title": "Supabase Console",
+      "description": "Embedded Supabase management for the PM App and AI databases — tables, SQL editor, auth, storage, secrets, and logs. Admin only."
     },
     {
       "url": "/deals",
@@ -1118,8 +1173,8 @@
     },
     {
       "url": "/design",
-      "title": "Design System",
-      "description": "Living inventory of every token and component. Import from @/components/ds."
+      "title": "Brand guide",
+      "description": null
     },
     {
       "url": "/design-ideas",
@@ -1172,11 +1227,6 @@
       "description": "Distribution groups for mass communication and team organization"
     },
     {
-      "url": "/directory/prospects",
-      "title": null,
-      "description": "Sales pipeline tracking prospects, leads, and business development opportunities"
-    },
-    {
       "url": "/directory/vendors",
       "title": null,
       "description": "Vendor directory with payment terms, Acumatica sync, and 1099 classification"
@@ -1218,8 +1268,8 @@
     },
     {
       "url": "/docs/ai-overview/team",
-      "title": "Eve and executive skills",
-      "description": "Eve owns reasoning, skill selection, tool calls, and the final response. Skills are instruction modules inside Eve, not separate workers."
+      "title": "The team of agents",
+      "description": "These agents have system prompts deployed and are wired into the orchestrator. Every live conversation goes through at least one of them."
     },
     {
       "url": "/docs/ai-overview/tools",
@@ -1295,41 +1345,6 @@
       "url": "/financial-insights",
       "title": "Active Alerts",
       "description": "Run a portfolio scan to detect budget discrepancies and financial red flags across your projects."
-    },
-    {
-      "url": "/fm-global",
-      "title": "FM Global Dashboard",
-      "description": "Dedicated ASRS FMDS corpus"
-    },
-    {
-      "url": "/fm-global/fm_global_tables",
-      "title": "FM Global Tables",
-      "description": "Dedicated ASRS FMDS corpus"
-    },
-    {
-      "url": "/fm-global/fm_global_tables/[tableId]",
-      "title": null,
-      "description": null
-    },
-    {
-      "url": "/fm-global/form",
-      "title": "ASRS Sprinkler Details",
-      "description": "Share your storage and racking details below and we'll estimate the FM Global 8-34 sprinkler configuration for your ASRS — including applicable tables, figures, and protection scheme."
-    },
-    {
-      "url": "/fm-global/form/submitted/[submissionId]",
-      "title": "Submission received",
-      "description": "Public confirmation page displaying submitted FM Global sprinkler design request details"
-    },
-    {
-      "url": "/fm-global/submissions",
-      "title": null,
-      "description": "Admin list of FM Global ASRS sprinkler design form submissions with contact and system specs"
-    },
-    {
-      "url": "/fm-global/submissions/[submissionId]",
-      "title": "Submission",
-      "description": "Admin detail view of an FM Global form submission with matched tables and lead scoring"
     },
     {
       "url": "/home",
@@ -1558,7 +1573,7 @@
     },
     {
       "url": "/projects",
-      "title": "Projects",
+      "title": null,
       "description": "Portfolio view of all projects with filtering by phase, category, and client, plus export"
     },
     {
@@ -1575,6 +1590,16 @@
       "url": "/rag-eval",
       "title": "RAG Eval Dashboard",
       "description": "Retrieval quality metrics, answer quality scores, and eval runners"
+    },
+    {
+      "url": "/recruiting",
+      "title": null,
+      "description": null
+    },
+    {
+      "url": "/recruiting/intake-test",
+      "title": "Candidate intake test",
+      "description": "Recruiter-only preview of the candidate application and resume upload workflow."
     },
     {
       "url": "/respond/rfi/[token]",
@@ -1627,6 +1652,11 @@
       "description": "Admin inventory of all application pages with access levels and permission module mapping"
     },
     {
+      "url": "/source-sync",
+      "title": "Pipeline Activity",
+      "description": "One place to confirm each day's meeting transcripts, Teams messages, documents, and emails synced and vectorized into the RAG pipeline."
+    },
+    {
       "url": "/stats",
       "title": "Today's Stats",
       "description": "Daily activity summary including meetings, tasks, emails, documents, and project activity breakdown"
@@ -1677,6 +1707,21 @@
       "description": "Catalog of all Procore tools grouped by category with status badges and external links"
     },
     {
+      "url": "/training",
+      "title": "Training",
+      "description": "Continue required learning, build role skills, or find help for the work in front of you."
+    },
+    {
+      "url": "/training-data",
+      "title": null,
+      "description": null
+    },
+    {
+      "url": "/training-data/[tableKey]",
+      "title": null,
+      "description": null
+    },
+    {
       "url": "/training-docs",
       "title": null,
       "description": "Admin editor for drafting, reviewing, and publishing training SOPs to the docs site"
@@ -1697,13 +1742,88 @@
       "description": null
     },
     {
+      "url": "/training/ask",
+      "title": "Ask the Library",
+      "description": "Get a source-backed answer from Alleato guides and published resources."
+    },
+    {
+      "url": "/training/coaching",
+      "title": null,
+      "description": null
+    },
+    {
+      "url": "/training/content/[contentId]",
+      "title": null,
+      "description": null
+    },
+    {
+      "url": "/training/courses/[courseSlug]",
+      "title": null,
+      "description": null
+    },
+    {
+      "url": "/training/growth",
+      "title": null,
+      "description": null
+    },
+    {
+      "url": "/training/growth/assessment",
+      "title": null,
+      "description": null
+    },
+    {
+      "url": "/training/guides/[guideSlug]",
+      "title": null,
+      "description": "Follow a role-specific Alleato training guide with the shared lesson navigation and page structure"
+    },
+    {
+      "url": "/training/learn/[enrollmentId]",
+      "title": null,
+      "description": null
+    },
+    {
+      "url": "/training/library",
+      "title": "Training Library",
+      "description": "Find the right guide, SOP, course, or resource when the work calls for it."
+    },
+    {
+      "url": "/training/manage",
+      "title": "Training Management",
+      "description": "Resolve ownership, review, and publication issues that keep knowledge from being trustworthy."
+    },
+    {
+      "url": "/training/method",
+      "title": null,
+      "description": "Learn the Alleato growth method for scoring role skills, choosing gaps, and building daily practice"
+    },
+    {
+      "url": "/training/own-your-growth",
+      "title": null,
+      "description": null
+    },
+    {
+      "url": "/training/prompts",
+      "title": null,
+      "description": "Practice reusable AI prompt starters inside the standardized Alleato training experience"
+    },
+    {
+      "url": "/training/resources/[resourceId]",
+      "title": null,
+      "description": "Complete a published construction training resource inside Alleato with source attribution and explicit content availability"
+    },
+    {
+      "url": "/training/review",
+      "title": "Training review",
+      "description": "Review new sources and freshness findings before they change the training library."
+    },
+    {
       "url": "/updates",
       "title": "What's New",
       "description": "A running log of features added, improved, and fixed across all areas of the platform."
     },
     {
       "url": "/user-management",
-      "title": "Invite blocked",
+      "title": null,
       "description": "Manage app users, project access, and permission templates with granular capability controls"
     },
     {
@@ -1766,14 +1886,6 @@
     {
       "name": "findAppPage",
       "description": "Find which page, screen, or AI tool in this application does something, by purpose. Use for 'where do I…', 'what page shows…', 'does the app have a…', 'which screen lets me…'. Searches the generated inventory of every production route and AI tool (not just curated help articles), matching on what each page does — so it finds pages even when the user doesn't know the name. Returns route URLs you can link the user to. Prefer searchAppHelp for step-by-step instructions; use this to locate a page or capability."
-    },
-    {
-      "name": "searchFmds2026Evidence",
-      "description": "Search the dedicated revision-scoped FMDS 8-34 April 2026 corpus for ASRS sprinkler requirements, clauses, tables, and figures. Use this only for FMDS/ASRS engineering questions. The result includes corpus identity, PDF citations, and table/figure review status. Never substitute generic project RAG or legacy FM Global tables."
-    },
-    {
-      "name": "evaluateFmds2026Configuration",
-      "description": "Evaluate typed ASRS sprinkler inputs with the reviewed FMDS 8-34 Batch 1 deterministic rules. Use for calculations or applicability decisions after collecting the required inputs. Preserve every Pending Review result and never infer unsupported head count, complete configuration, or full compliance."
     },
     {
       "name": "getSubmittalLog",
@@ -1857,7 +1969,7 @@
     },
     {
       "name": "getMarketingCalendar",
-      "description": "Retrieve persisted marketing calendar items, draft assets, source citations, and review states for the marketing review page."
+      "description": "Retrieve persisted marketing calendar items, draft assets, source citations, and review states for the marketing review page. Set dateRange, status, and projectId to null to retrieve without those filters."
     },
     {
       "name": "getOutlookOperationsStatus",

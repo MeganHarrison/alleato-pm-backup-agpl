@@ -25,7 +25,7 @@ function asLoaderClient(from: jest.Mock): LoaderClient {
  * query builder that resolves with the rows registered for that table.
  * Terminal methods (`maybeSingle`, or the chain itself when awaited via
  * `.then`) resolve `{ data, error }`. Mirrors the per-table chain mock
- * pattern used by the canonical meeting retrieval helpers.
+ * pattern used in `src/lib/ai/retrieval/__tests__/source-specific-rag.test.ts`.
  */
 function createMockSupabase(rows: TableRows) {
   const fromCalls: string[] = [];

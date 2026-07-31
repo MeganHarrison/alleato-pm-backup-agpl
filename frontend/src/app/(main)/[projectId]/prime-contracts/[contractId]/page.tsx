@@ -1028,7 +1028,7 @@ export default function ProjectContractDetailPage() {
                 <DropdownMenuItem onClick={() => router.push(`/${projectId}/change-events/new?contractId=${contractId}`)}><GitBranch className="h-4 w-4 mr-2" />Create Change Event</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => router.push(`/${projectId}/prime-contracts/${contractId}/change-orders/pcos/new`)}><PenLine className="h-4 w-4 mr-2" />Create Potential Change Order</DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => setActiveTab("invoices")}><DollarSign className="h-4 w-4 mr-2" />Create Invoice</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push(`/${projectId}/prime-contracts/${contractId}/invoices/new`)}><DollarSign className="h-4 w-4 mr-2" />Create Invoice</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setActiveTab("payments")}><CreditCard className="h-4 w-4 mr-2" />Create Payment</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => { setDocumentDialogTab("email"); setIsDocumentDialogOpen(true); }}><Mail className="h-4 w-4 mr-2" />Email Contract</DropdownMenuItem>
               </DropdownMenuContent>

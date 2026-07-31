@@ -3,7 +3,7 @@
  * in window Y at granularity G."
  *
  * Today that operation is reimplemented in six shallow copies (brandon-daily-
- * update, daily-executive-brief.mjs, canonical-operating-
+ * update, daily-executive-brief.mjs, source-specific-rag, canonical-operating-
  * packet, operational tools, daily-deep-read-promotion), each independently
  * choosing: which Supabase project, which table, which date-window predicate,
  * and how to resolve project_id → name. That is why the "RAG → full transcripts"

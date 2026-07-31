@@ -9,7 +9,7 @@ import {
   generateTaskPromotionCandidates,
 } from "@/lib/ai/services/feedback-event-service";
 
-import { requireAdmin } from "../../_shared";
+import { requireAiLearningPromotionsAdmin } from "../_shared";
 
 const RunLearningPromotionsSchema = z.object({
   scope: z
@@ -27,7 +27,9 @@ const RunLearningPromotionsSchema = z.object({
 export const POST = withApiGuardrails(
   "api.admin.ai-learning-promotions.run.POST",
   async ({ request }) => {
-    await requireAdmin("api.admin.ai-learning-promotions.run.POST");
+    await requireAiLearningPromotionsAdmin(
+      "api.admin.ai-learning-promotions.run.POST",
+    );
     const body = await parseJsonBody(
       request,
       RunLearningPromotionsSchema,

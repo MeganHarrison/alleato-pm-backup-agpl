@@ -69,7 +69,7 @@ export default async function ClientDashboardPage({ params }: PageProps) {
        contract_amount, revised_contract_amount, percent_complete`
     )
     .eq("project_id", projectIdNum)
-    .eq("is_active", true)
+    .neq("status", "terminated")
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();

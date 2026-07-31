@@ -84,16 +84,15 @@ async function buildRollup(
 
   let originalContractSum = 0;
   if (contractId) {
-    const sovTable = invoice.subcontract_id
-      ? "subcontract_sov_items"
-      : "purchase_order_sov_items";
-    const sovForeignKey = invoice.subcontract_id
-      ? "subcontract_id"
-      : "purchase_order_id";
-    const { data: sovRows } = await supabase
-      .from(sovTable)
-      .select("amount")
-      .eq(sovForeignKey, contractId);
+    const { data: sovRows } = invoice.subcontract_id
+      ? await supabase
+          .from("subcontract_sov_items")
+          .select("amount")
+          .eq("subcontract_id", contractId)
+      : await supabase
+          .from("purchase_order_sov_items")
+          .select("amount")
+          .eq("purchase_order_id", contractId);
 
     originalContractSum = (sovRows ?? []).reduce(
       (sum, row) => sum + (Number(row.amount) || 0),

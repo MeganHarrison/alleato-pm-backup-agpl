@@ -22,6 +22,13 @@
  *     </div>
  *   )
  *
+ * ALSO bans the shared `<CellStackText>` primitive whenever it is given a
+ * `secondary` prop. That component stacks the secondary line *inside itself*, so
+ * the raw-JSX detection above cannot see it — this is exactly how the banned
+ * pattern kept reappearing (project-creation-log, email-attachments) after the
+ * rule was first swept to zero. `<CellStackText primary … icon … />` with no
+ * `secondary` is still fine (icon + single line is inline, not stacked).
+ *
  * @type {import('eslint').Rule.RuleModule}
  */
 
@@ -120,6 +127,8 @@ module.exports = {
     messages: {
       noStackedTableCell:
         'Table cells never stack information. This cell renders a secondary muted line under its primary value — one column, one attribute. Give the secondary value its own column (so it is sortable, filterable, and exportable) or delete it.',
+      noStackedCellComponent:
+        'Table cells never stack information. <CellStackText secondary=…> renders a second muted line under the primary value — one column, one attribute. Give the secondary value its own column (sortable/filterable/exportable) or delete it. Keep <CellStackText> only for the icon + single-value case (drop the `secondary` prop).',
     },
     schema: [],
   },
@@ -197,6 +206,38 @@ module.exports = {
         }
         const jsx = bodyJsx(node.value);
         if (jsx) checkRenderBody(jsx);
+      },
+
+      // The shared <CellStackText> primitive stacks its own secondary line, so
+      // the raw-JSX walk above cannot see it. Flag any usage that passes a live
+      // `secondary` value (an explicit null/undefined is a no-op and allowed).
+      JSXOpeningElement(node) {
+        if (
+          node.name.type !== 'JSXIdentifier' ||
+          node.name.name !== 'CellStackText'
+        ) {
+          return;
+        }
+        const secondary = node.attributes.find(
+          (attr) =>
+            attr.type === 'JSXAttribute' &&
+            attr.name.type === 'JSXIdentifier' &&
+            attr.name.name === 'secondary',
+        );
+        if (!secondary) return;
+
+        if (
+          secondary.value &&
+          secondary.value.type === 'JSXExpressionContainer'
+        ) {
+          const expr = secondary.value.expression;
+          const isNoop =
+            (expr.type === 'Identifier' && expr.name === 'undefined') ||
+            (expr.type === 'Literal' && expr.value === null);
+          if (isNoop) return;
+        }
+
+        context.report({ node, messageId: 'noStackedCellComponent' });
       },
     };
   },

@@ -179,7 +179,8 @@ function emailDraftFeedbackEvent(
     source_context: {
       mailboxUserId: "bclymer@alleatogroup.com",
       graphDraftMessageId: "draft-message-id",
-      voiceProfilePath: "docs/architecture/memory/brandon-brand-voice/brandon-email-voice-profile.md",
+      voiceProfilePath:
+        "docs/architecture/memory/brandon-brand-voice/brandon-email-voice-profile.md",
       voiceProfileVersion: "2026-05-19",
     },
     metadata: {
@@ -796,7 +797,7 @@ describe("feedback event service retrieval promotions", () => {
         preventionPrompt:
           "Before answering, verify retrieved evidence supports the claim.",
         scopeTags: ["assistant", "retrieval", "citations"],
-        pagePath: "/ai",
+        pagePath: "/ai-assistant",
         toolId: 42,
       },
     };
@@ -842,7 +843,7 @@ describe("feedback event service retrieval promotions", () => {
         preventionPrompt:
           "Before answering, verify retrieved evidence supports the claim.",
         scopeTags: ["assistant", "retrieval", "citations"],
-        pagePath: "/ai",
+        pagePath: "/ai-assistant",
         toolId: 42,
         projectId: 983,
         confidence: 0.81,
@@ -899,7 +900,8 @@ describe("feedback event service retrieval promotions", () => {
           source_context: {
             mailboxUserId: "bclymer@alleatogroup.com",
             graphDraftMessageId: "draft-message-id-2",
-            voiceProfilePath: "docs/architecture/memory/brandon-brand-voice/brandon-email-voice-profile.md",
+            voiceProfilePath:
+              "docs/architecture/memory/brandon-brand-voice/brandon-email-voice-profile.md",
             voiceProfileVersion: "2026-05-19",
           },
           free_text: "Still too polished.",
@@ -919,8 +921,10 @@ describe("feedback event service retrieval promotions", () => {
     expect(result.candidates[0]).toMatchObject({
       promotionType: "user_preference",
       projectId: null,
-      destinationTable: "docs/architecture/memory/brandon-brand-voice/brandon-email-voice-profile.md",
-      destinationRecordId: "docs/architecture/memory/brandon-brand-voice/brandon-email-voice-profile.md",
+      destinationTable:
+        "docs/architecture/memory/brandon-brand-voice/brandon-email-voice-profile.md",
+      destinationRecordId:
+        "docs/architecture/memory/brandon-brand-voice/brandon-email-voice-profile.md",
       sourceEventIds: [
         "11111111-1111-4111-8111-111111111111",
         "22222222-2222-4222-8222-222222222222",
@@ -928,7 +932,8 @@ describe("feedback event service retrieval promotions", () => {
     });
     expect(result.candidates[0]?.proposedLearning).toMatchObject({
       ruleKind: "email_voice_profile_update",
-      profilePath: "docs/architecture/memory/brandon-brand-voice/brandon-email-voice-profile.md",
+      profilePath:
+        "docs/architecture/memory/brandon-brand-voice/brandon-email-voice-profile.md",
       profileSection: "Avoid",
       reasonCategory: "too_formal",
       signal: "corrected",
@@ -1071,6 +1076,58 @@ describe("feedback event service retrieval promotions", () => {
     );
     expect(result.memory.id).toBe(memoryId);
     expect(result.promotion.destination_table).toBe("ai_memories");
+  });
+
+  it("applies source-user memory payloads without assigning them to the reviewer", async () => {
+    const promotionId = "91919191-9191-4919-8919-919191919191";
+    const memoryId = "92929292-9292-4929-8929-929292929292";
+    const reviewedBy = "56565656-5656-4565-8565-565656565656";
+    const sourceUserId = "93939393-9393-4939-8939-939393939393";
+    const promotion = {
+      id: promotionId,
+      status: "approved",
+      promotion_type: "user_preference",
+      project_id: null,
+      source_event_ids: [],
+      destination_table: null,
+      destination_record_id: null,
+      confidence: 0.72,
+      proposed_learning: {
+        sourceUserId,
+        visibility: "private",
+        skillCandidate: {
+          body: "Use concise updates for this user.",
+        },
+      },
+    };
+    mockMemoryPromotionApplySupabase({
+      promotion,
+      updatedPromotion: {
+        ...promotion,
+        status: "applied",
+        destination_table: "ai_memories",
+        destination_record_id: memoryId,
+      },
+    });
+    writeMemoryMock.mockResolvedValue({
+      id: memoryId,
+      action: "created",
+    });
+
+    await applyMemoryPromotion({
+      promotionId,
+      reviewedBy,
+      reviewNotes: "Confirmed by an administrator.",
+    });
+
+    expect(writeMemoryMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: sourceUserId,
+        content: "Use concise updates for this user.",
+        type: "preference",
+        visibility: "private",
+      }),
+    );
   });
 
   it("applies Skill Library promotions into active ai_skills records", async () => {

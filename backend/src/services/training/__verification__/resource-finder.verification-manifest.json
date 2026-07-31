@@ -1,0 +1,96 @@
+{
+  "contractVersion": 1,
+  "taskId": "ALL-22",
+  "riskLevel": "high",
+  "feature": "Training resource finder backend job",
+  "route": "backend/src/scripts/run_training_resource_finder.py",
+  "flows": [
+    {
+      "name": "Discover and vet a role/topic resource set",
+      "steps": [
+        "Resolve an active training role and topic",
+        "Search public YouTube training through the shared Tavily helper",
+        "Canonicalize URLs and apply free-only, non-Procore, and depth gates",
+        "Compare canonical URLs with the live resource library"
+      ],
+      "expectedOutcome": "Only new resources with positive free and depth evidence remain eligible; every rejection names its reason."
+    },
+    {
+      "name": "Create a human review candidate",
+      "steps": [
+        "Run the finder with explicit commit and a one-candidate insert limit",
+        "Execute the existing atomic create_training_review_candidate RPC",
+        "Read back the resource, topic, and role link"
+      ],
+      "expectedOutcome": "The row is free, status review, linked to the requested active taxonomy, and remains unpublished."
+    }
+  ],
+  "requiredEvidence": [
+    "actionLog",
+    "databaseReadback",
+    "regressionTest",
+    "visualReview"
+  ],
+  "visual": {
+    "viewports": [
+      "server"
+    ],
+    "checks": [
+      "Not applicable: ALL-22 has no rendered frontend surface.",
+      "Operator JSON output contains explicit counts and per-result decisions."
+    ]
+  },
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "deterministic-eligibility",
+      "description": "Untrusted provider results cannot bypass free-only, Procore, depth, canonical URL, or duplicate gates.",
+      "evidence": [
+        {
+          "key": "regressionTest",
+          "min": 1
+        },
+        {
+          "key": "actionLog",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "review-only-write-boundary",
+      "description": "Accepted results write only through the atomic candidate RPC and are read back as free review rows.",
+      "evidence": [
+        {
+          "key": "databaseReadback",
+          "min": 1
+        },
+        {
+          "key": "regressionTest",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "provider-and-deployment-readiness",
+      "description": "Required Render provider/database variables exist and failures are explicit.",
+      "evidence": [
+        {
+          "key": "actionLog",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "independent-review",
+      "description": "An independent reviewer approves the provider, dedupe, and RPC boundaries.",
+      "evidence": [
+        {
+          "key": "visualReview",
+          "min": 1
+        }
+      ]
+    }
+  ]
+}

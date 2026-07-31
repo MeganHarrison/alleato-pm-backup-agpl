@@ -3,8 +3,8 @@
 import * as React from "react";
 import {
   type Control,
-  type FieldArray,
   type FieldArrayPath,
+  type FieldArrayPathValue,
   type FieldValues,
   useFieldArray,
 } from "react-hook-form";
@@ -12,6 +12,20 @@ import { Plus, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+
+// react-hook-form's top-level `FieldArray` export now shadows its own type of
+// the same name with the new `<FieldArray>` component (react-hook-form@7.71+),
+// so the item-shape type is reconstructed here from the still-exported
+// `FieldArrayPathValue` instead of importing the (now unavailable) type.
+type FieldArrayItem<
+  TFieldValues extends FieldValues,
+  TName extends FieldArrayPath<TFieldValues>,
+> = FieldArrayPathValue<TFieldValues, TName> extends
+  | ReadonlyArray<infer TItem>
+  | null
+  | undefined
+  ? TItem
+  : never;
 
 type RowColumn<
   TFieldValues extends FieldValues,
@@ -32,7 +46,7 @@ interface RHFFieldArrayRowsProps<
   control: Control<TFieldValues>;
   name: TName;
   columns: RowColumn<TFieldValues, TName>[];
-  createRow: () => FieldArray<TFieldValues, TName>;
+  createRow: () => FieldArrayItem<TFieldValues, TName>;
   addLabel?: string;
   minRows?: number;
   className?: string;

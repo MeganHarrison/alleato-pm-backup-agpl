@@ -182,6 +182,10 @@ function EveToolTestingPageInner({
               ) : (
                 <span className="text-muted-foreground">Not verified</span>
               )}
+              <span className="text-muted-foreground">Tested date</span>
+              <span className="text-foreground">
+                {row.testedAt ?? "Not tested"}
+              </span>
               <span className="text-muted-foreground">Test</span>
               <span className="text-foreground">{row.testPrompt}</span>
               {row.blocker ? (

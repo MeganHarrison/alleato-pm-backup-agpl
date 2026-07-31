@@ -1,0 +1,83 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://alleatogroup.com/schemas/training-resources.schema.json",
+  "title": "Alleato-PM Training Resource Library (normalized)",
+  "description": "Output shape of scripts/training/source/parse-source-library.mjs, run over the recovered training-source/resources.js. Mirrors supabase/migrations/20260726143515_create_training_resource_library.sql (Linear ALL-16) and the ALL-17 seed task.",
+  "type": "object",
+  "required": ["meta", "roles", "topics", "resources"],
+  "additionalProperties": false,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["generatedAt", "sourceFile", "counts"],
+      "additionalProperties": false,
+      "properties": {
+        "generatedAt": { "type": "string", "format": "date-time" },
+        "sourceFile": { "type": "string" },
+        "counts": {
+          "type": "object",
+          "required": ["total", "published", "review", "archived", "roles", "topics"],
+          "additionalProperties": false,
+          "properties": {
+            "total": { "type": "integer", "minimum": 0 },
+            "published": { "type": "integer", "minimum": 0 },
+            "review": { "type": "integer", "minimum": 0 },
+            "archived": { "type": "integer", "minimum": 0 },
+            "roles": { "type": "integer", "minimum": 0 },
+            "topics": { "type": "integer", "minimum": 0 }
+          }
+        }
+      }
+    },
+    "roles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["slug", "name"],
+        "additionalProperties": false,
+        "properties": {
+          "slug": { "type": "string" },
+          "name": { "type": "string" }
+        }
+      }
+    },
+    "topics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["slug", "name"],
+        "additionalProperties": false,
+        "properties": {
+          "slug": { "type": "string" },
+          "name": { "type": "string" }
+        }
+      }
+    },
+    "resources": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/resource" }
+    }
+  },
+  "$defs": {
+    "resource": {
+      "type": "object",
+      "required": ["sourceId", "title", "description", "url", "provider", "topicSlug", "roleSlugs", "type", "level", "track", "status", "publishedAt", "dateAdded"],
+      "additionalProperties": false,
+      "properties": {
+        "sourceId": { "type": "string", "description": "Original id from training-source/resources.js (e.g. 'seed-1'), kept for traceability, not written to the DB directly." },
+        "title": { "type": "string" },
+        "description": { "type": ["string", "null"] },
+        "url": { "type": "string", "format": "uri" },
+        "provider": { "type": ["string", "null"] },
+        "topicSlug": { "type": "string" },
+        "roleSlugs": { "type": "array", "items": { "type": "string" } },
+        "type": { "type": "string", "enum": ["video", "course", "doc"], "description": "Locked to public.training_resource_type. Real source also had article/reference/podcast, folded into doc." },
+        "level": { "type": "string", "enum": ["intro", "deep-dive"], "description": "Locked to public.training_resource_level. Real source used all/deep, mapped to intro/deep-dive." },
+        "track": { "type": "string", "description": "Open vocabulary — public.training_resource_track is a text domain, not a closed enum. Real values seen: pm, field, both." },
+        "status": { "type": "string", "enum": ["published", "review", "archived"] },
+        "publishedAt": { "type": ["string", "null"], "format": "date-time", "description": "Set from dateAdded for published rows only (required by training_resource_publish_audit_check)." },
+        "dateAdded": { "type": "string" }
+      }
+    }
+  }
+}

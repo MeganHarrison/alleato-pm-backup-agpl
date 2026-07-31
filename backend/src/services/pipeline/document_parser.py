@@ -28,6 +28,7 @@ from ..supabase_helpers import (
 )
 from .models import MeetingSegment
 from . import llm
+from .model_usage import ModelUsageContext
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +38,6 @@ MIN_EXTRACTED_CHARS = 50
 DOC_SEGMENT_WINDOW_LINES = int(os.getenv("DOC_SEGMENT_WINDOW_LINES", "260"))
 DOC_SEGMENT_WINDOW_OVERLAP = int(os.getenv("DOC_SEGMENT_WINDOW_OVERLAP", "40"))
 DOC_SUMMARY_MAX_CHARS = int(os.getenv("DOC_SUMMARY_MAX_CHARS", "12000"))
-DOC_SEGMENT_USE_LLM = (os.getenv("DOC_SEGMENT_USE_LLM", "true").strip().lower() not in {"0", "false", "no", "off"})
 LOW_CONTENT_STATUS = "skipped_low_content"
 
 
@@ -131,6 +131,17 @@ def detect_and_extract(
 # Document segmentation via LLM
 # ---------------------------------------------------------------------------
 
+def document_llm_enrichment_enabled() -> bool:
+    """Return whether generic documents may opt into paid LLM enrichment.
+
+    Generic SharePoint files are already searchable through deterministic text
+    chunks.  Treat LLM summaries, semantic segmentation, and signal extraction
+    as an explicit opt-in rather than spending three chat calls on every file.
+    """
+
+    return (os.getenv("PIPELINE_DOCUMENT_LLM_ENRICHMENT_ENABLED", "false").strip().lower()
+            in {"1", "true", "yes", "on"})
+
 def _fallback_window_segment(numbered_content: str, title: str) -> List[Dict[str, Any]]:
     """Return one deterministic segment for a content window."""
     indexes = [int(match) for match in re.findall(r"^\[(\d+)\]", numbered_content, re.MULTILINE)]
@@ -153,7 +164,7 @@ def _segment_document_window(
     numbered_content: str, title: str
 ) -> List[Dict[str, Any]]:
     """Segment one numbered content window."""
-    if not DOC_SEGMENT_USE_LLM:
+    if not document_llm_enrichment_enabled():
         return _fallback_window_segment(numbered_content, title)
 
     prompt = f"""Analyze this document and identify distinct semantic sections.
@@ -190,7 +201,11 @@ Guidelines:
 - For contracts: each clause/article is a segment
 - For reports: each major section is a segment"""
 
-    raw = llm._call_llm(prompt, json_mode=True)
+    raw = llm._call_llm(
+        prompt,
+        json_mode=True,
+        operation="document_segmentation",
+    )
     if not raw or not raw.strip():
         logger.warning(
             "[DocParser] LLM returned empty segmentation response for %s; using fallback segment",
@@ -307,6 +322,10 @@ def _segment_document(text: str, title: str) -> List[Dict[str, Any]]:
 def _generate_document_summary(text: str, title: str) -> str:
     """Generate a summary of the document."""
     excerpt = _build_document_summary_excerpt(text)
+    if not document_llm_enrichment_enabled():
+        # Retrieval is grounded in the full content/chunks. Keep a compact,
+        # deterministic preview without paying for optional generic enrichment.
+        return re.sub(r"\s+", " ", excerpt).strip()[:1_200]
     prompt = f"""Generate a comprehensive summary of this document.
 
 Document: {title}
@@ -322,7 +341,7 @@ Write a 2-4 paragraph summary covering:
 
 Be specific and include concrete details where present."""
 
-    return llm._call_llm(prompt)
+    return llm._call_llm(prompt, operation="document_summary")
 
 
 # ---------------------------------------------------------------------------
@@ -345,7 +364,7 @@ def run_document_parser(metadata_id: str) -> Dict[str, Any]:
     # 1. Fetch metadata
     resp = (
         client.table("document_metadata")
-        .select("id,title,type,category,source,source_system,project_id,date,captured_at,created_at,summary,overview,status,fireflies_id,participants,participants_array,storage_bucket,file_path,file_name,url,source_web_url,source_metadata")
+        .select("id,title,type,category,source,source_system,source_item_id,project_id,date,captured_at,created_at,summary,overview,status,fireflies_id,participants,participants_array,storage_bucket,file_path,file_name,url,source_web_url,source_metadata")
         .eq("id", metadata_id)
         .single()
         .execute()
@@ -356,6 +375,13 @@ def run_document_parser(metadata_id: str) -> Dict[str, Any]:
 
     title = metadata.get("title") or "Untitled Document"
     category = metadata.get("category") or "document"
+    usage_context = ModelUsageContext(
+        stage="signals_extracted",
+        operation="document_enrichment",
+        source_system=(metadata.get("source_system") or metadata.get("source") or "document"),
+        source_item_id=(metadata.get("source_item_id") or metadata_id),
+        project_id=metadata.get("project_id"),
+    )
     logger.info("[DocParser] Processing: %s (%s) [%s]", title, metadata_id, category)
 
     # 2. Get text content — either from stored content or from file storage
@@ -413,24 +439,22 @@ def run_document_parser(metadata_id: str) -> Dict[str, Any]:
             }
         ).execute()
 
-    # 5. Generate document summary
-    if extracted_is_too_short:
-        summary = ""
-        logger.warning(
-            "[DocParser] Extracted text too short (%d chars) for %s; marking parser output low-content",
-            extracted_len,
-            metadata_id,
-        )
-    else:
-        summary = _generate_document_summary(extracted_text, title)
-        logger.info("[DocParser] Generated summary: %d chars", len(summary))
-
-    # 6. Segment the document via LLM
-    if extracted_is_too_short:
-        segment_dicts = []
-    else:
-        segment_dicts = _segment_document(extracted_text, title)
-        logger.info("[DocParser] Created %d segments", len(segment_dicts))
+    # 5–6. Generic-document LLM work is opt-in. Scope any opted-in calls so
+    # the usage ledger can attribute fan-out to this exact source document.
+    with llm.model_usage_scope(usage_context):
+        if extracted_is_too_short:
+            summary = ""
+            logger.warning(
+                "[DocParser] Extracted text too short (%d chars) for %s; marking parser output low-content",
+                extracted_len,
+                metadata_id,
+            )
+            segment_dicts = []
+        else:
+            summary = _generate_document_summary(extracted_text, title)
+            logger.info("[DocParser] Generated summary: %d chars", len(summary))
+            segment_dicts = _segment_document(extracted_text, title)
+            logger.info("[DocParser] Created %d segments", len(segment_dicts))
 
     # If LLM returned no segments for real content, create a single fallback segment.
     # Low-content sources are terminal parser skips so placeholder text never becomes

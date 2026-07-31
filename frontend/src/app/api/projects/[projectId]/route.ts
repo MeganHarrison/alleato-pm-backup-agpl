@@ -71,6 +71,19 @@ export const GET = withApiGuardrails<{ projectId: string }>(
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
+    // Development-only projects are visible ONLY to developers. For anyone else,
+    // hide their existence with a 404 (not 403) so a direct URL reveals nothing.
+    if ((data as { is_development?: boolean | null } | null)?.is_development === true) {
+      const { data: profile } = await supabase
+        .from("user_profiles")
+        .select("is_developer")
+        .eq("id", user.id)
+        .maybeSingle();
+      if ((profile as { is_developer?: boolean | null } | null)?.is_developer !== true) {
+        return NextResponse.json({ error: "Project not found" }, { status: 404 });
+      }
+    }
+
     return NextResponse.json(data);
     },
 );

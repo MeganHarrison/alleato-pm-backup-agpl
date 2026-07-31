@@ -1,0 +1,21 @@
+Project: /Users/meganharrison/Documents/github/alleato-procore
+Shared:  /Users/meganharrison/Documents/github/agents
+Generated: 2026-02-24 16:19:07 UTC
+
+.claude
+- project files:      441
+- shared files:      302
+- common:      283
+- common identical:      247
+- common different:       36
+- project-only:      158
+- shared-only:       19
+
+.agents
+- project files:      729
+- shared files:      829
+- common:      713
+- common identical:      713
+- common different:        0
+- project-only:       16
+- shared-only:      116

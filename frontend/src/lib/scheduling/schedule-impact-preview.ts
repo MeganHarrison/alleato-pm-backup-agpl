@@ -6,7 +6,10 @@ import {
   type ScheduleCalendar,
 } from "./schedule-calendar";
 
-type PreviewReason = "missing_dates" | "circular_dependency";
+type PreviewReason =
+  | "missing_dates"
+  | "circular_dependency"
+  | "invalid_anchor_set";
 
 export interface AffectedScheduleTask {
   task_id: string;
@@ -69,13 +72,17 @@ function later(left: Date, right: Date): Date {
   return left > right ? left : right;
 }
 
-function affectedTaskIds(taskId: string, dependencies: ScheduleDependency[]): Set<string> {
+export function collectAffectedTaskIds(
+  taskIds: string | readonly string[],
+  dependencies: ScheduleDependency[],
+): Set<string> {
   const successors = new Map<string, string[]>();
   for (const dependency of dependencies) {
     successors.set(dependency.predecessor_task_id, [...(successors.get(dependency.predecessor_task_id) ?? []), dependency.task_id]);
   }
-  const ids = new Set([taskId]);
-  const queue = [taskId];
+  const anchors = typeof taskIds === "string" ? [taskIds] : [...new Set(taskIds)];
+  const ids = new Set(anchors);
+  const queue = [...anchors];
   while (queue.length) {
     const current = queue.shift();
     if (!current) continue;
@@ -132,8 +139,20 @@ function dependencyStart(
   }
 }
 
-function calculateDates(tasks: ScheduleTask[], dependencies: ScheduleDependency[], taskId: string, calendar: ScheduleCalendar): { dates: Map<string, CalculatedDates>; reason?: PreviewReason } {
-  const relevantIds = affectedTaskIds(taskId, dependencies);
+function calculateDates(
+  tasks: ScheduleTask[],
+  dependencies: ScheduleDependency[],
+  taskIds: string | readonly string[],
+  calendar: ScheduleCalendar,
+  fixedTaskIds: ReadonlySet<string> = new Set(),
+  relevantTaskIds?: ReadonlySet<string>,
+): { dates: Map<string, CalculatedDates>; reason?: PreviewReason } {
+  const anchorIds = new Set(
+    typeof taskIds === "string" ? [taskIds] : taskIds,
+  );
+  const relevantIds = new Set(
+    relevantTaskIds ?? collectAffectedTaskIds(taskIds, dependencies),
+  );
   const taskById = new Map(tasks.map((task) => [task.id, task]));
   const relevantTasks = [...relevantIds].map((id) => taskById.get(id));
   if (relevantTasks.some((task) => !task || !parseDate(task.start_date) || !parseDate(task.finish_date) || !taskDuration(task, calendar))) {
@@ -143,20 +162,72 @@ function calculateDates(tasks: ScheduleTask[], dependencies: ScheduleDependency[
   if (!ordered) return { dates: new Map(), reason: "circular_dependency" };
   const incoming = new Map<string, ScheduleDependency[]>();
   for (const dependency of dependencies) {
-    if (relevantIds.has(dependency.task_id) && relevantIds.has(dependency.predecessor_task_id)) {
+    if (relevantIds.has(dependency.task_id)) {
       incoming.set(dependency.task_id, [...(incoming.get(dependency.task_id) ?? []), dependency]);
     }
+  }
+  const externalPredecessorIds = new Set(
+    [...incoming.values()]
+      .flat()
+      .map((dependency) => dependency.predecessor_task_id)
+      .filter((id) => !relevantIds.has(id)),
+  );
+  if (
+    [...externalPredecessorIds].some((id) => {
+      const predecessor = taskById.get(id);
+      return (
+        !predecessor ||
+        !parseDate(predecessor.start_date) ||
+        !parseDate(predecessor.finish_date)
+      );
+    })
+  ) {
+    return { dates: new Map(), reason: "missing_dates" };
   }
 
   const dates = new Map<string, CalculatedDates>();
   for (const id of ordered) {
     const task = taskById.get(id)!;
-    const duration = taskDuration(task, calendar)!;
-    let start = parseDate(task.start_date)!;
-    for (const dependency of incoming.get(id) ?? []) {
-      const predecessor = dates.get(dependency.predecessor_task_id);
-      if (predecessor) start = later(start, dependencyStart(dependency, predecessor, duration, calendar));
+    if (fixedTaskIds.has(id) || anchorIds.has(id)) {
+      dates.set(id, {
+        start: parseDate(task.start_date)!,
+        finish: parseDate(task.finish_date)!,
+      });
+      continue;
     }
+    const duration = taskDuration(task, calendar)!;
+    const taskDependencies = incoming.get(id) ?? [];
+    let start = parseDate(task.start_date)!;
+    let dependencyDrivenStart: Date | null = null;
+    for (const dependency of taskDependencies) {
+      const predecessorTask = taskById.get(dependency.predecessor_task_id);
+      const externalStart = predecessorTask
+        ? parseDate(predecessorTask.start_date)
+        : null;
+      const externalFinish = predecessorTask
+        ? parseDate(predecessorTask.finish_date)
+        : null;
+      const predecessor =
+        dates.get(dependency.predecessor_task_id) ??
+        (externalStart && externalFinish
+          ? {
+              start: externalStart,
+              finish: externalFinish,
+            }
+          : null);
+      if (predecessor) {
+        const candidate = dependencyStart(
+          dependency,
+          predecessor,
+          duration,
+          calendar,
+        );
+        dependencyDrivenStart = dependencyDrivenStart
+          ? later(dependencyDrivenStart, candidate)
+          : candidate;
+      }
+    }
+    if (dependencyDrivenStart) start = dependencyDrivenStart;
     if (task.constraint_type === "start_no_earlier_than" && task.constraint_date) {
       const constraint = parseDate(task.constraint_date);
       if (constraint) start = later(start, constraint);
@@ -221,17 +292,32 @@ export function previewScheduleImpact({
   dependencies,
   update,
   calendar = defaultScheduleCalendar,
+  fixedTaskIds = new Set(),
 }: {
   taskId: string;
   tasks: ScheduleTask[];
   dependencies: ScheduleDependency[];
-  update: Pick<ScheduleTaskUpdate, "start_date" | "finish_date" | "duration_days" | "constraint_type" | "constraint_date">;
+  update: Pick<
+    ScheduleTaskUpdate,
+    | "start_date"
+    | "finish_date"
+    | "duration_days"
+    | "is_milestone"
+    | "constraint_type"
+    | "constraint_date"
+  >;
   calendar?: ScheduleCalendar;
+  fixedTaskIds?: ReadonlySet<string>;
 }): ScheduleImpactPreview {
   const changedTasks = tasks.map((task) => task.id === taskId ? { ...task, ...update } : task);
-  const baseline = calculateDates(tasks, dependencies, taskId, calendar);
-  const preview = calculateDates(changedTasks, dependencies, taskId, calendar);
-  return diffCalculatedDates(taskId, changedTasks, baseline, preview);
+  const baseline = calculateDates(tasks, dependencies, taskId, calendar, fixedTaskIds);
+  const preview = calculateDates(changedTasks, dependencies, taskId, calendar, fixedTaskIds);
+  return diffCalculatedDates(
+    taskId,
+    changedTasks.filter((task) => !fixedTaskIds.has(task.id)),
+    baseline,
+    preview,
+  );
 }
 
 /**
@@ -251,19 +337,56 @@ export function previewScheduleImpact({
  */
 export function previewDependencyChangeImpact({
   predecessorTaskId,
+  predecessorTaskIds,
   tasks,
   dependenciesBefore,
   dependenciesAfter,
   calendar = defaultScheduleCalendar,
+  fixedTaskIds = new Set(),
 }: {
-  predecessorTaskId: string;
+  predecessorTaskId?: string;
+  predecessorTaskIds?: readonly string[];
   tasks: ScheduleTask[];
   dependenciesBefore: ScheduleDependency[];
   dependenciesAfter: ScheduleDependency[];
   calendar?: ScheduleCalendar;
+  fixedTaskIds?: ReadonlySet<string>;
 }): ScheduleImpactPreview {
-  const baseline = calculateDates(tasks, dependenciesBefore, predecessorTaskId, calendar);
-  const preview = calculateDates(tasks, dependenciesAfter, predecessorTaskId, calendar);
+  const anchors = [
+    ...new Set([
+      ...(predecessorTaskIds ?? []),
+      ...(predecessorTaskId ? [predecessorTaskId] : []),
+    ]),
+  ];
+  if (anchors.length === 0) {
+    return {
+      status: "unavailable",
+      reason: "invalid_anchor_set",
+      affected: [],
+      constraint_conflicts: [],
+    };
+  }
+  const anchorIds = new Set(anchors);
+  const relevantIds = new Set([
+    ...collectAffectedTaskIds(anchors, dependenciesBefore),
+    ...collectAffectedTaskIds(anchors, dependenciesAfter),
+  ]);
+  const baseline = calculateDates(
+    tasks,
+    dependenciesBefore,
+    anchors,
+    calendar,
+    fixedTaskIds,
+    relevantIds,
+  );
+  const preview = calculateDates(
+    tasks,
+    dependenciesAfter,
+    anchors,
+    calendar,
+    fixedTaskIds,
+    relevantIds,
+  );
   const reason = preview.reason ?? baseline.reason;
   if (reason) return { status: "unavailable", reason, affected: [], constraint_conflicts: [] };
 
@@ -276,7 +399,7 @@ export function previewDependencyChangeImpact({
   const consideredIds = new Set([...baseline.dates.keys(), ...preview.dates.keys()]);
 
   const affected = [...consideredIds].flatMap((id): AffectedScheduleTask[] => {
-    if (id === predecessorTaskId) return [];
+    if (anchorIds.has(id) || fixedTaskIds.has(id)) return [];
     const task = taskById.get(id);
     if (!task) return [];
     const before = baseline.dates.get(id) ?? rawDates(task);
@@ -292,5 +415,12 @@ export function previewDependencyChangeImpact({
     }];
   });
 
-  return { status: "available", affected, constraint_conflicts: constraintConflicts(tasks, preview.dates) };
+  return {
+    status: "available",
+    affected,
+    constraint_conflicts: constraintConflicts(
+      tasks.filter((task) => !fixedTaskIds.has(task.id)),
+      preview.dates,
+    ),
+  };
 }

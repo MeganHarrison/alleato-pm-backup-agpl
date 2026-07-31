@@ -1,0 +1,51 @@
+{
+  "status": "PASS",
+  "observedStatus": "PASS",
+  "taskId": "ALL-11-PHASE3-SEARCH",
+  "evidence": {
+    "summary": [
+      "docs/ops/evidence/2026-07-24-alleato-brain-search-scope/summary.md"
+    ],
+    "databaseReadback": [
+      "docs/ops/evidence/2026-07-24-alleato-brain-search-scope/database-readback.json"
+    ],
+    "negativePath": [
+      "docs/ops/evidence/2026-07-24-alleato-brain-search-scope/negative-path.md"
+    ],
+    "regressionTest": [
+      "docs/ops/evidence/2026-07-24-alleato-brain-search-scope/regression-test.txt"
+    ]
+  },
+  "claims": {
+    "exact-server-side-scope": {
+      "databaseReadback": [
+        "docs/ops/evidence/2026-07-24-alleato-brain-search-scope/database-readback.json"
+      ],
+      "negativePath": [
+        "docs/ops/evidence/2026-07-24-alleato-brain-search-scope/negative-path.md"
+      ]
+    },
+    "typed-scope-xor": {
+      "negativePath": [
+        "docs/ops/evidence/2026-07-24-alleato-brain-search-scope/negative-path.md"
+      ],
+      "regressionTest": [
+        "docs/ops/evidence/2026-07-24-alleato-brain-search-scope/regression-test.txt"
+      ]
+    },
+    "service-only-defense-in-depth": {
+      "databaseReadback": [
+        "docs/ops/evidence/2026-07-24-alleato-brain-search-scope/database-readback.json"
+      ],
+      "summary": [
+        "docs/ops/evidence/2026-07-24-alleato-brain-search-scope/summary.md"
+      ]
+    }
+  },
+  "independentReview": {
+    "reviewer": "Independent Codex high-risk review",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-24T07:08:00Z",
+    "artifact": "docs/ops/evidence/2026-07-24-alleato-brain-search-scope/independent-review.md"
+  }
+}

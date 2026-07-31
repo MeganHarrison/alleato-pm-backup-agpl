@@ -4,6 +4,8 @@ import { apiErrorResponse } from "@/lib/api-error";
 import { withApiGuardrails } from "@/lib/guardrails/api";
 import { GuardrailError } from "@/lib/guardrails/errors";
 import { createClient, getApiRouteUser } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
+import { logger } from "@/lib/logger";
 import {
   ALLEATO_COMPANY,
   type EmployeeRow,
@@ -21,7 +23,8 @@ const EMPLOYEE_SELECT = `
   status,
   person_type,
   created_at,
-  company
+  company,
+  auth_user_id
 `;
 
 const SORT_FIELD_MAP: Record<string, string> = {
@@ -48,7 +51,64 @@ type EmployeePersonRow = {
   person_type: string | null;
   created_at: string | null;
   company: string | null;
+  auth_user_id: string | null;
 };
+
+/**
+ * Enrich employee rows with their Supabase Auth login state (in place).
+ *
+ *   last_sign_in_at present -> "active"  (has logged in at least once)
+ *   account exists, no sign-in -> "invited" (invited / created, never logged in)
+ *   no matching auth account   -> null    (status unknown)
+ *
+ * Non-fatal: if the auth lookup fails the rows are returned without
+ * access_status rather than failing the whole employee list.
+ */
+async function enrichWithAccessStatus(rows: EmployeeRow[]): Promise<void> {
+  if (rows.length === 0) return;
+
+  try {
+    const service = createServiceClient();
+    const hasSignedInByEmail = new Map<string, boolean>();
+
+    const MAX_PAGES = 50;
+    const PER_PAGE = 100;
+    for (let page = 1; page <= MAX_PAGES; page += 1) {
+      const { data, error } = await service.auth.admin.listUsers({
+        page,
+        perPage: PER_PAGE,
+      });
+      if (error) throw error;
+
+      for (const authUser of data.users) {
+        if (authUser.email) {
+          hasSignedInByEmail.set(
+            authUser.email.toLowerCase(),
+            Boolean(authUser.last_sign_in_at),
+          );
+        }
+      }
+
+      if (data.users.length < PER_PAGE) break;
+    }
+
+    for (const row of rows) {
+      const email = row.email?.toLowerCase();
+      if (!email || !hasSignedInByEmail.has(email)) {
+        row.access_status = null;
+        continue;
+      }
+      row.access_status = hasSignedInByEmail.get(email) ? "active" : "invited";
+    }
+  } catch (enrichError) {
+    logger.warn({
+      msg: "Could not enrich employees with access status",
+      where: "directory/employees/table#GET",
+      data:
+        enrichError instanceof Error ? enrichError.message : String(enrichError),
+    });
+  }
+}
 
 function mapEmployeeRow(person: EmployeePersonRow): EmployeeRow {
   const fullName = `${person.first_name ?? ""} ${person.last_name ?? ""}`.trim();
@@ -137,6 +197,8 @@ export const GET = withApiGuardrails(
     }
 
     const rows = ((data ?? []) as EmployeePersonRow[]).map(mapEmployeeRow);
+
+    await enrichWithAccessStatus(rows);
 
     return NextResponse.json({
       data: rows,

@@ -42,7 +42,10 @@ export async function createTestProject(
     post: (url: string, options?: { data?: unknown }) => Promise<{ ok: () => boolean; status: () => number; text: () => Promise<string>; json: () => Promise<unknown> }>;
   }
 ): Promise<BootstrappedProject> {
-  const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+  const baseUrl =
+    process.env.PLAYWRIGHT_BASE_URL ||
+    process.env.BASE_URL ||
+    'http://localhost:3000';
   const requestClient = requestOverride ?? page.request;
 
   const response = await requestClient.post(`${baseUrl}/api/projects/bootstrap`, {
@@ -98,7 +101,10 @@ export async function deleteTestProject(
   page: Page,
   projectId: number
 ): Promise<void> {
-  const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+  const baseUrl =
+    process.env.PLAYWRIGHT_BASE_URL ||
+    process.env.BASE_URL ||
+    'http://localhost:3000';
 
   const response = await page.request.delete(`${baseUrl}/api/projects/${projectId}`);
 

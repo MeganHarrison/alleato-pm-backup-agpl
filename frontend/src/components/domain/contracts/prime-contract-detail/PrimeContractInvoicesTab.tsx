@@ -420,7 +420,7 @@ export function PrimeContractInvoicesTab({
           defaultVisible: id !== "actions",
           alwaysVisible: id === "invoice_number",
           render: (item) =>
-            column.cell
+            typeof column.cell === "function"
               ? column.cell({ row: { original: item } } as never)
               : null,
           csvValue: (item) => {

@@ -17,7 +17,11 @@ const failures = [];
 const approvedDirectToolDefinitionFiles = new Map([
   [
     "frontend/src/lib/ai/assistant-self-knowledge.ts",
-    "Self-inspection tools are not part of the Eve production catalog.",
+    "Self-inspection tools are appended by the orchestrator and are not project/source/action tools.",
+  ],
+  [
+    "frontend/src/lib/ai/orchestrator.ts",
+    "Consult tools delegate to specialist agents and are assembled by the orchestrator.",
   ],
   [
     "frontend/src/lib/ai/tools/action-tools.ts",
@@ -108,7 +112,7 @@ const approvedDirectToolDefinitionFiles = new Map([
   ],
   [
     "frontend/src/lib/ai/tools/create-document.ts",
-    "Document artifact UI helper; not currently exposed by the Eve production catalog.",
+    "Document artifact UI helper; not currently exposed by Strategist tool assembly.",
   ],
   [
     "frontend/src/lib/ai/tools/document-intelligence.ts",
@@ -128,7 +132,7 @@ const approvedDirectToolDefinitionFiles = new Map([
   ],
   [
     "frontend/src/lib/ai/tools/get-weather.ts",
-    "Standalone demo/weather helper; not currently exposed by the Eve production catalog.",
+    "Standalone demo/weather helper; not currently exposed by Strategist tool assembly.",
   ],
   [
     "frontend/src/lib/ai/tools/marketing.ts",
@@ -140,7 +144,7 @@ const approvedDirectToolDefinitionFiles = new Map([
   ],
   [
     "frontend/src/lib/ai/tools/outlook-operations.ts",
-    "Composed by createProjectTools and filtered by the Eve production catalog.",
+    "Composed by createProjectTools and then excluded from Strategist direct Microsoft operator access.",
   ],
   [
     "frontend/src/lib/ai/tools/progress-report-tools.ts",
@@ -152,7 +156,7 @@ const approvedDirectToolDefinitionFiles = new Map([
   ],
   [
     "frontend/src/lib/ai/tools/request-suggestions.ts",
-    "Suggestion helper; not currently exposed by the Eve production catalog.",
+    "Suggestion helper; not currently exposed by Strategist tool assembly.",
   ],
   [
     "frontend/src/lib/ai/tools/schedule-tools.ts",
@@ -168,11 +172,11 @@ const approvedDirectToolDefinitionFiles = new Map([
   ],
   [
     "frontend/src/lib/ai/tools/structured-queries.ts",
-    "Structured query helper; not currently exposed by the Eve production catalog.",
+    "Structured query helper; not currently exposed by Strategist tool assembly.",
   ],
   [
     "frontend/src/lib/ai/tools/update-document.ts",
-    "Document artifact UI helper; not currently exposed by the Eve production catalog.",
+    "Document artifact UI helper; not currently exposed by Strategist tool assembly.",
   ],
   [
     "frontend/src/lib/ai/tools/web-search.ts",
@@ -219,10 +223,7 @@ const globalRegistryPath = path.join(
   repoRoot,
   "frontend/src/lib/ai/tool-registry.ts",
 );
-const eveRegistryPath = path.join(
-  repoRoot,
-  "frontend/src/lib/ai/eve-runtime/production-tool-registry.ts",
-);
+const orchestratorPath = path.join(repoRoot, "frontend/src/lib/ai/orchestrator.ts");
 
 if (fs.existsSync(globalRegistryPath)) {
   const source = fs.readFileSync(globalRegistryPath, "utf8");
@@ -240,16 +241,39 @@ if (fs.existsSync(globalRegistryPath)) {
   }
 }
 
-if (fs.existsSync(eveRegistryPath)) {
-  const source = fs.readFileSync(eveRegistryPath, "utf8");
-  for (const requiredExport of [
-    "createProductionEveRequestCatalog",
-    "EVE_TOOL_MANIFEST",
-    "assertProductionEveToolRegistryComplete",
+if (fs.existsSync(orchestratorPath)) {
+  const source = fs.readFileSync(orchestratorPath, "utf8");
+  if (!source.includes("filterRegisteredToolSet")) {
+    failures.push(
+      "frontend/src/lib/ai/orchestrator.ts: Strategist project/action tool assembly must use filterRegisteredToolSet",
+    );
+  }
+  if (source.includes("omitMicrosoftOperatorTools(createProjectTools(")) {
+    failures.push(
+      "frontend/src/lib/ai/orchestrator.ts: createProjectTools must be filtered through the global assistant registry before model exposure",
+    );
+  }
+  if (source.includes("omitMicrosoftOperatorTools(createActionTools(")) {
+    failures.push(
+      "frontend/src/lib/ai/orchestrator.ts: createActionTools must be filtered through the global assistant registry before model exposure",
+    );
+  }
+  for (const factoryName of [
+    "createProjectTools",
+    "createActionTools",
+    "createWebSearchTools",
+    "createMarketingTools",
+    "createFeatureRequestTools",
+    "createProgressReportTools",
+    "createWorkspaceTools",
+    "createStructuredOutputTools",
+    "createDocumentIntelligenceTools",
+    "createIntelligenceTools",
+    "createExecutiveBriefTools",
   ]) {
-    if (!source.includes(requiredExport)) {
+    if (source.includes(`...${factoryName}(`)) {
       failures.push(
-        `frontend/src/lib/ai/eve-runtime/production-tool-registry.ts: missing ${requiredExport}`,
+        `frontend/src/lib/ai/orchestrator.ts: ${factoryName} must not be spread directly; use filterRegisteredToolSet`,
       );
     }
   }
@@ -272,10 +296,7 @@ for (const absolutePath of [
   ...listSourceFiles(path.join(repoRoot, "frontend/src/lib/ai")),
   ...listSourceFiles(path.join(repoRoot, "frontend/src/app")),
 ]) {
-  const relativePath = path
-    .relative(repoRoot, absolutePath)
-    .split(path.sep)
-    .join("/");
+  const relativePath = path.relative(repoRoot, absolutePath);
   const source = fs.readFileSync(absolutePath, "utf8");
   if (!/\btool\s*\(\s*\{/.test(source)) continue;
   if (!approvedDirectToolDefinitionFiles.has(relativePath)) {

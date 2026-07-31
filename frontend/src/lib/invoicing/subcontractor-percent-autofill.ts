@@ -19,12 +19,28 @@ function roundCurrency(value: number) {
   return Math.round((value + Number.EPSILON) * 100) / 100;
 }
 
+export function validateBillingComponentSigns(
+  scheduledValue: number,
+  componentAmounts: number[],
+): ValidationResult {
+  const hasWrongSign =
+    scheduledValue < 0
+      ? componentAmounts.some((amount) => amount > 0)
+      : componentAmounts.some((amount) => amount < 0);
+
+  return {
+    error: hasWrongSign
+      ? "Work and materials billing must each follow the sign of the scheduled value."
+      : null,
+  };
+}
+
 export function calculateCompletionPercentFromCurrentAmount({
   scheduledValue,
   previouslyBilled,
   currentAmount,
 }: CompletionPercentFromAmountInput): number {
-  if (scheduledValue <= 0) {
+  if (scheduledValue === 0) {
     return 0;
   }
 
@@ -36,10 +52,10 @@ export function calculateCurrentAmountFromCompletionPercent({
   previouslyBilled,
   completionPercent,
 }: CurrentAmountFromPercentInput): { amount: number | null; error: string | null } {
-  if (scheduledValue <= 0) {
+  if (scheduledValue === 0) {
     return {
       amount: null,
-      error: "Percent autofill requires a positive scheduled value.",
+      error: "Percent autofill requires a non-zero scheduled value.",
     };
   }
 
@@ -53,7 +69,10 @@ export function calculateCurrentAmountFromCompletionPercent({
   const totalCompletedTarget = roundCurrency((scheduledValue * completionPercent) / 100);
   const currentAmount = roundCurrency(totalCompletedTarget - previouslyBilled);
 
-  if (currentAmount < 0) {
+  if (
+    (scheduledValue > 0 && currentAmount < 0) ||
+    (scheduledValue < 0 && currentAmount > 0)
+  ) {
     return {
       amount: null,
       error: "Percent complete cannot be below the amount already billed.",
@@ -68,20 +87,33 @@ export function validateCurrentAmount({
   previouslyBilled,
   currentAmount,
 }: CompletionPercentFromAmountInput): ValidationResult {
-  if (currentAmount < 0) {
+  if (
+    (scheduledValue > 0 && currentAmount < 0) ||
+    (scheduledValue < 0 && currentAmount > 0)
+  ) {
     return {
-      error: "Current-period amount cannot be negative.",
+      error:
+        "Current-period billing must follow the sign of the scheduled value.",
     };
   }
 
-  if (scheduledValue <= 0) {
+  if (scheduledValue === 0) {
     return {
-      error: currentAmount > 0 ? "This row has no scheduled value to bill against." : null,
+      error:
+        currentAmount !== 0
+          ? "This row has no scheduled value to bill against."
+          : null,
     };
   }
 
   const totalCompleted = roundCurrency(previouslyBilled + currentAmount);
-  if (totalCompleted > roundCurrency(scheduledValue)) {
+  const roundedSchedule = roundCurrency(scheduledValue);
+  if (
+    (roundedSchedule > 0 &&
+      (totalCompleted < 0 || totalCompleted > roundedSchedule)) ||
+    (roundedSchedule < 0 &&
+      (totalCompleted > 0 || totalCompleted < roundedSchedule))
+  ) {
     return {
       error: "Current plus previous billing exceeds the scheduled value.",
     };

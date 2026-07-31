@@ -224,7 +224,7 @@ export async function deliverCanonicalDailyBriefToTeams(
     };
   }
 
-  const { sendProactiveCard } = await import("@/lib/bot/teams-delivery");
+  const { sendProactiveCard } = await import("@/lib/bot/teams-chat");
   const results = await Promise.all(
     recipients.map(async (recipient) => {
       try {

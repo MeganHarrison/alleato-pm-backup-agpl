@@ -1,0 +1,4 @@
+- generic [active]:
+  - region "Notifications alt+T"
+  - button "🎨" [ref=e2]:
+    - generic [ref=e3]: 🎨

@@ -14,6 +14,16 @@
       "autoPort": true
     },
     {
+      "name": "storybook",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": [
+        "--filter",
+        "@repo/storybook",
+        "dev"
+      ],
+      "port": 6006
+    },
+    {
       "name": "innovation-lab",
       "runtimeExecutable": "bash",
       "runtimeArgs": [

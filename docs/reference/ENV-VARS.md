@@ -67,6 +67,8 @@ Set env vars in **Vercel Dashboard → Project → Settings → Environment Vari
 | `MICROSOFT_CLIENT_SECRET` | Yes (if Graph sync enabled) | Vercel | Azure AD app client secret | Rotate annually |
 | `MICROSOFT_TENANT_ID` | Yes (if Graph sync enabled) | Vercel | Azure AD tenant ID | |
 | `MICROSOFT_SYNC_USERS` | Yes (if Graph sync enabled) | Vercel | Comma-separated email addresses to sync Outlook/Teams data for | e.g. `user@company.com,other@company.com` |
+| `RECRUITING_MICROSOFT_REDIRECT_URI` | Yes (if recruiting connections enabled) | Vercel | Exact delegated OAuth callback for Applicant Tracker | `https://projects.alleatogroup.com/api/recruiting/integrations/microsoft/callback` |
+| `RECRUITING_MICROSOFT_TOKEN_ENCRYPTION_KEY` | Yes (if recruiting connections enabled) | Vercel | Server-only base64-encoded 32-byte AES-GCM key for delegated Microsoft tokens | Generate once; rotate with a token re-encryption migration |
 
 ### Integrations — Acumatica ERP
 

@@ -1,3 +1,4 @@
+sandbox_mode = "danger-full-access"
 [mcp_servers.supabase]
 url = "https://mcp.supabase.com/mcp?project_ref=lgveqfnpkxvzbnnwuled"
 
@@ -18,6 +19,9 @@ args = [
     "playwright",
     "run-test-mcp-server",
 ]
+
+[mcp_servers.playwright-test.tools.browser_open]
+approval_mode = "approve"
 
 [shell_environment_policy]
 inherit = "core"

@@ -2669,8 +2669,8 @@
       "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3001/access-denied"
     },
     {
-      "source": "frontend/src/app/(main)/ai/feature-requests/[requestId]/page.tsx",
-      "route": "/ai/feature-requests/[requestId]",
+      "source": "frontend/src/app/(main)/ai-assistant/feature-requests/[requestId]/page.tsx",
+      "route": "/ai-assistant/feature-requests/[requestId]",
       "scope": "main",
       "included": true,
       "tool": null,
@@ -2680,26 +2680,48 @@
       ]
     },
     {
-      "source": "frontend/src/app/(main)/ai/feature-requests/page.tsx",
-      "route": "/ai/feature-requests",
+      "source": "frontend/src/app/(main)/ai-assistant/feature-requests/page.tsx",
+      "route": "/ai-assistant/feature-requests",
       "scope": "main",
       "included": true,
       "tool": null,
       "status": "capture_error",
-      "urlPath": "/ai/feature-requests",
-      "url": "http://localhost:3001/ai/feature-requests",
-      "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3001/ai/feature-requests"
+      "urlPath": "/ai-assistant/feature-requests",
+      "url": "http://localhost:3001/ai-assistant/feature-requests",
+      "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3001/ai-assistant/feature-requests"
     },
     {
-      "source": "frontend/src/app/(main)/ai/marketing/page.tsx",
-      "route": "/ai/marketing",
+      "source": "frontend/src/app/(main)/ai-assistant/marketing/page.tsx",
+      "route": "/ai-assistant/marketing",
       "scope": "main",
       "included": true,
       "tool": null,
       "status": "capture_error",
-      "urlPath": "/ai/marketing",
-      "url": "http://localhost:3001/ai/marketing",
-      "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3001/ai/marketing"
+      "urlPath": "/ai-assistant/marketing",
+      "url": "http://localhost:3001/ai-assistant/marketing",
+      "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3001/ai-assistant/marketing"
+    },
+    {
+      "source": "frontend/src/app/(main)/ai-assistant/page.tsx",
+      "route": "/ai-assistant",
+      "scope": "main",
+      "included": true,
+      "tool": null,
+      "status": "capture_error",
+      "urlPath": "/ai-assistant",
+      "url": "http://localhost:3001/ai-assistant",
+      "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3001/ai-assistant"
+    },
+    {
+      "source": "frontend/src/app/(main)/ai-assistant/teach/page.tsx",
+      "route": "/ai-assistant/teach",
+      "scope": "main",
+      "included": true,
+      "tool": null,
+      "status": "capture_error",
+      "urlPath": "/ai-assistant/teach",
+      "url": "http://localhost:3001/ai-assistant/teach",
+      "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3001/ai-assistant/teach"
     },
     {
       "source": "frontend/src/app/(main)/ai-avatar/page.tsx",

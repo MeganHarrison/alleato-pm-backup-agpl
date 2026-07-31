@@ -1,0 +1,84 @@
+.reader {
+  width: 100%;
+  max-width: 76ch;
+  color: var(--foreground);
+}
+
+.header {
+  margin-bottom: 3rem;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  font-weight: 650;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+}
+
+.header p {
+  max-width: 62ch;
+  margin: 1rem 0 0;
+  color: var(--muted-foreground);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+}
+
+.content :global(.prose) {
+  max-width: none;
+  color: inherit;
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.content :global(.prose.prose-sm) {
+  font-size: 1rem;
+}
+
+/* PageShell already renders the guide title. Source MDX begins with the same H1. */
+.content :global(.prose > h1:first-child) {
+  display: none;
+}
+
+.content :global(.prose > h2) {
+  margin-top: 3.5rem;
+  margin-bottom: 1rem;
+  scroll-margin-top: 6rem;
+}
+
+.content :global(.prose > h3) {
+  margin-top: 2.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.content :global(.prose > p),
+.content :global(.prose > ul),
+.content :global(.prose > ol),
+.content :global(.prose > blockquote) {
+  margin-bottom: 1.5rem;
+}
+
+.content :global(.prose > blockquote) {
+  margin-left: 0;
+  color: var(--muted-foreground);
+}
+
+.content :global(.prose > ul),
+.content :global(.prose > ol) {
+  padding-left: 1.375rem;
+}
+
+@media (max-width: 639px) {
+  .header {
+    margin-bottom: 2rem;
+  }
+
+  .content :global(.prose) {
+    font-size: 1rem;
+    line-height: 1.65;
+  }
+
+  .content :global(.prose > h2) {
+    margin-top: 2.75rem;
+  }
+}

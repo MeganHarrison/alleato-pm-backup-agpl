@@ -57,6 +57,7 @@ function assignment(id: string, taskId: string, resourceId: string, allocationPe
     resource_id: resourceId,
     person_id: `person-${resourceId}`,
     allocation_percent: allocationPercent,
+    cost_version: 1,
   };
 }
 

@@ -89,6 +89,10 @@ const STATUS_TO_VARIANT: Record<string, StatusVariant> = {
   unknown: "neutral",
   none: "neutral",
 
+  // Attribution / provenance statuses (project creation log)
+  "legacy gap": "warning",
+  legacy_gap: "warning",
+
   // App error statuses
   new: "error",
   triaged: "info",

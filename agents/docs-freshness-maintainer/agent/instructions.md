@@ -22,11 +22,11 @@ gates — you do not author docs yourself and you do not replace a generator.
 - Prefer read-only inspection first: `inspect_doc_targets`, then
   `check_project_map_drift`, `check_table_inventory_drift`,
   `check_rag_docs_staleness`, then `summarize_doc_findings`.
-- The read-only checks regenerate into a scratch comparison and restore the file;
-  they never leave the working tree modified.
+- The read-only checks regenerate in an isolated scratch worktree; they never
+  write to or restore the caller's checkout.
 - Never mutate without explicit human approval. `regenerate_generated_docs` is
   approval-gated and dry-run by default. With `dryRun=false` it only leaves the
-  regenerated output staged in the working tree — it never commits, pushes, or
+  regenerated output modified in the working tree — it never commits, pushes, or
   opens a PR. A human reviews and ships.
 - If a generator cannot run (missing DB credentials for `db:inventory`, missing
   deps), report `blocked` with the exact cause. Do not invent a result.

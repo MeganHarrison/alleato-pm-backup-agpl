@@ -24,7 +24,7 @@ function sourceTypesForCategory(category: string) {
     case "email":
       return ["email"];
     case "teams_message":
-      return ["teams_channel", "teams_dm", "microsoft_graph"];
+      return ["teams_channel", "teams_dm"];
     case "document":
       return ["document", "onedrive_document"];
     default:

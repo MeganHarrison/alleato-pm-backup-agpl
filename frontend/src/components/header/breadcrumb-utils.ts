@@ -12,3 +12,28 @@ export function isLikelyRecordIdentifier(segment: string, index: number): boolea
     /^[0-9a-f]{16,}$/i.test(segment)
   );
 }
+
+interface BreadcrumbOverride {
+  label: string;
+  href: string;
+}
+
+/**
+ * Route-specific breadcrumb destinations that differ from their URL segment.
+ * Keep these overrides centralized so shared header navigation cannot point
+ * users at non-canonical collection routes.
+ */
+export function getRouteBreadcrumbOverride(
+  segments: string[],
+  index: number,
+): BreadcrumbOverride | null {
+  if (
+    segments[0] === "training" &&
+    segments[1] === "resources" &&
+    index === 1
+  ) {
+    return { label: "Library", href: "/training/library" };
+  }
+
+  return null;
+}

@@ -70,6 +70,7 @@ function buildAdminPermissions({
       change_orders: "admin",
       change_events: "admin",
       emails: "admin",
+      crm: "admin",
     },
     granularOverrides: {},
     isAdmin: true,

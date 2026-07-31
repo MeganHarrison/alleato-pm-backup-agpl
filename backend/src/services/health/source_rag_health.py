@@ -13,6 +13,7 @@ import re
 import sys
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List
+from urllib.parse import unquote
 
 import httpx
 
@@ -22,6 +23,9 @@ from src.services.health.source_sync_health import (
     reserve_health_digest_notification,
     resolve_health_digest_notification,
     update_source_health_snapshot,
+)
+from src.services.integrations.microsoft_graph.sharepoint_scopes import (
+    sharepoint_resource_ids_from_receipt,
 )
 from src.services.supabase_helpers import get_supabase_client
 from src.services.supabase_helpers import get_rag_read_client
@@ -1097,6 +1101,245 @@ def _load_recent_rag_lifecycle_alerts(app_client: Any) -> Dict[str, Any]:
     }
 
 
+def _paged_rows(
+    client: Any,
+    table: str,
+    columns: str,
+    *,
+    source_system: str,
+    limit: int = 50000,
+) -> List[Dict[str, Any]]:
+    rows: List[Dict[str, Any]] = []
+    page_size = 1000
+    for offset in range(0, limit, page_size):
+        response = (
+            client.table(table)
+            .select(columns)
+            .eq("source_system", source_system)
+            .range(offset, offset + page_size - 1)
+            .execute()
+        )
+        page = response.data or []
+        rows.extend(dict(row) for row in page)
+        if len(page) < page_size:
+            return rows
+    raise RuntimeError(
+        f"{table} {source_system} reconciliation exceeded {limit} rows; "
+        "increase the governed health limit after reviewing corpus growth"
+    )
+
+
+def _load_sharepoint_vector_contract(app_client: Any) -> Dict[str, Any]:
+    """Reconcile every cataloged SharePoint text document through vector chunks."""
+    now = datetime.now(timezone.utc)
+    rag_client = get_rag_read_client()
+    receipt_rows = (
+        rag_client.table("source_sync_runs")
+        .select("metadata,started_at")
+        .eq("source", "microsoft_graph_source_sync")
+        .order("started_at", desc=True)
+        .limit(25)
+        .execute()
+    ).data or []
+    active_scope_paths = {
+        resource_id.split(":", 2)[2].rstrip("/")
+        for resource_id in sharepoint_resource_ids_from_receipt(receipt_rows)
+        if resource_id.count(":") >= 2
+    }
+    app_rows = _paged_rows(
+        app_client,
+        "document_metadata",
+        (
+            "id,source_item_id,status,project_id,source_etag,"
+            "source_last_modified_at,source_path,source_web_url,"
+            "source_metadata,deleted_at"
+        ),
+        source_system="sharepoint",
+    )
+
+    def is_project_path(row: Dict[str, Any]) -> bool:
+        metadata = (
+            row.get("source_metadata")
+            if isinstance(row.get("source_metadata"), dict)
+            else {}
+        )
+        candidates = (
+            row.get("source_path"),
+            row.get("source_web_url"),
+            metadata.get("source_folder"),
+            metadata.get("source_path"),
+            metadata.get("source_web_url"),
+            metadata.get("web_url"),
+        )
+        decoded_candidates = [
+            unquote(str(value or "")).rstrip("/") for value in candidates
+        ]
+        return any(
+            re.search(r"/20\d{2} Jobs(?:/|$)", candidate)
+            for candidate in decoded_candidates
+        ) or any(
+            scope_path == candidate
+            or f"{scope_path}/" in f"{candidate}/"
+            for scope_path in active_scope_paths
+            for candidate in decoded_candidates
+        )
+
+    app_rows = [
+        row
+        for row in app_rows
+        if not row.get("deleted_at") and is_project_path(row)
+    ]
+    rag_rows = _paged_rows(
+        rag_client,
+        "rag_document_metadata",
+        (
+            "id,app_document_id,source_item_id,embedding_status,"
+            "parsing_status,content_hash,last_indexed_at,source_metadata"
+        ),
+        source_system="sharepoint",
+    )
+
+    app_by_id = {
+        str(row.get("id")): row for row in app_rows if row.get("id")
+    }
+    rag_by_id = {
+        str(row.get("id")): row
+        for row in rag_rows
+        if row.get("id")
+        and (
+            str(row.get("id")) in app_by_id
+            or is_project_path(row)
+        )
+    }
+    app_ids = set(app_by_id)
+    rag_ids = set(rag_by_id)
+    terminal_ids = {
+        row_id
+        for row_id, row in app_by_id.items()
+        if _is_terminal_vectorization_status(row.get("status"))
+        or _is_terminal_vectorization_row(row, rag_by_id)
+    }
+    required_ids = app_ids - terminal_ids
+
+    chunk_document_ids: set[str] = set()
+    for start in range(0, len(app_ids), 100):
+        batch = sorted(app_ids)[start : start + 100]
+        offset = 0
+        while True:
+            response = (
+                rag_client.table("document_chunks")
+                .select("document_id")
+                .in_("document_id", batch)
+                .range(offset, offset + 999)
+                .execute()
+            )
+            page = response.data or []
+            chunk_document_ids.update(
+                str(row.get("document_id"))
+                for row in page
+                if row.get("document_id")
+            )
+            if len(page) < 1000:
+                break
+            offset += 1000
+
+    missing_rag_ids = sorted(required_ids - rag_ids)
+    no_chunk_ids = sorted(required_ids - chunk_document_ids)
+    terminal_with_chunks_ids = sorted(terminal_ids & chunk_document_ids)
+    rag_only_ids = sorted(rag_ids - app_ids)
+    pending_ids = sorted(
+        row_id
+        for row_id in required_ids & rag_ids
+        if str(rag_by_id[row_id].get("embedding_status") or "").lower()
+        not in {"embedded", "complete", "completed"}
+    )
+    missing_etag_ids = sorted(
+        row_id
+        for row_id in required_ids
+        if not str(app_by_id[row_id].get("source_etag") or "").strip()
+    )
+
+    alerts: List[Dict[str, Any]] = []
+
+    def add_alert(
+        code: str,
+        message: str,
+        *,
+        severity: str = "critical",
+    ) -> None:
+        alerts.append(
+            {
+                "severity": severity,
+                "code": code,
+                "source": "sharepoint",
+                "resourceId": "sharepoint:vector-contract",
+                "message": message,
+                "detectedAt": _iso(now),
+            }
+        )
+
+    if missing_rag_ids:
+        add_alert(
+            "sharepoint_catalog_missing_rag_metadata",
+            f"{len(missing_rag_ids)} SharePoint catalog row(s) have no RAG metadata "
+            f"replica. Examples: {', '.join(missing_rag_ids[:5])}. "
+            "Owner: Graph ingestion replica write.",
+        )
+    if no_chunk_ids:
+        add_alert(
+            "sharepoint_catalog_missing_vector_chunks",
+            f"{len(no_chunk_ids)} vector-required SharePoint document(s) have no "
+            f"searchable chunks. Examples: {', '.join(no_chunk_ids[:5])}. "
+            "Owner: Graph embedder.",
+        )
+    if terminal_with_chunks_ids:
+        add_alert(
+            "sharepoint_terminal_document_has_stale_chunks",
+            f"{len(terminal_with_chunks_ids)} terminal SharePoint document(s) still "
+            "have searchable chunks from an invalid or superseded revision. "
+            f"Examples: {', '.join(terminal_with_chunks_ids[:5])}. "
+            "Owner: source-content invalidation.",
+        )
+    if pending_ids:
+        add_alert(
+            "sharepoint_vectorization_pending",
+            f"{len(pending_ids)} SharePoint document(s) are not marked embedded. "
+            f"Examples: {', '.join(pending_ids[:5])}. Owner: Graph embedder.",
+            severity="warning",
+        )
+    if rag_only_ids:
+        add_alert(
+            "sharepoint_rag_metadata_without_catalog",
+            f"{len(rag_only_ids)} SharePoint RAG row(s) have no app catalog owner. "
+            f"Examples: {', '.join(rag_only_ids[:5])}. "
+            "Owner: Graph ingestion reconciliation.",
+        )
+    if missing_etag_ids:
+        add_alert(
+            "sharepoint_catalog_missing_revision_marker",
+            f"{len(missing_etag_ids)} SharePoint catalog row(s) lack a source eTag, "
+            "so freshness cannot be proven until replayed. "
+            f"Examples: {', '.join(missing_etag_ids[:5])}.",
+            severity="warning",
+        )
+
+    return {
+        "status": "degraded" if alerts else "healthy",
+        "cataloged": len(app_ids),
+        "vectorRequired": len(required_ids),
+        "ragMetadata": len(rag_ids),
+        "withChunks": len(required_ids & chunk_document_ids),
+        "terminalExcluded": len(terminal_ids),
+        "terminalWithChunks": len(terminal_with_chunks_ids),
+        "missingRagMetadata": len(missing_rag_ids),
+        "withoutChunks": len(no_chunk_ids),
+        "pendingEmbedding": len(pending_ids),
+        "ragOnly": len(rag_only_ids),
+        "missingEtag": len(missing_etag_ids),
+        "alerts": alerts,
+    }
+
+
 def _teams_alert_text(report: Dict[str, Any]) -> str:
     critical = report.get("criticalAlerts", [])
     warning = report.get("warningAlerts", [])
@@ -1204,9 +1447,11 @@ def run_source_rag_health_check(*, trigger_remediation: bool = True) -> Dict[str
     supabase = get_supabase_client()
     health = get_source_sync_health(supabase)
     rag_lifecycle = _load_recent_rag_lifecycle_alerts(supabase)
+    sharepoint_vector_contract = _load_sharepoint_vector_contract(supabase)
     combined_alerts = [
         *health.get("alerts", []),
         *rag_lifecycle.get("alerts", []),
+        *sharepoint_vector_contract.get("alerts", []),
     ]
 
     snapshot_writes = 0
@@ -1247,6 +1492,7 @@ def run_source_rag_health_check(*, trigger_remediation: bool = True) -> Dict[str
         "snapshotWrites": snapshot_writes,
         "alertPersistence": alert_result,
         "ragLifecycle": rag_lifecycle,
+        "sharepointVectorContract": sharepoint_vector_contract,
         "counts": health.get("counts", {}),
         "unhealthySources": [
             {
@@ -1267,27 +1513,23 @@ def run_source_rag_health_check(*, trigger_remediation: bool = True) -> Dict[str
     }
 
     if not report["passed"] and trigger_remediation:
-        # Throttle external delivery so the every-5-min cron stops flooding Teams
-        # with identical "degraded" DMs while the same known issues persist:
-        #  - deliver immediately when at least one discrete alert is new or
-        #    re-armed past RAG_HEALTH_RENOTIFY_HOURS (per-alert reservation), and
-        #  - otherwise consult a report-level digest reservation, which both
-        #    covers degraded-but-no-alert-rows reports (so the first DM still
-        #    fires) AND acts as a re-nag heartbeat at most once per window.
-        # When a per-alert delivery happens we still stamp the digest so the
-        # heartbeat clock resets and the next run does not double-post.
-        digest_due = reserve_health_digest_notification(
-            supabase, mark_notified=bool(newly_notifiable)
-        )
-        if newly_notifiable or digest_due:
+        # This is a report-level Teams message, so its own durable reservation
+        # is the only delivery gate. Per-alert reservations still preserve the
+        # lifecycle of each finding, but a large discovery/replay can introduce
+        # many distinct alert keys in consecutive five-minute runs. Letting each
+        # new key bypass the digest reservation turns one ongoing incident into
+        # a notification flood.
+        digest_due = reserve_health_digest_notification(supabase)
+        if digest_due:
             report["notification"] = _post_teams_alert(report)
         else:
             report["notification"] = {
                 "status": "throttled",
                 "channel": "teams",
                 "reason": (
-                    f"{len(combined_alerts)} active alert(s) and the degraded-health "
-                    "digest were already notified within RAG_HEALTH_RENOTIFY_HOURS; "
+                    f"{len(combined_alerts)} active alert(s), including "
+                    f"{len(newly_notifiable)} newly recorded finding(s), are covered by "
+                    "the degraded-health digest within RAG_HEALTH_RENOTIFY_HOURS; "
                     "suppressing duplicate DM."
                 ),
             }
@@ -1306,18 +1548,13 @@ def run_source_rag_health_check(*, trigger_remediation: bool = True) -> Dict[str
 
 
 def main() -> int:
-    """Exit 0 whenever the check completes and produces a report.
+    """Return success when the health check completed, even if it found risk.
 
-    A degraded finding is a monitoring *result*, not a script failure — it is
-    already delivered via `system_alerts` and the throttled Teams DM
-    (`RAG_HEALTH_RENOTIFY_HOURS`). Render has no concept of "ran fine, found a
-    real problem" vs. "the cron itself crashed": both surface as an identical
-    unthrottled "server failure" email. Returning 1 for every degraded run
-    reintroduces, via Render's own alerting, the exact flood that the Teams
-    throttle (#98) was built to stop. An unhandled exception anywhere in
-    `run_source_rag_health_check` (including a failed Teams delivery) still
-    propagates and exits non-zero, so Render alerting is preserved for actual
-    execution failures.
+    Render treats any non-zero cron exit as an unthrottled platform failure.
+    A degraded health report is instead a successful monitoring result: it is
+    persisted to ``system_alerts`` and its Teams digest has its own durable
+    cooldown. Real execution errors remain uncaught and therefore still fail
+    the cron loudly.
     """
     report = run_source_rag_health_check()
     print(json.dumps(report, indent=2, sort_keys=True))

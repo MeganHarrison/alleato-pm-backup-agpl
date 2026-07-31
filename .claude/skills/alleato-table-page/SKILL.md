@@ -391,6 +391,30 @@ toolbar={{ onBulkDelete: selectedIds.length > 0 ? () => setMyBulkDeleteOpen(true
 
 ## MANDATORY RULES
 
+### One column, one value — NEVER stack content in a cell
+A table row is already a grid: one column = one attribute. Never render a second
+line (a subtitle, id, job number, status, email) under the primary value.
+
+```tsx
+// WRONG — stacked cell. Also banned: <CellStackText secondary={...} />
+render: (item) => (
+  <CellStackText primary={item.name} secondary={item.jobNumber} />
+)
+
+// CORRECT — give the secondary datum its own column…
+{ id: "name", label: "Name", render: (i) => <CellText value={i.name} /> },
+{ id: "job",  label: "Job",  render: (i) => <CellText value={i.jobNumber} muted /> },
+
+// …or, for supplementary detail nobody sorts/filters on, a hover tooltip:
+render: (item) => <CellText value={item.name} title={item.rawId ?? undefined} />
+```
+
+`<CellStackText>` is allowed ONLY as icon + single value (no `secondary` prop).
+A live `secondary` value is an ESLint error (`design-system/no-stacked-table-cell`,
+error app-wide — it checks both raw stacked `<div>`s and the `CellStackText`
+component). If the secondary value matters, it earns its own sortable/filterable/
+exportable column; if it doesn't, delete it.
+
 ### Header actions = ONLY the primary Create/Add button
 ```tsx
 // CORRECT

@@ -23,7 +23,7 @@ import json
 import time
 import threading
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from functools import lru_cache
 from typing import Any, Dict, List, Optional
 
@@ -151,7 +151,9 @@ _QUERY_STOPWORDS = {
 def _require_env(name: str) -> str:
     value = os.getenv(name)
     if not value:
-        raise RuntimeError(f"Environment variable '{name}' is required for Supabase access")
+        raise RuntimeError(
+            f"Environment variable '{name}' is required for Supabase access"
+        )
     return value
 
 
@@ -226,7 +228,9 @@ def get_rag_write_client() -> Client:
 
     if rag_supabase_configured():
         if not rag_database_writes_enabled():
-            _warn_rag_flag_drift_once("get_rag_write_client", "RAG_DATABASE_WRITES_ENABLED")
+            _warn_rag_flag_drift_once(
+                "get_rag_write_client", "RAG_DATABASE_WRITES_ENABLED"
+            )
         return get_rag_supabase_client()
     return get_supabase_client()
 
@@ -241,7 +245,9 @@ def get_rag_read_client() -> Client:
 
     if rag_supabase_configured():
         if not rag_database_reads_enabled():
-            _warn_rag_flag_drift_once("get_rag_read_client", "RAG_DATABASE_READS_ENABLED")
+            _warn_rag_flag_drift_once(
+                "get_rag_read_client", "RAG_DATABASE_READS_ENABLED"
+            )
         return get_rag_supabase_client()
     return get_supabase_client()
 
@@ -268,7 +274,9 @@ def get_outlook_intake_read_client() -> Client:
     return get_supabase_client()
 
 
-def as_actionable_outlook_intake_write_error(exc: Exception, *, table_name: str) -> Exception:
+def as_actionable_outlook_intake_write_error(
+    exc: Exception, *, table_name: str
+) -> Exception:
     """Turn opaque Outlook intake RLS failures into actionable env drift errors."""
 
     text = str(exc)
@@ -435,21 +443,34 @@ class DocumentChunk:
 class SupabaseRagStore:
     """High-level helper for RAG-related Supabase tables."""
 
-    def __init__(self, client: Optional[Client] = None, rag_client: Optional[Client] = None) -> None:
+    def __init__(
+        self, client: Optional[Client] = None, rag_client: Optional[Client] = None
+    ) -> None:
         self._client = client or get_supabase_client()
         self._rag_client = rag_client or get_rag_write_client()
         self._rag_read_client = rag_client or get_rag_read_client()
 
+    @property
+    def app_client(self) -> Client:
+        """Return the app-catalog client owned by this store."""
+        return self._client
+
     # document_metadata -------------------------------------------------
     def upsert_document_metadata(self, metadata: Dict[str, Any]) -> Dict[str, Any]:
-        """Upsert source metadata while keeping large RAG payloads out of the app DB."""
+        """Upsert one canonical source record into both metadata owners.
+
+        The isolated RAG database owns parsing, OCR, embedding, and retrieval
+        lifecycle state even before text exists. Creating its metadata row only
+        when content was already available left ``no_text`` Graph documents in
+        the app catalog with no legal downstream owner. Always materialize the
+        RAG replica for a real document ID; large payloads still remain excluded
+        from the app database.
+        """
         document_id = metadata.get("id")
-        has_rag_payload = any(
-            metadata.get(field) is not None
-            for field in ("content", "raw_text", "summary_embedding")
-        )
         app_payload = self._app_document_catalog_payload(metadata)
-        rag_payload = self._rag_document_metadata_payload(metadata) if document_id and has_rag_payload else None
+        rag_payload = (
+            self._rag_document_metadata_payload(metadata) if document_id else None
+        )
 
         app_result: Dict[str, Any] = app_payload
         app_has_fields_beyond_id = any(key != "id" for key in app_payload)
@@ -459,7 +480,14 @@ class SupabaseRagStore:
         if rag_payload:
             self.upsert_rag_document_metadata(rag_payload)
 
-        return {**app_result, **{k: v for k, v in metadata.items() if k in {"content", "raw_text", "summary_embedding"}}}
+        return {
+            **app_result,
+            **{
+                k: v
+                for k, v in metadata.items()
+                if k in {"content", "raw_text", "summary_embedding"}
+            },
+        }
 
     def upsert_app_document_catalog(self, metadata: Dict[str, Any]) -> Dict[str, Any]:
         """Upsert the app-facing catalog row without large RAG payload fields."""
@@ -470,7 +498,9 @@ class SupabaseRagStore:
     def upsert_rag_document_metadata(self, metadata: Dict[str, Any]) -> Dict[str, Any]:
         """Upsert the RAG-side full payload and processing metadata row."""
         payload = self._rag_document_metadata_payload(metadata)
-        response = self._rag_client.table("rag_document_metadata").upsert(payload).execute()
+        response = (
+            self._rag_client.table("rag_document_metadata").upsert(payload).execute()
+        )
         return response.data[0] if response.data else payload
 
     def set_document_scope(
@@ -502,10 +532,7 @@ class SupabaseRagStore:
         )
         if normalized_project_id is not None and normalized_project_id <= 0:
             raise ValueError("document scope project_id must be positive")
-        if (
-            normalized_business_area_id is not None
-            and normalized_business_area_id <= 0
-        ):
+        if normalized_business_area_id is not None and normalized_business_area_id <= 0:
             raise ValueError("document scope business_area_id must be positive")
 
         app_scope = {
@@ -584,6 +611,16 @@ class SupabaseRagStore:
 
     def _app_document_catalog_payload(self, metadata: Dict[str, Any]) -> Dict[str, Any]:
         catalog = dict(metadata)
+        if str(catalog.get("source_system") or "").strip().lower() in {
+            "onedrive",
+            "sharepoint",
+        }:
+            # Graph item identity + eTag own revision tracking for these sources.
+            # The same proposal/drawing is legitimately copied into multiple
+            # project folders, so the app DB's globally unique content_hash
+            # cannot be used as source identity. The hash remains in the RAG
+            # replica, where it validates content without collapsing provenance.
+            catalog.pop("content_hash", None)
         for field in (
             "app_document_id",
             "content",
@@ -605,10 +642,14 @@ class SupabaseRagStore:
             and value != []
         }
 
-    def _rag_document_metadata_payload(self, metadata: Dict[str, Any]) -> Dict[str, Any]:
+    def _rag_document_metadata_payload(
+        self, metadata: Dict[str, Any]
+    ) -> Dict[str, Any]:
         document_id = metadata.get("id") or metadata.get("app_document_id")
         if not document_id:
-            raise ValueError("rag_document_metadata payload requires id or app_document_id")
+            raise ValueError(
+                "rag_document_metadata payload requires id or app_document_id"
+            )
         content = metadata.get("content")
         raw_text = metadata.get("raw_text")
         full_text = content or raw_text
@@ -638,7 +679,8 @@ class SupabaseRagStore:
             "project_id": metadata.get("project_id"),
             "source": metadata.get("source"),
             "source_system": metadata.get("source_system"),
-            "source_item_id": metadata.get("source_item_id") or metadata.get("fireflies_id"),
+            "source_item_id": metadata.get("source_item_id")
+            or metadata.get("fireflies_id"),
             "fireflies_id": metadata.get("fireflies_id"),
             "title": metadata.get("title"),
             "type": metadata.get("type"),
@@ -647,7 +689,9 @@ class SupabaseRagStore:
             "source_web_url": metadata.get("source_web_url"),
             "url": metadata.get("url"),
             "storage_bucket": metadata.get("storage_bucket"),
-            "storage_path": metadata.get("storage_path") or metadata.get("file_path") or metadata.get("source_path"),
+            "storage_path": metadata.get("storage_path")
+            or metadata.get("file_path")
+            or metadata.get("source_path"),
             "file_name": metadata.get("file_name"),
             "content": content,
             "raw_text": raw_text or content,
@@ -658,10 +702,16 @@ class SupabaseRagStore:
             "summary_embedding": metadata.get("summary_embedding"),
             "parsing_status": metadata.get("parsing_status") or metadata.get("status"),
             "embedding_status": metadata.get("embedding_status"),
-            "processing_metadata": {k: v for k, v in processing_metadata.items() if v is not None},
+            "processing_metadata": {
+                k: v for k, v in processing_metadata.items() if v is not None
+            },
             "source_metadata": source_metadata,
-            "last_synced_at": metadata.get("last_synced_at") or metadata.get("updated_at") or metadata.get("created_at"),
-            "last_content_loaded_at": datetime.utcnow().isoformat() if full_text else metadata.get("last_content_loaded_at"),
+            "last_synced_at": metadata.get("last_synced_at")
+            or metadata.get("updated_at")
+            or metadata.get("created_at"),
+            "last_content_loaded_at": datetime.utcnow().isoformat()
+            if full_text
+            else metadata.get("last_content_loaded_at"),
             "last_indexed_at": metadata.get("last_indexed_at"),
             "created_at": metadata.get("created_at"),
             "updated_at": metadata.get("updated_at"),
@@ -677,6 +727,34 @@ class SupabaseRagStore:
             document_id,
         )
         return data or None
+
+    def list_document_ids_by_source_system(self, source_system: str) -> List[str]:
+        """List app-catalog document IDs owned by one exact source adapter."""
+        normalized = str(source_system or "").strip()
+        if not normalized:
+            raise ValueError("source-system document lookup requires a source_system")
+        response = (
+            self._client.table("document_metadata")
+            .select("id")
+            .eq("source_system", normalized)
+            .execute()
+        )
+        return [
+            str(row["id"])
+            for row in (response.data or [])
+            if str(row.get("id") or "").strip()
+        ]
+
+    def delete_document_and_chunks(self, document_id: str) -> None:
+        """Delete one exact source document from catalog and RAG storage."""
+        normalized = str(document_id or "").strip()
+        if not normalized:
+            raise ValueError("document deletion requires a document_id")
+        self.delete_chunks_for_document(normalized)
+        self._rag_client.table("rag_document_metadata").delete().eq(
+            "id", normalized
+        ).execute()
+        self._client.table("document_metadata").delete().eq("id", normalized).execute()
 
     def fetch_rag_document_content(self, document_id: str) -> Optional[str]:
         data = fetch_optional_row(
@@ -700,18 +778,26 @@ class SupabaseRagStore:
         storage = self._client.storage.from_(bucket)
         if upsert:
             try:
-                storage_upload_with_retry(storage, path, data, {"content-type": content_type}, method="update")
+                storage_upload_with_retry(
+                    storage, path, data, {"content-type": content_type}, method="update"
+                )
             except Exception:
-                storage_upload_with_retry(storage, path, data, {"content-type": content_type}, method="upload")
+                storage_upload_with_retry(
+                    storage, path, data, {"content-type": content_type}, method="upload"
+                )
         else:
-            storage_upload_with_retry(storage, path, data, {"content-type": content_type}, method="upload")
+            storage_upload_with_retry(
+                storage, path, data, {"content-type": content_type}, method="upload"
+            )
 
         return storage.get_public_url(path)
 
     def fetch_document_metadata(self, document_id: str) -> Optional[Dict[str, Any]]:
         response = (
             self._client.table("document_metadata")
-            .select("id,title,type,category,source,source_system,source_item_id,project_id,business_area_id,project,date,captured_at,created_at,summary,overview,status,fireflies_id,fireflies_link,meeting_link,url,source_web_url,storage_bucket,file_path,file_name,participants,participants_array,source_metadata,content,raw_text")
+            .select(
+                "id,title,type,category,source,source_system,source_item_id,project_id,business_area_id,project,date,captured_at,created_at,summary,overview,status,fireflies_id,fireflies_link,meeting_link,url,source_web_url,storage_bucket,file_path,file_name,participants,participants_array,source_metadata,content,raw_text"
+            )
             .eq("id", document_id)
             .single()
             .execute()
@@ -742,7 +828,9 @@ class SupabaseRagStore:
         )
         return bool(response.data or [])
 
-    def find_document_by_fireflies_id(self, fireflies_id: Optional[str]) -> Optional[Dict[str, Any]]:
+    def find_document_by_fireflies_id(
+        self, fireflies_id: Optional[str]
+    ) -> Optional[Dict[str, Any]]:
         if not fireflies_id:
             return None
         response = (
@@ -777,7 +865,12 @@ class SupabaseRagStore:
         return data[0] if data else None
 
     # tasks / insights --------------------------------------------------
-    def list_tasks(self, project_id: Optional[int] = None, status: Optional[str] = None, limit: int = 50) -> List[Dict[str, Any]]:
+    def list_tasks(
+        self,
+        project_id: Optional[int] = None,
+        status: Optional[str] = None,
+        limit: int = 50,
+    ) -> List[Dict[str, Any]]:
         """List tasks from the unified `tasks` table."""
         query = self._client.table("tasks").select("*").limit(limit)
         if project_id is not None:
@@ -797,7 +890,86 @@ class SupabaseRagStore:
 
     # document chunks ---------------------------------------------------
     def delete_chunks_for_document(self, document_id: str) -> None:
-        self._rag_client.table("document_chunks").delete().eq("document_id", document_id).execute()
+        self._rag_client.table("document_chunks").delete().eq(
+            "document_id", document_id
+        ).execute()
+
+    def invalidate_document_content(
+        self,
+        document_id: str,
+        *,
+        parsing_status: str,
+        embedding_status: str,
+        reason: str,
+    ) -> bool:
+        """Remove stale searchable content before a source revision is replaced.
+
+        Source metadata and vector chunks form one retrieval contract. A changed
+        source must never leave its previous chunks searchable while extraction,
+        OCR, or re-embedding is pending. Chunk deletion happens first so any
+        later write failure degrades to a visible missing-vector state instead
+        of silently serving stale claims.
+
+        Returns ``True`` when a RAG metadata replica existed and was cleared.
+        A new app-catalog document can legitimately have no RAG replica yet.
+        """
+        normalized_document_id = str(document_id or "").strip()
+        if not normalized_document_id:
+            raise ValueError("content invalidation requires a document_id")
+        normalized_parsing_status = str(parsing_status or "").strip()
+        normalized_embedding_status = str(embedding_status or "").strip()
+        normalized_reason = str(reason or "").strip()
+        if not normalized_parsing_status:
+            raise ValueError("content invalidation requires a parsing_status")
+        if not normalized_embedding_status:
+            raise ValueError("content invalidation requires an embedding_status")
+        if not normalized_reason:
+            raise ValueError("content invalidation requires a reason")
+
+        self.delete_chunks_for_document(normalized_document_id)
+        lookup = (
+            self._rag_client.table("rag_document_metadata")
+            .select("id,processing_metadata")
+            .eq("id", normalized_document_id)
+            .limit(1)
+            .execute()
+        )
+        rows = lookup.data or []
+        if not rows:
+            return False
+
+        processing_metadata = rows[0].get("processing_metadata")
+        if not isinstance(processing_metadata, dict):
+            processing_metadata = {}
+        payload = {
+            "content": None,
+            "raw_text": None,
+            "content_hash": None,
+            "content_length": 0,
+            "summary_embedding": None,
+            "last_content_loaded_at": None,
+            "last_indexed_at": None,
+            "parsing_status": normalized_parsing_status,
+            "embedding_status": normalized_embedding_status,
+            "processing_metadata": {
+                **processing_metadata,
+                "content_invalidated": True,
+                "content_invalidation_reason": normalized_reason,
+                "content_invalidated_at": datetime.now(timezone.utc).isoformat(),
+            },
+        }
+        response = (
+            self._rag_client.table("rag_document_metadata")
+            .update(payload)
+            .eq("id", normalized_document_id)
+            .execute()
+        )
+        if not (response.data or []):
+            raise RuntimeError(
+                "RAG content invalidation found a replica but could not update "
+                f"{normalized_document_id}"
+            )
+        return True
 
     def upsert_chunks(self, chunks: List[DocumentChunk]) -> None:
         if not chunks:
@@ -813,12 +985,18 @@ class SupabaseRagStore:
                     "metadata": chunk.metadata,
                     "content_hash": chunk.content_hash,
                     "source_type": chunk.source_type,
-                    **({"embedding": chunk.embedding} if chunk.embedding is not None else {}),
+                    **(
+                        {"embedding": chunk.embedding}
+                        if chunk.embedding is not None
+                        else {}
+                    ),
                 }
             )
         self._rag_client.table("document_chunks").upsert(rows).execute()
 
-    def query_chunks(self, filters: Dict[str, Any], limit: int = 20) -> List[Dict[str, Any]]:
+    def query_chunks(
+        self, filters: Dict[str, Any], limit: int = 20
+    ) -> List[Dict[str, Any]]:
         query = self._rag_client.table("document_chunks").select("*").limit(limit)
         for column, value in filters.items():
             if column == "project_id":
@@ -857,7 +1035,9 @@ class SupabaseRagStore:
         response = query.execute()
         return [self._chunk_row_to_result(row) for row in (response.data or [])]
 
-    def fetch_recent_chunks(self, project_id: Optional[int] = None, limit: int = 5) -> List[Dict[str, Any]]:
+    def fetch_recent_chunks(
+        self, project_id: Optional[int] = None, limit: int = 5
+    ) -> List[Dict[str, Any]]:
         """Most-recent `document_chunks` rows (AI Database), optionally project-scoped."""
         query = (
             self._rag_read_client.table("document_chunks")
@@ -870,9 +1050,13 @@ class SupabaseRagStore:
         response = query.execute()
         return [self._chunk_row_to_result(row) for row in (response.data or [])]
 
-    def vector_search(self, query_embedding: List[float], limit: int = 5) -> List[Dict[str, Any]]:
+    def vector_search(
+        self, query_embedding: List[float], limit: int = 5
+    ) -> List[Dict[str, Any]]:
         """Vector search over `document_chunks` via `search_document_chunks` RPC."""
-        return self.vector_search_documents(query_embedding=query_embedding, limit=limit)
+        return self.vector_search_documents(
+            query_embedding=query_embedding, limit=limit
+        )
 
     def vector_search_documents(
         self,
@@ -888,7 +1072,9 @@ class SupabaseRagStore:
         }
         if project_id is not None and project_id > 0:
             rpc_args["filter_project_id"] = project_id
-        response = self._rag_read_client.rpc("search_document_chunks", rpc_args).execute()
+        response = self._rag_read_client.rpc(
+            "search_document_chunks", rpc_args
+        ).execute()
         return [self._chunk_row_to_result(row) for row in (response.data or [])]
 
     def search_financial_rows(
@@ -945,7 +1131,10 @@ class SupabaseRagStore:
             if (
                 "financial" in category
                 or file_name.endswith((".csv", ".tsv", ".xls", ".xlsx"))
-                or any(k in file_name for k in ("budget", "estimate", "invoice", "p&l", "balance"))
+                or any(
+                    k in file_name
+                    for k in ("budget", "estimate", "invoice", "p&l", "balance")
+                )
             ):
                 doc_id = row.get("id")
                 if doc_id:
@@ -993,7 +1182,9 @@ class SupabaseRagStore:
         return scored[:limit]
 
     # ingestion jobs ----------------------------------------------------
-    def start_ingestion_job(self, fireflies_id: Optional[str], content_hash: str) -> Optional[str]:
+    def start_ingestion_job(
+        self, fireflies_id: Optional[str], content_hash: str
+    ) -> Optional[str]:
         payload = {
             "fireflies_id": fireflies_id,
             "content_hash": content_hash,
@@ -1003,13 +1194,17 @@ class SupabaseRagStore:
         data = response.data or []
         return data[0]["id"] if data else None
 
-    def complete_ingestion_job(self, job_id: Optional[str], status: str, error: Optional[str] = None) -> None:
+    def complete_ingestion_job(
+        self, job_id: Optional[str], status: str, error: Optional[str] = None
+    ) -> None:
         if not job_id:
             return
         payload = {"status": status, "finished_at": datetime.utcnow().isoformat()}
         if error:
             payload["error"] = error
-        self._rag_client.table("ingestion_jobs").update(payload).eq("id", job_id).execute()
+        self._rag_client.table("ingestion_jobs").update(payload).eq(
+            "id", job_id
+        ).execute()
 
 
 __all__ = [

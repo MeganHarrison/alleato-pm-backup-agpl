@@ -18,7 +18,7 @@ export default async function EveToolTestingRoute() {
     <PageShell
       variant="table"
       title="Eve Tool Testing"
-      description={`${rows.length} canonical Eve tools. Live evidence last recorded July 30, 2026.`}
+      description={`${rows.length} canonical Eve tools. Live evidence last recorded July 31, 2026.`}
     >
       <EveToolTestingPage initialRows={rows} />
     </PageShell>

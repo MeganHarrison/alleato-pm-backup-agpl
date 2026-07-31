@@ -1,0 +1,239 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-07-28T13:58:00-04:00",
+  "title": "Design System: Alleato",
+  "extensions": {
+    "colorMeta": {
+      "brand-orange": {
+        "role": "primary",
+        "displayName": "Alleato Orange",
+        "canonical": "hsl(29 71% 52%)",
+        "tonalRamp": [
+          "#FDF3EA",
+          "#F8D4B3",
+          "#DC822E",
+          "#C26D24",
+          "#9C4F17"
+        ]
+      },
+      "action-slate": {
+        "role": "secondary",
+        "displayName": "Action Slate",
+        "canonical": "hsl(215 25% 31%)",
+        "tonalRamp": [
+          "#EEF1F5",
+          "#AEB9C8",
+          "#3B4C63",
+          "#293748"
+        ]
+      },
+      "foreground": {
+        "role": "neutral",
+        "displayName": "Carbon Ink",
+        "canonical": "hsl(240 6% 10%)",
+        "tonalRamp": [
+          "#F2F2F2",
+          "#A0A0A4",
+          "#3E3E42",
+          "#18181B"
+        ]
+      },
+      "success": {
+        "role": "semantic",
+        "displayName": "Success Green",
+        "canonical": "hsl(160 94% 24%)",
+        "tonalRamp": [
+          "#EDFDF5",
+          "#6EE7B7",
+          "#047750"
+        ]
+      },
+      "warning": {
+        "role": "semantic",
+        "displayName": "Warning Amber",
+        "canonical": "hsl(32 95% 37%)",
+        "tonalRamp": [
+          "#FFFBEB",
+          "#FCD34D",
+          "#B86405"
+        ]
+      },
+      "danger": {
+        "role": "semantic",
+        "displayName": "Danger Red",
+        "canonical": "hsl(0 73% 42%)",
+        "tonalRamp": [
+          "#FEF1F1",
+          "#FCA5A5",
+          "#B91D1D"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "Page headline",
+        "purpose": "Shared page-header titles."
+      },
+      "title": {
+        "displayName": "Section title",
+        "purpose": "Primary content groups and localized module titles."
+      },
+      "body": {
+        "displayName": "Product body",
+        "purpose": "Default UI copy, field values, and table content."
+      },
+      "label": {
+        "displayName": "Control label",
+        "purpose": "Fields, table headers, and compact actions."
+      },
+      "mono": {
+        "displayName": "Data mono",
+        "purpose": "Identifiers, codes, and aligned numeric data."
+      }
+    },
+    "shadows": [
+      {
+        "name": "subtle",
+        "value": "0 1px 2px 0 rgb(0 0 0 / 0.03)",
+        "purpose": "Rare micro-elevation."
+      },
+      {
+        "name": "small",
+        "value": "0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.04)",
+        "purpose": "Dropdowns, popovers, and transient floating surfaces."
+      }
+    ],
+    "motion": [
+      {
+        "name": "instant",
+        "value": "0ms",
+        "purpose": "Keyboard navigation highlights and immediate state."
+      },
+      {
+        "name": "fast",
+        "value": "100ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Hover and focus feedback."
+      },
+      {
+        "name": "normal",
+        "value": "150ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Most state transitions."
+      },
+      {
+        "name": "deliberate",
+        "value": "250ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Sheets and larger continuity-preserving reveals."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      },
+      {
+        "name": "xl",
+        "value": "1280px"
+      },
+      {
+        "name": "2xl",
+        "value": "1536px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The single primary command on a focused surface.",
+      "html": "<button class=\"ds-button-primary\" type=\"button\">Save changes</button>",
+      "css": ".ds-button-primary { display: inline-flex; height: 2.25rem; align-items: center; justify-content: center; gap: 0.375rem; border: 0; border-radius: 0.75rem; background: #DC822E; color: #FFFFFF; padding: 0.5rem 1rem; font: 500 0.875rem/1.25 Inter, ui-sans-serif, system-ui, sans-serif; transition: background-color 150ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 150ms cubic-bezier(0.16, 1, 0.3, 1), transform 150ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-button-primary:hover { background: #D07A2B; } .ds-button-primary:active { background: #C26D24; transform: translateY(1px); } .ds-button-primary:focus-visible { outline: 3px solid rgb(220 130 46 / 0.35); outline-offset: 2px; }"
+    },
+    {
+      "name": "Action Button",
+      "kind": "button",
+      "refersTo": "button-action",
+      "description": "Established slate action hierarchy where the shared action variant owns the workflow.",
+      "html": "<button class=\"ds-button-action\" type=\"button\">Open review</button>",
+      "css": ".ds-button-action { display: inline-flex; height: 2.25rem; align-items: center; justify-content: center; gap: 0.375rem; border: 0; border-radius: 0.75rem; background: #3B4C63; color: #FFFFFF; padding: 0.5rem 1rem; font: 500 0.875rem/1.25 Inter, ui-sans-serif, system-ui, sans-serif; transition: background-color 150ms cubic-bezier(0.16, 1, 0.3, 1), transform 150ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-button-action:hover { background: #354459; } .ds-button-action:active { background: #2F3D50; transform: translateY(1px); } .ds-button-action:focus-visible { outline: 3px solid rgb(59 76 99 / 0.3); outline-offset: 2px; }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input-default",
+      "description": "A quiet bordered field with clear focus and error recovery.",
+      "html": "<label class=\"ds-field\"><span class=\"ds-field-label\">Commitment title</span><input class=\"ds-input\" placeholder=\"Enter a title\" /></label>",
+      "css": ".ds-field { display: grid; gap: 0.5rem; color: #18181B; font-family: Inter, ui-sans-serif, system-ui, sans-serif; } .ds-field-label { font-size: 0.875rem; font-weight: 500; line-height: 1.25; } .ds-input { width: 100%; height: 2.75rem; border: 1px solid #B8B8B8; border-radius: 0.375rem; background: #FFFFFF; color: #18181B; padding: 0.25rem 1rem; font: 400 0.875rem/1.5 Inter, ui-sans-serif, system-ui, sans-serif; transition: border-color 100ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 100ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-input::placeholder { color: #89898F; } .ds-input:focus-visible { border-color: #DC822E; outline: 3px solid rgb(220 130 46 / 0.2); outline-offset: 0; }"
+    },
+    {
+      "name": "Compact Menu",
+      "kind": "nav",
+      "refersTo": "menu-item",
+      "description": "Two to five direct commands in the blessed dropdown density.",
+      "html": "<div class=\"ds-menu\" role=\"menu\" aria-label=\"Record actions\"><button class=\"ds-menu-item\" role=\"menuitem\">Edit</button><button class=\"ds-menu-item\" role=\"menuitem\">Duplicate</button><div class=\"ds-menu-separator\"></div><button class=\"ds-menu-item ds-menu-danger\" role=\"menuitem\">Archive</button></div>",
+      "css": ".ds-menu { width: 14rem; border: 1px solid #E6E6E6; border-radius: 0.5rem; background: #FFFFFF; padding: 0.25rem; box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.04); font-family: Inter, ui-sans-serif, system-ui, sans-serif; } .ds-menu-item { display: flex; width: 100%; min-height: 2rem; align-items: center; border: 0; border-radius: 0.5rem; background: transparent; color: #18181B; padding: 0.375rem 0.5rem; text-align: left; font-size: 0.875rem; line-height: 1.25; } .ds-menu-item:hover, .ds-menu-item:focus-visible { background: #F2F2F2; outline: none; } .ds-menu-danger { color: #B91D1D; } .ds-menu-separator { height: 1px; margin: 0.25rem; background: #E6E6E6; }"
+    },
+    {
+      "name": "Open Section",
+      "kind": "custom",
+      "description": "The default page-section hierarchy without a wrapper card.",
+      "html": "<section class=\"ds-section\"><div class=\"ds-section-heading\"><h2>Open commitments</h2><button type=\"button\">View all</button></div><div class=\"ds-section-content\">Workflow content belongs here.</div></section>",
+      "css": ".ds-section { display: grid; gap: 1rem; color: #18181B; font-family: Inter, ui-sans-serif, system-ui, sans-serif; } .ds-section-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; } .ds-section-heading h2 { margin: 0; font-size: 1.125rem; font-weight: 600; line-height: 1.25; letter-spacing: -0.01em; } .ds-section-heading button { border: 0; background: transparent; color: #606262; font-size: 0.875rem; font-weight: 500; } .ds-section-heading button:hover, .ds-section-heading button:focus-visible { color: #18181B; text-decoration: underline; outline-offset: 3px; } .ds-section-content { border-top: 1px solid #E6E6E6; padding-top: 1rem; color: #606262; font-size: 0.875rem; line-height: 1.5; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Operator's Workbench",
+    "overview": "Alleato is quiet, precise, and operator-grade. Familiar patterns, stable density, restrained color, and direct language keep construction teams focused on the current state, the next correct action, and supporting evidence.",
+    "keyCharacteristics": [
+      "One primary focus per screen",
+      "Open sections and compact metadata",
+      "High density without visual crowding",
+      "One restrained brand accent",
+      "Shared patterns over local invention",
+      "Explicit recovery and quiet success"
+    ],
+    "rules": [
+      {
+        "name": "The Reuse Gate",
+        "body": "Inspect and reuse the canonical owner before creating or copying UI.",
+        "section": "components"
+      },
+      {
+        "name": "The One Accent Rule",
+        "body": "Orange communicates action, selection, or state. It never decorates.",
+        "section": "colors"
+      },
+      {
+        "name": "The Flat-by-Default Rule",
+        "body": "Use content order, typography, spacing, alignment, and dividers before containers or shadows.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Copy Economy Rule",
+        "body": "Do not restate titles or obvious mechanics. Copy must add constraint, consequence, source, or recovery.",
+        "section": "typography"
+      }
+    ],
+    "dos": [
+      "Do design for execution, correction, and source-backed trust.",
+      "Do use semantic tokens and shared primitives.",
+      "Do preserve momentum and user input through failure.",
+      "Do make empty and error states recoverable."
+    ],
+    "donts": [
+      "Don't reproduce Procore-style clutter or gray-on-gray enterprise noise.",
+      "Don't use generic admin-template dashboards, stat-card rows, or filler summaries.",
+      "Don't use playful consumer styling or decoration that competes with operator trust.",
+      "Don't create one-off feature styling, nested cards, or page-level wrapper cards.",
+      "Don't ship silent failures, generic errors, or read-only workflows that look actionable."
+    ]
+  }
+}

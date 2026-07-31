@@ -4,6 +4,7 @@ import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const REPO_ROOT = path.join(import.meta.dirname, "..");
 const TYPES_PATH = path.join(REPO_ROOT, "frontend", "src", "types", "database.types.ts");
@@ -13,7 +14,9 @@ const POSTGRES_META_VERSION = "0.96.6";
 const USE_PACKAGE_SHELL = process.platform === "win32";
 
 function loadEnvFile(relativePath) {
-  const filePath = path.join(REPO_ROOT, relativePath);
+  const filePath = path.isAbsolute(relativePath)
+    ? relativePath
+    : path.join(REPO_ROOT, relativePath);
   if (!fs.existsSync(filePath)) return;
   for (const rawLine of fs.readFileSync(filePath, "utf8").split(/\r?\n/)) {
     const line = rawLine.trim();
@@ -32,6 +35,10 @@ function loadEnvFile(relativePath) {
 }
 
 function ensureEnvLoaded() {
+  loadEnvFile(
+    process.env.ALLEATO_MACHINE_ENV_FILE ||
+      path.join(os.homedir(), ".codex", "capabilities", "alleato-project-management.env"),
+  );
   loadEnvFile(".env");
   loadEnvFile(".env.local");
   loadEnvFile("frontend/.env");
@@ -91,6 +98,13 @@ function generateViaPostgresMeta() {
   }
 }
 
+export function isCliFallbackEligible(summary) {
+  // Keep this narrow so unrelated provider failures remain visible.
+  return /Unauthorized|LegacyGenTypesUnexpectedStatusError|LegacyInvalidAccessTokenError|Invalid access token format|failed to connect to the docker API/i.test(
+    summary,
+  );
+}
+
 function generateTypes() {
   try {
     const generated = generateViaSupabaseCli();
@@ -99,7 +113,7 @@ function generateTypes() {
     const stdout = String(error?.stdout ?? "");
     const stderr = String(error?.stderr ?? "");
     const summary = `${stdout}\n${stderr}`.trim();
-    if (!/Unauthorized|LegacyGenTypesUnexpectedStatusError|failed to connect to the docker API/i.test(summary)) {
+    if (!isCliFallbackEligible(summary)) {
       throw error;
     }
     const generated = generateViaPostgresMeta();
@@ -140,4 +154,6 @@ function main() {
   syncFkMap();
 }
 
-main();
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  main();
+}

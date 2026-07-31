@@ -11,11 +11,28 @@ import {
   projectManagementTools,
   sidebarNavGroups,
   subcontractorTools,
+  trainingNavigationTool,
 } from "@/lib/navigation-config";
 
 const headerTools = headerNavGroups.flatMap((group) => group.tools);
 
 describe("navigation config", () => {
+  it("gates every Commitments entry on the commitments module", () => {
+    const commitmentTools = [
+      ...financialManagementTools,
+      ...subcontractorTools,
+      ...headerTools,
+    ].filter(
+      (tool) =>
+        tool.name === "Commitments" || tool.name === "My Schedule of Values",
+    );
+
+    expect(commitmentTools).toHaveLength(3);
+    expect(commitmentTools.every((tool) => tool.module === "commitments")).toBe(
+      true,
+    );
+  });
+
   // Guardrail: the sidebar/header render each nav array with a React key of
   // `${tool.path}:${tool.name}`. Two entries sharing that key throw the
   // "Encountered two children with the same key" console error and may drop a
@@ -29,7 +46,7 @@ describe("navigation config", () => {
     ["companyWideHeaderTools", companyWideHeaderTools],
     ["developerCompanyAdminTools", developerCompanyAdminTools],
     ...headerNavGroups.map(
-      (group) => [`headerNavGroups:${group.label}`, group.tools] as const
+      (group) => [`headerNavGroups:${group.label}`, group.tools] as const,
     ),
   ])("has no duplicate path:name keys in %s", (_label, tools) => {
     const keys = tools.map((tool) => `${tool.path}:${tool.name}`);
@@ -37,9 +54,11 @@ describe("navigation config", () => {
   });
   it("keeps project status report available to header active-tool matching", () => {
     const financialTool = financialManagementTools.find(
-      (tool) => tool.name === "Project Status Report"
+      (tool) => tool.name === "Project Status Report",
     );
-    const headerTool = headerTools.find((tool) => tool.name === "Project Status Report");
+    const headerTool = headerTools.find(
+      (tool) => tool.name === "Project Status Report",
+    );
 
     expect(financialTool?.path).toBe("project-status-report");
     expect(headerTool).toMatchObject({
@@ -52,10 +71,10 @@ describe("navigation config", () => {
 
   it("marks report surfaces as developer-only", () => {
     const progressReportsTool = projectManagementTools.find(
-      (tool) => tool.name === "Progress Reports"
+      (tool) => tool.name === "Progress Reports",
     );
     const projectStatusReportTool = financialManagementTools.find(
-      (tool) => tool.name === "Project Status Report"
+      (tool) => tool.name === "Project Status Report",
     );
 
     expect(progressReportsTool?.developerOnly).toBe(true);
@@ -78,13 +97,17 @@ describe("navigation config", () => {
     );
 
     expect(tools.some((tool) => tool.name === "Progress Reports")).toBe(false);
-    expect(tools.some((tool) => tool.name === "Project Status Report")).toBe(false);
+    expect(tools.some((tool) => tool.name === "Project Status Report")).toBe(
+      false,
+    );
   });
 
   it("marks company admin navigation as developer-only", () => {
     expect(developerCompanyAdminTools.length).toBeGreaterThan(0);
     expect(
-      developerCompanyAdminTools.every((tool) => tool.developerOnly === true && !tool.adminOnly)
+      developerCompanyAdminTools.every(
+        (tool) => tool.developerOnly === true && !tool.adminOnly,
+      ),
     ).toBe(true);
   });
 
@@ -112,7 +135,9 @@ describe("navigation config", () => {
     );
 
     expect(tools.some((tool) => tool.name === "Admin Dashboard")).toBe(true);
-    expect(tools.some((tool) => tool.name === "Project Intelligence")).toBe(true);
+    expect(tools.some((tool) => tool.name === "Project Intelligence")).toBe(
+      true,
+    );
   });
 
   it("does not show project-scoped admin navigation without a project", () => {
@@ -126,7 +151,9 @@ describe("navigation config", () => {
     );
 
     expect(tools.some((tool) => tool.name === "Admin Dashboard")).toBe(true);
-    expect(tools.some((tool) => tool.name === "Project Intelligence")).toBe(false);
+    expect(tools.some((tool) => tool.name === "Project Intelligence")).toBe(
+      false,
+    );
   });
 
   it("keeps project admin out of project navigation", () => {
@@ -137,7 +164,9 @@ describe("navigation config", () => {
     ];
 
     expect(
-      projectNavTools.filter((tool) => tool.path === "admin" && tool.requiresProject === true),
+      projectNavTools.filter(
+        (tool) => tool.path === "admin" && tool.requiresProject === true,
+      ),
     ).toHaveLength(0);
   });
 
@@ -157,7 +186,9 @@ describe("navigation config", () => {
     );
 
     expect(tools.some((tool) => tool.name === "Progress Reports")).toBe(true);
-    expect(tools.some((tool) => tool.name === "Project Status Report")).toBe(true);
+    expect(tools.some((tool) => tool.name === "Project Status Report")).toBe(
+      true,
+    );
   });
 
   it("points the Schedule header tool at the schedule landing page", () => {
@@ -189,7 +220,9 @@ describe("navigation config", () => {
     const sidebarTool = projectManagementTools.find(
       (tool) => tool.name === "Specifications",
     );
-    const headerTool = headerTools.find((tool) => tool.name === "Specifications");
+    const headerTool = headerTools.find(
+      (tool) => tool.name === "Specifications",
+    );
 
     expect(sidebarTool).toMatchObject({
       name: "Specifications",
@@ -203,7 +236,22 @@ describe("navigation config", () => {
       requiresProject: true,
       module: "documents",
     });
-    expect(buildToolUrl("specifications", 876, true)).toBe("/876/specifications");
+    expect(buildToolUrl("specifications", 876, true)).toBe(
+      "/876/specifications",
+    );
+  });
+
+  it("keeps Training in the sidebar and site tools dropdown", () => {
+    const sidebarTrainingTool = sidebarNavGroups
+      .flatMap((group) => group.tools)
+      .find((tool) => tool.path === "training");
+    const siteToolsTrainingTool = headerTools.find(
+      (tool) => tool.path === "training",
+    );
+
+    expect(sidebarTrainingTool).toBe(trainingNavigationTool);
+    expect(siteToolsTrainingTool).toBe(trainingNavigationTool);
+    expect(buildToolUrl("training", 876, false)).toBe("/training");
   });
 
   it("keeps the AI section available to non-developer users", () => {
@@ -211,9 +259,31 @@ describe("navigation config", () => {
     // users. It must not be marked developerOnly (which would hide its nav link)
     // unless the page + /api/ai-assistant routes also enforce the role server-side.
     const aiTool = companyWideHeaderTools.find((tool) => tool.path === "ai");
+    const brainTool = companyWideHeaderTools.find(
+      (tool) => tool.path === "ai/company-brain",
+    );
+    const companySection = companyWideToolSections.find(
+      (section) => section.label === "Company",
+    );
 
     expect(aiTool).toMatchObject({ name: "Alleato AI", path: "ai" });
     expect(aiTool?.developerOnly).toBeUndefined();
+    expect(brainTool).toMatchObject({
+      name: "Alleato Brain",
+      path: "ai/company-brain",
+      requiresProject: false,
+    });
+    expect(brainTool?.developerOnly).toBeUndefined();
+    expect(companySection?.toolNames).toEqual(
+      expect.arrayContaining(["Alleato AI", "Alleato Brain"]),
+    );
+    expect(
+      buildToolUrl(
+        brainTool?.path ?? "",
+        null,
+        brainTool?.requiresProject,
+      ),
+    ).toBe("/ai/company-brain");
 
     const tools = filterToolsByPermission(
       companyWideHeaderTools,
@@ -225,12 +295,33 @@ describe("navigation config", () => {
     );
 
     expect(tools.some((tool) => tool.name === "Alleato AI")).toBe(true);
+    expect(tools.some((tool) => tool.name === "Alleato Brain")).toBe(true);
+  });
+
+  it("keeps CRM in the company-wide navigation", () => {
+    const crmTool = companyWideHeaderTools.find(
+      (tool) => tool.name === "CRM",
+    );
+    const companySection = companyWideToolSections.find(
+      (section) => section.label === "Company",
+    );
+
+    expect(crmTool).toMatchObject({
+      name: "CRM",
+      path: "crm",
+      requiresProject: false,
+      module: "crm",
+    });
+    expect(companySection?.toolNames).toContain("CRM");
+    expect(buildToolUrl(crmTool?.path ?? "", null, false)).toBe("/crm");
   });
 
   it("keeps company-wide Work tools enabled for non-developer users", () => {
     const expectedTools = [
       { name: "Meetings", path: "meetings", href: "/meetings" },
       { name: "Tasks", path: "tasks", href: "/tasks" },
+      { name: "Recruiting", path: "recruiting", href: "/recruiting" },
+      { name: "Training", path: "training", href: "/training" },
       {
         name: "Documentation",
         path: "https://alleato-docs-site.vercel.app/",
@@ -239,7 +330,9 @@ describe("navigation config", () => {
     ];
 
     for (const expectedTool of expectedTools) {
-      const tool = companyWideHeaderTools.find((candidate) => candidate.name === expectedTool.name);
+      const tool = companyWideHeaderTools.find(
+        (candidate) => candidate.name === expectedTool.name,
+      );
 
       expect(tool).toMatchObject({
         name: expectedTool.name,
@@ -247,7 +340,9 @@ describe("navigation config", () => {
         requiresProject: false,
       });
       expect(tool?.developerOnly).toBeUndefined();
-      expect(buildToolUrl(tool?.path ?? "", null, tool?.requiresProject)).toBe(expectedTool.href);
+      expect(buildToolUrl(tool?.path ?? "", null, tool?.requiresProject)).toBe(
+        expectedTool.href,
+      );
     }
 
     const tools = filterToolsByPermission(
@@ -262,36 +357,15 @@ describe("navigation config", () => {
     for (const expectedTool of expectedTools) {
       expect(tools.some((tool) => tool.name === expectedTool.name)).toBe(true);
     }
-  });
 
-  it("routes project Tasks to Plane Work Items without changing company Tasks", () => {
-    const projectTaskTools = [
-      ...sidebarNavGroups.flatMap((group) => group.tools),
-      ...headerTools,
-    ].filter(
-      (tool) =>
-        tool.name === "Project Tasks" && tool.requiresProject === true,
+    const workSection = companyWideToolSections.find(
+      (section) => section.label === "Work",
     );
-    const companyTasks = companyWideHeaderTools.find(
-      (tool) => tool.name === "Tasks",
-    );
-
-    expect(projectTaskTools).toHaveLength(2);
     expect(
-      projectTaskTools.every((tool) => tool.path === "plane/work-items"),
-    ).toBe(true);
-    expect(companyTasks).toMatchObject({
-      name: "Tasks",
-      path: "tasks",
-      requiresProject: false,
-    });
-    expect(
-      buildToolUrl(
-        companyTasks?.path ?? "",
-        null,
-        companyTasks?.requiresProject,
+      workSection?.toolNames.filter(
+        (name) => name === "Training" || name === "Recruiting",
       ),
-    ).toBe("/tasks");
+    ).toEqual(["Recruiting", "Training"]);
   });
 
   it("allows User Management for configured project leadership roles", () => {
@@ -299,7 +373,11 @@ describe("navigation config", () => {
       (tool) => tool.name === "User Management",
     );
 
-    for (const title of ["Senior Project Manager", "Project Manager", "Superintendent"]) {
+    for (const title of [
+      "Senior Project Manager",
+      "Project Manager",
+      "Superintendent",
+    ]) {
       const tools = filterToolsByPermission(
         userManagementTools,
         null,
@@ -335,10 +413,18 @@ describe("navigation config", () => {
   });
 
   it("keeps removed company-wide surfaces out of company navigation", () => {
-    const removedToolNames = ["Assignment Inbox", "Teams Conversations", "Teams Messages"];
+    const removedToolNames = [
+      "Assignment Inbox",
+      "Teams Conversations",
+      "Teams Messages",
+    ];
     const removedPaths = ["assignment-inbox", "teams-conversations", "files"];
-    const visibleCompanyToolNames = companyWideHeaderTools.map((tool) => tool.name);
-    const visibleCompanyToolPaths = companyWideHeaderTools.map((tool) => tool.path);
+    const visibleCompanyToolNames = companyWideHeaderTools.map(
+      (tool) => tool.name,
+    );
+    const visibleCompanyToolPaths = companyWideHeaderTools.map(
+      (tool) => tool.path,
+    );
     const groupedCompanyToolNames = companyWideToolSections.flatMap(
       (section) => section.toolNames,
     );

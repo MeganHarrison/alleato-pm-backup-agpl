@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-30T14:16:56.797Z",
+  "generatedAt": "2026-07-24T10:39:44.010Z",
   "source": "scripts/docs/generate-app-expert-artifacts.mjs",
-  "routeCount": 364,
+  "routeCount": 343,
   "documentedRouteCount": 52,
   "helpArticleCount": 60,
   "routes": [
@@ -16,7 +16,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.492Z",
+      "lastModified": "2026-07-24T09:58:09.194Z",
       "relatedFeatures": [
         {
           "id": "app-navigation-and-feature-map",
@@ -33,7 +33,7 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/app-navigation-and-feature-map.mdx"
+        "docs/alleato-os-docs/help/articles/app-navigation-and-feature-map.mdx"
       ]
     },
     {
@@ -48,7 +48,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/admin/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.603Z",
+      "lastModified": "2026-07-24T09:58:09.130Z",
       "relatedFeatures": [
         {
           "id": "permissions-admin",
@@ -66,7 +66,7 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/permissions-admin.mdx"
+        "docs/alleato-os-docs/help/articles/permissions-admin.mdx"
       ]
     },
     {
@@ -81,7 +81,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/billing-periods/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.603Z",
+      "lastModified": "2026-07-24T09:58:09.130Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/billing-periods",
@@ -110,7 +110,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/billing-periods/[periodId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.603Z",
+      "lastModified": "2026-07-24T09:58:09.130Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/billing-periods/[periodId]",
@@ -138,7 +138,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/budget/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.622Z",
+      "lastModified": "2026-07-24T09:58:09.131Z",
       "relatedFeatures": [
         {
           "id": "budget-line-items",
@@ -186,9 +186,9 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/budget-line-items.mdx",
-        "backend/src/services/agents/app_expert/runtime/help/articles/budget-overview.mdx",
-        "backend/src/services/agents/app_expert/runtime/help/articles/budget-reference.mdx"
+        "docs/alleato-os-docs/help/articles/budget-line-items.mdx",
+        "docs/alleato-os-docs/help/articles/budget-overview.mdx",
+        "docs/alleato-os-docs/help/articles/budget-reference.mdx"
       ]
     },
     {
@@ -203,7 +203,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/budget/line-item/new/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.620Z",
+      "lastModified": "2026-07-24T09:58:09.131Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/budget/line-item/new",
@@ -231,7 +231,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/budget/setup/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.623Z",
+      "lastModified": "2026-07-24T09:58:09.131Z",
       "relatedFeatures": [
         {
           "id": "budget-reference",
@@ -252,7 +252,7 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/budget-reference.mdx"
+        "docs/alleato-os-docs/help/articles/budget-reference.mdx"
       ]
     },
     {
@@ -267,7 +267,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/change-events/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.636Z",
+      "lastModified": "2026-07-24T09:58:09.133Z",
       "relatedFeatures": [
         {
           "id": "change-event-to-change-order-workflow",
@@ -298,8 +298,8 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/change-event-to-change-order-workflow.mdx",
-        "backend/src/services/agents/app_expert/runtime/help/articles/change-events.mdx"
+        "docs/alleato-os-docs/help/articles/change-event-to-change-order-workflow.mdx",
+        "docs/alleato-os-docs/help/articles/change-events.mdx"
       ]
     },
     {
@@ -315,7 +315,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/change-events/[changeEventId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.623Z",
+      "lastModified": "2026-07-24T09:58:09.132Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/change-events/[changeEventId]",
@@ -344,7 +344,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/change-events/[changeEventId]/edit/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.623Z",
+      "lastModified": "2026-07-24T09:58:09.132Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/change-events/[changeEventId]/edit",
@@ -372,7 +372,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/change-events/new/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.635Z",
+      "lastModified": "2026-07-24T09:58:09.133Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/change-events/new",
@@ -400,7 +400,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/change-management/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.637Z",
+      "lastModified": "2026-07-24T09:58:09.133Z",
       "relatedFeatures": [
         {
           "id": "change-event-to-change-order-workflow",
@@ -418,7 +418,7 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/change-event-to-change-order-workflow.mdx"
+        "docs/alleato-os-docs/help/articles/change-event-to-change-order-workflow.mdx"
       ]
     },
     {
@@ -433,7 +433,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/change-orders/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.644Z",
+      "lastModified": "2026-07-24T09:58:09.135Z",
       "relatedFeatures": [
         {
           "id": "change-event-to-change-order-workflow",
@@ -464,8 +464,8 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/change-event-to-change-order-workflow.mdx",
-        "backend/src/services/agents/app_expert/runtime/help/articles/change-orders.mdx"
+        "docs/alleato-os-docs/help/articles/change-event-to-change-order-workflow.mdx",
+        "docs/alleato-os-docs/help/articles/change-orders.mdx"
       ]
     },
     {
@@ -481,7 +481,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/change-orders/[changeOrderId]/edit/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.637Z",
+      "lastModified": "2026-07-24T09:58:09.133Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/change-orders/[changeOrderId]/edit",
@@ -510,7 +510,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/change-orders/commitment/[commitmentCoId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.637Z",
+      "lastModified": "2026-07-24T09:58:09.134Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/change-orders/commitment/[commitmentCoId]",
@@ -538,7 +538,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/change-orders/commitment/new/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.644Z",
+      "lastModified": "2026-07-24T09:58:09.134Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/change-orders/commitment/new",
@@ -566,7 +566,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/change-orders/new/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.644Z",
+      "lastModified": "2026-07-24T09:58:09.135Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/change-orders/new",
@@ -595,7 +595,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/change-orders/prime/[primeCoId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.644Z",
+      "lastModified": "2026-07-24T09:58:09.136Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/change-orders/prime/[primeCoId]",
@@ -623,7 +623,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/change-orders/prime/new/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.653Z",
+      "lastModified": "2026-07-24T09:58:09.136Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/change-orders/prime/new",
@@ -651,7 +651,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/client-dashboard/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.653Z",
+      "lastModified": "2026-07-24T09:58:09.136Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/client-dashboard",
@@ -679,7 +679,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/commitment-pcos/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.653Z",
+      "lastModified": "2026-07-24T09:58:09.137Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/commitment-pcos",
@@ -708,7 +708,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/commitment-pcos/[pcoId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.653Z",
+      "lastModified": "2026-07-24T09:58:09.137Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/commitment-pcos/[pcoId]",
@@ -736,7 +736,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/commitment-pcos/new/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.653Z",
+      "lastModified": "2026-07-24T09:58:09.137Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/commitment-pcos/new",
@@ -764,7 +764,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/commitments/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.669Z",
+      "lastModified": "2026-07-24T09:58:09.140Z",
       "relatedFeatures": [
         {
           "id": "commitments",
@@ -798,8 +798,8 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/commitments.mdx",
-        "backend/src/services/agents/app_expert/runtime/help/articles/commitments-reference.mdx"
+        "docs/alleato-os-docs/help/articles/commitments.mdx",
+        "docs/alleato-os-docs/help/articles/commitments-reference.mdx"
       ]
     },
     {
@@ -815,7 +815,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/commitments/[commitmentId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.668Z",
+      "lastModified": "2026-07-24T09:58:09.138Z",
       "relatedFeatures": [
         {
           "id": "commitments-reference",
@@ -835,7 +835,7 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/commitments-reference.mdx"
+        "docs/alleato-os-docs/help/articles/commitments-reference.mdx"
       ]
     },
     {
@@ -851,7 +851,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/commitments/[commitmentId]/edit/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.653Z",
+      "lastModified": "2026-07-24T09:58:09.138Z",
       "relatedFeatures": [
         {
           "id": "commitments-reference",
@@ -871,7 +871,7 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/commitments-reference.mdx"
+        "docs/alleato-os-docs/help/articles/commitments-reference.mdx"
       ]
     },
     {
@@ -888,7 +888,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/commitments/[commitmentId]/invoices/[invoiceId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.653Z",
+      "lastModified": "2026-07-24T09:58:09.138Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/commitments/[commitmentId]/invoices/[invoiceId]",
@@ -917,7 +917,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/commitments/[commitmentId]/pcos/new/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.669Z",
+      "lastModified": "2026-07-24T09:58:09.139Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/commitments/[commitmentId]/pcos/new",
@@ -945,7 +945,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/commitments/configure/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.669Z",
+      "lastModified": "2026-07-24T09:58:09.139Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/commitments/configure",
@@ -973,7 +973,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/commitments/new/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.669Z",
+      "lastModified": "2026-07-24T09:58:09.140Z",
       "relatedFeatures": [
         {
           "id": "commitments-reference",
@@ -993,7 +993,7 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/commitments-reference.mdx"
+        "docs/alleato-os-docs/help/articles/commitments-reference.mdx"
       ]
     },
     {
@@ -1008,7 +1008,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/commitments/recycle-bin/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.669Z",
+      "lastModified": "2026-07-24T09:58:09.140Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/commitments/recycle-bin",
@@ -1036,7 +1036,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/commitments/settings/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.669Z",
+      "lastModified": "2026-07-24T09:58:09.140Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/commitments/settings",
@@ -1064,7 +1064,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/daily-log/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.686Z",
+      "lastModified": "2026-07-24T09:58:09.141Z",
       "relatedFeatures": [
         {
           "id": "daily-log",
@@ -1082,7 +1082,7 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/daily-log.mdx"
+        "docs/alleato-os-docs/help/articles/daily-log.mdx"
       ]
     },
     {
@@ -1098,7 +1098,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/daily-log/[dailyLogId]/edit/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.669Z",
+      "lastModified": "2026-07-24T09:58:09.141Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/daily-log/[dailyLogId]/edit",
@@ -1126,7 +1126,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/daily-log/new/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.686Z",
+      "lastModified": "2026-07-24T09:58:09.141Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/daily-log/new",
@@ -1154,7 +1154,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/daily-log/site-lead-checklist/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.686Z",
+      "lastModified": "2026-07-24T09:58:09.141Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/daily-log/site-lead-checklist",
@@ -1182,7 +1182,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/daily-log/site-scribe/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.686Z",
+      "lastModified": "2026-07-24T09:58:09.142Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/daily-log/site-scribe",
@@ -1210,7 +1210,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/direct-costs/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.698Z",
+      "lastModified": "2026-07-24T09:58:09.143Z",
       "relatedFeatures": [
         {
           "id": "direct-costs",
@@ -1227,7 +1227,7 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/direct-costs.mdx"
+        "docs/alleato-os-docs/help/articles/direct-costs.mdx"
       ]
     },
     {
@@ -1243,7 +1243,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/direct-costs/[costId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.686Z",
+      "lastModified": "2026-07-24T09:58:09.142Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/direct-costs/[costId]",
@@ -1271,7 +1271,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/direct-costs/new/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.698Z",
+      "lastModified": "2026-07-24T09:58:09.143Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/direct-costs/new",
@@ -1299,7 +1299,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/directory/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.703Z",
+      "lastModified": "2026-07-24T09:58:09.144Z",
       "relatedFeatures": [
         {
           "id": "project-directory",
@@ -1316,7 +1316,7 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/project-directory.mdx"
+        "docs/alleato-os-docs/help/articles/project-directory.mdx"
       ]
     },
     {
@@ -1331,7 +1331,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/documents/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.703Z",
+      "lastModified": "2026-07-24T09:58:09.145Z",
       "relatedFeatures": [
         {
           "id": "documents",
@@ -1348,7 +1348,7 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/documents.mdx"
+        "docs/alleato-os-docs/help/articles/documents.mdx"
       ]
     },
     {
@@ -1364,7 +1364,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/documents/[documentId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.703Z",
+      "lastModified": "2026-07-24T09:58:09.144Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/documents/[documentId]",
@@ -1392,7 +1392,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/drawings/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.703Z",
+      "lastModified": "2026-07-24T09:58:09.146Z",
       "relatedFeatures": [
         {
           "id": "drawings-viewer",
@@ -1423,8 +1423,8 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/drawings-viewer.mdx",
-        "backend/src/services/agents/app_expert/runtime/help/articles/drawings.mdx"
+        "docs/alleato-os-docs/help/articles/drawings-viewer.mdx",
+        "docs/alleato-os-docs/help/articles/drawings.mdx"
       ]
     },
     {
@@ -1440,7 +1440,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/drawings/[drawingId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.703Z",
+      "lastModified": "2026-07-24T09:58:09.145Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/drawings/[drawingId]",
@@ -1468,7 +1468,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/drawings/areas/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.703Z",
+      "lastModified": "2026-07-24T09:58:09.145Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/drawings/areas",
@@ -1496,7 +1496,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/drawings/board/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.703Z",
+      "lastModified": "2026-07-24T09:58:09.145Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/drawings/board",
@@ -1524,7 +1524,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/drawings/recycle-bin/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.703Z",
+      "lastModified": "2026-07-24T09:58:09.146Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/drawings/recycle-bin",
@@ -1552,7 +1552,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/drawings/revisions-report/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.703Z",
+      "lastModified": "2026-07-24T09:58:09.146Z",
       "relatedFeatures": [
         {
           "id": "drawings",
@@ -1569,7 +1569,7 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/drawings.mdx"
+        "docs/alleato-os-docs/help/articles/drawings.mdx"
       ]
     },
     {
@@ -1584,7 +1584,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/drawings/sets/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.719Z",
+      "lastModified": "2026-07-24T09:58:09.146Z",
       "relatedFeatures": [
         {
           "id": "drawings",
@@ -1601,7 +1601,7 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/drawings.mdx"
+        "docs/alleato-os-docs/help/articles/drawings.mdx"
       ]
     },
     {
@@ -1617,7 +1617,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/drawings/viewer-v2/[drawingId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.719Z",
+      "lastModified": "2026-07-24T09:58:09.147Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/drawings/viewer-v2/[drawingId]",
@@ -1646,7 +1646,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/drawings/viewer/[drawingId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.724Z",
+      "lastModified": "2026-07-24T09:58:09.147Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/drawings/viewer/[drawingId]",
@@ -1674,7 +1674,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/emails/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.724Z",
+      "lastModified": "2026-07-24T09:58:09.149Z",
       "relatedFeatures": [
         {
           "id": "outlook-integration",
@@ -1691,7 +1691,7 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/outlook-integration.mdx"
+        "docs/alleato-os-docs/help/articles/outlook-integration.mdx"
       ]
     },
     {
@@ -1706,7 +1706,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/estimates/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.736Z",
+      "lastModified": "2026-07-24T09:58:09.152Z",
       "relatedFeatures": [
         {
           "id": "estimates",
@@ -1724,7 +1724,7 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/estimates.mdx"
+        "docs/alleato-os-docs/help/articles/estimates.mdx"
       ]
     },
     {
@@ -1740,7 +1740,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/estimates/[estimateId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.736Z",
+      "lastModified": "2026-07-24T09:58:09.150Z",
       "relatedFeatures": [
         {
           "id": "estimates",
@@ -1758,7 +1758,7 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/estimates.mdx"
+        "docs/alleato-os-docs/help/articles/estimates.mdx"
       ]
     },
     {
@@ -1774,7 +1774,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/estimates/[estimateId]/edit/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.724Z",
+      "lastModified": "2026-07-24T10:36:39.141Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/estimates/[estimateId]/edit",
@@ -1802,7 +1802,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/estimates/new/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.736Z",
+      "lastModified": "2026-07-24T09:58:09.152Z",
       "relatedFeatures": [
         {
           "id": "estimates",
@@ -1820,7 +1820,7 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/estimates.mdx"
+        "docs/alleato-os-docs/help/articles/estimates.mdx"
       ]
     },
     {
@@ -1835,7 +1835,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/home/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.736Z",
+      "lastModified": "2026-07-24T09:58:09.152Z",
       "relatedFeatures": [
         {
           "id": "app-navigation-and-feature-map",
@@ -1878,9 +1878,9 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/app-navigation-and-feature-map.mdx",
-        "backend/src/services/agents/app_expert/runtime/help/articles/navigate-projects.mdx",
-        "backend/src/services/agents/app_expert/runtime/help/articles/project-home.mdx"
+        "docs/alleato-os-docs/help/articles/app-navigation-and-feature-map.mdx",
+        "docs/alleato-os-docs/help/articles/navigate-projects.mdx",
+        "docs/alleato-os-docs/help/articles/project-home.mdx"
       ]
     },
     {
@@ -1895,7 +1895,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/hub/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.736Z",
+      "lastModified": "2026-07-24T09:58:09.153Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/hub",
@@ -1923,7 +1923,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/intelligence/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.736Z",
+      "lastModified": "2026-07-24T09:58:09.153Z",
       "relatedFeatures": [
         {
           "id": "ai-capabilities-index",
@@ -1934,8 +1934,7 @@
           "tags": [
             "ai-assistant",
             "ask-alleato",
-            "eve",
-            "skills",
+            "c-suite",
             "rag",
             "intelligence",
             "index",
@@ -1977,9 +1976,9 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/ai-capabilities-index.mdx",
-        "backend/src/services/agents/app_expert/runtime/help/articles/ai-proactive-alerts.mdx",
-        "backend/src/services/agents/app_expert/runtime/help/articles/project-intelligence.mdx"
+        "docs/alleato-os-docs/help/articles/ai-capabilities-index.mdx",
+        "docs/alleato-os-docs/help/articles/ai-proactive-alerts.mdx",
+        "docs/alleato-os-docs/help/articles/project-intelligence.mdx"
       ]
     },
     {
@@ -1995,7 +1994,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/intelligence/sources/[sourceDocumentId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.736Z",
+      "lastModified": "2026-07-24T09:58:09.154Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/intelligence/sources/[sourceDocumentId]",
@@ -2023,7 +2022,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/invoices/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.752Z",
+      "lastModified": "2026-07-24T09:58:09.155Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/invoices",
@@ -2051,7 +2050,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/invoices/new/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.752Z",
+      "lastModified": "2026-07-24T09:58:09.154Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/invoices/new",
@@ -2079,7 +2078,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/invoices/owner/new/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.752Z",
+      "lastModified": "2026-07-24T09:58:09.154Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/invoices/owner/new",
@@ -2107,7 +2106,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/invoicing/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.752Z",
+      "lastModified": "2026-07-24T09:58:09.155Z",
       "relatedFeatures": [
         {
           "id": "invoicing",
@@ -2124,7 +2123,7 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/invoicing.mdx"
+        "docs/alleato-os-docs/help/articles/invoicing.mdx"
       ]
     },
     {
@@ -2140,7 +2139,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/invoicing/[invoiceId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.752Z",
+      "lastModified": "2026-07-24T09:58:09.155Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/invoicing/[invoiceId]",
@@ -2168,7 +2167,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/invoicing/new/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.752Z",
+      "lastModified": "2026-07-24T09:58:09.155Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/invoicing/new",
@@ -2196,7 +2195,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/invoicing/subcontractor/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.752Z",
+      "lastModified": "2026-07-24T09:58:09.156Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/invoicing/subcontractor",
@@ -2225,7 +2224,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/invoicing/subcontractor/[invoiceId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.752Z",
+      "lastModified": "2026-07-24T09:58:09.156Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/invoicing/subcontractor/[invoiceId]",
@@ -2253,7 +2252,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/invoicing/subcontractor/new/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.752Z",
+      "lastModified": "2026-07-24T09:58:09.156Z",
       "relatedFeatures": [
         {
           "id": "submit-invoice",
@@ -2270,7 +2269,7 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/submit-invoice.mdx"
+        "docs/alleato-os-docs/help/articles/submit-invoice.mdx"
       ]
     },
     {
@@ -2285,7 +2284,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/meetings/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.770Z",
+      "lastModified": "2026-07-24T09:58:09.158Z",
       "relatedFeatures": [
         {
           "id": "ai-meeting-intelligence",
@@ -2318,8 +2317,8 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/ai-meeting-intelligence.mdx",
-        "backend/src/services/agents/app_expert/runtime/help/articles/meetings.mdx"
+        "docs/alleato-os-docs/help/articles/ai-meeting-intelligence.mdx",
+        "docs/alleato-os-docs/help/articles/meetings.mdx"
       ]
     },
     {
@@ -2335,7 +2334,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/meetings/[meetingId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.770Z",
+      "lastModified": "2026-07-24T09:58:09.157Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/meetings/[meetingId]",
@@ -2364,7 +2363,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/meetings/[meetingId]/agenda/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.770Z",
+      "lastModified": "2026-07-24T09:58:09.157Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/meetings/[meetingId]/agenda",
@@ -2393,7 +2392,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/meetings/[meetingId]/lineage/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.770Z",
+      "lastModified": "2026-07-24T09:58:09.157Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/meetings/[meetingId]/lineage",
@@ -2422,7 +2421,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/meetings/[meetingId]/prep/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.770Z",
+      "lastModified": "2026-07-24T09:58:09.157Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/meetings/[meetingId]/prep",
@@ -2450,7 +2449,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/meetings/new/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.770Z",
+      "lastModified": "2026-07-24T09:58:09.158Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/meetings/new",
@@ -2478,7 +2477,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/my-work/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.770Z",
+      "lastModified": "2026-07-24T09:58:09.158Z",
       "relatedFeatures": [
         {
           "id": "my-work",
@@ -2497,7 +2496,7 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/my-work.mdx"
+        "docs/alleato-os-docs/help/articles/my-work.mdx"
       ]
     },
     {
@@ -2512,7 +2511,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/pcos/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.786Z",
+      "lastModified": "2026-07-24T09:58:09.159Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/pcos",
@@ -2541,7 +2540,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/pcos/[pcoId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.770Z",
+      "lastModified": "2026-07-24T09:58:09.159Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/pcos/[pcoId]",
@@ -2570,7 +2569,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/pcos/[pcoId]/edit/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.770Z",
+      "lastModified": "2026-07-24T09:58:09.159Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/pcos/[pcoId]/edit",
@@ -2598,7 +2597,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/pcos/new/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.786Z",
+      "lastModified": "2026-07-24T09:58:09.159Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/pcos/new",
@@ -2626,7 +2625,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/permissions/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.786Z",
+      "lastModified": "2026-07-24T09:58:09.159Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/permissions",
@@ -2654,7 +2653,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/photos/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.786Z",
+      "lastModified": "2026-07-24T09:58:09.160Z",
       "relatedFeatures": [
         {
           "id": "photos",
@@ -2672,7 +2671,7 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/photos.mdx"
+        "docs/alleato-os-docs/help/articles/photos.mdx"
       ]
     },
     {
@@ -2687,7 +2686,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/prime-contract-pcos/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.786Z",
+      "lastModified": "2026-07-24T09:58:09.161Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/prime-contract-pcos",
@@ -2716,7 +2715,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/prime-contract-pcos/[pcoId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.786Z",
+      "lastModified": "2026-07-24T09:58:09.161Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/prime-contract-pcos/[pcoId]",
@@ -2745,7 +2744,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/prime-contract-pcos/[pcoId]/edit/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.786Z",
+      "lastModified": "2026-07-24T09:58:09.160Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/prime-contract-pcos/[pcoId]/edit",
@@ -2773,7 +2772,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/prime-contract-pcos/new/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.786Z",
+      "lastModified": "2026-07-24T09:58:09.161Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/prime-contract-pcos/new",
@@ -2801,7 +2800,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/prime-contracts/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.819Z",
+      "lastModified": "2026-07-24T09:58:09.165Z",
       "relatedFeatures": [
         {
           "id": "prime-contracts",
@@ -2818,7 +2817,7 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/prime-contracts.mdx"
+        "docs/alleato-os-docs/help/articles/prime-contracts.mdx"
       ]
     },
     {
@@ -2834,7 +2833,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/prime-contracts/[contractId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.808Z",
+      "lastModified": "2026-07-24T09:58:09.164Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/prime-contracts/[contractId]",
@@ -2864,7 +2863,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/prime-contracts/[contractId]/change-orders/pcos/[pcoId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.786Z",
+      "lastModified": "2026-07-24T09:58:09.162Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/prime-contracts/[contractId]/change-orders/pcos/[pcoId]",
@@ -2894,7 +2893,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/prime-contracts/[contractId]/change-orders/pcos/[pcoId]/edit/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.786Z",
+      "lastModified": "2026-07-24T09:58:09.162Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/prime-contracts/[contractId]/change-orders/pcos/[pcoId]/edit",
@@ -2923,7 +2922,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/prime-contracts/[contractId]/change-orders/pcos/new/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.801Z",
+      "lastModified": "2026-07-24T09:58:09.162Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/prime-contracts/[contractId]/change-orders/pcos/new",
@@ -2952,7 +2951,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/prime-contracts/[contractId]/edit/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.803Z",
+      "lastModified": "2026-07-24T09:58:09.163Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/prime-contracts/[contractId]/edit",
@@ -2982,7 +2981,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/prime-contracts/[contractId]/invoices/[invoiceId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.808Z",
+      "lastModified": "2026-07-24T09:58:09.163Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/prime-contracts/[contractId]/invoices/[invoiceId]",
@@ -3011,7 +3010,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/prime-contracts/[contractId]/invoices/new/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.808Z",
+      "lastModified": "2026-07-24T09:58:09.164Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/prime-contracts/[contractId]/invoices/new",
@@ -3039,7 +3038,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/prime-contracts/change-orders/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.808Z",
+      "lastModified": "2026-07-24T09:58:09.164Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/prime-contracts/change-orders",
@@ -3067,7 +3066,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/prime-contracts/configure/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.808Z",
+      "lastModified": "2026-07-24T09:58:09.165Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/prime-contracts/configure",
@@ -3095,7 +3094,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/prime-contracts/new/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.818Z",
+      "lastModified": "2026-07-24T09:58:09.165Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/prime-contracts/new",
@@ -3123,7 +3122,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/progress-reports/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.819Z",
+      "lastModified": "2026-07-24T09:58:09.166Z",
       "relatedFeatures": [
         {
           "id": "progress-reports",
@@ -3141,7 +3140,7 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/progress-reports.mdx"
+        "docs/alleato-os-docs/help/articles/progress-reports.mdx"
       ]
     },
     {
@@ -3157,7 +3156,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/progress-reports/[reportId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.819Z",
+      "lastModified": "2026-07-24T09:58:09.166Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/progress-reports/[reportId]",
@@ -3185,7 +3184,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/project-status-report/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.819Z",
+      "lastModified": "2026-07-24T09:58:09.166Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/project-status-report",
@@ -3213,7 +3212,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/punch-list/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.819Z",
+      "lastModified": "2026-07-24T09:58:09.167Z",
       "relatedFeatures": [
         {
           "id": "punch-list",
@@ -3230,7 +3229,7 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/punch-list.mdx"
+        "docs/alleato-os-docs/help/articles/punch-list.mdx"
       ]
     },
     {
@@ -3246,7 +3245,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/punch-list/[punchItemId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.819Z",
+      "lastModified": "2026-07-24T09:58:09.167Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/punch-list/[punchItemId]",
@@ -3274,7 +3273,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/reporting/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.829Z",
+      "lastModified": "2026-07-24T09:58:09.168Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/reporting",
@@ -3302,7 +3301,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/rfis/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.835Z",
+      "lastModified": "2026-07-24T09:58:09.169Z",
       "relatedFeatures": [
         {
           "id": "rfis",
@@ -3319,7 +3318,7 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/rfis.mdx"
+        "docs/alleato-os-docs/help/articles/rfis.mdx"
       ]
     },
     {
@@ -3335,7 +3334,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/rfis/[rfiId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.829Z",
+      "lastModified": "2026-07-24T09:58:09.169Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/rfis/[rfiId]",
@@ -3363,7 +3362,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/rfis/new/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.835Z",
+      "lastModified": "2026-07-24T09:58:09.169Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/rfis/new",
@@ -3391,7 +3390,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/schedule/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.836Z",
+      "lastModified": "2026-07-24T09:58:09.171Z",
       "relatedFeatures": [
         {
           "id": "schedule",
@@ -3409,7 +3408,7 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/schedule.mdx"
+        "docs/alleato-os-docs/help/articles/schedule.mdx"
       ]
     },
     {
@@ -3424,7 +3423,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/schedule/import/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.836Z",
+      "lastModified": "2026-07-24T09:58:09.170Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/schedule/import",
@@ -3452,7 +3451,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/setup/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.836Z",
+      "lastModified": "2026-07-24T09:58:09.171Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/setup",
@@ -3480,7 +3479,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/sov/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.836Z",
+      "lastModified": "2026-07-24T09:58:09.171Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/sov",
@@ -3508,7 +3507,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/specifications/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.836Z",
+      "lastModified": "2026-07-24T09:58:09.172Z",
       "relatedFeatures": [
         {
           "id": "specifications",
@@ -3526,7 +3525,7 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/specifications.mdx"
+        "docs/alleato-os-docs/help/articles/specifications.mdx"
       ]
     },
     {
@@ -3542,7 +3541,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/specifications/[sectionId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.836Z",
+      "lastModified": "2026-07-24T09:58:09.172Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/specifications/[sectionId]",
@@ -3570,7 +3569,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/specifications/settings/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.848Z",
+      "lastModified": "2026-07-24T09:58:09.172Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/specifications/settings",
@@ -3598,7 +3597,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/submittals/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.853Z",
+      "lastModified": "2026-07-24T09:58:09.173Z",
       "relatedFeatures": [
         {
           "id": "submittals",
@@ -3615,7 +3614,7 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/submittals.mdx"
+        "docs/alleato-os-docs/help/articles/submittals.mdx"
       ]
     },
     {
@@ -3631,7 +3630,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/submittals/[submittalId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.851Z",
+      "lastModified": "2026-07-24T09:58:09.172Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/submittals/[submittalId]",
@@ -3660,7 +3659,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/submittals/[submittalId]/edit/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.850Z",
+      "lastModified": "2026-07-24T09:58:09.172Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/submittals/[submittalId]/edit",
@@ -3688,7 +3687,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/submittals/new/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.853Z",
+      "lastModified": "2026-07-24T09:58:09.173Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/submittals/new",
@@ -3716,7 +3715,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/tasks/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.853Z",
+      "lastModified": "2026-07-24T09:58:09.173Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/tasks",
@@ -3744,7 +3743,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/tasks/kanban/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.853Z",
+      "lastModified": "2026-07-24T09:58:09.173Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/tasks/kanban",
@@ -3772,7 +3771,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/timeline/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.853Z",
+      "lastModified": "2026-07-24T09:58:09.173Z",
       "relatedFeatures": [
         {
           "id": "route:/[projectId]/timeline",
@@ -3800,7 +3799,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/transmittals/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.853Z",
+      "lastModified": "2026-07-24T09:58:09.174Z",
       "relatedFeatures": [
         {
           "id": "transmittals",
@@ -3817,7 +3816,7 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/transmittals.mdx"
+        "docs/alleato-os-docs/help/articles/transmittals.mdx"
       ]
     },
     {
@@ -3832,7 +3831,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/[projectId]/user-management/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.853Z",
+      "lastModified": "2026-07-24T09:58:09.174Z",
       "relatedFeatures": [
         {
           "id": "manage-permissions",
@@ -3864,8 +3863,8 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/manage-permissions.mdx",
-        "backend/src/services/agents/app_expert/runtime/help/articles/app-permissions-and-visibility.mdx"
+        "docs/alleato-os-docs/help/articles/manage-permissions.mdx",
+        "docs/alleato-os-docs/help/articles/app-permissions-and-visibility.mdx"
       ]
     },
     {
@@ -3878,7 +3877,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/access-denied/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.853Z",
+      "lastModified": "2026-07-24T09:58:09.175Z",
       "relatedFeatures": [
         {
           "id": "route:/access-denied",
@@ -3904,7 +3903,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/accounting/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.353Z",
+      "lastModified": "2026-07-24T09:58:09.096Z",
       "relatedFeatures": [
         {
           "id": "route:/accounting",
@@ -3930,7 +3929,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/accounting/ap-invoices/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.336Z",
+      "lastModified": "2026-07-24T09:58:09.095Z",
       "relatedFeatures": [
         {
           "id": "route:/accounting/ap-invoices",
@@ -3956,7 +3955,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/accounting/ap-payments/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.336Z",
+      "lastModified": "2026-07-24T09:58:09.095Z",
       "relatedFeatures": [
         {
           "id": "route:/accounting/ap-payments",
@@ -3982,7 +3981,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/accounting/bills/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.336Z",
+      "lastModified": "2026-07-24T09:58:09.095Z",
       "relatedFeatures": [
         {
           "id": "route:/accounting/bills",
@@ -4008,7 +4007,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/accounting/checks/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.351Z",
+      "lastModified": "2026-07-24T09:58:09.096Z",
       "relatedFeatures": [
         {
           "id": "route:/accounting/checks",
@@ -4034,7 +4033,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/accounting/direct-costs/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.353Z",
+      "lastModified": "2026-07-24T09:58:09.096Z",
       "relatedFeatures": [
         {
           "id": "route:/accounting/direct-costs",
@@ -4060,7 +4059,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/accounting/finance-spend/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.353Z",
+      "lastModified": "2026-07-24T09:58:09.096Z",
       "relatedFeatures": [
         {
           "id": "route:/accounting/finance-spend",
@@ -4086,7 +4085,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/accounting/invoices/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.353Z",
+      "lastModified": "2026-07-24T09:58:09.096Z",
       "relatedFeatures": [
         {
           "id": "route:/accounting/invoices",
@@ -4112,7 +4111,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/accounting/payments/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.361Z",
+      "lastModified": "2026-07-24T09:58:09.096Z",
       "relatedFeatures": [
         {
           "id": "route:/accounting/payments",
@@ -4138,7 +4137,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/accounting/projects/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.363Z",
+      "lastModified": "2026-07-24T09:58:09.097Z",
       "relatedFeatures": [
         {
           "id": "route:/accounting/projects",
@@ -4164,7 +4163,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/accounting/reconciliation/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.363Z",
+      "lastModified": "2026-07-24T09:58:09.097Z",
       "relatedFeatures": [
         {
           "id": "route:/accounting/reconciliation",
@@ -4190,7 +4189,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/accounting/sop-backlog/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.365Z",
+      "lastModified": "2026-07-24T09:58:09.097Z",
       "relatedFeatures": [
         {
           "id": "route:/accounting/sop-backlog",
@@ -4216,7 +4215,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/accounting/wip/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.367Z",
+      "lastModified": "2026-07-24T09:58:09.097Z",
       "relatedFeatures": [
         {
           "id": "route:/accounting/wip",
@@ -4242,7 +4241,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/actions/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.369Z",
+      "lastModified": "2026-07-24T09:58:09.098Z",
       "relatedFeatures": [
         {
           "id": "route:/actions",
@@ -4268,7 +4267,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/acumatica-sync-logs/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.369Z",
+      "lastModified": "2026-07-24T09:58:09.098Z",
       "relatedFeatures": [
         {
           "id": "route:/acumatica-sync-logs",
@@ -4294,7 +4293,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/admin/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.386Z",
+      "lastModified": "2026-07-24T09:58:09.101Z",
       "relatedFeatures": [
         {
           "id": "route:/admin",
@@ -4320,7 +4319,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/admin-check/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.369Z",
+      "lastModified": "2026-07-24T09:58:09.098Z",
       "relatedFeatures": [
         {
           "id": "route:/admin-check",
@@ -4346,7 +4345,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/admin/commitment-sov-cleanup/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.380Z",
+      "lastModified": "2026-07-24T09:58:09.099Z",
       "relatedFeatures": [
         {
           "id": "route:/admin/commitment-sov-cleanup",
@@ -4372,7 +4371,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/admin/company-info/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.382Z",
+      "lastModified": "2026-07-24T09:58:09.099Z",
       "relatedFeatures": [
         {
           "id": "route:/admin/company-info",
@@ -4398,7 +4397,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/admin/daily-briefs/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.386Z",
+      "lastModified": "2026-07-24T09:58:09.100Z",
       "relatedFeatures": [
         {
           "id": "route:/admin/daily-briefs",
@@ -4426,7 +4425,7 @@
       ],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/admin/daily-briefs/[briefId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.384Z",
+      "lastModified": "2026-07-24T09:58:09.100Z",
       "relatedFeatures": [
         {
           "id": "route:/admin/daily-briefs/[briefId]",
@@ -4452,7 +4451,7 @@
       "dynamicSegments": [],
       "routeGroup": null,
       "appFile": "frontend/src/app/admin/errors/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.622Z",
+      "lastModified": "2026-07-24T09:58:09.202Z",
       "relatedFeatures": [
         {
           "id": "route:/admin/errors",
@@ -4478,7 +4477,33 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/ai/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.936Z",
+      "lastModified": "2026-07-24T09:58:09.180Z",
+      "relatedFeatures": [
+        {
+          "id": "route:/ai",
+          "title": "Ai",
+          "description": "Route discovered from frontend/src/app/(main)/ai/page.tsx. User-facing help article not yet linked.",
+          "status": "route_discovered",
+          "source": "route_inventory",
+          "tags": [
+            "global",
+            "page"
+          ]
+        }
+      ],
+      "relatedHelpArticles": []
+    },
+    {
+      "route": "/ai-assistant",
+      "title": "Ai Assistant",
+      "category": "AI",
+      "type": "chat",
+      "scope": "global",
+      "dynamic": false,
+      "dynamicSegments": [],
+      "routeGroup": "main",
+      "appFile": "frontend/src/app/(main)/ai-assistant/page.tsx",
+      "lastModified": "2026-07-24T09:58:09.176Z",
       "relatedFeatures": [
         {
           "id": "ai-chat-overview",
@@ -4497,30 +4522,20 @@
           ]
         },
         {
-          "id": "ai-assistant-actions",
-          "title": "AI Assistant Actions and Current Limits",
-          "description": "Understand what Eve can read, the governed RFI action available in AI Assistant, and which mutations remain unavailable.",
-          "status": "documented",
-          "source": "help_article",
-          "tags": [
-            "ai-assistant",
-            "eve",
-            "actions",
-            "approvals",
-            "safety"
-          ]
-        },
-        {
           "id": "ai-assistant-overview",
           "title": "AI Assistant Overview",
-          "description": "Understand Ask Alleato — the Eve assistant with six domain skills embedded in the platform.",
+          "description": "Understand Ask Alleato — the multi-agent AI system with C-Suite advisors embedded in the platform.",
           "status": "documented",
           "source": "help_article",
           "tags": [
             "ai-assistant",
             "ask-alleato",
-            "eve",
-            "skills"
+            "c-suite",
+            "cfo",
+            "coo",
+            "cro",
+            "chro",
+            "vpbd"
           ]
         },
         {
@@ -4532,8 +4547,7 @@
           "tags": [
             "ai-assistant",
             "ask-alleato",
-            "eve",
-            "skills",
+            "c-suite",
             "rag",
             "intelligence",
             "index",
@@ -4543,13 +4557,12 @@
         {
           "id": "ai-financial-advisor",
           "title": "Ask the AI About Finances",
-          "description": "Use Eve's financial analysis skill for budgets, margins, cash flow, change order exposure, and live ERP data.",
+          "description": "Use the CFO advisor to analyze budgets, margins, cash flow, change order exposure, and live ERP data from Acumatica.",
           "status": "documented",
           "source": "help_article",
           "tags": [
             "ai-assistant",
-            "eve",
-            "financial-analysis",
+            "cfo",
             "budget",
             "margin",
             "cash-flow",
@@ -4615,9 +4628,25 @@
           ]
         },
         {
+          "id": "ai-assistant-actions",
+          "title": "What the AI Assistant Can Do (Actions)",
+          "description": "The AI assistant can create and update records directly from chat — learn which actions are available and how the confirmation flow works.",
+          "status": "documented",
+          "source": "help_article",
+          "tags": [
+            "ai-assistant",
+            "actions",
+            "create",
+            "rfi",
+            "change-order",
+            "tasks",
+            "confirmation"
+          ]
+        },
+        {
           "id": "app-feature-status-and-limitations",
           "title": "Understand Feature Status",
-          "description": "Learn how Alleato PM distinguishes live, partial, planned, blocked, and inactive app behavior.",
+          "description": "Learn how Alleato PM distinguishes live, partial, planned, blocked, and deprecated app behavior.",
           "status": "documented",
           "source": "help_article",
           "tags": [
@@ -4655,18 +4684,18 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/ai-chat-overview.mdx",
-        "backend/src/services/agents/app_expert/runtime/help/articles/ai-assistant-actions.mdx",
-        "backend/src/services/agents/app_expert/runtime/help/articles/ai-assistant-overview.mdx",
-        "backend/src/services/agents/app_expert/runtime/help/articles/ai-capabilities-index.mdx",
-        "backend/src/services/agents/app_expert/runtime/help/articles/ai-financial-advisor.mdx",
-        "backend/src/services/agents/app_expert/runtime/help/articles/ai-meeting-intelligence.mdx",
-        "backend/src/services/agents/app_expert/runtime/help/articles/ask-the-ai-assistant.mdx",
-        "backend/src/services/agents/app_expert/runtime/help/articles/ai-project-updates.mdx",
-        "backend/src/services/agents/app_expert/runtime/help/articles/self-learning-intelligence-architecture.mdx",
-        "backend/src/services/agents/app_expert/runtime/help/articles/app-feature-status-and-limitations.mdx",
-        "backend/src/services/agents/app_expert/runtime/help/articles/app-navigation-and-feature-map.mdx",
-        "backend/src/services/agents/app_expert/runtime/help/articles/use-help-center-and-ai-assistant.mdx"
+        "docs/alleato-os-docs/help/articles/ai-chat-overview.mdx",
+        "docs/alleato-os-docs/help/articles/ai-assistant-overview.mdx",
+        "docs/alleato-os-docs/help/articles/ai-capabilities-index.mdx",
+        "docs/alleato-os-docs/help/articles/ai-financial-advisor.mdx",
+        "docs/alleato-os-docs/help/articles/ai-meeting-intelligence.mdx",
+        "docs/alleato-os-docs/help/articles/ask-the-ai-assistant.mdx",
+        "docs/alleato-os-docs/help/articles/ai-project-updates.mdx",
+        "docs/alleato-os-docs/help/articles/self-learning-intelligence-architecture.mdx",
+        "docs/alleato-os-docs/help/articles/ai-assistant-actions.mdx",
+        "docs/alleato-os-docs/help/articles/app-feature-status-and-limitations.mdx",
+        "docs/alleato-os-docs/help/articles/app-navigation-and-feature-map.mdx",
+        "docs/alleato-os-docs/help/articles/use-help-center-and-ai-assistant.mdx"
       ]
     },
     {
@@ -4679,7 +4708,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/ai-assistant-debug/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.391Z",
+      "lastModified": "2026-07-24T09:58:09.101Z",
       "relatedFeatures": [
         {
           "id": "route:/ai-assistant-debug",
@@ -4696,6 +4725,112 @@
       "relatedHelpArticles": []
     },
     {
+      "route": "/ai-assistant/feature-requests",
+      "title": "Feature Requests",
+      "category": "AI",
+      "type": "chat",
+      "scope": "global",
+      "dynamic": false,
+      "dynamicSegments": [],
+      "routeGroup": "main",
+      "appFile": "frontend/src/app/(main)/ai-assistant/feature-requests/page.tsx",
+      "lastModified": "2026-07-24T09:58:09.176Z",
+      "relatedFeatures": [
+        {
+          "id": "route:/ai-assistant/feature-requests",
+          "title": "Feature Requests",
+          "description": "Route discovered from frontend/src/app/(main)/ai-assistant/feature-requests/page.tsx. User-facing help article not yet linked.",
+          "status": "route_discovered",
+          "source": "route_inventory",
+          "tags": [
+            "global",
+            "chat"
+          ]
+        }
+      ],
+      "relatedHelpArticles": []
+    },
+    {
+      "route": "/ai-assistant/feature-requests/[requestId]",
+      "title": "Feature Requests",
+      "category": "AI",
+      "type": "chat",
+      "scope": "global",
+      "dynamic": true,
+      "dynamicSegments": [
+        "requestId"
+      ],
+      "routeGroup": "main",
+      "appFile": "frontend/src/app/(main)/ai-assistant/feature-requests/[requestId]/page.tsx",
+      "lastModified": "2026-07-24T09:58:09.176Z",
+      "relatedFeatures": [
+        {
+          "id": "route:/ai-assistant/feature-requests/[requestId]",
+          "title": "Feature Requests",
+          "description": "Route discovered from frontend/src/app/(main)/ai-assistant/feature-requests/[requestId]/page.tsx. User-facing help article not yet linked.",
+          "status": "route_discovered",
+          "source": "route_inventory",
+          "tags": [
+            "global",
+            "chat"
+          ]
+        }
+      ],
+      "relatedHelpArticles": []
+    },
+    {
+      "route": "/ai-assistant/marketing",
+      "title": "Marketing",
+      "category": "AI",
+      "type": "chat",
+      "scope": "global",
+      "dynamic": false,
+      "dynamicSegments": [],
+      "routeGroup": "main",
+      "appFile": "frontend/src/app/(main)/ai-assistant/marketing/page.tsx",
+      "lastModified": "2026-07-24T09:58:09.176Z",
+      "relatedFeatures": [
+        {
+          "id": "route:/ai-assistant/marketing",
+          "title": "Marketing",
+          "description": "Route discovered from frontend/src/app/(main)/ai-assistant/marketing/page.tsx. User-facing help article not yet linked.",
+          "status": "route_discovered",
+          "source": "route_inventory",
+          "tags": [
+            "global",
+            "chat"
+          ]
+        }
+      ],
+      "relatedHelpArticles": []
+    },
+    {
+      "route": "/ai-assistant/teach",
+      "title": "Teach",
+      "category": "AI",
+      "type": "chat",
+      "scope": "global",
+      "dynamic": false,
+      "dynamicSegments": [],
+      "routeGroup": "main",
+      "appFile": "frontend/src/app/(main)/ai-assistant/teach/page.tsx",
+      "lastModified": "2026-07-24T09:58:09.176Z",
+      "relatedFeatures": [
+        {
+          "id": "route:/ai-assistant/teach",
+          "title": "Teach",
+          "description": "Route discovered from frontend/src/app/(main)/ai-assistant/teach/page.tsx. User-facing help article not yet linked.",
+          "status": "route_discovered",
+          "source": "route_inventory",
+          "tags": [
+            "global",
+            "chat"
+          ]
+        }
+      ],
+      "relatedHelpArticles": []
+    },
+    {
       "route": "/ai-avatar",
       "title": "Ai Avatar",
       "category": "Main",
@@ -4705,7 +4840,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/ai-avatar/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.869Z",
+      "lastModified": "2026-07-24T09:58:09.176Z",
       "relatedFeatures": [
         {
           "id": "route:/ai-avatar",
@@ -4731,7 +4866,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/ai-chat-history/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.395Z",
+      "lastModified": "2026-07-24T09:58:09.101Z",
       "relatedFeatures": [
         {
           "id": "route:/ai-chat-history",
@@ -4757,7 +4892,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/ai-dashboard/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.907Z",
+      "lastModified": "2026-07-24T09:58:09.179Z",
       "relatedFeatures": [
         {
           "id": "route:/ai-dashboard",
@@ -4783,7 +4918,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/ai-dashboard/accounting/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.876Z",
+      "lastModified": "2026-07-24T09:58:09.177Z",
       "relatedFeatures": [
         {
           "id": "route:/ai-dashboard/accounting",
@@ -4809,7 +4944,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/ai-dashboard/accounting/cash-flow/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.876Z",
+      "lastModified": "2026-07-24T09:58:09.177Z",
       "relatedFeatures": [
         {
           "id": "route:/ai-dashboard/accounting/cash-flow",
@@ -4835,7 +4970,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/ai-dashboard/accounting/reconciliation/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.876Z",
+      "lastModified": "2026-07-24T09:58:09.177Z",
       "relatedFeatures": [
         {
           "id": "route:/ai-dashboard/accounting/reconciliation",
@@ -4861,7 +4996,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/ai-dashboard/accounting/wip/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.884Z",
+      "lastModified": "2026-07-24T09:58:09.177Z",
       "relatedFeatures": [
         {
           "id": "route:/ai-dashboard/accounting/wip",
@@ -4887,7 +5022,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/ai-dashboard/ai-os/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.886Z",
+      "lastModified": "2026-07-24T09:58:09.178Z",
       "relatedFeatures": [
         {
           "id": "route:/ai-dashboard/ai-os",
@@ -4913,7 +5048,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/ai-dashboard/architecture/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.893Z",
+      "lastModified": "2026-07-24T09:58:09.178Z",
       "relatedFeatures": [
         {
           "id": "route:/ai-dashboard/architecture",
@@ -4939,7 +5074,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/ai-dashboard/architecture/changes/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.893Z",
+      "lastModified": "2026-07-24T09:58:09.178Z",
       "relatedFeatures": [
         {
           "id": "route:/ai-dashboard/architecture/changes",
@@ -4965,7 +5100,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/ai-dashboard/company-brain/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.893Z",
+      "lastModified": "2026-07-24T09:58:09.179Z",
       "relatedFeatures": [
         {
           "id": "route:/ai-dashboard/company-brain",
@@ -4991,7 +5126,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/ai-dashboard/decisions/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.902Z",
+      "lastModified": "2026-07-24T09:58:09.179Z",
       "relatedFeatures": [
         {
           "id": "route:/ai-dashboard/decisions",
@@ -5017,12 +5152,38 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/ai-dashboard/projects/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.908Z",
+      "lastModified": "2026-07-24T09:58:09.179Z",
       "relatedFeatures": [
         {
           "id": "route:/ai-dashboard/projects",
           "title": "Projects",
           "description": "Route discovered from frontend/src/app/(main)/ai-dashboard/projects/page.tsx. User-facing help article not yet linked.",
+          "status": "route_discovered",
+          "source": "route_inventory",
+          "tags": [
+            "global",
+            "dashboard"
+          ]
+        }
+      ],
+      "relatedHelpArticles": []
+    },
+    {
+      "route": "/ai-dashboard/rag-pipeline",
+      "title": "Rag Pipeline",
+      "category": "Main",
+      "type": "dashboard",
+      "scope": "global",
+      "dynamic": false,
+      "dynamicSegments": [],
+      "routeGroup": "main",
+      "appFile": "frontend/src/app/(main)/ai-dashboard/rag-pipeline/page.tsx",
+      "lastModified": "2026-07-24T09:58:09.179Z",
+      "relatedFeatures": [
+        {
+          "id": "route:/ai-dashboard/rag-pipeline",
+          "title": "Rag Pipeline",
+          "description": "Route discovered from frontend/src/app/(main)/ai-dashboard/rag-pipeline/page.tsx. User-facing help article not yet linked.",
           "status": "route_discovered",
           "source": "route_inventory",
           "tags": [
@@ -5043,7 +5204,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/ai-prompt-diagnostics/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.397Z",
+      "lastModified": "2026-07-24T09:58:09.101Z",
       "relatedFeatures": [
         {
           "id": "route:/ai-prompt-diagnostics",
@@ -5069,7 +5230,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/ai-system-health/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.399Z",
+      "lastModified": "2026-07-24T09:58:09.101Z",
       "relatedFeatures": [
         {
           "id": "route:/ai-system-health",
@@ -5095,7 +5256,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/ai-vision/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.401Z",
+      "lastModified": "2026-07-24T09:58:09.102Z",
       "relatedFeatures": [
         {
           "id": "route:/ai-vision",
@@ -5121,7 +5282,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/ai/admin/agents/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.403Z",
+      "lastModified": "2026-07-24T09:58:09.102Z",
       "relatedFeatures": [
         {
           "id": "route:/ai/admin/agents",
@@ -5147,7 +5308,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/ai/admin/skills/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.403Z",
+      "lastModified": "2026-07-24T09:58:09.102Z",
       "relatedFeatures": [
         {
           "id": "route:/ai/admin/skills",
@@ -5173,7 +5334,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/ai/approvals/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.916Z",
+      "lastModified": "2026-07-24T09:58:09.180Z",
       "relatedFeatures": [
         {
           "id": "route:/ai/approvals",
@@ -5199,7 +5360,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/ai/email-learning/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.403Z",
+      "lastModified": "2026-07-24T09:58:09.102Z",
       "relatedFeatures": [
         {
           "id": "route:/ai/email-learning",
@@ -5216,268 +5377,6 @@
       "relatedHelpArticles": []
     },
     {
-      "route": "/ai/feature-requests",
-      "title": "Feature Requests",
-      "category": "Main",
-      "type": "page",
-      "scope": "global",
-      "dynamic": false,
-      "dynamicSegments": [],
-      "routeGroup": "main",
-      "appFile": "frontend/src/app/(main)/ai/feature-requests/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.919Z",
-      "relatedFeatures": [
-        {
-          "id": "route:/ai/feature-requests",
-          "title": "Feature Requests",
-          "description": "Route discovered from frontend/src/app/(main)/ai/feature-requests/page.tsx. User-facing help article not yet linked.",
-          "status": "route_discovered",
-          "source": "route_inventory",
-          "tags": [
-            "global",
-            "page"
-          ]
-        }
-      ],
-      "relatedHelpArticles": []
-    },
-    {
-      "route": "/ai/feature-requests/[requestId]",
-      "title": "Feature Requests",
-      "category": "Main",
-      "type": "page",
-      "scope": "global",
-      "dynamic": true,
-      "dynamicSegments": [
-        "requestId"
-      ],
-      "routeGroup": "main",
-      "appFile": "frontend/src/app/(main)/ai/feature-requests/[requestId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.918Z",
-      "relatedFeatures": [
-        {
-          "id": "route:/ai/feature-requests/[requestId]",
-          "title": "Feature Requests",
-          "description": "Route discovered from frontend/src/app/(main)/ai/feature-requests/[requestId]/page.tsx. User-facing help article not yet linked.",
-          "status": "route_discovered",
-          "source": "route_inventory",
-          "tags": [
-            "global",
-            "page"
-          ]
-        }
-      ],
-      "relatedHelpArticles": []
-    },
-    {
-      "route": "/ai/features",
-      "title": "Features",
-      "category": "Main",
-      "type": "page",
-      "scope": "global",
-      "dynamic": false,
-      "dynamicSegments": [],
-      "routeGroup": "main",
-      "appFile": "frontend/src/app/(main)/ai/features/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.926Z",
-      "relatedFeatures": [
-        {
-          "id": "route:/ai/features",
-          "title": "Features",
-          "description": "Route discovered from frontend/src/app/(main)/ai/features/page.tsx. User-facing help article not yet linked.",
-          "status": "route_discovered",
-          "source": "route_inventory",
-          "tags": [
-            "global",
-            "page"
-          ]
-        }
-      ],
-      "relatedHelpArticles": []
-    },
-    {
-      "route": "/ai/features/ai-profile",
-      "title": "Ai Profile",
-      "category": "Main",
-      "type": "page",
-      "scope": "global",
-      "dynamic": false,
-      "dynamicSegments": [],
-      "routeGroup": "main",
-      "appFile": "frontend/src/app/(main)/ai/features/ai-profile/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.921Z",
-      "relatedFeatures": [
-        {
-          "id": "route:/ai/features/ai-profile",
-          "title": "Ai Profile",
-          "description": "Route discovered from frontend/src/app/(main)/ai/features/ai-profile/page.tsx. User-facing help article not yet linked.",
-          "status": "route_discovered",
-          "source": "route_inventory",
-          "tags": [
-            "global",
-            "page"
-          ]
-        }
-      ],
-      "relatedHelpArticles": []
-    },
-    {
-      "route": "/ai/features/approvals",
-      "title": "Approvals",
-      "category": "Main",
-      "type": "page",
-      "scope": "global",
-      "dynamic": false,
-      "dynamicSegments": [],
-      "routeGroup": "main",
-      "appFile": "frontend/src/app/(main)/ai/features/approvals/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.922Z",
-      "relatedFeatures": [
-        {
-          "id": "route:/ai/features/approvals",
-          "title": "Approvals",
-          "description": "Route discovered from frontend/src/app/(main)/ai/features/approvals/page.tsx. User-facing help article not yet linked.",
-          "status": "route_discovered",
-          "source": "route_inventory",
-          "tags": [
-            "global",
-            "page"
-          ]
-        }
-      ],
-      "relatedHelpArticles": []
-    },
-    {
-      "route": "/ai/features/assistant",
-      "title": "Assistant",
-      "category": "Main",
-      "type": "page",
-      "scope": "global",
-      "dynamic": false,
-      "dynamicSegments": [],
-      "routeGroup": "main",
-      "appFile": "frontend/src/app/(main)/ai/features/assistant/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.923Z",
-      "relatedFeatures": [
-        {
-          "id": "route:/ai/features/assistant",
-          "title": "Assistant",
-          "description": "Route discovered from frontend/src/app/(main)/ai/features/assistant/page.tsx. User-facing help article not yet linked.",
-          "status": "route_discovered",
-          "source": "route_inventory",
-          "tags": [
-            "global",
-            "page"
-          ]
-        }
-      ],
-      "relatedHelpArticles": []
-    },
-    {
-      "route": "/ai/features/memory-center",
-      "title": "Memory Center",
-      "category": "Main",
-      "type": "page",
-      "scope": "global",
-      "dynamic": false,
-      "dynamicSegments": [],
-      "routeGroup": "main",
-      "appFile": "frontend/src/app/(main)/ai/features/memory-center/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.925Z",
-      "relatedFeatures": [
-        {
-          "id": "route:/ai/features/memory-center",
-          "title": "Memory Center",
-          "description": "Route discovered from frontend/src/app/(main)/ai/features/memory-center/page.tsx. User-facing help article not yet linked.",
-          "status": "route_discovered",
-          "source": "route_inventory",
-          "tags": [
-            "global",
-            "page"
-          ]
-        }
-      ],
-      "relatedHelpArticles": []
-    },
-    {
-      "route": "/ai/features/project-cost-allocation-wip",
-      "title": "Project Cost Allocation Wip",
-      "category": "Main",
-      "type": "page",
-      "scope": "global",
-      "dynamic": false,
-      "dynamicSegments": [],
-      "routeGroup": "main",
-      "appFile": "frontend/src/app/(main)/ai/features/project-cost-allocation-wip/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.930Z",
-      "relatedFeatures": [
-        {
-          "id": "route:/ai/features/project-cost-allocation-wip",
-          "title": "Project Cost Allocation Wip",
-          "description": "Route discovered from frontend/src/app/(main)/ai/features/project-cost-allocation-wip/page.tsx. User-facing help article not yet linked.",
-          "status": "route_discovered",
-          "source": "route_inventory",
-          "tags": [
-            "global",
-            "page"
-          ]
-        }
-      ],
-      "relatedHelpArticles": []
-    },
-    {
-      "route": "/ai/features/skill-library",
-      "title": "Skill Library",
-      "category": "Main",
-      "type": "page",
-      "scope": "global",
-      "dynamic": false,
-      "dynamicSegments": [],
-      "routeGroup": "main",
-      "appFile": "frontend/src/app/(main)/ai/features/skill-library/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.931Z",
-      "relatedFeatures": [
-        {
-          "id": "route:/ai/features/skill-library",
-          "title": "Skill Library",
-          "description": "Route discovered from frontend/src/app/(main)/ai/features/skill-library/page.tsx. User-facing help article not yet linked.",
-          "status": "route_discovered",
-          "source": "route_inventory",
-          "tags": [
-            "global",
-            "page"
-          ]
-        }
-      ],
-      "relatedHelpArticles": []
-    },
-    {
-      "route": "/ai/features/teach-alleato",
-      "title": "Teach Alleato",
-      "category": "Main",
-      "type": "page",
-      "scope": "global",
-      "dynamic": false,
-      "dynamicSegments": [],
-      "routeGroup": "main",
-      "appFile": "frontend/src/app/(main)/ai/features/teach-alleato/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.932Z",
-      "relatedFeatures": [
-        {
-          "id": "route:/ai/features/teach-alleato",
-          "title": "Teach Alleato",
-          "description": "Route discovered from frontend/src/app/(main)/ai/features/teach-alleato/page.tsx. User-facing help article not yet linked.",
-          "status": "route_discovered",
-          "source": "route_inventory",
-          "tags": [
-            "global",
-            "page"
-          ]
-        }
-      ],
-      "relatedHelpArticles": []
-    },
-    {
       "route": "/ai/learning-promotions",
       "title": "Learning Promotions",
       "category": "Admin",
@@ -5487,7 +5386,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/ai/learning-promotions/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.403Z",
+      "lastModified": "2026-07-24T09:58:09.103Z",
       "relatedFeatures": [
         {
           "id": "route:/ai/learning-promotions",
@@ -5504,32 +5403,6 @@
       "relatedHelpArticles": []
     },
     {
-      "route": "/ai/marketing",
-      "title": "Marketing",
-      "category": "Main",
-      "type": "page",
-      "scope": "global",
-      "dynamic": false,
-      "dynamicSegments": [],
-      "routeGroup": "main",
-      "appFile": "frontend/src/app/(main)/ai/marketing/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.934Z",
-      "relatedFeatures": [
-        {
-          "id": "route:/ai/marketing",
-          "title": "Marketing",
-          "description": "Route discovered from frontend/src/app/(main)/ai/marketing/page.tsx. User-facing help article not yet linked.",
-          "status": "route_discovered",
-          "source": "route_inventory",
-          "tags": [
-            "global",
-            "page"
-          ]
-        }
-      ],
-      "relatedHelpArticles": []
-    },
-    {
       "route": "/ai/profile",
       "title": "Profile",
       "category": "Main",
@@ -5539,7 +5412,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/ai/profile/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.936Z",
+      "lastModified": "2026-07-24T09:58:09.180Z",
       "relatedFeatures": [
         {
           "id": "route:/ai/profile",
@@ -5565,7 +5438,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/ai/skills/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.936Z",
+      "lastModified": "2026-07-24T09:58:09.180Z",
       "relatedFeatures": [
         {
           "id": "route:/ai/skills",
@@ -5591,7 +5464,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/ai/teach/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.936Z",
+      "lastModified": "2026-07-24T09:58:09.180Z",
       "relatedFeatures": [
         {
           "id": "route:/ai/teach",
@@ -5617,7 +5490,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/analytics/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.403Z",
+      "lastModified": "2026-07-24T09:58:09.103Z",
       "relatedFeatures": [
         {
           "id": "route:/analytics",
@@ -5643,7 +5516,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/annotation-inbox/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.418Z",
+      "lastModified": "2026-07-24T09:58:09.103Z",
       "relatedFeatures": [
         {
           "id": "route:/annotation-inbox",
@@ -5669,7 +5542,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/api-docs/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.419Z",
+      "lastModified": "2026-07-24T09:58:09.103Z",
       "relatedFeatures": [
         {
           "id": "route:/api-docs",
@@ -5686,194 +5559,6 @@
       "relatedHelpArticles": []
     },
     {
-      "route": "/asrs",
-      "title": "Asrs",
-      "category": "Main",
-      "type": "page",
-      "scope": "global",
-      "dynamic": false,
-      "dynamicSegments": [],
-      "routeGroup": "main",
-      "appFile": "frontend/src/app/(main)/asrs/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.936Z",
-      "relatedFeatures": [
-        {
-          "id": "route:/asrs",
-          "title": "Asrs",
-          "description": "Route discovered from frontend/src/app/(main)/asrs/page.tsx. User-facing help article not yet linked.",
-          "status": "route_discovered",
-          "source": "route_inventory",
-          "tags": [
-            "global",
-            "page"
-          ]
-        }
-      ],
-      "relatedHelpArticles": []
-    },
-    {
-      "route": "/asrs/figures",
-      "title": "Figures",
-      "category": "Main",
-      "type": "page",
-      "scope": "global",
-      "dynamic": false,
-      "dynamicSegments": [],
-      "routeGroup": "main",
-      "appFile": "frontend/src/app/(main)/asrs/figures/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.936Z",
-      "relatedFeatures": [
-        {
-          "id": "route:/asrs/figures",
-          "title": "Figures",
-          "description": "Route discovered from frontend/src/app/(main)/asrs/figures/page.tsx. User-facing help article not yet linked.",
-          "status": "route_discovered",
-          "source": "route_inventory",
-          "tags": [
-            "global",
-            "page"
-          ]
-        }
-      ],
-      "relatedHelpArticles": []
-    },
-    {
-      "route": "/asrs/figures/[figureId]",
-      "title": "Figures",
-      "category": "Main",
-      "type": "page",
-      "scope": "global",
-      "dynamic": true,
-      "dynamicSegments": [
-        "figureId"
-      ],
-      "routeGroup": "main",
-      "appFile": "frontend/src/app/(main)/asrs/figures/[figureId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.936Z",
-      "relatedFeatures": [
-        {
-          "id": "route:/asrs/figures/[figureId]",
-          "title": "Figures",
-          "description": "Route discovered from frontend/src/app/(main)/asrs/figures/[figureId]/page.tsx. User-facing help article not yet linked.",
-          "status": "route_discovered",
-          "source": "route_inventory",
-          "tags": [
-            "global",
-            "page"
-          ]
-        }
-      ],
-      "relatedHelpArticles": []
-    },
-    {
-      "route": "/asrs/intake",
-      "title": "Intake",
-      "category": "Main",
-      "type": "page",
-      "scope": "global",
-      "dynamic": false,
-      "dynamicSegments": [],
-      "routeGroup": "main",
-      "appFile": "frontend/src/app/(main)/asrs/intake/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.936Z",
-      "relatedFeatures": [
-        {
-          "id": "route:/asrs/intake",
-          "title": "Intake",
-          "description": "Route discovered from frontend/src/app/(main)/asrs/intake/page.tsx. User-facing help article not yet linked.",
-          "status": "route_discovered",
-          "source": "route_inventory",
-          "tags": [
-            "global",
-            "page"
-          ]
-        }
-      ],
-      "relatedHelpArticles": []
-    },
-    {
-      "route": "/asrs/intake/submitted/[submissionId]",
-      "title": "Submitted",
-      "category": "Main",
-      "type": "page",
-      "scope": "global",
-      "dynamic": true,
-      "dynamicSegments": [
-        "submissionId"
-      ],
-      "routeGroup": "main",
-      "appFile": "frontend/src/app/(main)/asrs/intake/submitted/[submissionId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.936Z",
-      "relatedFeatures": [
-        {
-          "id": "route:/asrs/intake/submitted/[submissionId]",
-          "title": "Submitted",
-          "description": "Route discovered from frontend/src/app/(main)/asrs/intake/submitted/[submissionId]/page.tsx. User-facing help article not yet linked.",
-          "status": "route_discovered",
-          "source": "route_inventory",
-          "tags": [
-            "global",
-            "page"
-          ]
-        }
-      ],
-      "relatedHelpArticles": []
-    },
-    {
-      "route": "/asrs/tables",
-      "title": "Tables",
-      "category": "Main",
-      "type": "page",
-      "scope": "global",
-      "dynamic": false,
-      "dynamicSegments": [],
-      "routeGroup": "main",
-      "appFile": "frontend/src/app/(main)/asrs/tables/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.946Z",
-      "relatedFeatures": [
-        {
-          "id": "route:/asrs/tables",
-          "title": "Tables",
-          "description": "Route discovered from frontend/src/app/(main)/asrs/tables/page.tsx. User-facing help article not yet linked.",
-          "status": "route_discovered",
-          "source": "route_inventory",
-          "tags": [
-            "global",
-            "page"
-          ]
-        }
-      ],
-      "relatedHelpArticles": []
-    },
-    {
-      "route": "/asrs/tables/[tableId]",
-      "title": "Tables",
-      "category": "Main",
-      "type": "page",
-      "scope": "global",
-      "dynamic": true,
-      "dynamicSegments": [
-        "tableId"
-      ],
-      "routeGroup": "main",
-      "appFile": "frontend/src/app/(main)/asrs/tables/[tableId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.936Z",
-      "relatedFeatures": [
-        {
-          "id": "route:/asrs/tables/[tableId]",
-          "title": "Tables",
-          "description": "Route discovered from frontend/src/app/(main)/asrs/tables/[tableId]/page.tsx. User-facing help article not yet linked.",
-          "status": "route_discovered",
-          "source": "route_inventory",
-          "tags": [
-            "global",
-            "page"
-          ]
-        }
-      ],
-      "relatedHelpArticles": []
-    },
-    {
       "route": "/assignment-inbox",
       "title": "Assignment Inbox",
       "category": "Tables",
@@ -5883,7 +5568,7 @@
       "dynamicSegments": [],
       "routeGroup": "tables",
       "appFile": "frontend/src/app/(tables)/assignment-inbox/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.584Z",
+      "lastModified": "2026-07-24T09:58:09.197Z",
       "relatedFeatures": [
         {
           "id": "route:/assignment-inbox",
@@ -5909,7 +5594,7 @@
       "dynamicSegments": [],
       "routeGroup": null,
       "appFile": "frontend/src/app/auth/ai-change-event-preview-card/page.tsx",
-      "lastModified": "2026-07-30T13:15:51.986Z",
+      "lastModified": "2026-07-24T09:58:09.351Z",
       "relatedFeatures": [
         {
           "id": "route:/auth/ai-change-event-preview-card",
@@ -5935,7 +5620,7 @@
       "dynamicSegments": [],
       "routeGroup": null,
       "appFile": "frontend/src/app/auth/ai-widget-gallery/page.tsx",
-      "lastModified": "2026-07-30T13:15:51.988Z",
+      "lastModified": "2026-07-24T09:58:09.352Z",
       "relatedFeatures": [
         {
           "id": "route:/auth/ai-widget-gallery",
@@ -5961,7 +5646,7 @@
       "dynamicSegments": [],
       "routeGroup": null,
       "appFile": "frontend/src/app/auth/confirm/page.tsx",
-      "lastModified": "2026-07-30T13:15:51.990Z",
+      "lastModified": "2026-07-24T09:58:09.352Z",
       "relatedFeatures": [
         {
           "id": "route:/auth/confirm",
@@ -5987,7 +5672,7 @@
       "dynamicSegments": [],
       "routeGroup": null,
       "appFile": "frontend/src/app/auth/error/page.tsx",
-      "lastModified": "2026-07-30T13:15:51.991Z",
+      "lastModified": "2026-07-24T09:58:09.352Z",
       "relatedFeatures": [
         {
           "id": "route:/auth/error",
@@ -6013,7 +5698,7 @@
       "dynamicSegments": [],
       "routeGroup": null,
       "appFile": "frontend/src/app/auth/forgot-password/page.tsx",
-      "lastModified": "2026-07-30T13:15:51.992Z",
+      "lastModified": "2026-07-24T09:58:09.352Z",
       "relatedFeatures": [
         {
           "id": "route:/auth/forgot-password",
@@ -6039,64 +5724,12 @@
       "dynamicSegments": [],
       "routeGroup": null,
       "appFile": "frontend/src/app/auth/login/page.tsx",
-      "lastModified": "2026-07-30T13:15:51.997Z",
+      "lastModified": "2026-07-24T09:58:09.352Z",
       "relatedFeatures": [
         {
           "id": "route:/auth/login",
           "title": "Login",
           "description": "Route discovered from frontend/src/app/auth/login/page.tsx. User-facing help article not yet linked.",
-          "status": "route_discovered",
-          "source": "route_inventory",
-          "tags": [
-            "auth",
-            "page"
-          ]
-        }
-      ],
-      "relatedHelpArticles": []
-    },
-    {
-      "route": "/auth/login-v2",
-      "title": "Login V2",
-      "category": "Authentication",
-      "type": "page",
-      "scope": "auth",
-      "dynamic": false,
-      "dynamicSegments": [],
-      "routeGroup": null,
-      "appFile": "frontend/src/app/auth/login-v2/page.tsx",
-      "lastModified": "2026-07-30T13:15:51.994Z",
-      "relatedFeatures": [
-        {
-          "id": "route:/auth/login-v2",
-          "title": "Login V2",
-          "description": "Route discovered from frontend/src/app/auth/login-v2/page.tsx. User-facing help article not yet linked.",
-          "status": "route_discovered",
-          "source": "route_inventory",
-          "tags": [
-            "auth",
-            "page"
-          ]
-        }
-      ],
-      "relatedHelpArticles": []
-    },
-    {
-      "route": "/auth/login-v3",
-      "title": "Login V3",
-      "category": "Authentication",
-      "type": "page",
-      "scope": "auth",
-      "dynamic": false,
-      "dynamicSegments": [],
-      "routeGroup": null,
-      "appFile": "frontend/src/app/auth/login-v3/page.tsx",
-      "lastModified": "2026-07-30T13:15:51.996Z",
-      "relatedFeatures": [
-        {
-          "id": "route:/auth/login-v3",
-          "title": "Login V3",
-          "description": "Route discovered from frontend/src/app/auth/login-v3/page.tsx. User-facing help article not yet linked.",
           "status": "route_discovered",
           "source": "route_inventory",
           "tags": [
@@ -6117,7 +5750,7 @@
       "dynamicSegments": [],
       "routeGroup": null,
       "appFile": "frontend/src/app/auth/sign-up/page.tsx",
-      "lastModified": "2026-07-30T13:15:52.000Z",
+      "lastModified": "2026-07-24T09:58:09.353Z",
       "relatedFeatures": [
         {
           "id": "route:/auth/sign-up",
@@ -6143,7 +5776,7 @@
       "dynamicSegments": [],
       "routeGroup": null,
       "appFile": "frontend/src/app/auth/sign-up-success/page.tsx",
-      "lastModified": "2026-07-30T13:15:51.999Z",
+      "lastModified": "2026-07-24T09:58:09.352Z",
       "relatedFeatures": [
         {
           "id": "route:/auth/sign-up-success",
@@ -6169,7 +5802,7 @@
       "dynamicSegments": [],
       "routeGroup": null,
       "appFile": "frontend/src/app/auth/update-password/page.tsx",
-      "lastModified": "2026-07-30T13:15:52.001Z",
+      "lastModified": "2026-07-24T09:58:09.353Z",
       "relatedFeatures": [
         {
           "id": "route:/auth/update-password",
@@ -6195,12 +5828,66 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/billing-periods/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.946Z",
+      "lastModified": "2026-07-24T09:58:09.182Z",
       "relatedFeatures": [
         {
           "id": "route:/billing-periods",
           "title": "Billing Periods",
           "description": "Route discovered from frontend/src/app/(main)/billing-periods/page.tsx. User-facing help article not yet linked.",
+          "status": "route_discovered",
+          "source": "route_inventory",
+          "tags": [
+            "global",
+            "page"
+          ]
+        }
+      ],
+      "relatedHelpArticles": []
+    },
+    {
+      "route": "/brain",
+      "title": "Brain",
+      "category": "Main",
+      "type": "page",
+      "scope": "global",
+      "dynamic": false,
+      "dynamicSegments": [],
+      "routeGroup": "main",
+      "appFile": "frontend/src/app/(main)/brain/page.tsx",
+      "lastModified": "2026-07-24T09:58:09.183Z",
+      "relatedFeatures": [
+        {
+          "id": "route:/brain",
+          "title": "Brain",
+          "description": "Route discovered from frontend/src/app/(main)/brain/page.tsx. User-facing help article not yet linked.",
+          "status": "route_discovered",
+          "source": "route_inventory",
+          "tags": [
+            "global",
+            "page"
+          ]
+        }
+      ],
+      "relatedHelpArticles": []
+    },
+    {
+      "route": "/brain/[businessAreaId]",
+      "title": "Brain",
+      "category": "Main",
+      "type": "page",
+      "scope": "global",
+      "dynamic": true,
+      "dynamicSegments": [
+        "businessAreaId"
+      ],
+      "routeGroup": "main",
+      "appFile": "frontend/src/app/(main)/brain/[businessAreaId]/page.tsx",
+      "lastModified": "2026-07-24T09:58:09.182Z",
+      "relatedFeatures": [
+        {
+          "id": "route:/brain/[businessAreaId]",
+          "title": "Brain",
+          "description": "Route discovered from frontend/src/app/(main)/brain/[businessAreaId]/page.tsx. User-facing help article not yet linked.",
           "status": "route_discovered",
           "source": "route_inventory",
           "tags": [
@@ -6221,7 +5908,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/calendar/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.946Z",
+      "lastModified": "2026-07-24T09:58:09.183Z",
       "relatedFeatures": [
         {
           "id": "route:/calendar",
@@ -6247,7 +5934,7 @@
       "dynamicSegments": [],
       "routeGroup": "tables",
       "appFile": "frontend/src/app/(tables)/change-events/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.586Z",
+      "lastModified": "2026-07-24T09:58:09.198Z",
       "relatedFeatures": [
         {
           "id": "route:/change-events",
@@ -6273,7 +5960,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/command-center/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.423Z",
+      "lastModified": "2026-07-24T09:58:09.104Z",
       "relatedFeatures": [
         {
           "id": "route:/command-center",
@@ -6299,7 +5986,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/command-center/file/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.423Z",
+      "lastModified": "2026-07-24T09:58:09.104Z",
       "relatedFeatures": [
         {
           "id": "route:/command-center/file",
@@ -6325,7 +6012,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/comments/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.952Z",
+      "lastModified": "2026-07-24T09:58:09.183Z",
       "relatedFeatures": [
         {
           "id": "route:/comments",
@@ -6351,7 +6038,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/company-settings/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.423Z",
+      "lastModified": "2026-07-24T09:58:09.104Z",
       "relatedFeatures": [
         {
           "id": "route:/company-settings",
@@ -6377,7 +6064,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/company-settings/project-creation-log/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.423Z",
+      "lastModified": "2026-07-24T09:58:09.105Z",
       "relatedFeatures": [
         {
           "id": "route:/company-settings/project-creation-log",
@@ -6403,7 +6090,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/create-project/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.952Z",
+      "lastModified": "2026-07-24T09:58:09.183Z",
       "relatedFeatures": [
         {
           "id": "route:/create-project",
@@ -6429,7 +6116,7 @@
       "dynamicSegments": [],
       "routeGroup": null,
       "appFile": "frontend/src/app/daily-brief/page.tsx",
-      "lastModified": "2026-07-30T13:15:52.002Z",
+      "lastModified": "2026-07-24T09:58:09.353Z",
       "relatedFeatures": [
         {
           "id": "route:/daily-brief",
@@ -6455,7 +6142,7 @@
       "dynamicSegments": [],
       "routeGroup": "tables",
       "appFile": "frontend/src/app/(tables)/daily-briefs/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.589Z",
+      "lastModified": "2026-07-24T09:58:09.198Z",
       "relatedFeatures": [
         {
           "id": "route:/daily-briefs",
@@ -6483,7 +6170,7 @@
       ],
       "routeGroup": "tables",
       "appFile": "frontend/src/app/(tables)/daily-briefs/[briefId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.586Z",
+      "lastModified": "2026-07-24T09:58:09.198Z",
       "relatedFeatures": [
         {
           "id": "route:/daily-briefs/[briefId]",
@@ -6509,7 +6196,7 @@
       "dynamicSegments": [],
       "routeGroup": "tables",
       "appFile": "frontend/src/app/(tables)/daily-logs/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.589Z",
+      "lastModified": "2026-07-24T09:58:09.198Z",
       "relatedFeatures": [
         {
           "id": "route:/daily-logs",
@@ -6537,7 +6224,7 @@
       ],
       "routeGroup": "tables",
       "appFile": "frontend/src/app/(tables)/daily-logs/[dailyLogId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.589Z",
+      "lastModified": "2026-07-24T09:58:09.198Z",
       "relatedFeatures": [
         {
           "id": "route:/daily-logs/[dailyLogId]",
@@ -6563,7 +6250,7 @@
       "dynamicSegments": [],
       "routeGroup": "tables",
       "appFile": "frontend/src/app/(tables)/daily-reports/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.589Z",
+      "lastModified": "2026-07-24T09:58:09.198Z",
       "relatedFeatures": [
         {
           "id": "route:/daily-reports",
@@ -6589,7 +6276,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/database-inventory/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.423Z",
+      "lastModified": "2026-07-24T09:58:09.105Z",
       "relatedFeatures": [
         {
           "id": "route:/database-inventory",
@@ -6615,7 +6302,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/db-audit-log/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.435Z",
+      "lastModified": "2026-07-24T09:58:09.106Z",
       "relatedFeatures": [
         {
           "id": "route:/db-audit-log",
@@ -6632,32 +6319,6 @@
       "relatedHelpArticles": []
     },
     {
-      "route": "/deals",
-      "title": "Deals",
-      "category": "Tables",
-      "type": "page",
-      "scope": "global",
-      "dynamic": false,
-      "dynamicSegments": [],
-      "routeGroup": "tables",
-      "appFile": "frontend/src/app/(tables)/deals/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.589Z",
-      "relatedFeatures": [
-        {
-          "id": "route:/deals",
-          "title": "Deals",
-          "description": "Route discovered from frontend/src/app/(tables)/deals/page.tsx. User-facing help article not yet linked.",
-          "status": "route_discovered",
-          "source": "route_inventory",
-          "tags": [
-            "global",
-            "page"
-          ]
-        }
-      ],
-      "relatedHelpArticles": []
-    },
-    {
       "route": "/deep-research",
       "title": "Deep Research",
       "category": "Admin",
@@ -6667,7 +6328,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/deep-research/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.437Z",
+      "lastModified": "2026-07-24T09:58:09.106Z",
       "relatedFeatures": [
         {
           "id": "route:/deep-research",
@@ -6693,7 +6354,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/demo/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.952Z",
+      "lastModified": "2026-07-24T09:58:09.183Z",
       "relatedFeatures": [
         {
           "id": "route:/demo",
@@ -6719,7 +6380,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/design/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.454Z",
+      "lastModified": "2026-07-24T09:58:09.109Z",
       "relatedFeatures": [
         {
           "id": "route:/design",
@@ -6745,7 +6406,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/design-ideas/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.454Z",
+      "lastModified": "2026-07-24T09:58:09.109Z",
       "relatedFeatures": [
         {
           "id": "route:/design-ideas",
@@ -6771,7 +6432,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/design-violations/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.454Z",
+      "lastModified": "2026-07-24T09:58:09.109Z",
       "relatedFeatures": [
         {
           "id": "route:/design-violations",
@@ -6797,7 +6458,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/dev/table-generator/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.454Z",
+      "lastModified": "2026-07-24T09:58:09.110Z",
       "relatedFeatures": [
         {
           "id": "route:/dev/table-generator",
@@ -6823,12 +6484,12 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/directory/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.972Z",
+      "lastModified": "2026-07-24T09:58:09.186Z",
       "relatedFeatures": [
         {
           "id": "company-directory",
           "title": "Company Directory",
-          "description": "Manage the global directory of companies, clients, contacts, vendors, prospects, distribution groups, and employees.",
+          "description": "Manage the global directory of companies, clients, contacts, vendors, distribution groups, and employees.",
           "status": "documented",
           "source": "help_article",
           "tags": [
@@ -6841,7 +6502,7 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/company-directory.mdx"
+        "docs/alleato-os-docs/help/articles/company-directory.mdx"
       ]
     },
     {
@@ -6854,7 +6515,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/directory/clients/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.952Z",
+      "lastModified": "2026-07-24T09:58:09.184Z",
       "relatedFeatures": [
         {
           "id": "route:/directory/clients",
@@ -6880,7 +6541,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/directory/companies/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.952Z",
+      "lastModified": "2026-07-24T09:58:09.184Z",
       "relatedFeatures": [
         {
           "id": "route:/directory/companies",
@@ -6908,7 +6569,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/directory/companies/[companyId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.952Z",
+      "lastModified": "2026-07-24T09:58:09.184Z",
       "relatedFeatures": [
         {
           "id": "route:/directory/companies/[companyId]",
@@ -6934,7 +6595,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/directory/contacts/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.952Z",
+      "lastModified": "2026-07-24T09:58:09.185Z",
       "relatedFeatures": [
         {
           "id": "route:/directory/contacts",
@@ -6962,7 +6623,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/directory/contacts/[contactId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.952Z",
+      "lastModified": "2026-07-24T09:58:09.185Z",
       "relatedFeatures": [
         {
           "id": "route:/directory/contacts/[contactId]",
@@ -6988,7 +6649,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/directory/employees/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.969Z",
+      "lastModified": "2026-07-24T09:58:09.186Z",
       "relatedFeatures": [
         {
           "id": "route:/directory/employees",
@@ -7014,38 +6675,12 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/directory/groups/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.969Z",
+      "lastModified": "2026-07-24T09:58:09.186Z",
       "relatedFeatures": [
         {
           "id": "route:/directory/groups",
           "title": "Groups",
           "description": "Route discovered from frontend/src/app/(main)/directory/groups/page.tsx. User-facing help article not yet linked.",
-          "status": "route_discovered",
-          "source": "route_inventory",
-          "tags": [
-            "global",
-            "page"
-          ]
-        }
-      ],
-      "relatedHelpArticles": []
-    },
-    {
-      "route": "/directory/prospects",
-      "title": "Prospects",
-      "category": "Directory",
-      "type": "page",
-      "scope": "global",
-      "dynamic": false,
-      "dynamicSegments": [],
-      "routeGroup": "main",
-      "appFile": "frontend/src/app/(main)/directory/prospects/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.972Z",
-      "relatedFeatures": [
-        {
-          "id": "route:/directory/prospects",
-          "title": "Prospects",
-          "description": "Route discovered from frontend/src/app/(main)/directory/prospects/page.tsx. User-facing help article not yet linked.",
           "status": "route_discovered",
           "source": "route_inventory",
           "tags": [
@@ -7066,7 +6701,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/directory/vendors/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.972Z",
+      "lastModified": "2026-07-24T09:58:09.187Z",
       "relatedFeatures": [
         {
           "id": "route:/directory/vendors",
@@ -7094,7 +6729,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/directory/vendors/[vendorId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.972Z",
+      "lastModified": "2026-07-24T09:58:09.187Z",
       "relatedFeatures": [
         {
           "id": "route:/directory/vendors/[vendorId]",
@@ -7122,7 +6757,7 @@
       ],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/docs/[[...slug]]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.466Z",
+      "lastModified": "2026-07-24T09:58:09.110Z",
       "relatedFeatures": [
         {
           "id": "route:/docs/[[...slug]]",
@@ -7148,7 +6783,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/docs/ai-overview/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.470Z",
+      "lastModified": "2026-07-24T09:58:09.111Z",
       "relatedFeatures": [
         {
           "id": "route:/docs/ai-overview",
@@ -7174,7 +6809,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/docs/ai-overview/data-sources/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.470Z",
+      "lastModified": "2026-07-24T09:58:09.110Z",
       "relatedFeatures": [
         {
           "id": "route:/docs/ai-overview/data-sources",
@@ -7200,7 +6835,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/docs/ai-overview/learning/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.470Z",
+      "lastModified": "2026-07-24T09:58:09.111Z",
       "relatedFeatures": [
         {
           "id": "route:/docs/ai-overview/learning",
@@ -7226,7 +6861,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/docs/ai-overview/memory/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.470Z",
+      "lastModified": "2026-07-24T09:58:09.111Z",
       "relatedFeatures": [
         {
           "id": "route:/docs/ai-overview/memory",
@@ -7252,7 +6887,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/docs/ai-overview/models-and-cost/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.470Z",
+      "lastModified": "2026-07-24T09:58:09.111Z",
       "relatedFeatures": [
         {
           "id": "route:/docs/ai-overview/models-and-cost",
@@ -7278,7 +6913,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/docs/ai-overview/team/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.470Z",
+      "lastModified": "2026-07-24T09:58:09.111Z",
       "relatedFeatures": [
         {
           "id": "route:/docs/ai-overview/team",
@@ -7304,7 +6939,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/docs/ai-overview/tools/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.470Z",
+      "lastModified": "2026-07-24T09:58:09.111Z",
       "relatedFeatures": [
         {
           "id": "route:/docs/ai-overview/tools",
@@ -7330,7 +6965,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/document-metadata/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.470Z",
+      "lastModified": "2026-07-24T09:58:09.112Z",
       "relatedFeatures": [
         {
           "id": "teams-chat-compiler",
@@ -7349,7 +6984,7 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/teams-chat-compiler.mdx"
+        "docs/alleato-os-docs/help/articles/teams-chat-compiler.mdx"
       ]
     },
     {
@@ -7362,7 +6997,7 @@
       "dynamicSegments": [],
       "routeGroup": "tables",
       "appFile": "frontend/src/app/(tables)/documents/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.589Z",
+      "lastModified": "2026-07-24T09:58:09.199Z",
       "relatedFeatures": [
         {
           "id": "route:/documents",
@@ -7388,7 +7023,7 @@
       "dynamicSegments": [],
       "routeGroup": "tables",
       "appFile": "frontend/src/app/(tables)/drawings/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.589Z",
+      "lastModified": "2026-07-24T09:58:09.199Z",
       "relatedFeatures": [
         {
           "id": "route:/drawings",
@@ -7414,7 +7049,7 @@
       "dynamicSegments": [],
       "routeGroup": "tables",
       "appFile": "frontend/src/app/(tables)/emails/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.589Z",
+      "lastModified": "2026-07-24T09:58:09.199Z",
       "relatedFeatures": [
         {
           "id": "route:/emails",
@@ -7440,7 +7075,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/errors/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.486Z",
+      "lastModified": "2026-07-24T09:58:09.112Z",
       "relatedFeatures": [
         {
           "id": "route:/errors",
@@ -7466,7 +7101,7 @@
       "dynamicSegments": [],
       "routeGroup": "tables",
       "appFile": "frontend/src/app/(tables)/estimates/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.589Z",
+      "lastModified": "2026-07-24T09:58:09.199Z",
       "relatedFeatures": [
         {
           "id": "route:/estimates",
@@ -7494,7 +7129,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/estimates/[type]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.972Z",
+      "lastModified": "2026-07-24T09:58:09.188Z",
       "relatedFeatures": [
         {
           "id": "route:/estimates/[type]",
@@ -7520,7 +7155,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/eval-runs/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.487Z",
+      "lastModified": "2026-07-24T09:58:09.112Z",
       "relatedFeatures": [
         {
           "id": "route:/eval-runs",
@@ -7546,7 +7181,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/executive/capabilities/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.972Z",
+      "lastModified": "2026-07-24T09:58:09.188Z",
       "relatedFeatures": [
         {
           "id": "route:/executive/capabilities",
@@ -7572,7 +7207,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/executive/daily-deep-read-review/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.972Z",
+      "lastModified": "2026-07-24T09:58:09.188Z",
       "relatedFeatures": [
         {
           "id": "route:/executive/daily-deep-read-review",
@@ -7598,7 +7233,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/executive/intelligence-brief/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.453Z",
+      "lastModified": "2026-07-24T09:58:09.189Z",
       "relatedFeatures": [
         {
           "id": "route:/executive/intelligence-brief",
@@ -7624,7 +7259,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/feedback-inbox/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.502Z",
+      "lastModified": "2026-07-24T09:58:09.115Z",
       "relatedFeatures": [
         {
           "id": "submit-feedback",
@@ -7642,7 +7277,7 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/submit-feedback.mdx"
+        "docs/alleato-os-docs/help/articles/submit-feedback.mdx"
       ]
     },
     {
@@ -7655,7 +7290,7 @@
       "dynamicSegments": [],
       "routeGroup": "tables",
       "appFile": "frontend/src/app/(tables)/files/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.601Z",
+      "lastModified": "2026-07-24T09:58:09.199Z",
       "relatedFeatures": [
         {
           "id": "route:/files",
@@ -7681,200 +7316,12 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/financial-insights/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.453Z",
+      "lastModified": "2026-07-24T09:58:09.189Z",
       "relatedFeatures": [
         {
           "id": "route:/financial-insights",
           "title": "Financial Insights",
           "description": "Route discovered from frontend/src/app/(main)/financial-insights/page.tsx. User-facing help article not yet linked.",
-          "status": "route_discovered",
-          "source": "route_inventory",
-          "tags": [
-            "global",
-            "page"
-          ]
-        }
-      ],
-      "relatedHelpArticles": []
-    },
-    {
-      "route": "/fm-global",
-      "title": "Fm Global",
-      "category": "Main",
-      "type": "page",
-      "scope": "global",
-      "dynamic": false,
-      "dynamicSegments": [],
-      "routeGroup": "main",
-      "appFile": "frontend/src/app/(main)/fm-global/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.453Z",
-      "relatedFeatures": [
-        {
-          "id": "route:/fm-global",
-          "title": "Fm Global",
-          "description": "Route discovered from frontend/src/app/(main)/fm-global/page.tsx. User-facing help article not yet linked.",
-          "status": "route_discovered",
-          "source": "route_inventory",
-          "tags": [
-            "global",
-            "page"
-          ]
-        }
-      ],
-      "relatedHelpArticles": []
-    },
-    {
-      "route": "/fm-global/fm_global_tables",
-      "title": "Fm Global Tables",
-      "category": "Main",
-      "type": "page",
-      "scope": "global",
-      "dynamic": false,
-      "dynamicSegments": [],
-      "routeGroup": "main",
-      "appFile": "frontend/src/app/(main)/fm-global/fm_global_tables/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.453Z",
-      "relatedFeatures": [
-        {
-          "id": "route:/fm-global/fm_global_tables",
-          "title": "Fm Global Tables",
-          "description": "Route discovered from frontend/src/app/(main)/fm-global/fm_global_tables/page.tsx. User-facing help article not yet linked.",
-          "status": "route_discovered",
-          "source": "route_inventory",
-          "tags": [
-            "global",
-            "page"
-          ]
-        }
-      ],
-      "relatedHelpArticles": []
-    },
-    {
-      "route": "/fm-global/fm_global_tables/[tableId]",
-      "title": "Fm Global Tables",
-      "category": "Main",
-      "type": "page",
-      "scope": "global",
-      "dynamic": true,
-      "dynamicSegments": [
-        "tableId"
-      ],
-      "routeGroup": "main",
-      "appFile": "frontend/src/app/(main)/fm-global/fm_global_tables/[tableId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.453Z",
-      "relatedFeatures": [
-        {
-          "id": "route:/fm-global/fm_global_tables/[tableId]",
-          "title": "Fm Global Tables",
-          "description": "Route discovered from frontend/src/app/(main)/fm-global/fm_global_tables/[tableId]/page.tsx. User-facing help article not yet linked.",
-          "status": "route_discovered",
-          "source": "route_inventory",
-          "tags": [
-            "global",
-            "page"
-          ]
-        }
-      ],
-      "relatedHelpArticles": []
-    },
-    {
-      "route": "/fm-global/form",
-      "title": "Form",
-      "category": "Public",
-      "type": "page",
-      "scope": "global",
-      "dynamic": false,
-      "dynamicSegments": [],
-      "routeGroup": "public",
-      "appFile": "frontend/src/app/(public)/fm-global/form/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.574Z",
-      "relatedFeatures": [
-        {
-          "id": "route:/fm-global/form",
-          "title": "Form",
-          "description": "Route discovered from frontend/src/app/(public)/fm-global/form/page.tsx. User-facing help article not yet linked.",
-          "status": "route_discovered",
-          "source": "route_inventory",
-          "tags": [
-            "global",
-            "page"
-          ]
-        }
-      ],
-      "relatedHelpArticles": []
-    },
-    {
-      "route": "/fm-global/form/submitted/[submissionId]",
-      "title": "Submitted",
-      "category": "Public",
-      "type": "page",
-      "scope": "global",
-      "dynamic": true,
-      "dynamicSegments": [
-        "submissionId"
-      ],
-      "routeGroup": "public",
-      "appFile": "frontend/src/app/(public)/fm-global/form/submitted/[submissionId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.574Z",
-      "relatedFeatures": [
-        {
-          "id": "route:/fm-global/form/submitted/[submissionId]",
-          "title": "Submitted",
-          "description": "Route discovered from frontend/src/app/(public)/fm-global/form/submitted/[submissionId]/page.tsx. User-facing help article not yet linked.",
-          "status": "route_discovered",
-          "source": "route_inventory",
-          "tags": [
-            "global",
-            "page"
-          ]
-        }
-      ],
-      "relatedHelpArticles": []
-    },
-    {
-      "route": "/fm-global/submissions",
-      "title": "Submissions",
-      "category": "Main",
-      "type": "page",
-      "scope": "global",
-      "dynamic": false,
-      "dynamicSegments": [],
-      "routeGroup": "main",
-      "appFile": "frontend/src/app/(main)/fm-global/submissions/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.453Z",
-      "relatedFeatures": [
-        {
-          "id": "route:/fm-global/submissions",
-          "title": "Submissions",
-          "description": "Route discovered from frontend/src/app/(main)/fm-global/submissions/page.tsx. User-facing help article not yet linked.",
-          "status": "route_discovered",
-          "source": "route_inventory",
-          "tags": [
-            "global",
-            "page"
-          ]
-        }
-      ],
-      "relatedHelpArticles": []
-    },
-    {
-      "route": "/fm-global/submissions/[submissionId]",
-      "title": "Submissions",
-      "category": "Main",
-      "type": "page",
-      "scope": "global",
-      "dynamic": true,
-      "dynamicSegments": [
-        "submissionId"
-      ],
-      "routeGroup": "main",
-      "appFile": "frontend/src/app/(main)/fm-global/submissions/[submissionId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.453Z",
-      "relatedFeatures": [
-        {
-          "id": "route:/fm-global/submissions/[submissionId]",
-          "title": "Submissions",
-          "description": "Route discovered from frontend/src/app/(main)/fm-global/submissions/[submissionId]/page.tsx. User-facing help article not yet linked.",
           "status": "route_discovered",
           "source": "route_inventory",
           "tags": [
@@ -7895,7 +7342,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/home/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.469Z",
+      "lastModified": "2026-07-24T09:58:09.191Z",
       "relatedFeatures": [
         {
           "id": "route:/home",
@@ -7921,7 +7368,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/ideas/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.469Z",
+      "lastModified": "2026-07-24T09:58:09.191Z",
       "relatedFeatures": [
         {
           "id": "route:/ideas",
@@ -7947,7 +7394,7 @@
       "dynamicSegments": [],
       "routeGroup": "tables",
       "appFile": "frontend/src/app/(tables)/insights/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.603Z",
+      "lastModified": "2026-07-24T09:58:09.200Z",
       "relatedFeatures": [
         {
           "id": "route:/insights",
@@ -7975,7 +7422,7 @@
       ],
       "routeGroup": "tables",
       "appFile": "frontend/src/app/(tables)/insights/[insightId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.602Z",
+      "lastModified": "2026-07-24T09:58:09.200Z",
       "relatedFeatures": [
         {
           "id": "route:/insights/[insightId]",
@@ -8001,7 +7448,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/intelligence-packets/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.505Z",
+      "lastModified": "2026-07-24T09:58:09.116Z",
       "relatedFeatures": [
         {
           "id": "route:/intelligence-packets",
@@ -8027,7 +7474,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/intelligence-vision/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.508Z",
+      "lastModified": "2026-07-24T09:58:09.116Z",
       "relatedFeatures": [
         {
           "id": "route:/intelligence-vision",
@@ -8055,7 +7502,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/intelligence/sources/[sourceDocumentId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.469Z",
+      "lastModified": "2026-07-24T09:58:09.192Z",
       "relatedFeatures": [
         {
           "id": "route:/intelligence/sources/[sourceDocumentId]",
@@ -8081,7 +7528,7 @@
       "dynamicSegments": [],
       "routeGroup": "dashboard",
       "appFile": "frontend/src/app/(dashboard)/invoice/add/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.602Z",
+      "lastModified": "2026-07-24T09:58:09.128Z",
       "relatedFeatures": [
         {
           "id": "route:/invoice/add",
@@ -8107,7 +7554,7 @@
       "dynamicSegments": [],
       "routeGroup": "dashboard",
       "appFile": "frontend/src/app/(dashboard)/invoice/edit/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.603Z",
+      "lastModified": "2026-07-24T09:58:09.128Z",
       "relatedFeatures": [
         {
           "id": "route:/invoice/edit",
@@ -8133,7 +7580,7 @@
       "dynamicSegments": [],
       "routeGroup": "dashboard",
       "appFile": "frontend/src/app/(dashboard)/invoice/list/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.603Z",
+      "lastModified": "2026-07-24T09:58:09.129Z",
       "relatedFeatures": [
         {
           "id": "route:/invoice/list",
@@ -8159,7 +7606,7 @@
       "dynamicSegments": [],
       "routeGroup": "dashboard",
       "appFile": "frontend/src/app/(dashboard)/invoice/preview/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.603Z",
+      "lastModified": "2026-07-24T09:58:09.129Z",
       "relatedFeatures": [
         {
           "id": "route:/invoice/preview",
@@ -8185,7 +7632,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/knowledge/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.487Z",
+      "lastModified": "2026-07-24T09:58:09.193Z",
       "relatedFeatures": [
         {
           "id": "route:/knowledge",
@@ -8211,7 +7658,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/knowledge/app/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.469Z",
+      "lastModified": "2026-07-24T09:58:09.192Z",
       "relatedFeatures": [
         {
           "id": "route:/knowledge/app",
@@ -8239,7 +7686,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/knowledge/app/[toolCategory]/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.469Z",
+      "lastModified": "2026-07-24T09:58:09.192Z",
       "relatedFeatures": [
         {
           "id": "route:/knowledge/app/[toolCategory]",
@@ -8268,7 +7715,7 @@
       ],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/knowledge/app/[toolCategory]/[docSlug]/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.469Z",
+      "lastModified": "2026-07-24T09:58:09.192Z",
       "relatedFeatures": [
         {
           "id": "route:/knowledge/app/[toolCategory]/[docSlug]",
@@ -8294,7 +7741,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/knowledge/app/prototype/owner-invoice-prefill/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.469Z",
+      "lastModified": "2026-07-24T09:58:09.192Z",
       "relatedFeatures": [
         {
           "id": "route:/knowledge/app/prototype/owner-invoice-prefill",
@@ -8320,7 +7767,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/knowledge/app/prototype/prime-contract/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.469Z",
+      "lastModified": "2026-07-24T09:58:09.192Z",
       "relatedFeatures": [
         {
           "id": "route:/knowledge/app/prototype/prime-contract",
@@ -8346,7 +7793,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/knowledge/app/screenshots/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.469Z",
+      "lastModified": "2026-07-24T09:58:09.192Z",
       "relatedFeatures": [
         {
           "id": "route:/knowledge/app/screenshots",
@@ -8372,7 +7819,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/knowledge/company/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.485Z",
+      "lastModified": "2026-07-24T09:58:09.193Z",
       "relatedFeatures": [
         {
           "id": "route:/knowledge/company",
@@ -8398,7 +7845,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/knowledge/manage/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.487Z",
+      "lastModified": "2026-07-24T09:58:09.193Z",
       "relatedFeatures": [
         {
           "id": "route:/knowledge/manage",
@@ -8424,7 +7871,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/learning-feedback/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.510Z",
+      "lastModified": "2026-07-24T09:58:09.116Z",
       "relatedFeatures": [
         {
           "id": "route:/learning-feedback",
@@ -8450,7 +7897,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/manpower/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.489Z",
+      "lastModified": "2026-07-24T09:58:09.193Z",
       "relatedFeatures": [
         {
           "id": "route:/manpower",
@@ -8476,7 +7923,7 @@
       "dynamicSegments": [],
       "routeGroup": "tables",
       "appFile": "frontend/src/app/(tables)/meeting-segments/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.603Z",
+      "lastModified": "2026-07-24T09:58:09.200Z",
       "relatedFeatures": [
         {
           "id": "route:/meeting-segments",
@@ -8502,7 +7949,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/meeting-templates/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.516Z",
+      "lastModified": "2026-07-24T09:58:09.117Z",
       "relatedFeatures": [
         {
           "id": "route:/meeting-templates",
@@ -8530,7 +7977,7 @@
       ],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/meeting-templates/[templateId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.514Z",
+      "lastModified": "2026-07-24T09:58:09.117Z",
       "relatedFeatures": [
         {
           "id": "route:/meeting-templates/[templateId]",
@@ -8556,7 +8003,7 @@
       "dynamicSegments": [],
       "routeGroup": "tables",
       "appFile": "frontend/src/app/(tables)/meetings/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.603Z",
+      "lastModified": "2026-07-24T09:58:09.200Z",
       "relatedFeatures": [
         {
           "id": "route:/meetings",
@@ -8584,7 +8031,7 @@
       ],
       "routeGroup": "tables",
       "appFile": "frontend/src/app/(tables)/meetings/[meetingId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.603Z",
+      "lastModified": "2026-07-24T09:58:09.200Z",
       "relatedFeatures": [
         {
           "id": "route:/meetings/[meetingId]",
@@ -8610,7 +8057,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/megans-dashboard/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.517Z",
+      "lastModified": "2026-07-24T09:58:09.117Z",
       "relatedFeatures": [
         {
           "id": "route:/megans-dashboard",
@@ -8636,7 +8083,7 @@
       "dynamicSegments": [],
       "routeGroup": null,
       "appFile": "frontend/src/app/monthly-executive-operating-review/page.tsx",
-      "lastModified": "2026-07-30T13:15:52.003Z",
+      "lastModified": "2026-07-24T09:58:09.353Z",
       "relatedFeatures": [
         {
           "id": "route:/monthly-executive-operating-review",
@@ -8662,7 +8109,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/my-feedback/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.519Z",
+      "lastModified": "2026-07-24T09:58:09.118Z",
       "relatedFeatures": [
         {
           "id": "route:/my-feedback",
@@ -8688,7 +8135,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/notifications/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.491Z",
+      "lastModified": "2026-07-24T09:58:09.193Z",
       "relatedFeatures": [
         {
           "id": "route:/notifications",
@@ -8714,7 +8161,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/observability/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.520Z",
+      "lastModified": "2026-07-24T09:58:09.118Z",
       "relatedFeatures": [
         {
           "id": "route:/observability",
@@ -8740,7 +8187,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/operations-readiness/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.521Z",
+      "lastModified": "2026-07-24T09:58:09.118Z",
       "relatedFeatures": [
         {
           "id": "route:/operations-readiness",
@@ -8766,7 +8213,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/outlook-draft-feedback/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.524Z",
+      "lastModified": "2026-07-24T09:58:09.118Z",
       "relatedFeatures": [
         {
           "id": "route:/outlook-draft-feedback",
@@ -8792,7 +8239,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/outlook-draft-feedback/rules/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.526Z",
+      "lastModified": "2026-07-24T09:58:09.118Z",
       "relatedFeatures": [
         {
           "id": "route:/outlook-draft-feedback/rules",
@@ -8818,7 +8265,7 @@
       "dynamicSegments": [],
       "routeGroup": "tables",
       "appFile": "frontend/src/app/(tables)/outlook-intake/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.603Z",
+      "lastModified": "2026-07-24T09:58:09.201Z",
       "relatedFeatures": [
         {
           "id": "route:/outlook-intake",
@@ -8844,7 +8291,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/pipeline/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.494Z",
+      "lastModified": "2026-07-24T09:58:09.194Z",
       "relatedFeatures": [
         {
           "id": "route:/pipeline",
@@ -8870,7 +8317,7 @@
       "dynamicSegments": [],
       "routeGroup": "tables",
       "appFile": "frontend/src/app/(tables)/potential-change-orders/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.603Z",
+      "lastModified": "2026-07-24T09:58:09.201Z",
       "relatedFeatures": [
         {
           "id": "route:/potential-change-orders",
@@ -8896,7 +8343,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/prime-contract-change-order-orphans/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.528Z",
+      "lastModified": "2026-07-24T09:58:09.119Z",
       "relatedFeatures": [
         {
           "id": "route:/prime-contract-change-order-orphans",
@@ -8922,7 +8369,7 @@
       "dynamicSegments": [],
       "routeGroup": "tables",
       "appFile": "frontend/src/app/(tables)/prime-contracts/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.603Z",
+      "lastModified": "2026-07-24T09:58:09.201Z",
       "relatedFeatures": [
         {
           "id": "route:/prime-contracts",
@@ -8948,7 +8395,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/procore-docs/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.530Z",
+      "lastModified": "2026-07-24T09:58:09.119Z",
       "relatedFeatures": [
         {
           "id": "route:/procore-docs",
@@ -8976,7 +8423,7 @@
       ],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/procore-docs/[...slug]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.529Z",
+      "lastModified": "2026-07-24T09:58:09.119Z",
       "relatedFeatures": [
         {
           "id": "route:/procore-docs/[...slug]",
@@ -9002,7 +8449,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/(procore)/procore-tools/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.336Z",
+      "lastModified": "2026-07-24T09:58:09.094Z",
       "relatedFeatures": [
         {
           "id": "route:/procore-tools",
@@ -9030,7 +8477,7 @@
       ],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/(procore)/procore-tools/[slug]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.336Z",
+      "lastModified": "2026-07-24T09:58:09.093Z",
       "relatedFeatures": [
         {
           "id": "route:/procore-tools/[slug]",
@@ -9056,7 +8503,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/product-board/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.531Z",
+      "lastModified": "2026-07-24T09:58:09.119Z",
       "relatedFeatures": [
         {
           "id": "route:/product-board",
@@ -9082,7 +8529,7 @@
       "dynamicSegments": [],
       "routeGroup": "tables",
       "appFile": "frontend/src/app/(tables)/progress-reports/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.603Z",
+      "lastModified": "2026-07-24T09:58:09.201Z",
       "relatedFeatures": [
         {
           "id": "progress-reports",
@@ -9100,7 +8547,7 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/progress-reports.mdx"
+        "docs/alleato-os-docs/help/articles/progress-reports.mdx"
       ]
     },
     {
@@ -9113,7 +8560,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/project-attribution/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.531Z",
+      "lastModified": "2026-07-24T09:58:09.119Z",
       "relatedFeatures": [
         {
           "id": "teams-chat-compiler",
@@ -9132,7 +8579,7 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/teams-chat-compiler.mdx"
+        "docs/alleato-os-docs/help/articles/teams-chat-compiler.mdx"
       ]
     },
     {
@@ -9145,7 +8592,7 @@
       "dynamicSegments": [],
       "routeGroup": "tables",
       "appFile": "frontend/src/app/(tables)/project-documents/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.603Z",
+      "lastModified": "2026-07-24T09:58:09.201Z",
       "relatedFeatures": [
         {
           "id": "route:/project-documents",
@@ -9171,7 +8618,7 @@
       "dynamicSegments": [],
       "routeGroup": "tables",
       "appFile": "frontend/src/app/(tables)/projects/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.603Z",
+      "lastModified": "2026-07-24T09:58:09.201Z",
       "relatedFeatures": [
         {
           "id": "navigate-projects",
@@ -9188,7 +8635,7 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/navigate-projects.mdx"
+        "docs/alleato-os-docs/help/articles/navigate-projects.mdx"
       ]
     },
     {
@@ -9201,7 +8648,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/projects-table-demo/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.533Z",
+      "lastModified": "2026-07-24T09:58:09.119Z",
       "relatedFeatures": [
         {
           "id": "route:/projects-table-demo",
@@ -9227,7 +8674,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/prp-status/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.535Z",
+      "lastModified": "2026-07-24T09:58:09.120Z",
       "relatedFeatures": [
         {
           "id": "route:/prp-status",
@@ -9253,7 +8700,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/rag/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.537Z",
+      "lastModified": "2026-07-24T09:58:09.120Z",
       "relatedFeatures": [
         {
           "id": "route:/rag",
@@ -9279,7 +8726,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/rag-eval/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.537Z",
+      "lastModified": "2026-07-24T09:58:09.120Z",
       "relatedFeatures": [
         {
           "id": "route:/rag-eval",
@@ -9305,7 +8752,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/redoc/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.537Z",
+      "lastModified": "2026-07-24T09:58:09.120Z",
       "relatedFeatures": [
         {
           "id": "route:/redoc",
@@ -9333,7 +8780,7 @@
       ],
       "routeGroup": null,
       "appFile": "frontend/src/app/respond/rfi/[token]/page.tsx",
-      "lastModified": "2026-07-30T13:15:52.003Z",
+      "lastModified": "2026-07-24T09:58:09.354Z",
       "relatedFeatures": [
         {
           "id": "route:/respond/rfi/[token]",
@@ -9359,7 +8806,7 @@
       "dynamicSegments": [],
       "routeGroup": "tables",
       "appFile": "frontend/src/app/(tables)/roadmap/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.603Z",
+      "lastModified": "2026-07-24T09:58:09.201Z",
       "relatedFeatures": [
         {
           "id": "route:/roadmap",
@@ -9385,7 +8832,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/settings/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.503Z",
+      "lastModified": "2026-07-24T09:58:09.195Z",
       "relatedFeatures": [
         {
           "id": "app-permissions-and-visibility",
@@ -9403,7 +8850,7 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/app-permissions-and-visibility.mdx"
+        "docs/alleato-os-docs/help/articles/app-permissions-and-visibility.mdx"
       ]
     },
     {
@@ -9416,7 +8863,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/settings/account/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.496Z",
+      "lastModified": "2026-07-24T09:58:09.194Z",
       "relatedFeatures": [
         {
           "id": "route:/settings/account",
@@ -9442,7 +8889,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/settings/audit/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.497Z",
+      "lastModified": "2026-07-24T09:58:09.195Z",
       "relatedFeatures": [
         {
           "id": "route:/settings/audit",
@@ -9468,7 +8915,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/settings/memory/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.503Z",
+      "lastModified": "2026-07-24T09:58:09.195Z",
       "relatedFeatures": [
         {
           "id": "ai-memory",
@@ -9485,7 +8932,7 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/ai-memory.mdx"
+        "docs/alleato-os-docs/help/articles/ai-memory.mdx"
       ]
     },
     {
@@ -9498,7 +8945,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/settings/preferences/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.524Z",
+      "lastModified": "2026-07-24T09:58:09.195Z",
       "relatedFeatures": [
         {
           "id": "route:/settings/preferences",
@@ -9524,7 +8971,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/settings/profile/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.553Z",
+      "lastModified": "2026-07-24T09:58:09.195Z",
       "relatedFeatures": [
         {
           "id": "update-your-profile",
@@ -9541,7 +8988,7 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/update-your-profile.mdx"
+        "docs/alleato-os-docs/help/articles/update-your-profile.mdx"
       ]
     },
     {
@@ -9554,7 +9001,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/settings/security/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.569Z",
+      "lastModified": "2026-07-24T09:58:09.196Z",
       "relatedFeatures": [
         {
           "id": "route:/settings/security",
@@ -9580,7 +9027,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/site-map/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.537Z",
+      "lastModified": "2026-07-24T09:58:09.121Z",
       "relatedFeatures": [
         {
           "id": "app-navigation-and-feature-map",
@@ -9597,7 +9044,7 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/app-navigation-and-feature-map.mdx"
+        "docs/alleato-os-docs/help/articles/app-navigation-and-feature-map.mdx"
       ]
     },
     {
@@ -9610,7 +9057,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/stats/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.569Z",
+      "lastModified": "2026-07-24T09:58:09.196Z",
       "relatedFeatures": [
         {
           "id": "route:/stats",
@@ -9636,7 +9083,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/(procore)/support-articles/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.336Z",
+      "lastModified": "2026-07-24T09:58:09.094Z",
       "relatedFeatures": [
         {
           "id": "route:/support-articles",
@@ -9664,7 +9111,7 @@
       ],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/(procore)/support-articles/[articleId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.336Z",
+      "lastModified": "2026-07-24T09:58:09.094Z",
       "relatedFeatures": [
         {
           "id": "route:/support-articles/[articleId]",
@@ -9690,7 +9137,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/tables-directory/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.537Z",
+      "lastModified": "2026-07-24T09:58:09.121Z",
       "relatedFeatures": [
         {
           "id": "route:/tables-directory",
@@ -9716,7 +9163,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/task-training/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.553Z",
+      "lastModified": "2026-07-24T09:58:09.121Z",
       "relatedFeatures": [
         {
           "id": "route:/task-training",
@@ -9742,7 +9189,7 @@
       "dynamicSegments": [],
       "routeGroup": "tables",
       "appFile": "frontend/src/app/(tables)/tasks/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.619Z",
+      "lastModified": "2026-07-24T09:58:09.202Z",
       "relatedFeatures": [
         {
           "id": "route:/tasks",
@@ -9768,7 +9215,7 @@
       "dynamicSegments": [],
       "routeGroup": "main",
       "appFile": "frontend/src/app/(main)/team-chat/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.574Z",
+      "lastModified": "2026-07-24T09:58:09.196Z",
       "relatedFeatures": [
         {
           "id": "teams-integration",
@@ -9786,7 +9233,7 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/teams-integration.mdx"
+        "docs/alleato-os-docs/help/articles/teams-integration.mdx"
       ]
     },
     {
@@ -9799,7 +9246,7 @@
       "dynamicSegments": [],
       "routeGroup": "tables",
       "appFile": "frontend/src/app/(tables)/teams-conversations/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.621Z",
+      "lastModified": "2026-07-24T09:58:09.202Z",
       "relatedFeatures": [
         {
           "id": "route:/teams-conversations",
@@ -9827,7 +9274,7 @@
       ],
       "routeGroup": "tables",
       "appFile": "frontend/src/app/(tables)/teams-conversations/[sourceDocumentId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:49.621Z",
+      "lastModified": "2026-07-24T09:58:09.202Z",
       "relatedFeatures": [
         {
           "id": "route:/teams-conversations/[sourceDocumentId]",
@@ -9853,7 +9300,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/template/form-standard/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.553Z",
+      "lastModified": "2026-07-24T09:58:09.121Z",
       "relatedFeatures": [
         {
           "id": "route:/template/form-standard",
@@ -9879,7 +9326,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/template/form-template/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.553Z",
+      "lastModified": "2026-07-24T09:58:09.121Z",
       "relatedFeatures": [
         {
           "id": "route:/template/form-template",
@@ -9905,7 +9352,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/test-cases/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.559Z",
+      "lastModified": "2026-07-24T09:58:09.122Z",
       "relatedFeatures": [
         {
           "id": "route:/test-cases",
@@ -9931,7 +9378,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/test-matrix/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.559Z",
+      "lastModified": "2026-07-24T09:58:09.122Z",
       "relatedFeatures": [
         {
           "id": "route:/test-matrix",
@@ -9957,7 +9404,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/testing/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.569Z",
+      "lastModified": "2026-07-24T09:58:09.123Z",
       "relatedFeatures": [
         {
           "id": "route:/testing",
@@ -9985,7 +9432,7 @@
       ],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/testing/[tool]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.559Z",
+      "lastModified": "2026-07-24T09:58:09.122Z",
       "relatedFeatures": [
         {
           "id": "route:/testing/[tool]",
@@ -10014,7 +9461,7 @@
       ],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/testing/[tool]/cases/[caseId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.559Z",
+      "lastModified": "2026-07-24T09:58:09.122Z",
       "relatedFeatures": [
         {
           "id": "route:/testing/[tool]/cases/[caseId]",
@@ -10040,7 +9487,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/testing/parity/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.569Z",
+      "lastModified": "2026-07-24T09:58:09.123Z",
       "relatedFeatures": [
         {
           "id": "route:/testing/parity",
@@ -10066,7 +9513,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/testing/runs/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.569Z",
+      "lastModified": "2026-07-24T09:58:09.124Z",
       "relatedFeatures": [
         {
           "id": "route:/testing/runs",
@@ -10094,7 +9541,7 @@
       ],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/testing/runs/[runId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.569Z",
+      "lastModified": "2026-07-24T09:58:09.124Z",
       "relatedFeatures": [
         {
           "id": "route:/testing/runs/[runId]",
@@ -10123,7 +9570,7 @@
       ],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/testing/runs/[runId]/case/[caseNumber]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.569Z",
+      "lastModified": "2026-07-24T09:58:09.123Z",
       "relatedFeatures": [
         {
           "id": "route:/testing/runs/[runId]/case/[caseNumber]",
@@ -10149,7 +9596,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/tools/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.569Z",
+      "lastModified": "2026-07-24T09:58:09.124Z",
       "relatedFeatures": [
         {
           "id": "route:/tools",
@@ -10175,7 +9622,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/training-docs/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.569Z",
+      "lastModified": "2026-07-24T09:58:09.124Z",
       "relatedFeatures": [
         {
           "id": "route:/training-docs",
@@ -10203,7 +9650,7 @@
       ],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/training-docs/[docId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.569Z",
+      "lastModified": "2026-07-24T09:58:09.124Z",
       "relatedFeatures": [
         {
           "id": "route:/training-docs/[docId]",
@@ -10231,7 +9678,7 @@
       ],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/training-docs/[docId]/preview/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.569Z",
+      "lastModified": "2026-07-24T09:58:09.124Z",
       "relatedFeatures": [
         {
           "id": "route:/training-docs/[docId]/preview",
@@ -10257,7 +9704,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/training-map/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.569Z",
+      "lastModified": "2026-07-24T09:58:09.125Z",
       "relatedFeatures": [
         {
           "id": "route:/training-map",
@@ -10283,7 +9730,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/ui-library/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.586Z",
+      "lastModified": "2026-07-24T09:58:09.125Z",
       "relatedFeatures": [
         {
           "id": "route:/ui-library",
@@ -10309,7 +9756,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/updates/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.586Z",
+      "lastModified": "2026-07-24T09:58:09.126Z",
       "relatedFeatures": [
         {
           "id": "changelog",
@@ -10326,7 +9773,7 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/changelog.mdx"
+        "docs/alleato-os-docs/help/articles/changelog.mdx"
       ]
     },
     {
@@ -10339,7 +9786,7 @@
       "dynamicSegments": [],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/user-management/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.589Z",
+      "lastModified": "2026-07-24T09:58:09.127Z",
       "relatedFeatures": [
         {
           "id": "manage-permissions",
@@ -10410,11 +9857,11 @@
         }
       ],
       "relatedHelpArticles": [
-        "backend/src/services/agents/app_expert/runtime/help/articles/manage-permissions.mdx",
-        "backend/src/services/agents/app_expert/runtime/help/articles/app-permissions-and-visibility.mdx",
-        "backend/src/services/agents/app_expert/runtime/help/articles/create-or-invite-a-user.mdx",
-        "backend/src/services/agents/app_expert/runtime/help/articles/update-your-profile.mdx",
-        "backend/src/services/agents/app_expert/runtime/help/articles/user-management.mdx"
+        "docs/alleato-os-docs/help/articles/manage-permissions.mdx",
+        "docs/alleato-os-docs/help/articles/app-permissions-and-visibility.mdx",
+        "docs/alleato-os-docs/help/articles/create-or-invite-a-user.mdx",
+        "docs/alleato-os-docs/help/articles/update-your-profile.mdx",
+        "docs/alleato-os-docs/help/articles/user-management.mdx"
       ]
     },
     {
@@ -10429,7 +9876,7 @@
       ],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/user-management/templates/[templateId]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.589Z",
+      "lastModified": "2026-07-24T09:58:09.128Z",
       "relatedFeatures": [
         {
           "id": "route:/user-management/templates/[templateId]",
@@ -10457,7 +9904,7 @@
       ],
       "routeGroup": "admin",
       "appFile": "frontend/src/app/(admin)/user-management/users/[userSlug]/page.tsx",
-      "lastModified": "2026-07-30T13:15:48.601Z",
+      "lastModified": "2026-07-24T09:58:09.128Z",
       "relatedFeatures": [
         {
           "id": "route:/user-management/users/[userSlug]",
@@ -10483,7 +9930,7 @@
       "dynamicSegments": [],
       "routeGroup": null,
       "appFile": "frontend/src/app/weekly-operating-review/page.tsx",
-      "lastModified": "2026-07-30T13:15:52.012Z",
+      "lastModified": "2026-07-24T09:58:09.354Z",
       "relatedFeatures": [
         {
           "id": "route:/weekly-operating-review",

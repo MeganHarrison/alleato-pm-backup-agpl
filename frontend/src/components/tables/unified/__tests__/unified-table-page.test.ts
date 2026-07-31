@@ -1,3 +1,6 @@
+/**
+ * @jest-environment jsdom
+ */
 import {
   MIN_COLUMN_RESIZE_WIDTH,
   TABLE_ABOVE_TABLE_TOOLBAR_CLASSNAME,
@@ -10,10 +13,17 @@ import {
   TABLE_SPLIT_VIEW_CONTAINER_CLASSNAME,
   TABLE_SPLIT_VIEW_PAGE_CONTAINER_CLASSNAME,
   computeResizedColumnWidth,
+  mergeContinuousTableItems,
   shouldRenderRowSelection,
   shouldPlaceToolbarInlineWithHeader,
   shouldUseIconOnlyInlineEdit,
 } from "../unified-table-page";
+import {
+  readUnifiedTablePreferences,
+  resolveUnifiedTablePerPage,
+  saveUnifiedTablePreferences,
+  UNIFIED_TABLE_PREFERENCES_STORAGE_KEY,
+} from "../use-unified-table-state";
 
 describe("UnifiedTablePage header labels", () => {
   it("does not truncate column headings", () => {
@@ -107,5 +117,56 @@ describe("column resize width computation", () => {
       MIN_COLUMN_RESIZE_WIDTH,
     );
     expect(MIN_COLUMN_RESIZE_WIDTH).toBe(120);
+  });
+});
+
+describe("unified table preferences", () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+  });
+
+  it("persists the selected row count without discarding the loading behavior", () => {
+    saveUnifiedTablePreferences({ paginationBehavior: "scroll" });
+    saveUnifiedTablePreferences({ perPage: 150 });
+
+    expect(readUnifiedTablePreferences()).toEqual({
+      perPage: 150,
+      paginationBehavior: "scroll",
+    });
+    expect(resolveUnifiedTablePerPage(null, 25)).toBe(150);
+    expect(resolveUnifiedTablePerPage("50", 25)).toBe(50);
+  });
+
+  it("rejects malformed saved values and keeps the supplied table default", () => {
+    window.localStorage.setItem(
+      UNIFIED_TABLE_PREFERENCES_STORAGE_KEY,
+      JSON.stringify({ perPage: 999, paginationBehavior: "unexpected" }),
+    );
+
+    expect(readUnifiedTablePreferences()).toEqual({
+      perPage: undefined,
+      paginationBehavior: undefined,
+    });
+    expect(resolveUnifiedTablePerPage(null, 25)).toBe(25);
+  });
+
+  it("keeps earlier server rows while adding the next scroll page", () => {
+    const getRowId = (item: { id: string; value: string }) => item.id;
+    const firstPage = [
+      { id: "a", value: "first" },
+      { id: "b", value: "second" },
+    ];
+    const nextPage = [
+      { id: "b", value: "updated" },
+      { id: "c", value: "third" },
+    ];
+
+    expect(
+      mergeContinuousTableItems(firstPage, nextPage, getRowId, false),
+    ).toEqual([
+      { id: "a", value: "first" },
+      { id: "b", value: "updated" },
+      { id: "c", value: "third" },
+    ]);
   });
 });

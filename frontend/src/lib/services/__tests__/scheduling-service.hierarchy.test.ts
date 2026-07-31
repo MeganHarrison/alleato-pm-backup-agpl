@@ -54,6 +54,7 @@ describe("SchedulingService.getTasksHierarchy", () => {
     const service = new SchedulingService(client as never);
     jest.spyOn(service, "getDependencies").mockResolvedValue([]);
     jest.spyOn(service, "getDeadlines").mockResolvedValue([]);
+    jest.spyOn(service, "getTaskSegments").mockResolvedValue([]);
 
     const hierarchy = await service.getTasksHierarchy(projectId);
 

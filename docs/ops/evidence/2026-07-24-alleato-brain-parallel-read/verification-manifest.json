@@ -1,0 +1,54 @@
+{
+  "contractVersion": 1,
+  "taskId": "ALL-11-PARALLEL-READ",
+  "riskLevel": "high",
+  "feature": "Alleato Brain parallel-run authorization",
+  "route": "Supabase Meetings/Tasks RLS and /api/knowledge/signed-url",
+  "flows": [
+    {
+      "name": "Read mapped legacy branch records",
+      "steps": [
+        "Authenticate as a recognized active internal non-admin",
+        "Add a rolled-back Finance fake-project membership",
+        "Read unrestricted, Finance, and mismatched Meetings and Tasks",
+        "Change the same principal to an external contact and repeat the open read"
+      ],
+      "expectedOutcome": "Unrestricted legacy rows are visible only to internal staff; Finance and mismatched rows remain hidden without exact Finance membership"
+    }
+  ],
+  "requiredEvidence": [
+    "summary",
+    "databaseReadback",
+    "negativePath",
+    "regressionTest"
+  ],
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "finance-fails-closed",
+      "description": "Finance and mismatched rows remain hidden from a Finance fake-project member without exact branch membership.",
+      "evidence": [
+        { "key": "databaseReadback", "min": 1 },
+        { "key": "negativePath", "min": 1 }
+      ]
+    },
+    {
+      "id": "internal-legacy-read",
+      "description": "Active internal staff can read unrestricted mapped legacy rows and external contacts cannot.",
+      "evidence": [
+        { "key": "databaseReadback", "min": 1 },
+        { "key": "negativePath", "min": 1 }
+      ]
+    },
+    {
+      "id": "rls-bound-source-access",
+      "description": "The signed source endpoint supports every RLS-visible document category and rejects unsafe source URLs.",
+      "evidence": [
+        { "key": "regressionTest", "min": 1 },
+        { "key": "summary", "min": 1 }
+      ]
+    }
+  ]
+}

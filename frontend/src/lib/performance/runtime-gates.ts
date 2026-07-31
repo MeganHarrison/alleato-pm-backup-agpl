@@ -1,8 +1,9 @@
 "use client";
 
 const AI_FULL_SURFACE_PREFIXES = [
-  "/ai",
+  "/ai/",
   "/ai-dashboard",
+  "/ai-assistant",
   "/ai-avatar",
 ] as const;
 

@@ -117,6 +117,50 @@ export function renderLegalBulletList(
   `;
 }
 
+/**
+ * Renders a numbered/lettered list of procedural steps.
+ *
+ * Unlike `renderLegalBulletList`, items are treated as trusted HTML so a step can
+ * emphasize the exact UI label a reader must click (`<b>Submit for Review</b>`).
+ * Callers are responsible for escaping any dynamic value they interpolate.
+ */
+export function renderLegalOrderedList(
+  itemsHtml: string[],
+  options: {
+    type?: "1" | "a" | "i";
+    className?: string;
+    itemMarginBottom?: string;
+  } = {},
+): string {
+  const { type = "1", className = "", itemMarginBottom = "6px" } = options;
+
+  if (itemsHtml.length === 0) return "";
+
+  return `
+    <ol class="legal-ordered-list${className ? ` ${className}` : ""}" type="${type}" style="margin:0 0 0.14in 0.3in;padding:0;">
+      ${itemsHtml
+        .map(
+          (item) => `
+            <li style="margin:0 0 ${itemMarginBottom} 0;">
+              <font color="#000000">
+                <span style="text-decoration:none">
+                  <font face="Times New Roman, serif">
+                    <font size="3" style="font-size:12pt">
+                      <span style="font-style:normal">
+                        <span style="font-weight:normal">${item}</span>
+                      </span>
+                    </font>
+                  </font>
+                </span>
+              </font>
+            </li>
+          `,
+        )
+        .join("")}
+    </ol>
+  `;
+}
+
 export function renderLegalTable({
   headers,
   rows,

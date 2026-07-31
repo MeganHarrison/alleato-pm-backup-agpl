@@ -1,0 +1,73 @@
+{
+  "contractVersion": 1,
+  "taskId": "ALL-11-DOCUMENT-READ",
+  "riskLevel": "high",
+  "feature": "Alleato Brain Business Area document authorization",
+  "route": "/brain",
+  "flows": [
+    {
+      "name": "Business Area document principal transition",
+      "steps": [
+        "Apply the restrictive Business Area document policy",
+        "Exercise open-branch CRUD and Finance denial as an internal nonmember",
+        "Prove inactive Finance membership denial, then activate it and exercise Finance CRUD",
+        "Make membership inactive and independently exercise app-admin Finance CRUD",
+        "Change the same identity to an external contact",
+        "Exercise Business Area denial and unscoped legacy CRUD",
+        "Roll back every fixture mutation"
+      ],
+      "expectedOutcome": "Every Business Area operation enforces internal and restricted-area authorization while unscoped legacy behavior remains unchanged"
+    }
+  ],
+  "requiredEvidence": [
+    "summary",
+    "databaseReadback",
+    "negativePath",
+    "regressionTest"
+  ],
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "internal-open-finance-closed",
+      "description": "An internal nonmember completes open-branch CRUD and is denied Finance read, insert, re-scope, and delete.",
+      "evidence": [
+        { "key": "databaseReadback", "min": 1 },
+        { "key": "negativePath", "min": 1 }
+      ]
+    },
+    {
+      "id": "external-business-area-closed",
+      "description": "The same identity is denied Business Area read, insert, update, and delete after becoming external.",
+      "evidence": [
+        { "key": "databaseReadback", "min": 1 },
+        { "key": "regressionTest", "min": 1 }
+      ]
+    },
+    {
+      "id": "finance-member-open",
+      "description": "Inactive Finance membership remains denied and active membership enables Finance read, insert, update, and delete.",
+      "evidence": [
+        { "key": "databaseReadback", "min": 1 },
+        { "key": "negativePath", "min": 1 }
+      ]
+    },
+    {
+      "id": "finance-admin-open",
+      "description": "App-admin status independently enables Finance read, insert, update, and delete while membership is inactive.",
+      "evidence": [
+        { "key": "databaseReadback", "min": 1 },
+        { "key": "regressionTest", "min": 1 }
+      ]
+    },
+    {
+      "id": "unscoped-legacy-preserved",
+      "description": "Unscoped legacy read, insert, update, and delete behavior remains unchanged.",
+      "evidence": [
+        { "key": "databaseReadback", "min": 1 },
+        { "key": "regressionTest", "min": 1 }
+      ]
+    }
+  ]
+}

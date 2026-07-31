@@ -9,6 +9,8 @@ import {
   inspectBuildOutput,
   resolveProductionOutputBoundary,
 } from "./build-output-boundary.mjs";
+import { assertProductionDeploymentSource } from "./production-source-gate.mjs";
+import { prepareRouteInventory } from "./prepare-route-inventory.mjs";
 
 const frontendRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const repoRoot = path.resolve(frontendRoot, "..");
@@ -31,16 +33,17 @@ const TRANSIENT_NEXT_BUILD_FAILURES = [
   /TurbopackInternalError: failed to write (?:app endpoint|to .*\.next\/)/i,
   /ENOENT: no such file or directory, open '.*\.next\//,
   /No such file or directory \(os error 2\)/,
+  /Symlink node_modules is invalid, it points out of the filesystem root/,
 ];
-const TURBOPACK_BUILD_ARGS = ["exec", "next", "build", "--turbopack"];
-const WEBPACK_BUILD_ARGS = ["exec", "next", "build"];
+const TURBOPACK_BUILD_ARGS = ["build", "--turbopack"];
+const WEBPACK_BUILD_ARGS = ["build"];
 const isVercel = process.env.VERCEL === "1" || process.env.VERCEL === "true";
 const buildEngine = (process.env.NEXT_PRODUCTION_BUILD_ENGINE ?? "turbopack")
   .trim()
   .toLowerCase();
 const nextBuildNodeOptions =
   process.env.NEXT_PRODUCTION_BUILD_NODE_OPTIONS?.trim() ||
-  (isVercel ? "--max-old-space-size=7168" : "--max-old-space-size=16384");
+  (isVercel ? "--max-old-space-size=11264" : "--max-old-space-size=16384");
 const turbopackSilenceTimeoutMs = Math.max(
   1,
   Number.parseInt(process.env.NEXT_TURBOPACK_SILENCE_TIMEOUT_MS ?? "", 10) || 8 * 60 * 1000,
@@ -177,12 +180,31 @@ function getSilenceTimeoutMs(label) {
   return null;
 }
 
-async function runNextBuildAttempt({ attempt, args, label }) {
-  if (!isVercel || attempt > 1 || label !== "Turbopack") {
-    removeNextDir("prevent stale manifest/cache failures");
-  } else {
-    console.log("[build] Preserving restored Vercel .next cache for first Turbopack attempt");
+function nextInvocation(args) {
+  const nextEntrypoint = path.join(frontendRoot, "node_modules/next/dist/bin/next");
+  if (!existsSync(nextEntrypoint)) {
+    throw new Error(
+      `[build] Next.js CLI entrypoint was not found at ${nextEntrypoint}. Install frontend dependencies first.`,
+    );
   }
+  return { command: process.execPath, args: [nextEntrypoint, ...args] };
+}
+
+async function runNextBuildAttempt({ attempt, args, label }) {
+  // Every production `frontend` deployment failed with an OOM SIGKILL for
+  // ~15+ hours starting 2026-07-28, across dozens of unrelated commits
+  // (confirmed via Vercel's own build-system report). The onset lines up
+  // with this branch: on Vercel, the first Turbopack attempt used to skip
+  // clearing `.next`, deliberately preserving Vercel's restored
+  // `.next/cache`. Many of those builds were themselves killed mid-write, so
+  // the persisted cache restored into each subsequent build was very likely
+  // growing unbounded and/or partially corrupted — every build then loaded a
+  // progressively larger/broken cache before compilation even started.
+  // Always clearing `.next` first breaks that spiral. This trades away
+  // incremental-build speed (cold builds again, ~8-10 min) for correctness.
+  // Re-introduce cache preservation only alongside a safeguard that bounds
+  // or periodically resets cache size.
+  removeNextDir("prevent stale manifest/cache failures");
 
   let buildOutput = "";
   let silenceTimer = null;
@@ -198,7 +220,8 @@ async function runNextBuildAttempt({ attempt, args, label }) {
         `[build] ${label} silence timeout ${Math.round(silenceTimeoutMs / 1000)}s before guardrail triggers`,
       );
     }
-    activeChild = spawn("pnpm", args, {
+    const invocation = nextInvocation(args);
+    activeChild = spawn(invocation.command, invocation.args, {
       cwd: frontendRoot,
       env: {
         ...process.env,
@@ -311,6 +334,7 @@ async function runNextBuildAttempt({ attempt, args, label }) {
 }
 
 async function main() {
+  assertProductionDeploymentSource();
   acquireBuildLock();
 
   if (!["turbopack", "webpack"].includes(buildEngine)) {
@@ -327,9 +351,7 @@ async function main() {
 
   await timedStep("Disable non-production routes", () => runNodeScript(disableScript));
 
-  await timedStep("Generate route inventory CSV", () =>
-    runNodeScript(path.join(repoRoot, "scripts/verify/route-audit.mjs"), { cwd: repoRoot }),
-  );
+  await timedStep("Prepare route inventory", () => prepareRouteInventory());
 
   const exitCode = await timedStep("Next production build", () => {
     if (buildEngine === "webpack") {

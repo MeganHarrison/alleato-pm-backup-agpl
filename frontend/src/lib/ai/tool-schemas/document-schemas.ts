@@ -8,9 +8,7 @@ export const semanticSearchDescription =
   "Returns ranked results from multiple source families with relevance scores.";
 
 export const semanticSearchInputSchema = z.object({
-  query: z
-    .string()
-    .describe("Natural language search query"),
+  query: z.string().describe("Natural language search query"),
   sourceFilter: z
     .array(z.string())
     .optional()
@@ -19,6 +17,12 @@ export const semanticSearchInputSchema = z.object({
         "Omit to search all sources.",
     ),
   projectId: z.number().optional().describe("Filter to a specific project"),
+  businessAreaId: z
+    .number()
+    .int()
+    .positive()
+    .optional()
+    .describe("Filter to a specific Alleato Brain Business Area"),
   projectName: z
     .string()
     .optional()
@@ -41,7 +45,9 @@ export const searchExternalDocumentsDescription =
   "Returns relevant passages with source file references.";
 
 export const searchExternalDocumentsInputSchema = z.object({
-  query: z.string().describe("Search query — keywords or natural language question"),
+  query: z
+    .string()
+    .describe("Search query — keywords or natural language question"),
   projectId: z.number().optional().describe("Filter to a specific project"),
   limit: z
     .number()
@@ -192,5 +198,9 @@ export const searchDocumentsInputSchema = z.object({
     .describe(
       "Optional project name to resolve and filter by (e.g. 'Uniqlo', 'Cedar Park')",
     ),
-  maxResults: z.number().optional().default(10).describe("Max results to return"),
+  maxResults: z
+    .number()
+    .optional()
+    .default(10)
+    .describe("Max results to return"),
 });

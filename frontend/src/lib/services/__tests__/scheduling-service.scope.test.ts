@@ -13,7 +13,10 @@ function serviceWithAuth() {
 describe("SchedulingService project ownership boundary", () => {
   it("rejects deletion before mutating when the task is not in the requested project", async () => {
     const service = serviceWithAuth();
-    jest.spyOn(service, "getTaskById").mockResolvedValue(null);
+    jest.spyOn(service as never, "fetchScheduleGraph").mockResolvedValue({
+      tasks: [],
+      dependencies: [],
+    });
 
     await expect(service.deleteDependency(projectId, taskId, "foreign-dependency")).rejects.toThrow(
       "Task not found for this project.",
@@ -38,10 +41,10 @@ describe("SchedulingService project ownership boundary", () => {
 
   it("rejects a predecessor from another project", async () => {
     const service = serviceWithAuth();
-    jest
-      .spyOn(service, "getTaskById")
-      .mockResolvedValueOnce({ id: taskId } as never)
-      .mockResolvedValueOnce(null);
+    jest.spyOn(service as never, "fetchScheduleGraph").mockResolvedValue({
+      tasks: [{ id: taskId }],
+      dependencies: [],
+    });
 
     await expect(service.createDependency(projectId, {
       task_id: taskId,
@@ -51,8 +54,19 @@ describe("SchedulingService project ownership boundary", () => {
 
   it("rejects a predecessor that closes a circular dependency chain", async () => {
     const service = serviceWithAuth();
-    jest.spyOn(service, "getTaskById").mockResolvedValue({ id: taskId } as never);
-    jest.spyOn(service as never, "wouldCreateDependencyCycle").mockResolvedValue(true);
+    jest.spyOn(service as never, "fetchScheduleGraph").mockResolvedValue({
+      tasks: [{ id: taskId }, { id: "valid-task" }],
+      dependencies: [
+        {
+          id: "existing",
+          task_id: "valid-task",
+          predecessor_task_id: taskId,
+          dependency_type: "finish_to_start",
+          lag_days: 0,
+          created_at: "2026-07-29T00:00:00.000Z",
+        },
+      ],
+    });
 
     await expect(service.createDependency(projectId, {
       task_id: taskId,

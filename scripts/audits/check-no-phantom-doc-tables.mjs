@@ -54,11 +54,9 @@ const MD_EXT = /\.mdx?$/;
 // the proposal). docs/architecture/_audit/ holds one-time investigation output
 // (same category as a report, not a maintained DB-fact doc). docs/architecture/memory/
 // holds unrelated personal/voice-profile content that has nothing to do with
-// the database schema. Agent skill packages are reusable tooling and examples,
-// not authoritative Alleato schema docs; their fixtures may describe databases
-// owned by entirely different applications.
+// the database schema.
 const IGNORE_PATH_RE =
-  /(^|\/)_bmad-output\/|(^|\/)\.(?:agents|claude)\/skills\/|(^|\/)docs\/archive\/|(^|\/)docs\/migrate\/|(^|\/)docs\/patterns\/|(^|\/)docs\/ops\/(tasks|evidence)\/|(^|\/)docs\/architecture\/PROJECT-MAP\.md$|(^|\/)docs\/design\/entity-relationships\/|(^|\/)docs\/architecture\/_audit\/|(^|\/)docs\/architecture\/memory\//;
+  /(^|\/)_bmad-output\/|(^|\/)docs\/archive\/|(^|\/)docs\/migrate\/|(^|\/)docs\/patterns\/|(^|\/)docs\/ops\/(tasks|evidence)\/|(^|\/)docs\/architecture\/PROJECT-MAP\.md$|(^|\/)docs\/design\/entity-relationships\/|(^|\/)docs\/architecture\/_audit\/|(^|\/)docs\/architecture\/memory\//;
 
 const args = new Set(process.argv.slice(2));
 const baseFlagIdx = process.argv.indexOf("--base");

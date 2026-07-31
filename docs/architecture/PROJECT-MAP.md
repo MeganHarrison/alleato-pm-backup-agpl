@@ -11,9 +11,9 @@
 > `docs/architecture/TABLE-LIST.md`. The in-app assistant searches the same
 > production subset via the `findAppPage` tool (`frontend/src/lib/app-surface/`).
 
-## UI Routes (366)
+## UI Routes (368)
 
-_294/366 have a description (from the page's `PageShell` or the curated `frontend/src/lib/app-surface/page-descriptions.json` sidecar). Pages without one are invisible to find-a-page search — add an entry to the sidecar (index-only) or a `PageShell` description (also renders in the UI)._
+_285/368 have a description (from the page's `PageShell` or the curated `frontend/src/lib/app-surface/page-descriptions.json` sidecar). Pages without one are invisible to find-a-page search — add an entry to the sidecar (index-only) or a `PageShell` description (also renders in the UI)._
 
 | URL | What it does | File |
 |-----|--------------|------|
@@ -115,6 +115,9 @@ _294/366 have a description (from the page's `PageShell` or the curated `fronten
 | `/[projectId]/prime-contracts/change-orders` | Redirect to prime change orders tab in the canonical change orders page | frontend/src/app/(main)/[projectId]/prime-contracts/change-orders/page.tsx |
 | `/[projectId]/prime-contracts/configure` | Project-level settings for how prime contracts behave | frontend/src/app/(main)/[projectId]/prime-contracts/configure/page.tsx |
 | `/[projectId]/prime-contracts/new` | Enter contract details, financial markup, and SOV line items. | frontend/src/app/(main)/[projectId]/prime-contracts/new/page.tsx |
+| `/[projectId]/procurement` | — | frontend/src/app/(main)/[projectId]/procurement/page.tsx |
+| `/[projectId]/procurement/[procurementItemId]` | — | frontend/src/app/(main)/[projectId]/procurement/[procurementItemId]/page.tsx |
+| `/[projectId]/procurement/new` | Add Procurement Item | frontend/src/app/(main)/[projectId]/procurement/new/page.tsx |
 | `/[projectId]/progress-reports` | List weekly progress reports with photos, recipients, and publication status | frontend/src/app/(main)/[projectId]/progress-reports/page.tsx |
 | `/[projectId]/progress-reports/[reportId]` | Edit and publish a weekly progress report from meetings, emails, and photos | frontend/src/app/(main)/[projectId]/progress-reports/[reportId]/page.tsx |
 | `/[projectId]/project-status-report` | Monthly project budget, invoice, schedule, and open items summary for stakeholders | frontend/src/app/(main)/[projectId]/project-status-report/page.tsx |
@@ -136,7 +139,7 @@ _294/366 have a description (from the page's `PageShell` or the curated `fronten
 | `/[projectId]/submittals/[submittalId]/edit` | Edit submittal metadata, type, package, and specification associations | frontend/src/app/(main)/[projectId]/submittals/[submittalId]/edit/page.tsx |
 | `/[projectId]/submittals/new` | Create new submittal with optional package or spec section prefill | frontend/src/app/(main)/[projectId]/submittals/new/page.tsx |
 | `/[projectId]/tasks` | Project task inbox and workflow management interface | frontend/src/app/(main)/[projectId]/tasks/page.tsx |
-| `/[projectId]/tasks/kanban` | — | frontend/src/app/(main)/[projectId]/tasks/kanban/page.tsx |
+| `/[projectId]/tasks/kanban` | Drag cards between statuses. Moves save immediately. | frontend/src/app/(main)/[projectId]/tasks/kanban/page.tsx |
 | `/[projectId]/timeline` | Chronological feed of project events and activity history | frontend/src/app/(main)/[projectId]/timeline/page.tsx |
 | `/[projectId]/transmittals` | Manage transmittals and project correspondence | frontend/src/app/(main)/[projectId]/transmittals/page.tsx |
 | `/[projectId]/user-management` | Assign project roles and module-level access for every member of this project. | frontend/src/app/(main)/[projectId]/user-management/page.tsx |
@@ -155,6 +158,7 @@ _294/366 have a description (from the page's `PageShell` or the curated `fronten
 | `/accounting/sop-backlog` | Track accounting and finance SOP items that still need a linked process or file. | frontend/src/app/(admin)/accounting/sop-backlog/page.tsx |
 | `/accounting/wip` | Work-in-progress report with contract value, cost variance, and billing position | frontend/src/app/(admin)/accounting/wip/page.tsx |
 | `/actions` | Manually run internal workflows, syncs, AI refreshes, and outbound notifications without exposing those controls on client-facing pages. | frontend/src/app/(admin)/actions/page.tsx |
+| `/actions/workflows` | Shape internal automation steps with collaborators in real time. | frontend/src/app/(admin)/actions/workflows/page.tsx |
 | `/acumatica-sync-logs` | Outbound app-to-Acumatica create/update/skip/error audit trail. | frontend/src/app/(admin)/acumatica-sync-logs/page.tsx |
 | `/admin` | Directory of admin, intelligence, database, testing, and internal documentation pages | frontend/src/app/(admin)/admin/page.tsx |
 | `/admin-check` | Verify the current user's authentication status and super admin privileges | frontend/src/app/(admin)/admin-check/page.tsx |
@@ -164,7 +168,12 @@ _294/366 have a description (from the page's `PageShell` or the curated `fronten
 | `/admin/daily-briefs/[briefId]` | — | frontend/src/app/(admin)/admin/daily-briefs/[briefId]/page.tsx |
 | `/admin/errors` | Redirect to /errors; grouped application errors and issue review | frontend/src/app/admin/errors/page.tsx |
 | `/ai` | AI chat interface for conversing with Alleato AI and running workflows | frontend/src/app/(main)/ai/page.tsx |
+| `/ai-assistant` | Redirect to /ai; AI assistant and chat interface for projects | frontend/src/app/(main)/ai-assistant/page.tsx |
 | `/ai-assistant-debug` | Inspect routing, retrieval, tools, agents, model path, sources, and quality signals for assistant answers. | frontend/src/app/(admin)/ai-assistant-debug/page.tsx |
+| `/ai-assistant/feature-requests` | Durable AIS request packets, readiness state, and implementation handoffs. | frontend/src/app/(main)/ai-assistant/feature-requests/page.tsx |
+| `/ai-assistant/feature-requests/[requestId]` | Feature request workspace and details for AI assistant improvements | frontend/src/app/(main)/ai-assistant/feature-requests/[requestId]/page.tsx |
+| `/ai-assistant/marketing` | Review source-backed CMO content plans, draft assets, citations, and approval states. | frontend/src/app/(main)/ai-assistant/marketing/page.tsx |
+| `/ai-assistant/teach` | Redirect to /ai/teach; submit reviewed workflow knowledge to the AI system | frontend/src/app/(main)/ai-assistant/teach/page.tsx |
 | `/ai-avatar` | A separate live Tavus avatar experience for onboarding and internal experiments. | frontend/src/app/(main)/ai-avatar/page.tsx |
 | `/ai-chat-history` | AI Chat History | frontend/src/app/(admin)/ai-chat-history/page.tsx |
 | `/ai-dashboard` | — | frontend/src/app/(main)/ai-dashboard/page.tsx |
@@ -178,53 +187,34 @@ _294/366 have a description (from the page's `PageShell` or the curated `fronten
 | `/ai-dashboard/company-brain` | — | frontend/src/app/(main)/ai-dashboard/company-brain/page.tsx |
 | `/ai-dashboard/decisions` | — | frontend/src/app/(main)/ai-dashboard/decisions/page.tsx |
 | `/ai-dashboard/projects` | — | frontend/src/app/(main)/ai-dashboard/projects/page.tsx |
+| `/ai-dashboard/rag-pipeline` | — | frontend/src/app/(main)/ai-dashboard/rag-pipeline/page.tsx |
 | `/ai-prompt-diagnostics` | Inspect the assembled AI assistant system prompt for a representative request. | frontend/src/app/(admin)/ai-prompt-diagnostics/page.tsx |
 | `/ai-system-health` | Conversations, tokens, spend, satisfaction, model mix, the self-learning loop, and ingestion-pipeline status — one screen for stakeholder visibility into the AI. | frontend/src/app/(admin)/ai-system-health/page.tsx |
-| `/ai-vision` | Capability status and planned work are maintained in the AI registry. | frontend/src/app/(admin)/ai-vision/page.tsx |
+| `/ai-vision` | One screen for the whole AI build — the vision, the agent team, the tools in priority order, and what's already live. | frontend/src/app/(admin)/ai-vision/page.tsx |
+| `/ai-workflow` | Vercel Workflow runtime with resumable streams | frontend/src/app/(main)/ai-workflow/page.tsx |
 | `/ai/admin/agents` | AI agent registry with table and dependency graph views, status and impact filters | frontend/src/app/(admin)/ai/admin/agents/page.tsx |
 | `/ai/admin/skills` | Review Skill Library records by status, scope, owner, reviewer, and usage. | frontend/src/app/(admin)/ai/admin/skills/page.tsx |
 | `/ai/approvals` | AI approvals | frontend/src/app/(main)/ai/approvals/page.tsx |
+| `/ai/company-brain` | — | frontend/src/app/(main)/ai/company-brain/page.tsx |
 | `/ai/email-learning` | Email Learning | frontend/src/app/(admin)/ai/email-learning/page.tsx |
-| `/ai/feature-requests` | Durable AIS request packets, readiness state, and implementation handoffs. | frontend/src/app/(main)/ai/feature-requests/page.tsx |
-| `/ai/feature-requests/[requestId]` | Feature request workspace and implementation details | frontend/src/app/(main)/ai/feature-requests/[requestId]/page.tsx |
-| `/ai/features` | — | frontend/src/app/(main)/ai/features/page.tsx |
-| `/ai/features/ai-profile` | — | frontend/src/app/(main)/ai/features/ai-profile/page.tsx |
-| `/ai/features/approvals` | — | frontend/src/app/(main)/ai/features/approvals/page.tsx |
-| `/ai/features/assistant` | — | frontend/src/app/(main)/ai/features/assistant/page.tsx |
-| `/ai/features/memory-center` | — | frontend/src/app/(main)/ai/features/memory-center/page.tsx |
-| `/ai/features/project-cost-allocation-wip` | — | frontend/src/app/(main)/ai/features/project-cost-allocation-wip/page.tsx |
-| `/ai/features/skill-library` | — | frontend/src/app/(main)/ai/features/skill-library/page.tsx |
-| `/ai/features/teach-alleato` | — | frontend/src/app/(main)/ai/features/teach-alleato/page.tsx |
 | `/ai/learning-promotions` | Review candidate learnings before they can become durable assistant behavior, memory, attribution, or retrieval rules. | frontend/src/app/(admin)/ai/learning-promotions/page.tsx |
-| `/ai/marketing` | Review source-backed CMO content plans, draft assets, citations, and approval states. | frontend/src/app/(main)/ai/marketing/page.tsx |
 | `/ai/profile` | Review what Alleato AI knows about you and where to manage it. | frontend/src/app/(main)/ai/profile/page.tsx |
 | `/ai/skills` | Approved assistant skills by category, scope, owner, reviewer, and usage. | frontend/src/app/(main)/ai/skills/page.tsx |
 | `/ai/teach` | Submissions become review candidates before they change assistant behavior. | frontend/src/app/(main)/ai/teach/page.tsx |
 | `/ai/testing` | Eve Tool Testing | frontend/src/app/(main)/ai/testing/page.tsx |
 | `/analytics` | Platform Analytics | frontend/src/app/(admin)/analytics/page.tsx |
 | `/annotation-inbox` | Manage issue annotations and feedback with priority scoring, dispatch to agents, and duplicate clustering | frontend/src/app/(admin)/annotation-inbox/page.tsx |
-| `/api-docs` | Interactive Swagger UI for the Alleato Procore frontend + backend endpoints. | frontend/src/app/(admin)/api-docs/page.tsx |
-| `/asrs` | Revision-scoped FMDS 8-34 engineering answers with exact table, figure, and PDF evidence. | frontend/src/app/(main)/asrs/page.tsx |
-| `/asrs/figures` | ASRS Intelligence | frontend/src/app/(main)/asrs/figures/page.tsx |
-| `/asrs/figures/[figureId]` | — | frontend/src/app/(main)/asrs/figures/[figureId]/page.tsx |
-| `/asrs/intake` | Enter the storage, rack, and sprinkler details for an FMDS 8-34 review. | frontend/src/app/(main)/asrs/intake/page.tsx |
-| `/asrs/intake/submitted/[submissionId]` | — | frontend/src/app/(main)/asrs/intake/submitted/[submissionId]/page.tsx |
-| `/asrs/tables` | ASRS Intelligence | frontend/src/app/(main)/asrs/tables/page.tsx |
-| `/asrs/tables/[tableId]` | — | frontend/src/app/(main)/asrs/tables/[tableId]/page.tsx |
 | `/assignment-inbox` | View and manage assigned tasks and action items across projects | frontend/src/app/(tables)/assignment-inbox/page.tsx |
-| `/auth/ai-change-event-preview-card` | Version 1 is the current review card. Version 2 adapts the widget builder form layout for comparison. | frontend/src/app/auth/ai-change-event-preview-card/page.tsx |
-| `/auth/ai-widget-gallery` | Gallery of AI-powered interactive widgets and components | frontend/src/app/auth/ai-widget-gallery/page.tsx |
 | `/auth/confirm` | — | frontend/src/app/auth/confirm/page.tsx |
 | `/auth/error` | Authentication error page displaying error codes and messages | frontend/src/app/auth/error/page.tsx |
 | `/auth/forgot-password` | Password recovery form for users who have forgotten their login credentials | frontend/src/app/auth/forgot-password/page.tsx |
 | `/auth/login` | User login form for signing in to the Alleato PM application | frontend/src/app/auth/login/page.tsx |
-| `/auth/login-v2` | Login page design version 2 with modern UI | frontend/src/app/auth/login-v2/page.tsx |
-| `/auth/login-v3` | Login page design version 3 with enhanced user experience | frontend/src/app/auth/login-v3/page.tsx |
 | `/auth/sign-up` | New user registration form for creating an account | frontend/src/app/auth/sign-up/page.tsx |
 | `/auth/sign-up-success` | Confirmation page displayed after successful account creation | frontend/src/app/auth/sign-up-success/page.tsx |
 | `/auth/source` | — | frontend/src/app/auth/source/page.tsx |
 | `/auth/update-password` | Form for users to set or reset their password | frontend/src/app/auth/update-password/page.tsx |
 | `/billing-periods` | Redirect to project-scoped billing periods under the invoices tab | frontend/src/app/(main)/billing-periods/page.tsx |
+| `/brandons-dashboard` | Brandon's Dashboard | frontend/src/app/(admin)/brandons-dashboard/page.tsx |
 | `/calendar` | Project calendar view for scheduling and tracking events | frontend/src/app/(main)/calendar/page.tsx |
 | `/change-events` | Global table of change events and modifications across all projects | frontend/src/app/(tables)/change-events/page.tsx |
 | `/command-center` | Kanban-style task board for tracking initiatives across idea, planned, in progress, and done statuses | frontend/src/app/(admin)/command-center/page.tsx |
@@ -232,22 +222,38 @@ _294/366 have a description (from the page's `PageShell` or the curated `fronten
 | `/comments` | — | frontend/src/app/(main)/comments/page.tsx |
 | `/company-settings` | Control company-wide defaults without disrupting active project workflows. | frontend/src/app/(admin)/company-settings/page.tsx |
 | `/company-settings/project-creation-log` | Project Creation Log | frontend/src/app/(admin)/company-settings/project-creation-log/page.tsx |
+| `/content` | — | frontend/src/app/(main)/content/page.tsx |
+| `/content/courses/[courseId]` | — | frontend/src/app/(main)/content/courses/[courseId]/page.tsx |
+| `/content/courses/new` | Define the learning outcome first. Add existing guides, SOPs, and resources after the course is created. | frontend/src/app/(main)/content/courses/new/page.tsx |
+| `/content/resources/new` | Add an external video, document, or course. A reviewer must approve it before employees see it. | frontend/src/app/(main)/content/resources/new/page.tsx |
 | `/create-project` | Set up core project details, location, and delivery defaults. | frontend/src/app/(main)/create-project/page.tsx |
-| `/daily-brief` | Daily Brief is limited to users with executive briefing access. | frontend/src/app/(main)/daily-brief/page.tsx |
+| `/crm` | — | frontend/src/app/(main)/crm/page.tsx |
+| `/crm/activities` | — | frontend/src/app/(main)/crm/activities/page.tsx |
+| `/crm/command-center` | Forecast, source activity, pursuit priorities, and evidence-backed next moves | frontend/src/app/(main)/crm/command-center/page.tsx |
+| `/crm/companies/[companyId]` | Return to relationships and choose an active CRM account. | frontend/src/app/(main)/crm/companies/[companyId]/page.tsx |
+| `/crm/deals` | — | frontend/src/app/(main)/crm/deals/page.tsx |
+| `/crm/deals/[dealId]` | — | frontend/src/app/(main)/crm/deals/[dealId]/page.tsx |
+| `/crm/growth` | — | frontend/src/app/(main)/crm/growth/page.tsx |
+| `/crm/leads` | — | frontend/src/app/(main)/crm/leads/page.tsx |
+| `/crm/pipeline` | — | frontend/src/app/(main)/crm/pipeline/page.tsx |
+| `/crm/settings` | — | frontend/src/app/(main)/crm/settings/page.tsx |
+| `/crm/settings/matching` | — | frontend/src/app/(main)/crm/settings/matching/page.tsx |
+| `/crm/tasks` | Calls, emails, meetings, and follow-ups tied to CRM relationships | frontend/src/app/(main)/crm/tasks/page.tsx |
+| `/daily-brief` | Daily Brief is limited to users with executive briefing access. | frontend/src/app/daily-brief/page.tsx |
 | `/daily-briefs` | Historical record of executive Daily Brief packets and delivery status | frontend/src/app/(tables)/daily-briefs/page.tsx |
 | `/daily-briefs/[briefId]` | Daily Brief history requires executive detail access because historic packets contain claims, evidence, and artifacts. | frontend/src/app/(tables)/daily-briefs/[briefId]/page.tsx |
 | `/daily-logs` | Table of daily construction logs with weather, manpower, and work completed entries | frontend/src/app/(tables)/daily-logs/page.tsx |
 | `/daily-logs/[dailyLogId]` | Detailed view of a specific daily log entry | frontend/src/app/(tables)/daily-logs/[dailyLogId]/page.tsx |
 | `/daily-reports` | AI-generated daily recap summaries of meetings and project decisions | frontend/src/app/(tables)/daily-reports/page.tsx |
 | `/database-inventory` | Schema inventory of database tables with row counts, size, and gotchas | frontend/src/app/(admin)/database-inventory/page.tsx |
+| `/database-inventory/[tableName]` | — | frontend/src/app/(admin)/database-inventory/[tableName]/page.tsx |
 | `/db-audit-log` | — | frontend/src/app/(admin)/db-audit-log/page.tsx |
+| `/db-console` | Embedded Supabase management for the PM App and AI databases — tables, SQL editor, auth, storage, secrets, and logs. Admin only. | frontend/src/app/(admin)/db-console/page.tsx |
 | `/deals` | — | frontend/src/app/(tables)/deals/page.tsx |
 | `/deep-research` | Run an LLM wiki workflow, then refresh this archive. | frontend/src/app/(admin)/deep-research/page.tsx |
-| `/demo` | — | frontend/src/app/(main)/demo/page.tsx |
-| `/design` | Living inventory of every token and component. Import from @/components/ds. | frontend/src/app/(admin)/design/page.tsx |
+| `/design` | Brand guide | frontend/src/app/(admin)/design/page.tsx |
 | `/design-ideas` | Design system showcase and reference page for UI components and patterns | frontend/src/app/(admin)/design-ideas/page.tsx |
 | `/design-violations` | Flagged design system violations — right-click any element in dev mode to flag | frontend/src/app/(admin)/design-violations/page.tsx |
-| `/dev/table-generator` | Generate UnifiedTablePage + feature config from your Supabase schema | frontend/src/app/(admin)/dev/table-generator/page.tsx |
 | `/directory` | Redirect to companies directory listing | frontend/src/app/(main)/directory/page.tsx |
 | `/directory/clients` | Table of client companies with contact info and project relationships | frontend/src/app/(main)/directory/clients/page.tsx |
 | `/directory/companies` | Directory of all companies with type, status, contacts, and ERP sync integration | frontend/src/app/(main)/directory/companies/page.tsx |
@@ -256,7 +262,6 @@ _294/366 have a description (from the page's `PageShell` or the curated `fronten
 | `/directory/contacts/[contactId]` | This contact has not been assigned to any projects yet. | frontend/src/app/(main)/directory/contacts/[contactId]/page.tsx |
 | `/directory/employees` | Directory of Alleato Group employees with job titles, departments, and contact info | frontend/src/app/(main)/directory/employees/page.tsx |
 | `/directory/groups` | Distribution groups for mass communication and team organization | frontend/src/app/(main)/directory/groups/page.tsx |
-| `/directory/prospects` | Sales pipeline tracking prospects, leads, and business development opportunities | frontend/src/app/(main)/directory/prospects/page.tsx |
 | `/directory/vendors` | Vendor directory with payment terms, Acumatica sync, and 1099 classification | frontend/src/app/(main)/directory/vendors/page.tsx |
 | `/directory/vendors/[vendorId]` | Loading vendor information... | frontend/src/app/(main)/directory/vendors/[vendorId]/page.tsx |
 | `/docs/[[...slug]]` | Try a broader search phrase. | frontend/src/app/(admin)/docs/[[...slug]]/page.tsx |
@@ -265,7 +270,7 @@ _294/366 have a description (from the page's `PageShell` or the curated `fronten
 | `/docs/ai-overview/learning` | Each loop is operational today. They run continuously in the background: no manual trigger required. | frontend/src/app/(admin)/docs/ai-overview/learning/page.tsx |
 | `/docs/ai-overview/memory` | Documentation explaining how AI memory is organized across conversation history, typed memories, and the vector knowledge base | frontend/src/app/(admin)/docs/ai-overview/memory/page.tsx |
 | `/docs/ai-overview/models-and-cost` | Each role in the system has a default model assigned in `frontend/src/lib/ai/providers.ts`. The model registry below shows what's wired today. | frontend/src/app/(admin)/docs/ai-overview/models-and-cost/page.tsx |
-| `/docs/ai-overview/team` | Eve owns reasoning, skill selection, tool calls, and the final response. Skills are instruction modules inside Eve, not separate workers. | frontend/src/app/(admin)/docs/ai-overview/team/page.tsx |
+| `/docs/ai-overview/team` | These agents have system prompts deployed and are wired into the orchestrator. Every live conversation goes through at least one of them. | frontend/src/app/(admin)/docs/ai-overview/team/page.tsx |
 | `/docs/ai-overview/tools` | Each domain corresponds to a tool file in `frontend/src/lib/ai/tools/`. The model picks tools based on what your question needs. | frontend/src/app/(admin)/docs/ai-overview/tools/page.tsx |
 | `/document-metadata` | Admin dashboard listing all document and meeting metadata with search, filtering, and bulk management | frontend/src/app/(admin)/document-metadata/page.tsx |
 | `/documents` | — | frontend/src/app/(tables)/documents/page.tsx |
@@ -281,13 +286,6 @@ _294/366 have a description (from the page's `PageShell` or the curated `fronten
 | `/feedback-inbox` | Review feedback, assign tools, and sync issues to GitHub. | frontend/src/app/(admin)/feedback-inbox/page.tsx |
 | `/files` | Global file browser and manager | frontend/src/app/(tables)/files/page.tsx |
 | `/financial-insights` | Run a portfolio scan to detect budget discrepancies and financial red flags across your projects. | frontend/src/app/(main)/financial-insights/page.tsx |
-| `/fm-global` | Dedicated ASRS FMDS corpus | frontend/src/app/(main)/fm-global/page.tsx |
-| `/fm-global/fm_global_tables` | Dedicated ASRS FMDS corpus | frontend/src/app/(main)/fm-global/fm_global_tables/page.tsx |
-| `/fm-global/fm_global_tables/[tableId]` | — | frontend/src/app/(main)/fm-global/fm_global_tables/[tableId]/page.tsx |
-| `/fm-global/form` | Share your storage and racking details below and we'll estimate the FM Global 8-34 sprinkler configuration for your ASRS — including applicable tables, figures, and protection scheme. | frontend/src/app/(public)/fm-global/form/page.tsx |
-| `/fm-global/form/submitted/[submissionId]` | Public confirmation page displaying submitted FM Global sprinkler design request details | frontend/src/app/(public)/fm-global/form/submitted/[submissionId]/page.tsx |
-| `/fm-global/submissions` | Admin list of FM Global ASRS sprinkler design form submissions with contact and system specs | frontend/src/app/(main)/fm-global/submissions/page.tsx |
-| `/fm-global/submissions/[submissionId]` | Admin detail view of an FM Global form submission with matched tables and lead scoring | frontend/src/app/(main)/fm-global/submissions/[submissionId]/page.tsx |
 | `/home` | Home | frontend/src/app/(main)/home/page.tsx |
 | `/ideas` | A quick editable table for ideas, routing status, and next actions. | frontend/src/app/(main)/ideas/page.tsx |
 | `/insights` | Table of AI-generated insights from meetings and documents with type, severity, and status filters | frontend/src/app/(tables)/insights/page.tsx |
@@ -303,9 +301,6 @@ _294/366 have a description (from the page's `PageShell` or the curated `fronten
 | `/knowledge/app` | — | frontend/src/app/(main)/knowledge/app/page.tsx |
 | `/knowledge/app/[toolCategory]` | — | frontend/src/app/(main)/knowledge/app/[toolCategory]/page.tsx |
 | `/knowledge/app/[toolCategory]/[docSlug]` | — | frontend/src/app/(main)/knowledge/app/[toolCategory]/[docSlug]/page.tsx |
-| `/knowledge/app/prototype/owner-invoice-prefill` | Interactive model using representative project data. Nothing is saved. | frontend/src/app/(main)/knowledge/app/prototype/owner-invoice-prefill/page.tsx |
-| `/knowledge/app/prototype/prime-contract` | — | frontend/src/app/(main)/knowledge/app/prototype/prime-contract/page.tsx |
-| `/knowledge/app/screenshots` | App Page Screenshots | frontend/src/app/(main)/knowledge/app/screenshots/page.tsx |
 | `/knowledge/company` | — | frontend/src/app/(main)/knowledge/company/page.tsx |
 | `/knowledge/manage` | Admin table to manage knowledge base entries, documents, and content | frontend/src/app/(main)/knowledge/manage/page.tsx |
 | `/learning-feedback` | What the AI needs you to look at — review queue, feedback coverage, and the learning pipeline in one place. | frontend/src/app/(admin)/learning-feedback/page.tsx |
@@ -337,11 +332,11 @@ _294/366 have a description (from the page's `PageShell` or the curated `fronten
 | `/project-attribution` | Review communication records that have candidate project matches but were not safe enough to assign automatically. | frontend/src/app/(admin)/project-attribution/page.tsx |
 | `/project-documents` | Browse and search all project documents across projects by type, status, folder, and category | frontend/src/app/(tables)/project-documents/page.tsx |
 | `/projects` | Portfolio view of all projects with filtering by phase, category, and client, plus export | frontend/src/app/(tables)/projects/page.tsx |
-| `/projects-table-demo` | Demo page for the projects table component showcasing table functionality and configurations | frontend/src/app/(admin)/projects-table-demo/page.tsx |
 | `/prp-status` | Track Product Readiness Pipeline (PRP) status for tools across specification, audit, and validation stages | frontend/src/app/(admin)/prp-status/page.tsx |
 | `/rag` | RAG Health | frontend/src/app/(admin)/rag/page.tsx |
 | `/rag-eval` | Retrieval quality metrics, answer quality scores, and eval runners | frontend/src/app/(admin)/rag-eval/page.tsx |
-| `/redoc` | Explore auth flows, schema details, and every frontend/backend endpoint in one place. | frontend/src/app/(admin)/redoc/page.tsx |
+| `/recruiting` | — | frontend/src/app/(main)/recruiting/page.tsx |
+| `/recruiting/intake-test` | Recruiter-only preview of the candidate application and resume upload workflow. | frontend/src/app/(main)/recruiting/intake-test/page.tsx |
 | `/respond/rfi/[token]` | — | frontend/src/app/respond/rfi/[token]/page.tsx |
 | `/roadmap` | — | frontend/src/app/(tables)/roadmap/page.tsx |
 | `/settings` | Redirect to user profile settings for account and preference management | frontend/src/app/(main)/settings/page.tsx |
@@ -352,6 +347,7 @@ _294/366 have a description (from the page's `PageShell` or the curated `fronten
 | `/settings/profile` | View and edit user profile, avatar, account details, role, and integration connections | frontend/src/app/(main)/settings/profile/page.tsx |
 | `/settings/security` | Require a second verification step when members sign in. Applies to all workspace members. | frontend/src/app/(main)/settings/security/page.tsx |
 | `/site-map` | Admin inventory of all application pages with access levels and permission module mapping | frontend/src/app/(admin)/site-map/page.tsx |
+| `/source-sync` | One place to confirm each day's meeting transcripts, Teams messages, documents, and emails synced and vectorized into the RAG pipeline. | frontend/src/app/(admin)/source-sync/page.tsx |
 | `/stats` | Daily activity summary including meetings, tasks, emails, documents, and project activity breakdown | frontend/src/app/(main)/stats/page.tsx |
 | `/support-articles` | Browse Procore support articles with chunking stats and embedding coverage for the knowledge base | frontend/src/app/(admin)/(procore)/support-articles/page.tsx |
 | `/support-articles/[articleId]` | This article has not been crawled yet. | frontend/src/app/(admin)/(procore)/support-articles/[articleId]/page.tsx |
@@ -361,30 +357,36 @@ _294/366 have a description (from the page's `PageShell` or the curated `fronten
 | `/team-chat` | Team communication and chat interface for project collaboration and messaging | frontend/src/app/(main)/team-chat/page.tsx |
 | `/teams-conversations` | — | frontend/src/app/(tables)/teams-conversations/page.tsx |
 | `/teams-conversations/[sourceDocumentId]` | Compiled Microsoft Teams conversation thread detail for review, attribution, and downstream intelligence workflows. | frontend/src/app/(tables)/teams-conversations/[sourceDocumentId]/page.tsx |
-| `/template/form-standard` | Fill out the form below to create a new item | frontend/src/app/(admin)/template/form-standard/page.tsx |
-| `/template/form-template` | Example template showing every standard form field pattern | frontend/src/app/(admin)/template/form-template/page.tsx |
-| `/test-cases` | Supabase test_cases records | frontend/src/app/(admin)/test-cases/page.tsx |
-| `/test-matrix` | Manual test runner with pass/fail marking, notes, screenshots, and keyboard shortcuts | frontend/src/app/(admin)/test-matrix/page.tsx |
-| `/testing` | Smoke and feature test suites for every tool. | frontend/src/app/(admin)/testing/page.tsx |
-| `/testing/[tool]` | Browse test cases or start a new run for this tool. | frontend/src/app/(admin)/testing/[tool]/page.tsx |
-| `/testing/[tool]/cases/[caseId]` | Read-only view of a test case with context, setup, steps, and expected result details | frontend/src/app/(admin)/testing/[tool]/cases/[caseId]/page.tsx |
-| `/testing/parity` | Procore feature parity report showing working, broken, and missing features by tool priority | frontend/src/app/(admin)/testing/parity/page.tsx |
-| `/testing/runs` | All in-progress and completed test runs across every tool. | frontend/src/app/(admin)/testing/runs/page.tsx |
-| `/testing/runs/[runId]` | Test run dashboard with split-pane case list, result details, videos, and GitHub issue filing | frontend/src/app/(admin)/testing/runs/[runId]/page.tsx |
-| `/testing/runs/[runId]/case/[caseNumber]` | Redirect to parent test run page for consistent case navigation | frontend/src/app/(admin)/testing/runs/[runId]/case/[caseNumber]/page.tsx |
 | `/tools` | Catalog of all Procore tools grouped by category with status badges and external links | frontend/src/app/(admin)/tools/page.tsx |
+| `/training` | Continue required learning, build role skills, or find help for the work in front of you. | frontend/src/app/(main)/training/page.tsx |
+| `/training-data` | — | frontend/src/app/(admin)/training-data/page.tsx |
+| `/training-data/[tableKey]` | — | frontend/src/app/(admin)/training-data/[tableKey]/page.tsx |
 | `/training-docs` | Admin editor for drafting, reviewing, and publishing training SOPs to the docs site | frontend/src/app/(admin)/training-docs/page.tsx |
 | `/training-docs/[docId]` | Edit the SOP content, screenshots, review notes, and publish state. | frontend/src/app/(admin)/training-docs/[docId]/page.tsx |
 | `/training-docs/[docId]/preview` | — | frontend/src/app/(admin)/training-docs/[docId]/preview/page.tsx |
 | `/training-map` | — | frontend/src/app/(admin)/training-map/page.tsx |
-| `/ui-library` | Disclosure primitive for secondary detail. Keep primary labels and status visible outside the collapsed body. | frontend/src/app/(admin)/ui-library/page.tsx |
+| `/training/ask` | Get a source-backed answer from Alleato guides and published resources. | frontend/src/app/(main)/training/ask/page.tsx |
+| `/training/coaching` | — | frontend/src/app/(main)/training/coaching/page.tsx |
+| `/training/content/[contentId]` | — | frontend/src/app/(main)/training/content/[contentId]/page.tsx |
+| `/training/courses/[courseSlug]` | — | frontend/src/app/(main)/training/courses/[courseSlug]/page.tsx |
+| `/training/growth` | — | frontend/src/app/(main)/training/growth/page.tsx |
+| `/training/growth/assessment` | — | frontend/src/app/(main)/training/growth/assessment/page.tsx |
+| `/training/guides/[guideSlug]` | Follow a role-specific Alleato training guide with the shared lesson navigation and page structure | frontend/src/app/(main)/training/guides/[guideSlug]/page.tsx |
+| `/training/learn/[enrollmentId]` | — | frontend/src/app/(main)/training/learn/[enrollmentId]/page.tsx |
+| `/training/library` | Find the right guide, SOP, course, or resource when the work calls for it. | frontend/src/app/(main)/training/library/page.tsx |
+| `/training/manage` | Resolve ownership, review, and publication issues that keep knowledge from being trustworthy. | frontend/src/app/(main)/training/manage/page.tsx |
+| `/training/method` | Learn the Alleato growth method for scoring role skills, choosing gaps, and building daily practice | frontend/src/app/(main)/training/method/page.tsx |
+| `/training/own-your-growth` | — | frontend/src/app/(main)/training/own-your-growth/page.tsx |
+| `/training/prompts` | Practice reusable AI prompt starters inside the standardized Alleato training experience | frontend/src/app/(main)/training/prompts/page.tsx |
+| `/training/resources/[resourceId]` | Complete a published construction training resource inside Alleato with source attribution and explicit content availability | frontend/src/app/(main)/training/resources/[resourceId]/page.tsx |
+| `/training/review` | Review new sources and freshness findings before they change the training library. | frontend/src/app/(main)/training/review/page.tsx |
 | `/updates` | A running log of features added, improved, and fixed across all areas of the platform. | frontend/src/app/(admin)/updates/page.tsx |
 | `/user-management` | Manage app users, project access, and permission templates with granular capability controls | frontend/src/app/(admin)/user-management/page.tsx |
 | `/user-management/templates/[templateId]` | — | frontend/src/app/(admin)/user-management/templates/[templateId]/page.tsx |
 | `/user-management/users/[userSlug]` | User Management rejected this request. Admin permission is required before this profile can load. | frontend/src/app/(admin)/user-management/users/[userSlug]/page.tsx |
 | `/weekly-operating-review` | Weekly Operating Review is limited to users with executive briefing access. | frontend/src/app/weekly-operating-review/page.tsx |
 
-## API Endpoints (796)
+## API Endpoints (758)
 
 | Endpoint | Methods | File |
 |----------|---------|------|
@@ -407,6 +409,7 @@ _294/366 have a description (from the page's `PageShell` or the curated `fronten
 | `/api/admin/acumatica-outbound-logs` | GET | frontend/src/app/api/admin/acumatica-outbound-logs/route.ts |
 | `/api/admin/ai-agents` | GET, PATCH | frontend/src/app/api/admin/ai-agents/route.ts |
 | `/api/admin/ai-assistant-debug` | GET | frontend/src/app/api/admin/ai-assistant-debug/route.ts |
+| `/api/admin/ai-assistant/prompt-diagnostics` | POST | frontend/src/app/api/admin/ai-assistant/prompt-diagnostics/route.ts |
 | `/api/admin/ai-chat-history` | GET | frontend/src/app/api/admin/ai-chat-history/route.ts |
 | `/api/admin/ai-learning-promotions` | GET, POST | frontend/src/app/api/admin/ai-learning-promotions/route.ts |
 | `/api/admin/ai-learning-promotions/activity` | GET | frontend/src/app/api/admin/ai-learning-promotions/activity/route.ts |
@@ -417,15 +420,14 @@ _294/366 have a description (from the page's `PageShell` or the curated `fronten
 | `/api/admin/ai-system-health` | GET | frontend/src/app/api/admin/ai-system-health/route.ts |
 | `/api/admin/analytics` | GET | frontend/src/app/api/admin/analytics/route.ts |
 | `/api/admin/app-errors/[groupId]` | GET, POST, PATCH | frontend/src/app/api/admin/app-errors/[groupId]/route.ts |
-| `/api/admin/check-all-password-resets` | GET | frontend/src/app/api/admin/check-all-password-resets/route.ts |
-| `/api/admin/check-latest-password-reset` | GET | frontend/src/app/api/admin/check-latest-password-reset/route.ts |
-| `/api/admin/check-password-reset-breakdown` | GET | frontend/src/app/api/admin/check-password-reset-breakdown/route.ts |
 | `/api/admin/commitment-sov-cleanup` | GET | frontend/src/app/api/admin/commitment-sov-cleanup/route.ts |
 | `/api/admin/company-context` | GET, PUT | frontend/src/app/api/admin/company-context/route.ts |
 | `/api/admin/cron/daily-flags` | POST | frontend/src/app/api/admin/cron/daily-flags/route.ts |
 | `/api/admin/cron/progress-reports` | POST | frontend/src/app/api/admin/cron/progress-reports/route.ts |
 | `/api/admin/db-audit-log` | GET | frontend/src/app/api/admin/db-audit-log/route.ts |
-| `/api/admin/db-inventory/refresh` | POST | frontend/src/app/api/admin/db-inventory/refresh/route.ts |
+| `/api/admin/db-inventory/descriptions` | PUT | frontend/src/app/api/admin/db-inventory/descriptions/route.ts |
+| `/api/admin/db-inventory/refresh` | GET, POST | frontend/src/app/api/admin/db-inventory/refresh/route.ts |
+| `/api/admin/db-inventory/stewardship` | POST, PUT | frontend/src/app/api/admin/db-inventory/stewardship/route.ts |
 | `/api/admin/deep-research/archive` | GET | frontend/src/app/api/admin/deep-research/archive/route.ts |
 | `/api/admin/eval-runs` | GET | frontend/src/app/api/admin/eval-runs/route.ts |
 | `/api/admin/feedback` | GET, POST, PUT, PATCH, DELETE | frontend/src/app/api/admin/feedback/route.ts |
@@ -445,10 +447,7 @@ _294/366 have a description (from the page's `PageShell` or the curated `fronten
 | `/api/admin/intelligence-packets` | GET | frontend/src/app/api/admin/intelligence-packets/route.ts |
 | `/api/admin/meeting-templates` | GET, POST | frontend/src/app/api/admin/meeting-templates/route.ts |
 | `/api/admin/meeting-templates/[templateId]` | GET, PATCH, DELETE | frontend/src/app/api/admin/meeting-templates/[templateId]/route.ts |
-| `/api/admin/meeting-types` | GET, POST | frontend/src/app/api/admin/meeting-types/route.ts |
-| `/api/admin/meeting-types/[meetingTypeId]` | DELETE | frontend/src/app/api/admin/meeting-types/[meetingTypeId]/route.ts |
 | `/api/admin/operations-readiness/status` | GET | frontend/src/app/api/admin/operations-readiness/status/route.ts |
-| `/api/admin/owner-briefing/send-test` | POST | frontend/src/app/api/admin/owner-briefing/send-test/route.ts |
 | `/api/admin/page-tags` | GET, POST, PUT | frontend/src/app/api/admin/page-tags/route.ts |
 | `/api/admin/portfolio-brief/preview` | POST | frontend/src/app/api/admin/portfolio-brief/preview/route.ts |
 | `/api/admin/prime-contract-change-order-orphans` | GET, PATCH | frontend/src/app/api/admin/prime-contract-change-order-orphans/route.ts |
@@ -457,12 +456,9 @@ _294/366 have a description (from the page's `PageShell` or the curated `fronten
 | `/api/admin/project-creation-log` | GET | frontend/src/app/api/admin/project-creation-log/route.ts |
 | `/api/admin/prp-status` | GET | frontend/src/app/api/admin/prp-status/route.ts |
 | `/api/admin/rag-eval/results` | GET | frontend/src/app/api/admin/rag-eval/results/route.ts |
-| `/api/admin/rag-eval/run` | POST | frontend/src/app/api/admin/rag-eval/run/route.ts |
 | `/api/admin/rag-snapshots` | GET | frontend/src/app/api/admin/rag-snapshots/route.ts |
-| `/api/admin/resend-invite-emails` | GET | frontend/src/app/api/admin/resend-invite-emails/route.ts |
-| `/api/admin/resend-password-reset-emails` | GET | frontend/src/app/api/admin/resend-password-reset-emails/route.ts |
-| `/api/admin/set-admin-status` | POST | frontend/src/app/api/admin/set-admin-status/route.ts |
 | `/api/admin/source-sync/active-alerts` | GET | frontend/src/app/api/admin/source-sync/active-alerts/route.ts |
+| `/api/admin/source-sync/daily-content` | GET | frontend/src/app/api/admin/source-sync/daily-content/route.ts |
 | `/api/admin/source-sync/graph-embed` | POST | frontend/src/app/api/admin/source-sync/graph-embed/route.ts |
 | `/api/admin/source-sync/graph-sync` | POST | frontend/src/app/api/admin/source-sync/graph-sync/route.ts |
 | `/api/admin/source-sync/lifecycle-documents` | GET | frontend/src/app/api/admin/source-sync/lifecycle-documents/route.ts |
@@ -471,20 +467,24 @@ _294/366 have a description (from the page's `PageShell` or the curated `fronten
 | `/api/admin/source-sync/status` | GET | frontend/src/app/api/admin/source-sync/status/route.ts |
 | `/api/admin/source-sync/summary` | GET, POST | frontend/src/app/api/admin/source-sync/summary/route.ts |
 | `/api/admin/teams/seed-conversation` | POST | frontend/src/app/api/admin/teams/seed-conversation/route.ts |
+| `/api/admin/training-data/[tableKey]` | GET, POST | frontend/src/app/api/admin/training-data/[tableKey]/route.ts |
+| `/api/admin/training-data/[tableKey]/[recordId]` | PATCH, DELETE | frontend/src/app/api/admin/training-data/[tableKey]/[recordId]/route.ts |
 | `/api/admin/training-docs` | GET, POST | frontend/src/app/api/admin/training-docs/route.ts |
 | `/api/admin/training-docs/[docId]` | PATCH, DELETE | frontend/src/app/api/admin/training-docs/[docId]/route.ts |
 | `/api/admin/training-docs/[docId]/assets` | POST | frontend/src/app/api/admin/training-docs/[docId]/assets/route.ts |
 | `/api/admin/training-docs/[docId]/generate` | POST | frontend/src/app/api/admin/training-docs/[docId]/generate/route.ts |
 | `/api/admin/training-docs/[docId]/publish` | POST | frontend/src/app/api/admin/training-docs/[docId]/publish/route.ts |
+| `/api/admin/training-docs/[docId]/qa` | POST | frontend/src/app/api/admin/training-docs/[docId]/qa/route.ts |
 | `/api/admin/training-docs/assets/[assetId]` | PATCH, DELETE | frontend/src/app/api/admin/training-docs/assets/[assetId]/route.ts |
+| `/api/admin/training-docs/qa` | POST | frontend/src/app/api/admin/training-docs/qa/route.ts |
 | `/api/agentation` | POST, PATCH | frontend/src/app/api/agentation/route.ts |
 | `/api/agentation/inbox` | GET, POST, PATCH | frontend/src/app/api/agentation/inbox/route.ts |
 | `/api/ai-assistant/avatar/conversation` | POST | frontend/src/app/api/ai-assistant/avatar/conversation/route.ts |
+| `/api/ai-assistant/chat` | POST | frontend/src/app/api/ai-assistant/chat/route.ts |
 | `/api/ai-assistant/conversations` | GET, POST | frontend/src/app/api/ai-assistant/conversations/route.ts |
 | `/api/ai-assistant/conversations/[sessionId]` | PATCH, DELETE | frontend/src/app/api/ai-assistant/conversations/[sessionId]/route.ts |
 | `/api/ai-assistant/email-draft-feedback` | POST | frontend/src/app/api/ai-assistant/email-draft-feedback/route.ts |
 | `/api/ai-assistant/email-importance-feedback` | GET, POST, DELETE | frontend/src/app/api/ai-assistant/email-importance-feedback/route.ts |
-| `/api/ai-assistant/eve/proxy/[...path]` | GET, POST | frontend/src/app/api/ai-assistant/eve/proxy/[...path]/route.ts |
 | `/api/ai-assistant/eve/tools` | GET, POST | frontend/src/app/api/ai-assistant/eve/tools/route.ts |
 | `/api/ai-assistant/feedback` | POST | frontend/src/app/api/ai-assistant/feedback/route.ts |
 | `/api/ai-assistant/marketing/assets` | POST | frontend/src/app/api/ai-assistant/marketing/assets/route.ts |
@@ -494,7 +494,7 @@ _294/366 have a description (from the page's `PageShell` or the curated `fronten
 | `/api/ai-assistant/memories` | GET, POST, DELETE | frontend/src/app/api/ai-assistant/memories/route.ts |
 | `/api/ai-assistant/memories/[memoryId]` | PATCH, DELETE | frontend/src/app/api/ai-assistant/memories/[memoryId]/route.ts |
 | `/api/ai-assistant/memories/[memoryId]/feedback` | POST | frontend/src/app/api/ai-assistant/memories/[memoryId]/feedback/route.ts |
-| `/api/ai-assistant/messages/[sessionId]` | GET, POST | frontend/src/app/api/ai-assistant/messages/[sessionId]/route.ts |
+| `/api/ai-assistant/messages/[sessionId]` | GET | frontend/src/app/api/ai-assistant/messages/[sessionId]/route.ts |
 | `/api/ai-assistant/my-feedback` | GET, PATCH, DELETE | frontend/src/app/api/ai-assistant/my-feedback/route.ts |
 | `/api/ai-assistant/packet-card-feedback` | POST | frontend/src/app/api/ai-assistant/packet-card-feedback/route.ts |
 | `/api/ai-assistant/skills` | GET | frontend/src/app/api/ai-assistant/skills/route.ts |
@@ -503,15 +503,14 @@ _294/366 have a description (from the page's `PageShell` or the curated `fronten
 | `/api/ai-assistant/task-feedback` | POST, PATCH | frontend/src/app/api/ai-assistant/task-feedback/route.ts |
 | `/api/ai-assistant/teach` | POST | frontend/src/app/api/ai-assistant/teach/route.ts |
 | `/api/ai-assistant/timeline` | GET | frontend/src/app/api/ai-assistant/timeline/route.ts |
-| `/api/ai-assistant/turns` | GET, DELETE | frontend/src/app/api/ai-assistant/turns/route.ts |
 | `/api/ai-assistant/usage-stats` | GET | frontend/src/app/api/ai-assistant/usage-stats/route.ts |
 | `/api/ai-assistant/workspace` | GET, POST, PATCH | frontend/src/app/api/ai-assistant/workspace/route.ts |
 | `/api/ai-assistant/workspace/[artifactId]` | GET, PATCH, DELETE | frontend/src/app/api/ai-assistant/workspace/[artifactId]/route.ts |
 | `/api/ai-dashboard/rag-pipeline` | GET | frontend/src/app/api/ai-dashboard/rag-pipeline/route.ts |
 | `/api/ai-dashboard/visualizations` | GET | frontend/src/app/api/ai-dashboard/visualizations/route.ts |
-| `/api/ai-operator/presentation-preview` | POST | frontend/src/app/api/ai-operator/presentation-preview/route.ts |
+| `/api/ai/sql` | POST | frontend/src/app/api/ai/sql/route.ts |
 | `/api/app-error-events` | POST | frontend/src/app/api/app-error-events/route.ts |
-| `/api/asrs/chat` | POST | frontend/src/app/api/asrs/chat/route.ts |
+| `/api/ask-alleato/chat` | POST | frontend/src/app/api/ask-alleato/chat/route.ts |
 | `/api/assignment-inbox` | GET | frontend/src/app/api/assignment-inbox/route.ts |
 | `/api/assignment-inbox/assign` | POST | frontend/src/app/api/assignment-inbox/assign/route.ts |
 | `/api/assignment-inbox/rules` | GET | frontend/src/app/api/assignment-inbox/rules/route.ts |
@@ -521,10 +520,11 @@ _294/366 have a description (from the page's `PageShell` or the curated `fronten
 | `/api/auth/post-login-redirect` | GET | frontend/src/app/api/auth/post-login-redirect/route.ts |
 | `/api/auth/signup` | POST | frontend/src/app/api/auth/signup/route.ts |
 | `/api/avatar/[personId]` | GET | frontend/src/app/api/avatar/[personId]/route.ts |
+| `/api/bot/[platform]` | POST | frontend/src/app/api/bot/[platform]/route.ts |
 | `/api/bot/proactive/teams` | POST | frontend/src/app/api/bot/proactive/teams/route.ts |
+| `/api/bot/teams` | POST | frontend/src/app/api/bot/teams/route.ts |
 | `/api/bot/teams/notify` | POST | frontend/src/app/api/bot/teams/notify/route.ts |
 | `/api/clients` | GET, POST | frontend/src/app/api/clients/route.ts |
-| `/api/collaboration/comments` | GET, POST | frontend/src/app/api/collaboration/comments/route.ts |
 | `/api/collaboration/notifications` | GET, PATCH | frontend/src/app/api/collaboration/notifications/route.ts |
 | `/api/command-center/ops` | GET | frontend/src/app/api/command-center/ops/route.ts |
 | `/api/comments/all` | GET | frontend/src/app/api/comments/all/route.ts |
@@ -547,38 +547,33 @@ _294/366 have a description (from the page's `PageShell` or the curated `fronten
 | `/api/companies/[companyId]/bid-history` | GET | frontend/src/app/api/companies/[companyId]/bid-history/route.ts |
 | `/api/company/logo` | POST | frontend/src/app/api/company/logo/route.ts |
 | `/api/contacts` | GET, POST | frontend/src/app/api/contacts/route.ts |
+| `/api/crm/[...operation]` | GET, POST, PATCH, DELETE | frontend/src/app/api/crm/[...operation]/route.ts |
+| `/api/crm/accounts` | GET, POST | frontend/src/app/api/crm/accounts/route.ts |
 | `/api/crm/activities` | GET, POST | frontend/src/app/api/crm/activities/route.ts |
-| `/api/crm/companies/[companyId]/qualification` | GET, POST, PATCH | frontend/src/app/api/crm/companies/[companyId]/qualification/route.ts |
+| `/api/crm/activity-candidates` | GET | frontend/src/app/api/crm/activity-candidates/route.ts |
+| `/api/crm/attention` | GET | frontend/src/app/api/crm/attention/route.ts |
+| `/api/crm/dashboard` | GET | frontend/src/app/api/crm/dashboard/route.ts |
 | `/api/crm/deals` | GET, POST | frontend/src/app/api/crm/deals/route.ts |
-| `/api/crm/deals/[dealId]` | PATCH, DELETE | frontend/src/app/api/crm/deals/[dealId]/route.ts |
+| `/api/crm/follow-ups` | POST | frontend/src/app/api/crm/follow-ups/route.ts |
+| `/api/crm/leads` | GET, POST | frontend/src/app/api/crm/leads/route.ts |
+| `/api/crm/leads/[leadId]/convert` | POST | frontend/src/app/api/crm/leads/[leadId]/convert/route.ts |
+| `/api/crm/pipelines` | GET | frontend/src/app/api/crm/pipelines/route.ts |
+| `/api/crm/playbooks/pursuit` | POST | frontend/src/app/api/crm/playbooks/pursuit/route.ts |
+| `/api/crm/settings` | GET, PATCH | frontend/src/app/api/crm/settings/route.ts |
 | `/api/crm/stages` | GET | frontend/src/app/api/crm/stages/route.ts |
+| `/api/crm/workspace` | GET | frontend/src/app/api/crm/workspace/route.ts |
 | `/api/cron/attribution-rules` | GET, POST | frontend/src/app/api/cron/attribution-rules/route.ts |
 | `/api/cron/autonomous-triage` | GET, POST | frontend/src/app/api/cron/autonomous-triage/route.ts |
 | `/api/cron/check-feedback-github-health` | GET, POST | frontend/src/app/api/cron/check-feedback-github-health/route.ts |
+| `/api/cron/crm-health` | GET, POST | frontend/src/app/api/cron/crm-health/route.ts |
 | `/api/cron/daily-deep-read-promote-accepted` | GET, POST | frontend/src/app/api/cron/daily-deep-read-promote-accepted/route.ts |
 | `/api/cron/daily-flags` | GET, POST | frontend/src/app/api/cron/daily-flags/route.ts |
 | `/api/cron/decay-memories` | GET, POST | frontend/src/app/api/cron/decay-memories/route.ts |
 | `/api/cron/executive-daily-brief` | GET, POST | frontend/src/app/api/cron/executive-daily-brief/route.ts |
 | `/api/cron/progress-reports` | GET, POST | frontend/src/app/api/cron/progress-reports/route.ts |
+| `/api/cron/recruiting-uat-purge` | GET, POST | frontend/src/app/api/cron/recruiting-uat-purge/route.ts |
 | `/api/cron/rfi-email-replies` | GET | frontend/src/app/api/cron/rfi-email-replies/route.ts |
 | `/api/cron/sync-feedback-pr-status` | GET, POST | frontend/src/app/api/cron/sync-feedback-pr-status/route.ts |
-| `/api/database-tables-catalog/[schemaName]/[tableName]` | PATCH | frontend/src/app/api/database-tables-catalog/[schemaName]/[tableName]/route.ts |
-| `/api/dev-panel/annotations` | GET | frontend/src/app/api/dev-panel/annotations/route.ts |
-| `/api/dev-panel/comments/[feature]` | GET, POST | frontend/src/app/api/dev-panel/comments/[feature]/route.ts |
-| `/api/dev-panel/feedback/[feature]` | GET | frontend/src/app/api/dev-panel/feedback/[feature]/route.ts |
-| `/api/dev-panel/gaps/[feature]` | GET | frontend/src/app/api/dev-panel/gaps/[feature]/route.ts |
-| `/api/dev-panel/spec/[feature]` | GET | frontend/src/app/api/dev-panel/spec/[feature]/route.ts |
-| `/api/dev-tools/check-routes` | GET | frontend/src/app/api/dev-tools/check-routes/route.ts |
-| `/api/dev-tools/clear-cache` | POST | frontend/src/app/api/dev-tools/clear-cache/route.ts |
-| `/api/dev-tools/regenerate-types` | POST | frontend/src/app/api/dev-tools/regenerate-types/route.ts |
-| `/api/dev/annotate` | GET, POST, PATCH | frontend/src/app/api/dev/annotate/route.ts |
-| `/api/dev/make-admin` | GET, POST | frontend/src/app/api/dev/make-admin/route.ts |
-| `/api/dev/schema` | GET, POST | frontend/src/app/api/dev/schema/route.ts |
-| `/api/dev/test-email` | GET, POST | frontend/src/app/api/dev/test-email/route.ts |
-| `/api/dev/test-runs` | POST | frontend/src/app/api/dev/test-runs/route.ts |
-| `/api/dev/test-runs/[runId]` | GET | frontend/src/app/api/dev/test-runs/[runId]/route.ts |
-| `/api/dev/test-suites/[tool]` | GET | frontend/src/app/api/dev/test-suites/[tool]/route.ts |
-| `/api/dev/violations` | GET, POST, PATCH | frontend/src/app/api/dev/violations/route.ts |
 | `/api/directory/companies` | GET, POST | frontend/src/app/api/directory/companies/route.ts |
 | `/api/directory/companies/[companyId]` | GET, PATCH, DELETE | frontend/src/app/api/directory/companies/[companyId]/route.ts |
 | `/api/directory/companies/[companyId]/add-to-project` | POST | frontend/src/app/api/directory/companies/[companyId]/add-to-project/route.ts |
@@ -586,13 +581,12 @@ _294/366 have a description (from the page's `PageShell` or the curated `fronten
 | `/api/directory/contacts/[contactId]` | PATCH | frontend/src/app/api/directory/contacts/[contactId]/route.ts |
 | `/api/directory/contacts/table` | GET | frontend/src/app/api/directory/contacts/table/route.ts |
 | `/api/directory/employees/[employeeId]` | PATCH | frontend/src/app/api/directory/employees/[employeeId]/route.ts |
+| `/api/directory/employees/[employeeId]/resend-invite` | POST | frontend/src/app/api/directory/employees/[employeeId]/resend-invite/route.ts |
 | `/api/directory/employees/table` | GET | frontend/src/app/api/directory/employees/table/route.ts |
 | `/api/directory/project-companies` | GET | frontend/src/app/api/directory/project-companies/route.ts |
-| `/api/directory/prospects` | GET, POST | frontend/src/app/api/directory/prospects/route.ts |
 | `/api/directory/vendors` | GET | frontend/src/app/api/directory/vendors/route.ts |
 | `/api/directory/vendors/[vendorId]` | GET, PATCH, DELETE | frontend/src/app/api/directory/vendors/[vendorId]/route.ts |
 | `/api/docs-search` | POST | frontend/src/app/api/docs-search/route.ts |
-| `/api/docs/check` | GET | frontend/src/app/api/docs/check/route.ts |
 | `/api/document-center/[recordType]/[recordId]/email` | POST | frontend/src/app/api/document-center/[recordType]/[recordId]/email/route.ts |
 | `/api/document-center/[recordType]/[recordId]/pdf` | GET | frontend/src/app/api/document-center/[recordType]/[recordId]/pdf/route.ts |
 | `/api/document-center/[recordType]/[recordId]/recipients` | GET | frontend/src/app/api/document-center/[recordType]/[recordId]/recipients/route.ts |
@@ -609,6 +603,11 @@ _294/366 have a description (from the page's `PageShell` or the curated `fronten
 | `/api/documents/bulk-update` | PATCH | frontend/src/app/api/documents/bulk-update/route.ts |
 | `/api/documents/status` | GET | frontend/src/app/api/documents/status/route.ts |
 | `/api/documents/upload` | POST | frontend/src/app/api/documents/upload/route.ts |
+| `/api/durable-ai/chat` | POST | frontend/src/app/api/durable-ai/chat/route.ts |
+| `/api/durable-ai/chat/[runId]/status` | GET | frontend/src/app/api/durable-ai/chat/[runId]/status/route.ts |
+| `/api/durable-ai/chat/[runId]/stream` | GET | frontend/src/app/api/durable-ai/chat/[runId]/stream/route.ts |
+| `/api/durable-ai/conversations` | GET, POST | frontend/src/app/api/durable-ai/conversations/route.ts |
+| `/api/durable-ai/messages/[sessionId]` | GET | frontend/src/app/api/durable-ai/messages/[sessionId]/route.ts |
 | `/api/email-assistant/reviews` | GET | frontend/src/app/api/email-assistant/reviews/route.ts |
 | `/api/email-attachments` | GET | frontend/src/app/api/email-attachments/route.ts |
 | `/api/email-attachments/[attachmentId]` | PATCH, DELETE | frontend/src/app/api/email-attachments/[attachmentId]/route.ts |
@@ -623,6 +622,10 @@ _294/366 have a description (from the page's `PageShell` or the curated `fronten
 | `/api/email-inbox/reviewed` | GET, PATCH | frontend/src/app/api/email-inbox/reviewed/route.ts |
 | `/api/emails` | GET | frontend/src/app/api/emails/route.ts |
 | `/api/employees` | GET | frontend/src/app/api/employees/route.ts |
+| `/api/engagement/docs/link` | GET | frontend/src/app/api/engagement/docs/link/route.ts |
+| `/api/engagement/docs/progress` | POST | frontend/src/app/api/engagement/docs/progress/route.ts |
+| `/api/engagement/learning-progress` | POST | frontend/src/app/api/engagement/learning-progress/route.ts |
+| `/api/engagement/session` | POST | frontend/src/app/api/engagement/session/route.ts |
 | `/api/entity-links` | GET, POST | frontend/src/app/api/entity-links/route.ts |
 | `/api/entity-links/[linkId]` | DELETE | frontend/src/app/api/entity-links/[linkId]/route.ts |
 | `/api/entity-links/search` | GET | frontend/src/app/api/entity-links/search/route.ts |
@@ -662,34 +665,23 @@ _294/366 have a description (from the page's `PageShell` or the curated `fronten
 | `/api/financial-insights/alerts` | GET | frontend/src/app/api/financial-insights/alerts/route.ts |
 | `/api/financial-insights/cross-reference` | POST | frontend/src/app/api/financial-insights/cross-reference/route.ts |
 | `/api/financial-insights/scan` | POST | frontend/src/app/api/financial-insights/scan/route.ts |
-| `/api/fm-global/estimator/evaluate` | POST | frontend/src/app/api/fm-global/estimator/evaluate/route.ts |
-| `/api/fm-global/submissions` | GET | frontend/src/app/api/fm-global/submissions/route.ts |
-| `/api/fm-global/submissions/[submissionId]` | DELETE | frontend/src/app/api/fm-global/submissions/[submissionId]/route.ts |
-| `/api/fmds/figures/[figureId]/evidence` | GET | frontend/src/app/api/fmds/figures/[figureId]/evidence/route.ts |
-| `/api/fmds/figures/[figureId]/review` | POST | frontend/src/app/api/fmds/figures/[figureId]/review/route.ts |
-| `/api/fmds/tables/[tableId]/review` | POST | frontend/src/app/api/fmds/tables/[tableId]/review/route.ts |
 | `/api/health` | GET | frontend/src/app/api/health/route.ts |
 | `/api/home/outlook-calendar` | GET | frontend/src/app/api/home/outlook-calendar/route.ts |
 | `/api/ideas` | GET, POST, PATCH | frontend/src/app/api/ideas/route.ts |
 | `/api/initiative-cards` | GET, POST, PATCH | frontend/src/app/api/initiative-cards/route.ts |
 | `/api/initiative-cards/[cardId]` | GET, PATCH, DELETE | frontend/src/app/api/initiative-cards/[cardId]/route.ts |
 | `/api/initiative-cards/[cardId]/dispatch` | POST | frontend/src/app/api/initiative-cards/[cardId]/dispatch/route.ts |
-| `/api/insight-cards/[cardId]/acknowledge` | GET | frontend/src/app/api/insight-cards/[cardId]/acknowledge/route.ts |
-| `/api/insight-cards/[cardId]/snooze` | GET | frontend/src/app/api/insight-cards/[cardId]/snooze/route.ts |
 | `/api/invoices` | GET, POST | frontend/src/app/api/invoices/route.ts |
 | `/api/knowledge` | GET, DELETE | frontend/src/app/api/knowledge/route.ts |
 | `/api/knowledge/categories` | GET | frontend/src/app/api/knowledge/categories/route.ts |
 | `/api/knowledge/signed-url` | GET | frontend/src/app/api/knowledge/signed-url/route.ts |
 | `/api/knowledge/sync-sharepoint` | POST | frontend/src/app/api/knowledge/sync-sharepoint/route.ts |
 | `/api/knowledge/upload` | POST | frontend/src/app/api/knowledge/upload/route.ts |
-| `/api/linear/authorize` | GET | frontend/src/app/api/linear/authorize/route.ts |
-| `/api/linear/disconnect` | POST | frontend/src/app/api/linear/disconnect/route.ts |
 | `/api/manpower` | GET | frontend/src/app/api/manpower/route.ts |
 | `/api/manpower/assignments/[assignmentId]` | PATCH | frontend/src/app/api/manpower/assignments/[assignmentId]/route.ts |
 | `/api/manpower/import` | POST | frontend/src/app/api/manpower/import/route.ts |
 | `/api/meeting-templates` | GET | frontend/src/app/api/meeting-templates/route.ts |
 | `/api/meetings/[meetingId]` | GET | frontend/src/app/api/meetings/[meetingId]/route.ts |
-| `/api/notes` | GET, POST, PATCH, DELETE | frontend/src/app/api/notes/route.ts |
 | `/api/notes/highlight` | POST | frontend/src/app/api/notes/highlight/route.ts |
 | `/api/notifications/trigger` | POST | frontend/src/app/api/notifications/trigger/route.ts |
 | `/api/og/fetch` | GET | frontend/src/app/api/og/fetch/route.ts |
@@ -713,14 +705,6 @@ _294/366 have a description (from the page's `PageShell` or the curated `fronten
 | `/api/permissions/users/[personId]/granular-overrides` | PUT, DELETE | frontend/src/app/api/permissions/users/[personId]/granular-overrides/route.ts |
 | `/api/permissions/users/[personId]/project-access` | POST, DELETE | frontend/src/app/api/permissions/users/[personId]/project-access/route.ts |
 | `/api/permissions/users/reconcile-links` | POST | frontend/src/app/api/permissions/users/reconcile-links/route.ts |
-| `/api/plane-cycles` | GET, POST, PATCH, DELETE | frontend/src/app/api/plane-cycles/route.ts |
-| `/api/plane-cycles/memberships` | GET, POST, DELETE | frontend/src/app/api/plane-cycles/memberships/route.ts |
-| `/api/plane-drafts` | GET, POST, PATCH, DELETE | frontend/src/app/api/plane-drafts/route.ts |
-| `/api/plane-intake-actions` | POST | frontend/src/app/api/plane-intake-actions/route.ts |
-| `/api/plane-modules` | GET, POST, PATCH | frontend/src/app/api/plane-modules/route.ts |
-| `/api/plane-modules/tasks` | PUT | frontend/src/app/api/plane-modules/tasks/route.ts |
-| `/api/plane-stickies` | GET, POST, PATCH, DELETE | frontend/src/app/api/plane-stickies/route.ts |
-| `/api/plane-workspace-items` | GET, POST, PATCH, DELETE | frontend/src/app/api/plane-workspace-items/route.ts |
 | `/api/procore-docs/ask` | POST | frontend/src/app/api/procore-docs/ask/route.ts |
 | `/api/procore-docs/chat` | POST | frontend/src/app/api/procore-docs/chat/route.ts |
 | `/api/procore-screenshots/[feature]` | GET | frontend/src/app/api/procore-screenshots/[feature]/route.ts |
@@ -765,7 +749,6 @@ _294/366 have a description (from the page's `PageShell` or the curated `fronten
 | `/api/projects/[projectId]/change-events/[changeEventId]/attachments/[attachmentId]` | GET, DELETE | frontend/src/app/api/projects/[projectId]/change-events/[changeEventId]/attachments/[attachmentId]/route.ts |
 | `/api/projects/[projectId]/change-events/[changeEventId]/attachments/[attachmentId]/download` | GET | frontend/src/app/api/projects/[projectId]/change-events/[changeEventId]/attachments/[attachmentId]/download/route.ts |
 | `/api/projects/[projectId]/change-events/[changeEventId]/commitment-pcos` | GET | frontend/src/app/api/projects/[projectId]/change-events/[changeEventId]/commitment-pcos/route.ts |
-| `/api/projects/[projectId]/change-events/[changeEventId]/convert-to-change-order` | POST | frontend/src/app/api/projects/[projectId]/change-events/[changeEventId]/convert-to-change-order/route.ts |
 | `/api/projects/[projectId]/change-events/[changeEventId]/email` | POST | frontend/src/app/api/projects/[projectId]/change-events/[changeEventId]/email/route.ts |
 | `/api/projects/[projectId]/change-events/[changeEventId]/history` | GET | frontend/src/app/api/projects/[projectId]/change-events/[changeEventId]/history/route.ts |
 | `/api/projects/[projectId]/change-events/[changeEventId]/line-items` | GET, POST, PUT | frontend/src/app/api/projects/[projectId]/change-events/[changeEventId]/line-items/route.ts |
@@ -803,7 +786,6 @@ _294/366 have a description (from the page's `PageShell` or the curated `fronten
 | `/api/projects/[projectId]/commitment-pcos` | GET, POST | frontend/src/app/api/projects/[projectId]/commitment-pcos/route.ts |
 | `/api/projects/[projectId]/commitment-pcos/[pcoId]` | GET, PATCH, DELETE | frontend/src/app/api/projects/[projectId]/commitment-pcos/[pcoId]/route.ts |
 | `/api/projects/[projectId]/commitment-pcos/[pcoId]/promote` | POST | frontend/src/app/api/projects/[projectId]/commitment-pcos/[pcoId]/promote/route.ts |
-| `/api/projects/[projectId]/commitment-pcos/bulk-create` | POST | frontend/src/app/api/projects/[projectId]/commitment-pcos/bulk-create/route.ts |
 | `/api/projects/[projectId]/commitment-pcos/promote-bulk` | POST | frontend/src/app/api/projects/[projectId]/commitment-pcos/promote-bulk/route.ts |
 | `/api/projects/[projectId]/commitments/[commitmentId]/change-events` | GET | frontend/src/app/api/projects/[projectId]/commitments/[commitmentId]/change-events/route.ts |
 | `/api/projects/[projectId]/commitments/[commitmentId]/line-items` | GET, PUT | frontend/src/app/api/projects/[projectId]/commitments/[commitmentId]/line-items/route.ts |
@@ -813,7 +795,6 @@ _294/366 have a description (from the page's `PageShell` or the curated `fronten
 | `/api/projects/[projectId]/commitments/[commitmentId]/pcos/[pcoId]` | GET, PUT, DELETE | frontend/src/app/api/projects/[projectId]/commitments/[commitmentId]/pcos/[pcoId]/route.ts |
 | `/api/projects/[projectId]/commitments/[commitmentId]/subcontractor-sov` | GET, POST, PUT | frontend/src/app/api/projects/[projectId]/commitments/[commitmentId]/subcontractor-sov/route.ts |
 | `/api/projects/[projectId]/commitments/export` | POST | frontend/src/app/api/projects/[projectId]/commitments/export/route.ts |
-| `/api/projects/[projectId]/commitments/import` | POST | frontend/src/app/api/projects/[projectId]/commitments/import/route.ts |
 | `/api/projects/[projectId]/commitments/scope-lookup` | GET | frontend/src/app/api/projects/[projectId]/commitments/scope-lookup/route.ts |
 | `/api/projects/[projectId]/contacts` | GET | frontend/src/app/api/projects/[projectId]/contacts/route.ts |
 | `/api/projects/[projectId]/contracts` | GET, POST | frontend/src/app/api/projects/[projectId]/contracts/route.ts |
@@ -848,36 +829,25 @@ _294/366 have a description (from the page's `PageShell` or the curated `fronten
 | `/api/projects/[projectId]/daily-log/site-scribe` | POST | frontend/src/app/api/projects/[projectId]/daily-log/site-scribe/route.ts |
 | `/api/projects/[projectId]/direct-costs` | GET, POST | frontend/src/app/api/projects/[projectId]/direct-costs/route.ts |
 | `/api/projects/[projectId]/direct-costs/[costId]` | GET, PUT, DELETE | frontend/src/app/api/projects/[projectId]/direct-costs/[costId]/route.ts |
-| `/api/projects/[projectId]/direct-costs/bulk` | POST | frontend/src/app/api/projects/[projectId]/direct-costs/bulk/route.ts |
 | `/api/projects/[projectId]/direct-costs/export` | POST | frontend/src/app/api/projects/[projectId]/direct-costs/export/route.ts |
 | `/api/projects/[projectId]/directory/activity` | GET | frontend/src/app/api/projects/[projectId]/directory/activity/route.ts |
 | `/api/projects/[projectId]/directory/companies` | GET, POST | frontend/src/app/api/projects/[projectId]/directory/companies/route.ts |
 | `/api/projects/[projectId]/directory/companies/[companyId]` | GET, PATCH, DELETE | frontend/src/app/api/projects/[projectId]/directory/companies/[companyId]/route.ts |
 | `/api/projects/[projectId]/directory/companies/sync` | POST | frontend/src/app/api/projects/[projectId]/directory/companies/sync/route.ts |
-| `/api/projects/[projectId]/directory/export` | GET | frontend/src/app/api/projects/[projectId]/directory/export/route.ts |
 | `/api/projects/[projectId]/directory/filters` | GET, POST, DELETE | frontend/src/app/api/projects/[projectId]/directory/filters/route.ts |
 | `/api/projects/[projectId]/directory/groups` | GET, POST | frontend/src/app/api/projects/[projectId]/directory/groups/route.ts |
 | `/api/projects/[projectId]/directory/groups/[groupId]` | GET, PATCH, DELETE | frontend/src/app/api/projects/[projectId]/directory/groups/[groupId]/route.ts |
 | `/api/projects/[projectId]/directory/groups/[groupId]/members` | POST | frontend/src/app/api/projects/[projectId]/directory/groups/[groupId]/members/route.ts |
-| `/api/projects/[projectId]/directory/import` | POST | frontend/src/app/api/projects/[projectId]/directory/import/route.ts |
 | `/api/projects/[projectId]/directory/people` | GET, POST | frontend/src/app/api/projects/[projectId]/directory/people/route.ts |
 | `/api/projects/[projectId]/directory/people/[personId]` | GET, PATCH, DELETE | frontend/src/app/api/projects/[projectId]/directory/people/[personId]/route.ts |
 | `/api/projects/[projectId]/directory/people/[personId]/deactivate` | POST | frontend/src/app/api/projects/[projectId]/directory/people/[personId]/deactivate/route.ts |
-| `/api/projects/[projectId]/directory/people/[personId]/email-notifications` | GET, PATCH | frontend/src/app/api/projects/[projectId]/directory/people/[personId]/email-notifications/route.ts |
 | `/api/projects/[projectId]/directory/people/[personId]/invite` | POST | frontend/src/app/api/projects/[projectId]/directory/people/[personId]/invite/route.ts |
 | `/api/projects/[projectId]/directory/people/[personId]/permissions` | GET, PATCH | frontend/src/app/api/projects/[projectId]/directory/people/[personId]/permissions/route.ts |
-| `/api/projects/[projectId]/directory/people/[personId]/profile-photo` | POST | frontend/src/app/api/projects/[projectId]/directory/people/[personId]/profile-photo/route.ts |
 | `/api/projects/[projectId]/directory/people/[personId]/reactivate` | POST | frontend/src/app/api/projects/[projectId]/directory/people/[personId]/reactivate/route.ts |
-| `/api/projects/[projectId]/directory/people/[personId]/reinvite` | POST | frontend/src/app/api/projects/[projectId]/directory/people/[personId]/reinvite/route.ts |
-| `/api/projects/[projectId]/directory/people/[personId]/resend-invite` | POST | frontend/src/app/api/projects/[projectId]/directory/people/[personId]/resend-invite/route.ts |
-| `/api/projects/[projectId]/directory/people/[personId]/schedule-notifications` | GET, PATCH | frontend/src/app/api/projects/[projectId]/directory/people/[personId]/schedule-notifications/route.ts |
-| `/api/projects/[projectId]/directory/people/bulk-invite` | POST | frontend/src/app/api/projects/[projectId]/directory/people/bulk-invite/route.ts |
-| `/api/projects/[projectId]/directory/people/bulk-update` | POST | frontend/src/app/api/projects/[projectId]/directory/people/bulk-update/route.ts |
 | `/api/projects/[projectId]/directory/permissions` | GET, PUT, DELETE | frontend/src/app/api/projects/[projectId]/directory/permissions/route.ts |
 | `/api/projects/[projectId]/directory/preferences` | GET, POST | frontend/src/app/api/projects/[projectId]/directory/preferences/route.ts |
 | `/api/projects/[projectId]/directory/roles` | GET, POST, PUT, DELETE | frontend/src/app/api/projects/[projectId]/directory/roles/route.ts |
 | `/api/projects/[projectId]/directory/templates/[templateType]` | GET | frontend/src/app/api/projects/[projectId]/directory/templates/[templateType]/route.ts |
-| `/api/projects/[projectId]/directory/users/bulk-add` | POST | frontend/src/app/api/projects/[projectId]/directory/users/bulk-add/route.ts |
 | `/api/projects/[projectId]/directory/vendors` | GET, POST, DELETE | frontend/src/app/api/projects/[projectId]/directory/vendors/route.ts |
 | `/api/projects/[projectId]/documents` | GET, POST | frontend/src/app/api/projects/[projectId]/documents/route.ts |
 | `/api/projects/[projectId]/documents/[documentId]` | GET, PUT, DELETE | frontend/src/app/api/projects/[projectId]/documents/[documentId]/route.ts |
@@ -904,11 +874,9 @@ _294/366 have a description (from the page's `PageShell` or the curated `fronten
 | `/api/projects/[projectId]/drawings/[drawingId]/revisions/[revisionId]/download` | GET | frontend/src/app/api/projects/[projectId]/drawings/[drawingId]/revisions/[revisionId]/download/route.ts |
 | `/api/projects/[projectId]/drawings/[drawingId]/revisions/[revisionId]/sketches` | GET, POST | frontend/src/app/api/projects/[projectId]/drawings/[drawingId]/revisions/[revisionId]/sketches/route.ts |
 | `/api/projects/[projectId]/drawings/[drawingId]/revisions/[revisionId]/sketches/[sketchId]` | DELETE | frontend/src/app/api/projects/[projectId]/drawings/[drawingId]/revisions/[revisionId]/sketches/[sketchId]/route.ts |
-| `/api/projects/[projectId]/drawings/[drawingId]/revisions/upload-url` | POST | frontend/src/app/api/projects/[projectId]/drawings/[drawingId]/revisions/upload-url/route.ts |
 | `/api/projects/[projectId]/drawings/areas` | GET, POST | frontend/src/app/api/projects/[projectId]/drawings/areas/route.ts |
 | `/api/projects/[projectId]/drawings/areas/[areaId]` | PATCH, DELETE | frontend/src/app/api/projects/[projectId]/drawings/areas/[areaId]/route.ts |
 | `/api/projects/[projectId]/drawings/bulk-download` | POST | frontend/src/app/api/projects/[projectId]/drawings/bulk-download/route.ts |
-| `/api/projects/[projectId]/drawings/bulk-status` | PATCH | frontend/src/app/api/projects/[projectId]/drawings/bulk-status/route.ts |
 | `/api/projects/[projectId]/drawings/pdf` | GET | frontend/src/app/api/projects/[projectId]/drawings/pdf/route.ts |
 | `/api/projects/[projectId]/drawings/recycle-bin` | GET | frontend/src/app/api/projects/[projectId]/drawings/recycle-bin/route.ts |
 | `/api/projects/[projectId]/drawings/sets` | GET, POST | frontend/src/app/api/projects/[projectId]/drawings/sets/route.ts |
@@ -923,6 +891,7 @@ _294/366 have a description (from the page's `PageShell` or the curated `fronten
 | `/api/projects/[projectId]/emails/[emailId]/summarize` | POST | frontend/src/app/api/projects/[projectId]/emails/[emailId]/summarize/route.ts |
 | `/api/projects/[projectId]/emails/[emailId]/tasks` | POST | frontend/src/app/api/projects/[projectId]/emails/[emailId]/tasks/route.ts |
 | `/api/projects/[projectId]/employees` | GET | frontend/src/app/api/projects/[projectId]/employees/route.ts |
+| `/api/projects/[projectId]/erp-push` | POST | frontend/src/app/api/projects/[projectId]/erp-push/route.ts |
 | `/api/projects/[projectId]/estimates` | GET, POST | frontend/src/app/api/projects/[projectId]/estimates/route.ts |
 | `/api/projects/[projectId]/estimates/[estimateId]` | GET, PUT, DELETE | frontend/src/app/api/projects/[projectId]/estimates/[estimateId]/route.ts |
 | `/api/projects/[projectId]/estimates/[estimateId]/detail-items` | GET, POST | frontend/src/app/api/projects/[projectId]/estimates/[estimateId]/detail-items/route.ts |
@@ -980,7 +949,6 @@ _294/366 have a description (from the page's `PageShell` or the curated `fronten
 | `/api/projects/[projectId]/invoicing/subcontractor/invoices/[invoiceId]/line-items` | PATCH | frontend/src/app/api/projects/[projectId]/invoicing/subcontractor/invoices/[invoiceId]/line-items/route.ts |
 | `/api/projects/[projectId]/invoicing/subcontractor/invoices/[invoiceId]/mark-paid` | POST | frontend/src/app/api/projects/[projectId]/invoicing/subcontractor/invoices/[invoiceId]/mark-paid/route.ts |
 | `/api/projects/[projectId]/invoicing/subcontractor/invoices/[invoiceId]/pdf` | GET | frontend/src/app/api/projects/[projectId]/invoicing/subcontractor/invoices/[invoiceId]/pdf/route.ts |
-| `/api/projects/[projectId]/invoicing/subcontractor/invoices/[invoiceId]/pending-owner-approval` | POST | frontend/src/app/api/projects/[projectId]/invoicing/subcontractor/invoices/[invoiceId]/pending-owner-approval/route.ts |
 | `/api/projects/[projectId]/invoicing/subcontractor/invoices/[invoiceId]/related-items` | GET, POST, DELETE | frontend/src/app/api/projects/[projectId]/invoicing/subcontractor/invoices/[invoiceId]/related-items/route.ts |
 | `/api/projects/[projectId]/invoicing/subcontractor/invoices/[invoiceId]/related-items/options` | GET | frontend/src/app/api/projects/[projectId]/invoicing/subcontractor/invoices/[invoiceId]/related-items/options/route.ts |
 | `/api/projects/[projectId]/invoicing/subcontractor/invoices/[invoiceId]/revise` | POST | frontend/src/app/api/projects/[projectId]/invoicing/subcontractor/invoices/[invoiceId]/revise/route.ts |
@@ -1041,6 +1009,10 @@ _294/366 have a description (from the page's `PageShell` or the curated `fronten
 | `/api/projects/[projectId]/prime-contract-pcos/[pcoId]/attachments` | POST | frontend/src/app/api/projects/[projectId]/prime-contract-pcos/[pcoId]/attachments/route.ts |
 | `/api/projects/[projectId]/prime-contract-pcos/[pcoId]/promote` | POST | frontend/src/app/api/projects/[projectId]/prime-contract-pcos/[pcoId]/promote/route.ts |
 | `/api/projects/[projectId]/prime-contract-pcos/promote-bulk` | POST | frontend/src/app/api/projects/[projectId]/prime-contract-pcos/promote-bulk/route.ts |
+| `/api/projects/[projectId]/procurement` | GET, POST | frontend/src/app/api/projects/[projectId]/procurement/route.ts |
+| `/api/projects/[projectId]/procurement/[procurementItemId]` | GET, PATCH | frontend/src/app/api/projects/[projectId]/procurement/[procurementItemId]/route.ts |
+| `/api/projects/[projectId]/procurement/[procurementItemId]/schedule-tasks` | POST, DELETE | frontend/src/app/api/projects/[projectId]/procurement/[procurementItemId]/schedule-tasks/route.ts |
+| `/api/projects/[projectId]/procurement/[procurementItemId]/submittals` | POST, DELETE | frontend/src/app/api/projects/[projectId]/procurement/[procurementItemId]/submittals/route.ts |
 | `/api/projects/[projectId]/progress-reports` | GET, POST | frontend/src/app/api/projects/[projectId]/progress-reports/route.ts |
 | `/api/projects/[projectId]/progress-reports/[reportId]` | GET, PUT, DELETE | frontend/src/app/api/projects/[projectId]/progress-reports/[reportId]/route.ts |
 | `/api/projects/[projectId]/progress-reports/[reportId]/ai-generate` | POST | frontend/src/app/api/projects/[projectId]/progress-reports/[reportId]/ai-generate/route.ts |
@@ -1069,20 +1041,18 @@ _294/366 have a description (from the page's `PageShell` or the curated `fronten
 | `/api/projects/[projectId]/scheduling/related-action-items` | GET | frontend/src/app/api/projects/[projectId]/scheduling/related-action-items/route.ts |
 | `/api/projects/[projectId]/scheduling/reports` | GET | frontend/src/app/api/projects/[projectId]/scheduling/reports/route.ts |
 | `/api/projects/[projectId]/scheduling/resource-leveling-runs` | GET, POST | frontend/src/app/api/projects/[projectId]/scheduling/resource-leveling-runs/route.ts |
-| `/api/projects/[projectId]/scheduling/resources` | GET, POST, PUT | frontend/src/app/api/projects/[projectId]/scheduling/resources/route.ts |
+| `/api/projects/[projectId]/scheduling/resources` | GET, POST, PUT, DELETE | frontend/src/app/api/projects/[projectId]/scheduling/resources/route.ts |
 | `/api/projects/[projectId]/scheduling/revisions` | GET, POST | frontend/src/app/api/projects/[projectId]/scheduling/revisions/route.ts |
 | `/api/projects/[projectId]/scheduling/tasks` | GET, POST | frontend/src/app/api/projects/[projectId]/scheduling/tasks/route.ts |
 | `/api/projects/[projectId]/scheduling/tasks/[taskId]` | GET, PUT, PATCH, DELETE | frontend/src/app/api/projects/[projectId]/scheduling/tasks/[taskId]/route.ts |
-| `/api/projects/[projectId]/scheduling/tasks/[taskId]/assignments` | GET, PUT | frontend/src/app/api/projects/[projectId]/scheduling/tasks/[taskId]/assignments/route.ts |
+| `/api/projects/[projectId]/scheduling/tasks/[taskId]/assignments` | GET, POST, PUT, DELETE | frontend/src/app/api/projects/[projectId]/scheduling/tasks/[taskId]/assignments/route.ts |
 | `/api/projects/[projectId]/scheduling/tasks/[taskId]/dependencies` | POST, PATCH, DELETE | frontend/src/app/api/projects/[projectId]/scheduling/tasks/[taskId]/dependencies/route.ts |
 | `/api/projects/[projectId]/scheduling/tasks/[taskId]/segments` | GET, PUT | frontend/src/app/api/projects/[projectId]/scheduling/tasks/[taskId]/segments/route.ts |
 | `/api/projects/[projectId]/scheduling/tasks/[taskId]/submittals` | GET, POST, DELETE | frontend/src/app/api/projects/[projectId]/scheduling/tasks/[taskId]/submittals/route.ts |
-| `/api/projects/[projectId]/scheduling/tasks/bulk` | POST, DELETE | frontend/src/app/api/projects/[projectId]/scheduling/tasks/bulk/route.ts |
 | `/api/projects/[projectId]/scheduling/tasks/convert` | POST | frontend/src/app/api/projects/[projectId]/scheduling/tasks/convert/route.ts |
 | `/api/projects/[projectId]/scheduling/tasks/convert-token` | POST | frontend/src/app/api/projects/[projectId]/scheduling/tasks/convert-token/route.ts |
 | `/api/projects/[projectId]/scheduling/tasks/import` | POST | frontend/src/app/api/projects/[projectId]/scheduling/tasks/import/route.ts |
 | `/api/projects/[projectId]/scheduling/tasks/preview` | POST | frontend/src/app/api/projects/[projectId]/scheduling/tasks/preview/route.ts |
-| `/api/projects/[projectId]/scheduling/trade-alerts` | POST | frontend/src/app/api/projects/[projectId]/scheduling/trade-alerts/route.ts |
 | `/api/projects/[projectId]/shell` | GET | frontend/src/app/api/projects/[projectId]/shell/route.ts |
 | `/api/projects/[projectId]/specifications` | GET, POST | frontend/src/app/api/projects/[projectId]/specifications/route.ts |
 | `/api/projects/[projectId]/specifications/[sectionId]` | GET, PATCH, DELETE | frontend/src/app/api/projects/[projectId]/specifications/[sectionId]/route.ts |
@@ -1101,9 +1071,6 @@ _294/366 have a description (from the page's `PageShell` or the curated `fronten
 | `/api/projects/[projectId]/submittal-types` | GET | frontend/src/app/api/projects/[projectId]/submittal-types/route.ts |
 | `/api/projects/[projectId]/submittals` | GET, POST | frontend/src/app/api/projects/[projectId]/submittals/route.ts |
 | `/api/projects/[projectId]/submittals/[submittalId]` | GET, PUT, DELETE | frontend/src/app/api/projects/[projectId]/submittals/[submittalId]/route.ts |
-| `/api/projects/[projectId]/submittals/[submittalId]/ai-review` | GET, POST | frontend/src/app/api/projects/[projectId]/submittals/[submittalId]/ai-review/route.ts |
-| `/api/projects/[projectId]/submittals/[submittalId]/ai-review/checks/[checkId]` | PATCH | frontend/src/app/api/projects/[projectId]/submittals/[submittalId]/ai-review/checks/[checkId]/route.ts |
-| `/api/projects/[projectId]/submittals/[submittalId]/ai-review/workflow-response` | POST | frontend/src/app/api/projects/[projectId]/submittals/[submittalId]/ai-review/workflow-response/route.ts |
 | `/api/projects/[projectId]/submittals/[submittalId]/attachments` | POST | frontend/src/app/api/projects/[projectId]/submittals/[submittalId]/attachments/route.ts |
 | `/api/projects/[projectId]/submittals/[submittalId]/distribute` | POST | frontend/src/app/api/projects/[projectId]/submittals/[submittalId]/distribute/route.ts |
 | `/api/projects/[projectId]/submittals/[submittalId]/duplicate` | POST | frontend/src/app/api/projects/[projectId]/submittals/[submittalId]/duplicate/route.ts |
@@ -1134,6 +1101,14 @@ _294/366 have a description (from the page's `PageShell` or the curated `fronten
 | `/api/rag-pipeline/process` | POST | frontend/src/app/api/rag-pipeline/process/route.ts |
 | `/api/reconciliation/findings` | GET, POST | frontend/src/app/api/reconciliation/findings/route.ts |
 | `/api/reconciliation/findings/[fingerprint]` | PATCH | frontend/src/app/api/reconciliation/findings/[fingerprint]/route.ts |
+| `/api/recruiting` | GET, POST | frontend/src/app/api/recruiting/route.ts |
+| `/api/recruiting/intake-batch-uat` | POST | frontend/src/app/api/recruiting/intake-batch-uat/route.ts |
+| `/api/recruiting/intake-uat` | POST, DELETE | frontend/src/app/api/recruiting/intake-uat/route.ts |
+| `/api/recruiting/integrations/microsoft` | GET, DELETE | frontend/src/app/api/recruiting/integrations/microsoft/route.ts |
+| `/api/recruiting/integrations/microsoft/callback` | GET | frontend/src/app/api/recruiting/integrations/microsoft/callback/route.ts |
+| `/api/recruiting/integrations/microsoft/connect` | GET | frontend/src/app/api/recruiting/integrations/microsoft/connect/route.ts |
+| `/api/recruiting/resumes` | GET | frontend/src/app/api/recruiting/resumes/route.ts |
+| `/api/recruiting/uat-actions` | POST | frontend/src/app/api/recruiting/uat-actions/route.ts |
 | `/api/respond/rfi/[token]` | POST | frontend/src/app/api/respond/rfi/[token]/route.ts |
 | `/api/search` | GET | frontend/src/app/api/search/route.ts |
 | `/api/settings/teams/link` | GET, POST, DELETE | frontend/src/app/api/settings/teams/link/route.ts |
@@ -1144,9 +1119,6 @@ _294/366 have a description (from the page's `PageShell` or the curated `fronten
 | `/api/site-scribe/realtime-session` | POST | frontend/src/app/api/site-scribe/realtime-session/route.ts |
 | `/api/site-scribe/refine-log` | POST | frontend/src/app/api/site-scribe/refine-log/route.ts |
 | `/api/source-info` | — | frontend/src/app/api/source-info/route.ts |
-| `/api/supabase-proxy/[...path]` | GET, POST, PUT, PATCH, DELETE, HEAD | frontend/src/app/api/supabase-proxy/[...path]/route.ts |
-| `/api/table-delete` | POST | frontend/src/app/api/table-delete/route.ts |
-| `/api/table-insert` | POST | frontend/src/app/api/table-insert/route.ts |
 | `/api/table-metadata` | GET | frontend/src/app/api/table-metadata/route.ts |
 | `/api/table-update` | POST | frontend/src/app/api/table-update/route.ts |
 | `/api/table-views` | GET, POST | frontend/src/app/api/table-views/route.ts |
@@ -1165,19 +1137,11 @@ _294/366 have a description (from the page's `PageShell` or the curated `fronten
 | `/api/teams-inbox` | GET | frontend/src/app/api/teams-inbox/route.ts |
 | `/api/teams-live` | GET | frontend/src/app/api/teams-live/route.ts |
 | `/api/teams-live/[chatId]` | GET | frontend/src/app/api/teams-live/[chatId]/route.ts |
-| `/api/testing/cases` | POST | frontend/src/app/api/testing/cases/route.ts |
-| `/api/testing/cases/[caseId]` | PATCH, DELETE | frontend/src/app/api/testing/cases/[caseId]/route.ts |
-| `/api/testing/parity` | GET | frontend/src/app/api/testing/parity/route.ts |
-| `/api/testing/runs` | GET, POST | frontend/src/app/api/testing/runs/route.ts |
-| `/api/testing/runs/[runId]` | GET, DELETE | frontend/src/app/api/testing/runs/[runId]/route.ts |
-| `/api/testing/runs/[runId]/results` | GET | frontend/src/app/api/testing/runs/[runId]/results/route.ts |
-| `/api/testing/runs/[runId]/results/[resultId]` | PATCH | frontend/src/app/api/testing/runs/[runId]/results/[resultId]/route.ts |
-| `/api/testing/runs/[runId]/results/[resultId]/github-issue` | POST | frontend/src/app/api/testing/runs/[runId]/results/[resultId]/github-issue/route.ts |
-| `/api/testing/runs/[runId]/results/[resultId]/screenshots` | POST | frontend/src/app/api/testing/runs/[runId]/results/[resultId]/screenshots/route.ts |
-| `/api/testing/suites` | GET | frontend/src/app/api/testing/suites/route.ts |
-| `/api/testing/suites/[slug]/cases` | GET | frontend/src/app/api/testing/suites/[slug]/cases/route.ts |
-| `/api/testing/tester-activity` | GET | frontend/src/app/api/testing/tester-activity/route.ts |
-| `/api/testing/tools/[toolName]` | GET | frontend/src/app/api/testing/tools/[toolName]/route.ts |
+| `/api/training/coaching` | GET, POST | frontend/src/app/api/training/coaching/route.ts |
+| `/api/training/coaching/[sessionId]` | GET, PUT | frontend/src/app/api/training/coaching/[sessionId]/route.ts |
+| `/api/training/coaching/[sessionId]/[action]` | POST | frontend/src/app/api/training/coaching/[sessionId]/[action]/route.ts |
+| `/api/training/growth` | POST | frontend/src/app/api/training/growth/route.ts |
+| `/api/training/library/chat` | POST | frontend/src/app/api/training/library/chat/route.ts |
 | `/api/users` | GET | frontend/src/app/api/users/route.ts |
 | `/api/users/me/onboarding` | POST | frontend/src/app/api/users/me/onboarding/route.ts |
 | `/api/users/me/profile` | GET | frontend/src/app/api/users/me/profile/route.ts |
@@ -1185,7 +1149,7 @@ _294/366 have a description (from the page's `PageShell` or the curated `fronten
 | `/api/webhooks/github` | POST | frontend/src/app/api/webhooks/github/route.ts |
 | `/api/webhooks/resend` | POST | frontend/src/app/api/webhooks/resend/route.ts |
 
-## AI Tools (113)
+## AI Tools (111)
 
 These are the tools the AI assistant can call. Each lives in `frontend/src/lib/ai/tools/`.
 
@@ -1209,13 +1173,6 @@ These are the tools the AI assistant can call. Each lives in `frontend/src/lib/a
 |------|-------------|
 | `findAppPage` | Find which page, screen, or AI tool in this application does something, by purpose. Use for 'where do I…', 'what page shows…', 'does the app have a…', 'which screen lets me…'. Searches the generated inventory of every production route and AI tool (not just curated help articles), matching on what each page does — so it finds pages even when the user doesn't know the name. Returns route URLs you can link the user to. Prefer searchAppHelp for step-by-step instructions; use this to locate a page or capability. |
 | `searchAppHelp` | Search the controlled Alleato OS help center for instructions on how to use this application. Use this first for questions like 'how do I', 'where do I', 'show me how to', app setup, user management, profile settings, permissions, and feature walkthroughs. Only published AI-visible help articles are returned. |
-
-### `asrs-intelligence.ts` (2)
-
-| Tool | Description |
-|------|-------------|
-| `evaluateFmds2026Configuration` | Evaluate typed ASRS sprinkler inputs with the reviewed FMDS 8-34 Batch 1 deterministic rules. Use for calculations or applicability decisions after collecting the required inputs. Preserve every Pending Review result and never infer unsupported head count, complete configuration, or full compliance. |
-| `searchFmds2026Evidence` | Search the dedicated revision-scoped FMDS 8-34 April 2026 corpus for ASRS sprinkler requirements, clauses, tables, and figures. Use this only for FMDS/ASRS engineering questions. The result includes corpus identity, PDF citations, and table/figure review status. Never substitute generic project RAG or legacy FM Global tables. |
 
 ### `document-intelligence.ts` (7)
 
@@ -1261,7 +1218,7 @@ These are the tools the AI assistant can call. Each lives in `frontend/src/lib/a
 | `createMarketingIntelligenceFromCandidate` | Persist one of the source candidates returned by findMarketingSourceCandidates as a marketing intelligence item. |
 | `createMarketingIntelligenceItem` | Persist a source-backed marketing opportunity or signal for reuse. Use this when a source candidate should become part of marketing memory. |
 | `findMarketingSourceCandidates` | Find source-backed marketing inputs from documents, project summaries, AI insights, and recent operational records. Use before making claims about project wins, owner praise, leadership notes, recent events, or content opportunities. |
-| `getMarketingCalendar` | Retrieve persisted marketing calendar items, draft assets, source citations, and review states for the marketing review page. |
+| `getMarketingCalendar` | Retrieve persisted marketing calendar items, draft assets, source citations, and review states for the marketing review page. Set dateRange, status, and projectId to null to retrieve without those filters. |
 
 ### `outlook-operations.ts` (2)
 

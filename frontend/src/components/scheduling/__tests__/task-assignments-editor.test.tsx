@@ -71,7 +71,7 @@ describe("TaskAssignmentsEditor", () => {
 
     await waitFor(() => expect(onSave).toHaveBeenCalledWith([
       { person_id: "11111111-1111-4111-8111-111111111111", allocation_percent: 75 },
-    ]));
+    ], []));
     expect(task.start_date).toBe("2026-08-03");
     expect(task.finish_date).toBe("2026-08-07");
   });
@@ -102,6 +102,7 @@ describe("TaskAssignmentsEditor", () => {
               resource_id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
               person_id: "11111111-1111-4111-8111-111111111111",
               allocation_percent: 50,
+              cost_version: 1,
             }],
           })}
           calendar={{ working_weekdays: [1, 2, 3, 4, 5], non_working_dates: [] }}
@@ -134,7 +135,7 @@ describe("TaskAssignmentsEditor", () => {
     saveButton.focus();
     await user.keyboard("{Enter}");
 
-    await waitFor(() => expect(onSave).toHaveBeenCalledWith([]));
+    await waitFor(() => expect(onSave).toHaveBeenCalledWith([], []));
     expect(onTaskSubmit).not.toHaveBeenCalled();
   });
 
@@ -186,6 +187,7 @@ describe("TaskAssignmentsEditor", () => {
             resource_id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
             person_id: "11111111-1111-4111-8111-111111111111",
             allocation_percent: 50,
+            cost_version: 1,
           }],
         })}
         calendar={{ working_weekdays: [1, 2, 3, 4, 5], non_working_dates: [] }}
@@ -233,6 +235,7 @@ describe("TaskAssignmentsEditor", () => {
             resource_id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
             person_id: "22222222-2222-4222-8222-222222222222",
             allocation_percent: 50,
+            cost_version: 1,
           }],
         })}
         calendar={{ working_weekdays: [1, 2, 3, 4, 5], non_working_dates: [] }}
@@ -258,6 +261,7 @@ describe("TaskAssignmentsEditor", () => {
             resource_id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
             person_id: "11111111-1111-4111-8111-111111111111",
             allocation_percent: 50,
+            cost_version: 1,
           }],
           resources: [{
             id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
@@ -294,6 +298,7 @@ describe("TaskAssignmentsEditor", () => {
             resource_id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
             person_id: "11111111-1111-4111-8111-111111111111",
             allocation_percent: 50,
+            cost_version: 1,
           }],
           resources: [{
             id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",

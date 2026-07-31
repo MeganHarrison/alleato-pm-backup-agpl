@@ -9,6 +9,12 @@ from src.services.ingestion.project_assignment import AssignmentTarget
 def _route_outlook_intake_clients(monkeypatch, supabase):
     monkeypatch.setattr(outlook, "get_outlook_intake_read_client", lambda: supabase)
     monkeypatch.setattr(outlook, "get_outlook_intake_write_client", lambda: supabase)
+    store_class = outlook.SupabaseRagStore
+    monkeypatch.setattr(
+        outlook,
+        "SupabaseRagStore",
+        lambda client: store_class(client, rag_client=client),
+    )
 
 
 class _Result:
@@ -144,6 +150,21 @@ class _DeltaGraph:
                 "internetMessageHeaders": [],
             }
         ], "inbox-token"
+
+    def get_delta_batch(
+        self,
+        base_path,
+        delta_token,
+        *,
+        max_pages,
+        max_items,
+    ):
+        items, cursor = self.get_delta(base_path, delta_token)
+        return SimpleNamespace(
+            items=items[:max_items],
+            next_cursor=cursor,
+            complete=len(items) <= max_items,
+        )
 
 
 class _AttachmentListFailureGraph(_DeltaGraph):
@@ -466,6 +487,155 @@ def test_sync_outlook_emails_respects_mailbox_message_cap(monkeypatch):
         "message-raw-1",
         "message-raw-2",
     ]
+
+
+def test_sync_outlook_emails_ignores_deleted_project_consensus(monkeypatch):
+    supabase = _Supabase()
+    _route_outlook_intake_clients(monkeypatch, supabase)
+    monkeypatch.setattr(outlook, "get_graph_client", lambda: _DeltaGraph())
+    monkeypatch.setattr(
+        outlook,
+        "find_outlook_project_consensus",
+        lambda *_args, **_kwargs: SimpleNamespace(
+            project_id=1029,
+            confidence=0.95,
+            source_method="title_match",
+            evidence_row_ids=(7327,),
+        ),
+    )
+    monkeypatch.setattr(
+        outlook,
+        "is_assignable_project_id",
+        lambda _client, project_id: project_id != 1029,
+    )
+    monkeypatch.setattr(
+        outlook,
+        "infer_assignment_target",
+        lambda *_args, **_kwargs: AssignmentTarget(
+            project_id=None,
+            business_area_id=None,
+            method="unassigned",
+            confidence=0.0,
+        ),
+    )
+
+    synced, _token = outlook.sync_outlook_emails(
+        supabase,
+        "bclymer@alleatogroup.com",
+        project_keywords=[],
+    )
+
+    assert synced == 1
+    intake = supabase.store["outlook_email_intake"][0]
+    assert intake.get("project_id") is None
+    assert intake["source_metadata"]["project_assignment"]["status"] == "review_needed"
+    app_document = supabase.store["document_metadata"][0]
+    rag_document = supabase.store["rag_document_metadata"][0]
+    assert app_document.get("project_id") is None
+    assert rag_document.get("project_id") is None
+
+
+def test_sync_outlook_emails_mirrors_post_upsert_project_reconciliation(
+    monkeypatch,
+):
+    supabase = _Supabase()
+    _route_outlook_intake_clients(monkeypatch, supabase)
+    monkeypatch.setattr(outlook, "get_graph_client", lambda: _DeltaGraph())
+    monkeypatch.setattr(
+        outlook,
+        "infer_assignment_target",
+        lambda *_args, **_kwargs: AssignmentTarget(
+            project_id=31,
+            business_area_id=None,
+            method="title_match",
+            confidence=0.98,
+        ),
+    )
+    monkeypatch.setattr(
+        outlook,
+        "_reconcile_outlook_project_assignment",
+        lambda **_kwargs: 178,
+    )
+
+    synced, _token = outlook.sync_outlook_emails(
+        supabase,
+        "bclymer@alleatogroup.com",
+        project_keywords=[],
+    )
+
+    assert synced == 1
+    assert supabase.store["document_metadata"][0]["project_id"] == 178
+    assert supabase.store["rag_document_metadata"][0]["project_id"] == 178
+
+
+def test_sync_outlook_emails_fails_loudly_and_does_not_return_cursor_on_item_error(
+    monkeypatch,
+):
+    supabase = _Supabase()
+    _route_outlook_intake_clients(monkeypatch, supabase)
+    monkeypatch.setattr(outlook, "get_graph_client", lambda: _DeltaGraph())
+    monkeypatch.setattr(
+        outlook,
+        "infer_assignment_target",
+        lambda *_args, **_kwargs: AssignmentTarget(
+            project_id=None,
+            business_area_id=None,
+            method="unassigned",
+            confidence=0.0,
+        ),
+    )
+
+    class _FailingStore:
+        def __init__(self, _client):
+            pass
+
+        def upsert_document_metadata(self, _payload):
+            raise RuntimeError("forced app catalog failure")
+
+    monkeypatch.setattr(outlook, "SupabaseRagStore", _FailingStore)
+
+    with pytest.raises(
+        RuntimeError,
+        match="delta cursor was not persisted and the batch will replay",
+    ):
+        outlook.sync_outlook_emails(
+            supabase,
+            "bclymer@alleatogroup.com",
+            project_keywords=[],
+        )
+
+
+def test_sync_outlook_emails_always_releases_project_snapshot(monkeypatch):
+    supabase = _Supabase()
+    events = []
+
+    class _FailingDeltaGraph(_DeltaGraph):
+        def get_delta_batch(self, *_args, **_kwargs):
+            raise RuntimeError("forced mailbox enumeration failure")
+
+    monkeypatch.setattr(outlook, "get_graph_client", lambda: _FailingDeltaGraph())
+    monkeypatch.setattr(
+        outlook,
+        "begin_project_assignment_batch",
+        lambda client: events.append(("begin", client)),
+    )
+    monkeypatch.setattr(
+        outlook,
+        "end_project_assignment_batch",
+        lambda client: events.append(("end", client)),
+    )
+
+    with pytest.raises(
+        RuntimeError,
+        match="refusing to persist a partial mailbox cursor",
+    ):
+        outlook.sync_outlook_emails(
+            supabase,
+            "bclymer@alleatogroup.com",
+            project_keywords=[],
+        )
+
+    assert events == [("begin", supabase), ("end", supabase)]
 
 
 def test_sync_outlook_emails_marks_clear_non_project_mail(monkeypatch):
@@ -1234,12 +1404,6 @@ def test_backfill_outlook_intake_rag_documents_links_missing_document(monkeypatc
 def test_backfill_outlook_intake_rag_documents_keeps_business_area_scope(monkeypatch):
     supabase = _Supabase()
     _route_outlook_intake_clients(monkeypatch, supabase)
-    store_class = outlook.SupabaseRagStore
-    monkeypatch.setattr(
-        outlook,
-        "SupabaseRagStore",
-        lambda client: store_class(client=client, rag_client=client),
-    )
     supabase.store["outlook_email_intake"] = [
         {
             "id": 7,

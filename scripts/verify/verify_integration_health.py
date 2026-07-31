@@ -2,7 +2,7 @@
 """
 Integration Health Check — Data Source Freshness Verifier
 
-Checks that ALL data sources feeding Chai are actively receiving new data.
+Checks that ALL data sources feeding Eve are actively receiving new data.
 This script should be run regularly (daily or as part of CI) to catch silent
 integration failures like the Outlook sync going dark after March 20, 2026.
 
@@ -134,11 +134,25 @@ def _is_inactive_graph_resource(row: dict) -> bool:
 # Client
 # ---------------------------------------------------------------------------
 
-def get_client():
+def get_pm_client():
+    """Create the PM-database client used for source and sync-state checks."""
     url = os.environ.get("SUPABASE_URL") or os.environ.get("NEXT_PUBLIC_SUPABASE_URL")
     key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY") or os.environ.get("SUPABASE_SERVICE_KEY")
     if not url or not key:
         logger.error("Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY")
+        sys.exit(1)
+    return create_client(url, key, ClientOptions(postgrest_client_timeout=60))
+
+
+def get_rag_client():
+    """Create the dedicated RAG-database client used for vector chunk checks."""
+    url = os.environ.get("RAG_SUPABASE_URL")
+    key = (
+        os.environ.get("RAG_SUPABASE_SECRET_KEY")
+        or os.environ.get("RAG_SUPABASE_SERVICE_ROLE_KEY")
+    )
+    if not url or not key:
+        logger.error("Missing RAG_SUPABASE_URL or RAG_SUPABASE_SECRET_KEY")
         sys.exit(1)
     return create_client(url, key, ClientOptions(postgrest_client_timeout=60))
 
@@ -280,7 +294,7 @@ def check_graph_sync_state(supabase) -> list[dict]:
 
 
 def check_ai_source_health_snapshots(supabase) -> list[dict]:
-    """Check the AI-facing source health snapshots used by Eve production tools."""
+    """Check the AI-facing source health snapshots used by /api/ai-assistant/chat."""
     try:
         result = (
             supabase.table("source_sync_health_snapshots")
@@ -353,21 +367,30 @@ def check_ai_source_health_snapshots(supabase) -> list[dict]:
     return checks
 
 
-def check_chunk_coverage(supabase) -> list[dict]:
-    """Check that document_chunks has adequate coverage for each source type."""
+def check_chunk_coverage(rag_supabase) -> list[dict]:
+    """Check RAG-database document_chunks coverage for each source type."""
     checks = []
     for src in CHUNK_SOURCE_TYPES:
         source_types = src.get("types") or [src["type"]]
         try:
-            query = supabase.table("document_chunks").select("chunk_id", count="exact")
+            query = rag_supabase.table("document_chunks").select("chunk_id", count="exact")
             if len(source_types) == 1:
                 query = query.eq("source_type", source_types[0])
             else:
                 query = query.in_("source_type", source_types)
             result = query.execute()
             count = result.count or len(result.data or [])
-        except Exception:
-            count = 0
+        except Exception as exc:
+            checks.append({
+                "name": src["label"],
+                "status": "error",
+                "chunk_count": None,
+                "min_expected": src["min_chunks"],
+                "source_type": ",".join(source_types),
+                "critical": True,
+                "error": f"RAG chunk coverage query failed: {exc}",
+            })
+            continue
 
         status = "healthy" if count >= src["min_chunks"] else "low"
         if count == 0:
@@ -562,7 +585,8 @@ def main():
     parser.add_argument("--skip-env", action="store_true", help="Skip environment variable checks")
     args = parser.parse_args()
 
-    supabase = get_client()
+    pm_supabase = get_pm_client()
+    rag_supabase = get_rag_client()
     all_checks: list[dict] = []
 
     # 1. Environment variable checks
@@ -571,24 +595,23 @@ def main():
 
     # 2. Data source freshness
     for check in SOURCE_CHECKS:
-        all_checks.append(check_source_freshness(supabase, check, args.max_stale_hours))
+        all_checks.append(check_source_freshness(pm_supabase, check, args.max_stale_hours))
 
     # 3. Graph sync state
-    all_checks.extend(check_graph_sync_state(supabase))
+    all_checks.extend(check_graph_sync_state(pm_supabase))
 
-    # 4. AI-facing source health snapshots used by the assistant runtime
-    all_checks.extend(check_ai_source_health_snapshots(supabase))
+    # 4. AI-facing source health snapshots live with the RAG operational ledgers.
+    all_checks.extend(check_ai_source_health_snapshots(rag_supabase))
 
     # 5. Chunk coverage
-    all_checks.extend(check_chunk_coverage(supabase))
+    all_checks.extend(check_chunk_coverage(rag_supabase))
 
     if args.json:
         print(json.dumps(all_checks, indent=2, default=str))
         return 0 if all(c["status"] == "healthy" for c in all_checks) else 1
 
-    exit_code = print_report(all_checks)
-    sys.exit(exit_code)
+    return print_report(all_checks)
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -100,7 +100,7 @@ export const updateInboxRuleSchema = z
   })
   // Only cross-validate action/value when the action itself is being changed.
   .superRefine((data, ctx) => {
-    if (data.action) actionValueRefinement({ ...data }, ctx);
+    if (data.action) actionValueRefinement({ ...data, action: data.action }, ctx);
   });
 
 export type CreateInboxRuleInput = z.infer<typeof createInboxRuleSchema>;

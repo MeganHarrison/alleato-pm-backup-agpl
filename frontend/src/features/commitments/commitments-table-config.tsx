@@ -240,6 +240,13 @@ function yesNo(value: boolean): string {
   return value ? "Yes" : "No";
 }
 
+function commitmentDetailHref(
+  projectId: string,
+  commitmentId: string,
+): string {
+  return `/${projectId}/commitments/${commitmentId}`;
+}
+
 const ACUMATICA_BASE_URL = "https://alleatogroup.acumatica.com";
 
 /**
@@ -329,10 +336,10 @@ export function buildCommitmentTableColumns(
     },
     contract_company: {
       render: (item) =>
-        item.contract_company?.id && item.contract_company?.name ? (
+        item.contract_company?.name ? (
           <CellLink
             value={item.contract_company.name}
-            href={`/directory/companies/${item.contract_company.id}`}
+            href={commitmentDetailHref(projectId, item.id)}
           />
         ) : (
           <span>{item.contract_company?.name ?? "-"}</span>
@@ -398,7 +405,7 @@ export function buildCommitmentTableColumns(
       render: (item) => (
         <CellLink
           value={item.title ?? "-"}
-          href={`/${projectId}/commitments/${item.id}`}
+          href={commitmentDetailHref(projectId, item.id)}
           className="block max-w-72 truncate font-medium"
         />
       ),

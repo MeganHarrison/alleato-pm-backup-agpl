@@ -1,0 +1,46 @@
+{
+  "contractVersion": 1,
+  "taskId": "BUILD-DEPS-20260730",
+  "feature": "Production dependency repair for realtime workflow imports",
+  "route": "/api/health",
+  "riskLevel": "high",
+  "flows": [
+    {
+      "name": "Install the production dependency graph",
+      "steps": [
+        "Install with the committed pnpm lockfile in frozen mode",
+        "Resolve yjs from the frontend package",
+        "Resolve y-protocols/awareness from the frontend package"
+      ],
+      "expectedOutcome": "Both directly imported packages are installed and resolvable"
+    },
+    {
+      "name": "Deploy through the canonical source",
+      "steps": [
+        "Publish the dependency-only change to GitHub main",
+        "Wait for the GitHub-integrated Vercel production build",
+        "Read back the production health endpoint"
+      ],
+      "expectedOutcome": "The canonical production deployment is READY and healthy"
+    }
+  ],
+  "requiredEvidence": [
+    "regressionTest",
+    "summary"
+  ],
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "dependency-resolution",
+      "description": "The directly imported realtime collaboration packages are declared and resolvable",
+      "evidence": [
+        {
+          "key": "regressionTest",
+          "min": 1
+        }
+      ]
+    }
+  ]
+}

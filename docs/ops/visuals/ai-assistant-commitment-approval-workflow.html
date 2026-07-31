@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light dark" />
+  <title>AI Assistant Commitment Workflow — Evidence, Draft, Approval</title>
+  <style>
+    :root {
+      --paper: #faf6ee;
+      --paper-raised: #fffdf8;
+      --ink: #2b2926;
+      --ink-soft: #6b6660;
+      --ink-faint: #908a81;
+      --line: #d6cfc3;
+      --line-strong: #a69e93;
+      --wash-yellow: #f5e6a8;
+      --wash-green: #d5e3c8;
+      --wash-purple: #dcd3ee;
+      --wash-pink: #f3d5d8;
+      --wash-blue: #cfe3f0;
+      --green: #365d42;
+      --red: #8e443b;
+      --blue: #315b76;
+      --focus: #1f6794;
+      --serif: Iowan Old Style, Palatino Linotype, Palatino, Georgia, serif;
+      --sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    :root[data-theme="dark"] {
+      --paper: #1a1815;
+      --paper-raised: #201e1a;
+      --ink: #eee7dc;
+      --ink-soft: #b7afa2;
+      --ink-faint: #8e877d;
+      --line: #403c35;
+      --line-strong: #6d665c;
+      --wash-yellow: #3c3520;
+      --wash-green: #253528;
+      --wash-purple: #302b3d;
+      --wash-pink: #3b292a;
+      --wash-blue: #203440;
+      --green: #9ac09c;
+      --red: #e2a099;
+      --blue: #a5cce2;
+      --focus: #9fd7f7;
+    }
+    @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { color-scheme: dark; } }
+    :root[data-theme="dark"] { color-scheme: dark; }
+    :root[data-theme="light"] { color-scheme: light; }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--sans); line-height: 1.52; }
+    button { font: inherit; }
+    button:focus-visible, summary:focus-visible, a:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+    .page { width: min(1180px, 100%); margin: 0 auto; padding: 28px 26px 84px; }
+    .topline { border-top: 2px solid var(--ink); display: flex; justify-content: space-between; gap: 18px; padding-top: 11px; align-items: center; }
+    .eyebrow, .tiny-label { font: 700 .68rem/1.25 var(--mono); color: var(--ink-faint); letter-spacing: .13em; text-transform: uppercase; }
+    .theme { color: var(--ink-soft); background: transparent; border: 1px solid var(--line-strong); border-radius: 7px; padding: 6px 10px; cursor: pointer; font-size: .78rem; }
+    .hero { padding: 54px 0 45px; max-width: 915px; }
+    h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0; text-wrap: balance; }
+    h1 { font-size: clamp(2.5rem, 6vw, 4.45rem); letter-spacing: -.04em; line-height: .98; max-width: 920px; }
+    h1 mark { color: inherit; background: linear-gradient(transparent 58%, var(--wash-yellow) 58%); padding: 0 .04em; }
+    .lede { margin-top: 26px; font: clamp(1.08rem, 2.2vw, 1.35rem)/1.48 var(--serif); color: var(--ink-soft); max-width: 65ch; }
+    .lede strong { color: var(--ink); font-weight: 600; }
+    .principles { margin-top: 29px; display: flex; flex-wrap: wrap; gap: 8px; }
+    .principle { padding: 7px 10px; border: 1px solid var(--line); border-radius: 6px; color: var(--ink-soft); font-size: .79rem; background: var(--paper-raised); }
+    .principle b { color: var(--ink); font-weight: 650; }
+    .section-title { border-top: 1px solid var(--line); padding-top: 13px; display: flex; justify-content: space-between; align-items: baseline; gap: 18px; }
+    .section-title h2 { font-size: clamp(1.45rem, 3vw, 2rem); letter-spacing: -.02em; }
+    .section-title p { margin: 0; color: var(--ink-soft); font-size: .9rem; max-width: 54ch; }
+
+    /* Primary workflow */
+    .workflow-wrap { margin-top: 24px; position: relative; }
+    .workflow { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border-top: 2px solid var(--ink); border-bottom: 1px solid var(--line); }
+    .step { appearance: none; text-align: left; color: inherit; background: transparent; border: 0; border-right: 1px solid var(--line); min-height: 265px; padding: 18px 16px 20px; cursor: pointer; transition: background .16s ease; }
+    .step:last-child { border-right: 0; }
+    .step:hover, .step[aria-selected="true"] { background: var(--paper-raised); }
+    .step[aria-selected="true"] { box-shadow: inset 0 -4px 0 var(--ink); }
+    .step-num { display: grid; place-items: center; width: 30px; height: 30px; border: 1.7px solid var(--ink); border-radius: 50%; font: 700 .75rem var(--mono); margin-bottom: 34px; background: var(--paper); }
+    .step:nth-child(2) .step-num { background: var(--wash-blue); }
+    .step:nth-child(3) .step-num { background: var(--wash-purple); }
+    .step:nth-child(4) .step-num { background: var(--wash-yellow); }
+    .step:nth-child(5) .step-num { background: var(--wash-green); }
+    .step h3 { font: 650 1rem/1.2 var(--sans); }
+    .step p { color: var(--ink-soft); margin: 8px 0 0; font-size: .83rem; }
+    .arrow { position: absolute; top: 86px; right: -12px; z-index: 1; color: var(--ink-faint); font-size: 1rem; }
+    .step:last-child .arrow { display: none; }
+    .detail { display: grid; grid-template-columns: 1.25fr .75fr; gap: 24px; background: var(--paper-raised); border-bottom: 1px solid var(--line); padding: 20px; min-height: 152px; }
+    .detail-copy h3 { font: 650 1rem/1.2 var(--sans); margin-bottom: 7px; }
+    .detail-copy p { margin: 0; color: var(--ink-soft); font-size: .92rem; max-width: 68ch; }
+    .detail-fact { border-left: 3px solid var(--ink); padding-left: 13px; align-self: center; }
+    .detail-fact .tiny-label { display: block; margin-bottom: 4px; }
+    .detail-fact p { font: .82rem/1.45 var(--sans); color: var(--ink-soft); margin: 0; }
+
+    /* Evidence-to-draft system */
+    .evidence { margin-top: 68px; }
+    .system-map { margin-top: 24px; display: grid; grid-template-columns: minmax(220px, .9fr) 68px minmax(280px, 1.35fr) 68px minmax(220px, .9fr); align-items: stretch; gap: 0; }
+    .map-column { min-width: 0; border-top: 2px solid var(--ink); border-bottom: 1px solid var(--line); padding: 17px 15px; }
+    .map-column:first-child { background: color-mix(in srgb, var(--wash-blue) 36%, var(--paper)); }
+    .map-column:nth-child(3) { background: color-mix(in srgb, var(--wash-purple) 30%, var(--paper)); }
+    .map-column:last-child { background: color-mix(in srgb, var(--wash-yellow) 32%, var(--paper)); }
+    .map-column h3 { font: 650 .83rem var(--sans); margin: 0 0 12px; text-transform: uppercase; letter-spacing: .07em; }
+    .source-row { padding: 10px 0; border-top: 1px solid color-mix(in srgb, var(--line) 70%, transparent); }
+    .source-row:first-of-type { border-top: 0; }
+    .source-row b, .outcome b { display: block; font-size: .86rem; }
+    .source-row span, .outcome span { display: block; margin-top: 3px; color: var(--ink-soft); font-size: .77rem; }
+    .map-arrow { display: grid; place-items: center; color: var(--ink-faint); font: 1.5rem var(--serif); }
+    .engine-rule { margin: 10px 0; border-top: 1px solid var(--line); padding-top: 10px; color: var(--ink-soft); font-size: .78rem; }
+    .engine-rule strong { color: var(--ink); }
+    .outcome { padding: 11px 0; border-top: 1px solid color-mix(in srgb, var(--line) 70%, transparent); }
+    .outcome:first-of-type { border-top: 0; }
+    .outcome.approval { border-left: 3px solid var(--green); padding-left: 9px; }
+    .caption { margin: 13px 0 0; max-width: 85ch; color: var(--ink-soft); font-size: .85rem; }
+
+    /* Scenario */
+    .scenario { margin-top: 68px; }
+    .scenario-grid { margin-top: 24px; display: grid; grid-template-columns: 1.05fr 1.25fr .95fr; gap: 0; border: 1px solid var(--line); background: var(--paper-raised); }
+    .scenario-pane { padding: 20px; min-width: 0; border-right: 1px solid var(--line); }
+    .scenario-pane:last-child { border-right: 0; }
+    .scenario-pane h3 { font: 650 .87rem var(--sans); letter-spacing: .06em; text-transform: uppercase; margin-bottom: 13px; }
+    .prompt { background: var(--wash-blue); border: 1px solid color-mix(in srgb, var(--blue) 25%, var(--line)); padding: 13px; border-radius: 7px; font: .91rem/1.48 var(--serif); }
+    .recommendation { border-left: 3px solid var(--blue); padding-left: 12px; font-size: .86rem; color: var(--ink-soft); }
+    .recommendation b { color: var(--ink); }
+    .citation { margin-top: 9px; font: .7rem/1.4 var(--mono); color: var(--ink-faint); }
+    .draft-card { border: 1.5px solid var(--ink); border-radius: 8px; padding: 14px; }
+    .draft-head { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; border-bottom: 1px solid var(--line); padding-bottom: 9px; }
+    .draft-head b { font-size: .9rem; }
+    .draft-badge { font: 700 .65rem var(--mono); letter-spacing: .08em; color: var(--blue); }
+    .draft-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 13px 0; }
+    .field { font-size: .76rem; color: var(--ink-soft); }
+    .field b { display: block; color: var(--ink); font-size: .83rem; margin-top: 2px; }
+    .approval-line { margin-top: 8px; border-top: 1px solid var(--line); padding-top: 10px; color: var(--green); font-size: .81rem; font-weight: 650; }
+    .write-lock { display: grid; place-items: center; text-align: center; min-height: 100%; background: color-mix(in srgb, var(--wash-green) 42%, var(--paper)); }
+    .lock-ring { width: 64px; height: 64px; display: grid; place-items: center; border: 2px solid var(--green); border-radius: 50%; color: var(--green); font: 700 1.15rem var(--mono); }
+    .write-lock h3 { margin: 15px 0 6px; font-size: 1.05rem; }
+    .write-lock p { margin: 0; color: var(--ink-soft); font-size: .84rem; max-width: 25ch; }
+    .status-lane { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 15px; }
+    .status { border: 1px solid var(--line); padding: 5px 7px; border-radius: 5px; color: var(--ink-soft); font: .67rem var(--mono); }
+    .status.active { background: var(--wash-green); border-color: var(--green); color: var(--green); font-weight: 700; }
+
+    /* Guardrails */
+    .guardrails { margin-top: 68px; }
+    .guardrail-list { margin: 23px 0 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .guardrail { border-top: 3px solid var(--ink); padding-top: 12px; }
+    .guardrail:nth-child(1) { border-color: var(--blue); }
+    .guardrail:nth-child(2) { border-color: #8b6b22; }
+    .guardrail:nth-child(3) { border-color: var(--red); }
+    .guardrail h3 { font: 650 .9rem var(--sans); margin-bottom: 6px; }
+    .guardrail p { margin: 0; color: var(--ink-soft); font-size: .84rem; }
+    details { margin-top: 17px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 12px 0; }
+    summary { cursor: pointer; color: var(--ink); font-size: .88rem; font-weight: 650; }
+    details p, details ul { max-width: 75ch; color: var(--ink-soft); font-size: .84rem; }
+    details li { margin: 4px 0; }
+    .footer { margin-top: 70px; padding-top: 12px; border-top: 2px solid var(--ink); color: var(--ink-soft); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px 26px; font-size: .76rem; }
+
+    @media (max-width: 850px) {
+      .workflow { grid-template-columns: 1fr; border-bottom: 0; }
+      .step { min-height: auto; border-right: 0; border-bottom: 1px solid var(--line); display: grid; grid-template-columns: 42px 1fr; column-gap: 13px; padding: 15px; }
+      .step-num { grid-row: span 2; margin: 1px 0 0; }
+      .step p { margin-top: 4px; }
+      .arrow { display: none; }
+      .detail { grid-template-columns: 1fr; }
+      .system-map { grid-template-columns: 1fr; }
+      .map-arrow { height: 44px; transform: rotate(90deg); }
+      .scenario-grid { grid-template-columns: 1fr; }
+      .scenario-pane { border-right: 0; border-bottom: 1px solid var(--line); }
+      .scenario-pane:last-child { border-bottom: 0; }
+      .guardrail-list { grid-template-columns: 1fr; gap: 26px; }
+    }
+    @media (max-width: 500px) { .page { padding: 21px 16px 60px; } .hero { padding: 40px 0 35px; } h1 { font-size: 2.65rem; } .draft-fields { grid-template-columns: 1fr; } }
+    @media print { .theme { display: none; } .page { padding: 0; max-width: none; } .detail { min-height: auto; } .step { break-inside: avoid; } }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition-duration: 0.001ms !important; animation-duration: 0.001ms !important; } }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="topline">
+      <span class="eyebrow">Alleato · proposed governed workflow</span>
+      <button class="theme" type="button" aria-pressed="false" id="themeToggle">Switch theme</button>
+    </div>
+
+    <header class="hero">
+      <h1>Ask in plain English.<br /><mark>Approve the exact commitment.</mark></h1>
+      <p class="lede">The AI Assistant turns a project conversation into a <strong>citation-backed commitment draft</strong>. Project Intelligence can recommend the right contractor from recent project evidence, but it never substitutes recommendation for a user decision or a signed approval.</p>
+      <div class="principles" aria-label="Workflow principles">
+        <span class="principle"><b>Evidence-aware</b> recommendations show their source</span>
+        <span class="principle"><b>Draft-first</b> means no financial record yet</span>
+        <span class="principle"><b>Approval-bound</b> write uses the reviewed payload</span>
+        <span class="principle"><b>Auditable</b> intent, approval, and outcome are retained</span>
+      </div>
+    </header>
+
+    <section aria-labelledby="workflow-title">
+      <div class="section-title">
+        <h2 id="workflow-title">The user journey</h2>
+        <p>Select a step to see its contract. The important boundary is between a prepared draft and a financial record.</p>
+      </div>
+      <div class="workflow-wrap">
+        <div class="workflow" role="tablist" aria-label="Commitment creation workflow">
+          <button class="step" role="tab" aria-selected="true" aria-controls="workflow-detail" data-step="0" id="step-0"><span class="step-num">1</span><span><h3>Ask</h3><p>“Set up a subcontract for the lobby millwork.”</p></span><span class="arrow" aria-hidden="true">→</span></button>
+          <button class="step" role="tab" aria-selected="false" aria-controls="workflow-detail" data-step="1" id="step-1"><span class="step-num">2</span><span><h3>Ground</h3><p>Resolve project, vendor candidates, cost context, and recent source evidence.</p></span><span class="arrow" aria-hidden="true">→</span></button>
+          <button class="step" role="tab" aria-selected="false" aria-controls="workflow-detail" data-step="2" id="step-2"><span class="step-num">3</span><span><h3>Prepare</h3><p>Build one typed subcontract or PO draft. No database write.</p></span><span class="arrow" aria-hidden="true">→</span></button>
+          <button class="step" role="tab" aria-selected="false" aria-controls="workflow-detail" data-step="3" id="step-3"><span class="step-num">4</span><span><h3>Review</h3><p>User sees the exact fields, sources, gaps, and reason approval is required.</p></span><span class="arrow" aria-hidden="true">→</span></button>
+          <button class="step" role="tab" aria-selected="false" aria-controls="workflow-detail" data-step="4" id="step-4"><span class="step-num">5</span><span><h3>Commit</h3><p>Signed approval submits that immutable draft once and returns the linked record.</p></span></button>
+        </div>
+        <div class="detail" role="tabpanel" id="workflow-detail" aria-live="polite" aria-labelledby="step-0">
+          <div class="detail-copy"><h3 id="detail-title">1. Ask — natural language is the intake, not the authorization.</h3><p id="detail-copy">The Assistant identifies whether the user is asking for a subcontract or purchase order, binds the request to the active project, and asks a focused follow-up if a required fact is missing.</p></div>
+          <div class="detail-fact"><span class="tiny-label" id="detail-label">Boundary</span><p id="detail-fact">A conversational request cannot create a financial commitment by itself.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="evidence" aria-labelledby="evidence-title">
+      <div class="section-title"><h2 id="evidence-title">How intelligence becomes a recommendation—not a hidden decision</h2><p>Project Intelligence is a source-aware read layer; the commitment draft remains explicit and editable.</p></div>
+      <div class="system-map" aria-label="Evidence to approval system map">
+        <article class="map-column"><h3>Project context</h3><div class="source-row"><b>Recent meeting</b><span>Trade assignments, decisions, named responsibilities</span></div><div class="source-row"><b>Teams and email</b><span>Vendor correspondence, scope signals, unresolved questions</span></div><div class="source-row"><b>Project records</b><span>Directory, budget codes, existing commitments, permissions</span></div></article>
+        <div class="map-arrow" aria-hidden="true">→</div>
+        <article class="map-column"><h3>Assistant grounding</h3><div class="engine-rule"><strong>Scope first.</strong> The active project and user permissions constrain all reads.</div><div class="engine-rule"><strong>Evidence second.</strong> Rank relevant, recent sources; attach citations, date, and confidence.</div><div class="engine-rule"><strong>Resolve, don’t assume.</strong> Match the suggested contractor against the company directory and surface ambiguity.</div><div class="engine-rule"><strong>Validate.</strong> Check required draft fields and current financial constraints before review.</div></article>
+        <div class="map-arrow" aria-hidden="true">→</div>
+        <article class="map-column"><h3>What the user sees</h3><div class="outcome"><b>Recommendation</b><span>“Apex Millwork is likely: the July 28 coordination meeting assigns them the lobby package.”</span></div><div class="outcome"><b>Source trail</b><span>Meeting title, date, excerpt/linked source, and freshness signal.</span></div><div class="outcome"><b>Editable draft</b><span>Vendor, type, title, scope, value, dates, retainage, and missing fields.</span></div><div class="outcome approval"><b>Clear approval action</b><span>Approve exactly this reviewed payload—or edit/cancel with zero write.</span></div></article>
+      </div>
+      <p class="caption">Recommendation confidence is not permission. A stale, conflicting, or weak source lowers confidence and must be visible; it cannot quietly pick a contractor or skip a required field.</p>
+    </section>
+
+    <section class="scenario" aria-labelledby="scenario-title">
+      <div class="section-title"><h2 id="scenario-title">A concrete conversation</h2><p>Illustrative data shows the intended experience and the approval boundary.</p></div>
+      <div class="scenario-grid">
+        <article class="scenario-pane"><h3>1 · User asks</h3><p class="prompt">“Create a subcontract for the lobby millwork package. Use whoever has been handling it.”</p><div style="height: 18px"></div><div class="recommendation"><b>Assistant:</b> “Apex Millwork is the best match I found. The July 28 coordination meeting assigns them the lobby millwork package.”<p class="citation">SOURCE · Coordination Meeting · Jul 28 · Project Intelligence</p></div></article>
+        <article class="scenario-pane"><h3>2 · Assistant prepares</h3><div class="draft-card"><div class="draft-head"><b>Lobby millwork package</b><span class="draft-badge">DRAFT · NOT CREATED</span></div><div class="draft-fields"><div class="field">Type<b>Subcontract</b></div><div class="field">Recommended vendor<b>Apex Millwork</b></div><div class="field">Scope<b>Lobby millwork package</b></div><div class="field">Value<b>Needs PM input</b></div><div class="field">Project<b>Current project</b></div><div class="field">Evidence<b>1 cited meeting</b></div></div><div class="approval-line">Approval required · financial commitment</div></div></article>
+        <article class="scenario-pane"><div class="write-lock"><div class="lock-ring" aria-hidden="true">✓</div><h3>3 · PM approves</h3><p>The signed action submits the exact reviewed payload once. The Assistant then returns the commitment link and audit outcome.</p><div class="status-lane" aria-label="Approval status"><span class="status">draft</span><span class="status active">approved</span><span class="status">created once</span></div></div></article>
+      </div>
+    </section>
+
+    <section class="guardrails" aria-labelledby="guardrails-title">
+      <div class="section-title"><h2 id="guardrails-title">The guardrails that make this safe</h2><p>Each exception has a visible recovery path—no silent fallback, fabricated record, or implicit approval.</p></div>
+      <div class="guardrail-list">
+        <article class="guardrail"><h3>Missing or ambiguous facts</h3><p>Ask a targeted question or show a selection list. Never infer the vendor, commitment type, or value when the evidence is insufficient.</p></article>
+        <article class="guardrail"><h3>Evidence is stale or conflicts</h3><p>Show the conflicting or dated sources and lower recommendation confidence. The user chooses or corrects the contractor before approval.</p></article>
+        <article class="guardrail"><h3>Approval, write, or recovery fails</h3><p>Keep the draft and its source trail. Record the failure state; retry with the same payload key so a retry cannot create a duplicate commitment.</p></article>
+      </div>
+      <details><summary>Approval contract: what must be bound together</summary><ul><li>One typed commitment draft: subcontract or purchase order, project, vendor, scope, financial fields, and validation result.</li><li>One immutable payload hash shown at review and used at write time.</li><li>One explicit approval or cancellation tied to the approving user and tool call.</li><li>One idempotency key and audit record with the outcome, record link, and any failure reason.</li><li>Source citations and recommendation rationale retained as decision support—not copied in as contractual fact.</li></ul></details>
+    </section>
+
+    <footer class="footer"><span>Intended owner: AI Assistant action contract + commitment creation boundary</span><span>Visual scope: evidence-aware draft → explicit approval → one auditable write</span></footer>
+  </main>
+  <script>
+    (() => {
+      const steps = [
+        { title: '1. Ask — natural language is the intake, not the authorization.', copy: 'The Assistant identifies whether the user is asking for a subcontract or purchase order, binds the request to the active project, and asks a focused follow-up if a required fact is missing.', label: 'Boundary', fact: 'A conversational request cannot create a financial commitment by itself.' },
+        { title: '2. Ground — look for evidence before offering a contractor.', copy: 'The Assistant reads permitted project records and relevant Project Intelligence sources. It can recommend a contractor from recent meetings, Teams, or email, but it exposes the source, date, and ambiguity.', label: 'Evidence rule', fact: 'A recommendation must be source-linked and scoped to the current project.' },
+        { title: '3. Prepare — form a typed, editable draft only.', copy: 'The draft captures commitment type, vendor, title, scope, project, value, dates, and retainage when known. It validates required fields without inserting a subcontract or purchase order.', label: 'No write', fact: 'The commitment draft tool is read/prepare-only until approval.' },
+        { title: '4. Review — make the exact consequence legible.', copy: 'The PM sees the exact fields to be written, any missing information, the recommendation’s source trail, and why this action requires approval. They can correct it, choose another vendor, or cancel.', label: 'Human decision', fact: 'Editing or canceling replaces or clears the draft; it never creates a record.' },
+        { title: '5. Commit — submit the reviewed payload once.', copy: 'Approval authorizes one signed, idempotent write of the same payload the user reviewed. Success returns the linked commitment; failure is surfaced with the preserved draft and recovery action.', label: 'Write guarantee', fact: 'Approval, payload hash, outcome, and actor are recorded for audit.' }
+      ];
+      const tabs = [...document.querySelectorAll('.step')];
+      const title = document.getElementById('detail-title');
+      const copy = document.getElementById('detail-copy');
+      const label = document.getElementById('detail-label');
+      const fact = document.getElementById('detail-fact');
+      const panel = document.getElementById('workflow-detail');
+      function select(index) {
+        tabs.forEach((tab, i) => { tab.setAttribute('aria-selected', String(i === index)); tab.tabIndex = i === index ? 0 : -1; });
+        const item = steps[index]; title.textContent = item.title; copy.textContent = item.copy; label.textContent = item.label; fact.textContent = item.fact; panel.setAttribute('aria-labelledby', `step-${index}`);
+      }
+      tabs.forEach((tab, index) => tab.addEventListener('click', () => select(index)));
+      document.querySelector('.workflow').addEventListener('keydown', (event) => {
+        const current = tabs.findIndex(tab => tab.getAttribute('aria-selected') === 'true');
+        let next = current;
+        if (event.key === 'ArrowRight' || event.key === 'ArrowDown') next = (current + 1) % tabs.length;
+        if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') next = (current - 1 + tabs.length) % tabs.length;
+        if (next !== current) { event.preventDefault(); select(next); tabs[next].focus(); }
+      });
+      const root = document.documentElement;
+      const theme = document.getElementById('themeToggle');
+      theme.addEventListener('click', () => { const dark = root.dataset.theme !== 'dark'; root.dataset.theme = dark ? 'dark' : 'light'; theme.setAttribute('aria-pressed', String(dark)); theme.textContent = dark ? 'Use light theme' : 'Use dark theme'; });
+    })();
+  </script>
+</body>
+</html>

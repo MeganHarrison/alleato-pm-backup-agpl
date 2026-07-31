@@ -1,16 +1,24 @@
 import "server-only";
 
-import { existsSync, readFileSync } from "fs";
-import { join } from "path";
-
 import { inferPageAccessDefaults } from "@/lib/page-access";
 import type { InventoryRoute } from "@/app/(admin)/site-map/site-map-client";
+import generatedInventory from "@/app/(admin)/site-map/route-inventory.generated.json";
 
 /**
- * Reads and shapes the generated app route inventory (`docs/reports/route-inventory.csv`)
- * into `InventoryRoute[]`. Shared by the site map (Page Access) and any curated
- * view that filters the same route set — e.g. the tagged Megan's Dashboard page —
- * so both surfaces stay in sync with a single derivation of page/category/layout.
+ * Shapes the generated app route inventory into `InventoryRoute[]`. Shared by the
+ * site map (Page Access) and any curated view that filters the same route set —
+ * e.g. the tagged Megan's Dashboard page — so both surfaces stay in sync with a
+ * single derivation of page/category/layout.
+ *
+ * The inventory is a committed JSON file (`route-inventory.generated.json`) that
+ * lives inside the app source tree and is imported statically. This is
+ * deliberate: an earlier version read `docs/reports/route-inventory.csv` from
+ * disk at request time, but that file is gitignored and excluded from the Vercel
+ * function bundle, so the route list was always empty in production ("No routes
+ * found"). A static import is bundled by the compiler and is always present at
+ * runtime. The JSON is regenerated before every production build: the full
+ * repository audit writes reports locally, while Vercel's frontend-root build
+ * invokes the same portable generator directly.
  */
 
 type InventoryCsvRow = {
@@ -21,56 +29,6 @@ type InventoryCsvRow = {
   file: string;
   refSample: string;
 };
-
-function parseCsvLine(line: string): string[] {
-  const values: string[] = [];
-  let value = "";
-  let inQuotes = false;
-
-  for (let index = 0; index < line.length; index += 1) {
-    const char = line[index];
-    const nextChar = line[index + 1];
-
-    if (char === "\"" && inQuotes && nextChar === "\"") {
-      value += "\"";
-      index += 1;
-      continue;
-    }
-
-    if (char === "\"") {
-      inQuotes = !inQuotes;
-      continue;
-    }
-
-    if (char === "," && !inQuotes) {
-      values.push(value);
-      value = "";
-      continue;
-    }
-
-    value += char;
-  }
-
-  values.push(value);
-  return values;
-}
-
-function parseRouteInventoryCsv(csv: string): InventoryCsvRow[] {
-  const [headerLine, ...lines] = csv.trim().split(/\r?\n/);
-  if (!headerLine) return [];
-
-  const headers = parseCsvLine(headerLine);
-  return lines
-    .filter((line) => line.trim().length > 0)
-    .map((line) => {
-      const values = parseCsvLine(line);
-      return headers.reduce<Record<string, string>>((row, header, index) => {
-        row[header] = values[index] ?? "";
-        return row;
-      }, {}) as InventoryCsvRow;
-    })
-    .filter((row) => row.route);
-}
 
 // Tokens that should render fully uppercased instead of title-cased.
 const ACRONYMS: Record<string, string> = {
@@ -243,16 +201,9 @@ function inferLayout(route: string, file: string, kind: string): InventoryRoute[
 }
 
 export function readRouteInventory(): InventoryRoute[] {
-  const candidates = [
-    join(process.cwd(), "docs", "reports", "route-inventory.csv"),
-    join(process.cwd(), "..", "docs", "reports", "route-inventory.csv"),
-  ];
-  const inventoryPath = candidates.find((candidate) => existsSync(candidate));
+  const rows = generatedInventory as InventoryCsvRow[];
 
-  if (!inventoryPath) return [];
-
-  const csv = readFileSync(inventoryPath, "utf8");
-  return parseRouteInventoryCsv(csv).map((row) => {
+  return rows.map((row) => {
     const category = inferCategory(row.route, row.file);
     const access = inferPageAccessDefaults({
       route: row.route,

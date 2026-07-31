@@ -1,4 +1,4 @@
-import { findStoredSpecDocumentMatches } from "../document-intelligence";
+import { findStoredSpecDocumentMatches } from "../spec-source-matching";
 
 describe("findStoredSpecDocumentMatches", () => {
   it("prefers spec-like project documents and returns focused excerpts", () => {
@@ -60,6 +60,29 @@ describe("findStoredSpecDocumentMatches", () => {
         },
       ],
       "fire sprinkler pipe requirements",
+    );
+
+    expect(matches).toEqual([]);
+  });
+
+  it("does not return unrelated spec attachments for a requirement query", () => {
+    const matches = findStoredSpecDocumentMatches(
+      [
+        {
+          id: "spec-2",
+          title: "Glycol Spec Sheet.pdf",
+          content:
+            "Email attachment: Glycol Spec Sheet.pdf Attachment category: Specification",
+          raw_text: null,
+          summary: null,
+          overview: null,
+          source: "outlook",
+          source_system: "microsoft_graph",
+          document_type: "specification",
+          category: "specification",
+        },
+      ],
+      "concrete requirements",
     );
 
     expect(matches).toEqual([]);

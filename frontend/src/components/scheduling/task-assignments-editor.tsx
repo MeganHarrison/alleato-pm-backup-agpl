@@ -15,6 +15,7 @@ import type {
   ScheduleResourceCandidate,
   ScheduleResourceRosterResponse,
   ScheduleTask,
+  ScheduleTaskAssignmentExpectation,
   ScheduleTaskAssignmentInput,
 } from "@/types/scheduling";
 
@@ -23,7 +24,10 @@ interface TaskAssignmentsEditorProps {
   tasks: ScheduleTask[];
   roster: ScheduleResourceRosterResponse;
   calendar: ScheduleCalendar;
-  onSave: (assignments: ScheduleTaskAssignmentInput[]) => Promise<void>;
+  onSave: (
+    assignments: ScheduleTaskAssignmentInput[],
+    expectedAssignments: ScheduleTaskAssignmentExpectation[],
+  ) => Promise<void>;
   loadCapacityProfiles?: (start: string, finish: string) => Promise<ScheduleResourceCapacityProfile[]>;
   disabled?: boolean;
 }
@@ -162,7 +166,14 @@ export function TaskAssignmentsEditor({
     setIsSaving(true);
     setError(null);
     try {
-      await onSave(draft);
+      await onSave(
+        draft,
+        persistedAssignments.map(({ id, person_id, cost_version }) => ({
+          id,
+          person_id,
+          cost_version,
+        })),
+      );
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Unable to save resource assignments.");
     } finally {

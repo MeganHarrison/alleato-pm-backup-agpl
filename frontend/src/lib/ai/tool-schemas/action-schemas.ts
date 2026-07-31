@@ -1,5 +1,10 @@
 import { z } from "zod";
 import { renderChangeRequestToolDescription } from "@/lib/ai/change-request-field-guide";
+import {
+  providerCompatibleEmailSchema,
+  providerCompatibleIsoDateSchema,
+  providerCompatibleOptionalIsoDateSchema,
+} from "./provider-compatible";
 
 export const generatedTaskPrioritySchema = z.enum([
   "low",
@@ -229,7 +234,9 @@ export const createProjectCompanyInputSchema = z.object({
   projectId: z.number().describe("Project ID"),
   name: z.string().describe("Company name"),
   companyType: projectCompanyTypeSchema.default("VENDOR"),
-  emailAddress: z.string().email().optional().describe("Project directory email for the company"),
+  emailAddress: providerCompatibleEmailSchema
+    .optional()
+    .describe("Project directory email for the company"),
   businessPhone: z.string().optional().describe("Company business phone"),
   address: z.string().optional(),
   city: z.string().optional(),
@@ -248,7 +255,7 @@ export const createProjectContactInputSchema = z.object({
   projectId: z.number().describe("Project ID"),
   firstName: z.string().describe("Contact first name"),
   lastName: z.string().describe("Contact last name"),
-  email: z.string().email().optional(),
+  email: providerCompatibleEmailSchema.optional(),
   jobTitle: z.string().optional(),
   phoneBusiness: z.string().optional(),
   phoneMobile: z.string().optional(),
@@ -260,6 +267,28 @@ export const createProjectContactInputSchema = z.object({
     .describe("Project-specific role, e.g. Architect, Owner Rep, Electrical PM"),
   makePrimaryCompanyContact: z.boolean().default(false),
   confirmed: z.boolean().default(false),
+  idempotencyKey: z.string().optional(),
+});
+
+export const createContactInputSchema = z.object({
+  firstName: z.string().describe("Contact first name"),
+  lastName: z.string().describe("Contact last name"),
+  email: providerCompatibleEmailSchema
+    .optional()
+    .describe("Contact email; used to de-duplicate existing people"),
+  phone: z.string().optional().describe("Primary phone number (stored as phone_mobile)"),
+  jobTitle: z.string().optional().describe("Job title, e.g. Project Manager"),
+  department: z.string().optional().describe("Department / business unit, e.g. Operations"),
+  companyId: z.string().uuid().optional().describe("Existing companies.id when known"),
+  companyName: z
+    .string()
+    .optional()
+    .describe("Company name to link by exact match when companyId is unknown"),
+  notes: z.string().optional().describe("Freeform relationship notes"),
+  confirmed: z
+    .boolean()
+    .default(false)
+    .describe("Set to true only after the user submits the form"),
   idempotencyKey: z.string().optional(),
 });
 
@@ -405,8 +434,12 @@ export const createCommitmentInputSchema = z.object({
     .default("Draft")
     .describe("Initial status — defaults to Draft"),
   description: z.string().optional().describe("Scope description"),
-  startDate: z.string().optional().describe("ISO start date, e.g. '2026-04-01'"),
-  estimatedCompletionDate: z.string().optional().describe("ISO estimated completion date"),
+  startDate: providerCompatibleOptionalIsoDateSchema
+    .optional()
+    .describe("ISO start date, e.g. '2026-04-01'; blank means unset"),
+  estimatedCompletionDate: providerCompatibleOptionalIsoDateSchema
+    .optional()
+    .describe("ISO estimated completion date; blank means unset"),
   defaultRetainagePercent: z
     .number()
     .optional()
@@ -484,8 +517,8 @@ export const createPrimeContractInputSchema = z.object({
   status: z
     .enum(["draft", "out_for_signature", "approved", "complete", "terminated"])
     .default("draft"),
-  startDate: z.string().date().optional(),
-  endDate: z.string().date().optional(),
+  startDate: providerCompatibleIsoDateSchema.optional(),
+  endDate: providerCompatibleIsoDateSchema.optional(),
   retentionPercentage: z.number().min(0).max(100).default(0),
   paymentTerms: z.string().trim().max(500).optional(),
   billingSchedule: z.string().trim().max(500).optional(),

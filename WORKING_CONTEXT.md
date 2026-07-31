@@ -5,6 +5,73 @@
 
 ---
 
+## /db-console silent failure + blank project picker (2026-07-30) — PR #196
+
+- **The Supabase console at `/db-console` 403s on every panel and always has.**
+  `SUPABASE_MANAGEMENT_API_TOKEN` belongs to an account with no access to
+  `lgveqfnpkxvzbnnwuled` (PM App) or `fqcvmfqldlewvbsuxdvz` (AI DB) — almost
+  certainly the two-orgs-on-two-logins split. Our admin gate passes; Supabase
+  rejects the token. **Replacing it needs Megan → GitHub issue #197
+  (`needs-megan`).** PR #196 only made the failure visible; it did not fix access.
+- **Why it looked fine:** the Database panel's empty-state branch fired on
+  `!tables`, which is also true on failure, so a 403 rendered *"No database
+  tables — Create tables to store and organize your data."* on a DB with
+  hundreds of tables (the error alert rendered alongside it with no status or
+  upstream message). Error and empty are now mutually exclusive, and "empty"
+  requires data actually received.
+- **The reusable lesson — `openapi-fetch` never throws.** It reports a non-2xx
+  as `{ error: <parsed body> }`, **except** with an empty body (204 / HEAD /
+  `Content-Length: 0`) where `error` is `undefined`. So `if (error) throw error`
+  turns those failures into `data: undefined` that the UI shows as empty. All
+  Management API calls now go through `unwrapManagementApiResult`
+  (`components/platform-kit/lib/management-api.ts`), which gates on
+  `response.ok` — **never on `error` alone** — and throws a `ManagementApiError`
+  carrying status + upstream message (naming the token on 401/403).
+- **Blank `<Select>` triggers are an app-wide bug, not a one-off.** A bare
+  `<SelectValue />` renders nothing itself: Radix mounts the *closed* content
+  into a detached `DocumentFragment` and portals the selected item's text into
+  the trigger — async, so it can miss first paint (verified: blank on load,
+  correct after open+close). Pass the label as children instead.
+  **~142 bare `<SelectValue />` usages remain**; any with a preselected value
+  can paint empty. Probably wants one shared `SelectField` wrapper, not 142 edits.
+- **Verifying `/db-console` requires an allowlisted account** —
+  `lib/auth/admin-dashboard-allowlist.ts` is `megan@megankharrison.com` +
+  `bclymer@alleatogroup.com` only, so `TEST_USER_1` (an `is_admin` user) still
+  lands on `/access-denied?reason=admin-dashboard-allowlist`. Verification used a
+  temporary local-only allowlist entry, reverted before commit.
+- **Two pre-existing `main` blockers fixed in passing:** `PROJECT-MAP`/`SYSTEM-MAP`
+  were stale from `/crm/growth` + `/api/admin/db-inventory/descriptions` (map gate
+  red on *every* PR), and `scripts/lint-staged/run-frontend-eslint.sh` was `100644`
+  on main so every local commit died `EACCES` in pre-commit.
+
+---
+
+## ASRS / FM-Global feature removed (2026-07-24)
+
+- Megan asked to remove in-development features to keep the app lean, starting
+  with **all ASRS / FM-Global (FMDS 8-34 sprinkler engineering)**. Done on branch
+  `chore/remove-asrs-fm-global` (worktree; her other uncommitted work untouched).
+- **Removed:** all `/asrs`, `/fm-global`, `/api/asrs`, `/api/fm-global`, `/api/fmds`
+  routes/pages; `lib/fmds/*`, `asrs-intelligence` tool, `fm-global-*` schemas,
+  `use-fm-global-submissions`, `asrs-database.types`, `fm-global` types,
+  `components/fm-global`, `components/fmds`, `features/fm-global-submissions`,
+  `scripts/asrs`, `infrastructure/asrs-supabase`, `supabase/migrations-asrs`.
+- **Surgical edits:** removed the 2 ASRS assistant tools from `tool-registry`/
+  `orchestrator`; removed the `"asrs"` assistant surface (`chat-surface.ts` → only
+  `alleato_ai`/`ask_alleato`); excised the `"fmds"` research source from the core
+  retrieval engine (`retrieval/*`) — all other sources intact, 202 retrieval tests pass.
+  Removed the `asrs` estimate type (kept `design_build`).
+- **DB (PM APP `lgveqfnpkxvzbnnwuled`):** migration
+  `20260724120000_drop_asrs_fm_global_from_pm_app.sql` dropped **21 tables + 10 RPCs
+  + view `figure_statistics`** and relaxed `estimates.estimate_type` to
+  `design_build`-only. Applied live + verified (0 remaining objects; 32 estimates rows
+  preserved). **The dedicated ASRS Estimator project (`vqnnvpnoitqhijkztyhq`) was KEPT
+  and NOT touched** per Megan's instruction.
+- Also fixed 2 unrelated `tables.yaml` drifts to unblock the docs gate: removed stale
+  `prospects`; documented DB-only `business_area_migration_runs`/`_items`.
+- `SUPABASE_ASRS_*` env vars remain in local `.env` + Vercel (harmless; the ASRS DB is
+  kept). Remove them manually if the estimator is never reconnected.
+
 ## Leadership-only Annual Review meetings (2026-07-23)
 
 - Megan asked for annual-review meetings (category "Annual Review") to be visible
@@ -147,6 +214,9 @@
 - This closes exactly the gap `AAI-1186`/`AAI-1188` deliberately deferred (those
   excluded "automatic date writes" — preview-only). ALL-6 is the new auto-write scope.
 - **PR #107 added** the row-number ("#") column and inline Predecessor/Successor shorthand columns
+- **Slice 2 — done, PR [#107](https://github.com/The-Alleato-Group/project-management/pull/107)**
+  (branch `feat/schedule-grid-entry`, stacked on #106 — merge #106 first). Added the
+  row-number ("#") column and inline Predecessor/Successor shorthand columns
   (`3`, `3FS+2`, `1,4SS-1`) to `ScheduleGridView`, via new pure functions in
   `schedule-dependency-shorthand.ts` wired through the existing dependency CRUD.
   **Explicitly did NOT build** Enter-anywhere row insertion: investigated hanging it

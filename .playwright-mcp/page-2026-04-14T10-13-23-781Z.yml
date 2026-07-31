@@ -1,0 +1,477 @@
+- generic [active] [ref=e4]:
+  - generic [ref=e5]:
+    - generic [ref=e8]:
+      - generic [ref=e10]:
+        - link "Alleato" [ref=e11] [cursor=pointer]:
+          - /url: /
+          - img "Alleato" [ref=e12]
+        - button "Expand sidebar" [ref=e13]:
+          - img [ref=e14]
+      - generic [ref=e18]:
+        - generic [ref=e19]:
+          - button "Financial" [ref=e20]:
+            - img [ref=e21]
+          - generic:
+            - generic:
+              - generic: Financial
+              - generic:
+                - link "Budget":
+                  - /url: /767/budget
+                  - generic: Budget
+                - link "Prime Contracts":
+                  - /url: /767/prime-contracts
+                  - generic: Prime Contracts
+                - link "Commitments":
+                  - /url: /767/commitments
+                  - generic: Commitments
+                - link "Change Orders":
+                  - /url: /767/change-orders
+                  - generic: Change Orders
+                - link "Change Events":
+                  - /url: /767/change-events
+                  - generic: Change Events
+                - link "Direct Costs":
+                  - /url: /767/direct-costs
+                  - generic: Direct Costs
+                - link "Invoicing":
+                  - /url: /767/invoices
+                  - generic: Invoicing
+        - generic [ref=e23]:
+          - button "Operations" [ref=e24]:
+            - img [ref=e25]
+          - generic:
+            - generic:
+              - generic: Operations
+              - generic:
+                - link "Project Directory":
+                  - /url: /767/directory
+                  - generic: Project Directory
+                - link "Schedule":
+                  - /url: /767/schedule
+                  - generic: Schedule
+                - link "Meetings":
+                  - /url: /767/meetings
+                  - generic: Meetings
+                - link "Daily Log":
+                  - /url: /767/daily-log
+                  - generic: Daily Log
+                - link "Punch List":
+                  - /url: /767/punch-list
+                  - generic: Punch List
+                - link "RFIs":
+                  - /url: /767/rfis
+                  - generic: RFIs
+                - link "Submittals":
+                  - /url: /767/submittals
+                  - generic: Submittals
+                - link "Transmittals":
+                  - /url: /767/transmittals
+                  - generic: Transmittals
+                - link "Emails":
+                  - /url: /767/emails
+                  - generic: Emails
+                - link "Photos":
+                  - /url: /767/photos
+                  - generic: Photos
+                - link "Drawings":
+                  - /url: /767/drawings
+                  - generic: Drawings
+                - link "Specifications":
+                  - /url: /767/specifications
+                  - generic: Specifications
+                - link "Documents":
+                  - /url: /767/documents
+                  - generic: Documents
+        - generic [ref=e26]:
+          - button "Company" [ref=e27]:
+            - img [ref=e28]
+          - generic:
+            - generic:
+              - generic: Company
+              - generic:
+                - link "Company Directory":
+                  - /url: /directory/companies
+                  - generic: Company Directory
+                - link "Meetings":
+                  - /url: /767/meetings
+                  - generic: Meetings
+                - link "Knowledge Base":
+                  - /url: /knowledge
+                  - generic: Knowledge Base
+                - link "AI Strategist":
+                  - /url: /ai-assistant
+                  - generic: AI Strategist
+                - link "Documents":
+                  - /url: /767/documents
+                  - generic: Documents
+        - generic [ref=e30]:
+          - button "Admin" [ref=e31]:
+            - img [ref=e32]
+          - generic:
+            - generic:
+              - generic: Admin
+              - generic:
+                - link "Settings":
+                  - /url: /settings
+                  - generic: Settings
+                - link "Company Knowledge":
+                  - /url: /admin/company-knowledge
+                  - generic: Company Knowledge
+      - list [ref=e34]:
+        - listitem [ref=e35]:
+          - button "test1" [ref=e36]:
+            - img "test1" [ref=e38]
+      - button "Toggle Sidebar" [ref=e39]
+    - main [ref=e40]:
+      - generic [ref=e42]:
+        - generic [ref=e44]:
+          - link "Projects" [ref=e46] [cursor=pointer]:
+            - /url: /
+          - generic [ref=e47]:
+            - img [ref=e48]
+            - link "Alleato AI" [ref=e231] [cursor=pointer]:
+              - /url: /767/home
+          - generic [ref=e51]:
+            - img [ref=e52]
+            - generic [ref=e54]: Budget
+        - generic [ref=e55]:
+          - button "Budget" [ref=e56]:
+            - generic [ref=e57]: Budget
+            - img
+          - combobox [ref=e58]:
+            - generic [ref=e60]: Alleato AI
+            - img
+          - button "Comments" [ref=e61]:
+            - img
+          - button "Toggle Procore reference panel" [ref=e62]:
+            - img [ref=e63]
+          - link "Feedback inbox" [ref=e68] [cursor=pointer]:
+            - /url: /feedback-inbox
+            - img [ref=e69]
+          - link "Annotation inbox" [ref=e72] [cursor=pointer]:
+            - /url: /annotation-inbox
+            - img [ref=e73]
+          - button "Notifications" [ref=e75]:
+            - img
+      - generic [ref=e77]:
+        - main [ref=e78]:
+          - generic [ref=e79]:
+            - generic [ref=e83]:
+              - heading "Budget" [level=1] [ref=e86]
+              - generic [ref=e89]:
+                - button "Create" [ref=e90]:
+                  - img
+                  - text: Create
+                  - img
+                - button "Lock Budget" [ref=e91]:
+                  - img
+                  - generic [ref=e92]: Lock Budget
+                - button "Sync to ERP" [ref=e93]:
+                  - img
+                - button "Export" [ref=e94]:
+                  - img
+                - button [ref=e95]:
+                  - img
+            - navigation "Tabs" [ref=e97]:
+              - generic [ref=e99]:
+                - button "Budget" [ref=e100]
+                - button "Budget Details" [ref=e101]
+                - button "Budget Modifications" [ref=e102]
+                - button "Cost Codes" [ref=e103]
+                - button "Forecasting" [ref=e104]
+                - button "Project Status Snapshots" [ref=e105]
+                - button "Change History" [ref=e106]
+                - button "Settings" [ref=e107]
+            - generic [ref=e2798]:
+              - generic [ref=e2800]:
+                - generic [ref=e2802]:
+                  - text: Projected Budget
+                  - generic [ref=e2804]: $451,000
+                  - generic [ref=e2805]: Revised + pending changes
+                - generic [ref=e2807]:
+                  - text: Projected Costs
+                  - generic [ref=e2809]: $170,460
+                  - generic [ref=e2810]: Direct costs + committed
+                - generic [ref=e2812]:
+                  - text: Projected Variance
+                  - generic [ref=e2813]:
+                    - generic [ref=e2814]: $280,540
+                    - generic [ref=e2815]: ↑ 62.2%
+                  - generic [ref=e2816]: Under budget · 62.2%
+              - generic [ref=e2817]:
+                - generic [ref=e2819]:
+                  - heading "Forecast by Cost Code" [level=2] [ref=e2820]
+                  - generic [ref=e2821]: "10"
+                - generic [ref=e2822]:
+                  - generic [ref=e2823]:
+                    - generic [ref=e2824]: Cost Code
+                    - generic [ref=e2825]: Budget
+                    - generic [ref=e2826]: Costs
+                    - generic [ref=e2827]: Variance
+                  - generic [ref=e2828]:
+                    - generic [ref=e2829]:
+                      - generic [ref=e2830]:
+                        - generic [ref=e2831]:
+                          - generic [ref=e2832]: 01-3120
+                          - generic [ref=e2833]: Vice President
+                        - generic [ref=e2836]: 1% of budget used
+                      - generic [ref=e2837]: $45,000
+                      - generic [ref=e2838]: $230
+                      - generic [ref=e2840]:
+                        - img [ref=e2841]
+                        - text: $44,770
+                    - generic [ref=e2844]:
+                      - generic [ref=e2845]:
+                        - generic [ref=e2846]:
+                          - generic [ref=e2847]: 01-3120
+                          - generic [ref=e2848]: Vice President
+                        - generic [ref=e2851]: 1% of budget used
+                      - generic [ref=e2852]: $38,000
+                      - generic [ref=e2853]: $230
+                      - generic [ref=e2855]:
+                        - img [ref=e2856]
+                        - text: $37,770
+                    - generic [ref=e2859]:
+                      - generic [ref=e2860]:
+                        - generic [ref=e2861]:
+                          - generic [ref=e2862]: 01-3126
+                          - generic [ref=e2863]: Pre-construction
+                        - generic [ref=e2866]: 179% of budget used
+                      - generic [ref=e2867]: $28,000
+                      - generic [ref=e2868]: $50,000
+                      - generic [ref=e2870]:
+                        - img [ref=e2871]
+                        - text: $22,000
+                    - generic [ref=e2874]:
+                      - generic [ref=e2875]:
+                        - generic [ref=e2876]:
+                          - generic [ref=e2877]: 01-3128
+                          - generic [ref=e2878]: Project Manager
+                        - generic [ref=e2881]: 226% of budget used
+                      - generic [ref=e2882]: $15,500
+                      - generic [ref=e2883]: $35,000
+                      - generic [ref=e2885]:
+                        - img [ref=e2886]
+                        - text: $19,500
+                    - generic [ref=e2889]:
+                      - generic [ref=e2890]:
+                        - generic [ref=e2891]:
+                          - generic [ref=e2892]: 05-4100
+                          - generic [ref=e2893]: Structural Metal Stud Framing
+                        - generic [ref=e2895]: 0% of budget used
+                      - generic [ref=e2896]: $0
+                      - generic [ref=e2897]: $0
+                      - generic [ref=e2899]:
+                        - img [ref=e2900]
+                        - text: $0
+                    - generic [ref=e2901]:
+                      - generic [ref=e2902]:
+                        - generic [ref=e2903]:
+                          - generic [ref=e2904]: 06-1100
+                          - generic [ref=e2905]: Wood Framing
+                        - generic [ref=e2907]: 0% of budget used
+                      - generic [ref=e2908]: $0
+                      - generic [ref=e2909]: $65,000
+                      - generic [ref=e2911]:
+                        - img [ref=e2912]
+                        - text: $65,000
+                    - generic [ref=e2915]:
+                      - generic [ref=e2916]:
+                        - generic [ref=e2917]:
+                          - generic [ref=e2918]: 07-1000
+                          - generic [ref=e2919]: Dampproofing and Waterproofing
+                        - generic [ref=e2922]: 15% of budget used
+                      - generic [ref=e2923]: $67,500
+                      - generic [ref=e2924]: $10,000
+                      - generic [ref=e2926]:
+                        - img [ref=e2927]
+                        - text: $57,500
+                    - generic [ref=e2930]:
+                      - generic [ref=e2931]:
+                        - generic [ref=e2932]:
+                          - generic [ref=e2933]: 07-1000
+                          - generic [ref=e2934]: Dampproofing and Waterproofing
+                        - generic [ref=e2937]: 12% of budget used
+                      - generic [ref=e2938]: $85,000
+                      - generic [ref=e2939]: $10,000
+                      - generic [ref=e2941]:
+                        - img [ref=e2942]
+                        - text: $75,000
+                    - generic [ref=e2945]:
+                      - generic [ref=e2946]:
+                        - generic [ref=e2947]:
+                          - generic [ref=e2948]: 07-4113
+                          - generic [ref=e2949]: Metal Roof Panels
+                        - generic [ref=e2951]: 0% of budget used
+                      - generic [ref=e2952]: $120,000
+                      - generic [ref=e2953]: $0
+                      - generic [ref=e2955]:
+                        - img [ref=e2956]
+                        - text: $120,000
+                    - generic [ref=e2959]:
+                      - generic [ref=e2960]:
+                        - generic [ref=e2961]:
+                          - generic [ref=e2962]: 07-4113
+                          - generic [ref=e2963]: Metal Roof Panels
+                        - generic [ref=e2965]: 0% of budget used
+                      - generic [ref=e2966]: $52,000
+                      - generic [ref=e2967]: $0
+                      - generic [ref=e2969]:
+                        - img [ref=e2970]
+                        - text: $52,000
+                  - generic [ref=e2973]:
+                    - generic [ref=e2974]: Total
+                    - generic [ref=e2975]: $451,000
+                    - generic [ref=e2976]: $170,460
+                    - generic [ref=e2978]:
+                      - img [ref=e2979]
+                      - text: $280,540
+                - paragraph [ref=e2982]: Last calculated Apr 14, 6:13 AM
+        - generic [ref=e197]:
+          - navigation [ref=e198]:
+            - button "Admin" [ref=e200]:
+              - text: Admin
+              - img [ref=e201]
+          - paragraph [ref=e203]: © 2026 Alleato Group. All rights reserved.
+  - region "Notifications alt+T"
+  - button "Feedback mode" [ref=e205]:
+    - img [ref=e206]
+  - button "🎨 2" [ref=e207]:
+    - generic [ref=e3]: 🎨
+    - generic [ref=e208]: "2"
+  - generic [ref=e213] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e214]:
+      - img [ref=e215]
+    - generic [ref=e2983]:
+      - button "Open issues overlay" [ref=e2984]:
+        - generic [ref=e2985]:
+          - generic [ref=e2986]: "5"
+          - generic [ref=e2987]: "6"
+        - generic [ref=e2988]:
+          - text: Issue
+          - generic [ref=e2989]: s
+      - button "Collapse issues badge" [ref=e2990]:
+        - img [ref=e2991]
+  - alert [ref=e218]
+  - button "MCP Connected v3.0.2 Output Detail Standard React Components Hide Until Restart Marker Color Clear on copy/send Block page interactions Manage MCP & Webhooks Manage MCP & Webhooks MCP Connection Connected MCP connection allows agents to receive and act on annotations. Learn more Webhooks Auto-Send The webhook URL will receive live annotation changes and annotation data." [ref=e990] [cursor=pointer]:
+    - img [ref=e222]
+    - generic:
+      - generic:
+        - button:
+          - img
+      - generic:
+        - button:
+          - img
+      - generic:
+        - button [disabled]:
+          - img
+      - generic:
+        - button [disabled]:
+          - img
+      - generic:
+        - button [disabled]:
+          - img
+      - generic:
+        - button [disabled]:
+          - img
+      - generic:
+        - button:
+          - img
+        - generic "MCP Connected"
+      - generic:
+        - button:
+          - img
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - link:
+              - /url: https://agentation.com
+              - img
+            - paragraph: v3.0.2
+            - button "Switch to light mode":
+              - generic:
+                - generic:
+                  - img
+          - generic:
+            - generic:
+              - generic:
+                - text: Output Detail
+                - generic:
+                  - img
+              - button "Standard":
+                - generic: Standard
+            - generic:
+              - generic:
+                - text: React Components
+                - generic:
+                  - img
+              - generic:
+                - checkbox [checked]
+            - generic:
+              - generic:
+                - text: Hide Until Restart
+                - generic:
+                  - img
+              - generic:
+                - checkbox
+          - generic:
+            - generic: Marker Color
+            - generic:
+              - button "Indigo"
+              - button "Blue"
+              - button "Cyan"
+              - button "Green"
+              - button "Yellow"
+              - button "Orange"
+              - button "Red"
+          - generic:
+            - generic:
+              - generic:
+                - checkbox "Clear on copy/send"
+                - img
+              - generic: Clear on copy/send
+              - generic:
+                - img
+            - generic:
+              - generic:
+                - checkbox "Block page interactions"
+                - img
+              - generic: Block page interactions
+          - button "Manage MCP & Webhooks":
+            - generic: Manage MCP & Webhooks
+            - generic:
+              - img
+        - generic:
+          - button "Manage MCP & Webhooks":
+            - img
+            - generic: Manage MCP & Webhooks
+          - generic:
+            - generic:
+              - generic:
+                - text: MCP Connection
+                - generic:
+                  - img
+              - generic "Connected"
+            - paragraph:
+              - text: MCP connection allows agents to receive and act on annotations.
+              - link "Learn more":
+                - /url: https://agentation.dev/mcp
+          - generic:
+            - generic:
+              - generic:
+                - text: Webhooks
+                - generic:
+                  - img
+              - generic:
+                - generic: Auto-Send
+                - generic:
+                  - checkbox "Auto-Send" [checked] [disabled]
+            - paragraph: The webhook URL will receive live annotation changes and annotation data.
+            - textbox "Webhook URL"
+  - generic [ref=e835]:
+    - link "Liveblocks" [ref=e836] [cursor=pointer]:
+      - /url: https://lblcks.io/badge
+      - img [ref=e837]
+    - button [ref=e845] [cursor=pointer]:
+      - img [ref=e846]

@@ -44,6 +44,7 @@ export {
 export {
   UnifiedTablePage,
   TableExpandedRow,
+  deriveBulkEditFields,
   type UnifiedTablePageProps,
   type TableColumn,
   type UnifiedTableFeatures,
@@ -73,3 +74,9 @@ export {
   editableTextColumn,
 } from "./editable-columns";
 export { DataQualityCell } from "./data-quality-cell";
+export {
+  BulkEditDialog,
+  type BulkEditField,
+  type BulkEditFieldOption,
+  type BulkEditDialogProps,
+} from "./bulk-edit-dialog";

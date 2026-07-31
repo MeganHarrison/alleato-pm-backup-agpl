@@ -749,7 +749,7 @@ export function DrawingInteractionWorkspace({ projectId, drawingId }: DrawingInt
                   <DetailField label="Drawing"><span className="font-medium">{drawingIdentity?.title ?? "Untitled drawing"}</span><span className="block text-muted-foreground">{drawingIdentity?.number ?? "No drawing number"}</span></DetailField>
                   <DetailField label="Discipline">{drawing.discipline ?? "-"}</DetailField>
                   <DetailField label="Revision">{drawing.current_revision?.revision_number ?? "-"}</DetailField>
-                  <DetailField label="Status"><span className="capitalize">{drawing.status ?? "-"}</span></DetailField>
+                  <DetailField label="Status"><span className="capitalize">{drawing.current_revision?.status ?? "-"}</span></DetailField>
                   <DetailField label="Drawing Date">{formatDate(drawing.current_revision?.drawing_date) || "-"}</DetailField>
                   <DetailField label="Received">{formatDate(drawing.current_revision?.received_date) || "-"}</DetailField>
                   <DetailField label="File">{drawing.current_revision?.file_name ?? "-"}</DetailField>

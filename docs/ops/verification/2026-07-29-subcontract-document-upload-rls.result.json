@@ -1,0 +1,42 @@
+{
+  "status": "PASS",
+  "taskId": "LOCAL-2026-07-29-SUBCONTRACT-DOCUMENT-RLS",
+  "evidence": {
+    "actionLog": [
+      "docs/ops/verification/2026-07-29-subcontract-document-upload-rls-action-log.md"
+    ],
+    "negativePath": [
+      "docs/ops/verification/2026-07-29-subcontract-document-upload-rls-negative-path.md"
+    ],
+    "regressionTest": [
+      "docs/ops/verification/2026-07-29-subcontract-document-upload-rls-regression-test.md"
+    ],
+    "visualReview": [
+      "docs/ops/verification/2026-07-29-subcontract-document-upload-rls-independent-review.md"
+    ]
+  },
+  "claims": {
+    "member-access": {
+      "actionLog": [
+        "docs/ops/verification/2026-07-29-subcontract-document-upload-rls-action-log.md"
+      ],
+      "regressionTest": [
+        "docs/ops/verification/2026-07-29-subcontract-document-upload-rls-regression-test.md"
+      ]
+    },
+    "restricted-boundary": {
+      "negativePath": [
+        "docs/ops/verification/2026-07-29-subcontract-document-upload-rls-negative-path.md"
+      ],
+      "visualReview": [
+        "docs/ops/verification/2026-07-29-subcontract-document-upload-rls-independent-review.md"
+      ]
+    }
+  },
+  "independentReview": {
+    "reviewer": "commitment_pdf_review",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-29T22:35:12Z",
+    "artifact": "docs/ops/verification/2026-07-29-subcontract-document-upload-rls-independent-review.md"
+  }
+}

@@ -1,0 +1,239 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e5]:
+      - generic [ref=e7]:
+        - link "Alleato" [ref=e8] [cursor=pointer]:
+          - /url: /
+          - img "Alleato" [ref=e9]
+        - button "Expand sidebar" [ref=e10]:
+          - img [ref=e11]
+      - generic [ref=e15]:
+        - generic [ref=e16]:
+          - button "Operations" [ref=e17]:
+            - img [ref=e18]
+          - generic:
+            - generic:
+              - generic: Operations
+              - generic:
+                - link "Meetings":
+                  - /url: /767/meetings
+                  - generic: Meetings
+                - link "Daily Log":
+                  - /url: /767/daily-log
+                  - generic: Daily Log
+                - link "Punch List":
+                  - /url: /767/punch-list
+                  - generic: Punch List
+        - generic [ref=e19]:
+          - button "Company" [ref=e20]:
+            - img [ref=e21]
+          - generic:
+            - generic:
+              - generic: Company
+              - generic:
+                - link "Meetings":
+                  - /url: /767/meetings
+                  - generic: Meetings
+                - link "Knowledge Base":
+                  - /url: /knowledge
+                  - generic: Knowledge Base
+                - link "AI Strategist":
+                  - /url: /ai-assistant
+                  - generic: AI Strategist
+        - generic [ref=e23]:
+          - button "Admin" [ref=e24]:
+            - img [ref=e25]
+          - generic:
+            - generic:
+              - generic: Admin
+              - generic:
+                - link "Settings":
+                  - /url: /settings
+                  - generic: Settings
+      - button "Toggle Sidebar" [ref=e27]
+    - main [ref=e28]:
+      - generic [ref=e30]:
+        - generic [ref=e32]:
+          - link "Projects" [ref=e34] [cursor=pointer]:
+            - /url: /
+          - generic [ref=e35]:
+            - img [ref=e36]
+            - link "Project 767" [ref=e38] [cursor=pointer]:
+              - /url: /767/home
+          - generic [ref=e39]:
+            - img [ref=e40]
+            - generic [ref=e42]: Budget
+        - generic [ref=e43]:
+          - button "Budget" [ref=e44]:
+            - generic [ref=e45]: Budget
+            - img
+          - combobox [ref=e46]:
+            - generic [ref=e48]: Select project
+            - img
+          - button "Comments" [ref=e49]:
+            - img
+          - button "Toggle Procore reference panel" [ref=e50]:
+            - img [ref=e51]
+          - link "Feedback inbox" [ref=e56] [cursor=pointer]:
+            - /url: /feedback-inbox
+            - img [ref=e57]
+          - button "Notifications" [ref=e60]:
+            - img
+      - generic [ref=e62]:
+        - main [ref=e63]:
+          - generic [ref=e64]:
+            - generic [ref=e68]:
+              - heading "Budget" [level=1] [ref=e71]
+              - generic [ref=e74]:
+                - button "Create" [ref=e75]:
+                  - img
+                  - text: Create
+                  - img
+                - button "Lock Budget" [ref=e76]:
+                  - img
+                  - generic [ref=e77]: Lock Budget
+                - button "Sync to ERP" [ref=e78]:
+                  - img
+                - button "Export" [ref=e79]:
+                  - img
+                - button [ref=e80]:
+                  - img
+            - navigation "Budget Tabs" [ref=e82]:
+              - generic [ref=e84]:
+                - button "Budget" [ref=e85]
+                - button "Budget Details" [ref=e86]
+                - button "Cost Codes" [ref=e87]
+                - button "Forecasting" [ref=e88]
+                - button "Project Status Snapshots" [ref=e89]
+                - button "Change History" [ref=e90]
+                - button "Settings" [ref=e91]
+        - generic [ref=e175]:
+          - navigation [ref=e176]:
+            - button "Admin" [ref=e178]:
+              - text: Admin
+              - img [ref=e179]
+          - paragraph [ref=e181]: © 2026 Alleato Group. All rights reserved.
+  - region "Notifications alt+T"
+  - button "Feedback mode" [ref=e183]:
+    - img [ref=e184]
+  - button "🎨" [ref=e186]:
+    - generic [ref=e187]: 🎨
+  - button "Open Next.js Dev Tools" [ref=e193] [cursor=pointer]:
+    - img [ref=e194]
+  - alert [ref=e197]
+  - button "MCP Connected v3.0.2 Output Detail Standard React Components Hide Until Restart Marker Color Clear on copy/send Block page interactions Manage MCP & Webhooks Manage MCP & Webhooks MCP Connection Connected MCP connection allows agents to receive and act on annotations. Learn more Webhooks Auto-Send The webhook URL will receive live annotation changes and annotation data." [ref=e199] [cursor=pointer]:
+    - img [ref=e201]
+    - generic:
+      - generic:
+        - button:
+          - img
+      - generic:
+        - button:
+          - img
+      - generic:
+        - button [disabled]:
+          - img
+      - generic:
+        - button [disabled]:
+          - img
+      - generic:
+        - button [disabled]:
+          - img
+      - generic:
+        - button [disabled]:
+          - img
+      - generic:
+        - button:
+          - img
+        - generic "MCP Connected"
+      - generic:
+        - button:
+          - img
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - link:
+              - /url: https://agentation.com
+              - img
+            - paragraph: v3.0.2
+            - button "Switch to light mode":
+              - generic:
+                - generic:
+                  - img
+          - generic:
+            - generic:
+              - generic:
+                - text: Output Detail
+                - generic:
+                  - img
+              - button "Standard":
+                - generic: Standard
+            - generic:
+              - generic:
+                - text: React Components
+                - generic:
+                  - img
+              - generic:
+                - checkbox [checked]
+            - generic:
+              - generic:
+                - text: Hide Until Restart
+                - generic:
+                  - img
+              - generic:
+                - checkbox
+          - generic:
+            - generic: Marker Color
+            - generic:
+              - button "Indigo"
+              - button "Blue"
+              - button "Cyan"
+              - button "Green"
+              - button "Yellow"
+              - button "Orange"
+              - button "Red"
+          - generic:
+            - generic:
+              - generic:
+                - checkbox "Clear on copy/send"
+                - img
+              - generic: Clear on copy/send
+              - generic:
+                - img
+            - generic:
+              - generic:
+                - checkbox "Block page interactions"
+                - img
+              - generic: Block page interactions
+          - button "Manage MCP & Webhooks":
+            - generic: Manage MCP & Webhooks
+            - generic:
+              - img
+        - generic:
+          - button "Manage MCP & Webhooks":
+            - img
+            - generic: Manage MCP & Webhooks
+          - generic:
+            - generic:
+              - generic:
+                - text: MCP Connection
+                - generic:
+                  - img
+              - generic "Connected"
+            - paragraph:
+              - text: MCP connection allows agents to receive and act on annotations.
+              - link "Learn more":
+                - /url: https://agentation.dev/mcp
+          - generic:
+            - generic:
+              - generic:
+                - text: Webhooks
+                - generic:
+                  - img
+              - generic:
+                - generic: Auto-Send
+                - generic:
+                  - checkbox "Auto-Send" [checked] [disabled]
+            - paragraph: The webhook URL will receive live annotation changes and annotation data.
+            - textbox "Webhook URL"

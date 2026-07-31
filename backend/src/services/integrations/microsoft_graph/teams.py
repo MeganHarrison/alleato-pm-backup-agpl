@@ -9,9 +9,15 @@ import re
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
-from ...supabase_helpers import SupabaseRagStore, get_rag_read_client, get_rag_write_client, storage_upload_with_retry
+from ...supabase_helpers import (
+    SupabaseRagStore,
+    get_rag_read_client,
+    get_rag_write_client,
+    storage_upload_with_retry,
+)
+from ...ingestion.project_assignment import AssignmentTarget
 from .client import get_graph_client
-from .project_inference import infer_project_id
+from .project_inference import infer_assignment_target
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +40,22 @@ LOW_VALUE_MESSAGE_WORDS = {
     "sounds",
     "good",
 }
+
+
+def _assignment_catalog_fields(target) -> dict:
+    """Return one exact project-or-Business-Area catalog scope."""
+    return {
+        "project_id": target.project_id,
+        "business_area_id": target.business_area_id,
+    }
+
+
+def _assignment_tag(target) -> str:
+    if target.business_area_id is not None:
+        return f"business_area_auto:{target.method}"
+    if target.project_id is not None:
+        return f"project_auto:{target.method}"
+    return "unassigned"
 
 
 def _fetch_rag_document_text(doc_id: str) -> str:
@@ -252,7 +274,7 @@ def _process_teams_message(supabase_client, graph, msg, team_id, team_name, chan
         user_data = msg_from.get("user", {}) if isinstance(msg_from, dict) else {}
         participants.extend(_user_identity_signals(user_data or {}))
 
-    project_id, assignment_method, assignment_confidence = infer_project_id(
+    assignment = infer_assignment_target(
         supabase_client,
         title=f"Teams: {team_name} / {channel_name}",
         content=thread_text,
@@ -273,8 +295,10 @@ def _process_teams_message(supabase_client, graph, msg, team_id, team_name, chan
         "date": created[:10] if created else None,
         "participants": ", ".join(sorted(set(participants))),
         "status": "raw_ingested",
-        "tags": ",".join(["teams", team_name.lower(), channel_name.lower(), f"project_auto:{assignment_method}" if project_id else "unassigned"]),
-        "project_id": project_id,
+        "tags": ",".join(
+            ["teams", team_name.lower(), channel_name.lower(), _assignment_tag(assignment)]
+        ),
+        **_assignment_catalog_fields(assignment),
         "source_metadata": {
             "document_kind": "teams_channel_thread",
             "team_id": team_id,
@@ -286,13 +310,16 @@ def _process_teams_message(supabase_client, graph, msg, team_id, team_name, chan
         },
     })
     _mark_graph_embedding_pending(doc_id)
-    if project_id:
+    if assignment.project_id is not None or assignment.business_area_id is not None:
         logger.info(
-            "[Teams] Auto-assigned project_id=%s for %s via %s (%.2f)",
-            project_id,
+            "[Teams] Auto-assigned %s=%s for %s via %s (%.2f)",
+            "business_area_id"
+            if assignment.business_area_id is not None
+            else "project_id",
+            assignment.business_area_id or assignment.project_id,
             msg_id,
-            assignment_method,
-            assignment_confidence,
+            assignment.method,
+            assignment.confidence,
         )
 
 
@@ -493,7 +520,9 @@ def _process_chat_message(
     if existing and existing.data:
         existing_resp = (
             supabase_client.from_("document_metadata")
-            .select("id, participants, project_id, source_metadata")
+            .select(
+                "id, participants, project_id, business_area_id, source_metadata"
+            )
             .eq("id", doc_id)
             .single()
             .execute()
@@ -528,20 +557,28 @@ def _process_chat_message(
         raise
 
     participants = sorted(set((chat_members or []) + [sender_name]))
-    project_id, assignment_method, assignment_confidence = infer_project_id(
-        supabase_client,
-        title=f"Teams DM Conversation: {chat_display_name}",
-        content=text,
-        participants=participants,
-        existing_project_id=(existing_doc or {}).get("project_id"),
-    )
+    if existing_doc and existing_doc.get("business_area_id") is not None:
+        assignment = AssignmentTarget(
+            project_id=None,
+            business_area_id=int(existing_doc["business_area_id"]),
+            method="existing_business_area",
+            confidence=1.0,
+        )
+    else:
+        assignment = infer_assignment_target(
+            supabase_client,
+            title=f"Teams DM Conversation: {chat_display_name}",
+            content=text,
+            participants=participants,
+            existing_project_id=(existing_doc or {}).get("project_id"),
+        )
     substantive_chars = _substantive_text_length(text)
     is_embedding_ready = substantive_chars >= MIN_CONVERSATION_CHARS
     tags = [
         "teams",
         "direct_message",
         chat_display_name.lower(),
-        f"project_auto:{assignment_method}" if project_id else "unassigned",
+        _assignment_tag(assignment),
     ]
     if not is_embedding_ready:
         tags.append("skipped_low_content")
@@ -561,7 +598,7 @@ def _process_chat_message(
         "participants": ", ".join(participants),
         "status": "raw_ingested" if is_embedding_ready else "skipped_low_content",
         "tags": ",".join(tags),
-        "project_id": project_id,
+        **_assignment_catalog_fields(assignment),
         "source_metadata": {
             **(((existing_doc or {}).get("source_metadata") or {}) if isinstance((existing_doc or {}).get("source_metadata"), dict) else {}),
             "document_kind": "teams_dm_conversation",

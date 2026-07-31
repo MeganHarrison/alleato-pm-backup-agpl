@@ -1,0 +1,1438 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Editable HTML prototype for the Alleato training page."
+    />
+    <title>Alleato Training Page Prototype</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #18181b;
+        --muted: #606262;
+        --line: #e6e6e6;
+        --canvas: #fdfdfc;
+        --quiet: #f2f2f0;
+        --dark: #11110f;
+        --dark-soft: #1d1c19;
+        --dark-line: #34322d;
+        --light-ink: #f4f2ed;
+        --orange: #dc822e;
+        --orange-hover: #c26d24;
+        --slate: #3b4c63;
+        --success: #047750;
+        --content: 74rem;
+        --reading: 68ch;
+        --radius: 0.65rem;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        overflow-x: hidden;
+        background: var(--canvas);
+        color: var(--ink);
+        font-family:
+          Inter,
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        font-size: 1rem;
+        line-height: 1.55;
+      }
+
+      button,
+      a {
+        font: inherit;
+      }
+
+      button {
+        cursor: pointer;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      :focus-visible {
+        outline: 3px solid color-mix(in srgb, var(--orange) 72%, white);
+        outline-offset: 3px;
+      }
+
+      [contenteditable="true"] {
+        outline: 1px dashed color-mix(in srgb, var(--orange) 65%, transparent);
+        outline-offset: 0.25rem;
+      }
+
+      .prototype-bar {
+        position: sticky;
+        z-index: 50;
+        top: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        min-height: 3.5rem;
+        padding: 0.5rem 1rem;
+        border-bottom: 1px solid var(--line);
+        background: color-mix(in srgb, var(--canvas) 96%, transparent);
+      }
+
+      .prototype-label {
+        margin-right: auto;
+        font-size: 0.875rem;
+        font-weight: 650;
+      }
+
+      .prototype-label span {
+        color: var(--muted);
+        font-weight: 450;
+      }
+
+      .tool-button {
+        min-height: 2.75rem;
+        padding: 0.65rem 0.9rem;
+        border: 1px solid var(--line);
+        border-radius: 0.5rem;
+        background: var(--canvas);
+        color: var(--ink);
+        font-size: 0.875rem;
+        font-weight: 600;
+      }
+
+      .tool-button:hover {
+        background: var(--quiet);
+      }
+
+      .tool-button[data-active="true"] {
+        border-color: var(--orange);
+        color: var(--orange-hover);
+      }
+
+      .tool-status {
+        min-width: 6rem;
+        color: var(--muted);
+        font-size: 0.8125rem;
+        text-align: right;
+      }
+
+      .wrap {
+        width: min(100% - 2rem, var(--content));
+        margin-inline: auto;
+      }
+
+      .section {
+        padding-block: 4.5rem;
+      }
+
+      .dark-section {
+        background: var(--dark);
+        color: var(--light-ink);
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        margin-bottom: 0.8rem;
+        color: var(--orange);
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .eyebrow::before {
+        width: 1.5rem;
+        height: 1px;
+        background: currentColor;
+        content: "";
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+
+      h1,
+      h2 {
+        font-family: "Arial Narrow", "Roboto Condensed", Inter, sans-serif;
+        font-stretch: condensed;
+        letter-spacing: -0.035em;
+      }
+
+      h1 {
+        max-width: 8ch;
+        margin-bottom: 1.25rem;
+        font-size: clamp(4rem, 11vw, 7.2rem);
+        font-weight: 800;
+        line-height: 0.84;
+        text-transform: uppercase;
+      }
+
+      h1 span {
+        display: block;
+      }
+
+      h1 .accent {
+        color: var(--orange);
+      }
+
+      h2 {
+        max-width: 18ch;
+        margin-bottom: 1rem;
+        font-size: clamp(2.25rem, 5vw, 4.5rem);
+        font-weight: 750;
+        line-height: 0.95;
+        text-transform: uppercase;
+      }
+
+      h3 {
+        margin-bottom: 0.55rem;
+        font-size: 1.15rem;
+        line-height: 1.25;
+      }
+
+      .lead {
+        max-width: var(--reading);
+        color: color-mix(in srgb, currentColor 78%, transparent);
+        font-size: 1.08rem;
+      }
+
+      .hero {
+        min-height: calc(100svh - 3.5rem);
+        display: grid;
+        align-items: center;
+        padding-block: 4rem;
+        background: var(--dark);
+        color: var(--light-ink);
+      }
+
+      .hero-grid {
+        display: grid;
+        align-items: center;
+        gap: 3rem;
+      }
+
+      .hero-copy {
+        position: relative;
+        z-index: 1;
+      }
+
+      .hero .lead {
+        max-width: 35rem;
+        margin-bottom: 1.75rem;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+      }
+
+      .button {
+        min-height: 3rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.75rem 1.1rem;
+        border: 1px solid transparent;
+        border-radius: var(--radius);
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.035em;
+        text-decoration: none;
+        text-transform: uppercase;
+      }
+
+      .button-primary {
+        background: var(--orange);
+        color: #17120d;
+      }
+
+      .button-primary:hover {
+        background: var(--orange-hover);
+        color: var(--light-ink);
+      }
+
+      .button-secondary {
+        border-color: var(--dark-line);
+        background: transparent;
+        color: var(--light-ink);
+      }
+
+      .button-secondary:hover {
+        border-color: var(--orange);
+      }
+
+      .wheel-shell {
+        width: min(100%, 31rem);
+        margin-inline: auto;
+      }
+
+      .wheel-svg {
+        width: 100%;
+        height: auto;
+        display: block;
+        overflow: visible;
+      }
+
+      .wheel-track {
+        fill: #24221e;
+      }
+
+      .wheel-fill {
+        fill: var(--orange);
+        transition:
+          opacity 180ms ease-out,
+          d 260ms cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .wheel-label {
+        fill: #b8b3aa;
+        font-family: Inter, sans-serif;
+        font-size: 11px;
+      }
+
+      .wheel-score {
+        fill: var(--light-ink);
+        font-family: "Arial Narrow", Inter, sans-serif;
+        font-size: 44px;
+        font-weight: 800;
+      }
+
+      .wheel-score-label {
+        fill: var(--orange);
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-size: 10px;
+        letter-spacing: 1.5px;
+      }
+
+      .method-intro {
+        margin-bottom: 2.5rem;
+      }
+
+      .method-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .method-row {
+        display: grid;
+        grid-template-columns: 3.5rem 1fr;
+        gap: 1rem;
+        padding-block: 1.4rem;
+        border-top: 1px solid var(--dark-line);
+      }
+
+      .method-row:last-child {
+        border-bottom: 1px solid var(--dark-line);
+      }
+
+      .step-number {
+        color: var(--orange);
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-size: 0.8rem;
+        font-weight: 700;
+      }
+
+      .method-row p {
+        max-width: 56rem;
+        margin-bottom: 0;
+        color: #aaa69e;
+      }
+
+      .wheel-story-grid {
+        display: grid;
+        gap: 2.5rem;
+      }
+
+      .wheel-panel {
+        align-self: start;
+      }
+
+      .role-picker,
+      .phase-picker {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .selector {
+        min-height: 2.75rem;
+        padding: 0.6rem 0.85rem;
+        border: 1px solid var(--dark-line);
+        border-radius: 999px;
+        background: transparent;
+        color: #b8b3aa;
+        font-size: 0.85rem;
+        font-weight: 600;
+      }
+
+      .selector:hover,
+      .selector[aria-pressed="true"] {
+        border-color: var(--orange);
+        color: var(--light-ink);
+      }
+
+      .phase-detail {
+        min-height: 14rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--dark-line);
+      }
+
+      .phase-detail p {
+        max-width: var(--reading);
+        color: #aaa69e;
+      }
+
+      .phase-detail ul {
+        margin: 1rem 0 0;
+        padding-left: 1.15rem;
+        color: #d6d2cb;
+      }
+
+      .phase-detail li + li {
+        margin-top: 0.5rem;
+      }
+
+      .scale-intro {
+        display: grid;
+        gap: 1.5rem;
+        margin-bottom: 2.5rem;
+      }
+
+      .scale-intro p {
+        max-width: var(--reading);
+        color: var(--muted);
+      }
+
+      .scale-list {
+        display: grid;
+        border-top: 1px solid var(--line);
+      }
+
+      .scale-button {
+        width: 100%;
+        min-height: 5.25rem;
+        display: grid;
+        grid-template-columns: 3.25rem minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 0;
+        border: 0;
+        border-bottom: 1px solid var(--line);
+        background: transparent;
+        color: var(--ink);
+        text-align: left;
+      }
+
+      .scale-button:hover {
+        color: var(--orange-hover);
+      }
+
+      .scale-value {
+        color: var(--orange-hover);
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-weight: 700;
+      }
+
+      .scale-name {
+        display: block;
+        font-weight: 700;
+      }
+
+      .scale-short {
+        display: block;
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+
+      .scale-open {
+        color: var(--muted);
+        font-size: 1.35rem;
+      }
+
+      .scale-detail {
+        display: none;
+        padding: 1.2rem 0 1.5rem 4.25rem;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .scale-detail[data-open="true"] {
+        display: block;
+      }
+
+      .scale-detail p {
+        max-width: var(--reading);
+        margin-bottom: 0.65rem;
+      }
+
+      .scale-detail strong {
+        color: var(--success);
+      }
+
+      .library-intro {
+        display: grid;
+        gap: 1.5rem;
+        margin-bottom: 2.5rem;
+      }
+
+      .library-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        border-top: 1px solid var(--line);
+      }
+
+      .library-item {
+        display: grid;
+        grid-template-columns: 3.25rem minmax(0, 1fr) auto;
+        gap: 1rem;
+        align-items: start;
+        padding-block: 1.35rem;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .library-number {
+        color: var(--orange-hover);
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-size: 0.82rem;
+        font-weight: 700;
+      }
+
+      .library-title {
+        display: block;
+        margin-bottom: 0.35rem;
+        font-weight: 700;
+      }
+
+      .library-description {
+        max-width: var(--reading);
+        display: block;
+        color: var(--muted);
+      }
+
+      .library-tag {
+        color: var(--muted);
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+      }
+
+      .final {
+        border-top: 1px solid var(--line);
+      }
+
+      .final-grid {
+        display: grid;
+        gap: 2rem;
+        align-items: end;
+      }
+
+      .final h2 {
+        color: var(--ink);
+      }
+
+      .final .lead {
+        color: var(--muted);
+      }
+
+      .final .button-secondary {
+        border-color: var(--line);
+        color: var(--ink);
+      }
+
+      .prototype-note {
+        padding-block: 1.25rem;
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
+
+      @media (min-width: 48rem) {
+        .wrap {
+          width: min(100% - 3rem, var(--content));
+        }
+
+        .section {
+          padding-block: 6rem;
+        }
+
+        .hero-grid,
+        .wheel-story-grid {
+          grid-template-columns: minmax(0, 1fr) minmax(20rem, 0.9fr);
+        }
+
+        .method-row {
+          grid-template-columns: 5rem 15rem minmax(0, 1fr);
+        }
+
+        .method-row h3 {
+          margin-bottom: 0;
+        }
+
+        .scale-intro,
+        .library-intro,
+        .final-grid {
+          grid-template-columns: minmax(0, 1fr) minmax(19rem, 0.7fr);
+        }
+      }
+
+      @media (min-width: 64rem) {
+        .wheel-panel {
+          position: sticky;
+          top: 5.5rem;
+        }
+      }
+
+      @media (max-width: 47.999rem) {
+        .prototype-bar {
+          align-items: stretch;
+          flex-wrap: wrap;
+        }
+
+        .prototype-label {
+          width: 100%;
+        }
+
+        .tool-button {
+          flex: 1 1 calc(50% - 0.5rem);
+        }
+
+        .tool-status {
+          width: 100%;
+          text-align: left;
+        }
+
+        .hero {
+          min-height: auto;
+        }
+
+        .hero-copy {
+          order: 1;
+        }
+
+        .hero .wheel-shell {
+          order: 2;
+          max-width: 23rem;
+        }
+
+        .method-row {
+          grid-template-columns: 2.75rem minmax(0, 1fr);
+        }
+
+        .method-row .step-number {
+          grid-row: 1 / 3;
+        }
+
+        .method-row p {
+          grid-column: 2;
+        }
+
+        .library-item {
+          grid-template-columns: 2.5rem minmax(0, 1fr);
+        }
+
+        .library-tag {
+          grid-column: 2;
+        }
+
+        .scale-button {
+          grid-template-columns: 2.75rem minmax(0, 1fr) auto;
+        }
+
+        .scale-detail {
+          padding-left: 3.75rem;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+
+      @media print {
+        .prototype-bar {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="prototype-bar" aria-label="Prototype controls">
+      <div class="prototype-label">
+        Training page prototype
+        <span>Static review artifact, not the live assessment</span>
+      </div>
+      <button class="tool-button" id="editToggle" type="button">
+        Edit copy
+      </button>
+      <button class="tool-button" id="saveDraft" type="button">
+        Save draft
+      </button>
+      <button class="tool-button" id="exportCopy" type="button">
+        Export copy
+      </button>
+      <button class="tool-button" id="resetDraft" type="button">Reset</button>
+      <span
+        class="tool-status"
+        id="toolStatus"
+        role="status"
+        aria-live="polite"
+      ></span>
+    </header>
+
+    <main>
+      <section class="hero" id="top">
+        <div class="wrap hero-grid">
+          <div class="hero-copy">
+            <h1 data-edit-key="hero-title">
+              <span>Own Your</span>
+              <span class="accent">Growth</span>
+            </h1>
+            <p class="lead" data-edit-key="hero-lead">
+              Build the skills your role depends on, one precise action at a
+              time. Choose the capabilities that matter most, assess your
+              current level honestly, and turn your highest-impact opportunities
+              into a focused development plan.
+            </p>
+            <div class="actions">
+              <a class="button button-primary" href="#method"
+                >Build Your Skill Wheel</a
+              >
+              <a class="button button-secondary" href="#library"
+                >Browse the Training Library</a
+              >
+            </div>
+          </div>
+          <div class="wheel-shell" aria-label="Illustrative Skill Wheel">
+            <svg
+              class="wheel-svg"
+              id="heroWheel"
+              viewBox="0 0 440 440"
+              role="img"
+              aria-label="Illustrative eight-skill wheel"
+            ></svg>
+          </div>
+        </div>
+      </section>
+
+      <section class="section dark-section" id="method">
+        <div class="wrap">
+          <div class="method-intro">
+            <span class="eyebrow">How it works</span>
+            <h2 data-edit-key="method-title">The Growth Cycle</h2>
+            <p class="lead" data-edit-key="method-intro">
+              Growth starts with the desire to improve and the willingness to
+              take responsibility for the work. The Skill Wheel helps you
+              understand where you are today, decide what matters next, and turn
+              improvement into consistent action.
+            </p>
+          </div>
+          <ol class="method-list">
+            <li class="method-row">
+              <span class="step-number">01</span>
+              <h3 data-edit-key="method-1-title">Take ownership</h3>
+              <p data-edit-key="method-1-copy">
+                Choose to lead your development. Your manager can provide
+                feedback and support, but you own the assessment, the actions,
+                and the follow-through.
+              </p>
+            </li>
+            <li class="method-row">
+              <span class="step-number">02</span>
+              <h3 data-edit-key="method-2-title">
+                Choose eight role-critical skills
+              </h3>
+              <p data-edit-key="method-2-copy">
+                Identify the eight skills that matter most in your current role.
+                These become the foundation of your Skill Wheel.
+              </p>
+            </li>
+            <li class="method-row">
+              <span class="step-number">03</span>
+              <h3 data-edit-key="method-3-title">Assess yourself honestly</h3>
+              <p data-edit-key="method-3-copy">
+                Use the proficiency scale and examples from your actual work to
+                rate your current level. The goal is an accurate starting point,
+                not a perfect score.
+              </p>
+            </li>
+            <li class="method-row">
+              <span class="step-number">04</span>
+              <h3 data-edit-key="method-4-title">Choose your focus</h3>
+              <p data-edit-key="method-4-copy">
+                Select two or three skills that would make the greatest
+                difference in your work. Importance, current responsibilities,
+                and potential impact should guide the decision.
+              </p>
+            </li>
+            <li class="method-row">
+              <span class="step-number">05</span>
+              <h3 data-edit-key="method-5-title">Define precise actions</h3>
+              <p data-edit-key="method-5-copy">
+                Decide exactly what you will practice, how often you will
+                practice it, and what evidence will demonstrate improvement.
+              </p>
+            </li>
+            <li class="method-row">
+              <span class="step-number">06</span>
+              <h3 data-edit-key="method-6-title">Monitor and adjust</h3>
+              <p data-edit-key="method-6-copy">
+                Track your actions and results. Review progress with your
+                manager and reassess at 30, 60, and 90 days. Keep what works and
+                adjust what does not.
+              </p>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="section dark-section" id="wheel">
+        <div class="wrap wheel-story-grid">
+          <div>
+            <span class="eyebrow">The Skill Wheel</span>
+            <h2 data-edit-key="wheel-title">
+              See the Starting Point. Choose the Work.
+            </h2>
+            <p class="lead" data-edit-key="wheel-intro">
+              The wheel makes your current assessment visible. It does not
+              decide for you. Use it with evidence from your work to choose the
+              two or three skills that matter most now.
+            </p>
+            <div
+              class="role-picker"
+              id="rolePicker"
+              aria-label="Choose a role"
+            ></div>
+            <div
+              class="phase-picker"
+              id="phasePicker"
+              aria-label="Choose a growth phase"
+            ></div>
+            <div class="phase-detail" id="phaseDetail" aria-live="polite"></div>
+          </div>
+          <div class="wheel-panel">
+            <div class="wheel-shell">
+              <svg
+                class="wheel-svg"
+                id="storyWheel"
+                viewBox="0 0 440 440"
+                role="img"
+                aria-label="Project Engineer Skill Wheel"
+              ></svg>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="scale">
+        <div class="wrap">
+          <div class="scale-intro">
+            <div>
+              <span class="eyebrow">One shared scale</span>
+              <h2 data-edit-key="scale-title">From Awareness to Mastery</h2>
+            </div>
+            <p data-edit-key="scale-intro">
+              Use the same five levels for every skill. Open a level to see the
+              behavior and evidence that support an honest assessment.
+            </p>
+          </div>
+          <div class="scale-list" id="scaleList"></div>
+        </div>
+      </section>
+
+      <section class="section" id="library">
+        <div class="wrap">
+          <div class="library-intro">
+            <div>
+              <span class="eyebrow">Training Library</span>
+              <h2 data-edit-key="library-title">
+                Build Understanding. Practice in the Work.
+              </h2>
+            </div>
+            <p data-edit-key="library-intro">
+              Use the library to build understanding, then turn that
+              understanding into precise actions, consistent practice, and
+              observable evidence.
+            </p>
+          </div>
+          <ol class="library-list" id="libraryList"></ol>
+        </div>
+      </section>
+
+      <section class="section final">
+        <div class="wrap final-grid">
+          <div>
+            <span class="eyebrow">My Growth</span>
+            <h2 data-edit-key="final-title">
+              Fifteen Minutes to Your First Skill Wheel
+            </h2>
+            <p class="lead" data-edit-key="final-copy">
+              Choose eight role-critical skills, assess your current level
+              honestly, and select two or three high-impact areas to improve.
+              Leave with precise actions you can begin immediately.
+            </p>
+          </div>
+          <div class="actions">
+            <a class="button button-primary" href="#method"
+              >Build Your Skill Wheel</a
+            >
+            <a class="button button-secondary" href="#scale"
+              >Review the Scale First</a
+            >
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="prototype-note">
+      <div class="wrap">
+        Prototype actions save only to this browser. Production links and
+        assessment persistence are intentionally excluded from this static
+        artifact.
+      </div>
+    </footer>
+
+    <script>
+      /*
+       * EDITABLE DATA STARTS HERE.
+       * Change role skills, scores, phase copy, proficiency levels, or library
+       * modules in these arrays. The rest of the file is layout and behavior.
+       */
+      const ROLE_DATA = [
+        {
+          id: "project-manager",
+          name: "Project Manager",
+          skills: [
+            "Cost control",
+            "Contracts",
+            "Change management",
+            "Scheduling",
+            "Procurement",
+            "RFIs",
+            "Submittals",
+            "Leadership",
+          ],
+          before: [58, 84, 46, 52, 61, 86, 82, 48],
+          after: [83, 86, 81, 82, 84, 88, 85, 82],
+        },
+        {
+          id: "project-engineer",
+          name: "Project Engineer",
+          skills: [
+            "Drawing fluency",
+            "RFIs",
+            "Submittals",
+            "Document control",
+            "Procurement",
+            "Field coordination",
+            "Quality control",
+            "Communication",
+          ],
+          before: [40, 48, 84, 82, 38, 45, 81, 52],
+          after: [84, 82, 88, 86, 81, 83, 85, 84],
+        },
+        {
+          id: "superintendent",
+          name: "Superintendent",
+          skills: [
+            "Site logistics",
+            "Look-ahead planning",
+            "Trade coordination",
+            "Quality control",
+            "Safety",
+            "Layout",
+            "Daily reporting",
+            "Field leadership",
+          ],
+          before: [64, 48, 56, 84, 88, 54, 82, 59],
+          after: [83, 82, 84, 86, 90, 81, 85, 83],
+        },
+      ];
+
+      const PHASES = [
+        {
+          id: "baseline",
+          label: "1. Baseline",
+          title: "Build an honest starting point.",
+          copy: "Choose eight role-critical skills and assess each one using the proficiency scale and evidence from your actual work.",
+          prompts: [
+            "What did I complete independently?",
+            "Where did I need guidance or correction?",
+            "What recent work supports this score?",
+          ],
+          progress: 0,
+        },
+        {
+          id: "focus",
+          label: "2. Focus",
+          title: "Choose two or three high-impact skills.",
+          copy: "Short wedges reveal possible opportunities, but they do not make the decision. Choose based on role importance, current responsibilities, and potential impact.",
+          prompts: [
+            "Which improvement would change my work most?",
+            "What responsibility is becoming more important?",
+            "Where can I practice immediately?",
+          ],
+          progress: 0.2,
+        },
+        {
+          id: "practice",
+          label: "3. Practice",
+          title: "Turn focus into precise, consistent action.",
+          copy: "Define exactly what you will practice, how often, where you will apply it, what evidence you will collect, and who will provide feedback.",
+          prompts: [
+            "Name the action and cadence.",
+            "Apply it in real project work.",
+            "Collect evidence and specific feedback.",
+          ],
+          progress: 0.6,
+        },
+        {
+          id: "review",
+          label: "4. Review",
+          title: "Monitor the evidence and adjust.",
+          copy: "Review completed actions, work examples, outcomes, and feedback. Reassess at 30, 60, and 90 days, then keep or adjust the plan.",
+          prompts: [
+            "What evidence shows improvement?",
+            "Which action should continue or change?",
+            "What becomes the next focus?",
+          ],
+          progress: 1,
+        },
+      ];
+
+      const LEVELS = [
+        {
+          value: 10,
+          name: "Aware",
+          short: "I understand what good performance looks like.",
+          detail:
+            "You can recognize the steps and explain why they matter, but you have not owned the work yourself yet.",
+          evidence:
+            "You can describe the process and identify a strong example.",
+        },
+        {
+          value: 40,
+          name: "Assisted",
+          short: "I can complete the work with reliable guidance.",
+          detail:
+            "You can complete the work using an SOP, template, or experienced teammate to check key decisions.",
+          evidence:
+            "You finish the task with guidance and respond well to corrections.",
+        },
+        {
+          value: 65,
+          name: "Capable",
+          short: "I can own the common path.",
+          detail:
+            "You handle the routine version from start to finish. Unusual conditions still require support.",
+          evidence:
+            "You escalate the genuinely unusual, not the merely unfamiliar.",
+        },
+        {
+          value: 80,
+          name: "Solo",
+          short: "I can handle complexity and escalate appropriately.",
+          detail:
+            "You work through complexity independently, document decisions, and bring problems forward before they grow.",
+          evidence: "Your work is reliable without routine supervision.",
+        },
+        {
+          value: 100,
+          name: "Teach",
+          short: "I help other people improve.",
+          detail:
+            "You can teach the Alleato approach to someone new and improve the process itself.",
+          evidence:
+            "Someone you taught can now perform the work well without you.",
+        },
+      ];
+
+      const MODULES = [
+        [
+          "The Method",
+          "Choose, assess, focus, practice, and monitor your role-critical skills.",
+          "Start here",
+        ],
+        [
+          "The Skill Wheel Exercise",
+          "Build an honest visual baseline and select two or three focus areas.",
+          "Module 2",
+        ],
+        [
+          "For Managers: Coaching It",
+          "Calibrate evidence, support the plan, and preserve employee ownership.",
+          "Module 3",
+        ],
+        [
+          "Self-Teaching with AI",
+          "Use sharper prompts, then verify every answer against project sources.",
+          "Module 4",
+        ],
+        [
+          "Running a Project: PM / PE",
+          "Develop the office-side skills required to keep a project moving.",
+          "PM track",
+        ],
+        [
+          "Running a Jobsite: Superintendent",
+          "Develop planning, coordination, quality, and field leadership.",
+          "Field track",
+        ],
+        [
+          "Alleato PM Software",
+          "Learn the platform through task-focused, repeatable guides.",
+          "Our software",
+        ],
+        [
+          "Ask the Library",
+          "Get answers grounded in approved Alleato training materials.",
+          "AI",
+        ],
+      ];
+
+      const EDIT_STORAGE_KEY = "alleato-training-prototype-copy";
+      const editToggle = document.getElementById("editToggle");
+      const toolStatus = document.getElementById("toolStatus");
+      let editing = false;
+      let activeRole = ROLE_DATA[1];
+      let activePhase = PHASES[0];
+
+      function polar(cx, cy, radius, angle) {
+        return [cx + radius * Math.cos(angle), cy + radius * Math.sin(angle)];
+      }
+
+      function annularPath(cx, cy, inner, outer, start, end) {
+        const [x0o, y0o] = polar(cx, cy, outer, start);
+        const [x1o, y1o] = polar(cx, cy, outer, end);
+        const [x1i, y1i] = polar(cx, cy, inner, end);
+        const [x0i, y0i] = polar(cx, cy, inner, start);
+        return `M ${x0o} ${y0o} A ${outer} ${outer} 0 0 1 ${x1o} ${y1o} L ${x1i} ${y1i} A ${inner} ${inner} 0 0 0 ${x0i} ${y0i} Z`;
+      }
+
+      function interpolatedScores(role, progress) {
+        return role.before.map((score, index) =>
+          Math.round(score + (role.after[index] - score) * progress),
+        );
+      }
+
+      function renderWheel(svg, role, scores, options = {}) {
+        const center = 220;
+        const inner = 70;
+        const outer = 172;
+        const total = scores.length;
+        const step = (Math.PI * 2) / total;
+        const gap = 0.035;
+        const average = Math.round(
+          scores.reduce((sum, value) => sum + value, 0) / total,
+        );
+        const countAtSolo = scores.filter((score) => score >= 80).length;
+
+        svg.replaceChildren();
+        scores.forEach((score, index) => {
+          const start = -Math.PI / 2 + index * step + gap;
+          const end = -Math.PI / 2 + (index + 1) * step - gap;
+          const fillRadius = inner + (outer - inner) * (score / 100);
+          const labelPosition = polar(
+            center,
+            center,
+            outer + 24,
+            start + (end - start) / 2,
+          );
+
+          const track = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "path",
+          );
+          track.setAttribute("class", "wheel-track");
+          track.setAttribute(
+            "d",
+            annularPath(center, center, inner, outer, start, end),
+          );
+          svg.append(track);
+
+          const fill = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "path",
+          );
+          fill.setAttribute("class", "wheel-fill");
+          fill.setAttribute(
+            "d",
+            annularPath(center, center, inner, fillRadius, start, end),
+          );
+          fill.setAttribute("opacity", options.muted ? "0.82" : "1");
+          svg.append(fill);
+
+          if (options.labels) {
+            const label = document.createElementNS(
+              "http://www.w3.org/2000/svg",
+              "text",
+            );
+            label.setAttribute("class", "wheel-label");
+            label.setAttribute("x", labelPosition[0]);
+            label.setAttribute("y", labelPosition[1]);
+            label.setAttribute(
+              "text-anchor",
+              labelPosition[0] < center ? "end" : "start",
+            );
+            label.textContent = role.skills[index];
+            svg.append(label);
+          }
+        });
+
+        const core = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "circle",
+        );
+        core.setAttribute("cx", center);
+        core.setAttribute("cy", center);
+        core.setAttribute("r", inner - 5);
+        core.setAttribute("fill", "#11110f");
+        core.setAttribute("stroke", "#dc822e");
+        core.setAttribute("stroke-width", "2");
+        svg.append(core);
+
+        const score = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "text",
+        );
+        score.setAttribute("class", "wheel-score");
+        score.setAttribute("x", center);
+        score.setAttribute("y", center - 4);
+        score.setAttribute("text-anchor", "middle");
+        score.textContent = options.showAverage ? average : countAtSolo;
+        svg.append(score);
+
+        const label = document.createElementNS(
+          "http://www.w3.org/2000/svg",
+          "text",
+        );
+        label.setAttribute("class", "wheel-score-label");
+        label.setAttribute("x", center);
+        label.setAttribute("y", center + 24);
+        label.setAttribute("text-anchor", "middle");
+        label.textContent = options.showAverage
+          ? "STARTING POINT"
+          : `${countAtSolo} OF 8 AT SOLO`;
+        svg.append(label);
+      }
+
+      function renderRolePicker() {
+        const picker = document.getElementById("rolePicker");
+        picker.replaceChildren();
+        ROLE_DATA.forEach((role) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "selector";
+          button.textContent = role.name;
+          button.setAttribute(
+            "aria-pressed",
+            String(role.id === activeRole.id),
+          );
+          button.addEventListener("click", () => {
+            activeRole = role;
+            renderRolePicker();
+            renderStory();
+          });
+          picker.append(button);
+        });
+      }
+
+      function renderPhasePicker() {
+        const picker = document.getElementById("phasePicker");
+        picker.replaceChildren();
+        PHASES.forEach((phase) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "selector";
+          button.textContent = phase.label;
+          button.setAttribute(
+            "aria-pressed",
+            String(phase.id === activePhase.id),
+          );
+          button.addEventListener("click", () => {
+            activePhase = phase;
+            renderPhasePicker();
+            renderStory();
+          });
+          picker.append(button);
+        });
+      }
+
+      function renderStory() {
+        const detail = document.getElementById("phaseDetail");
+        detail.innerHTML = `
+          <h3>${activePhase.title}</h3>
+          <p>${activePhase.copy}</p>
+          <ul>${activePhase.prompts.map((prompt) => `<li>${prompt}</li>`).join("")}</ul>
+        `;
+        const scores = interpolatedScores(activeRole, activePhase.progress);
+        const storyWheel = document.getElementById("storyWheel");
+        storyWheel.setAttribute(
+          "aria-label",
+          `${activeRole.name} Skill Wheel, ${activePhase.label}`,
+        );
+        renderWheel(storyWheel, activeRole, scores, { labels: true });
+      }
+
+      function renderScale() {
+        const container = document.getElementById("scaleList");
+        LEVELS.forEach((level, index) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "scale-button";
+          button.setAttribute("aria-expanded", index === 3 ? "true" : "false");
+          button.innerHTML = `
+            <span class="scale-value">${level.value}</span>
+            <span><span class="scale-name">${level.name}</span><span class="scale-short">${level.short}</span></span>
+            <span class="scale-open" aria-hidden="true">${index === 3 ? "−" : "+"}</span>
+          `;
+
+          const detail = document.createElement("div");
+          detail.className = "scale-detail";
+          detail.dataset.open = String(index === 3);
+          detail.innerHTML = `<p>${level.detail}</p><p><strong>Evidence:</strong> ${level.evidence}</p>`;
+
+          button.addEventListener("click", () => {
+            const open = detail.dataset.open !== "true";
+            detail.dataset.open = String(open);
+            button.setAttribute("aria-expanded", String(open));
+            button.querySelector(".scale-open").textContent = open ? "−" : "+";
+          });
+
+          container.append(button, detail);
+        });
+      }
+
+      function renderLibrary() {
+        const list = document.getElementById("libraryList");
+        MODULES.forEach((module, index) => {
+          const item = document.createElement("li");
+          item.className = "library-item";
+          item.innerHTML = `
+            <span class="library-number">${String(index + 1).padStart(2, "0")}</span>
+            <span>
+              <span class="library-title">${module[0]}</span>
+              <span class="library-description">${module[1]}</span>
+            </span>
+            <span class="library-tag">${module[2]}</span>
+          `;
+          list.append(item);
+        });
+      }
+
+      function editableElements() {
+        return [...document.querySelectorAll("[data-edit-key]")];
+      }
+
+      function setEditing(next) {
+        editing = next;
+        editableElements().forEach((element) => {
+          element.contentEditable = String(editing);
+          element.spellcheck = editing;
+        });
+        editToggle.dataset.active = String(editing);
+        editToggle.textContent = editing ? "Finish editing" : "Edit copy";
+        toolStatus.textContent = editing ? "Editing enabled" : "";
+      }
+
+      function collectCopy() {
+        return Object.fromEntries(
+          editableElements().map((element) => [
+            element.dataset.editKey,
+            element.innerHTML,
+          ]),
+        );
+      }
+
+      function applyCopy(copy) {
+        editableElements().forEach((element) => {
+          const saved = copy[element.dataset.editKey];
+          if (typeof saved === "string") element.innerHTML = saved;
+        });
+      }
+
+      editToggle.addEventListener("click", () => setEditing(!editing));
+
+      document.getElementById("saveDraft").addEventListener("click", () => {
+        localStorage.setItem(EDIT_STORAGE_KEY, JSON.stringify(collectCopy()));
+        toolStatus.textContent = "Draft saved";
+      });
+
+      document.getElementById("exportCopy").addEventListener("click", () => {
+        const link = document.createElement("a");
+        link.href = `data:application/json;charset=utf-8,${encodeURIComponent(
+          JSON.stringify(collectCopy(), null, 2),
+        )}`;
+        link.download = "training-page-copy.json";
+        document.body.append(link);
+        link.click();
+        link.remove();
+        toolStatus.textContent = "Copy exported";
+      });
+
+      document.getElementById("resetDraft").addEventListener("click", () => {
+        const confirmed = window.confirm(
+          "Reset all browser-saved prototype copy and reload the original file?",
+        );
+        if (!confirmed) return;
+        localStorage.removeItem(EDIT_STORAGE_KEY);
+        window.location.reload();
+      });
+
+      const savedCopy = localStorage.getItem(EDIT_STORAGE_KEY);
+      if (savedCopy) {
+        try {
+          applyCopy(JSON.parse(savedCopy));
+          toolStatus.textContent = "Draft restored";
+        } catch (error) {
+          toolStatus.textContent = "Saved draft could not be read";
+          console.error("Training prototype draft restore failed", error);
+        }
+      }
+
+      renderWheel(
+        document.getElementById("heroWheel"),
+        ROLE_DATA[1],
+        [68, 54, 82, 73, 46, 59, 76, 51],
+        {
+          showAverage: true,
+          muted: true,
+        },
+      );
+      renderRolePicker();
+      renderPhasePicker();
+      renderStory();
+      renderScale();
+      renderLibrary();
+    </script>
+  </body>
+</html>

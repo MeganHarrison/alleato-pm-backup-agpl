@@ -115,6 +115,7 @@ const TOOL_PATH_MAP: [string, string][] = [
   ["/directory", "Directory"],
   ["/schedule", "Schedule"],
   ["/ai", "AI"],
+  ["/ai-assistant", "AI Assistant"],
   ["/portfolio", "Portfolio"],
 ];
 
@@ -544,6 +545,7 @@ export function AdminFeedbackWidget() {
   const isImmersiveChatRoute =
     pagePath === "/ai" ||
     pagePath.startsWith("/ai/") ||
+    pagePath.startsWith("/ai-assistant") ||
     pagePath.startsWith("/ai-avatar");
   const hasRecoverableDraft =
     draftActive ||

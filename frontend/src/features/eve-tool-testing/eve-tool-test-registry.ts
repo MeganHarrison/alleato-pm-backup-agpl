@@ -19,6 +19,7 @@ export interface EveToolTestRow {
   approval: string;
   scope: "Project" | "Company";
   status: EveToolTestStatus;
+  testedAt: string | null;
   screenshotStatus: EveToolScreenshotStatus;
   screenshotPath: string | null;
   testPrompt: string;
@@ -28,41 +29,75 @@ export interface EveToolTestRow {
 
 interface KnownTestResult {
   status: Exclude<EveToolTestStatus, "not_tested">;
+  testedAt: string;
   evidence?: string;
   blocker?: string;
 }
 
 const LIVE_BROWSER_TRACE =
   "Live browser trace, Eve tool audit, July 30, 2026";
+const LIVE_BROWSER_TEST_DATE = "2026-07-30";
+const CURRENT_BROWSER_TEST_DATE = "2026-07-31";
 
 const PASSED_TOOL_NAMES = [
   "extractStructuredActionBrief",
   "findAppPage",
   "findMarketingSourceCandidates",
+  "findProject",
   "findProjectDocuments",
   "getActionItemsAndInsights",
   "getBudgetLineItems",
+  "getChangeOrderDetails",
   "getCompanyKnowledge",
+  "getCommitmentsOverview",
   "getCostTrends",
   "getCrossProjectComparison",
+  "getDirectCostsSummary",
+  "getPeopleAndRoles",
+  "getProjectBudgetSummary",
+  "getDomainIntelligence",
+  "getFinanceSpendRollup",
+  "getFinancialAnalysis",
+  "getForecastComparison",
+  "getRFIStatus",
+  "getVendorPerformance",
+  "detectMissingSubmittals",
+  "reviewSubmittalAgainstDrawings",
   "getHistoricalTrends",
   "getImplementationStatus",
   "getMarketingCalendar",
+  "getMarginAnalysis",
+  "getMeetingDetails",
   "getMeetingsByDate",
   "getOutlookCalendarEvents",
   "getOutlookOperationsStatus",
   "getPortfolioOverview",
+  "getAPAgingReport",
+  "getARAgingReport",
+  "getCashPositionReport",
+  "getVendorSpendReport",
+  "getRecentBills",
+  "getRecentInvoices",
+  "getScheduleAnalysis",
+  "getAcumaticaProjectBudget",
+  "getAcumaticaProjectList",
+  "getPurchaseOrderSummary",
   "getProjectDetails",
+  "getProjectRiskAnalysis",
+  "getProjectsWithRisks",
   "getRecentEmails",
   "getSopBacklog",
   "getSpecRequirements",
   "getSubmittalLog",
+  "getSubmittalStatus",
   "listDomainIntelligence",
   "listWorkspaceArtifacts",
   "queryBudgetData",
   "queryChangeOrders",
   "queryCommitments",
   "queryDirectCosts",
+  "queryDocumentRows",
+  "queryScheduleTasks",
   "readCurrentDailyExecutiveBrief",
   "searchAppHelp",
   "searchEmails",
@@ -81,48 +116,147 @@ export const KNOWN_EVE_TOOL_TEST_RESULTS: Readonly<
   ...Object.fromEntries(
     PASSED_TOOL_NAMES.map((name) => [
       name,
-      { status: "passed", evidence: LIVE_BROWSER_TRACE },
+      {
+        status: "passed",
+        testedAt: LIVE_BROWSER_TEST_DATE,
+        evidence: LIVE_BROWSER_TRACE,
+      },
     ]),
   ),
-  findProject: {
-    status: "needs_retest",
-    evidence: LIVE_BROWSER_TRACE,
-    blocker:
-      "Portfolio recognized Test July 2026, but the project resolver did not.",
-  },
   getProjectBriefingSnapshot: {
     status: "needs_retest",
+    testedAt: LIVE_BROWSER_TEST_DATE,
     evidence: LIVE_BROWSER_TRACE,
     blocker:
       "Project briefing did not resolve the same project returned by portfolio search.",
   },
   findRelatedFeatureRequests: {
     status: "needs_retest",
+    testedAt: LIVE_BROWSER_TEST_DATE,
     evidence: LIVE_BROWSER_TRACE,
     blocker:
       "The tool required explicit project scope although registry metadata treats it as unscoped.",
   },
   searchWeb: {
     status: "blocked",
+    testedAt: LIVE_BROWSER_TEST_DATE,
     blocker: "Registered in Eve but unavailable to the live assistant run.",
   },
   researchCompany: {
     status: "blocked",
+    testedAt: LIVE_BROWSER_TEST_DATE,
     blocker: "Registered in Eve but unavailable to the live assistant run.",
   },
   searchConstructionMarket: {
     status: "blocked",
+    testedAt: LIVE_BROWSER_TEST_DATE,
     blocker: "Registered in Eve but unavailable to the live assistant run.",
   },
   listProgressReportPhotos: {
     status: "blocked",
+    testedAt: LIVE_BROWSER_TEST_DATE,
     blocker:
       "The test account lacks required access and the direct Supabase binding is mismatched.",
   },
+  ...Object.fromEntries(
+    [
+      "getMarginAnalysis",
+      "getFinanceSpendRollup",
+      "getFinancialAnalysis",
+      "getAPAgingReport",
+      "getARAgingReport",
+      "getCashPositionReport",
+      "getVendorSpendReport",
+      "getRecentBills",
+      "getRecentInvoices",
+      "getAcumaticaProjectBudget",
+      "getAcumaticaProjectList",
+      "getPurchaseOrderSummary",
+      "readCurrentDailyExecutiveBrief",
+      "getMarketingCalendar",
+      "listWorkspaceArtifacts",
+      "queryScheduleTasks",
+      "getScheduleAnalysis",
+      "getProjectsWithRisks",
+      "getMeetingDetails",
+      "getSubmittalStatus",
+      "queryDocumentRows",
+      "findProject",
+      "getProjectRiskAnalysis",
+      "getChangeOrderDetails",
+      "getCommitmentsOverview",
+      "getDirectCostsSummary",
+      "getPeopleAndRoles",
+      "getProjectBudgetSummary",
+      "getDomainIntelligence",
+      "getForecastComparison",
+      "getRFIStatus",
+      "getVendorPerformance",
+      "detectMissingSubmittals",
+      "reviewSubmittalAgainstDrawings",
+    ].map((name) => [
+      name,
+      {
+        status: "passed" as const,
+        testedAt: CURRENT_BROWSER_TEST_DATE,
+        evidence:
+          "Strict authenticated Eve browser result with an output-available tool trace, no hidden tool error, and dedicated screenshot proof.",
+      },
+    ]),
+  ),
 });
 
 export const KNOWN_EVE_TOOL_SCREENSHOTS: Readonly<Record<string, string>> =
-  Object.freeze({});
+  Object.freeze(
+    Object.fromEntries(
+      [
+        "getMarginAnalysis",
+        "getFinanceSpendRollup",
+        "getFinancialAnalysis",
+        "getAPAgingReport",
+        "getARAgingReport",
+        "getCashPositionReport",
+        "getVendorSpendReport",
+        "getRecentBills",
+        "getRecentInvoices",
+        "getAcumaticaProjectBudget",
+        "getAcumaticaProjectList",
+        "getPurchaseOrderSummary",
+        "readCurrentDailyExecutiveBrief",
+        "getMarketingCalendar",
+        "listWorkspaceArtifacts",
+        "queryScheduleTasks",
+        "getScheduleAnalysis",
+        "getProjectsWithRisks",
+        "getMeetingDetails",
+        "getSubmittalStatus",
+        "queryDocumentRows",
+        "findProject",
+        "getProjectRiskAnalysis",
+        "getChangeOrderDetails",
+        "getCommitmentsOverview",
+        "getDirectCostsSummary",
+        "getPeopleAndRoles",
+        "getProjectBudgetSummary",
+        "getDomainIntelligence",
+        "getForecastComparison",
+        "getRFIStatus",
+        "getVendorPerformance",
+        "detectMissingSubmittals",
+        "reviewSubmittalAgainstDrawings",
+      ].map((name) => [
+        name,
+        `C:/Users/KimiClaw/AppData/Local/Temp/eve-tool-verification-20260731/${name}${
+          name === "readCurrentDailyExecutiveBrief"
+            ? "-traceable"
+            : name === "getMarketingCalendar" ||
+                name === "listWorkspaceArtifacts"
+              ? "-pinned"
+              : ""
+        }-passed.png`,
+      ]),
+    ),
+  );
 
 const FAMILY_LABELS: Record<string, string> = {
   project: "Project",
@@ -192,6 +326,7 @@ export function buildEveToolTestRows(): EveToolTestRow[] {
           : humanizeToolName(entry.approvalRequirement),
       scope,
       status: knownResult?.status ?? "not_tested",
+      testedAt: knownResult?.testedAt ?? null,
       screenshotStatus: screenshotPath ? "verified" : "not_verified",
       screenshotPath,
       testPrompt:

@@ -4,7 +4,7 @@ import { GuardrailError } from "@/lib/guardrails/errors";
 import { getApiRouteUser } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { serviceDb } from "@/lib/supabase/service-db";
-import type { Database } from "@/types/database.types";
+import type { Database, Json } from "@/types/database.types";
 
 
 /**
@@ -168,7 +168,7 @@ export const PATCH = withApiGuardrails("/api/agentation/inbox#PATCH", async ({ r
     throw new GuardrailError({ code: "AUTH_EXPIRED", where: "/api/agentation/inbox#PATCH", message: "Authentication required.", status: 401 });
   }
 
-  const body = await request.json() as { id?: string; status?: string; metadata?: Record<string, unknown> };
+  const body = await request.json() as { id?: string; status?: string; metadata?: Record<string, Json> };
   const { id, status, metadata } = body;
 
   if (!id) {
@@ -191,10 +191,10 @@ export const PATCH = withApiGuardrails("/api/agentation/inbox#PATCH", async ({ r
 
   const existingMeta =
     existing.metadata && typeof existing.metadata === "object" && !Array.isArray(existing.metadata)
-      ? (existing.metadata as Record<string, unknown>)
+      ? (existing.metadata as Record<string, Json>)
       : {};
 
-  const updates: Record<string, unknown> = {};
+  const updates: Database["public"]["Tables"]["dev_annotations"]["Update"] = {};
 
   if (status) {
     const validStatuses = ["open", "in_progress", "replied", "resolved"];

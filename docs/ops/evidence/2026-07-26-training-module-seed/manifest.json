@@ -1,0 +1,33 @@
+{
+  "contractVersion": 1,
+  "feature": "Training resource library seed migration",
+  "route": "supabase:training_resource_library (backend data migration, no UI route)",
+  "taskId": "ALL-17",
+  "riskLevel": "high",
+  "flows": [
+    {
+      "name": "Seed migration parses, dedupes, validates, and applies the recovered source",
+      "steps": [
+        "Run node --test scripts/training/source/__tests__/*.test.mjs",
+        "Generate scripts/training/source/resources.json and the seed migration SQL from training-source/resources.js",
+        "Apply supabase/migrations/20260726195538_seed_training_resource_library.sql via Supabase MCP apply_migration against project lgveqfnpkxvzbnnwuled",
+        "Read back row counts from training_role/training_topic/training_resource/training_resource_role and the migration ledger"
+      ],
+      "expectedOutcome": "24/24 tests pass; live counts equal role_count=6, topic_count=27, resource_count=91, published_count=67, review_count=24, distinct_url_count=91, resource_role_link_count=264; ledger shows 20260726195538 applied after 20260726143515"
+    }
+  ],
+  "requiredEvidence": ["databaseReadback", "regressionTest"],
+  "claims": [
+    {
+      "id": "seed-counts-match",
+      "description": "Live seeded row counts match resources.json's computed meta.counts exactly, and the migration ledger confirms application",
+      "evidence": [{ "key": "databaseReadback", "min": 1 }]
+    },
+    {
+      "id": "idempotent-and-deduped",
+      "description": "The migration is idempotent (ON CONFLICT on every insert) and the one genuine duplicate URL found in the real source is deduped and reported (meta.duplicatesDropped), not silently dropped by the database constraint",
+      "evidence": [{ "key": "regressionTest", "min": 1 }]
+    }
+  ],
+  "independentReview": { "required": true }
+}

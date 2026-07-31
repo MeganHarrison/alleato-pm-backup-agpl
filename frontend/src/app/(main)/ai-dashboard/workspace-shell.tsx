@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   BrainCircuit,
+  Brain,
   CircleDollarSign,
   FileText,
   FolderKanban,
@@ -12,6 +13,7 @@ import {
   ListChecks,
   Menu,
   Network,
+  Workflow,
   type LucideIcon,
 } from "lucide-react";
 
@@ -62,9 +64,19 @@ const projectIntelligenceNav: WorkspaceNavItem[] = [
 
 const operationsNav: WorkspaceNavItem[] = [
   {
+    label: "AI System",
+    href: "/ai-dashboard/ai-os",
+    icon: Brain,
+  },
+  {
     label: "Company Brain",
-    href: "/ai-dashboard/company-brain",
+    href: "/ai/company-brain",
     icon: BrainCircuit,
+  },
+  {
+    label: "RAG Pipeline",
+    href: "/ai-dashboard/rag-pipeline",
+    icon: Workflow,
   },
   {
     label: "Architecture",

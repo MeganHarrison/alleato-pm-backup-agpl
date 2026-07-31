@@ -59,6 +59,7 @@ const model = args.model ?? "openai/gpt-5.6-terra";
 const modelCall = (messages, maxCompletionTokens = 2200, options = {}) =>
   callModel(messages, { model, maxCompletionTokens, ...options });
 const packetType = args.packetType ?? "current";
+const excludedSourceId = typeof args["exclude-source-id"] === "string" ? args["exclude-source-id"] : null;
 if (!["current", "snapshot"].includes(packetType)) {
   throw new Error(`--packetType must be current or snapshot, received: ${packetType}`);
 }
@@ -504,6 +505,10 @@ async function materializeSources(rows) {
   for (const row of rows) {
     const lane = classifyLane(row);
     if (lane === "ignored") continue;
+    if (excludedSourceId && String(row.id) === excludedSourceId) {
+      skipped.push({ id: row.id, title: row.title, lane, reason: "explicitly excluded for this report because full content was unavailable" });
+      continue;
+    }
     let text = cleanText(row.content || row.raw_text || row.summary || row.overview);
     let usedStorage = false;
     if (lane === "meetings") {
@@ -554,6 +559,7 @@ async function materializeSources(rows) {
       // Outlook id into an ambiguous prefix. The packet manifest maps the alias
       // back to `id`, and the review-page/consumer resolvers do the same.
       alias,
+      sourceRecordId: String(row.id),
       appDocumentId: row.app_document_id,
       title: row.title || row.file_name || row.id,
       lane,
@@ -579,7 +585,7 @@ async function materializeSources(rows) {
 function assertSourceMaterializationComplete(sources, skipped) {
   const includedIds = new Set(sources.map((source) => String(source.id)));
   const allowedExclusion = (reason) =>
-    String(reason).startsWith("not in ") || String(reason).startsWith("duplicate content of ");
+    String(reason).startsWith("not in ") || String(reason).startsWith("duplicate content of ") || String(reason).startsWith("explicitly excluded for this report because full content was unavailable");
   const criticalFailures = skipped.filter(
     (item) => !includedIds.has(String(item.id)) && !allowedExclusion(item.reason),
   );
@@ -793,7 +799,11 @@ async function main() {
   // dropped an active project. This keeps an incomplete brief from consuming
   // more model budget and makes the first broken boundary explicit.
   const briefCoverage = assertBriefProjectCoverage(sources, structured);
-  const briefMarkdown = detailedReport;
+  const reportExclusions = skipped.filter((item) => String(item.reason).startsWith("explicitly excluded for this report"));
+  const disclosure = reportExclusions.length
+    ? `## Coverage note\n\nThis report uses all available sources with complete content. ${reportExclusions.map((item) => `${item.title || item.id} was excluded because its full content was unavailable; no facts were inferred from it.`).join(" ")}\n\n`
+    : "";
+  const briefMarkdown = `${disclosure}${detailedReport}`;
   const dashboardMarkdown = renderBriefMarkdownV3(structured);
   await fs.writeFile(path.join(evidenceDir, "brief.md"), briefMarkdown);
   await fs.writeFile(path.join(evidenceDir, "dashboard-brief.md"), dashboardMarkdown);

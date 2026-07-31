@@ -9,6 +9,7 @@ import {
   canDeletePrimeContractChangeOrderStatus,
   primeContractChangeOrderDeleteBlockedMessage,
 } from "@/lib/change-orders/prime-contract-change-order-statuses";
+import type { Database } from "@/types/database.types";
 
 interface RouteParams {
   params: Promise<{ projectId: string; primeCoId: string }>;
@@ -218,7 +219,7 @@ export const PUT = withApiGuardrails(
 
     const { data, error } = await supabase
       .from("prime_contract_change_orders")
-      .update(updateData)
+      .update(updateData as Database["public"]["Tables"]["prime_contract_change_orders"]["Update"])
       .eq("id", numericId)
       .eq("project_id", Number(projectId))
       .select("*")

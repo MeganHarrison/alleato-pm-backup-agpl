@@ -13,6 +13,9 @@ import os
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 
 from src.services.supabase_helpers import get_rag_read_client, get_rag_write_client
+from src.services.integrations.microsoft_graph.sharepoint_scopes import (
+    sharepoint_resource_ids_from_receipt,
+)
 
 
 STALE_SYNC_MINUTES = 120
@@ -80,8 +83,8 @@ GRAPH_DOCUMENT_TYPE_SOURCE_KEYS = {
 
 GRAPH_PROJECT_DOCUMENT_SOURCES = {"sharepoint"}
 RETIRED_GRAPH_STATE_SOURCES = {
-    # Replaced by teams_chat_export. Preserve the old graph_sync_state rows for
-    # incident history, but never treat them as current executable owners.
+    # Replaced by teams_chat_export. Preserve old rows for incident history,
+    # but never treat them as current executable source owners.
     "teams_chat",
 }
 
@@ -142,6 +145,21 @@ def _active_sharepoint_resource_ids() -> set[str]:
         except ValueError:
             continue
     return resource_ids
+
+
+def _sharepoint_discovery_receipt(
+    sync_runs: Sequence[Dict[str, Any]],
+) -> Dict[str, Any]:
+    for row in sync_runs:
+        if str(row.get("source") or "") != "microsoft_graph_source_sync":
+            continue
+        metadata = row.get("metadata")
+        if not isinstance(metadata, dict):
+            continue
+        receipt = metadata.get("sharepoint_discovery")
+        if isinstance(receipt, dict):
+            return receipt
+    return {}
 
 
 def _is_inactive_graph_resource(state: Dict[str, Any]) -> bool:
@@ -1358,7 +1376,23 @@ def get_source_sync_health(supabase: Any) -> Dict[str, Any]:
     )
     document_by_id = {str(row.get("id")): row for row in documents if row.get("id")}
 
-    active_sharepoint_resource_ids = _active_sharepoint_resource_ids() or _recent_sharepoint_resource_ids(graph_states, now)
+    discovered_sharepoint_resource_ids = sharepoint_resource_ids_from_receipt(
+        sync_runs
+    )
+    if os.environ.get(
+        "SHAREPOINT_PROJECT_DISCOVERY_ENABLED",
+        "false",
+    ).strip().lower() == "true":
+        active_sharepoint_resource_ids = (
+            discovered_sharepoint_resource_ids
+            or _recent_sharepoint_resource_ids(graph_states, now)
+        )
+    else:
+        active_sharepoint_resource_ids = (
+            _active_sharepoint_resource_ids()
+            or _recent_sharepoint_resource_ids(graph_states, now)
+        )
+    discovery_receipt = _sharepoint_discovery_receipt(sync_runs)
 
     sources: List[Dict[str, Any]] = []
     for state in graph_states:
@@ -1397,6 +1431,62 @@ def get_source_sync_health(supabase: Any) -> Dict[str, Any]:
                 unembedded_count=document_counts.get(source, {}).get("unembedded", 0),
                 uncompiled_count=document_counts.get(source, {}).get("uncompiled", 0),
                 metadata={"syncStatus": state.get("sync_status")},
+            )
+        )
+
+    if discovery_receipt:
+        bootstrap_pending = int(
+            discovery_receipt.get("bootstrap_pending_count") or 0
+        )
+        incremental_pending = int(
+            discovery_receipt.get("incremental_pending_count") or 0
+        )
+        discovery_error = discovery_receipt.get("error")
+        pending = bootstrap_pending + incremental_pending
+        discovery_status = (
+            "critical"
+            if discovery_error or incremental_pending
+            else "warning" if bootstrap_pending else "healthy"
+        )
+        message = None
+        if discovery_error:
+            message = f"SharePoint project discovery failed: {discovery_error}"
+        elif incremental_pending:
+            message = (
+                f"{incremental_pending} initialized SharePoint project folder(s) "
+                "were not checked because the incremental cap was reached."
+            )
+        elif bootstrap_pending:
+            message = (
+                f"{bootstrap_pending} discovered SharePoint project folder(s) "
+                "have not completed their initial source inventory."
+            )
+        sources.append(
+            _source_row(
+                source="sharepoint_file",
+                resource_id="sharepoint:project-discovery",
+                resource_name="SharePoint project discovery",
+                status=discovery_status,
+                last_sync_at=_parse_datetime(
+                    next(
+                        (
+                            row.get("started_at")
+                            for row in sync_runs
+                            if str(row.get("source") or "")
+                            == "microsoft_graph_source_sync"
+                        ),
+                        None,
+                    )
+                ),
+                last_success_at=None if message else now,
+                last_error_at=now if message else None,
+                last_error_message=message,
+                items_synced=int(discovery_receipt.get("established_count") or 0),
+                stale_minutes=0,
+                unprocessed_count=pending,
+                unembedded_count=0,
+                uncompiled_count=0,
+                metadata={"sharepointDiscovery": discovery_receipt},
             )
         )
 

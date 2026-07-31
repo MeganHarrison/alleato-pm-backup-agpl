@@ -10,7 +10,6 @@ from datetime import datetime
 from pathlib import Path
 import sys
 import os
-import requests
 
 # Add parent directory to path
 sys.path.append(str(Path(__file__).parent.parent))
@@ -18,6 +17,12 @@ sys.path.append(str(Path(__file__).parent.parent))
 from services.supabase_helpers import SupabaseRagStore
 from services.env_loader import load_env
 from services.pipeline.workflow_client import enqueue_document_workflow
+from src.services.training import (
+    TrainingFinderRequest,
+    TrainingFinderResponse,
+    TrainingResourceFinderError,
+    run_training_resource_finder,
+)
 
 load_env()
 
@@ -74,34 +79,54 @@ class ReplayStaleRawIngestedRequest(BaseModel):
 def get_rag_store() -> SupabaseRagStore:
     return SupabaseRagStore()
 
+
+@router.post(
+    "/training/resources/find",
+    response_model=TrainingFinderResponse,
+)
+def trigger_training_resource_finder_admin(
+    request: TrainingFinderRequest,
+    x_request_id: Optional[str] = Header(default=None, alias="X-Request-Id"),
+) -> TrainingFinderResponse:
+    """Create up to three review candidates through the canonical finder."""
+    request_id = (x_request_id or "unavailable")[:120]
+    bounded_request = TrainingFinderRequest(
+        roleSlug=request.role_slug,
+        topicSlug=request.topic_slug,
+        maxSearchResults=8,
+        maxInserts=3,
+        dryRun=False,
+        triggerSource="admin",
+    )
+    logger.info(
+        "Admin training resource finder started request_id=%s role=%s topic=%s",
+        request_id,
+        bounded_request.role_slug,
+        bounded_request.topic_slug,
+    )
+
+    try:
+        result = run_training_resource_finder(bounded_request)
+        logger.info(
+            "Admin training resource finder completed request_id=%s status=%s inserted=%s",
+            request_id,
+            result.status,
+            result.inserted_count,
+        )
+        return result
+    except TrainingResourceFinderError as exc:
+        logger.error(
+            "Admin training resource finder failed request_id=%s role=%s topic=%s: %s",
+            request_id,
+            bounded_request.role_slug,
+            bounded_request.topic_slug,
+            exc,
+        )
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+
 # Store for tracking background tasks
 _background_tasks = {}
-
-
-def _resolve_fireflies_process_url(supabase) -> str:
-    """Resolve the canonical Fireflies reprocess endpoint."""
-    config = (
-        supabase.table("pipeline_config")
-        .select("key,value")
-        .eq("key", "fireflies_pipeline_url")
-        .execute()
-    )
-    rows = config.data or []
-    configured = next(
-        (
-            str(row.get("value") or "").strip()
-            for row in rows
-            if str(row.get("key") or "")
-            == "fireflies_pipeline_url"
-        ),
-        "",
-    )
-
-    if configured:
-        return configured.rstrip("/")
-
-    local_backend = (os.getenv("PYTHON_BACKEND_URL") or "http://127.0.0.1:8000").strip().rstrip("/")
-    return f"{local_backend}/api/ingest/fireflies/process"
 
 
 def _find_stale_raw_ingested_jobs(
@@ -340,16 +365,14 @@ async def replay_stale_raw_ingested_jobs(
     request: ReplayStaleRawIngestedRequest,
     store: SupabaseRagStore = Depends(get_rag_store),
 ):
-    """Requeue stale raw_ingested jobs by calling the canonical Fireflies endpoint."""
+    """Requeue stale raw_ingested jobs through the durable Vercel Workflow owner."""
     if request.stale_minutes < 1:
         raise HTTPException(status_code=400, detail="stale_minutes must be >= 1")
     if request.limit < 1 or request.limit > 200:
         raise HTTPException(status_code=400, detail="limit must be between 1 and 200")
 
     try:
-        supabase = store._client
         rag_supabase = store._rag_client
-        pipeline_url = _resolve_fireflies_process_url(supabase)
         jobs = _find_stale_raw_ingested_jobs(
             supabase=rag_supabase,
             stale_minutes=request.stale_minutes,
@@ -364,7 +387,7 @@ async def replay_stale_raw_ingested_jobs(
                 "message": "No stale raw_ingested jobs found",
                 "stale_minutes": request.stale_minutes,
                 "limit": request.limit,
-                "pipeline_url": pipeline_url,
+                "owner": "vercel_workflow",
                 "matched": 0,
                 "queued": 0,
                 "failed": 0,
@@ -391,32 +414,19 @@ async def replay_stale_raw_ingested_jobs(
                 continue
 
             try:
-                resp = requests.post(
-                    pipeline_url,
-                    json={"metadataId": metadata_id},
-                    timeout=15,
+                workflow = enqueue_document_workflow(
+                    str(metadata_id),
+                    source_type="fireflies",
                 )
-                if resp.ok:
-                    queued += 1
-                    results.append(
-                        {
-                            "fireflies_id": fireflies_id,
-                            "metadata_id": metadata_id,
-                            "status": "queued",
-                            "http_status": resp.status_code,
-                        }
-                    )
-                else:
-                    failed += 1
-                    results.append(
-                        {
-                            "fireflies_id": fireflies_id,
-                            "metadata_id": metadata_id,
-                            "status": "failed",
-                            "http_status": resp.status_code,
-                            "error": resp.text[:300],
-                        }
-                    )
+                queued += 1
+                results.append(
+                    {
+                        "fireflies_id": fireflies_id,
+                        "metadata_id": metadata_id,
+                        "status": "queued",
+                        "run_id": workflow["runId"],
+                    }
+                )
             except Exception as call_exc:
                 failed += 1
                 results.append(
@@ -433,7 +443,7 @@ async def replay_stale_raw_ingested_jobs(
             "message": "Replay attempted for stale raw_ingested jobs",
             "stale_minutes": request.stale_minutes,
             "limit": request.limit,
-            "pipeline_url": pipeline_url,
+            "owner": "vercel_workflow",
             "matched": len(jobs),
             "queued": queued if not request.dry_run else 0,
             "failed": failed if not request.dry_run else 0,
@@ -621,8 +631,8 @@ async def backfill_source_paths(
 
 
 class OcrBackfillRequest(BaseModel):
-    batch_size: int = 20
-    page_cap: int = 20
+    batch_size: int = 2
+    page_cap: Optional[int] = None
 
 
 @router.post("/documents/ocr-backfill", dependencies=[Depends(require_admin_api_key)])
@@ -632,28 +642,19 @@ async def run_ocr_backfill(
 ):
     """Run an OCR pass over documents with status='no_text'.
 
-    Useful for backfilling scanned PDFs that pypdf couldn't extract text from.
-    - batch_size: max documents to process per call (default 20)
-    - page_cap: max pages per document sent to Azure DI (default 20, ~$0.03/doc max)
+    Uses the backend's bounded-memory local Poppler/Tesseract pipeline so the
+    complete document is read without depending on an external OCR provider.
+    - batch_size: max documents to process per call (default 2)
+    - page_cap: optional emergency page ceiling; omitted means every page
 
-    Documents that hit the page cap are marked ocr_partial — they ARE embedded
-    for RAG search but are flagged in the Files table so staff can identify
-    PDFs where only the first N pages were processed.
+    Documents that hit an explicitly supplied page cap are marked ocr_partial.
+    They remain searchable but visibly incomplete so a capped run cannot be
+    mistaken for full materialization.
 
     After this completes, call /sync/embed to embed the newly-OCR'd documents,
     or wait for the next 30-minute sync cron which runs OCR + embed automatically.
     """
     from services.integrations.microsoft_graph.ocr_worker import run_ocr_pass
-    from services.integrations.azure.document_intelligence import is_configured
-
-    if not is_configured():
-        raise HTTPException(
-            status_code=503,
-            detail=(
-                "Azure Document Intelligence is not configured. "
-                "Set AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT and AZURE_DOCUMENT_INTELLIGENCE_KEY."
-            ),
-        )
 
     result = run_ocr_pass(
         store._client,

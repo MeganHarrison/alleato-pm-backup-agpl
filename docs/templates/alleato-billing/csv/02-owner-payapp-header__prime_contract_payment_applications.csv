@@ -1,0 +1,2 @@
+contract_id,project_id,application_number,period_from,period_to,billing_date,billing_period_id,amount,retention_amount,net_amount,percent_complete,status,notes
+00000000-0000-0000-0000-0000000000pc,876,4,2026-07-01,2026-07-31,2026-07-31,00000000-0000-0000-0000-00000000bp04,175000.0,48500.0,196500.0,45.12,draft,"Line 4 = 485,000.00; Line 6 = 436,500.00; Line 7 = 240,000.00"

@@ -9,14 +9,11 @@ import { type ActionToolInternals, withWriteTrace } from "./action-tool-internal
 
 export function createRfiWriteTools(internals: ActionToolInternals) {
   const {
-    userId,
     options,
     supabase,
     resolveIdempotencyKey,
     getReplayResponse,
     recordWriteAudit,
-    finalizeWriteAudit,
-    failWriteAudit,
     enforceProjectWriteAccess,
   } = internals;
 
@@ -44,36 +41,6 @@ export function createRfiWriteTools(internals: ActionToolInternals) {
         const replay = await getReplayResponse("createRFI", idempotencyKey);
         if (replay) return replay;
 
-        const pendingResponse = {
-          success: false,
-          status: "pending",
-          message:
-            "This approved RFI creation is already being processed.",
-          idempotencyKey,
-        };
-        try {
-          // Reserve the unique user/tool/idempotency tuple before touching
-          // the RFI table. A replay or a worker restart can therefore return
-          // the recorded state without issuing a second insert.
-          await recordWriteAudit({
-            toolName: "createRFI",
-            idempotencyKey,
-            projectId: access.projectId,
-            input,
-            status: "pending",
-            response: pendingResponse,
-          });
-        } catch {
-          const concurrentReplay = await getReplayResponse(
-            "createRFI",
-            idempotencyKey,
-          );
-          if (concurrentReplay) return concurrentReplay;
-          throw new Error(
-            "The approved RFI action could not reserve its idempotency receipt.",
-          );
-        }
-
         // Get next RFI number for this project
         const { data: existing } = await supabase
           .from("rfis")
@@ -87,7 +54,6 @@ export function createRfiWriteTools(internals: ActionToolInternals) {
           .from("rfis")
           .insert({
             project_id: projectId,
-            created_by: userId,
             subject,
             question,
             ball_in_court: ballInCourt ?? null,
@@ -104,7 +70,7 @@ export function createRfiWriteTools(internals: ActionToolInternals) {
 
         if (error) {
           const failure = { success: false, error: error.message };
-          await failWriteAudit({
+          await recordWriteAudit({
             toolName: "createRFI",
             idempotencyKey,
             projectId: access.projectId,
@@ -120,9 +86,12 @@ export function createRfiWriteTools(internals: ActionToolInternals) {
           message: `RFI #${data.number} — **"${subject}"** created.`,
           record: data,
         };
-        await finalizeWriteAudit({
+        await recordWriteAudit({
           toolName: "createRFI",
           idempotencyKey,
+          projectId: access.projectId,
+          input,
+          status: "success",
           response,
         });
         return response;

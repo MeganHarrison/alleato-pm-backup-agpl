@@ -23,10 +23,17 @@ const WORKSPACE_ERROR_GUIDANCE =
 
 function withTrace<TInput extends Record<string, unknown>, TResult>(
   name: string,
-  options: { onTrace?: (trace: ToolTracePayload) => void },
+  options: {
+    onTrace?: (trace: ToolTracePayload) => void;
+    pinnedProjectId?: number;
+  },
   execute: (input: TInput) => Promise<TResult>,
+  { injectPinnedProject = true }: { injectPinnedProject?: boolean } = {},
 ) {
-  return _withTrace(name, options, execute, WORKSPACE_ERROR_GUIDANCE);
+  const traceOptions = injectPinnedProject
+    ? options
+    : { onTrace: options.onTrace };
+  return _withTrace(name, traceOptions, execute, WORKSPACE_ERROR_GUIDANCE);
 }
 
 // ---------------------------------------------------------------------------
@@ -51,7 +58,10 @@ const artifactStatusEnum = z.enum(["draft", "final", "archived", "promoted"]);
 
 export function createWorkspaceTools(
   userId: string,
-  options: { onTrace?: (trace: ToolTracePayload) => void } = {},
+  options: {
+    onTrace?: (trace: ToolTracePayload) => void;
+    pinnedProjectId?: number;
+  } = {},
 ) {
   // -------------------------------------------------------------------------
   // Tool 1: listWorkspaceArtifacts
@@ -61,20 +71,27 @@ export function createWorkspaceTools(
     description:
       "List the user's work-in-progress drafts and saved artifacts. Use at the start of a work session to see what has already been drafted. Filter by project or artifact type to narrow the results.",
     inputSchema: z.object({
-      projectId: z.number().optional().describe("Filter by project ID"),
+      projectId: z
+        .number()
+        .nullable()
+        .default(null)
+        .describe("Filter by project ID, or null for every project"),
       artifactType: artifactTypeEnum
-        .optional()
+        .nullable()
+        .default(null)
         .describe(
-          "Filter by artifact type: owner_update, risk_report, meeting_prep, analysis, briefing, note, or change_event_draft",
+          "Filter by artifact type, or null for every type: owner_update, risk_report, meeting_prep, analysis, briefing, note, or change_event_draft",
         ),
       status: artifactStatusEnum
-        .optional()
-        .describe("Filter by status: draft, final, archived, or promoted"),
+        .nullable()
+        .default(null)
+        .describe(
+          "Filter by status, or null for every status: draft, final, archived, or promoted",
+        ),
       limit: z
         .number()
         .min(1)
         .max(50)
-        .optional()
         .default(10)
         .describe("Maximum number of artifacts to return (1–50, default 10)"),
     }),
@@ -87,17 +104,17 @@ export function createWorkspaceTools(
         status,
         limit,
       }: {
-        projectId?: number;
-        artifactType?: ArtifactType;
-        status?: ArtifactStatus;
-        limit?: number;
+        projectId: number | null;
+        artifactType: ArtifactType | null;
+        status: ArtifactStatus | null;
+        limit: number;
       }) => {
         const artifacts = await listArtifacts({
           userId,
           projectId: projectId ?? undefined,
-          artifactType,
-          status,
-          limit: limit ?? 10,
+          artifactType: artifactType ?? undefined,
+          status: status ?? undefined,
+          limit,
         });
 
         const mapped = artifacts.map((a) => ({
@@ -117,6 +134,8 @@ export function createWorkspaceTools(
           ...(mapped.length === 0 && { message: "No workspace artifacts found for the given filters." }),
         };
       },
+      // This catalog tool intentionally spans every project when projectId is null.
+      { injectPinnedProject: false },
     ),
   });
 

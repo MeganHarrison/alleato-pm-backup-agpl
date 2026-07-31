@@ -218,9 +218,7 @@ export async function sendOwnerBriefingToTeams(input: {
           }
 
           try {
-            const { sendProactiveCard } = await import(
-              "@/lib/bot/teams-delivery"
-            );
+            const { sendProactiveCard } = await import("@/lib/bot/teams-chat");
             const providerResponse = await withExecutiveDailyBriefObservation(
               "daily-brief.teams.send-recipient",
               {

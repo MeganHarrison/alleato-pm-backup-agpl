@@ -54,6 +54,8 @@ import { apiFetch, summarizeBulkResults } from "@/lib/api-client";
 import { usePrimeContracts, primeContractKeys } from "@/hooks/use-prime-contracts";
 import { useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useProjectPermissions, hasModulePermission } from "@/hooks/use-project-permissions";
+import { handleFormError } from "@/lib/handle-form-error";
 
 const EMPTY_FILTERS: Record<string, FilterValue> = {
   status: undefined,
@@ -94,6 +96,13 @@ export default function ProjectContractsPage(): ReactElement {
   const projectId = params.projectId ?? "";
   const projectIdNumber = Number(projectId);
   const queryClient = useQueryClient();
+
+  const { permissions: projectPermissions } = useProjectPermissions(
+    Number.isFinite(projectIdNumber) && projectIdNumber > 0 ? projectIdNumber : null,
+  );
+  const canPushToErp = hasModulePermission(projectPermissions, "contracts", "admin");
+  const [erpPushConfirmOpen, setErpPushConfirmOpen] = React.useState(false);
+  const [isPushingToErp, setIsPushingToErp] = React.useState(false);
 
   useProjectTitle("Prime Contracts");
 
@@ -511,6 +520,22 @@ export default function ProjectContractsPage(): ReactElement {
 
   const isFiltered = Boolean(tableState.searchInput) || Boolean(activeFilters.status) || Boolean(activeFilters.executed) || Boolean(activeFilters.client_name);
 
+  async function handlePushToErp() {
+    setIsPushingToErp(true);
+    try {
+      const body = await apiFetch<{ message?: string }>(
+        `/api/projects/${projectId}/erp-push`,
+        { method: "POST" },
+      );
+      toast.success(body.message ?? "Job pushed to Acumatica");
+      setErpPushConfirmOpen(false);
+    } catch (err) {
+      handleFormError(err, { entity: "job", action: "push to Acumatica" });
+    } finally {
+      setIsPushingToErp(false);
+    }
+  }
+
   return (
     <>
       <UnifiedTablePage
@@ -527,6 +552,16 @@ export default function ProjectContractsPage(): ReactElement {
               >
                 <Settings />
               </Button>
+              {canPushToErp && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setErpPushConfirmOpen(true)}
+                  disabled={isPushingToErp}
+                >
+                  {isPushingToErp ? "Pushing…" : "Push to Acumatica"}
+                </Button>
+              )}
               <SplitButton
                 size="sm"
                 label="Create"
@@ -844,6 +879,32 @@ export default function ProjectContractsPage(): ReactElement {
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               {isBulkDeleting ? "Deleting..." : `Delete ${tableState.selectedIds.length} Contract${tableState.selectedIds.length === 1 ? "" : "s"}`}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={erpPushConfirmOpen} onOpenChange={setErpPushConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Push this job to Acumatica?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This creates or updates the project and its prime contracts in
+              Acumatica (the ERP). Run it only once the contract and its customer
+              are correct in the directory — the first push creates the project in
+              the accounting system.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isPushingToErp}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(event) => {
+                event.preventDefault();
+                void handlePushToErp();
+              }}
+              disabled={isPushingToErp}
+            >
+              {isPushingToErp ? "Pushing…" : "Push to Acumatica"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

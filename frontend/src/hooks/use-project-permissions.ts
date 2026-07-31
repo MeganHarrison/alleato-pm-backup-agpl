@@ -59,6 +59,7 @@ function mapProjectPermissions(
         "change_orders",
         "change_events",
         "emails",
+        "crm",
       ] as PermissionModule[]).map((module) => [
         module,
         getPermissionLevel(userPermissions, module) === "none"

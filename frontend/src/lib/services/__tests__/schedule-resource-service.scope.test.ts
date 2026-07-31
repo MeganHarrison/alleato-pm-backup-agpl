@@ -36,6 +36,12 @@ function pagedQuery(results: QueryResult[]) {
   return builder;
 }
 
+function serviceClient(from: jest.Mock, rpc: jest.Mock): SupabaseClient<Database> {
+  const client = Object.create(null) as SupabaseClient<Database>;
+  Object.assign(client, { from, rpc });
+  return client;
+}
+
 describe("ScheduleResourceService project scope", () => {
   it("scopes every project-owned roster query and excludes inactive candidates", async () => {
     const memberships = query({
@@ -182,6 +188,7 @@ describe("ScheduleResourceService project scope", () => {
         task_id: "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
         resource_id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
         allocation_percent: 75,
+        cost_version: 3,
       }],
       error: null,
     });
@@ -208,13 +215,200 @@ describe("ScheduleResourceService project scope", () => {
       67,
       "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
       [{ person_id: "11111111-1111-4111-8111-111111111111", allocation_percent: 75 }],
+      [{
+        id: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+        person_id: "11111111-1111-4111-8111-111111111111",
+        cost_version: 3,
+      }],
     );
 
     expect(rpc).toHaveBeenNthCalledWith(1, "replace_schedule_task_assignments", {
       p_project_id: 67,
       p_task_id: "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
       p_assignments: [{ person_id: "11111111-1111-4111-8111-111111111111", allocation_percent: 75 }],
+      p_expected_assignments: [{
+        id: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+        person_id: "11111111-1111-4111-8111-111111111111",
+        cost_version: 3,
+      }],
     });
     expect(result).toEqual([expect.objectContaining({ allocation_percent: 75 })]);
+  });
+
+  it("loads person, equipment, and material cost facts within one project scope", async () => {
+    const resources = query({
+      data: [
+        {
+          id: "11111111-1111-4111-8111-111111111111",
+          project_id: 67,
+          person_id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+          resource_kind: "person",
+          display_name: "Project Engineer",
+          standard_rate: 75,
+          cost_per_use: 0,
+          rate_unit: "hour",
+          cost_version: 2,
+        },
+        {
+          id: "22222222-2222-4222-8222-222222222222",
+          project_id: 67,
+          person_id: null,
+          resource_kind: "equipment",
+          display_name: "Tower crane",
+          standard_rate: 900,
+          cost_per_use: 250,
+          rate_unit: "day",
+          cost_version: 1,
+        },
+        {
+          id: "33333333-3333-4333-8333-333333333333",
+          project_id: 67,
+          person_id: null,
+          resource_kind: "material",
+          display_name: "Structural steel",
+          standard_rate: 1.25,
+          cost_per_use: 0,
+          rate_unit: "unit",
+          cost_version: 4,
+        },
+      ],
+      error: null,
+    });
+    const assignments = query({
+      data: [{
+        id: "44444444-4444-4444-8444-444444444444",
+        project_id: 67,
+        task_id: "55555555-5555-4555-8555-555555555555",
+        resource_id: "33333333-3333-4333-8333-333333333333",
+        allocation_percent: 100,
+        planned_units: 400,
+        actual_units: 250,
+        actual_rate: 1.3,
+        actual_cost: 325,
+        cost_version: 3,
+      }],
+      error: null,
+    });
+    const rpc = jest.fn().mockResolvedValue({ data: true, error: null });
+    const tables = {
+      schedule_resources: resources,
+      schedule_task_assignments: assignments,
+    };
+    const service = new ScheduleResourceService(serviceClient(
+      jest.fn((table: keyof typeof tables) => tables[table]),
+      rpc,
+    ));
+
+    const result = await service.getCostModel(67);
+
+    expect(resources.eq).toHaveBeenCalledWith("project_id", 67);
+    expect(assignments.eq).toHaveBeenCalledWith("project_id", 67);
+    expect(rpc).toHaveBeenCalledWith("current_can_manage_schedule", {
+      p_project_id: 67,
+    });
+    expect(result.can_manage).toBe(true);
+    expect(result.resources.map((resource) => resource.resource_kind)).toEqual([
+      "person",
+      "equipment",
+      "material",
+    ]);
+    expect(result.assignments).toEqual([
+      expect.objectContaining({
+        planned_units: 400,
+        actual_cost: 325,
+        cost_version: 3,
+      }),
+    ]);
+  });
+
+  it("writes cost resources and assignments only through guarded CAS RPCs", async () => {
+    const resource = {
+      id: "33333333-3333-4333-8333-333333333333",
+      project_id: 67,
+      person_id: null,
+      resource_kind: "material" as const,
+      display_name: "Structural steel",
+      standard_rate: 1.25,
+      cost_per_use: 0,
+      rate_unit: "unit" as const,
+      cost_version: 5,
+    };
+    const assignment = {
+      id: "44444444-4444-4444-8444-444444444444",
+      project_id: 67,
+      task_id: "55555555-5555-4555-8555-555555555555",
+      resource_id: resource.id,
+      allocation_percent: 100,
+      planned_units: 400,
+      actual_units: 250,
+      actual_rate: 1.3,
+      actual_cost: 325,
+      cost_version: 4,
+    };
+    const rpc = jest
+      .fn()
+      .mockResolvedValueOnce({ data: resource, error: null })
+      .mockResolvedValueOnce({ data: assignment, error: null })
+      .mockResolvedValueOnce({ data: true, error: null })
+      .mockResolvedValueOnce({ data: true, error: null });
+    const service = new ScheduleResourceService(serviceClient(jest.fn(), rpc));
+
+    await expect(
+      service.upsertCostResource(67, {
+        id: resource.id,
+        resource_kind: "material",
+        display_name: resource.display_name,
+        standard_rate: 1.25,
+        cost_per_use: 0,
+        rate_unit: "unit",
+        expected_cost_version: 4,
+      }),
+    ).resolves.toEqual(resource);
+    await expect(
+      service.upsertCostAssignment(67, {
+        task_id: assignment.task_id,
+        resource_id: resource.id,
+        allocation_percent: 100,
+        planned_units: 400,
+        actual_units: 250,
+        actual_rate: 1.3,
+        actual_cost: 325,
+        expected_cost_version: 3,
+      }),
+    ).resolves.toEqual(assignment);
+    await service.deleteCostAssignment(67, assignment.id, 4);
+    await service.deleteCostResource(67, resource.id, 5);
+
+    expect(rpc).toHaveBeenNthCalledWith(1, "upsert_schedule_cost_resource", {
+      p_project_id: 67,
+      p_resource_id: resource.id,
+      p_resource_kind: "material",
+      p_display_name: "Structural steel",
+      p_standard_rate: 1.25,
+      p_cost_per_use: 0,
+      p_rate_unit: "unit",
+      p_expected_cost_version: 4,
+    });
+    expect(rpc).toHaveBeenNthCalledWith(2, "upsert_schedule_cost_assignment", {
+      p_project_id: 67,
+      p_task_id: assignment.task_id,
+      p_resource_id: resource.id,
+      p_allocation_percent: 100,
+      p_planned_units: 400,
+      p_actual_units: 250,
+      p_actual_rate: 1.3,
+      p_actual_cost: 325,
+      p_expected_cost_version: 3,
+    });
+    expect(rpc).toHaveBeenNthCalledWith(3, "delete_schedule_cost_assignment", {
+      p_project_id: 67,
+      p_assignment_id: assignment.id,
+      p_expected_cost_version: 4,
+    });
+    expect(rpc).toHaveBeenNthCalledWith(4, "delete_schedule_cost_resource", {
+      p_project_id: 67,
+      p_resource_id: resource.id,
+      p_expected_cost_version: 5,
+    });
   });
 });

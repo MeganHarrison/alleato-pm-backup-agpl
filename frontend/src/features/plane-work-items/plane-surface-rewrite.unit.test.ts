@@ -22,19 +22,6 @@ describe("Plane surface route-budget rewrite", () => {
     ),
     "utf8",
   );
-  const tasksKanbanPage = fs.readFileSync(
-    path.join(
-      frontendRoot,
-      "src",
-      "app",
-      "(main)",
-      "[projectId]",
-      "tasks",
-      "kanban",
-      "page.tsx",
-    ),
-    "utf8",
-  );
   const companyTasksPage = fs.readFileSync(
     path.join(frontendRoot, "src", "app", "(tables)", "tasks", "page.tsx"),
     "utf8",
@@ -69,17 +56,12 @@ describe("Plane surface route-budget rewrite", () => {
     expect(tasksPage).toContain("planeSurfaceParam");
   });
 
-  it("retires the legacy project Tasks composition behind a compatibility redirect", () => {
-    expect(tasksPage).toContain("buildPlaneWorkItemsHrefFromLegacyTasks");
-    expect(tasksPage).toContain("if (!planeSurface)");
-    expect(tasksPage).toContain("parsePlaneProjectId(projectId)");
-    expect(tasksPage).not.toContain("TasksInboxClient");
-    expect(tasksKanbanPage).toContain(
-      'buildPlaneWorkItemsHref(projectId, { view: "board" })',
-    );
-    expect(tasksKanbanPage).toContain("parsePlaneProjectId(projectId)");
-    expect(tasksKanbanPage).not.toContain("Number.parseInt");
-    expect(tasksKanbanPage).not.toContain("/${projectId}/tasks?view=board");
+  it("keeps legacy project Tasks as the fallback outside Plane rewrites", () => {
+    expect(tasksPage).toContain("TasksInboxClient");
+    expect(tasksPage).toContain("if (planeSurface)");
+    expect(tasksPage).toContain("<PlaneSurfaceDispatcher");
+    expect(tasksPage).toContain("<TasksInboxClient");
+    expect(tasksPage).not.toContain("redirect(");
   });
 
   it("leaves company-wide Tasks on the shared TasksInbox composition", () => {

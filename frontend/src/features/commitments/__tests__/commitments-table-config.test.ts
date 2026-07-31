@@ -121,6 +121,21 @@ describe("commitments table configuration", () => {
     expect(rendered?.props.href).toBe("/25125/commitments/commitment-1");
   });
 
+  it("routes the company cell to the selected commitment", () => {
+    const companyColumn = buildCommitmentTableColumns("25125").find(
+      (column) => column.id === "contract_company",
+    );
+    const rendered = companyColumn?.render({
+      id: "commitment-1",
+      contract_company: {
+        id: "company-1",
+        name: "Americast Development Company",
+      },
+    } as CommitmentListItem);
+
+    expect(rendered?.props.href).toBe("/25125/commitments/commitment-1");
+  });
+
   it("hides the expand chevron when a commitment has no change orders", () => {
     const toggleExpand = jest.fn();
     const numberColumn = buildCommitmentTableColumns(

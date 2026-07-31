@@ -1,139 +1,19 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database.types";
-import { triggerDocumentPipeline } from "@/lib/documents/pipeline-trigger";
 import {
   isPatternCEntityType,
+  PATTERN_C_ENTITY_CONFIG,
+  type PatternCConfig,
   type PatternCEntityType,
-} from "@/lib/documents/pattern-c-attachment-types";
+} from "@/lib/documents/pattern-c-entity-types";
 
 export {
   isPatternCEntityType,
+  PATTERN_C_ENTITY_CONFIG,
+  type PatternCConfig,
   type PatternCEntityType,
-} from "@/lib/documents/pattern-c-attachment-types";
-
-export type PatternCJunctionTable =
-  | "project_documents_v2"
-  | "subcontract_documents"
-  | "purchase_order_documents"
-  | "prime_contract_documents"
-  | "change_order_documents"
-  | "commitment_change_order_documents"
-  | "prime_contract_change_order_documents"
-  | "prime_contract_pco_documents"
-  | "change_event_documents"
-  | "owner_invoice_documents"
-  | "subcontractor_invoice_documents"
-  | "submittal_doc_links"
-  | "rfi_documents"
-  | "company_documents"
-  | "meeting_documents"
-  | "meeting_item_documents";
-
-type PatternCConfig = {
-  table: PatternCJunctionTable;
-  fkColumn: string;
-  storageFolder: string;
-  /**
-   * Junction-row timestamp column. Every original Pattern C table uses
-   * `attached_at`; the meetings junction tables (`meeting_documents`,
-   * `meeting_item_documents`) use the plain `created_at` convention instead
-   * (no `document_type`/`attached_by` columns). Defaults to `attached_at`.
-   */
-  timestampColumn?: "attached_at" | "created_at";
-  /** Junction-row actor column. Defaults to `attached_by`. */
-  actorColumn?: "attached_by" | "created_by";
-  /** Whether the junction table has a `document_type` column. Defaults to true. */
-  supportsDocumentType?: boolean;
-};
-
-export const PATTERN_C_ENTITY_CONFIG: Record<PatternCEntityType, PatternCConfig> = {
-  project: {
-    table: "project_documents_v2",
-    fkColumn: "project_id",
-    storageFolder: "project",
-  },
-  subcontract: {
-    table: "subcontract_documents",
-    fkColumn: "subcontract_id",
-    storageFolder: "subcontract",
-  },
-  purchase_order: {
-    table: "purchase_order_documents",
-    fkColumn: "purchase_order_id",
-    storageFolder: "purchase-order",
-  },
-  prime_contract: {
-    table: "prime_contract_documents",
-    fkColumn: "prime_contract_id",
-    storageFolder: "prime-contract",
-  },
-  change_order: {
-    table: "change_order_documents",
-    fkColumn: "change_order_id",
-    storageFolder: "change-order",
-  },
-  commitment_change_order: {
-    table: "commitment_change_order_documents",
-    fkColumn: "commitment_change_order_id",
-    storageFolder: "commitment-change-order",
-  },
-  prime_contract_change_order: {
-    table: "prime_contract_change_order_documents",
-    fkColumn: "prime_contract_change_order_id",
-    storageFolder: "prime-contract-change-order",
-  },
-  prime_contract_pco: {
-    table: "prime_contract_pco_documents",
-    fkColumn: "pco_id",
-    storageFolder: "prime-contract-pco",
-  },
-  change_event: {
-    table: "change_event_documents",
-    fkColumn: "change_event_id",
-    storageFolder: "change-event",
-  },
-  invoice: {
-    table: "owner_invoice_documents",
-    fkColumn: "owner_invoice_id",
-    storageFolder: "owner-invoice",
-  },
-  subcontractor_invoice: {
-    table: "subcontractor_invoice_documents",
-    fkColumn: "subcontractor_invoice_id",
-    storageFolder: "subcontractor-invoice",
-  },
-  submittal: {
-    table: "submittal_doc_links",
-    fkColumn: "submittal_id",
-    storageFolder: "submittal",
-  },
-  rfi: {
-    table: "rfi_documents",
-    fkColumn: "rfi_id",
-    storageFolder: "rfi",
-  },
-  company: {
-    table: "company_documents",
-    fkColumn: "company_id",
-    storageFolder: "company",
-  },
-  meeting: {
-    table: "meeting_documents",
-    fkColumn: "meeting_id",
-    storageFolder: "meeting",
-    timestampColumn: "created_at",
-    actorColumn: "created_by",
-    supportsDocumentType: false,
-  },
-  meeting_item: {
-    table: "meeting_item_documents",
-    fkColumn: "meeting_item_id",
-    storageFolder: "meeting-item",
-    timestampColumn: "created_at",
-    actorColumn: "created_by",
-    supportsDocumentType: false,
-  },
-};
+  type PatternCJunctionTable,
+} from "@/lib/documents/pattern-c-entity-types";
 
 export type LinkedPatternCDocument = {
   document_metadata_id: string;
@@ -261,6 +141,21 @@ export async function resolvePatternCEntity(
     return { error: `Unsupported entity type: ${entityType}`, status: 400 };
   }
 
+  if (entityType === "crm_deal") {
+    const { data: deal, error } = await supabase
+      .from("crm_deals")
+      .select("id")
+      .eq("id", entityId)
+      .is("archived_at", null)
+      .maybeSingle();
+    if (error) {
+      return { error: "CRM deal access could not be verified.", status: 500 };
+    }
+    if (!deal) {
+      return { error: "CRM deal was not found or is not visible.", status: 404 };
+    }
+  }
+
   return { entityType, entityId };
 }
 
@@ -370,13 +265,17 @@ export async function listLinkedPatternCDocuments({
 /**
  * Creates the document_metadata row + Pattern C junction link for a file that
  * has ALREADY been uploaded to Supabase Storage (direct-to-storage flow), then
- * signs a download URL and triggers the ingestion pipeline.
+ * signs a download URL.
+ *
+ * This module is intentionally safe to import from browser code. The
+ * server-only wrapper in `pattern-c-attachments.server.ts` owns pipeline
+ * enqueueing after this record/link operation succeeds.
  *
  * The signed-URL creation doubles as an existence check: Supabase Storage
  * errors if `storagePath` does not point at a real object, so a client that
  * never actually uploaded cannot create an orphaned metadata row.
  */
-export async function registerUploadedPatternCDocument({
+export async function registerUploadedPatternCDocumentRecord({
   supabase,
   serviceClient,
   storagePath,
@@ -402,6 +301,19 @@ export async function registerUploadedPatternCDocument({
   documentType?: string | null;
 }): Promise<UploadedPatternCDocument> {
   const config = getPatternCConfig(entityType);
+  let attachmentActorId = userId;
+  if (entityType === "crm_deal") {
+    const { data: person, error: personError } = await supabase
+      .from("people")
+      .select("id")
+      .eq("auth_user_id", userId)
+      .eq("status", "active")
+      .maybeSingle();
+    if (personError || !person) {
+      throw new Error("CRM attachment actor could not be resolved.");
+    }
+    attachmentActorId = person.id;
+  }
   const docId = crypto.randomUUID();
   const safeName = sanitizeAttachmentFilename(fileName);
   const contentType = fileType?.trim() || "application/octet-stream";
@@ -453,7 +365,7 @@ export async function registerUploadedPatternCDocument({
   const row: Record<string, unknown> = {
     [config.fkColumn]: entityForeignKeyValue(config.fkColumn, entityId),
     document_metadata_id: docId,
-    [config.actorColumn ?? "attached_by"]: userId,
+    [config.actorColumn ?? "attached_by"]: attachmentActorId,
     [config.timestampColumn ?? "attached_at"]: attachedAt,
   };
   if (documentType && (config.supportsDocumentType ?? true)) {
@@ -470,8 +382,6 @@ export async function registerUploadedPatternCDocument({
     throw new Error(`Failed to link document: ${junctionError.message}`);
   }
 
-  const pipeline = await triggerDocumentPipeline(docId);
-
   return {
     documentMetadataId: docId,
     title: fileName,
@@ -481,8 +391,8 @@ export async function registerUploadedPatternCDocument({
     mimeType: contentType,
     attachedAt,
     signedUrl: signedData.signedUrl,
-    pipelineQueued: pipeline.queued,
-    pipelineMessage: pipeline.message,
+    pipelineQueued: false,
+    pipelineMessage: "Pipeline enqueue pending at the server boundary.",
   };
 }
 
@@ -490,9 +400,9 @@ export async function registerUploadedPatternCDocument({
  * Legacy proxy upload: streams the file through the server function into Storage
  * before linking. Retained for small files / non-browser callers, but the
  * browser path now uses the direct-to-storage signed-URL flow to avoid Vercel's
- * ~4.5MB request body limit. See registerUploadedPatternCDocument.
+ * ~4.5MB request body limit. See registerUploadedPatternCDocumentRecord.
  */
-export async function uploadAndLinkPatternCDocument({
+export async function uploadAndLinkPatternCDocumentRecord({
   supabase,
   serviceClient,
   file,
@@ -532,7 +442,7 @@ export async function uploadAndLinkPatternCDocument({
   }
 
   try {
-    return await registerUploadedPatternCDocument({
+    return await registerUploadedPatternCDocumentRecord({
       supabase,
       serviceClient,
       storagePath,

@@ -41,7 +41,12 @@ from .user_filter_rules import (
 from .onedrive import SUPPORTED_EXTENSIONS, _extract_text
 from .outlook_attribution import find_outlook_project_consensus
 from .project_documents import upsert_project_document_by_source as _upsert_project_document_by_source
-from .project_inference import infer_assignment_target
+from .project_inference import (
+    begin_project_assignment_batch,
+    end_project_assignment_batch,
+    infer_assignment_target,
+    is_assignable_project_id,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -1528,10 +1533,11 @@ def is_canonical_outlook_delta_cursor(delta_token: Optional[str]) -> bool:
     return parse_outlook_delta_cursor(delta_token) is not None
 
 
-def sync_outlook_emails(
+def _sync_outlook_emails_in_batch(
     supabase_client,
     user_email: str,
     project_keywords: list[str],
+    graph,
     delta_token: Optional[str] = None,
     since_date: Optional[str] = None,
 ) -> tuple[int, str]:
@@ -1545,11 +1551,6 @@ def sync_outlook_emails(
         delta_token: Previous delta token (None for initial full sync)
         since_date: ISO date string (e.g. "2024-01-01") — only applied on initial full sync
     """
-    graph = get_graph_client()
-    if not graph.is_configured():
-        logger.warning("[Outlook] Microsoft Graph not configured — skipping")
-        return 0, delta_token or ""
-
     user_id = user_email  # Graph accepts email as user identifier
 
     # Delta query for Inbox/SentItems messages
@@ -1572,9 +1573,21 @@ def sync_outlook_emails(
         "internetMessageHeaders",  # Used for List-Unsubscribe noise detection
     ])
     date_filter = f"&$filter=receivedDateTime ge {since_date}T00:00:00Z" if since_date else ""
+    folder_item_limit = max(
+        1,
+        int(OUTLOOK_SYNC_MAX_MESSAGES_PER_MAILBOX or 25),
+    )
     folders = [
-        ("Inbox", f"/users/{user_id}/mailFolders/Inbox/messages/delta?$select={select_fields}&$top=50{date_filter}"),
-        ("SentItems", f"/users/{user_id}/mailFolders/SentItems/messages/delta?$select={select_fields}&$top=50{date_filter}"),
+        (
+            "Inbox",
+            f"/users/{user_id}/mailFolders/Inbox/messages/delta?"
+            f"$select={select_fields}&$top={folder_item_limit}{date_filter}",
+        ),
+        (
+            "SentItems",
+            f"/users/{user_id}/mailFolders/SentItems/messages/delta?"
+            f"$select={select_fields}&$top={folder_item_limit}{date_filter}",
+        ),
     ]
 
     # Canonical cursors retain an independent position for both folders.
@@ -1593,17 +1606,32 @@ def sync_outlook_emails(
     items = []
     new_inbox_token = inbox_token or ""
     new_sent_token = sent_token or ""
+    folder_errors: list[str] = []
 
     for folder_name, base_path in folders:
         folder_token = inbox_token if folder_name == "Inbox" else sent_token
         try:
-            folder_items, folder_delta = graph.get_delta(base_path, folder_token)
+            folder_batch = graph.get_delta_batch(
+                base_path,
+                folder_token,
+                max_pages=1,
+                max_items=folder_item_limit,
+            )
+            folder_items = folder_batch.items
+            folder_delta = folder_batch.next_cursor
             items.extend(folder_items)
             if folder_name == "Inbox":
                 new_inbox_token = folder_delta
             else:
                 new_sent_token = folder_delta
-            logger.info(f"[Outlook] {folder_name}: fetched {len(folder_items)} items for {user_email}")
+            logger.info(
+                "[Outlook] %s: fetched %d items for %s "
+                "(inventory_complete=%s)",
+                folder_name,
+                len(folder_items),
+                user_email,
+                folder_batch.complete,
+            )
         except Exception as e:
             message = str(e)
             status_code = getattr(getattr(e, "response", None), "status_code", None)
@@ -1615,7 +1643,14 @@ def sync_outlook_emails(
                     user_email,
                 )
                 try:
-                    folder_items, folder_delta = graph.get_delta(base_path, None)
+                    folder_batch = graph.get_delta_batch(
+                        base_path,
+                        None,
+                        max_pages=1,
+                        max_items=folder_item_limit,
+                    )
+                    folder_items = folder_batch.items
+                    folder_delta = folder_batch.next_cursor
                     items.extend(folder_items)
                     if folder_name == "Inbox":
                         new_inbox_token = folder_delta
@@ -1629,6 +1664,9 @@ def sync_outlook_emails(
                     )
                     continue
                 except Exception as retry_error:
+                    folder_errors.append(
+                        f"{folder_name} full delta recovery failed: {retry_error}"
+                    )
                     logger.error(
                         "[Outlook] %s full delta recovery failed for %s: %s",
                         folder_name,
@@ -1636,25 +1674,22 @@ def sync_outlook_emails(
                         retry_error,
                     )
             else:
+                folder_errors.append(f"{folder_name} delta failed: {e}")
                 logger.error(f"[Outlook] {folder_name} delta failed for {user_email}: {e}")
 
-    new_delta_token = f"inbox:{new_inbox_token}|sent:{new_sent_token}" if (new_inbox_token or new_sent_token) else ""
-    max_messages = max(1, int(OUTLOOK_SYNC_MAX_MESSAGES_PER_MAILBOX or 25))
-    if len(items) > max_messages:
-        logger.warning(
-            "[Outlook] Limiting %s mailbox sync to %d/%d delta items. "
-            "Raise OUTLOOK_SYNC_MAX_MESSAGES_PER_MAILBOX for a deliberate backlog drain.",
-            user_email,
-            max_messages,
-            len(items),
+    if folder_errors:
+        raise RuntimeError(
+            "Outlook folder enumeration failed; refusing to persist a partial "
+            f"mailbox cursor for {user_email}: {'; '.join(folder_errors)}"
         )
-        items = items[:max_messages]
+
+    new_delta_token = f"inbox:{new_inbox_token}|sent:{new_sent_token}" if (new_inbox_token or new_sent_token) else ""
 
     # Load user-trained filter rules once per sync run. These are applied as
     # Gate 1.5 between the hand-coded noise filter and the heuristic classifier.
     user_filter_rules = load_active_filter_rules(supabase_client)
-
     synced = 0
+    item_errors: list[str] = []
     for msg in items:
         # Skip deleted items (delta returns removed items with @removed)
         if "@removed" in msg:
@@ -1806,12 +1841,49 @@ def sync_outlook_emails(
                 conversation_id=msg.get("conversationId"),
                 internet_message_id=msg.get("internetMessageId"),
             )
-            if existing_doc and (
-                existing_doc.get("project_id") is not None
-                or existing_doc.get("business_area_id") is not None
+            existing_project_id = (
+                existing_doc.get("project_id") if existing_doc else None
+            )
+            existing_business_area_id = (
+                existing_doc.get("business_area_id") if existing_doc else None
+            )
+            if (
+                existing_project_id is not None
+                and not is_assignable_project_id(
+                    supabase_client,
+                    existing_project_id,
+                )
             ):
-                project_id = existing_doc.get("project_id")
-                business_area_id = existing_doc.get("business_area_id")
+                logger.warning(
+                    "[Outlook] Ignoring existing document assignment for %s "
+                    "because project_id=%s is no longer assignable",
+                    msg_id,
+                    existing_project_id,
+                )
+                existing_project_id = None
+            has_existing_scope = (
+                existing_project_id is not None
+                or existing_business_area_id is not None
+            )
+            if (
+                not has_existing_scope
+                and conversation_consensus is not None
+                and not is_assignable_project_id(
+                    supabase_client,
+                    conversation_consensus.project_id,
+                )
+            ):
+                logger.warning(
+                    "[Outlook] Ignoring conversation consensus for %s because "
+                    "project_id=%s is no longer assignable",
+                    msg_id,
+                    conversation_consensus.project_id,
+                )
+                conversation_consensus = None
+
+            if existing_doc and has_existing_scope:
+                project_id = existing_project_id
+                business_area_id = existing_business_area_id
                 assignment_method = "existing_document"
                 assignment_confidence = 1.0
                 source_metadata["project_assignment"] = {
@@ -1973,6 +2045,7 @@ def sync_outlook_emails(
                         logger.warning("[Outlook] Intake attachment sync failed for %s: %s", msg_id, message)
 
             if should_index_for_rag:
+                rag_store = SupabaseRagStore(supabase_client)
                 storage_path = f"outlook/{user_email}/{msg_id}.txt"
                 needs_storage_upload = not existing_doc or not existing_doc.get("file_path")
                 if needs_storage_upload:
@@ -2004,7 +2077,7 @@ def sync_outlook_emails(
                         "business_area_id": business_area_id,
                         "source_metadata": effective_source_metadata,
                     }).eq("id", doc_id).execute()
-                    SupabaseRagStore(supabase_client).upsert_rag_document_metadata({
+                    rag_store.upsert_rag_document_metadata({
                         "id": doc_id,
                         "app_document_id": doc_id,
                         "title": f"Email: {subject}",
@@ -2021,7 +2094,7 @@ def sync_outlook_emails(
                     })
                     rag_document_upserted = True
                 else:
-                    SupabaseRagStore(supabase_client).upsert_document_metadata({
+                    rag_store.upsert_document_metadata({
                         "id": doc_id,
                         "title": f"Email: {subject}",
                         "source": "microsoft_graph",
@@ -2044,6 +2117,11 @@ def sync_outlook_emails(
                         "source_metadata": source_metadata,
                     })
                     rag_document_upserted = True
+                rag_store.set_document_scope(
+                    doc_id,
+                    project_id=project_id,
+                    business_area_id=business_area_id,
+                )
 
                 if intake_email_id:
                     _outlook_intake_write_client().from_("outlook_email_intake").update(
@@ -2065,14 +2143,26 @@ def sync_outlook_emails(
                     assignment_method=assignment_method,
                     assignment_confidence=assignment_confidence,
                 )
-                if reconciled_project_id and int(reconciled_project_id) != int(project_id or 0):
-                    logger.warning(
-                        "[Outlook] Reconciled project assignment for %s from %s to document_metadata project_id=%s",
-                        msg_id,
-                        project_id,
-                        reconciled_project_id,
+                if reconciled_project_id is not None:
+                    if int(reconciled_project_id) != int(project_id or 0):
+                        logger.warning(
+                            "[Outlook] Reconciled project assignment for %s "
+                            "from %s to document_metadata project_id=%s",
+                            msg_id,
+                            project_id,
+                            reconciled_project_id,
+                        )
+                    project_id = int(reconciled_project_id)
+                    business_area_id = None
+                    # A trigger/manual correction can change the canonical app
+                    # scope during the initial upsert. Mirror that final scope
+                    # back to both databases after reconciliation so retrieval
+                    # cannot remain on the pre-correction project.
+                    rag_store.set_document_scope(
+                        doc_id,
+                        project_id=project_id,
+                        business_area_id=None,
                     )
-                    project_id = reconciled_project_id
 
             if intake_email_id and (attachment_errors or intake_errors):
                 _outlook_intake_write_client().from_("outlook_email_intake").update(
@@ -2131,7 +2221,43 @@ def sync_outlook_emails(
                 )
         except Exception as e:
             logger.warning(f"[Outlook] Failed to insert metadata for {msg_id}: {e}")
+            item_errors.append(f"{msg_id}: {e}")
             continue
+
+    if item_errors:
+        raise RuntimeError(
+            "Outlook materialization failed for "
+            f"{len(item_errors)} message(s) in {user_email}; the delta cursor "
+            f"was not persisted and the batch will replay. First failure: "
+            f"{item_errors[0][:700]}"
+        )
 
     logger.info(f"[Outlook] Synced {synced} emails for {user_email}")
     return synced, new_delta_token
+
+
+def sync_outlook_emails(
+    supabase_client,
+    user_email: str,
+    project_keywords: list[str],
+    delta_token: Optional[str] = None,
+    since_date: Optional[str] = None,
+) -> tuple[int, str]:
+    """Sync one mailbox against one exact, always-released project snapshot."""
+    graph = get_graph_client()
+    if not graph.is_configured():
+        logger.warning("[Outlook] Microsoft Graph not configured — skipping")
+        return 0, delta_token or ""
+
+    begin_project_assignment_batch(supabase_client)
+    try:
+        return _sync_outlook_emails_in_batch(
+            supabase_client,
+            user_email,
+            project_keywords,
+            graph,
+            delta_token,
+            since_date,
+        )
+    finally:
+        end_project_assignment_batch(supabase_client)

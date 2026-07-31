@@ -3,7 +3,7 @@ import { apiErrorResponse } from "@/lib/api-error";
 import {
   listLinkedPatternCDocuments,
   uploadAndLinkPatternCDocument,
-} from "@/lib/documents/pattern-c-attachments";
+} from "@/lib/documents/pattern-c-attachments.server";
 import { withApiGuardrails } from "@/lib/guardrails/api";
 import { GuardrailError } from "@/lib/guardrails/errors";
 import { createClient, getApiRouteUser } from "@/lib/supabase/server";

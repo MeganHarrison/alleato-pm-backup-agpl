@@ -2103,7 +2103,6 @@ function FeedbackTablePane({
             value={filter}
             onValueChange={onFilterChange}
             allVisibleSelected={allVisibleSelected}
-            selectedCount={selectedIds.length}
             onToggleSelectAllVisible={onToggleSelectAllVisible}
           />
         </div>

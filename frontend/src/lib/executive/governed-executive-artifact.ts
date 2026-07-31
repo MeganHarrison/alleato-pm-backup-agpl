@@ -104,7 +104,7 @@ async function persistVersion(input: {
     .eq("snapshot_hash", input.snapshotHash)
     .maybeSingle();
   if (existingError) throw new Error(`Executive artifact version read failed: ${existingError.message}`);
-  if (existing) return existing;
+  if (existing) return existing as PersistedVersion;
 
   const { data, error } = await db
     .from("executive_artifact_versions")
@@ -120,7 +120,7 @@ async function persistVersion(input: {
     })
     .select("id,issued_at,integrity_status,source_assessment,state_snapshot,attention_snapshot,conflict_snapshot")
     .single();
-  if (!error && data) return data;
+  if (!error && data) return data as PersistedVersion;
   // A concurrent reader may have issued the same immutable packet version.
   const { data: raced, error: racedError } = await db
     .from("executive_artifact_versions")
@@ -130,7 +130,7 @@ async function persistVersion(input: {
     .eq("snapshot_hash", input.snapshotHash)
     .single();
   if (racedError || !raced) throw new Error(`Executive artifact version issue failed: ${error?.message ?? racedError?.message ?? "unknown failure"}`);
-  return raced;
+  return raced as PersistedVersion;
 }
 
 function record(value: Json): Record<string, unknown> {

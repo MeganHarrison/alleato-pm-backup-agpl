@@ -26,7 +26,6 @@ import { useDeferredMount } from "@/hooks/use-deferred-mount";
 import { shouldHideGlobalAiWidgetForRoute } from "@/lib/performance/runtime-gates";
 import { cn } from "@/lib/utils";
 import { PopoverLayerProvider } from "@/components/ui/popover";
-import { MkhLogo } from "@/components/brand/mkh-logo";
 import { WidgetAiChat, type WidgetAiChatView } from "./widget-ai-chat";
 
 const AI_WIDGET_WELCOME_STORAGE_KEY = "alleato-ai-widget-welcome-seen-v1";
@@ -277,7 +276,7 @@ export function GlobalAiWidget() {
           ref={panelRef}
           role="dialog"
           aria-modal="false"
-          aria-label="MKH AI"
+          aria-label="Alleato AI"
           onKeyDown={handlePanelKeyDown}
           className={cn(
             "global-ai-widget-panel flex flex-col overflow-hidden rounded-xl border border-border bg-background",
@@ -308,14 +307,16 @@ export function GlobalAiWidget() {
 
               <div className="flex min-w-0 items-center gap-2">
                 {view === "chat" && (
-                  <MkhLogo
+                  <img
+                    src="/alleato-favicon.png"
                     alt=""
-                    className="h-6 w-auto shrink-0"
+                    aria-hidden="true"
+                    className="h-6 w-6 shrink-0 rounded-sm"
                   />
                 )}
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold text-foreground">
-                    {view === "history" ? "History" : "MKH AI"}
+                    {view === "history" ? "History" : "Alleato AI"}
                   </p>
                 </div>
               </div>

@@ -30,7 +30,7 @@ const TABLE_ALLOWLIST = [
   "daily_recaps",
   "notes",
   "meeting_segments",
-  "specifications",
+  "specification_sections",
   "drawings",
   "photos",
   "document_metadata",

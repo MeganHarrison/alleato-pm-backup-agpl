@@ -3,6 +3,7 @@
 import * as React from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Building2,
   ChevronsLeft,
@@ -13,7 +14,6 @@ import {
   Sparkles,
 } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
-import { MkhLogo } from "@/components/brand/mkh-logo";
 import { Button } from "@/components/ui/button";
 import { useSidebar } from "@/components/ui/sidebar";
 import { useProjectPermissions } from "@/hooks/use-project-permissions";
@@ -64,7 +64,10 @@ const userManagementBreadcrumbTitleCache = new Map<string, string>();
 function AiChatButton() {
   const pathname = usePathname()!;
   const isActive =
-    pathname === "/ai" || pathname?.startsWith("/ai/");
+    pathname === "/ai" ||
+    pathname?.startsWith("/ai/") ||
+    pathname === "/ai-assistant" ||
+    pathname?.startsWith("/ai-assistant/");
   return (
     <Link
       href="/ai"
@@ -106,7 +109,9 @@ function SidebarToggleButton() {
 /**
  * Top header — breadcrumbs left, tools + project selector right.
  */
-export function SiteHeader() {
+export function SiteHeader({
+  hideBreadcrumbs = false,
+}: { hideBreadcrumbs?: boolean } = {}) {
   const router = useRouter();
   const pathname = usePathname()!;
   const nav = useHeaderNav();
@@ -228,13 +233,21 @@ export function SiteHeader() {
             className="flex items-center md:hidden"
             aria-label="Home"
           >
-            <MkhLogo alt="MKH" priority className="h-7 w-auto" />
+            <Image
+              src="/Alleato-Group-Logo_Dark.png"
+              alt="Alleato"
+              width={96}
+              height={21}
+              priority
+              className="h-auto w-24 dark:invert"
+              style={{ height: "auto" }}
+            />
           </Link>
 
           {/* Breadcrumbs — only where there's room (lg+). Below lg the project
               selector + tools dropdown already convey location, so hiding the
               trail here keeps the header from crowding into it. */}
-          {breadcrumbs.length > 1 && (
+          {!hideBreadcrumbs && breadcrumbs.length > 1 && (
             <div className="hidden lg:flex items-center gap-1 text-xs min-w-0 overflow-hidden">
               <BreadcrumbTrail
                 items={breadcrumbs}

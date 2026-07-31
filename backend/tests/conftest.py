@@ -133,6 +133,15 @@ with patch.dict(sys.modules, {"src.services.env_loader": MagicMock()}):
         def __init__(self, *args, **kwargs):
             pass
     mock_fireflies_mod.FirefliesIngestionPipeline = _FakeFirefliesIngestionPipeline
+    mock_admin_mod = types.ModuleType("src.api.admin_endpoints")
+
+    def _fake_require_admin_api_key():
+        return None
+
+    from fastapi import APIRouter
+
+    mock_admin_mod.require_admin_api_key = _fake_require_admin_api_key
+    mock_admin_mod.router = APIRouter()
 
     with patch.dict(sys.modules, {
         "src.services.env_loader": MagicMock(),
@@ -141,7 +150,7 @@ with patch.dict(sys.modules, {"src.services.env_loader": MagicMock()}):
         "src.services.ingestion.fireflies_pipeline": mock_fireflies_mod,
         "src.workers": MagicMock(),
         "src.workers.scripts": MagicMock(),
-        "src.api.admin_endpoints": MagicMock(),
+        "src.api.admin_endpoints": mock_admin_mod,
         "src.yokeflow": MagicMock(),
         "src.yokeflow.api": MagicMock(),
         "src.yokeflow.api.router": MagicMock(),

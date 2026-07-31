@@ -9,7 +9,7 @@ import { SectionRuleHeading } from "@/components/layout/spacing";
 import type { ClientProjectIntelligencePacket } from "@/lib/ai/intelligence/types";
 
 type TimelineEvent = { id: string; event_at: string; title: string; summary: string | null; current_status: string };
-type ProjectTask = { id: number; title: string; status: string | null; due_date: string | null; assignee_name: string | null };
+type ProjectTask = { id: string; title: string | null; status: string | null; due_date: string | null; assignee_name: string | null };
 type ReportSuggestion = { id: string; report_type: string; title: string; business_date: string | null; week_start_date: string | null; status: string };
 
 function dateLabel(value: string | null) {

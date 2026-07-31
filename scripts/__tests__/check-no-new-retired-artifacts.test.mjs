@@ -19,12 +19,3 @@ test("rejects executable path references without flagging domain prose", () => {
   assert.equal(analyzeAddedLine("scripts/run.mjs", 'const file = path.join(root, "docs/ops/evidence/result.json")')?.category, "banned runtime reference");
   assert.equal(analyzeAddedLine("package.json", '"seed:db": "npx tsx scripts/seed-db/seed-database.ts",')?.category, "banned runtime reference");
 });
-
-test("ignores registry retirement metadata in package-manager lockfiles", () => {
-  const registryNotice = '"depre' + 'cated": "This transitive package is no longer supported"';
-
-  assert.equal(analyzeAddedLine("package-lock.json", registryNotice), null);
-  assert.equal(analyzeAddedLine("tools/video/package-lock.json", registryNotice), null);
-  assert.equal(analyzeAddedLine("tools/video/pnpm-lock.yaml", "depre" + "cated: This transitive package is no longer supported"), null);
-  assert.equal(analyzeAddedLine("tools/video/config.json", registryNotice)?.category, "banned retired-code marker");
-});

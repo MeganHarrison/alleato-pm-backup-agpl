@@ -6,8 +6,19 @@ FRONTEND_DIR="$REPO_ROOT/frontend"
 # Keep the managed dev server aligned with Playwright, auth.setup.ts, and
 # scripts/agent-browser/agent-browser-verify.mjs, whose canonical default is 3000.
 PORT="${PORT:-3000}"
-PID_FILE="/tmp/project-management-next-dev-${PORT}.pid"
-DEV_HEAP_MB="${DEV_HEAP_MB:-12288}"
+# A checkout gets one shared Next server by default. Per-port PID files used to
+# make a second `npm run dev` look independent, which silently started another
+# full compiler/cache process on 3001, 3002, and so on. Set
+# ALLEATO_ALLOW_PARALLEL_FRONTEND_DEV=1 only for a deliberate isolated server.
+ALLOW_PARALLEL_FRONTEND_DEV="${ALLEATO_ALLOW_PARALLEL_FRONTEND_DEV:-0}"
+PID_FILE="/tmp/project-management-next-dev.pid"
+if [[ "$ALLOW_PARALLEL_FRONTEND_DEV" == "1" ]]; then
+  PID_FILE="/tmp/project-management-next-dev-${PORT}.pid"
+fi
+# 12 GB let one compiler crowd out the OS and every other app. Four GB is the
+# safe shared-machine default; an unusually large local investigation can opt
+# in with DEV_HEAP_MB=<value> and will be visible in its launch command.
+DEV_HEAP_MB="${DEV_HEAP_MB:-4096}"
 NEXT_DEV_ENGINE="${NEXT_DEV_ENGINE:-webpack}"
 NEXT_DIST_DIR="${NEXT_DIST_DIR:-.next-dev-${PORT}}"
 NEXT_TSCONFIG_PATH="${NEXT_TSCONFIG_PATH:-.tsconfig-dev-${PORT}.json}"
@@ -53,8 +64,106 @@ is_alleato_next_pid() {
 }
 
 is_server_healthy() {
-  curl -s -o /dev/null -w "%{http_code}" --max-time 3 "http://localhost:${PORT}" 2>/dev/null | grep -qE "^[23]"
+  local port="$1"
+  curl -s -o /dev/null -w "%{http_code}" --max-time 3 "http://localhost:${port}" 2>/dev/null | grep -qE "^[23]"
 }
+
+next_port_for_pid() {
+  local pid="$1"
+  local cmd
+  cmd="$(ps -p "$pid" -o command= 2>/dev/null || true)"
+  if [[ "$cmd" =~ --port[[:space:]]+([0-9]+) ]]; then
+    printf '%s\n' "${BASH_REMATCH[1]}"
+  elif [[ "$cmd" =~ [[:space:]]-p[[:space:]]+([0-9]+) ]]; then
+    printf '%s\n' "${BASH_REMATCH[1]}"
+  else
+    printf '3000\n'
+  fi
+}
+
+find_repo_next_pids() {
+  pgrep -f "${FRONTEND_DIR}.*next dev" 2>/dev/null || true
+}
+
+stop_next_pid() {
+  local pid="$1"
+  kill "$pid" 2>/dev/null || true
+  for _ in {1..20}; do
+    if ! ps -p "$pid" >/dev/null 2>&1; then
+      return 0
+    fi
+    sleep 0.25
+  done
+  # A Next parent can remain parked after its worker has died, retaining the
+  # compiler heap without a listener. Escalate only after the process was
+  # proven to be this checkout's unresponsive `next dev` parent.
+  kill -KILL "$pid" 2>/dev/null || true
+  for _ in {1..8}; do
+    if ! ps -p "$pid" >/dev/null 2>&1; then
+      return 0
+    fi
+    sleep 0.25
+  done
+  return 1
+}
+
+show_status() {
+  local found=0
+  local pid
+  while IFS= read -r pid; do
+    [[ -z "$pid" ]] && continue
+    local port
+    port="$(next_port_for_pid "$pid")"
+    local state="stale"
+    if is_server_healthy "$port"; then state="healthy"; fi
+    printf '[frontend-dev] %s server: PID %s at http://localhost:%s\n' "$state" "$pid" "$port"
+    found=1
+  done < <(find_repo_next_pids)
+  if [[ "$found" == "0" ]]; then
+    echo "[frontend-dev] No Next dev server is running for this checkout."
+  fi
+}
+
+if [[ "${1:-}" == "--status" ]]; then
+  show_status
+  exit 0
+fi
+
+if [[ "${1:-}" == "--stop" ]]; then
+  stopped=0
+  while IFS= read -r pid; do
+    [[ -z "$pid" ]] && continue
+    port="$(next_port_for_pid "$pid")"
+    echo "[frontend-dev] Stopping repo-local server PID $pid on port $port."
+    stop_next_pid "$pid" || {
+      echo "[frontend-dev] Timed out stopping PID $pid." >&2
+      exit 1
+    }
+    stopped=1
+  done < <(find_repo_next_pids)
+  rm -f /tmp/project-management-next-dev*.pid
+  [[ "$stopped" == "1" ]] || echo "[frontend-dev] No repo-local server was running."
+  exit 0
+fi
+
+if [[ "${1:-}" == "--prune" ]]; then
+  pruned=0
+  while IFS= read -r pid; do
+    [[ -z "$pid" ]] && continue
+    port="$(next_port_for_pid "$pid")"
+    if ! is_server_healthy "$port"; then
+      echo "[frontend-dev] Removing unresponsive repo-local server PID $pid on port $port."
+      stop_next_pid "$pid" || {
+        echo "[frontend-dev] Timed out stopping PID $pid." >&2
+        exit 1
+      }
+      rm -f "/tmp/project-management-next-dev-${port}.pid"
+      pruned=1
+    fi
+  done < <(find_repo_next_pids)
+  [[ "$pruned" == "1" ]] || echo "[frontend-dev] No unresponsive repo-local servers found."
+  exit 0
+fi
 
 assert_local_node_modules
 
@@ -62,42 +171,49 @@ assert_local_node_modules
 if [[ -f "$PID_FILE" ]]; then
   managed_pid="$(cat "$PID_FILE" 2>/dev/null || true)"
   if [[ -n "${managed_pid:-}" ]] && is_alleato_next_pid "$managed_pid"; then
-    if is_server_healthy; then
-      echo "[frontend-dev] Server already running (PID $managed_pid) and healthy at http://localhost:${PORT} — following existing process."
-      while kill -0 "$managed_pid" 2>/dev/null; do sleep 1; done
+    managed_port="$(next_port_for_pid "$managed_pid")"
+    if is_server_healthy "$managed_port"; then
+      echo "[frontend-dev] Shared server already running (PID $managed_pid) at http://localhost:${managed_port}; not starting another compiler."
       exit 0
     fi
     echo "[frontend-dev] Server PID $managed_pid is not responding — restarting."
-    kill "$managed_pid" 2>/dev/null || true
-    for _ in {1..20}; do
-      if ! ps -p "$managed_pid" >/dev/null 2>&1; then break; fi
-      sleep 0.25
-    done
+    stop_next_pid "$managed_pid" || true
   fi
   rm -f "$PID_FILE"
 fi
 
-# Kill any existing repo-local Next dev processes on our port.
-alleato_pids="$(pgrep -f "${FRONTEND_DIR}.*next dev.*--port ${PORT}" 2>/dev/null || true)"
+# Refuse a second compiler for this checkout, even when a caller supplied a
+# different PORT. Deliberate parallel work must opt in so it is visible in the
+# command that creates the extra memory cost.
+if [[ "$ALLOW_PARALLEL_FRONTEND_DEV" != "1" ]]; then
+  alleato_pids="$(find_repo_next_pids)"
+else
+  alleato_pids="$(pgrep -f "${FRONTEND_DIR}.*next dev.*--port ${PORT}" 2>/dev/null || true)"
+fi
 if [[ -n "${alleato_pids:-}" ]]; then
-  if is_server_healthy; then
-    echo "[frontend-dev] Found healthy repo-local server — adopting."
-    first_pid="$(echo "$alleato_pids" | head -1)"
-    echo "$first_pid" > "$PID_FILE"
-    while kill -0 "$first_pid" 2>/dev/null; do sleep 1; done
+  healthy_pid=""
+  healthy_port=""
+  while IFS= read -r pid; do
+    [[ -z "$pid" ]] && continue
+    candidate_port="$(next_port_for_pid "$pid")"
+    if is_server_healthy "$candidate_port"; then
+      healthy_pid="$pid"
+      healthy_port="$candidate_port"
+      break
+    fi
+  done <<< "$alleato_pids"
+  if [[ -n "$healthy_pid" ]]; then
+    echo "$healthy_pid" > "$PID_FILE"
+    echo "[frontend-dev] Shared server already running (PID $healthy_pid) at http://localhost:${healthy_port}; not starting another compiler."
+    echo "[frontend-dev] Use that URL, or set ALLEATO_ALLOW_PARALLEL_FRONTEND_DEV=1 for a deliberate isolated server."
     exit 0
   fi
-  echo "[frontend-dev] Found stale repo-local Next dev processes — killing:"
+  echo "[frontend-dev] Found stale repo-local Next dev processes — stopping:"
   while IFS= read -r pid; do
     [[ -z "$pid" ]] && continue
     ps -p "$pid" -o pid=,command= 2>/dev/null || true
-    kill "$pid" 2>/dev/null || true
+    stop_next_pid "$pid" || true
   done <<< "$alleato_pids"
-  for _ in {1..20}; do
-    remaining="$(pgrep -f "${FRONTEND_DIR}.*next dev.*--port ${PORT}" 2>/dev/null || true)"
-    [[ -z "${remaining:-}" ]] && break
-    sleep 0.25
-  done
 fi
 
 cd "$FRONTEND_DIR"

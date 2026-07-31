@@ -33,7 +33,7 @@ interface EstimateFormValues {
   estimate_number?: string | null;
   revision?: number;
   status?: "draft" | "pending_review" | "approved" | "rejected";
-  estimate_type?: "asrs" | "design_build" | null;
+  estimate_type?: "design_build" | null;
   estimate_date?: string | null;
   location?: string | null;
   estimator?: string | null;

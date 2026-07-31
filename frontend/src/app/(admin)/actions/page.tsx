@@ -100,9 +100,17 @@ export default async function AdminActionsPage({
           This page is the operational control surface for manual runs. Keep owner-facing pages
           focused on results, and keep triggers here.
         </p>
-        <Button asChild variant="outline" size="sm">
-          <Link href="/daily-briefs">Open Daily Briefs</Link>
-        </Button>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/daily-briefs"
+            className="text-sm font-medium text-muted-foreground hover:text-foreground"
+          >
+            Open Daily Briefs
+          </Link>
+          <Button asChild variant="outline" size="sm">
+            <Link href="/actions/workflows">Build workflow</Link>
+          </Button>
+        </div>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">

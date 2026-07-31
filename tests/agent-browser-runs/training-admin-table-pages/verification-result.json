@@ -1,0 +1,32 @@
+{
+  "status": "PASS",
+  "taskId": "training-admin-table-pages",
+  "evidence": {
+    "actionLog": ["tests/agent-browser-runs/training-admin-table-pages/action-log.md"],
+    "databaseReadback": ["tests/agent-browser-runs/training-admin-table-pages/database-readback.md"],
+    "negativePath": ["tests/agent-browser-runs/training-admin-table-pages/negative-path.md"],
+    "visualReview": ["tests/agent-browser-runs/training-admin-table-pages/admin-access-guard.png"],
+    "regressionTest": ["tests/agent-browser-runs/training-admin-table-pages/regression-test.md"]
+  },
+  "claims": {
+    "live-table-coverage": {
+      "databaseReadback": ["tests/agent-browser-runs/training-admin-table-pages/database-readback.md"]
+    },
+    "owner-access": {
+      "negativePath": ["tests/agent-browser-runs/training-admin-table-pages/negative-path.md"],
+      "visualReview": ["tests/agent-browser-runs/training-admin-table-pages/admin-access-guard.png"]
+    },
+    "mutation-safety": {
+      "regressionTest": ["tests/agent-browser-runs/training-admin-table-pages/regression-test.md"]
+    },
+    "implementation-review": {
+      "actionLog": ["tests/agent-browser-runs/training-admin-table-pages/action-log.md"]
+    }
+  },
+  "independentReview": {
+    "reviewer": "review_training_tables",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-28T00:32:32Z",
+    "artifact": "tests/agent-browser-runs/training-admin-table-pages/independent-review.md"
+  }
+}

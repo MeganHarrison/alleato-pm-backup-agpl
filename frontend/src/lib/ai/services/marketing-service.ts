@@ -699,6 +699,6 @@ export async function createWeeklyMarketingContentWorkflow(params: {
     intelligenceItems,
     calendarItems,
     assets,
-    reviewHref: "/ai/marketing",
+    reviewHref: "/ai-assistant/marketing",
   };
 }

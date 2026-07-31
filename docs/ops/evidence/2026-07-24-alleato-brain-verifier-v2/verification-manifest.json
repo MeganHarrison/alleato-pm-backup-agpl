@@ -1,0 +1,35 @@
+{
+  "contractVersion": 1,
+  "riskLevel": "high",
+  "taskId": "ALL-11-VERIFIER-V2",
+  "feature": "Alleato Brain cross-database transition verifier",
+  "route": "database://pm-app+ai-database/alleato-brain",
+  "flows": [
+    {
+      "name": "Verify Business Area transition state",
+      "steps": ["Run transition fixtures", "Run live PM APP and AI Database verifier", "Run live repair-guard negative test", "Generate count-guarded rollback SQL"],
+      "expectedOutcome": "Mapped, Business-Area-only, authorization, ACL, ledger, and chunk integrity contracts pass; count mismatches fail and roll back."
+    }
+  ],
+  "requiredEvidence": ["regressionTest", "databaseReadback", "negativePath", "snapshots", "summary"],
+  "independentReview": { "required": true },
+  "claims": [
+    {
+      "id": "cross-database-parity",
+      "description": "Shared and Business-Area-only scope is exact across PM APP, RAG documents, and chunks.",
+      "evidence": [
+        { "key": "regressionTest", "min": 1 },
+        { "key": "databaseReadback", "min": 1 }
+      ]
+    },
+    {
+      "id": "repair-fails-closed",
+      "description": "Partial repairs abort with named counts and have a count-guarded scope rollback.",
+      "evidence": [
+        { "key": "negativePath", "min": 1 },
+        { "key": "snapshots", "min": 1 },
+        { "key": "summary", "min": 1 }
+      ]
+    }
+  ]
+}

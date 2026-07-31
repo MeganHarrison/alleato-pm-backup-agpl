@@ -8,12 +8,14 @@ import { cn } from "@/lib/utils";
 export function WorkspacePageIntro({
   eyebrow,
   title,
+  compact = false,
   statusLabel,
   actions,
   children,
 }: {
-  eyebrow: string;
+  eyebrow?: string;
   title: string;
+  compact?: boolean;
   statusLabel?: string;
   actions?: ReactNode;
   children?: ReactNode;
@@ -21,10 +23,17 @@ export function WorkspacePageIntro({
   return (
     <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
       <div>
-        <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-primary">
-          {eyebrow}
-        </p>
-        <h1 className="max-w-3xl text-3xl font-semibold tracking-tight text-foreground sm:text-5xl">
+        {eyebrow ? (
+          <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-primary">
+            {eyebrow}
+          </p>
+        ) : null}
+        <h1
+          className={cn(
+            "max-w-3xl font-semibold tracking-tight text-foreground",
+            compact ? "text-2xl sm:text-3xl" : "text-3xl sm:text-5xl",
+          )}
+        >
           {title}
         </h1>
         {children ? (

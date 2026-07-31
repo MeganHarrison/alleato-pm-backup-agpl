@@ -19,6 +19,35 @@ test("normalizes the RAG Supabase direct host to its regional pooler", async () 
   assert.equal(url.searchParams.has("sslmode"), false);
 });
 
+test("database inventory reuses the shared Supabase pooler contract", async () => {
+  const source = await fs.readFile(
+    new URL("../../dev-tools/generate-db-inventory.mjs", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(
+    source,
+    /import \{ buildAppDatabaseConnectionString \} from "\.\.\/verify\/app-db-connection\.mjs"/,
+  );
+  assert.match(
+    source,
+    /buildAppDatabaseConnectionString\(\s*databaseUrl,\s*\{[\s\S]*includeSslMode:\s*false/,
+  );
+});
+
+test("database inventory batches Management API reads and rejects incomplete snapshots", async () => {
+  const source = await fs.readFile(
+    new URL("../../dev-tools/generate-db-inventory.mjs", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(source, /async function loadManagementSnapshot\(db, entries\)/);
+  assert.match(source, /db\.query\(ALL_STATS_QUERY\)/);
+  assert.match(source, /db\.query\(allCountsQuery\(tableNames\)\)/);
+  assert.match(source, /db\.query\(ALL_COLUMNS_QUERY\)/);
+  assert.match(source, /Management API snapshot is incomplete/);
+});
+
 test("all Daily Brief consumer RAG boundaries use the shared pooler contract", async () => {
   const source = await fs.readFile(
     new URL("../../../project-intelligence/projections/daily-deep-read-consumers.mjs", import.meta.url),

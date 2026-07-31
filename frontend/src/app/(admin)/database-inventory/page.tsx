@@ -1,8 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { RefreshCw } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -11,69 +11,36 @@ import {
   useUnifiedTableState,
   type FilterValue,
 } from "@/components/tables/unified";
-
-import {
-  DB_INVENTORY,
-  type DbInventoryTable,
-} from "@/components/dev-tools/db-inventory.generated";
 import {
   buildDbInventoryTableColumns,
   dbInventoryDefaultVisibleColumns,
   dbInventoryFilters,
 } from "@/features/database-inventory/db-inventory-table-config";
-import { DbInventoryDetailPanel } from "@/features/database-inventory/db-inventory-detail-panel";
+import type { SchemaExplorerInventory } from "@/features/database-inventory/schema-explorer.types";
 import { apiFetch } from "@/lib/api-client";
 
 const EMPTY_FILTERS: Record<string, FilterValue> = {
-  db: undefined,
-  domain: undefined,
-  status: undefined,
-  owner: undefined,
-  hasGotchas: undefined,
+  database: undefined,
+  ownership: undefined,
+  review: undefined,
 };
-
-// ─── Refresh response type ────────────────────────────────────────────────────
-
-interface RefreshUpdate {
-  name: string;
-  db: "MAIN" | "RAG";
-  approxRows: number;
-  totalSize: string;
-  lastAutoanalyze: string | null;
-}
-
-// ─── Page ─────────────────────────────────────────────────────────────────────
+const INVENTORY_ENDPOINT = "/api/admin/db-inventory/refresh";
+const DESCRIPTION_ENDPOINT = "/api/admin/db-inventory/descriptions";
+const STEWARDSHIP_ENDPOINT = "/api/admin/db-inventory/stewardship";
+const REVIEW_STALE_AFTER_DAYS = 90;
 
 export default function DatabaseInventoryPage() {
   const pathname = usePathname()!;
   const router = useRouter();
   const searchParams = useSearchParams();
-
-  // ─── Overlay row counts from the live refresh API (merges with static data) ──
-  const [liveOverrides, setLiveOverrides] = React.useState<Map<string, RefreshUpdate>>(new Map());
+  const [inventory, setInventory] =
+    React.useState<SchemaExplorerInventory | null>(null);
+  const [loadError, setLoadError] = React.useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = React.useState(false);
-  const [selectedTable, setSelectedTable] = React.useState<DbInventoryTable | null>(null);
+  const [editingMetadataKey, setEditingMetadataKey] = React.useState<
+    string | null
+  >(null);
 
-  // Merge static inventory with any live overrides
-  const tables = React.useMemo<DbInventoryTable[]>(() => {
-    if (liveOverrides.size === 0) return DB_INVENTORY.tables;
-    return DB_INVENTORY.tables.map((t) => {
-      const override = liveOverrides.get(t.name);
-      if (!override) return t;
-      return {
-        ...t,
-        liveStats: {
-          ...t.liveStats,
-          approxRows: override.approxRows,
-          totalSize: override.totalSize,
-          lastAutoanalyze: override.lastAutoanalyze,
-          refreshedAt: new Date().toISOString(),
-        },
-      };
-    });
-  }, [liveOverrides]);
-
-  // ─── Table state ──────────────────────────────────────────────────────────────
   const tableState = useUnifiedTableState({
     entityKey: "db-inventory",
     searchParams,
@@ -85,124 +52,285 @@ export default function DatabaseInventoryPage() {
       page: 1,
       perPage: 50,
       search: "",
-      sortBy: "approxRows",
-      sortDirection: "desc",
+      sortBy: "name",
+      sortDirection: "asc",
       visibleColumns: dbInventoryDefaultVisibleColumns,
       filters: EMPTY_FILTERS,
     },
   });
 
-  // ─── Active filters from URL ──────────────────────────────────────────────────
-  const activeFilters = React.useMemo<Record<string, FilterValue>>(
-    () => ({
-      db: searchParams?.get("db") || undefined,
-      domain: searchParams?.get("domain") || undefined,
-      status: searchParams?.get("status") || undefined,
-      owner: searchParams?.get("owner") || undefined,
-      hasGotchas: searchParams?.get("hasGotchas") === "true" ? true : undefined,
-    }),
-    [searchParams],
-  );
-
-  const hasActiveFilters =
-    Object.values(activeFilters).some(Boolean) || Boolean(tableState.debouncedSearch);
-
-  // ─── Client-side filter + search ─────────────────────────────────────────────
-  const filteredTables = React.useMemo(() => {
-    const search = tableState.debouncedSearch?.toLowerCase() ?? "";
-    return tables.filter((t) => {
-      if (activeFilters.db && t.db !== activeFilters.db) return false;
-      if (activeFilters.domain && t.domain !== activeFilters.domain) return false;
-      if (activeFilters.status && t.status !== activeFilters.status) return false;
-      if (activeFilters.owner && t.owner !== activeFilters.owner) return false;
-      if (activeFilters.hasGotchas === true && !t.gotchas) return false;
-      if (search) {
-        const matches =
-          t.name.toLowerCase().includes(search) ||
-          t.purpose.toLowerCase().includes(search) ||
-          (t.gotchas?.toLowerCase().includes(search) ?? false) ||
-          t.domain.toLowerCase().includes(search) ||
-          t.owner.toLowerCase().includes(search);
-        if (!matches) return false;
-      }
-      return true;
-    });
-  }, [tables, activeFilters, tableState.debouncedSearch]);
-
-  // ─── Filter change handler ────────────────────────────────────────────────────
-  const handleFilterChange = React.useCallback(
-    (updates: Record<string, FilterValue>) => {
-      const merged = { ...activeFilters, ...updates };
-      const params: Record<string, string> = {};
-      if (merged.db) params.db = String(merged.db);
-      if (merged.domain) params.domain = String(merged.domain);
-      if (merged.status) params.status = String(merged.status);
-      if (merged.owner) params.owner = String(merged.owner);
-      if (merged.hasGotchas) params.hasGotchas = "true";
-      tableState.setSearchParams(params);
-    },
-    [activeFilters, tableState],
-  );
-
-  // ─── Refresh row counts ───────────────────────────────────────────────────────
-  const handleRefresh = React.useCallback(async () => {
+  const refresh = React.useCallback(async (notify = false) => {
     setIsRefreshing(true);
+    setLoadError(null);
     try {
-      const data = await apiFetch<{ refreshedAt: string; updates: RefreshUpdate[] }>(
-        "/api/admin/db-inventory/refresh",
-        { method: "POST" },
+      const nextInventory = await apiFetch<SchemaExplorerInventory>(
+        INVENTORY_ENDPOINT,
+        { method: "GET" },
       );
-      const map = new Map<string, RefreshUpdate>();
-      for (const update of data.updates) {
-        map.set(update.name, update);
-      }
-      setLiveOverrides(map);
-      toast.success(`Refreshed ${data.updates.length} table counts`);
-    } catch {
-      toast.error("Failed to refresh row counts");
+      setInventory(nextInventory);
+      if (notify)
+        toast.success(
+          `Loaded ${nextInventory.tables.length} live schema tables`,
+        );
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Unable to load live schema metadata.";
+      setLoadError(message);
+      if (notify) toast.error(message);
     } finally {
       setIsRefreshing(false);
     }
   }, []);
 
-  // ─── Table columns ────────────────────────────────────────────────────────────
-  const tableColumns = React.useMemo(
-    () => buildDbInventoryTableColumns((t) => setSelectedTable(t)),
+  React.useEffect(() => {
+    void refresh();
+  }, [refresh]);
+
+  const activeFilters = React.useMemo<Record<string, FilterValue>>(
+    () => ({
+      database: searchParams?.get("database") || undefined,
+      ownership: searchParams?.get("ownership") || undefined,
+      review: searchParams?.get("review") || undefined,
+    }),
+    [searchParams],
+  );
+  const tables = inventory?.tables ?? [];
+  const filteredTables = React.useMemo(() => {
+    const search = tableState.debouncedSearch?.toLowerCase() ?? "";
+    return tables.filter((table) => {
+      if (activeFilters.database && table.database !== activeFilters.database)
+        return false;
+      if (activeFilters.ownership === "assigned" && !table.ownerName)
+        return false;
+      if (activeFilters.ownership === "unassigned" && table.ownerName)
+        return false;
+      const reviewedAt = table.lastReviewedAt
+        ? new Date(table.lastReviewedAt).getTime()
+        : null;
+      const isReviewCurrent =
+        reviewedAt !== null &&
+        Number.isFinite(reviewedAt) &&
+        reviewedAt >=
+          Date.now() - REVIEW_STALE_AFTER_DAYS * 24 * 60 * 60 * 1000;
+      if (activeFilters.review === "current" && !isReviewCurrent) return false;
+      if (activeFilters.review === "needs-review" && isReviewCurrent)
+        return false;
+      return (
+        !search ||
+        [
+          table.name,
+          table.description,
+          table.ownerName,
+          table.purpose,
+          table.primaryKeyColumns.join(" "),
+          ...table.foreignKeys.flatMap((foreignKey) => [
+            foreignKey.name,
+            foreignKey.referencedTable,
+            ...foreignKey.columns,
+          ]),
+        ]
+          .join(" ")
+          .toLowerCase()
+          .includes(search)
+      );
+    });
+  }, [
+    activeFilters.database,
+    activeFilters.ownership,
+    activeFilters.review,
+    tableState.debouncedSearch,
+    tables,
+  ]);
+  const hasActiveFilters = Boolean(
+    activeFilters.database ||
+    activeFilters.ownership ||
+    activeFilters.review ||
+    tableState.debouncedSearch,
+  );
+
+  const handleFilterChange = React.useCallback(
+    (updates: Record<string, FilterValue>) => {
+      const nextFilters = { ...activeFilters, ...updates };
+      tableState.setSearchParams(
+        Object.fromEntries(
+          Object.entries(nextFilters)
+            .filter(([, value]) => Boolean(value))
+            .map(([key, value]) => [key, String(value)]),
+        ),
+      );
+    },
+    [activeFilters, tableState],
+  );
+
+  const handleDescriptionSave = React.useCallback(
+    async (
+      table: SchemaExplorerInventory["tables"][number],
+      description: string,
+    ) => {
+      try {
+        const result = await apiFetch<{ description: string }>(
+          DESCRIPTION_ENDPOINT,
+          {
+            method: "PUT",
+            body: JSON.stringify({
+              database: table.database,
+              tableName: table.name,
+              description,
+            }),
+          },
+        );
+        setInventory((current) =>
+          current
+            ? {
+                ...current,
+                tables: current.tables.map((item) =>
+                  item.database === table.database && item.name === table.name
+                    ? { ...item, description: result.description }
+                    : item,
+                ),
+              }
+            : current,
+        );
+        return result.description;
+      } catch (error) {
+        const message =
+          error instanceof Error
+            ? error.message
+            : "The description could not be saved. Refresh and try again.";
+        toast.error(message);
+        throw error;
+      }
+    },
     [],
   );
 
-  // ─── Navigate to related table ────────────────────────────────────────────────
-  const handleNavigateToTable = React.useCallback((name: string) => {
-    const found = tables.find((t) => t.name === name);
-    if (found) setSelectedTable(found);
-  }, [tables]);
+  const updateStewardship = React.useCallback(
+    (
+      table: SchemaExplorerInventory["tables"][number],
+      stewardship: Pick<
+        SchemaExplorerInventory["tables"][number],
+        "ownerName" | "lastReviewedAt"
+      >,
+    ) => {
+      setInventory((current) =>
+        current
+          ? {
+              ...current,
+              tables: current.tables.map((item) =>
+                item.database === table.database && item.name === table.name
+                  ? { ...item, ...stewardship }
+                  : item,
+              ),
+            }
+          : current,
+      );
+    },
+    [],
+  );
 
-  // ─── Subtitle ─────────────────────────────────────────────────────────────────
-  const subtitle = React.useMemo(() => {
-    const total = tables.length;
-    const main = tables.filter((t) => t.db === "MAIN").length;
-    const rag = tables.filter((t) => t.db === "RAG").length;
-    const gen = DB_INVENTORY.generatedAt.startsWith("(stub")
-      ? "not yet generated — run npm run db:inventory"
-      : `generated ${new Date(DB_INVENTORY.generatedAt).toLocaleDateString()}`;
-    return `${total} tables (${main} MAIN · ${rag} RAG) · ${gen}`;
-  }, [tables]);
+  const handleOwnerSave = React.useCallback(
+    async (
+      table: SchemaExplorerInventory["tables"][number],
+      ownerName: string,
+    ) => {
+      try {
+        const stewardship = await apiFetch<{
+          ownerName: string | null;
+          lastReviewedAt: string;
+        }>(STEWARDSHIP_ENDPOINT, {
+          method: "PUT",
+          body: JSON.stringify({
+            database: table.database,
+            tableName: table.name,
+            ownerName,
+          }),
+        });
+        updateStewardship(table, stewardship);
+      } catch (error) {
+        const message =
+          error instanceof Error
+            ? error.message
+            : "The owner could not be saved. Refresh and try again.";
+        toast.error(message);
+        throw error;
+      }
+    },
+    [updateStewardship],
+  );
+
+  const handleReview = React.useCallback(
+    async (table: SchemaExplorerInventory["tables"][number]) => {
+      try {
+        const stewardship = await apiFetch<{
+          ownerName: string | null;
+          lastReviewedAt: string;
+        }>(STEWARDSHIP_ENDPOINT, {
+          method: "POST",
+          body: JSON.stringify({
+            database: table.database,
+            tableName: table.name,
+          }),
+        });
+        updateStewardship(table, stewardship);
+      } catch (error) {
+        const message =
+          error instanceof Error
+            ? error.message
+            : "The review date could not be saved. Refresh and try again.";
+        toast.error(message);
+        throw error;
+      }
+    },
+    [updateStewardship],
+  );
+
+  const tableColumns = React.useMemo(
+    () =>
+      buildDbInventoryTableColumns({
+        onDescriptionSave: handleDescriptionSave,
+        onDescriptionEditingChange: (table, isEditing) => {
+          setEditingMetadataKey(
+            isEditing ? `${table.database}:${table.name}` : null,
+          );
+        },
+        onOwnerSave: handleOwnerSave,
+        onOwnerEditingChange: (table, isEditing) => {
+          setEditingMetadataKey(
+            isEditing ? `${table.database}:${table.name}` : null,
+          );
+        },
+        onReview: handleReview,
+      }),
+    [handleDescriptionSave, handleOwnerSave, handleReview],
+  );
+  const sourceWarning = inventory?.sources.find((source) => !source.available);
+  const subtitle = inventory
+    ? `Last updated: ${new Date(inventory.generatedAt).toLocaleDateString()}`
+    : "Loading live public-schema metadata";
 
   return (
     <>
       <UnifiedTablePage
         header={{
           title: "Database Inventory",
-          description: subtitle,
+          description: sourceWarning
+            ? `${subtitle}. ${sourceWarning.database} is unavailable: ${sourceWarning.message}`
+            : subtitle,
           actions: (
             <Button
               size="sm"
               variant="outline"
-              onClick={() => { void handleRefresh(); }}
+              onClick={() => {
+                void refresh(true);
+              }}
               disabled={isRefreshing}
             >
-              <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`} />
-              Refresh Counts
+              <RefreshCw
+                className={`mr-2 h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
+              />
+              Refresh schema
             </Button>
           ),
         }}
@@ -211,7 +339,7 @@ export default function DatabaseInventoryPage() {
           filteredItems: filteredTables.length,
           searchValue: tableState.searchInput,
           onSearchChange: tableState.setSearchInput,
-          searchPlaceholder: "Search tables, purpose, gotchas...",
+          searchPlaceholder: "Search tables, descriptions, owners, keys...",
           currentView: tableState.currentView,
           onViewChange: tableState.setCurrentView,
           filters: dbInventoryFilters,
@@ -221,33 +349,27 @@ export default function DatabaseInventoryPage() {
         }}
         data={{
           items: filteredTables,
-          isLoading: false,
-          error: null,
+          isLoading: !inventory && !loadError,
+          error: loadError,
         }}
         table={{
           columns: tableColumns,
-          getRowId: (item) => `${item.db}:${item.name}`,
-          onRowClick: (item) => setSelectedTable(item),
+          getRowId: (item) => `${item.database}:${item.name}`,
+          onRowClick: (item) => {
+            if (editingMetadataKey) return;
+            router.push(
+              `/database-inventory/${encodeURIComponent(item.name)}?database=${encodeURIComponent(item.database)}`,
+            );
+          },
           stickyHeader: true,
         }}
         emptyState={{
-          title: "No tables found",
-          description:
-            DB_INVENTORY.tables.length === 0
-              ? "Run npm run db:inventory to generate the inventory file."
-              : "No tables match your search.",
+          title: loadError ? "Live schema unavailable" : "No tables found",
+          description: loadError ?? "No tables match your search.",
           filteredDescription: "No tables match your current filters.",
           isFiltered: hasActiveFilters,
         }}
-        features={{
-          enablePagination: true,
-        }}
-      />
-
-      <DbInventoryDetailPanel
-        table={selectedTable}
-        onClose={() => setSelectedTable(null)}
-        onNavigateToTable={handleNavigateToTable}
+        features={{ enablePagination: true }}
       />
     </>
   );

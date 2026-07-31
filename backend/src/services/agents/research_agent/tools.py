@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import re
+from dataclasses import dataclass
 from typing import Any
 from urllib.parse import urlparse
 
@@ -15,6 +16,21 @@ from langchain_core.tools import tool
 TAVILY_SEARCH_URL = "https://api.tavily.com/search"
 
 
+@dataclass(frozen=True)
+class PublicWebSearchResult:
+    """Structured Tavily result shared by research and deterministic jobs."""
+
+    title: str
+    url: str
+    snippet: str
+    raw_content: str
+    score: float
+
+
+class PublicWebSearchError(RuntimeError):
+    """Named public-web search failure safe to surface to backend callers."""
+
+
 def _clean_text(value: str) -> str:
     return re.sub(r"\s+", " ", value).strip()
 
@@ -23,29 +39,39 @@ def _bounded_int(value: int, *, minimum: int, maximum: int) -> int:
     return max(minimum, min(maximum, int(value)))
 
 
-@tool
-def web_search(query: str, max_results: int = 5) -> str:
-    """Search the public web and return titled results with source URLs."""
+def search_public_web(
+    query: str,
+    max_results: int = 5,
+    *,
+    search_depth: str = "basic",
+    include_raw_content: bool = False,
+) -> list[PublicWebSearchResult]:
+    """Return structured Tavily results or raise a named capability failure."""
+
     api_key = os.getenv("TAVILY_API_KEY")
     if not api_key:
-        return (
-            "WEB_SEARCH_UNAVAILABLE: TAVILY_API_KEY is not configured for the "
-            "backend runtime. Continue with Alleato internal tools if useful, "
-            "and tell the user external web search is unavailable."
+        raise PublicWebSearchError(
+            "WEB_SEARCH_UNAVAILABLE: TAVILY_API_KEY is not configured for the backend runtime."
         )
 
     trimmed_query = _clean_text(query)
     if not trimmed_query:
-        return "WEB_SEARCH_FAILED: query must not be blank."
+        raise PublicWebSearchError("WEB_SEARCH_FAILED: query must not be blank.")
+
+    normalized_depth = search_depth.strip().lower()
+    if normalized_depth not in {"basic", "advanced"}:
+        raise PublicWebSearchError(
+            f"WEB_SEARCH_FAILED: unsupported search depth '{search_depth}'."
+        )
 
     limit = _bounded_int(max_results, minimum=1, maximum=8)
     payload = {
         "api_key": api_key,
         "query": trimmed_query,
-        "search_depth": "basic",
+        "search_depth": normalized_depth,
         "max_results": limit,
         "include_answer": False,
-        "include_raw_content": False,
+        "include_raw_content": include_raw_content,
     }
     headers = {"Authorization": f"Bearer {api_key}"}
 
@@ -55,20 +81,59 @@ def web_search(query: str, max_results: int = 5) -> str:
             response.raise_for_status()
             data = response.json()
     except Exception as exc:
-        return f"WEB_SEARCH_FAILED: {type(exc).__name__}: {exc}"
+        raise PublicWebSearchError(
+            f"WEB_SEARCH_FAILED: {type(exc).__name__}: {exc}"
+        ) from exc
 
-    results = data.get("results")
-    if not isinstance(results, list) or not results:
-        return f"WEB_SEARCH_NO_RESULTS: No public web results found for '{trimmed_query}'."
+    raw_results = data.get("results")
+    if not isinstance(raw_results, list) or not raw_results:
+        raise PublicWebSearchError(
+            f"WEB_SEARCH_NO_RESULTS: No public web results found for '{trimmed_query}'."
+        )
 
-    lines = [f"Web search results for: {trimmed_query}"]
-    for index, item in enumerate(results[:limit], start=1):
+    results: list[PublicWebSearchResult] = []
+    for item in raw_results[:limit]:
         if not isinstance(item, dict):
             continue
-        title = _clean_text(str(item.get("title") or "Untitled result"))
         url = _clean_text(str(item.get("url") or ""))
-        snippet = _clean_text(str(item.get("content") or item.get("snippet") or ""))
-        lines.append(f"{index}. {title}\nURL: {url}\nSnippet: {snippet}")
+        if not url:
+            continue
+        try:
+            score = float(item.get("score") or 0)
+        except (TypeError, ValueError):
+            score = 0
+        results.append(
+            PublicWebSearchResult(
+                title=_clean_text(str(item.get("title") or "Untitled result")),
+                url=url,
+                snippet=_clean_text(
+                    str(item.get("content") or item.get("snippet") or "")
+                ),
+                raw_content=_clean_text(str(item.get("raw_content") or "")),
+                score=max(0.0, min(1.0, score)),
+            )
+        )
+
+    if not results:
+        raise PublicWebSearchError(
+            f"WEB_SEARCH_NO_RESULTS: Tavily returned no usable URLs for '{trimmed_query}'."
+        )
+    return results
+
+
+@tool
+def web_search(query: str, max_results: int = 5) -> str:
+    """Search the public web and return titled results with source URLs."""
+    try:
+        results = search_public_web(query, max_results)
+    except PublicWebSearchError as exc:
+        return str(exc)
+
+    lines = [f"Web search results for: {_clean_text(query)}"]
+    for index, item in enumerate(results, start=1):
+        lines.append(
+            f"{index}. {item.title}\nURL: {item.url}\nSnippet: {item.snippet}"
+        )
     return "\n\n".join(lines)
 
 

@@ -74,10 +74,15 @@ function titleFromLearning(learning: string): string {
 }
 
 function categoryKey(category: string): string {
-  return category.trim().toLowerCase().replace(/[^a-z0-9]+/g, "_");
+  return category
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_");
 }
 
-function plannedCandidates(intake: TeachAlleatoIntakeInput): TeachCandidatePlan[] {
+function plannedCandidates(
+  intake: TeachAlleatoIntakeInput,
+): TeachCandidatePlan[] {
   const key = categoryKey(intake.workflowCategory);
 
   if (
@@ -153,6 +158,9 @@ function skillCandidatePayload(params: {
   const exampleOutput = normalizeText(intake.exampleOutput);
   const title = titleFromLearning(intake.whatShouldAlleatoLearn);
   const appliesToProject = intake.appliesTo === "project" && intake.projectId;
+  const isMemoryCandidate =
+    promotionType === "user_preference" || promotionType === "project_lesson";
+  const isPreventionCandidate = promotionType === "agent_prevention_prompt";
 
   return {
     action: "review_teach_alleato_intake",
@@ -170,12 +178,32 @@ function skillCandidatePayload(params: {
     suggestedReviewer: normalizeText(intake.suggestedReviewer),
     whyThisMatters: intake.whyThisMatters,
     perceivedRiskLevel: intake.perceivedRiskLevel,
-    proposedDestination:
-      promotionType === "user_preference" || promotionType === "project_lesson"
-        ? "ai_memories"
-        : promotionType === "agent_prevention_prompt"
-          ? "agent_learnings"
-          : "skill_library",
+    ...(isMemoryCandidate
+      ? {
+          content: intake.whatShouldAlleatoLearn,
+          type: promotionType === "user_preference" ? "preference" : "lesson",
+          visibility: promotionType === "user_preference" ? "private" : "team",
+        }
+      : {}),
+    ...(isPreventionCandidate
+      ? {
+          source: "admin_feedback",
+          problemSignature: `${intake.workflowCategory}: ${title}`,
+          symptoms: intake.whyThisMatters,
+          preventionPrompt: intake.whatShouldAlleatoLearn,
+          scopeTags: [
+            "teach_alleato",
+            categoryKey(intake.workflowCategory),
+            intake.appliesTo,
+          ],
+          pagePath: intake.route ?? "/ai/teach",
+        }
+      : {}),
+    proposedDestination: isMemoryCandidate
+      ? "ai_memories"
+      : isPreventionCandidate
+        ? "agent_learnings"
+        : "skill_library",
     skillCandidate: {
       title,
       slug: categoryKey(title).slice(0, 80),
@@ -221,7 +249,8 @@ export async function submitTeachAlleatoIntake({
   const sourceRoute = intake.route ?? "/ai/teach";
   const event = await recordAiFeedbackEvent({
     userId,
-    projectId: intake.appliesTo === "project" ? intake.projectId ?? null : null,
+    projectId:
+      intake.appliesTo === "project" ? (intake.projectId ?? null) : null,
     eventType: "teach_alleato_intake_submitted",
     eventFamily: "workflow_outcome",
     surface: "teach_alleato",
@@ -262,7 +291,8 @@ export async function submitTeachAlleatoIntake({
     for (const candidate of plannedCandidates(intake)) {
       const promotion = await createLearningPromotion({
         promotionType: candidate.promotionType,
-        projectId: intake.appliesTo === "project" ? intake.projectId ?? null : null,
+        projectId:
+          intake.appliesTo === "project" ? (intake.projectId ?? null) : null,
         sourceEventIds: [event.id],
         destinationTable: candidate.destinationTable,
         destinationRecordId: candidate.destinationRecordId,
@@ -287,7 +317,9 @@ export async function submitTeachAlleatoIntake({
   } catch (error) {
     throw new TeachAlleatoIntakePromotionError(
       event.id,
-      error instanceof Error ? error.message : "unknown promotion creation error",
+      error instanceof Error
+        ? error.message
+        : "unknown promotion creation error",
       error,
     );
   }

@@ -1,0 +1,5 @@
+PASS
+Muted training text: #66615f
+White surface #ffffff: 6.10:1
+Training paper #fafaf8: 5.84:1
+Required WCAG AA ratio for normal text: 4.5:1

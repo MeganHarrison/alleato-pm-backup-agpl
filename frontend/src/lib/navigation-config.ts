@@ -3,6 +3,7 @@
 
 import type { LucideIcon } from "lucide-react";
 import {
+  Activity,
   BookOpen,
   Bot,
   Brain,
@@ -33,9 +34,11 @@ import {
   Shield,
   Sparkles,
   Table,
+  Database,
   SlidersHorizontal,
   TrendingUp,
   UserCog,
+  UserRoundSearch,
   Users,
   Wrench,
 } from "lucide-react";
@@ -64,7 +67,8 @@ export type PermissionModule =
   | "schedule"
   | "submittals"
   | "rfis"
-  | "change_orders";
+  | "change_orders"
+  | "crm";
 
 export interface NavigationTool {
   name: string;
@@ -111,6 +115,14 @@ export interface HeaderNavGroup {
   subGroups?: HeaderSubGroup[];
 }
 
+export const trainingNavigationTool: HeaderNavigationTool = {
+  name: "Training",
+  path: "training",
+  requiresProject: false,
+  icon: BookOpen,
+  description: "Assignments, courses, guides, SOPs, and growth resources",
+};
+
 export const companyWideHeaderTools: HeaderNavigationTool[] = [
   {
     name: "Alleato AI",
@@ -120,11 +132,11 @@ export const companyWideHeaderTools: HeaderNavigationTool[] = [
     description: "AI-powered project guidance",
   },
   {
-    name: "AI Features",
-    path: "ai/features",
+    name: "Alleato Brain",
+    path: "ai/company-brain",
     requiresProject: false,
-    icon: Sparkles,
-    description: "Browse AI workflows by the job they support",
+    icon: BrainCircuit,
+    description: "Company knowledge and operational records",
   },
   {
     name: "Company",
@@ -142,11 +154,12 @@ export const companyWideHeaderTools: HeaderNavigationTool[] = [
     module: "directory",
   },
   {
-    name: "Deals",
-    path: "deals",
+    name: "CRM",
+    path: "crm",
     requiresProject: false,
-    icon: DollarSign,
-    description: "CRM pipeline — deals across prospects and clients",
+    icon: LayoutDashboard,
+    description: "Relationships, opportunities, and follow-ups",
+    module: "crm",
   },
   {
     name: "User Management",
@@ -180,10 +193,18 @@ export const companyWideHeaderTools: HeaderNavigationTool[] = [
   },
   {
     name: "Documentation",
-    path: "https://alleato-docs-site.vercel.app/",
+    path: "https://docs.alleatogroup.com/",
     requiresProject: false,
     icon: BookOpen,
     description: "Alleato documentation site",
+  },
+  trainingNavigationTool,
+  {
+    name: "Recruiting",
+    path: "recruiting",
+    requiresProject: false,
+    icon: UserRoundSearch,
+    description: "Applicant intake and pipeline",
   },
   {
     name: "Estimates",
@@ -418,6 +439,14 @@ export const developmentTools: HeaderNavigationTool[] = [
     ownerOnly: true,
   },
   {
+    name: "Training Data",
+    path: "training-data",
+    requiresProject: false,
+    icon: Table,
+    description: "Editable training database tables",
+    ownerOnly: true,
+  },
+  {
     name: "Knowledge Sources",
     path: "knowledge/manage",
     requiresProject: false,
@@ -462,23 +491,16 @@ export const companyWideToolSections: CompanyWideToolSection[] = [
     toolNames: [
       "Company",
       "Company Directory",
+      "CRM",
       "User Management",
       "Alleato AI",
+      "Alleato Brain",
       "Admin Dashboard",
     ],
   },
   {
     label: "Work",
-    toolNames: ["Meetings", "Tasks", "Documentation"],
-  },
-  {
-    label: "Financial",
-    toolNames: [
-      "Estimates",
-      "Prime Contracts",
-      "Change Events",
-      "Potential Change Orders",
-    ],
+    toolNames: ["Meetings", "Tasks", "Recruiting", "Documentation", "Training"],
   },
 ];
 
@@ -552,6 +574,12 @@ export const projectManagementTools: NavigationTool[] = [
     icon: Package,
     requiresProject: true,
     module: "submittals",
+  },
+  {
+    name: "Procurement Log",
+    path: "procurement",
+    icon: Package,
+    requiresProject: true,
   },
   {
     name: "Transmittals",
@@ -713,6 +741,13 @@ export const subcontractorTools: NavigationTool[] = [
 
 export const adminTools: NavigationTool[] = [
   {
+    name: "Pipeline Activity",
+    path: "/source-sync",
+    icon: Activity,
+    requiresProject: false,
+    adminOnly: true,
+  },
+  {
     name: "Actions",
     path: "/actions",
     icon: Wrench,
@@ -734,6 +769,13 @@ export const adminTools: NavigationTool[] = [
     adminOnly: true,
   },
   {
+    name: "Supabase Console",
+    path: "/db-console",
+    icon: Database,
+    requiresProject: false,
+    adminOnly: true,
+  },
+  {
     name: "What's New",
     path: "/updates",
     icon: TrendingUp,
@@ -741,7 +783,7 @@ export const adminTools: NavigationTool[] = [
   },
   {
     name: "Documentation",
-    path: "https://alleato-docs-site.vercel.app/",
+    path: "https://docs.alleatogroup.com/",
     icon: MessageCircle,
     requiresProject: false,
   },
@@ -966,6 +1008,7 @@ export const sidebarNavGroups: SidebarNavGroup[] = [
         requiresProject: false,
         module: "directory" as PermissionModule,
       },
+      trainingNavigationTool,
     ],
   },
   {
@@ -1006,7 +1049,7 @@ export const sidebarNavGroups: SidebarNavGroup[] = [
       },
       {
         name: "Project Tasks",
-        path: "plane/work-items",
+        path: "tasks",
         icon: CheckCircle,
         requiresProject: true,
       },
@@ -1315,7 +1358,7 @@ export const headerNavGroups: HeaderNavGroup[] = [
       },
       {
         name: "Project Tasks",
-        path: "plane/work-items",
+        path: "tasks",
         requiresProject: true,
         icon: CheckCircle,
         description: "Tasks for this project",
@@ -1328,6 +1371,7 @@ export const headerNavGroups: HeaderNavGroup[] = [
         description: "People, companies, contacts",
         module: "directory",
       },
+      trainingNavigationTool,
     ],
   },
 ];
@@ -1414,19 +1458,19 @@ export const adminSettingsTools: HeaderNavigationTool[] = [
     adminOnly: true,
   },
   {
-    name: "Training Docs",
-    path: "/training-docs",
+    name: "Content Studio",
+    path: "/content",
     requiresProject: false,
     icon: BookOpen,
-    description: "Reviewed workflow manuals",
+    description: "Create and govern guides, SOPs, resources, and courses",
     adminOnly: true,
   },
   {
-    name: "Training Map",
-    path: "/training-map",
+    name: "Training Management",
+    path: "/training/manage",
     requiresProject: false,
     icon: Compass,
-    description: "Coverage of training docs by tool and QA status",
+    description: "Resolve learning governance and review exceptions",
     adminOnly: true,
   },
   {

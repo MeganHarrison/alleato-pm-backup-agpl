@@ -1,0 +1,25 @@
+{
+  "observedAt": "2026-07-27T01:32:03.319613Z",
+  "endpoint": "https://alleato-backend-rbnj.onrender.com/health/training-library",
+  "httpStatus": 503,
+  "response": {
+    "status": "degraded",
+    "desired": 70,
+    "catalogued": 0,
+    "indexed": 0,
+    "searchable": 0,
+    "missing": 70,
+    "stale": 0,
+    "unsearchable": 0
+  },
+  "backendHealth": {
+    "status": "healthy",
+    "aiProviderPath": "vercel_gateway",
+    "aiGatewayConfigured": true,
+    "embeddingProviderConfigured": true,
+    "supabaseServiceConfigured": true,
+    "appDatabaseReachable": true,
+    "databaseUrlHostOk": true
+  },
+  "localization": "Reconciliation loaded the desired corpus but produced no app-catalog row before the health readback. The follow-up exposes a secret-free runtime stage and error fingerprint."
+}

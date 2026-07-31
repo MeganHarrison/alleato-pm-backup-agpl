@@ -293,56 +293,11 @@ tables:
     domain: directory
     owner: core
     status: live
-    purpose: "Master company directory — vendors, clients, subs, AND CRM prospects (2026-07-23). is_vendor flag drives Acumatica sync. FK target for vendor-related forms. lifecycle_stage (prospect/qualified/active) marks CRM maturity; PM surfaces must read via verified_companies view."
-    gotchas: "FK-validation gate: vendor dropdown sources from vendors view but FK targets companies table. ~50 read sites. CRM prospects share this table — filter lifecycle_stage='active' (or use verified_companies) in any PM-facing query."
+    purpose: "Master company directory — vendors, clients, subs. is_vendor flag drives Acumatica sync. FK target for vendor-related forms."
+    gotchas: "FK-validation gate: vendor dropdown sources from vendors view but FK targets companies table. ~50 read sites."
     relatedTables:
       - project_companies
       - people
-      - crm_deals
-      - company_qualification
-
-  - name: crm_pipeline_stages
-    db: MAIN
-    domain: crm
-    owner: core
-    status: live
-    purpose: "Ordered CRM deal pipeline stages (Lead → Won/Lost). Admin-managed lookup; terminal stages carry a won/lost outcome. Seeded 7 defaults 2026-07-23."
-    relatedTables:
-      - crm_deals
-
-  - name: crm_deals
-    db: MAIN
-    domain: crm
-    owner: core
-    status: live
-    purpose: "CRM opportunities. FK to shared identity tables (companies/people) — the CRM deliberately has NO parallel identity tables (decision 2026-07-23: conversion is a lifecycle_stage flip, never a row migration)."
-    gotchas: "company_id is ON DELETE RESTRICT — resolve deals before purging a company. owner_id/primary_contact_id point at people, not app_users."
-    relatedTables:
-      - companies
-      - people
-      - crm_pipeline_stages
-      - crm_activities
-
-  - name: crm_activities
-    db: MAIN
-    domain: crm
-    owner: core
-    status: live
-    purpose: "Manually logged CRM touchpoints (calls, follow-ups, notes) per company/deal/person."
-    gotchas: "Automated communication history (emails/meetings/Teams) is NOT copied here — it already resolves to companies/people via document_metadata. Do not duplicate it."
-    relatedTables:
-      - crm_deals
-      - companies
-
-  - name: company_qualification
-    db: MAIN
-    domain: crm
-    owner: core
-    status: live
-    purpose: "Vetting evidence per company (W-9, insurance, license; one row max per company). Completing qualification flips companies.lifecycle_stage to active — the company row never moves tables."
-    gotchas: "Qualification documents attach via the existing company_documents Pattern C junction, not columns here."
-    relatedTables:
-      - companies
 
   - name: company_context
     db: MAIN
@@ -547,6 +502,71 @@ tables:
     status: dormant
     purpose: "Dormant billing/invite infrastructure."
     relatedTables: []
+
+  # ─── Eve / Better Auth runtime ───────────────────────────
+
+  - name: user
+    db: MAIN
+    domain: agent-runtime
+    owner: agents
+    status: live-empty
+    purpose: "Eve agent-runtime identity record used by the lowercase chat/session tables. This is separate from Supabase auth.users and the app-owned user_profiles table."
+    gotchas: "Do not use this table for Alleato application authorization. App permissions remain owned by auth.users plus user_profiles."
+    relatedTables:
+      - account
+      - session
+      - chat
+
+  - name: account
+    db: MAIN
+    domain: agent-runtime
+    owner: agents
+    status: live-empty
+    purpose: "Eve/Better Auth provider-account credentials associated with the lowercase agent-runtime user table."
+    gotchas: "Contains password and OAuth token fields. Treat as sensitive authentication data and never expose it through app tables, logs, or AI context."
+    relatedTables:
+      - user
+
+  - name: session
+    db: MAIN
+    domain: agent-runtime
+    owner: agents
+    status: live-empty
+    purpose: "Eve/Better Auth login sessions for the lowercase agent-runtime user table."
+    gotchas: "Session tokens are sensitive. This is not the Supabase Auth session store used by the Alleato frontend."
+    relatedTables:
+      - user
+
+  - name: verification
+    db: MAIN
+    domain: agent-runtime
+    owner: agents
+    status: live-empty
+    purpose: "Short-lived Eve/Better Auth verification values and expiration timestamps."
+    gotchas: "Verification values are authentication secrets and must never be logged or returned to application users."
+    relatedTables:
+      - user
+
+  - name: chat
+    db: MAIN
+    domain: agent-runtime
+    owner: agents
+    status: live-empty
+    purpose: "Eve agent conversation state, including serialized Eve session data and a pending user-message recovery slot."
+    gotchas: "Lowercase chat is owned by the Eve agent runtime. Do not confuse it with Chat, conversations, or chat_history."
+    relatedTables:
+      - user
+      - chat_event
+
+  - name: chat_event
+    db: MAIN
+    domain: agent-runtime
+    owner: agents
+    status: live-empty
+    purpose: "Ordered JSON event ledger for replaying a lowercase Eve agent chat."
+    gotchas: "Events are ordered by (chat_id, event_index); consumers must not infer order from created_at alone."
+    relatedTables:
+      - chat
 
   # ─── Bot identity ────────────────────────────────────────
 
@@ -2242,8 +2262,8 @@ tables:
     domain: ai
     owner: core
     status: live
-    purpose: "Historical per-session conversation summaries with 3072-dim embeddings. There is no active writer; current durable Assistant memory uses ai_memories."
-    notesForAi: "Do not write new rows here. Use ai_memories for typed durable memory. Existing rows may remain readable only for historical recall."
+    purpose: "Per-session AI conversation summaries with 3072-dim embeddings, used for cross-session recall. Written by conversation-memory.ts (embedAndStoreMemory, memory_type='conversation_summary') from runPostResponseTasks in bot-core.ts; read by the recallPastConversations tool via the search_conversation_memories RPC."
+    notesForAi: "Do not confuse with ai_memories: this table holds session conversation summaries for cross-session recall; ai_memories holds typed durable memory (facts, preferences, lessons, commitments)."
     relatedTables:
       - ai_memories
 
@@ -3209,185 +3229,6 @@ tables:
     status: dormant
     purpose: "Dormant workspace artifacts. Referenced in CMO path but no production traffic."
     relatedTables: []
-
-  # ─────────────────────────────────────────────────────────
-  # DOMAIN: FM GLOBAL / ASRS (SPRINKLER DESIGN VERTICAL)
-  # ─────────────────────────────────────────────────────────
-
-  - name: fm_global_tables
-    db: MAIN
-    domain: fm-asrs
-    owner: core
-    status: live
-    purpose: "FM Global lookup tables for sprinkler design. Lightly referenced."
-    relatedTables: []
-
-  - name: fm_form_submissions
-    db: MAIN
-    domain: fm-asrs
-    owner: core
-    status: live
-    purpose: "FM Global form submissions. Lightly referenced."
-    relatedTables: []
-
-  - name: fm_global_figures
-    db: MAIN
-    domain: fm-asrs
-    owner: core
-    status: live
-    purpose: "FM Global figures/charts. Lightly referenced."
-    relatedTables: []
-
-  - name: fm_sections
-    db: MAIN
-    domain: fm-asrs
-    owner: core
-    status: live
-    purpose: "FM Global section definitions. Lightly referenced."
-    relatedTables: []
-
-  - name: fm_sprinkler_configs
-    db: MAIN
-    domain: fm-asrs
-    owner: core
-    status: live
-    purpose: "FM Global sprinkler configurations. Lightly referenced."
-    relatedTables: []
-
-  - name: fm_optimization_rules
-    db: MAIN
-    domain: fm-asrs
-    owner: unknown
-    status: dormant
-    purpose: "Dormant FM optimization rules."
-    relatedTables: []
-
-  - name: fm_optimization_suggestions
-    db: MAIN
-    domain: fm-asrs
-    owner: unknown
-    status: dormant
-    purpose: "Dormant FM optimization suggestions."
-    relatedTables: []
-
-  - name: optimization_rules
-    db: MAIN
-    domain: fm-asrs
-    owner: unknown
-    status: dormant
-    purpose: "Dormant generic optimization rules."
-    relatedTables: []
-
-  - name: fm_blocks
-    db: MAIN
-    domain: fm-asrs
-    owner: unknown
-    status: dormant
-    purpose: "Dormant FM blocks. No code references."
-    relatedTables: []
-
-  - name: fm_cost_factors
-    db: MAIN
-    domain: fm-asrs
-    owner: unknown
-    status: dormant
-    purpose: "Dormant FM cost factors. No code references."
-    relatedTables: []
-
-  - name: fm_documents
-    db: MAIN
-    domain: fm-asrs
-    owner: unknown
-    status: dormant
-    purpose: "Dormant FM documents. No code references."
-    relatedTables: []
-
-  - name: fm_table_vectors
-    db: MAIN
-    domain: fm-asrs
-    owner: unknown
-    status: dormant
-    purpose: "Dormant FM table vectors. No code references."
-    relatedTables: []
-
-  - name: fm_text_chunks
-    db: MAIN
-    domain: fm-asrs
-    owner: unknown
-    status: dormant
-    purpose: "Dormant FM text chunks. No code references."
-    relatedTables: []
-
-  - name: asrs_sections
-    db: MAIN
-    domain: fm-asrs
-    owner: core
-    status: live
-    purpose: "ASRS section definitions. Lightly referenced."
-    relatedTables: []
-
-  - name: asrs_blocks
-    db: MAIN
-    domain: fm-asrs
-    owner: core
-    status: live
-    purpose: "ASRS blocks. Lightly referenced."
-    relatedTables: []
-
-  - name: asrs_configurations
-    db: MAIN
-    domain: fm-asrs
-    owner: unknown
-    status: dormant
-    purpose: "Dormant ASRS configurations. No code references."
-    relatedTables: []
-
-  - name: asrs_decision_matrix
-    db: MAIN
-    domain: fm-asrs
-    owner: unknown
-    status: dormant
-    purpose: "Dormant ASRS decision matrix. No code references."
-    relatedTables: []
-
-  - name: asrs_logic_cards
-    db: MAIN
-    domain: fm-asrs
-    owner: unknown
-    status: dormant
-    purpose: "Dormant ASRS logic cards. No code references."
-    relatedTables: []
-
-  - name: asrs_protection_rules
-    db: MAIN
-    domain: fm-asrs
-    owner: unknown
-    status: dormant
-    purpose: "Dormant ASRS protection rules. No code references."
-    relatedTables: []
-
-  - name: block_embeddings
-    db: MAIN
-    domain: fm-asrs
-    owner: unknown
-    status: dormant
-    purpose: "Dormant block embeddings. No code references."
-    relatedTables: []
-
-  - name: design_recommendations
-    db: MAIN
-    domain: fm-asrs
-    owner: core
-    status: live
-    purpose: >-
-      Persistence for FM Global sprinkler optimization recommendations. Columns mirror
-      the RETURNS TABLE of generate_optimization_recommendations (recommendation_type,
-      potential_savings, priority_level, implementation_effort, technical_details).
-      Empty as of 2026-07-20 -- the form computes recommendations per request and does
-      not persist them here yet.
-    relatedTables:
-      - fm_form_submissions
-      - fm_optimization_rules
 
   - name: design_violations
     db: MAIN
@@ -5089,30 +4930,6 @@ tables:
       - business_areas
       - projects
 
-  - name: business_area_migration_runs
-    db: MAIN
-    domain: projects
-    owner: core
-    status: live
-    purpose: "Run-level ledger for the Alleato Brain business-area migration: one row per migration execution (run id, timestamps, mode, summary counts, overall result)."
-    gotchas: "Created directly in the DB for the Alleato Brain migration — no migration file in the repo yet. Keep permanently as the audit trail for each cutover run. Parent of business_area_migration_items."
-    relatedTables:
-      - business_area_migration_items
-      - business_area_project_map
-      - business_areas
-
-  - name: business_area_migration_items
-    db: MAIN
-    domain: projects
-    owner: core
-    status: live
-    purpose: "Per-record detail rows for a business-area migration run: the individual legacy project/record each run touched, its target business area, result, and rollback state."
-    gotchas: "Created directly in the DB for the Alleato Brain migration — no migration file in the repo yet. Keep permanently. Child of business_area_migration_runs (run id)."
-    relatedTables:
-      - business_area_migration_runs
-      - business_area_project_map
-      - projects
-
   # ── Durable AI chat canary ──
 
   - name: durable_ai_turns
@@ -5126,3 +4943,120 @@ tables:
       - conversations
       - chat_history
       - user_profiles
+
+  - name: durable_ai_turn_events
+    db: MAIN
+    domain: ai
+    owner: core
+    status: live-empty
+    purpose: "Ordered durable replay ledger for AssistantTurn lifecycle, runtime, source, tool, artifact, and warning receipts."
+    gotchas: "The unique turn/sequence order is the replay contract. Event payloads are append-only receipts and must not be silently rewritten."
+    relatedTables:
+      - durable_ai_turns
+
+  - name: durable_ai_turn_approvals
+    db: MAIN
+    domain: ai
+    owner: core
+    status: live-empty
+    purpose: "Human approval requests and authenticated decisions for side-effecting durable AssistantTurn operations."
+    gotchas: "Approval identity and payload_identity bind one decision to one immutable request; never reuse a decision for a changed payload."
+    relatedTables:
+      - durable_ai_turns
+      - user_profiles
+
+  # ── Learner training library and Skill Wheel ──
+
+  - name: training_role
+    db: MAIN
+    domain: training
+    owner: core
+    status: live
+    purpose: "Canonical learner-role taxonomy used to filter training resources and define role-specific Skill Wheel skills."
+    relatedTables:
+      - training_resource_role
+      - training_role_skill
+      - training_skill_checkin
+
+  - name: training_topic
+    db: MAIN
+    domain: training
+    owner: core
+    status: live
+    purpose: "Canonical topic taxonomy for learner-facing training resources and scheduled discovery."
+    relatedTables:
+      - training_resource
+
+  - name: training_resource
+    db: MAIN
+    domain: training
+    owner: core
+    status: live
+    purpose: "Free-only external training library. Automated discovery creates review candidates; an app admin must publish or archive them with reviewer feedback."
+    gotchas: "Published content must not be overwritten by automation. reviewer_notes is the canonical good/bad-example feedback consumed by future candidate selection."
+    relatedTables:
+      - training_topic
+      - training_resource_role
+      - training_resource_freshness_checks
+      - user_profiles
+
+  - name: training_resource_role
+    db: MAIN
+    domain: training
+    owner: core
+    status: live
+    purpose: "Many-to-many targeting between training resources and learner roles."
+    relatedTables:
+      - training_resource
+      - training_role
+
+  - name: training_resource_freshness_checks
+    db: MAIN
+    domain: training
+    owner: agents
+    status: live
+    purpose: "Idempotent sidecar evidence and admin-review ledger for availability or content changes observed on already-published training resources."
+    gotchas: "Automation can record evidence only. A repeated non-healthy observation may enter review, but only an app-admin decision can keep or archive the canonical resource."
+    relatedTables:
+      - training_resource
+      - user_profiles
+
+  - name: training_role_skill
+    db: MAIN
+    domain: training
+    owner: core
+    status: live
+    purpose: "Canonical role-specific and Alleato Core skill definitions used by the Training Skill Wheel."
+    gotchas: "Core skills require role_id null; role-specific skills require role_id non-null. importance is constrained to 1-5."
+    relatedTables:
+      - training_role
+      - training_skill_checkin
+
+  - name: training_skill_checkin
+    db: MAIN
+    domain: training
+    owner: core
+    status: live
+    purpose: "Dated, user-owned Skill Wheel snapshots containing current scores, targets, feedback cadence, and improvement plans."
+    gotchas: "RLS restricts each learner to their own rows. One snapshot is allowed per user, role context, and check-in date."
+    relatedTables:
+      - training_role
+      - training_role_skill
+
+  - name: business_area_migration_runs
+    db: MAIN
+    domain: sync-infrastructure
+    owner: core
+    status: live-empty
+    purpose: "Audit ledger for business-area re-migration runs (run_key, phase, status, rollback_status, result_summary jsonb). One row per migration run. Empty as of 2026-07-24."
+    relatedTables:
+      - business_area_migration_items
+
+  - name: business_area_migration_items
+    db: MAIN
+    domain: sync-infrastructure
+    owner: core
+    status: live-empty
+    purpose: "Per-record detail for a business-area migration run (run_id, source_database, record_type, old/new_business_area_id, result, rollback_state, record_snapshot jsonb). Empty as of 2026-07-24."
+    relatedTables:
+      - business_area_migration_runs

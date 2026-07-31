@@ -1,0 +1,34 @@
+{
+  "contractVersion": 1,
+  "riskLevel": "high",
+  "taskId": "ALL-11-RAG-SCOPE-SYNC",
+  "feature": "PM-authoritative RAG document and chunk scope synchronization",
+  "route": "script://scripts/database/rag/copy-document-metadata-to-rag.mjs",
+  "flows": [
+    {
+      "name": "Synchronize a stable PM APP scope snapshot",
+      "steps": ["Open read-only repeatable-read source snapshot", "Keyset paginate all rows", "Copy document scope", "Reconcile linked chunks", "Run per-batch and final whole-snapshot readback"],
+      "expectedOutcome": "The process exits successfully only when every applicable RAG document and chunk matches the stable PM APP source snapshot."
+    }
+  ],
+  "requiredEvidence": ["regressionTest", "databaseReadback", "summary"],
+  "independentReview": { "required": true },
+  "claims": [
+    {
+      "id": "stable-scope-sync",
+      "description": "Normal and scope-only copy paths reconcile document and chunk scope from one stable source snapshot.",
+      "evidence": [
+        { "key": "regressionTest", "min": 1 },
+        { "key": "databaseReadback", "min": 1 }
+      ]
+    },
+    {
+      "id": "fail-loudly",
+      "description": "Keyset, count, document, and chunk drift fail with named postconditions.",
+      "evidence": [
+        { "key": "regressionTest", "min": 1 },
+        { "key": "summary", "min": 1 }
+      ]
+    }
+  ]
+}

@@ -20,6 +20,8 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { createRequire } from "module";
 
+import { buildAppDatabaseConnectionString } from "../verify/app-db-connection.mjs";
+
 const require = createRequire(import.meta.url);
 const yaml = require("js-yaml");
 const pg = require("pg");
@@ -49,8 +51,9 @@ function warn(msg) {
 // ─── Load env ────────────────────────────────────────────────────────────────
 
 const envPath = path.join(repoRoot, ".env");
-if (!fs.existsSync(envPath)) fail(`.env not found at ${envPath}`);
-dotenv.config({ path: envPath });
+if (fs.existsSync(envPath)) {
+  dotenv.config({ path: envPath });
+}
 
 const MAIN_DB_URL = process.env.DATABASE_URL;
 const RAG_DB_URL = process.env.RAG_DATABASE_URL;
@@ -105,8 +108,13 @@ function projectRefFromUrl(rawUrl) {
   if (!rawUrl) return null;
   try {
     const url = new URL(rawUrl);
-    const match = url.hostname.match(/^([^.]+)\.supabase\.co$/);
-    return match?.[1] || null;
+    const hostMatch =
+      url.hostname.match(/^([^.]+)\.supabase\.co$/) ||
+      url.hostname.match(/^db\.([^.]+)\.supabase\.co$/);
+    if (hostMatch?.[1]) return hostMatch[1];
+
+    const poolerUserMatch = url.username.match(/^postgres\.([a-z0-9]+)$/i);
+    return poolerUserMatch?.[1] || null;
   } catch {
     return null;
   }
@@ -158,28 +166,77 @@ function countQuery(tableName) {
   return `SELECT COUNT(*)::bigint AS n FROM public.${quoteIdentifier(tableName)}`;
 }
 
+const ALL_STATS_QUERY = `
+  SELECT
+    c.relname AS name,
+    GREATEST(c.reltuples::bigint, 0) AS approx_rows,
+    pg_size_pretty(pg_total_relation_size(c.oid)) AS total_size,
+    pg_total_relation_size(c.oid) AS total_size_bytes,
+    ps.last_autoanalyze,
+    ps.last_autovacuum,
+    COALESCE(ps.n_live_tup, 0) AS n_live_tup,
+    COALESCE(ps.n_dead_tup, 0) AS n_dead_tup
+  FROM pg_class c
+  JOIN pg_namespace n ON n.oid = c.relnamespace
+  LEFT JOIN pg_stat_user_tables ps ON ps.relid = c.oid
+  WHERE n.nspname = 'public' AND c.relkind = 'r'
+  ORDER BY c.relname
+`;
+
+const ALL_COLUMNS_QUERY = `
+  SELECT table_name, column_name, data_type, is_nullable, ordinal_position
+  FROM information_schema.columns
+  WHERE table_schema = 'public'
+  ORDER BY table_name, ordinal_position
+`;
+
+function allCountsQuery(tableNames) {
+  return tableNames
+    .map(
+      (tableName) =>
+        `SELECT ${quoteLiteral(tableName)} AS name, COUNT(*)::bigint AS n FROM public.${quoteIdentifier(tableName)}`,
+    )
+    .join("\nUNION ALL\n");
+}
+
 async function createDatabaseClient({ databaseUrl, supabaseUrl, label }) {
-  const managementProjectRef = projectRefFromUrl(supabaseUrl);
+  const managementProjectRef =
+    projectRefFromUrl(supabaseUrl) || projectRefFromUrl(databaseUrl);
 
   const managementQuery = async (sql) => {
     if (!SUPABASE_ACCESS_TOKEN || !managementProjectRef) {
       fail(`Cannot query ${label} database: direct Postgres auth failed and Management API fallback is unavailable.`);
     }
 
-    const response = await fetch(
-      `https://api.supabase.com/v1/projects/${managementProjectRef}/database/query`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${SUPABASE_ACCESS_TOKEN}`,
-          "Content-Type": "application/json",
+    let response;
+    for (let attempt = 1; attempt <= 4; attempt += 1) {
+      response = await fetch(
+        `https://api.supabase.com/v1/projects/${managementProjectRef}/database/query`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${SUPABASE_ACCESS_TOKEN}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            query: sql,
+            read_only: true,
+          }),
         },
-        body: JSON.stringify({
-          query: sql,
-          read_only: true,
-        }),
-      },
-    );
+      );
+
+      if (
+        response.ok ||
+        (response.status !== 429 && response.status < 500) ||
+        attempt === 4
+      ) {
+        break;
+      }
+
+      await new Promise((resolve) =>
+        setTimeout(resolve, 500 * 2 ** (attempt - 1)),
+      );
+    }
 
     const text = await response.text();
     if (!response.ok) {
@@ -202,9 +259,19 @@ async function createDatabaseClient({ databaseUrl, supabaseUrl, label }) {
     };
   }
 
+  const connectionWarnings = [];
+  const normalizedDatabaseUrl = await buildAppDatabaseConnectionString(
+    databaseUrl,
+    {
+      includeSslMode: false,
+      warnings: connectionWarnings,
+    },
+  );
+  for (const message of connectionWarnings) warn(`${label}: ${message}`);
+
   // Strip sslmode from the URL so the programmatic ssl config takes effect.
   // pg treats sslmode=require as verify-full which fails against Supabase pooler certs.
-  const cleanUrl = databaseUrl.replace(/[?&]sslmode=[^&]+/, (m) => (m.startsWith("?") ? "?" : "")).replace(/\?$/, "");
+  const cleanUrl = normalizedDatabaseUrl.replace(/[?&]sslmode=[^&]+/, (m) => (m.startsWith("?") ? "?" : "")).replace(/\?$/, "");
   const useSSL = databaseUrl.includes("sslmode=require") || databaseUrl.includes("sslmode=verify");
   const pool = new pg.Pool({ connectionString: cleanUrl, max: 5, ssl: useSSL ? { rejectUnauthorized: false } : undefined });
   try {
@@ -236,6 +303,48 @@ async function createDatabaseClient({ databaseUrl, supabaseUrl, label }) {
       async end() {},
     };
   }
+}
+
+async function loadManagementSnapshot(db, entries) {
+  const tableNames = entries.map((entry) => entry.name);
+  const statsResult = await db.query(ALL_STATS_QUERY);
+  const countsResult = await db.query(allCountsQuery(tableNames));
+  const columnsResult = await db.query(ALL_COLUMNS_QUERY);
+
+  const statsByName = new Map(
+    statsResult.rows.map((row) => [row.name, row]),
+  );
+  const countsByName = new Map(
+    countsResult.rows.map((row) => [row.name, Number(row.n) || 0]),
+  );
+  const columnsByName = new Map();
+
+  for (const row of columnsResult.rows) {
+    const columns = columnsByName.get(row.table_name) ?? [];
+    columns.push({
+      name: row.column_name,
+      dataType: row.data_type,
+      isNullable: row.is_nullable === "YES",
+    });
+    columnsByName.set(row.table_name, columns);
+  }
+
+  const incomplete = tableNames.filter(
+    (name) =>
+      !statsByName.has(name) ||
+      !countsByName.has(name) ||
+      !columnsByName.has(name),
+  );
+  if (incomplete.length > 0) {
+    throw new Error(
+      `${db.label} Management API snapshot is incomplete for ${incomplete.length} table(s): ${incomplete.slice(0, 10).join(", ")}`,
+    );
+  }
+
+  log(
+    `Loaded complete ${db.label} Management API snapshot in 3 queries (${tableNames.length} tables).`,
+  );
+  return { statsByName, countsByName, columnsByName };
 }
 
 // ─── SQL queries ──────────────────────────────────────────────────────────────
@@ -562,6 +671,22 @@ async function main() {
     const tableEntries = [];
 
     const allEntries = [...yamlByName.values()];
+    const managementSnapshots = new Map();
+    for (const [dbName, db] of [
+      ["MAIN", mainDb],
+      ["RAG", ragDb],
+    ]) {
+      if (db.mode === "management") {
+        managementSnapshots.set(
+          dbName,
+          await loadManagementSnapshot(
+            db,
+            allEntries.filter((entry) => entry.db === dbName),
+          ),
+        );
+      }
+    }
+
     log(`Processing ${allEntries.length} tables...`);
 
     for (let i = 0; i < allEntries.length; i++) {
@@ -569,6 +694,7 @@ async function main() {
       if (i > 0 && i % 50 === 0) log(`  ${i}/${allEntries.length} processed...`);
 
       const db = entry.db === "MAIN" ? mainDb : ragDb;
+      const managementSnapshot = managementSnapshots.get(entry.db);
       const refreshedAt = new Date().toISOString();
 
       // Stats
@@ -580,29 +706,45 @@ async function main() {
         nDeadTup: 0,
         refreshedAt,
       };
-      try {
-        const statsResult = await db.query(statsQuery(entry.name));
-        if (statsResult.rows.length > 0) {
-          const row = statsResult.rows[0];
-          liveStats = {
-            approxRows: Number(row.approx_rows) || 0,
-            totalSize: row.total_size || "0 bytes",
-            lastAutoanalyze: normalizeTimestamp(row.last_autoanalyze),
-            nLiveTup: Number(row.n_live_tup) || 0,
-            nDeadTup: Number(row.n_dead_tup) || 0,
-            refreshedAt,
-          };
+      if (managementSnapshot) {
+        const row = managementSnapshot.statsByName.get(entry.name);
+        liveStats = {
+          approxRows: Number(row.approx_rows) || 0,
+          totalSize: row.total_size || "0 bytes",
+          lastAutoanalyze: normalizeTimestamp(row.last_autoanalyze),
+          nLiveTup: Number(row.n_live_tup) || 0,
+          nDeadTup: Number(row.n_dead_tup) || 0,
+          refreshedAt,
+        };
+      } else {
+        try {
+          const statsResult = await db.query(statsQuery(entry.name));
+          if (statsResult.rows.length > 0) {
+            const row = statsResult.rows[0];
+            liveStats = {
+              approxRows: Number(row.approx_rows) || 0,
+              totalSize: row.total_size || "0 bytes",
+              lastAutoanalyze: normalizeTimestamp(row.last_autoanalyze),
+              nLiveTup: Number(row.n_live_tup) || 0,
+              nDeadTup: Number(row.n_dead_tup) || 0,
+              refreshedAt,
+            };
+          }
+        } catch (err) {
+          warn(`Could not get stats for ${entry.name}: ${err.message}`);
         }
-      } catch (err) {
-        warn(`Could not get stats for ${entry.name}: ${err.message}`);
       }
 
       // pg_class.reltuples and pg_stat_user_tables.n_live_tup are estimates that
       // only update during VACUUM/ANALYZE — so any table that grew since its last
-      // analyze (or has never been analyzed) reports a wrong count. Always run a
-      // real COUNT(*) and trust it over the estimate. Cap at 5s so a multi-million-
-      // row table can't hang the run; on timeout we keep the estimate.
-      {
+      // analyze (or has never been analyzed) reports a wrong count. Trust the
+      // batched Management API count when available; direct Postgres keeps the
+      // per-table 5-second timeout so a large table cannot hang the run.
+      if (managementSnapshot) {
+        const real = managementSnapshot.countsByName.get(entry.name);
+        liveStats.approxRows = real;
+        liveStats.nLiveTup = real;
+      } else {
         let client;
         try {
           client = await db.connect();
@@ -627,16 +769,18 @@ async function main() {
       }
 
       // Columns
-      let columns = [];
-      try {
-        const colResult = await db.query(columnsQuery(entry.name));
-        columns = colResult.rows.map((r) => ({
-          name: r.column_name,
-          dataType: r.data_type,
-          isNullable: r.is_nullable === "YES",
-        }));
-      } catch (err) {
-        warn(`Could not get columns for ${entry.name}: ${err.message}`);
+      let columns = managementSnapshot?.columnsByName.get(entry.name) ?? [];
+      if (!managementSnapshot) {
+        try {
+          const colResult = await db.query(columnsQuery(entry.name));
+          columns = colResult.rows.map((row) => ({
+            name: row.column_name,
+            dataType: row.data_type,
+            isNullable: row.is_nullable === "YES",
+          }));
+        } catch (err) {
+          warn(`Could not get columns for ${entry.name}: ${err.message}`);
+        }
       }
 
       // Code grep
@@ -669,10 +813,19 @@ async function main() {
         status: entry.status,
         purpose: entry.purpose ? String(entry.purpose).trim() : "",
         gotchas: entry.gotchas ? String(entry.gotchas).trim() : null,
-        cleanupPriority: entry.cleanup_priority ?? null,
+        cleanupPriority:
+          entry.cleanupPriority ?? entry.cleanup_priority ?? null,
         owner: entry.owner || "unknown",
-        relatedTables: Array.isArray(entry.related_tables) ? entry.related_tables : [],
-        notesForAi: entry.notes_for_ai ? String(entry.notes_for_ai).trim() : null,
+        relatedTables: Array.isArray(entry.relatedTables)
+          ? entry.relatedTables
+          : Array.isArray(entry.related_tables)
+            ? entry.related_tables
+            : [],
+        notesForAi: entry.notesForAi
+          ? String(entry.notesForAi).trim()
+          : entry.notes_for_ai
+            ? String(entry.notes_for_ai).trim()
+            : null,
         liveStats,
         columns,
         references: refs,

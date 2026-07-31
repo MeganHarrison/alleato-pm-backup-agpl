@@ -72,14 +72,7 @@ export const Confirmation = ({
 
   return (
     <ConfirmationContext.Provider value={{ approval, state }}>
-      <Alert
-        className={cn(
-          "flex flex-col gap-4 border-0 bg-muted/60 p-4 shadow-none sm:p-5",
-          approval.approved === false && "bg-destructive/5",
-          className,
-        )}
-        {...props}
-      />
+      <Alert className={cn("flex flex-col gap-2", className)} {...props} />
     </ConfirmationContext.Provider>
   );
 };
@@ -90,10 +83,7 @@ export const ConfirmationTitle = ({
   className,
   ...props
 }: ConfirmationTitleProps) => (
-  <AlertDescription
-    className={cn("inline text-sm text-foreground", className)}
-    {...props}
-  />
+  <AlertDescription className={cn("inline", className)} {...props} />
 );
 
 export interface ConfirmationRequestProps {
@@ -120,9 +110,13 @@ export const ConfirmationAccepted = ({
 }: ConfirmationAcceptedProps) => {
   const { approval, state } = useConfirmation();
 
-  // The accepted message is transitional. Completed outputs own the durable
-  // receipt so the UI never says an action is still running after it finished.
-  if (!approval?.approved || state !== "approval-responded") {
+  // Only show when approved and in response states
+  if (
+    !approval?.approved ||
+    (state !== "approval-responded" &&
+      state !== "output-denied" &&
+      state !== "output-available")
+  ) {
     return null;
   }
 
@@ -166,10 +160,7 @@ export const ConfirmationActions = ({
 
   return (
     <div
-      className={cn(
-        "flex w-full flex-col-reverse gap-2 pt-1 sm:flex-row sm:items-center sm:justify-end",
-        className,
-      )}
+      className={cn("flex items-center justify-end gap-2 self-end", className)}
       {...props}
     />
   );
@@ -177,13 +168,6 @@ export const ConfirmationActions = ({
 
 export type ConfirmationActionProps = ComponentProps<typeof Button>;
 
-export const ConfirmationAction = ({
-  className,
-  ...props
-}: ConfirmationActionProps) => (
-  <Button
-    className={cn("min-h-11 w-full px-4 text-sm sm:w-auto", className)}
-    type="button"
-    {...props}
-  />
+export const ConfirmationAction = (props: ConfirmationActionProps) => (
+  <Button className="h-8 px-4 text-sm" type="button" {...props} />
 );

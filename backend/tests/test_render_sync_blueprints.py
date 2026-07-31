@@ -37,17 +37,23 @@ def test_backend_render_blueprint_keeps_high_risk_sync_crons_in_parity():
             assert services[name]["schedule"] == schedule
 
 
-def test_graph_sync_blueprints_do_not_override_the_safe_embed_limit():
+def test_graph_sync_blueprints_and_runner_share_the_budget_guarded_embed_limit():
     for path in _render_blueprint_paths():
         graph_sync = _services_by_name(path)["alleato-graph-sync"]
 
         assert "--embed-limit" not in graph_sync["dockerCommand"]
         assert graph_sync["dockerCommand"].endswith("scripts/run_graph_sync.py")
+        assert graph_sync["dockerCommand"].startswith("timeout 55m")
         assert graph_sync["schedule"] == "20 */2 * * *"
         env = {item["key"]: item.get("value") for item in graph_sync["envVars"]}
         assert env["GRAPH_SYNC_TEAMS"] == "false"
         assert env["GRAPH_SYNC_TEAMS_DM"] == "false"
-        assert env["GRAPH_EMBEDDING_LIMIT"] == "25"
+        assert env["GRAPH_EMBEDDING_LIMIT"] == "100"
+        assert env["GRAPH_SYNC_RUN_EMBEDDING"] == "true"
+        assert env["GRAPH_SYNC_PHASE_TIMEOUT_SECONDS"] == "480"
+
+    runner_source = (BACKEND_ROOT / "scripts" / "run_graph_sync.py").read_text()
+    assert 'bounded_int_env("GRAPH_EMBEDDING_LIMIT", 100, 1, 100)' in runner_source
 
 
 def test_high_risk_sync_crons_are_not_disabled_echoes():
@@ -59,7 +65,10 @@ def test_high_risk_sync_crons_are_not_disabled_echoes():
             "alleato-teams-dm-sync",
             "alleato-graph-sync",
         ):
-            assert "disabled while DB incident guard is active" not in services[name]["dockerCommand"]
+            assert (
+                "disabled while DB incident guard is active"
+                not in services[name]["dockerCommand"]
+            )
 
 
 def test_acumatica_automatic_sync_is_absent_and_web_fallback_is_disabled():
@@ -77,7 +86,10 @@ def test_source_sync_health_cron_uses_direct_entrypoint():
         source_sync = _services_by_name(path)["alleato-source-sync-health"]
 
         assert source_sync["schedule"] == "*/30 * * * *"
-        assert source_sync["dockerCommand"] == "python3 scripts/run_source_sync_health_recompute.py"
+        assert (
+            source_sync["dockerCommand"]
+            == "python3 scripts/run_source_sync_health_recompute.py"
+        )
 
 
 def test_fireflies_cron_uses_direct_entrypoint():
@@ -170,7 +182,9 @@ def test_teams_channel_cron_uses_direct_entrypoint():
         teams = _services_by_name(path)["alleato-teams-channel-sync"]
 
         assert "timeout 25m" in teams["dockerCommand"]
-        assert teams["dockerCommand"].endswith("scripts/run_graph_teams_channel_sync.py")
+        assert teams["dockerCommand"].endswith(
+            "scripts/run_graph_teams_channel_sync.py"
+        )
 
 
 def test_services_calling_get_supabase_client_declare_the_service_role_key():
@@ -199,3 +213,14 @@ def test_services_calling_get_supabase_client_declare_the_service_role_key():
                 f"{name} calls get_supabase_client() but does not declare "
                 "SUPABASE_SERVICE_ROLE_KEY in render.yaml"
             )
+
+
+def test_rag_runtime_owners_declare_the_dedicated_database_contract():
+    for path in _render_blueprint_paths():
+        services = _services_by_name(path)
+        for name in ("alleato-backend", "alleato-graph-sync"):
+            env = {item["key"] for item in services[name]["envVars"]}
+            assert "RAG_SUPABASE_URL" in env
+            assert "RAG_SUPABASE_SERVICE_ROLE_KEY" in env
+            assert "RAG_DATABASE_READS_ENABLED" in env
+            assert "RAG_DATABASE_WRITES_ENABLED" in env

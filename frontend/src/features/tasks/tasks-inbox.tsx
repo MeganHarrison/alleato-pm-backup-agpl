@@ -31,6 +31,7 @@ import {
   useUnifiedTableState,
   type FilterValue,
 } from "@/components/tables/unified";
+import { PageTabs } from "@/components/layout";
 import { TaskFeedbackButtons } from "@/components/ai/TaskFeedbackButtons";
 import { SwipeableListRow } from "@/components/ds/SwipeableListRow";
 import {
@@ -92,6 +93,7 @@ import {
   buildTasksTableColumns,
   getTaskProjectId,
   isAiGeneratedTask,
+  renderTasksList,
   renderTasksRowActions,
   tasksColumns,
   tasksDefaultVisibleColumns,
@@ -99,12 +101,6 @@ import {
 import { ExpandableSearch } from "@/components/tables/unified/table-toolbar";
 import { Markdown } from "@/components/misc/markdown";
 import { TasksBoardView } from "@/features/tasks/tasks-board-view";
-import {
-  parseTasksWorkSurfaceState,
-  serializeTaskFilterParams,
-  taskMatchesWorkSurfaceFilters,
-  taskViewParam,
-} from "@/features/tasks/tasks-work-surface-state";
 import {
   type EmailThreadMessage,
   type MeetingContextItem,
@@ -116,6 +112,10 @@ import {
   parseTeamsConversation,
 } from "@/features/tasks/email-thread-parser";
 import { NewTaskDialog } from "@/features/tasks/new-task-dialog";
+import {
+  buildTasksListUrl,
+  taskMatchesContext,
+} from "@/features/tasks/tasks-inbox-context";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -243,12 +243,26 @@ function getSavedPanelPct(): number {
 
 function isOverdue(dueDateStr: string | null): boolean {
   if (!dueDateStr) return false;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dueDateStr)) {
+    const dueDate = parseTaskDate(dueDateStr);
+    if (!dueDate) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return dueDate.getTime() < today.getTime();
+  }
   return new Date(dueDateStr).getTime() < Date.now();
 }
 
 function formatShortDate(value: string | null): string {
   if (!value) return "—";
-  const date = new Date(value);
+  const dateOnlyMatch = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  const date = dateOnlyMatch
+    ? new Date(
+        Number(dateOnlyMatch[1]),
+        Number(dateOnlyMatch[2]) - 1,
+        Number(dateOnlyMatch[3]),
+      )
+    : new Date(value);
   if (Number.isNaN(date.getTime())) return value;
   return format(date, "MMM d, yyyy");
 }
@@ -1041,9 +1055,7 @@ function TaskSplitListItem({
       }}
       className={cn(
         "group flex cursor-pointer gap-2.5 border-b border-border/40 px-5 py-3 text-left transition-colors",
-        isSelected
-          ? "bg-muted/55"
-          : "hover:bg-muted/30",
+        isSelected ? "bg-muted/55" : "hover:bg-muted/30",
       )}
     >
       <Checkbox
@@ -1706,9 +1718,7 @@ function TaskDetail({
 
         {task.id && isAiGeneratedTask(task) && (
           <div className="mt-3 flex items-center gap-2">
-            <span className="text-xs text-muted-foreground/70">
-              Good task?
-            </span>
+            <span className="text-xs text-muted-foreground/70">Good task?</span>
             <TaskFeedbackButtons
               projectId={taskProjectId}
               taskId={task.id}
@@ -1751,11 +1761,11 @@ function EmptyDetail({
     <div className="flex h-full flex-col justify-center px-8 py-10">
       <div className="max-w-sm space-y-2">
         <p className="text-sm font-semibold text-foreground">
-        {loading
-          ? "Loading tasks…"
-          : total === 0
-            ? "No tasks yet"
-            : "Select a task"}
+          {loading
+            ? "Loading tasks…"
+            : total === 0
+              ? "No tasks yet"
+              : "Select a task"}
         </p>
         <p className="text-sm leading-6 text-muted-foreground">
           {loading
@@ -1778,15 +1788,38 @@ function EmptyDetail({
 interface TasksInboxProps {
   projectId?: string | null;
   projectName?: string | null;
+  context?: "crm";
   defaultScope?: Scope;
+  defaultView?: "table" | "board" | "split";
   showTabs?: boolean;
+  title?: string;
+  description?: string;
+  workspaceTabs?: Array<{
+    label: string;
+    href: string;
+    count?: number;
+    isActive?: boolean;
+  }>;
+  /** Optional host-owned width contract for a tabbed workspace. */
+  workspaceSplitPageClassName?: string;
+  /** Optional host-owned table width contract for a tabbed workspace. */
+  workspaceTableLayout?: { maxWidth: "2xl" };
+  showCreateAction?: boolean;
 }
 
 export function TasksInbox({
   projectId = null,
   projectName = null,
+  context,
   defaultScope = "mine",
+  defaultView = "split",
   showTabs = true,
+  title = "Tasks",
+  description: customDescription,
+  workspaceTabs,
+  workspaceSplitPageClassName,
+  workspaceTableLayout,
+  showCreateAction = true,
 }: TasksInboxProps) {
   const isProjectScoped = Boolean(projectId);
 
@@ -1801,11 +1834,7 @@ export function TasksInbox({
 
   const rawScope = searchParams.get("scope");
   const rawTaskId = searchParams.get("task");
-  const searchParamsKey = searchParams.toString();
-  const workSurfaceState = useMemo(
-    () => parseTasksWorkSurfaceState(new URLSearchParams(searchParamsKey)),
-    [searchParamsKey],
-  );
+  const rawView = searchParams.get("view");
   const initialScope: Scope =
     rawScope === "all" || rawScope === "mine" ? rawScope : defaultScope;
 
@@ -1833,6 +1862,7 @@ export function TasksInbox({
   const [projectsLoading, setProjectsLoading] = useState(true);
   const [users, setUsers] = useState<UserOption[]>([]);
   const [usersLoading, setUsersLoading] = useState(true);
+  const [isMobileViewport, setIsMobileViewport] = useState(false);
   const [splitViewHeight, setSplitViewHeight] = useState<number | null>(null);
 
   const listPanelRef = useRef<HTMLDivElement>(null);
@@ -1861,31 +1891,54 @@ export function TasksInbox({
   }, []);
 
   const tableState = useUnifiedTableState({
-    entityKey: isProjectScoped ? `project-tasks-${projectId}` : "tasks",
+    entityKey: isProjectScoped
+      ? `project-tasks-${projectId}`
+      : context === "crm"
+        ? "crm-tasks"
+        : "tasks",
     searchParams,
     pathname,
     router,
     defaults: {
-      view: workSurfaceState.view,
-      allowedViews: ["list", "board"],
+      view: defaultView,
+      allowedViews: ["table", "board", "split"],
       page: 1,
       perPage: 25,
       search: "",
       sortBy: "created_at",
       sortDirection: "desc",
       visibleColumns: tasksDefaultVisibleColumns,
-      filters: workSurfaceState.filters,
+      filters: EMPTY_FILTERS,
     },
   });
-  const setActiveFilters = tableState.setActiveFilters;
 
   useEffect(() => {
-    setActiveFilters((current) => {
-      const next = { ...current, ...workSurfaceState.filters };
-      return JSON.stringify(next) === JSON.stringify(current) ? current : next;
-    });
-    setFilter(workSurfaceState.filters.status);
-  }, [setActiveFilters, workSurfaceState.filters]);
+    if (typeof window === "undefined") return;
+
+    const mediaQuery = window.matchMedia("(max-width: 767px)");
+    const syncViewport = () => setIsMobileViewport(mediaQuery.matches);
+
+    syncViewport();
+    mediaQuery.addEventListener("change", syncViewport);
+
+    return () => mediaQuery.removeEventListener("change", syncViewport);
+  }, []);
+
+  useEffect(() => {
+    if (!isMobileViewport || rawView) return;
+    if (tableState.currentView === "board") return;
+
+    tableState.setCurrentView("board");
+    tableState.setSearchParams({ view: "board" });
+  }, [isMobileViewport, rawView, tableState]);
+
+  useEffect(() => {
+    if (rawView !== "card") return;
+    if (tableState.currentView === "board") return;
+
+    tableState.setCurrentView("board");
+    tableState.setSearchParams({ view: "board" });
+  }, [rawView, tableState]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -1935,7 +1988,9 @@ export function TasksInbox({
     let cancelled = false;
     void apiFetch<{ task: TasksRow }>(`/api/tasks/${selectedId}`)
       .then((data) => {
-        if (!cancelled) setSelectedTaskDetails(data.task ?? null);
+        if (cancelled) return;
+        const task = data.task ?? null;
+        setSelectedTaskDetails(taskMatchesContext(task, context) ? task : null);
       })
       .catch((err) => {
         if (cancelled) return;
@@ -1951,15 +2006,17 @@ export function TasksInbox({
     return () => {
       cancelled = true;
     };
-  }, [selectedId]);
+  }, [context, selectedId]);
 
   // ---- Fetch ----
   const fetchItems = useCallback(async () => {
     setLoading(true);
     try {
-      const url = isProjectScoped
-        ? `/api/tasks?project_id=${projectId}&scope=${scope}`
-        : `/api/tasks?scope=${scope}`;
+      const url = buildTasksListUrl({
+        scope,
+        projectId: isProjectScoped ? projectId : null,
+        context,
+      });
       const data = await apiFetch<{ data?: TasksRow[] }>(url);
       setItems(data.data ?? []);
       setTotal((data.data ?? []).length);
@@ -1974,7 +2031,7 @@ export function TasksInbox({
     } finally {
       setLoading(false);
     }
-  }, [isProjectScoped, projectId, scope]);
+  }, [context, isProjectScoped, projectId, scope]);
 
   useEffect(() => {
     fetchItems();
@@ -2082,7 +2139,10 @@ export function TasksInbox({
   }, [isAdmin, isProjectScoped, projectId, scope]);
 
   // ---- Filtered list ----
-  // The canonical List and Board views consume the same normalized task set.
+  // Base filter: search + source system only — no status filter.
+  // This is what UnifiedTablePage receives so that showTable=true whenever
+  // any tasks exist, allowing the split view (and its open/done tabs) to
+  // always render rather than being replaced by the EmptyState.
   const baseFilteredItems = useMemo(() => {
     const searchTerm = tableState.debouncedSearch.trim().toLowerCase();
     const sourceFilter =
@@ -2093,11 +2153,12 @@ export function TasksInbox({
       typeof tableState.activeFilters.project_id === "string"
         ? tableState.activeFilters.project_id
         : null;
-    return items.filter((item) => {
-      if (!taskMatchesWorkSurfaceFilters(item, tableState.activeFilters)) {
-        return false;
-      }
+    const assigneeFilter =
+      typeof tableState.activeFilters.assignee_person_id === "string"
+        ? tableState.activeFilters.assignee_person_id
+        : null;
 
+    return items.filter((item) => {
       if (
         sourceFilter &&
         getTaskSourceLabel(item).toLowerCase() !== sourceFilter
@@ -2109,6 +2170,14 @@ export function TasksInbox({
         if (projectFilter === "__none__") {
           if (itemProjectId !== null) return false;
         } else if (String(itemProjectId ?? "") !== projectFilter) {
+          return false;
+        }
+      }
+
+      if (assigneeFilter) {
+        if (assigneeFilter === "__unassigned__") {
+          if (item.assignee_person_id || item.assignee_email) return false;
+        } else if (item.assignee_person_id !== assigneeFilter) {
           return false;
         }
       }
@@ -2131,12 +2200,8 @@ export function TasksInbox({
   }, [
     items,
     tableState.activeFilters.assignee_person_id,
-    tableState.activeFilters.due_date_from,
-    tableState.activeFilters.due_date_to,
-    tableState.activeFilters.priority,
     tableState.activeFilters.project_id,
     tableState.activeFilters.source_system,
-    tableState.activeFilters.status,
     tableState.debouncedSearch,
   ]);
 
@@ -2568,13 +2633,9 @@ export function TasksInbox({
 
   const isFiltered =
     tableState.debouncedSearch.trim().length > 0 ||
-    tableState.activeFilters.status === "done" ||
     tableState.activeFilters.source_system !== undefined ||
     tableState.activeFilters.project_id !== undefined ||
-    tableState.activeFilters.assignee_person_id !== undefined ||
-    tableState.activeFilters.priority !== undefined ||
-    tableState.activeFilters.due_date_from !== undefined ||
-    tableState.activeFilters.due_date_to !== undefined;
+    tableState.activeFilters.assignee_person_id !== undefined;
 
   const handleFilterChange = useCallback(
     (nextFilters: Record<string, FilterValue>) => {
@@ -2583,7 +2644,6 @@ export function TasksInbox({
         setFilter(nextFilters.status);
       }
       tableState.setPage(1);
-      tableState.setSearchParams(serializeTaskFilterParams(nextFilters));
     },
     [tableState],
   );
@@ -2598,9 +2658,6 @@ export function TasksInbox({
         status: value,
       }));
       tableState.setPage(1);
-      tableState.setSearchParams({
-        status: value === "done" ? "done" : null,
-      });
       setSelectedId(null);
       setMobileShowDetail(false);
     },
@@ -2661,18 +2718,25 @@ export function TasksInbox({
     window.URL.revokeObjectURL(url);
   }, [filteredItems]);
 
-  const description = isProjectScoped
-    ? projectName
-      ? `Tasks associated with ${projectName}`
-      : "Tasks for this project"
-    : "Tasks assigned from meetings, emails, documents, and source intelligence.";
+  const description =
+    customDescription ??
+    (isProjectScoped
+      ? projectName
+        ? `Tasks associated with ${projectName}`
+        : "Tasks for this project"
+      : "Tasks assigned from meetings, emails, documents, and source intelligence.");
+  const visibleTabs =
+    workspaceTabs ?? (showTabs && !profileLoading ? scopeTabs : undefined);
 
   if (tableState.currentView === "split") {
     return (
       <>
         <SplitPageFrame
           height="fill"
-          className={TASKS_SPLIT_WORKSPACE_CLASSNAME}
+          className={cn(
+            TASKS_SPLIT_WORKSPACE_CLASSNAME,
+            workspaceSplitPageClassName,
+          )}
         >
           <SplitPage
             variant="two-column"
@@ -2691,7 +2755,7 @@ export function TasksInbox({
                 <div className="flex items-center justify-between gap-4">
                   <div className="min-w-0">
                     <div className="text-[28px] font-semibold tracking-[-0.03em] text-foreground">
-                      Tasks
+                      {title}
                     </div>
                   </div>
                   <div className="flex items-center gap-1 text-muted-foreground">
@@ -2700,8 +2764,8 @@ export function TasksInbox({
                       variant="ghost"
                       size="icon"
                       onClick={() => {
-                        tableState.setCurrentView("list");
-                        tableState.setSearchParams({ view: "list" });
+                        tableState.setCurrentView("table");
+                        tableState.setSearchParams({ view: "table" });
                       }}
                       aria-label="Table view"
                       title="Table view"
@@ -2765,43 +2829,32 @@ export function TasksInbox({
                     >
                       <ListFilter className="h-4 w-4" />
                     </Button>
-                    <NewTaskDialog
-                      projects={projects}
-                      users={users}
-                      defaultProjectId={
-                        isProjectScoped ? Number(projectId) : null
-                      }
-                      onCreated={fetchItems}
-                    />
+                    {showCreateAction ? (
+                      <NewTaskDialog
+                        projects={projects}
+                        users={users}
+                        defaultProjectId={
+                          isProjectScoped ? Number(projectId) : null
+                        }
+                        onCreated={fetchItems}
+                      />
+                    ) : null}
                   </div>
                 </div>
 
-                {showTabs && !profileLoading ? (
-                  <nav className="mt-3 flex items-center gap-5">
-                    {scopeTabs.map((tab) => (
-                      <Button
-                        key={tab.label}
-                        type="button"
-                        variant="ghost"
-                        onClick={() => router.push(`${tab.href}&view=list`)}
-                        className={cn(
-                          "relative h-auto rounded-none px-0 py-2 text-sm font-medium shadow-none hover:bg-transparent",
-                          tab.isActive
-                            ? "text-primary"
-                            : "text-foreground/70 hover:text-foreground/90",
-                        )}
-                      >
-                        {tab.label}
-                        <span
-                          aria-hidden="true"
-                          className={cn(
-                            "pointer-events-none absolute bottom-0 left-0 right-0 h-0.5 rounded-full transition-colors",
-                            tab.isActive ? "bg-primary" : "bg-transparent",
-                          )}
-                        />
-                      </Button>
-                    ))}
-                  </nav>
+                {visibleTabs ? (
+                  <PageTabs
+                    tabs={
+                      workspaceTabs
+                        ? visibleTabs
+                        : visibleTabs.map((tab) => ({
+                            ...tab,
+                            href: `${tab.href}&view=split`,
+                          }))
+                    }
+                    variant="inline"
+                    className="mb-0 mt-3"
+                  />
                 ) : null}
               </div>
 
@@ -2849,11 +2902,7 @@ export function TasksInbox({
             <div className="hidden min-w-0 flex-1 flex-col overflow-hidden xl:flex">
               <div className="min-h-0 flex-1 overflow-y-auto">
                 {!selectedWithContext ? (
-                  <EmptyDetail
-                    total={total}
-                    loading={loading}
-                    scope={scope}
-                  />
+                  <EmptyDetail total={total} loading={loading} scope={scope} />
                 ) : (
                   <TaskDetail
                     task={selectedWithContext}
@@ -2880,18 +2929,18 @@ export function TasksInbox({
     <>
       <UnifiedTablePage<TasksRow>
         header={{
-          title: "Tasks",
+          title,
           description,
-          actions: (
+          actions: showCreateAction ? (
             <NewTaskDialog
               projects={projects}
               users={users}
               defaultProjectId={isProjectScoped ? Number(projectId) : null}
               onCreated={fetchItems}
             />
-          ),
+          ) : undefined,
         }}
-        tabs={showTabs && !profileLoading ? scopeTabs : undefined}
+        tabs={visibleTabs}
         toolbar={{
           totalItems: items.length,
           filteredItems: baseFilteredItems.length,
@@ -2901,11 +2950,10 @@ export function TasksInbox({
           searchPlaceholder: "Search tasks...",
           currentView: tableState.currentView,
           onViewChange: (view) => {
-            if (view !== "list" && view !== "board") return;
             tableState.setCurrentView(view);
-            tableState.setSearchParams({ view: taskViewParam(view) });
+            tableState.setSearchParams({ view });
           },
-          enabledViews: ["list", "board"],
+          enabledViews: ["table", "board", "split"],
           filters,
           activeFilters: tableState.activeFilters,
           onFilterChange: handleFilterChange,
@@ -2931,7 +2979,7 @@ export function TasksInbox({
           columns: tableColumns,
           getRowId: (item) => item.id ?? "",
           onRowClick:
-            tableState.currentView === "list"
+            tableState.currentView === "table"
               ? undefined
               : (item) => {
                   if (item.id) selectItem(item.id);
@@ -2948,6 +2996,7 @@ export function TasksInbox({
           board: ({ items }) => (
             <TasksBoardView items={items} onOpen={openPanelForItem} />
           ),
+          list: (item) => renderTasksList(item, handleOpenSource),
           split: () => (
             <div
               ref={setSplitViewContainer}
@@ -3239,6 +3288,7 @@ export function TasksInbox({
           enableInlineEditing: true,
         }}
         layout={{
+          ...workspaceTableLayout,
           fullBleedTable: false,
           toolbarInlineWithHeader: true,
           containerClassName: "pt-0",

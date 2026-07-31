@@ -13,6 +13,7 @@ import { NextResponse } from "next/server";
 import { getResend } from "@/lib/email/client";
 import { serviceDb } from "@/lib/supabase/service-db";
 import { logger } from "@/lib/logger";
+import type { Database, Json } from "@/types/database.types";
 
 export const runtime = "nodejs";
 
@@ -76,10 +77,10 @@ export const POST = withApiGuardrails(
     return NextResponse.json({ ok: true, ignored: "no email_id" });
   }
 
-    const update: Record<string, unknown> = { status };
+    const update: Database["public"]["Tables"]["email_events"]["Update"] = { status };
   if (status === "delivered") update.delivered_at = new Date().toISOString();
   if (status === "bounced" || status === "complained") {
-    update.error = { type: event.type, data: event.data };
+    update.error = { type: event.type, data: event.data } as Json;
   }
 
   await serviceDb.from("email_events").update(update).eq("resend_id", emailId);

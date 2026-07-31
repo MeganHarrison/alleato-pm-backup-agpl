@@ -1,6 +1,6 @@
 import { withApiGuardrails } from "@/lib/guardrails/api";
 import { GuardrailError } from "@/lib/guardrails/errors";
-import { createSubmittalAIReviewService } from "@/lib/submittals/ai-review/review-run-service";
+import { createSubmittalLinkedDrawingsService } from "@/lib/submittals/linked-drawings-service";
 import { createClient, getApiRouteUser } from "@/lib/supabase/server";
 
 const ROUTE_BASE =
@@ -29,10 +29,10 @@ export const DELETE = withApiGuardrails<{
     });
   }
 
-  const reviewService = createSubmittalAIReviewService(user.id);
-  const projectIdNumber = reviewService.parseProjectId(projectId);
-  await reviewService.getScopedSubmittal(projectIdNumber, submittalId);
-  await reviewService.getDrawingByScope(projectIdNumber, drawingId);
+  const linkedDrawingsService = createSubmittalLinkedDrawingsService(user.id);
+  const projectIdNumber = linkedDrawingsService.parseProjectId(projectId);
+  await linkedDrawingsService.getScopedSubmittal(projectIdNumber, submittalId);
+  await linkedDrawingsService.getDrawingByScope(projectIdNumber, drawingId);
 
   const { error } = await supabase
     .from("submittal_linked_drawings")

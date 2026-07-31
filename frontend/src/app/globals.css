@@ -94,9 +94,6 @@
     --surface-summary: 0 0% 97.6%;
     --summary-panel-padding: 30px;
     --right-sidebar-bg: 0 0% 100%;
-    /* Distinct dark surface for the login screen (#1d1d1d) so the sign-in page
-       is instantly recognizable and never confused with the authed app. */
-    --login-surface: 0 0% 11.4%;
 
     /* Primary Accent — Alleato brand orange */
     --primary: var(--brand-orange-500);
@@ -114,8 +111,10 @@
     --muted: var(--neutral-100);
     --muted-subtle: var(--neutral-50);
     --muted-foreground: var(--neutral-600);
-    /* Shared non-semantic heading accent (#3b4a63). */
-    --heading-label: 215 25% 31%;
+    /* Shared non-semantic heading accent — darkened slate (#2a384b) so every
+       section label (Eyebrow, SectionRuleHeading, .text-label-uppercase, etc.)
+       reads with confident contrast on white instead of a washed-out gray. */
+    --heading-label: 215 28% 23%;
 
     /* Accent — neutral gray for command/dropdown highlights (sidebar uses its own token) */
     --accent: var(--neutral-100);
@@ -167,9 +166,17 @@
       var(--font-inter), "Inter", "Inter Variable", ui-sans-serif, system-ui,
       -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
       Arial, sans-serif;
+    --font-title: var(--font-oswald), "Oswald", "Arial Narrow", sans-serif;
     --font-mono:
       "JetBrains Mono", "SF Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
       Consolas, "Liberation Mono", "Courier New", monospace;
+    /* Primary heading typeface — Oswald (loaded in layout.tsx via next/font).
+       Every title in the product uses this face on the same Regular weight and
+       spacing contract. Falls back to the sans stack if the webfont fails.
+       Applied to headings + display/label type below; body copy and metric
+       numbers deliberately stay --font-sans. */
+    --font-heading: var(--font-oswald), "Oswald", var(--font-sans);
+    --font-heading-weight: 400;
 
     /* Transition Tokens */
     --transition-instant: 0ms;
@@ -373,7 +380,6 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-surface-alt: hsl(var(--surface-alt));
-  --color-login-surface: hsl(var(--login-surface));
   --color-light: hsl(var(--light));
   --color-heading-label: hsl(var(--heading-label));
   --animate-orbit: orbit calc(var(--duration) * 1s) linear infinite;
@@ -587,7 +593,10 @@
   h4,
   h5,
   h6 {
-    letter-spacing: -0.01em;
+    font-family: var(--font-heading) !important;
+    font-weight: var(--font-heading-weight) !important;
+    letter-spacing: 0px !important;
+    text-transform: uppercase !important;
   }
 
   /* Responsive media */
@@ -1203,6 +1212,27 @@
 
   .font-serif {
     font-family: var(--font-serif);
+  }
+
+  /* Oswald heading font. `.font-heading` is the opt-in utility; the grouped
+     selectors below give the design-system heading/title/label classes the
+     heading typeface without touching each definition. Body copy and metric
+     numbers deliberately stay on --font-sans and are not listed here. */
+  .font-heading,
+  .text-page-title,
+  .text-section-title,
+  .text-card-title,
+  .heading-section,
+  .heading-micro,
+  .heading-small-caps,
+  .heading-tiny-caps,
+  .text-label-uppercase,
+  .text-section-label,
+  .text-display,
+  .text-headline,
+  .text-subheadline,
+  .text-overline {
+    font-family: var(--font-heading);
   }
 
   /* Transition Utilities */
@@ -3114,4 +3144,45 @@ velt-comment-dialog-internal velt-sidebar-button {
       max-height: 820px;
     }
   }
+}
+
+/* ============================================================================
+   OSWALD HEADING TREATMENT — Book (400) weight + UPPERCASE
+   ----------------------------------------------------------------------------
+   Oswald is the primary heading typeface (see --font-heading). The house style
+   is Book weight, all caps. This block is intentionally UNLAYERED so it
+   overrides Tailwind weight utilities (font-medium / font-semibold / font-bold
+   live in @layer utilities) and per-component weights hardcoded for the old
+   Inter era. Do not wrap it in @layer — that would let those utilities win.
+
+   Large headings get Book + UPPERCASE. Small heading labels (eyebrows, badges)
+   keep their own heavier weight for legibility at ~11px, but are still
+   uppercased for consistency.
+   ============================================================================ */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.text-page-title,
+.text-section-title,
+.text-card-title,
+.heading-section,
+.heading-micro,
+.text-display,
+.text-headline,
+.text-subheadline {
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+/* Small heading labels — uppercase only, keep their existing weight. */
+.font-heading,
+.heading-small-caps,
+.heading-tiny-caps,
+.text-label-uppercase,
+.text-section-label,
+.text-overline {
+  text-transform: uppercase;
 }

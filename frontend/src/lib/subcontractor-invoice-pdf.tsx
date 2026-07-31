@@ -249,6 +249,7 @@ const styles = StyleSheet.create({
   ruleTable: {
     borderTopWidth: 1,
     borderLeftWidth: 1,
+    borderRightWidth: 1,
     borderColor: "#111111",
     marginTop: 4,
   },
@@ -315,6 +316,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     borderTopWidth: 1,
     borderLeftWidth: 1,
+    borderRightWidth: 1,
     borderColor: "#111111",
   },
   changeSummaryHeader: {
@@ -360,6 +362,7 @@ const styles = StyleSheet.create({
   detailTable: {
     borderTopWidth: 1,
     borderLeftWidth: 1,
+    borderRightWidth: 1,
     borderColor: "#111111",
     marginTop: 4,
     width: "98.5%",

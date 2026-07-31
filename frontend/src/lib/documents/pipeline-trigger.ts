@@ -1,3 +1,5 @@
+import "server-only";
+
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { enqueueDocumentPipeline } from "@/lib/rag-pipeline/enqueue";
 import { createRagServiceClient } from "@/lib/supabase/service";

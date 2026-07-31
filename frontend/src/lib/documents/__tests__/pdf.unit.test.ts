@@ -15,6 +15,13 @@ import { CHROMIUM_PACK_VERSION, getChromiumRemotePackUrl } from "@/lib/documents
  *    selected per-arch.
  */
 describe("Chromium remote pack fallback URL", () => {
+  it("keeps Chromium out of per-route output tracing", () => {
+    const nextConfig = readFileSync(path.resolve(process.cwd(), "next.config.ts"), "utf8");
+
+    expect(nextConfig).not.toContain("@sparticuz/chromium/bin/**");
+    expect(nextConfig).toContain("downloads a version-pinned remote pack");
+  });
+
   it("pins the same version as the installed @sparticuz/chromium package", () => {
     const pkgPath = path.resolve(process.cwd(), "node_modules/@sparticuz/chromium/package.json");
     const installedVersion: string = JSON.parse(readFileSync(pkgPath, "utf8")).version;

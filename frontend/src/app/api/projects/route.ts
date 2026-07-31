@@ -1,12 +1,19 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import type { Database } from "@/types/database.types";
 import { getApiRouteUser } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
+import { resolvePersonId } from "@/lib/auth/identity";
+import { resolveCompanyTemplateIdForPerson } from "@/lib/auth/project-access";
 import { GuardrailError } from "@/lib/guardrails/errors";
 import { parseJsonBody, withApiGuardrails } from "@/lib/guardrails/api";
-import { isOwnerEmail } from "@/lib/auth/owner";
+import { canViewHiddenProjects, isOwnerEmail } from "@/lib/auth/owner";
 import { buildRequestProjectCreationAttribution } from "@/lib/projects/creation-attribution";
+import {
+  provisionProjectCreatorAccess,
+  resolveProjectCreatorAccess,
+} from "@/lib/projects/project-creator-access";
 
 function normalizeOptionalDate(value: unknown): string | null | undefined {
   if (typeof value === "undefined") {
@@ -24,6 +31,7 @@ function normalizeOptionalDate(value: unknown): string | null | undefined {
 const CreateProjectSchema = z
   .object({
     name: z.string().min(1, "Project name is required"),
+    crm_conversion_attempt_id: z.string().uuid().optional(),
   })
   .passthrough();
 
@@ -31,6 +39,7 @@ type ProjectApiRow = Record<string, unknown> & {
   id: number;
   company_id?: string | null;
 };
+type ProjectInsert = Database["public"]["Tables"]["projects"]["Insert"];
 
 type PrimeContractClientRow = {
   project_id: number;
@@ -49,6 +58,7 @@ type UserAuthLinkRow = {
 
 type UserProfileRow = {
   is_admin: boolean | null;
+  is_developer: boolean | null;
 };
 
 type ProjectDirectoryMembershipRow = {
@@ -59,14 +69,27 @@ type ProjectRoleMembershipRow = {
   project_role: { project_id: number | null } | null;
 };
 
+function toProjectApiRows(value: unknown): ProjectApiRow[] {
+  if (!Array.isArray(value)) return [];
+
+  return value.flatMap((row) => {
+    if (typeof row !== "object" || row === null) return [];
+
+    const record = Object.fromEntries(Object.entries(row));
+    if (typeof record.id !== "number") return [];
+
+    return [{ ...record, id: record.id }];
+  });
+}
+
 const PROJECT_FIELD_MAP: Record<string, string> = {
   id: "id",
   name: "name",
   project_number: "project_number",
   projectNumber: "project_number",
-  "job number": "\"job number\"",
-  job_number: "\"job number\"",
-  jobNumber: "\"job number\"",
+  "job number": '"job number"',
+  job_number: '"job number"',
+  jobNumber: '"job number"',
   phase: "phase",
   state: "state",
   archived: "archived",
@@ -76,7 +99,10 @@ const PROJECT_FIELD_MAP: Record<string, string> = {
   createdAt: "created_at",
 };
 
-function getProjectSelect(fieldsParam: string | null, includeClientResolution: boolean): string {
+function getProjectSelect(
+  fieldsParam: string | null,
+  includeClientResolution: boolean,
+): string {
   if (!fieldsParam) return "*";
 
   const selectedFields = fieldsParam
@@ -88,7 +114,9 @@ function getProjectSelect(fieldsParam: string | null, includeClientResolution: b
 
   if (selectedFields.length === 0) return "*";
 
-  const requiredFields = includeClientResolution ? ["id", "company_id"] : ["id"];
+  const requiredFields = includeClientResolution
+    ? ["id", "company_id"]
+    : ["id"];
   return Array.from(new Set([...requiredFields, ...selectedFields])).join(",");
 }
 
@@ -100,10 +128,15 @@ function cleanClientName(value: unknown): string | null {
   return trimmed;
 }
 
-function uniqueFiniteProjectIds(values: Array<number | null | undefined>): number[] {
+function uniqueFiniteProjectIds(
+  values: Array<number | null | undefined>,
+): number[] {
   return Array.from(
     new Set(
-      values.filter((value): value is number => typeof value === "number" && Number.isFinite(value)),
+      values.filter(
+        (value): value is number =>
+          typeof value === "number" && Number.isFinite(value),
+      ),
     ),
   );
 }
@@ -111,13 +144,19 @@ function uniqueFiniteProjectIds(values: Array<number | null | undefined>): numbe
 async function resolveVisibleProjectIdsForUser(
   supabase: ReturnType<typeof createServiceClient>,
   user: { id: string; email?: string | null },
-): Promise<{ isAdmin: boolean; isOwner: boolean; allowedProjectIds: number[] | null }> {
+): Promise<{
+  isAdmin: boolean;
+  isOwner: boolean;
+  isDeveloper: boolean;
+  allowedProjectIds: number[] | null;
+}> {
   const userId = user.id;
 
   const { data: authLink, error: authLinkError } = await supabase
     .from("users_auth")
-    .select("person_id")
+    .select("person_id, person:people!inner(status)")
     .eq("auth_user_id", userId)
+    .eq("person.status", "active")
     .maybeSingle();
 
   if (authLinkError) {
@@ -132,7 +171,7 @@ async function resolveVisibleProjectIdsForUser(
 
   const { data: profile, error: profileError } = await supabase
     .from("user_profiles")
-    .select("is_admin")
+    .select("is_admin, is_developer")
     .eq("id", userId)
     .maybeSingle();
 
@@ -147,6 +186,7 @@ async function resolveVisibleProjectIdsForUser(
   }
 
   const isAdmin = (profile as UserProfileRow | null)?.is_admin === true;
+  const isDeveloper = (profile as UserProfileRow | null)?.is_developer === true;
 
   // Project visibility is membership-scoped for EVERYONE — including admins.
   // Only the single workspace owner sees the entire portfolio. `is_admin`
@@ -154,19 +194,38 @@ async function resolveVisibleProjectIdsForUser(
   // which projects appear in the dashboard / portfolio list.
   const isOwner = isOwnerEmail(user.email);
   if (isOwner) {
-    return { isAdmin, isOwner, allowedProjectIds: null };
+    return { isAdmin, isOwner, isDeveloper, allowedProjectIds: null };
   }
 
   const personId = (authLink as UserAuthLinkRow | null)?.person_id;
   if (!personId) {
-    return { isAdmin, isOwner, allowedProjectIds: [] };
+    return { isAdmin, isOwner, isDeveloper, allowedProjectIds: [] };
   }
 
-  const { data: directoryMemberships, error: directoryMembershipsError } = await supabase
-    .from("project_directory_memberships")
-    .select("project_id")
-    .eq("person_id", personId)
-    .eq("status", "active");
+  // Company templates explicitly cover every current and future project.
+  // The admin profile flag by itself remains membership-scoped.
+  const companyTemplate = await resolveCompanyTemplateIdForPerson(
+    supabase,
+    personId,
+  );
+  if (companyTemplate.error) {
+    throw new GuardrailError({
+      code: "INTERNAL_ERROR",
+      where: "/api/projects#GET",
+      message: "Failed to resolve company-wide project access.",
+      details: { reason: companyTemplate.error },
+    });
+  }
+  if (companyTemplate.templateId) {
+    return { isAdmin, isOwner, isDeveloper, allowedProjectIds: null };
+  }
+
+  const { data: directoryMemberships, error: directoryMembershipsError } =
+    await supabase
+      .from("project_directory_memberships")
+      .select("project_id")
+      .eq("person_id", personId)
+      .eq("status", "active");
 
   if (directoryMembershipsError) {
     throw new GuardrailError({
@@ -193,17 +252,21 @@ async function resolveVisibleProjectIdsForUser(
     });
   }
 
-  const directoryProjectIds = ((directoryMemberships ?? []) as ProjectDirectoryMembershipRow[]).map(
-    (membership) => membership.project_id,
-  );
-  const roleProjectIds = ((roleMemberships ?? []) as ProjectRoleMembershipRow[]).map(
-    (membership) => membership.project_role?.project_id,
-  );
+  const directoryProjectIds = (
+    (directoryMemberships ?? []) as ProjectDirectoryMembershipRow[]
+  ).map((membership) => membership.project_id);
+  const roleProjectIds = (
+    (roleMemberships ?? []) as ProjectRoleMembershipRow[]
+  ).map((membership) => membership.project_role?.project_id);
 
   return {
     isAdmin,
     isOwner,
-    allowedProjectIds: uniqueFiniteProjectIds([...directoryProjectIds, ...roleProjectIds]),
+    isDeveloper,
+    allowedProjectIds: uniqueFiniteProjectIds([
+      ...directoryProjectIds,
+      ...roleProjectIds,
+    ]),
   };
 }
 
@@ -218,7 +281,9 @@ async function applyResolvedClientNames(
   supabase: ReturnType<typeof createServiceClient>,
   projects: ProjectApiRow[],
 ): Promise<ProjectApiRow[]> {
-  const projectIds = projects.map((project) => project.id).filter(Number.isFinite);
+  const projectIds = projects
+    .map((project) => project.id)
+    .filter(Number.isFinite);
   if (projectIds.length === 0) {
     return projects;
   }
@@ -250,12 +315,14 @@ async function applyResolvedClientNames(
   }
 
   const companyIds = Array.from(
-    new Set(
-      [
-        ...projects.map((p) => p.company_id).filter((id): id is string => typeof id === "string" && id.trim().length > 0),
-        ...primeClientByProjectId.values(),
-      ],
-    ),
+    new Set([
+      ...projects
+        .map((p) => p.company_id)
+        .filter(
+          (id): id is string => typeof id === "string" && id.trim().length > 0,
+        ),
+      ...primeClientByProjectId.values(),
+    ]),
   );
 
   if (companyIds.length === 0) {
@@ -278,7 +345,10 @@ async function applyResolvedClientNames(
   }
 
   const companyNameById = new Map(
-    ((companies ?? []) as CompanyNameRow[]).map((company) => [company.id, cleanClientName(company.name)]),
+    ((companies ?? []) as CompanyNameRow[]).map((company) => [
+      company.id,
+      cleanClientName(company.name),
+    ]),
   );
 
   return projects.map((project) => {
@@ -288,257 +358,324 @@ async function applyResolvedClientNames(
         ? companyNameById.get(primeClientByProjectId.get(project.id) as string)
         : null);
 
-    return clientName ? { ...project, client: clientName } : { ...project, client: null };
+    return clientName
+      ? { ...project, client: clientName }
+      : { ...project, client: null };
   });
 }
 
-export const GET = withApiGuardrails("/api/projects#GET", async ({ request }) => {
-  const user = await getApiRouteUser();
-  if (!user) {
-    throw new GuardrailError({
-      code: "AUTH_EXPIRED",
-      where: "/api/projects#GET",
-      message: "Unauthorized projects request.",
-      status: 401,
-      severity: "medium",
-    });
-  }
+export const GET = withApiGuardrails(
+  "/api/projects#GET",
+  async ({ request }) => {
+    const user = await getApiRouteUser();
+    if (!user) {
+      throw new GuardrailError({
+        code: "AUTH_EXPIRED",
+        where: "/api/projects#GET",
+        message: "Unauthorized projects request.",
+        status: 401,
+        severity: "medium",
+      });
+    }
 
-  const supabase = createServiceClient();
-  const { isAdmin, allowedProjectIds } = await resolveVisibleProjectIdsForUser(supabase, user);
+    const supabase = createServiceClient();
+    const { isAdmin, isDeveloper, allowedProjectIds } =
+      await resolveVisibleProjectIdsForUser(supabase, user);
+    const mayViewHiddenProjects = canViewHiddenProjects(user.email);
 
-  const { searchParams } = new URL(request.url);
+    const { searchParams } = new URL(request.url);
 
-  // Pagination params
-  const page = parseInt(searchParams.get("page") || "1", 10);
-  const limit = parseInt(searchParams.get("limit") || "100", 10);
-  const offset = (page - 1) * limit;
+    // Pagination params
+    const page = parseInt(searchParams.get("page") || "1", 10);
+    const limit = parseInt(searchParams.get("limit") || "100", 10);
+    const offset = (page - 1) * limit;
 
-  // Filter params
-  const search = searchParams.get("search");
-  const state = searchParams.get("state");
-  const excludeState = searchParams.get("excludeState");
-  const phase = searchParams.get("phase");
-  const archived = searchParams.get("archived");
-  const companyId = searchParams.get("companyId");
-  const fields = searchParams.get("fields");
-  const skipClientResolution = searchParams.get("includeClient") === "false";
-  const projectSelect = getProjectSelect(fields, !skipClientResolution);
+    // Filter params
+    const search = searchParams.get("search");
+    const state = searchParams.get("state");
+    const excludeState = searchParams.get("excludeState");
+    const phase = searchParams.get("phase");
+    const archived = searchParams.get("archived");
+    const companyId = searchParams.get("companyId");
+    const fields = searchParams.get("fields");
+    const skipClientResolution = searchParams.get("includeClient") === "false";
+    const projectSelect = getProjectSelect(fields, !skipClientResolution);
 
-  if (allowedProjectIds !== null && allowedProjectIds.length === 0) {
-    return NextResponse.json({
-      data: [],
-      meta: { page, limit, total: 0, totalPages: 0 },
-    });
-  }
+    if (allowedProjectIds !== null && allowedProjectIds.length === 0) {
+      return NextResponse.json({
+        data: [],
+        meta: { page, limit, total: 0, totalPages: 0 },
+      });
+    }
 
-  let query = supabase
-    .from("projects")
-    .select(projectSelect, { count: "exact" })
-    .order("name", { ascending: true })
-    .range(offset, offset + limit - 1);
-
-  // Filter to only projects the user has membership in (unless admin)
-  if (allowedProjectIds !== null) {
-    query = query.in("id", allowedProjectIds);
-  }
-
-  // Add state filter if provided (case-insensitive)
-  if (state) {
-    query = query.ilike("state", state);
-  }
-
-  // Exclude specific state if provided (case-insensitive)
-  if (excludeState) {
-    query = query.not("state", "ilike", excludeState);
-  }
-
-  // Add search filter if provided
-  if (search) {
-    query = query.or(`name.ilike.%${search}%,"job number".ilike.%${search}%`);
-  }
-
-  // Add phase filter if provided
-  if (phase) {
-    query = query.ilike("phase", phase);
-  }
-
-  // Add archived filter if provided
-  if (archived !== null) {
-    query = query.eq("archived", archived === "true");
-  }
-
-  if (companyId) {
-    query = query.eq("company_id", companyId);
-  }
-
-  const { data, error, count } = await query;
-
-  if (error) {
-    throw new GuardrailError({
-      code: "INTERNAL_ERROR",
-      where: "/api/projects#GET",
-      message: "Failed to fetch projects.",
-      details: { reason: error.message },
-      cause: error,
-    });
-  }
-
-  const projects = (data as unknown as ProjectApiRow[]) ?? [];
-  const responseProjects = skipClientResolution
-    ? projects
-    : await applyResolvedClientNames(supabase, projects);
-
-  return NextResponse.json({
-    data: responseProjects,
-    meta: {
-      page,
-      limit,
-      total: count,
-      totalPages: count ? Math.ceil(count / limit) : 0,
-      isAdmin,
-    },
-  });
-});
-
-export const POST = withApiGuardrails("/api/projects#POST", async ({ request, requestId }) => {
-  const user = await getApiRouteUser();
-  if (!user) {
-    throw new GuardrailError({
-      code: "AUTH_EXPIRED",
-      where: "/api/projects#POST",
-      message: "Unauthorized project creation request.",
-      status: 401,
-      severity: "medium",
-    });
-  }
-  const supabase = createServiceClient();
-  const body = await parseJsonBody(request, CreateProjectSchema, "/api/projects#POST");
-  const bodyRecord = body as Record<string, unknown>;
-
-  // Resolve the creator before inserting the project so a project cannot be
-  // created without an owner membership.
-  const { data: authLink, error: authLinkError } = await supabase
-    .from("users_auth")
-    .select("person_id")
-    .eq("auth_user_id", user.id)
-    .maybeSingle();
-
-  if (authLinkError || !authLink?.person_id) {
-    throw new GuardrailError({
-      code: "PRECONDITION_FAILED",
-      where: "/api/projects#POST",
-      message: "Project creator is not linked to a directory person.",
-      status: 412,
-      severity: "high",
-      details: {
-        reason: authLinkError?.message ?? "Missing users_auth.person_id",
-        authUserId: user.id,
-      },
-      cause: authLinkError ?? undefined,
-    });
-  }
-
-  const { data: adminTemplate, error: adminTemplateError } = await supabase
-    .from("permission_templates")
-    .select("id")
-    .eq("is_system", true)
-    .eq("name", "Project Admin")
-    .maybeSingle();
-
-  if (adminTemplateError || !adminTemplate?.id) {
-    throw new GuardrailError({
-      code: "PRECONDITION_FAILED",
-      where: "/api/projects#POST",
-      message: "Project Admin permission template is required to create a project.",
-      status: 412,
-      severity: "high",
-      details: {
-        reason: adminTemplateError?.message ?? "Missing system admin permission template",
-      },
-      cause: adminTemplateError ?? undefined,
-    });
-  }
-
-  // Set default phase to "Current" if not provided
-  const projectData: Record<string, unknown> = {
-    phase: "Current",
-    ...bodyRecord,
-    ...buildRequestProjectCreationAttribution({
-      source: "web_app",
-      actorUserId: user.id,
-      requestId,
-    }),
-  };
-  const normalizedStartDate = normalizeOptionalDate(bodyRecord["start date"]);
-  if (typeof normalizedStartDate !== "undefined") {
-    projectData["start date"] = normalizedStartDate;
-  }
-  const normalizedEstCompletion = normalizeOptionalDate(bodyRecord["est completion"]);
-  if (typeof normalizedEstCompletion !== "undefined") {
-    projectData["est completion"] = normalizedEstCompletion;
-  }
-
-  const { data, error } = await supabase
-    .from("projects")
-    .insert(projectData)
-    .select()
-    .single();
-
-  if (error) {
-    const attributionFailure =
-      error.code === "23514" &&
-      [
-        "Project creation source is required",
-        "Project creator is required for request-driven creation",
-        "Project creation request ID is required",
-        "Project creation run ID is required",
-      ].some((message) => error.message.includes(message));
-
-    throw new GuardrailError({
-      code: attributionFailure ? "SCHEMA_MISMATCH" : "INTERNAL_ERROR",
-      where: "/api/projects#POST",
-      message: attributionFailure
-        ? `Project creation attribution was rejected: ${error.message}`
-        : "Failed to create project.",
-      details: {
-        reason: error.message,
-        payloadKeys: Object.keys(projectData),
-      },
-      cause: error,
-    });
-  }
-
-  // Auto-add the creator as a project member with admin permissions
-  const { error: membershipError } = await supabase.from("project_directory_memberships").insert({
-    person_id: authLink.person_id,
-    project_id: data.id,
-    user_type: "employee",
-    status: "active",
-    role: "Project Admin",
-    permission_template_id: adminTemplate.id,
-  });
-
-  if (membershipError) {
-    const { error: cleanupError } = await supabase
+    let query = supabase
       .from("projects")
-      .delete()
-      .eq("id", data.id);
+      .select(projectSelect, { count: "exact" })
+      .order("name", { ascending: true })
+      .range(offset, offset + limit - 1);
 
-    throw new GuardrailError({
-      code: "INTERNAL_ERROR",
-      where: "/api/projects#POST",
-      message: "Project was not created because creator access could not be assigned.",
-      status: 500,
-      severity: "high",
-      details: {
-        projectId: data.id,
-        membershipReason: membershipError.message,
-        cleanupReason: cleanupError?.message ?? null,
+    // Filter to only projects the user has membership in (unless admin)
+    if (allowedProjectIds !== null) {
+      query = query.in("id", allowedProjectIds);
+    }
+
+    // Development-only projects stay out of production portfolios for all
+    // non-developers, including workspace owners and admins.
+    if (!isDeveloper) {
+      query = query.eq("is_development", false);
+    }
+
+    // Hidden projects stay active for linked records and AI retrieval, but are
+    // deliberately absent from the employee-facing portfolio during rollout.
+    // This is a portfolio visibility boundary, not an archival state.
+    if (!mayViewHiddenProjects) {
+      query = query.or("phase.is.null,phase.neq.Hidden");
+    }
+
+    // Add state filter if provided (case-insensitive)
+    if (state) {
+      query = query.ilike("state", state);
+    }
+
+    // Exclude specific state if provided (case-insensitive)
+    if (excludeState) {
+      query = query.not("state", "ilike", excludeState);
+    }
+
+    // Add search filter if provided
+    if (search) {
+      query = query.or(`name.ilike.%${search}%,"job number".ilike.%${search}%`);
+    }
+
+    // Add phase filter if provided
+    if (phase) {
+      query = query.ilike("phase", phase);
+    }
+
+    // Add archived filter if provided
+    if (archived !== null) {
+      query = query.eq("archived", archived === "true");
+    }
+
+    if (companyId) {
+      query = query.eq("company_id", companyId);
+    }
+
+    const { data, error, count } = await query;
+
+    if (error) {
+      throw new GuardrailError({
+        code: "INTERNAL_ERROR",
+        where: "/api/projects#GET",
+        message: "Failed to fetch projects.",
+        details: { reason: error.message },
+        cause: error,
+      });
+    }
+
+    const projects = toProjectApiRows(data);
+    const responseProjects = skipClientResolution
+      ? projects
+      : await applyResolvedClientNames(supabase, projects);
+
+    return NextResponse.json({
+      data: responseProjects,
+      meta: {
+        page,
+        limit,
+        total: count,
+        totalPages: count ? Math.ceil(count / limit) : 0,
+        isAdmin,
       },
-      cause: membershipError,
     });
-  }
+  },
+);
 
-  return NextResponse.json(data, { status: 201 });
-});
+export const POST = withApiGuardrails(
+  "/api/projects#POST",
+  async ({ request, requestId }) => {
+    const user = await getApiRouteUser();
+    if (!user) {
+      throw new GuardrailError({
+        code: "AUTH_EXPIRED",
+        where: "/api/projects#POST",
+        message: "Unauthorized project creation request.",
+        status: 401,
+        severity: "medium",
+      });
+    }
+    const supabase = createServiceClient();
+    const body = await parseJsonBody(
+      request,
+      CreateProjectSchema,
+      "/api/projects#POST",
+    );
+    const bodyRecord = body as Record<string, unknown>;
+    const crmConversionAttemptId = body.crm_conversion_attempt_id;
+
+    if (crmConversionAttemptId) {
+      const personId = await resolvePersonId(user, supabase);
+      const { data: conversionAttempt, error: conversionAttemptError } =
+        await supabase
+          .from("crm_conversion_attempts")
+          .select("deal_id, requested_by_person_id")
+          .eq("id", crmConversionAttemptId)
+          .maybeSingle();
+      if (
+        conversionAttemptError ||
+        !personId ||
+        !conversionAttempt ||
+        conversionAttempt.requested_by_person_id !== personId
+      ) {
+        throw new GuardrailError({
+          code: "AUTH_FORBIDDEN",
+          where: "/api/projects#POST",
+          message: "This CRM conversion cannot be used to create a project.",
+          status: 403,
+          severity: "medium",
+          details: { reason: conversionAttemptError?.message },
+          cause: conversionAttemptError ?? undefined,
+        });
+      }
+      const { data: conversionDeal, error: conversionDealError } =
+        await supabase
+          .from("crm_deals")
+          .select("company_id, name")
+          .eq("id", conversionAttempt.deal_id)
+          .maybeSingle();
+      if (
+        conversionDealError ||
+        !conversionDeal ||
+        bodyRecord.company_id !== conversionDeal.company_id ||
+        body.name.trim() !== conversionDeal.name
+      ) {
+        throw new GuardrailError({
+          code: "INVALID_PAYLOAD",
+          where: "/api/projects#POST",
+          message:
+            "Project details must match the CRM deal that owns this conversion.",
+          status: 400,
+          severity: "medium",
+          details: { reason: conversionDealError?.message },
+          cause: conversionDealError ?? undefined,
+        });
+      }
+      const { data: existingProject, error: existingProjectError } =
+        await supabase
+          .from("projects")
+          .select("*")
+          .eq("crm_conversion_attempt_id", crmConversionAttemptId)
+          .maybeSingle();
+      if (existingProjectError) {
+        throw new GuardrailError({
+          code: "INTERNAL_ERROR",
+          where: "/api/projects#POST",
+          message: "Project idempotency could not be verified.",
+          details: { reason: existingProjectError.message },
+          cause: existingProjectError,
+        });
+      }
+      if (existingProject) {
+        return NextResponse.json(existingProject, { status: 200 });
+      }
+    }
+
+    const creatorAccess = await resolveProjectCreatorAccess({
+      serviceClient: supabase,
+      authUserId: user.id,
+      where: "/api/projects#POST",
+    });
+
+    // Set default phase to "Current" if not provided
+    const projectData: Record<string, unknown> = {
+      phase: "Current",
+      ...bodyRecord,
+      ...buildRequestProjectCreationAttribution({
+        source: "web_app",
+        actorUserId: user.id,
+        requestId,
+      }),
+    };
+    const normalizedStartDate = normalizeOptionalDate(bodyRecord["start date"]);
+    if (typeof normalizedStartDate !== "undefined") {
+      projectData["start date"] = normalizedStartDate;
+    }
+    const normalizedEstCompletion = normalizeOptionalDate(
+      bodyRecord["est completion"],
+    );
+    if (typeof normalizedEstCompletion !== "undefined") {
+      projectData["est completion"] = normalizedEstCompletion;
+    }
+
+    const { data, error } = await supabase
+      .from("projects")
+      .insert(projectData as ProjectInsert)
+      .select()
+      .single();
+
+    if (error) {
+      if (error.code === "23505" && crmConversionAttemptId) {
+        const { data: existingProject, error: replayError } = await supabase
+          .from("projects")
+          .select("*")
+          .eq("crm_conversion_attempt_id", crmConversionAttemptId)
+          .single();
+        if (!replayError && existingProject) {
+          return NextResponse.json(existingProject, { status: 200 });
+        }
+      }
+      const attributionFailure =
+        error.code === "23514" &&
+        [
+          "Project creation source is required",
+          "Project creator is required for request-driven creation",
+          "Project creation request ID is required",
+          "Project creation run ID is required",
+        ].some((message) => error.message.includes(message));
+
+      throw new GuardrailError({
+        code: attributionFailure ? "SCHEMA_MISMATCH" : "INTERNAL_ERROR",
+        where: "/api/projects#POST",
+        message: attributionFailure
+          ? `Project creation attribution was rejected: ${error.message}`
+          : "Failed to create project.",
+        details: {
+          reason: error.message,
+          payloadKeys: Object.keys(projectData),
+        },
+        cause: error,
+      });
+    }
+
+    // Auto-add the creator as a project member with admin permissions
+    const membershipError = await provisionProjectCreatorAccess({
+      serviceClient: supabase,
+      projectId: data.id,
+      access: creatorAccess,
+    });
+
+    if (membershipError) {
+      const { error: cleanupError } = await supabase
+        .from("projects")
+        .delete()
+        .eq("id", data.id);
+
+      throw new GuardrailError({
+        code: "INTERNAL_ERROR",
+        where: "/api/projects#POST",
+        message:
+          "Project was not created because creator access could not be assigned.",
+        status: 500,
+        severity: "high",
+        details: {
+          projectId: data.id,
+          membershipReason: membershipError.message,
+          cleanupReason: cleanupError?.message ?? null,
+        },
+        cause: membershipError,
+      });
+    }
+
+    return NextResponse.json(data, { status: 201 });
+  },
+);

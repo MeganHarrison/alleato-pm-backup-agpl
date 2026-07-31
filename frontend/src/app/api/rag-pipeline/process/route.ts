@@ -1,8 +1,11 @@
-import { NextResponse } from "next/server";
+import { timingSafeEqual } from "node:crypto";
 
+import { withApiGuardrails } from "@/lib/guardrails/api";
+import { GuardrailError } from "@/lib/guardrails/errors";
 import { enqueueDocumentPipeline } from "@/lib/rag-pipeline/enqueue";
 
 export const runtime = "nodejs";
+const WHERE = "rag-pipeline/process#POST";
 
 type RequestBody = {
   documentId?: unknown;
@@ -11,34 +14,60 @@ type RequestBody = {
   projectHint?: unknown;
 };
 
-function isAuthorized(request: Request): boolean {
-  const expected = process.env.RAG_PIPELINE_WORKFLOW_SECRET?.trim();
-  if (!expected) {
-    return false;
-  }
-  const authorization = request.headers.get("authorization") ?? "";
-  return authorization === `Bearer ${expected}`;
+function workflowCredentials(): string[] {
+  return [
+    process.env.RAG_PIPELINE_WORKFLOW_SECRET?.trim(),
+    process.env.ADMIN_API_KEY?.trim(),
+  ].filter((value): value is string => Boolean(value));
 }
 
-export async function POST(request: Request) {
-  if (!process.env.RAG_PIPELINE_WORKFLOW_SECRET?.trim()) {
-    return NextResponse.json(
-      { error: "RAG_PIPELINE_WORKFLOW_SECRET is not configured." },
-      { status: 503 },
-    );
+function isAuthorized(request: Request, credentials: string[]): boolean {
+  const authorization = request.headers.get("authorization") ?? "";
+  if (!authorization.startsWith("Bearer ")) {
+    return false;
   }
-  if (!isAuthorized(request)) {
-    return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  const presented = Buffer.from(authorization.slice("Bearer ".length));
+  return credentials.some((credential) => {
+    const expected = Buffer.from(credential);
+    return (
+      presented.length === expected.length &&
+      timingSafeEqual(presented, expected)
+    );
+  });
+}
+
+export const POST = withApiGuardrails(WHERE, async ({ request }) => {
+  const credentials = workflowCredentials();
+  if (credentials.length === 0) {
+    throw new GuardrailError({
+      code: "CONFIGURATION_ERROR",
+      where: WHERE,
+      status: 503,
+      message:
+        "RAG Workflow authentication is not configured. Set " +
+        "RAG_PIPELINE_WORKFLOW_SECRET or ADMIN_API_KEY.",
+    });
+  }
+  if (!isAuthorized(request, credentials)) {
+    throw new GuardrailError({
+      code: "UNAUTHORIZED",
+      where: WHERE,
+      status: 401,
+      message: "RAG Workflow authorization failed.",
+    });
   }
 
   let body: RequestBody;
   try {
     body = (await request.json()) as RequestBody;
-  } catch {
-    return NextResponse.json(
-      { error: "Request body must be valid JSON." },
-      { status: 400 },
-    );
+  } catch (error) {
+    throw new GuardrailError({
+      code: "INVALID_PAYLOAD",
+      where: WHERE,
+      status: 400,
+      message: "Request body must be valid JSON.",
+      cause: error,
+    });
   }
 
   const documentId =
@@ -48,10 +77,12 @@ export async function POST(request: Request) {
         ? body.metadataId.trim()
         : "";
   if (!documentId) {
-    return NextResponse.json(
-      { error: "documentId is required." },
-      { status: 400 },
-    );
+    throw new GuardrailError({
+      code: "INVALID_PAYLOAD",
+      where: WHERE,
+      status: 400,
+      message: "documentId is required.",
+    });
   }
 
   try {
@@ -62,13 +93,16 @@ export async function POST(request: Request) {
       projectHint:
         typeof body.projectHint === "number" ? body.projectHint : undefined,
     });
-    return NextResponse.json(result, { status: 202 });
+    return Response.json(result, { status: 202 });
   } catch (error) {
     const detail =
       error instanceof Error ? error.message : "Unknown workflow start failure.";
-    return NextResponse.json(
-      { error: `RAG workflow enqueue failed for ${documentId}: ${detail}` },
-      { status: 503 },
-    );
+    throw new GuardrailError({
+      code: "UPSTREAM_FAILURE",
+      where: WHERE,
+      status: 503,
+      message: `RAG workflow enqueue failed for ${documentId}: ${detail}`,
+      cause: error,
+    });
   }
-}
+});

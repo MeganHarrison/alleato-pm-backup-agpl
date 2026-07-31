@@ -15,11 +15,11 @@
 
 | Surface | Count | Detailed owner |
 | --- | ---: | --- |
-| UI/API surface rows | 366 | `docs/architecture/PROJECT-MAP.md` |
-| API endpoint sections | 796 | `docs/architecture/PROJECT-MAP.md` |
-| AI tool rows | 113 | `docs/architecture/PROJECT-MAP.md` |
-| Database metadata entries | 534 | `docs/architecture/tables.yaml` |
-| Main database entries | 510 | `docs/architecture/tables.yaml` |
+| UI/API surface rows | 368 | `docs/architecture/PROJECT-MAP.md` |
+| API endpoint sections | 758 | `docs/architecture/PROJECT-MAP.md` |
+| AI tool rows | 111 | `docs/architecture/PROJECT-MAP.md` |
+| Database metadata entries | 524 | `docs/architecture/tables.yaml` |
+| Main database entries | 500 | `docs/architecture/tables.yaml` |
 | RAG database entries | 24 | `docs/architecture/tables.yaml` |
 
 ## Runtime ownership
@@ -27,10 +27,10 @@
 | Work | Canonical owner |
 | --- | --- |
 | User-facing pages, forms, tables, and app API routes | `frontend/src/app/**`, `frontend/src/components/**`, `frontend/src/features/**` |
-| Product AI reasoning and skill selection | `agents/alleato-assistant/**` |
-| Product AI transport and authenticated tools | `frontend/src/app/api/ai-assistant/eve/**`, `frontend/src/lib/ai/eve-runtime/**` |
+| Product AI chat, streaming, tools, retrieval, and confirmation | `frontend/src/app/api/ai-assistant/chat/**`, `frontend/src/lib/ai/**` |
 | Ingestion, Graph, Fireflies, OCR, embeddings, and scheduled processing | `backend/src/services/**` on Render |
 | Schema, RLS, RPCs, and migrations | `supabase/migrations/**` plus generated DB types |
+| Standalone agents | `agents/**` |
 
 ## Source index
 

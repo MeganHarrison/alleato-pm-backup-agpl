@@ -1,11 +1,11 @@
 import { tool } from "ai";
-import { z } from "zod";
 import {
   createProjectCompanyDescription,
   createProjectCompanyInputSchema,
   createProjectContactDescription,
   createProjectContactInputSchema,
 } from "@/lib/ai/tool-descriptors";
+import { createContactInputSchema } from "@/lib/ai/tool-schemas/action-schemas";
 import { type ActionToolInternals, withWriteTrace } from "./action-tool-internals";
 
 export function createCompanyContactWriteTools(internals: ActionToolInternals) {
@@ -407,19 +407,7 @@ export function createCompanyContactWriteTools(internals: ActionToolInternals) {
         "form widget: fill in every field you already know (first/last name, email, phone, job title, company, " +
         "department, notes) so the user only completes what's missing, then submits. Reuses an existing person by " +
         "email and links the company by id or exact name. Always previews the form before writing.",
-      inputSchema: z.object({
-        firstName: z.string().describe("Contact first name"),
-        lastName: z.string().describe("Contact last name"),
-        email: z.string().email().optional().describe("Contact email; used to de-duplicate existing people"),
-        phone: z.string().optional().describe("Primary phone number (stored as phone_mobile)"),
-        jobTitle: z.string().optional().describe("Job title, e.g. Project Manager"),
-        department: z.string().optional().describe("Department / business unit, e.g. Operations"),
-        companyId: z.string().uuid().optional().describe("Existing companies.id when known"),
-        companyName: z.string().optional().describe("Company name to link by exact match when companyId is unknown"),
-        notes: z.string().optional().describe("Freeform relationship notes"),
-        confirmed: z.boolean().default(false).describe("Set to true only after the user submits the form"),
-        idempotencyKey: z.string().optional(),
-      }),
+      inputSchema: createContactInputSchema,
       execute: withWriteTrace("createContact", options, async (input) => {
         const firstName = normalizeDirectoryText(input.firstName);
         const lastName = normalizeDirectoryText(input.lastName);

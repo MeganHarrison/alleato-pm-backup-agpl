@@ -645,7 +645,7 @@ export const PATCH = withApiGuardrails("/api/admin/feedback#PATCH", async ({ req
   }
 
   const serviceSupabase = createServiceClient();
-  const mergedUpdates: Record<string, unknown> = {
+  const mergedUpdates: Database["public"]["Tables"]["admin_feedback_items"]["Update"] = {
     ...updates,
     ...(updates.status
       ? { status: normalizeFeedbackStoredStatus(updates.status) }

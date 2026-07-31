@@ -1,0 +1,48 @@
+{
+  "status": "PASS",
+  "observedStatus": "PASS",
+  "taskId": "ALL-15 through ALL-18",
+  "evidence": {
+    "actionLog": [
+      "docs/ops/handoffs/2026-07-26-S220-training-module-foundation.md"
+    ],
+    "databaseReadback": [
+      "docs/ops/handoffs/2026-07-26-S220-training-module-foundation.md"
+    ],
+    "regressionTest": [
+      "supabase/tests/training_resource_library.sql",
+      "frontend/src/lib/training/__tests__/data-access.test.ts",
+      "frontend/src/lib/training/__tests__/role-resolution.test.ts"
+    ],
+    "visualReview": [
+      "docs/ops/handoffs/2026-07-26-S220-training-module-foundation.md"
+    ]
+  },
+  "claims": {
+    "database-access-boundary": {
+      "databaseReadback": [
+        "docs/ops/handoffs/2026-07-26-S220-training-module-foundation.md"
+      ],
+      "regressionTest": [
+        "supabase/tests/training_resource_library.sql"
+      ]
+    },
+    "typed-filter-contract": {
+      "regressionTest": [
+        "frontend/src/lib/training/__tests__/data-access.test.ts",
+        "frontend/src/lib/training/__tests__/role-resolution.test.ts"
+      ]
+    },
+    "independent-review": {
+      "visualReview": [
+        "docs/ops/handoffs/2026-07-26-S220-training-module-foundation.md"
+      ]
+    }
+  },
+  "independentReview": {
+    "reviewer": "/root/training_schema_review",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-26T19:03:59Z",
+    "artifact": "docs/ops/handoffs/2026-07-26-S220-training-module-foundation.md"
+  }
+}

@@ -1,5 +1,5 @@
 /**
- * Batch trigger pending jobs through the canonical Vercel Workflow ingress.
+ * Batch trigger all pending pipeline jobs against the Render backend.
  * Loops until no pending jobs remain. Processes 5 concurrently with 10s pauses.
  */
 import { config } from "dotenv";
@@ -10,22 +10,15 @@ config({ path: resolve(__dirname, "../../.env") });
 
 import { createClient } from "@supabase/supabase-js";
 
-const APP_URL = (
-  process.env.ALLEATO_APP_URL ||
-  process.env.NEXT_PUBLIC_APP_URL ||
-  "https://projects.alleatogroup.com"
-).replace(/\/+$/, "");
-const WORKFLOW_SECRET =
-  process.env.RAG_PIPELINE_WORKFLOW_SECRET?.trim();
+const BACKEND_URL = "https://alleato-backend-rbnj.onrender.com";
+const ADMIN_API_KEY = process.env.ADMIN_API_KEY?.trim();
 const BATCH_SIZE = 5;
 const BATCH_DELAY_MS = 10_000;
 const PAGE_SIZE = 500; // Supabase allows up to 1000
 
 async function main() {
-  if (!WORKFLOW_SECRET) {
-    throw new Error(
-      "RAG_PIPELINE_WORKFLOW_SECRET is required to trigger the RAG pipeline.",
-    );
+  if (!ADMIN_API_KEY) {
+    throw new Error("ADMIN_API_KEY is required to trigger the RAG pipeline.");
   }
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -64,17 +57,15 @@ async function main() {
 
       const results = await Promise.allSettled(
         batch.map(async (metadataId) => {
-          const res = await fetch(`${APP_URL}/api/rag-pipeline/process`, {
+          const res = await fetch(`${BACKEND_URL}/api/pipeline/process`, {
             method: "POST",
             headers: {
-              Authorization: `Bearer ${WORKFLOW_SECRET}`,
               "Content-Type": "application/json",
+              "x-admin-api-key": ADMIN_API_KEY,
             },
-            body: JSON.stringify({ documentId: metadataId }),
+            body: JSON.stringify({ metadataId }),
           });
-          if (res.status !== 202) {
-            throw new Error(`HTTP ${res.status}`);
-          }
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
           return metadataId;
         }),
       );

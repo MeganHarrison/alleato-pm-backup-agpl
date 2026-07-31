@@ -1,0 +1,67 @@
+{
+  "status": "PASS",
+  "verifiedAt": "2026-07-26T22:29:46Z",
+  "commit": "ad7a151539b3195b2b91d7dee106e144c61ce675",
+  "deployments": {
+    "vercel": {
+      "id": "dpl_HUnTyqP6WRvXt82T6xMpGvybQT1S",
+      "state": "READY",
+      "route": "https://projects.alleatogroup.com/training/review"
+    },
+    "render": {
+      "service": "alleato-backend",
+      "route": "https://alleato-backend-rbnj.onrender.com/api/admin/training/resources/find",
+      "invalidKeyProbeStatus": 401,
+      "invalidKeyProbeDetail": "Unauthorized"
+    }
+  },
+  "authenticatedFlow": {
+    "role": "project-manager",
+    "topic": "procurement-the-procurement-log",
+    "reviewCountBefore": 26,
+    "reviewCountAfter": 28,
+    "insertedReviewCandidates": [
+      "How To Do Construction Submittals",
+      "Construction Procurement Management - What is it?"
+    ],
+    "controlledRetry": {
+      "httpSequence": [
+        303,
+        200
+      ],
+      "statusMessage": "No new review candidates were added. 2 duplicates and 6 ineligible results were skipped."
+    },
+    "learnerLibraryReadback": {
+      "firstCandidateVisible": false,
+      "secondCandidateVisible": false
+    }
+  },
+  "visualReadback": {
+    "desktop": {
+      "viewport": [
+        1440,
+        1000
+      ],
+      "pendingCount": 28,
+      "horizontalOverflow": false
+    },
+    "mobile": {
+      "viewport": [
+        375,
+        812
+      ],
+      "pendingCount": 28,
+      "finderVisible": true,
+      "submitVisible": true,
+      "horizontalOverflow": false
+    },
+    "cleanReloadConsoleErrors": [],
+    "cleanReloadPageErrors": []
+  },
+  "deploymentTransitionObservation": {
+    "firstBoundaryWhereExpectedDiverged": "The first browser POST /training/review had no HTTP status while the server-side mutation completed and the review queue increased by two.",
+    "confirmedCause": "The authenticated browser held a stale review-page server-action reference while the production alias changed to the new Vercel deployment; the network log showed two different review-page chunk hashes. A fresh-document controlled retry returned 303 then 200 and deduplicated both already-created resources.",
+    "productCodeChangeRequired": false,
+    "recovery": "Reload the page after a deployment transition before retrying. The canonical finder deduplicates already-created resources."
+  }
+}

@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { createClient, getApiRouteUser } from "@/lib/supabase/server";
 import { notifySubcontractorOfInvoiceDecision } from "@/lib/invoicing/subcontractor-invoice-notifications";
 import { stampSubcontractorInvoiceStatusAuditActor } from "@/lib/invoicing/subcontractor-invoice-audit";
+import type { Database } from "@/types/database.types";
 
 // POST /api/projects/[projectId]/invoicing/subcontractor/invoices/[invoiceId]/approve-as-noted
 // Transition invoice to approved_as_noted. Pre-condition: must be under_review.
@@ -75,7 +76,7 @@ export const POST = withApiGuardrails<{ projectId: string; invoiceId: string }>(
     }
 
     const transitionStartedAt = new Date().toISOString();
-    const updatePayload: Record<string, unknown> = {
+    const updatePayload: Database["public"]["Tables"]["subcontractor_invoices"]["Update"] = {
       status: "approved_as_noted",
       approved_at: new Date().toISOString(),
     };

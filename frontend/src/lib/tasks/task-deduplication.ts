@@ -182,7 +182,7 @@ export class TaskDeduplicator {
         return {
           match_type: "high_similarity",
           confidence: bestMatch.score,
-          existing_task_id: bestMatch.task.id,
+          existing_task_id: bestMatch.task.id as string,
           merged_task_id: mergedId,
           reason: `Merged with high-similarity task (${bestMatch.score.toFixed(2)} confidence)`,
         };

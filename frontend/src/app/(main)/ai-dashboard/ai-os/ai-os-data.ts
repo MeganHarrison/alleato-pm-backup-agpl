@@ -2,9 +2,9 @@
  * Representative data for the AI Operating System page.
  *
  * This is the single place to swap static values for live queries. Counts,
- * Eve skills, tools, roadmap and impact are illustrative for the executive
+ * agents, tools, roadmap and impact are illustrative for the executive
  * showcase; wire them to `../live-data.ts` (document_metadata / document_chunks
- * / Eve and tool telemetry) in a follow-up without touching the view layer.
+ * / agent telemetry) in a follow-up without touching the view layer.
  */
 
 export type Health = "green" | "yellow" | "red";
@@ -22,8 +22,8 @@ export interface StatusCard {
 }
 
 export const STATUS_CARDS: StatusCard[] = [
-  { label: "Overall AI health", value: "98%", sub: "Eve runtime online", highlight: true, ring: 98 },
-  { label: "Assistant runtime", value: "1", sub: "6 executive skills available" },
+  { label: "Overall AI health", value: "98%", sub: "all agents nominal", highlight: true, ring: 98 },
+  { label: "Agents running", value: "23", sub: "+2 vs last week", trend: true },
   { label: "Knowledge sources", value: "8", sub: "connectors live" },
   { label: "Documents indexed", value: "28,491", sub: "+312 today", trend: true },
   { label: "Vectors stored", value: "18.2M", sub: "embedded chunks" },
@@ -107,8 +107,8 @@ export const PIPELINE_LANES: PipelineLane[] = [
     { name: "Knowledge graph", state: "done", count: "—" },
   ]},
   { label: "Reason", nodes: [
-    { name: "Eve", state: "run", count: "1" },
-    { name: "Authenticated tools", state: "queue", count: "2" },
+    { name: "Deep Read Agent", state: "run", count: "3" },
+    { name: "Reasoning Agent", state: "queue", count: "2" },
   ]},
   { label: "Outputs", nodes: [
     { name: "Project Intelligence", state: "done", count: "—" },
@@ -186,7 +186,7 @@ export const OUTPUT_ROWS: OutputRow[] = [
   { name: "Email Drafts", icon: "email", today: 22, week: 131, month: 512 },
 ];
 
-/* ---- Section 7 — Eve runtime and skills ---- */
+/* ---- Section 7 — agent team ---- */
 export interface Agent {
   name: string;
   health: Health;
@@ -195,14 +195,19 @@ export interface Agent {
   tokens: string;
   lastRun: string;
 }
-export const CHIEF: Agent = { name: "Eve", health: "green", tasks: "6 skills", latency: "1.2s", tokens: "4.1M/day", lastRun: "answering" };
+export const CHIEF: Agent = { name: "Chief of Staff", health: "green", tasks: "11 agents", latency: "1.2s", tokens: "4.1M/day", lastRun: "orchestrating" };
 export const AGENTS: Agent[] = [
-  { name: "Business development skill", health: "green", tasks: "Pipeline", latency: "In turn", tokens: "Shared", lastRun: "Available" },
-  { name: "Financial analysis skill", health: "green", tasks: "Financials", latency: "In turn", tokens: "Shared", lastRun: "Available" },
-  { name: "Marketing strategy skill", health: "green", tasks: "Marketing", latency: "In turn", tokens: "Shared", lastRun: "Available" },
-  { name: "Operations review skill", health: "green", tasks: "Operations", latency: "In turn", tokens: "Shared", lastRun: "Available" },
-  { name: "People and capacity skill", health: "green", tasks: "Staffing", latency: "In turn", tokens: "Shared", lastRun: "Available" },
-  { name: "Risk review skill", health: "green", tasks: "Risk", latency: "In turn", tokens: "Shared", lastRun: "Available" },
+  { name: "Meeting Agent", health: "green", tasks: "312", latency: "0.8s", tokens: "2.1M", lastRun: "2m ago" },
+  { name: "Documentation Agent", health: "green", tasks: "208", latency: "1.1s", tokens: "1.4M", lastRun: "just now" },
+  { name: "Estimating Agent", health: "yellow", tasks: "44", latency: "2.6s", tokens: "640k", lastRun: "14m ago" },
+  { name: "Executive Brief Agent", health: "green", tasks: "29", latency: "1.4s", tokens: "890k", lastRun: "1h ago" },
+  { name: "Accounting Agent", health: "green", tasks: "96", latency: "0.9s", tokens: "520k", lastRun: "5m ago" },
+  { name: "Project Intelligence Agent", health: "green", tasks: "94", latency: "1.7s", tokens: "1.8M", lastRun: "just now" },
+  { name: "QA Agent", health: "yellow", tasks: "61", latency: "3.1s", tokens: "410k", lastRun: "22m ago" },
+  { name: "Drawing Review Agent", health: "green", tasks: "37", latency: "4.2s", tokens: "1.1M", lastRun: "8m ago" },
+  { name: "Schedule Agent", health: "red", tasks: "5", latency: "—", tokens: "0", lastRun: "2d ago" },
+  { name: "Email Agent", health: "green", tasks: "512", latency: "0.6s", tokens: "2.4M", lastRun: "just now" },
+  { name: "Knowledge Agent", health: "green", tasks: "884", latency: "0.4s", tokens: "3.2M", lastRun: "just now" },
 ];
 
 /* ---- Section 8 — tool library ---- */
@@ -238,7 +243,7 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
     { name: "AI Drawings / Submittal Reviews", icon: "drawing", tagline: "Read the set, flag conflicts", status: "beta", purpose: "Reviews drawings and submittals against requirements and prior revisions.", capabilities: ["OCR + parsing", "Conflict detection", "Revision compare"], integrations: ["SharePoint", "Supabase"], usage: "37 reviews/mo", updated: "Updated 6d ago" },
   ]},
   { name: "Automation & Data", tools: [
-    { name: "Eve Skill Runtime", icon: "orchestra", tagline: "One assistant, six executive skills", status: "live", purpose: "Eve applies the relevant executive skills and calls authenticated production tools in one continuous turn.", capabilities: ["Skill selection", "Authenticated tool calls", "Grounded synthesis"], integrations: ["Production tool catalog"], usage: "6 skills live", updated: "Updated today" },
+    { name: "Agent Team Orchestration", icon: "orchestra", tagline: "Specialists on a shared bus", status: "live", purpose: "A coordinator routes each job to the specialist agent best suited to it.", capabilities: ["Task routing", "Result merging", "Health monitoring"], integrations: ["All agents"], usage: "11 agents live", updated: "Updated today" },
     { name: "Company Knowledge Base", icon: "kb", tagline: "Institutional memory", status: "live", purpose: "Every meeting, email, document and decision, embedded and retrievable.", capabilities: ["Vector search", "Hybrid retrieval", "Access-scoped"], integrations: ["Supabase", "All sources"], usage: "18.2M vectors", updated: "Updated today" },
     { name: "Email Assistant", icon: "email", tagline: "Inbox that drafts back", status: "live", purpose: "Reads incoming email in project context and drafts grounded replies.", capabilities: ["Context drafting", "Action extraction", "Auto-filing"], integrations: ["Outlook", "Supabase"], usage: "512 drafts/mo", updated: "Updated 1d ago" },
   ]},
@@ -259,7 +264,6 @@ export const ROADMAP_COLUMNS: RoadmapColumn[] = [
     { id: "rm-bid-board", name: "Bid Board", owner: "Reyes", priority: "med", progress: 8, needs: "Supabase schema" },
     { id: "rm-client-portal", name: "Client Portal", owner: "Chen", priority: "low", progress: 5, needs: "Auth + RLS" },
     { id: "rm-content-creator", name: "AI Content Creator", owner: "Nash", priority: "low", progress: 3, needs: "Brand kit" },
-    { id: "rm-fm-global", name: "FM Global Intelligence", owner: "Okafor", priority: "high", progress: 12, needs: "FM data license" },
   ]},
   { name: "Designing", varName: "--aios-s3", cards: [
     { id: "rm-ai-schedule", name: "AI Schedule", owner: "Ruiz", priority: "high", progress: 22, needs: "P6 export" },
@@ -304,6 +308,6 @@ export const PILLARS: Record<string, Pillar> = {
   observe: { num: "01", name: "Observe", desc: "Ingest everything the company knows — meetings, mail, chat, files — and watch the knowledge base grow." },
   understand: { num: "02", name: "Understand", desc: "Reason over the corpus, connect it into a living company brain, and get sharper from feedback." },
   act: { num: "03", name: "Act", desc: "Turn understanding into the deliverables the company runs on — briefs, intelligence, tasks, risks, decisions." },
-  automate: { num: "04", name: "Automate", desc: "One Eve runtime applies executive skills and uses authenticated tools to complete grounded work." },
+  automate: { num: "04", name: "Automate", desc: "A team of specialist agents and a library of tools that do the work — orchestrated, monitored, on call." },
   evolve: { num: "05", name: "Evolve", desc: "Where the system is heading, and the measurable impact it is already delivering." },
 };

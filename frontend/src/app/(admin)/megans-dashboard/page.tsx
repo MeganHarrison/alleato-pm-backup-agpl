@@ -1,8 +1,9 @@
 export const dynamic = "force-dynamic";
 
 import { PageShell } from "@/components/layout";
+import { MEGANS_DASHBOARD_TAG_SLUG } from "@/lib/page-tags";
 import { readRouteInventory } from "@/lib/route-inventory";
-import MegansDashboardClient from "./megans-dashboard-client";
+import TaggedDashboardClient from "./megans-dashboard-client";
 
 export default function MegansDashboardPage() {
   return (
@@ -12,7 +13,11 @@ export default function MegansDashboardPage() {
       showHeader={false}
       contentClassName="space-y-0"
     >
-      <MegansDashboardClient routes={readRouteInventory()} />
+      <TaggedDashboardClient
+        routes={readRouteInventory()}
+        tagSlug={MEGANS_DASHBOARD_TAG_SLUG}
+        dashboardTitle="Megan's Dashboard"
+      />
     </PageShell>
   );
 }

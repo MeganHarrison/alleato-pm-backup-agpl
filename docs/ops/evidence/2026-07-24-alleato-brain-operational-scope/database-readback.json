@@ -1,0 +1,59 @@
+{
+  "status": "PASS",
+  "checkedAt": "2026-07-24T06:34:32.306159Z",
+  "migrationVersion": "20260724061000",
+  "migrationLedger": "PASS",
+  "tablesWithRls": [
+    "business_area_migration_items",
+    "business_area_migration_runs",
+    "files",
+    "meetings",
+    "project_attribution_rules",
+    "tasks"
+  ],
+  "businessAreaColumns": {
+    "files": "bigint nullable",
+    "meetings": "bigint nullable",
+    "project_attribution_rules": "bigint nullable",
+    "tasks": "bigint nullable"
+  },
+  "legacyProjectColumns": {
+    "meetings": "integer nullable",
+    "project_attribution_rules": "integer nullable"
+  },
+  "validatedConstraints": {
+    "businessAreaForeignKeys": 6,
+    "ledgerConstraints": 15,
+    "activeTypedTarget": "CHECK status != active OR num_nonnulls(project_id, business_area_id) = 1"
+  },
+  "validatedIndexes": {
+    "businessAreaPartialIndexes": 4,
+    "branchRuleUniqueIndex": 1,
+    "ledgerIndexes": 2
+  },
+  "acl": {
+    "filesAnonSelect": false,
+    "meetingsAnonSelect": false,
+    "tasksAnonSelect": false,
+    "migrationRunsAnonSelect": false,
+    "migrationItemsAnonSelect": false,
+    "filesAuthenticatedSelect": true,
+    "meetingsAuthenticatedSelect": true,
+    "tasksAuthenticatedSelect": true,
+    "migrationRunsAuthenticatedSelect": true,
+    "migrationItemsAuthenticatedSelect": true
+  },
+  "liveDataInvariants": {
+    "invalidActiveRuleTargets": 0,
+    "orphanBusinessAreaScopes": 0,
+    "mismatchedMappedScopes": 0,
+    "migrationRuns": 0,
+    "migrationItems": 0
+  },
+  "mappedRecordCounts": {
+    "meetings": 347,
+    "tasks": 258,
+    "attributionRules": 57,
+    "files": 0
+  }
+}

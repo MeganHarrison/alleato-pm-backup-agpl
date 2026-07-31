@@ -1,0 +1,67 @@
+{
+  "status": "PASS",
+  "observedStatus": "PASS",
+  "taskId": "ALL-23",
+  "evidence": {
+    "actionLog": [
+      "docs/ops/tasks/2026-07-26-training-resource-finder-weekly-cron.md",
+      "docs/ops/handoffs/2026-07-26-S228-training-resource-finder-weekly-cron.md"
+    ],
+    "databaseReadback": [
+      "docs/ops/handoffs/2026-07-26-S228-training-resource-finder-weekly-cron.md"
+    ],
+    "regressionTest": [
+      "backend/tests/test_training_resource_finder_weekly.py",
+      "backend/tests/test_training_resource_finder.py",
+      "backend/tests/test_research_agent.py"
+    ],
+    "visualReview": [
+      "docs/ops/handoffs/2026-07-26-S228-training-resource-finder-weekly-cron.md"
+    ]
+  },
+  "claims": {
+    "deterministic-weekly-rotation": {
+      "regressionTest": [
+        "backend/tests/test_training_resource_finder_weekly.py"
+      ],
+      "actionLog": [
+        "docs/ops/tasks/2026-07-26-training-resource-finder-weekly-cron.md"
+      ]
+    },
+    "bounded-review-only-delivery": {
+      "databaseReadback": [
+        "docs/ops/handoffs/2026-07-26-S228-training-resource-finder-weekly-cron.md"
+      ],
+      "regressionTest": [
+        "backend/tests/test_training_resource_finder_weekly.py",
+        "backend/tests/test_training_resource_finder.py"
+      ]
+    },
+    "render-schedule-readiness": {
+      "actionLog": [
+        "docs/ops/handoffs/2026-07-26-S228-training-resource-finder-weekly-cron.md"
+      ]
+    },
+    "independent-review": {
+      "visualReview": [
+        "docs/ops/handoffs/2026-07-26-S228-training-resource-finder-weekly-cron.md"
+      ]
+    }
+  },
+  "independentReview": {
+    "reviewer": "/root/training_finder_review",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-26T21:04:14Z",
+    "artifact": "docs/ops/handoffs/2026-07-26-S228-training-resource-finder-weekly-cron.md"
+  },
+  "releaseEvidence": {
+    "commit": "4050c73444b8a02f9ab83857a8716c7cd4df5928",
+    "provider": "render",
+    "serviceId": "crn-d9j77bbtqb8s739t4gog",
+    "deploymentId": "dep-d9j7d2nlk1mc739vt4a0",
+    "runId": "crn-d9j77bbtqb8s739t4gog-1785099970",
+    "runStatus": "successful",
+    "reviewResourceId": "1ad37217-dbda-4888-a216-26da7082cfe1",
+    "invalidResourceDisposition": "archived"
+  }
+}

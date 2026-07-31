@@ -1,0 +1,59 @@
+{
+  "contractVersion": 1,
+  "taskId": "ALL-11-BRAIN-UI",
+  "riskLevel": "high",
+  "feature": "Alleato Brain Business Area UI",
+  "route": "/brain",
+  "flows": [
+    {
+      "name": "Browse a Business Area",
+      "steps": [
+        "Open the canonical Business Area list",
+        "Choose an authorized Business Area",
+        "Browse Knowledge, Meetings, Tasks, and Files",
+        "Search, paginate, sort, change page size, and open the canonical source"
+      ],
+      "expectedOutcome": "Staff use company branches without fake projects and restricted Finance fails closed"
+    }
+  ],
+  "requiredEvidence": [
+    "summary",
+    "screenshots",
+    "negativePath",
+    "visualReview",
+    "regressionTest"
+  ],
+  "visual": {
+    "viewports": [375, 414, 768, 1024, 1440]
+  },
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "canonical-branch-ui",
+      "description": "Five canonical Business Areas and four branch resource views are live.",
+      "evidence": [
+        { "key": "screenshots", "min": 2 },
+        { "key": "regressionTest", "min": 1 }
+      ]
+    },
+    {
+      "id": "finance-fail-closed",
+      "description": "External authenticated contacts cannot load Brain, and internal Finance nonmembers cannot load restricted content.",
+      "evidence": [
+        { "key": "screenshots", "min": 2 },
+        { "key": "negativePath", "min": 1 },
+        { "key": "summary", "min": 1 }
+      ]
+    },
+    {
+      "id": "responsive-quiet-surface",
+      "description": "The UI reuses canonical responsive primitives without decorative product noise.",
+      "evidence": [
+        { "key": "screenshots", "min": 5 },
+        { "key": "visualReview", "min": 1 }
+      ]
+    }
+  ]
+}

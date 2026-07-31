@@ -1,0 +1,60 @@
+{
+  "contractVersion": 1,
+  "taskId": "ALL-57",
+  "riskLevel": "high",
+  "feature": "Recruiter-only no-send UAT workflow previews",
+  "route": "/recruiting?tab=settings",
+  "flows": [
+    {
+      "name": "Run guarded-feature previews",
+      "steps": [
+        "Open authenticated recruiting settings",
+        "Run each of the five no-send previews",
+        "Review the latest result sources and safety outcome",
+        "Repeat at a mobile viewport"
+      ],
+      "expectedOutcome": "Every preview is actionable without provider delivery or an automated employment decision"
+    }
+  ],
+  "requiredEvidence": [
+    "actionLog",
+    "databaseReadback",
+    "negativePath",
+    "visualReview",
+    "regressionTest"
+  ],
+  "visual": {
+    "viewports": ["desktop", "mobile"],
+    "checks": [
+      "No Guarded status remains for preview-capable rows",
+      "No-send labeling is explicit",
+      "All preview controls remain reachable"
+    ]
+  },
+  "independentReview": { "required": true },
+  "claims": [
+    {
+      "id": "safe-actions",
+      "description": "Five recruiter-only previews run without external delivery or employment decisions",
+      "evidence": [
+        { "key": "actionLog", "min": 1 },
+        { "key": "visualReview", "min": 2 }
+      ]
+    },
+    {
+      "id": "audited-expiry",
+      "description": "Runs are bound to an exact active synthetic application and expire under role-aware RLS",
+      "evidence": [{ "key": "databaseReadback", "min": 1 }]
+    },
+    {
+      "id": "failure-boundary",
+      "description": "Missing, expired, unauthorized, and conflicting requests fail closed",
+      "evidence": [{ "key": "negativePath", "min": 1 }]
+    },
+    {
+      "id": "regression-safety",
+      "description": "Focused UI, API, contract, lint, type, and review checks pass",
+      "evidence": [{ "key": "regressionTest", "min": 2 }]
+    }
+  ]
+}

@@ -41,13 +41,22 @@ chrome (build indicators, toolbars) is hidden. ~1440×900, small MP4.
 ## Run it
 
 ```bash
-cd .Codex/skills/training-video
-npm install                                  # first time only
-node lib/record.mjs flows/example-tour.json  # → output/example-tour.mp4
+cd .claude/skills/training-video
+npm install                                     # first time only
+node lib/preflight.mjs flows/example-tour.json   # ALWAYS first — seconds, no video
+node lib/record.mjs   flows/example-tour.json    # → output/example-tour.mp4
 ```
 
-Options: `--headed` (watch it run), `--base http://localhost:3001` (override URL).
+**Always preflight before recording.** It drives the same step-execution seam as
+the recorder (`lib/flow-runner.mjs`), so a green preflight means the recorder can
+drive the flow — and a broken selector or an unreachable project is reported in
+seconds instead of after a multi-minute render.
+
+Options: `--headed` (watch it run), `--base http://localhost:3001` (override URL),
+`--allow-skips` (record even if a step can't resolve — the default is to fail).
 Output lands in `output/<flow.name>.mp4`. Both `output/` and `.auth/` are gitignored.
+
+Run the unit tests with `npm test` (no browser or dev server needed).
 
 ## Authoring a flow
 
@@ -91,11 +100,20 @@ prefixes like `text=New Commitment`.
 
 ### Authoring rules (learned the hard way)
 
+- **Preflight after every flow edit.** `node lib/preflight.mjs flows/<flow>.json`
+  resolves every step in seconds and lists each one that doesn't.
+- **A flow's project must be reachable by the recording user.** Flows pinned to a
+  demo/dev project break when that project is deleted — the recorder now fails
+  immediately with the reason rather than recording a doomed run, but the flow
+  still needs a durable target.
+- **Upload fixtures belong in `assets/`**, never in a `docs/` evidence folder — a
+  cleanup commit there will silently break the recorder. Enforced by `npm test`.
 - **Use `goto` for navigation between sections** — the collapsed icon sidebar's
   links are not reliably clickable. Reserve `click` for in-page elements (tabs,
   buttons, rows) that visibly react.
-- **Every clicked/typed/zoomed selector must be visible** on the current page. If
-  a step is skipped, the recorder logs `step skipped (...)` — fix the selector.
+- **Every clicked/typed/zoomed selector must be visible** on the current page. A
+  step that can't resolve fails the run (with the offending selector) rather than
+  being skipped silently.
 - **`zoom` needs a real heading/element**; some pages have no `h1` — use `h1, h2`.
 - Discover selectors first (a quick `--headed` dry run or the browser tools),
   don't guess.

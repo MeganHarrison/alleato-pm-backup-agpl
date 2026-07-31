@@ -3,17 +3,13 @@ import "server-only";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 
+import { AGENT_DESCRIPTIONS, AGENT_LABELS, type AgentName } from "@/lib/ai/agents/types";
+
 const TOOLS_DIR = path.join(process.cwd(), "src", "lib", "ai", "tools");
+const AGENTS_DIR = path.join(process.cwd(), "src", "lib", "ai", "agents");
 
 const TOOL_PATTERN = /\b\w+:\s*tool\(\{/g;
 
-export type AgentName =
-  | "business-development"
-  | "financial-analysis"
-  | "marketing-strategy"
-  | "operations-review"
-  | "people-capacity"
-  | "risk-review";
 export type AgentStatus = "live" | "designed";
 
 export interface AgentSummary {
@@ -150,53 +146,26 @@ export async function loadTotalToolCount(): Promise<number> {
   return domains.reduce((sum, domain) => sum + domain.count, 0);
 }
 
-const EVE_SKILLS: ReadonlyArray<Omit<AgentSummary, "status">> = [
-  {
-    name: "business-development",
-    label: "Business development",
-    description: "Pipeline, pursuits, positioning, and growth analysis.",
-    promptFile:
-      "agents/alleato-assistant/agent/skills/business-development.md",
-  },
-  {
-    name: "financial-analysis",
-    label: "Financial analysis",
-    description: "Margin, cash, budget, forecast, and financial risk analysis.",
-    promptFile:
-      "agents/alleato-assistant/agent/skills/financial-analysis.md",
-  },
-  {
-    name: "marketing-strategy",
-    label: "Marketing strategy",
-    description: "Market signals, campaigns, content, and positioning analysis.",
-    promptFile:
-      "agents/alleato-assistant/agent/skills/marketing-strategy.md",
-  },
-  {
-    name: "operations-review",
-    label: "Operations review",
-    description: "Delivery, schedule, commitments, RFIs, and execution analysis.",
-    promptFile:
-      "agents/alleato-assistant/agent/skills/operations-review.md",
-  },
-  {
-    name: "people-capacity",
-    label: "People and capacity",
-    description: "Staffing, ownership, workload, and organizational capacity analysis.",
-    promptFile:
-      "agents/alleato-assistant/agent/skills/people-capacity.md",
-  },
-  {
-    name: "risk-review",
-    label: "Risk review",
-    description: "Cross-project risk, evidence gaps, exposure, and mitigation analysis.",
-    promptFile:
-      "agents/alleato-assistant/agent/skills/risk-review.md",
-  },
-];
+const LIVE_AGENTS = new Set<AgentName>(["strategist", "cfo"]);
 
 export async function loadAgents(): Promise<AgentSummary[]> {
-  return EVE_SKILLS.map((skill) => ({ ...skill, status: "live" }));
+  const files = await fs.readdir(AGENTS_DIR).catch(() => [] as string[]);
+  const result: AgentSummary[] = [];
+  for (const [name, label] of Object.entries(AGENT_LABELS) as [AgentName, string][]) {
+    const promptFile = `${name}.ts`;
+    if (!files.includes(promptFile)) continue;
+    result.push({
+      name,
+      label,
+      description: AGENT_DESCRIPTIONS[name],
+      status: LIVE_AGENTS.has(name) ? "live" : "designed",
+      promptFile: `frontend/src/lib/ai/agents/${promptFile}`,
+    });
+  }
+  return result.sort((a, b) => {
+    if (a.status === b.status) return 0;
+    return a.status === "live" ? -1 : 1;
+  });
 }
 
 export interface ModelEntry {
@@ -210,11 +179,18 @@ export interface ModelEntry {
 export function loadModelRegistry(): ModelEntry[] {
   return [
     {
-      role: "Eve",
-      model: "Configured by EVE_ALLEATO_ASSISTANT_MODEL",
-      why: "One runtime applies the six executive skills and invokes authenticated production tools.",
-      inputCostPer1M: null,
-      outputCostPer1M: null,
+      role: "Chief Strategist",
+      model: "gpt-5.5",
+      why: "Routes every question; needs strong reasoning across domains.",
+      inputCostPer1M: 3.0,
+      outputCostPer1M: 15,
+    },
+    {
+      role: "CFO sub-agent",
+      model: "gpt-5.4-mini",
+      why: "Focused financial analysis; smaller model is fast and cheap enough.",
+      inputCostPer1M: 0.25,
+      outputCostPer1M: 1,
     },
     {
       role: "Microsoft Executive Assistant",

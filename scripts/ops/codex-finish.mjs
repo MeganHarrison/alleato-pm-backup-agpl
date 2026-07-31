@@ -229,7 +229,7 @@ function parseArgs() {
   }
 }
 
-function run(command, args, { capture = false, cwd = repoRoot } = {}) {
+function run(command, args, { capture = false, cwd = repoRoot, env = {} } = {}) {
   const executable = process.platform === "win32" && command === "npm"
     ? process.env.ComSpec || "cmd.exe"
     : command;
@@ -238,6 +238,7 @@ function run(command, args, { capture = false, cwd = repoRoot } = {}) {
     : args;
   const result = spawnSync(executable, executableArgs, {
     cwd,
+    env: { ...process.env, ...env },
     encoding: "utf8",
     stdio: capture ? ["ignore", "pipe", "pipe"] : "inherit",
   });
@@ -343,6 +344,49 @@ function ensureNoUnexpectedStagedFiles() {
       cause: `There are already staged files: ${staged.join(", ")}`,
       detection: "Pre-existing staged files could be unrelated to the current completed task.",
       prevention: "Unstage or commit them separately, or pass --allow-staged when they are intentionally part of this task.",
+    });
+  }
+}
+
+function pathFromPorcelain(line) {
+  const raw = String(line);
+  // `run()` trims aggregate command output, which can remove the leading
+  // status space from the first porcelain record.
+  const value = raw.slice(raw[1] === " " ? 2 : 3).trim();
+  const renamed = value.includes(" -> ") ? value.split(" -> ").at(-1) : value;
+  return renamed.replace(/^"|"$/g, "");
+}
+
+function selectedScopeOwnsPath(selectedPath, candidate) {
+  const normalized = selectedPath.replace(/\/$/, "");
+  return candidate === normalized || candidate.startsWith(`${normalized}/`);
+}
+
+function ensureNoUnfinishedWorkOutsideSelectedScope() {
+  if (options.allDirty) return;
+
+  if (options.stagedOnly) {
+    const unstaged = listOutput("git", ["diff", "--name-only"]);
+    const untracked = listOutput("git", ["ls-files", "--others", "--exclude-standard"]);
+    if (unstaged.length || untracked.length) {
+      abort({
+        cause: `--staged-only would leave unfinished work in the checkout: ${[...unstaged, ...untracked].join(", ")}`,
+        detection: "codex:finish checks for unstaged and untracked paths before a staged-only publish.",
+        prevention: "Finish every dirty path in this task, or use a registered isolated workspace for a separate task. Do not use staged-only to park work.",
+      });
+    }
+    return;
+  }
+
+  const dirtyPaths = listOutput("git", ["status", "--porcelain"])
+    .map(pathFromPorcelain)
+    .filter(Boolean);
+  const outsideScope = dirtyPaths.filter((candidate) => !options.files.some((selected) => selectedScopeOwnsPath(selected, candidate)));
+  if (outsideScope.length) {
+    abort({
+      cause: `Selected files would leave unrelated dirty work behind: ${outsideScope.join(", ")}`,
+      detection: "codex:finish compares every dirty path with the requested task-owned file scope before staging.",
+      prevention: "Publish or explicitly hand off the existing scope first. Start a new task only from a clean checkout.",
     });
   }
 }
@@ -526,7 +570,9 @@ function runVerificationContract({ policy = { required: false, taskId: "" } } = 
 }
 
 function commitAndPush(stagedFiles) {
-  run("git", ["commit", "-m", options.message.trim()]);
+  run("git", ["commit", "-m", options.message.trim()], {
+    env: { CODEX_TARGETED_ROUTE_CHECKS_COMPLETE: "1" },
+  });
 
   if (options.noPush) {
     console.log("Committed locally. Push skipped because --no-push was provided.");
@@ -562,6 +608,7 @@ try {
   }
 
   ensureNoUnexpectedStagedFiles();
+  ensureNoUnfinishedWorkOutsideSelectedScope();
   stageRequestedFiles();
 
   const stagedFiles = listOutput("git", ["diff", "--cached", "--name-only"]);

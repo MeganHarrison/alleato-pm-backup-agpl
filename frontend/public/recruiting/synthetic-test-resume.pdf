@@ -1,0 +1,32 @@
+%PDF-1.4
+% Alleato Applicant Tracker UAT fixture
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>
+endobj
+4 0 obj
+<< /Length 139 >>
+stream
+BT
+/F1 18 Tf
+72 720 Td
+(SYNTHETIC TEST RESUME) Tj
+0 -30 Td
+/F1 11 Tf
+(Test Candidate - Applicant Tracker UAT fixture only.) Tj
+0 -18 Td
+(Contains no real applicant information.) Tj
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+trailer
+<< /Root 1 0 R >>
+%%EOF

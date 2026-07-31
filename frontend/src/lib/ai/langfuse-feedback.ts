@@ -1,7 +1,6 @@
 const LANGFUSE_TRACE_ID_PATTERN = /^[a-f0-9]{32}$/i;
 
 export type LangfuseTraceMetadata = {
-  eve_message_id?: unknown;
   response_message_id?: unknown;
   langfuse_trace_id?: unknown;
 };
@@ -29,10 +28,6 @@ export function metadataMessageIds(params: {
   metadata?: LangfuseTraceMetadata | null;
 }): string[] {
   const ids = new Set<string>([params.id]);
-  const eveMessageId = params.metadata?.eve_message_id;
-  if (typeof eveMessageId === "string" && eveMessageId.trim()) {
-    ids.add(eveMessageId);
-  }
   const responseMessageId = params.metadata?.response_message_id;
   if (typeof responseMessageId === "string" && responseMessageId.trim()) {
     ids.add(responseMessageId);

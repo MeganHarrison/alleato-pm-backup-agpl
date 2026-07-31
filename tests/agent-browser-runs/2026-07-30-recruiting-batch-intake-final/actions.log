@@ -1,0 +1,22 @@
+2026-07-30T21:39:26Z AUTH synthetic test user signed in at http://localhost:3000
+2026-07-30T21:40:00Z OPEN /recruiting with live Supabase data
+2026-07-30T21:41:00Z NAVIGATE Resume inbox
+2026-07-30T21:41:40Z UPLOAD selected jazmin-batch-one.pdf and jazmin-batch-two.pdf
+2026-07-30T21:41:41Z ASSERT HTTP 201; uploaded=2; failed=0; both per-file results visible
+2026-07-30T21:41:55Z REPLAY repeated the same batch key after simulated response loss
+2026-07-30T21:41:56Z ASSERT replay returned the same two candidate IDs and created no extra rate-limit attempts
+2026-07-30T21:42:10Z VIEW opened the first original resume through a 60-second signed storage URL
+2026-07-30T21:42:11Z ASSERT signed URL did not force attachment download
+2026-07-30T21:42:25Z ASSIGN routed the first resume to UAT-INTAKE-001
+2026-07-30T21:42:26Z ASSERT assignment returned HTTP 200 and the candidate appeared in the New stage
+2026-07-30T21:42:40Z DISPOSITION marked the assigned candidate Not Qualified with a job-related reason
+2026-07-30T21:42:41Z ASSERT disposition returned HTTP 200 and the audit notice/column were visible
+2026-07-30T21:43:00Z MOBILE resized to 390x844 and reopened Resume inbox
+2026-07-30T21:43:01Z ASSERT document scrollWidth=390 and clientWidth=390
+2026-07-30T21:45:00Z CLEANUP deleted both synthetic candidates through the supported DELETE API
+2026-07-30T21:45:01Z ASSERT both cleanup requests returned HTTP 200 and deleted=true
+2026-07-30T21:51:00Z RECOVERY verified a committed-record/missing-object retry restores storage in focused tests
+2026-07-30T21:52:00Z SECURITY verified a direct Not Qualified table update is rejected in the live database smoke
+2026-07-30T21:53:00Z DISPOSITION reran the final browser flow through the RPC-only audited command
+2026-07-30T21:53:01Z ASSERT disposition returned HTTP 200 after the direct-write guard was enabled
+2026-07-30T21:53:10Z CLEANUP removed the final synthetic candidate through the supported API

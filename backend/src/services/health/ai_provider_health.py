@@ -20,7 +20,8 @@ classifies the result so a quota/auth/billing problem surfaces within hours
         "model":  <model probed>,
         "reason": "insufficient_quota" | "auth" | "rate_limit"
                   | "connection" | "unknown" | "missing_key"
-                  | "low_credits" | "credit_probe_failed" | None,
+                  | "low_credits" | "credit_probe_failed"
+                  | "model_access" | "probe_error" | None,
         "http_status": <int | None>,
         "detail": <short error string | None>,
     }
@@ -48,6 +49,12 @@ logger = logging.getLogger(__name__)
 # so a quota failure here proves a quota failure everywhere.
 AI_PROVIDER_HEALTH_MODEL = os.getenv("AI_PROVIDER_HEALTH_MODEL", "gpt-4o-mini")
 PROBE_TIMEOUT_SECONDS = int(os.getenv("AI_PROVIDER_HEALTH_TIMEOUT_SECONDS", "20"))
+# The Vercel AI Gateway rejects requests with max_output_tokens < 16 as a 400
+# ("integer below minimum value. Expected a value >= 16"). A probe of
+# max_tokens=1 therefore fails on the gateway path even when the provider is
+# perfectly healthy — a false "Backend AI is DOWN". Keep the probe at the
+# gateway's floor so success means success on the path production actually uses.
+AI_PROVIDER_HEALTH_MAX_TOKENS = int(os.getenv("AI_PROVIDER_HEALTH_MAX_TOKENS", "16"))
 AI_GATEWAY_MIN_CREDITS_USD = float(os.getenv("AI_GATEWAY_MIN_CREDITS_USD", "1"))
 AI_GATEWAY_WARN_CREDITS_USD = float(os.getenv("AI_GATEWAY_WARN_CREDITS_USD", "5"))
 
@@ -80,10 +87,32 @@ def _classify_exception(exc: Exception) -> dict[str, Any]:
 
     if "insufficient_quota" in haystack or "exceeded your current quota" in haystack:
         return {"reason": "insufficient_quota", "http_status": status_code or 429}
+    # AI Gateway (and OpenAI) return HTTP 402 when the account balance is
+    # exhausted. This is the exact outage that took production embeddings down
+    # (gateway balance went negative) while the canary was probing the wrong
+    # path — classify it explicitly so the alert says "out of credits", not
+    # "unknown". Payment/credit wording also arrives without a 402 sometimes.
+    if status_code == 402 or "payment required" in haystack or "insufficient_funds" in haystack:
+        return {"reason": "low_credits", "http_status": status_code or 402}
     if status_code == 401 or "invalid_api_key" in haystack or "authentication" in haystack:
         return {"reason": "auth", "http_status": status_code or 401}
+    # HTTP 403 model_not_found: the API key's project is not entitled to the
+    # probe model (e.g. an OpenAI project without gpt-4o-mini in its allowed
+    # models). This is a probe/config mismatch, NOT the provider being down —
+    # keep it distinct from a real outage so it can be handled without paging
+    # "Backend AI is DOWN". Match ONLY the model-access body text, never a bare
+    # 403: other 403s (suspended account, org block, IP allowlist) are real
+    # outages that must still page, so let them fall through to "unknown".
+    if "model_not_found" in haystack or "does not have access to model" in haystack:
+        return {"reason": "model_access", "http_status": status_code or 403}
     if status_code == 429 or "rate_limit" in haystack or "rate limit" in haystack:
         return {"reason": "rate_limit", "http_status": status_code or 429}
+    # HTTP 400: the provider rejected the PROBE REQUEST itself (bad params) — a
+    # bug in the canary, not the provider being down. The gateway's
+    # max_output_tokens>=16 floor is the concrete case that bit us. Never let a
+    # malformed probe read as an outage.
+    if status_code == 400:
+        return {"reason": "probe_error", "http_status": 400}
     if isinstance(exc, (httpx.TimeoutException, httpx.NetworkError, httpx.ProtocolError)):
         return {"reason": "connection", "http_status": status_code}
     # The OpenAI SDK wraps connection problems in APIConnectionError.
@@ -131,7 +160,7 @@ def check_ai_provider_health(model: str = AI_PROVIDER_HEALTH_MODEL) -> dict[str,
         response = client.chat.completions.create(
             model=model,
             messages=[{"role": "user", "content": "ping"}],
-            max_tokens=1,
+            max_tokens=AI_PROVIDER_HEALTH_MAX_TOKENS,
             timeout=PROBE_TIMEOUT_SECONDS,
         )
         # A successful response object with at least one choice means the
@@ -277,6 +306,19 @@ _REASON_MESSAGE = {
     "credit_probe_failed": (
         "AI Gateway credit balance could not be verified. Treat provider runway "
         "as unhealthy until the credit probe succeeds."
+    ),
+    "model_access": (
+        "The provider rejected the PROBE MODEL as not accessible to this API "
+        "key's project (HTTP 403 model_not_found). This is a canary/config "
+        "mismatch — the probe path or model does not match what the pipeline "
+        "uses — NOT a provider outage. Point AI_PROVIDER_HEALTH_MODEL / the "
+        "probe path at what production actually calls, or enable the model on "
+        "the project."
+    ),
+    "probe_error": (
+        "The provider rejected the PROBE REQUEST (HTTP 400 bad params) — a bug "
+        "in the canary, not a provider outage. Check the probe payload "
+        "(e.g. AI_PROVIDER_HEALTH_MAX_TOKENS must meet the gateway's >=16 floor)."
     ),
     "unknown": "Backend OpenAI probe failed for an unclassified reason.",
 }

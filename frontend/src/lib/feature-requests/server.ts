@@ -471,7 +471,7 @@ function buildLinearIssueBody(params: {
   return [
     "Generated from AIS feature request packet.",
     "",
-    `Packet: /ai/feature-requests/${request.id}`,
+    `Packet: /ai-assistant/feature-requests/${request.id}`,
     `Requester: ${request.requester_name}`,
     `Packet status: ${request.status}`,
     `Ready for build: ${request.ready_for_build ? "yes" : "no"}`,
@@ -509,7 +509,7 @@ function buildDefaultSubIssueDrafts(params: {
   const verificationSteps = asStringArray(params.plan.verification_steps);
   const acceptanceCriteria = asStringArray(params.plan.acceptance_criteria);
   const baseBody = [
-    `Parent packet: /ai/feature-requests/${params.request.id}`,
+    `Parent packet: /ai-assistant/feature-requests/${params.request.id}`,
     `Implementation plan: ${params.plan.id} v${params.plan.version}`,
     "",
     "## Acceptance criteria",
@@ -896,6 +896,6 @@ export function buildFeatureRequestPacketWidget(params: {
     linearIssueUrl: params.request.linear_issue_url,
     linearSyncStatus: params.request.linear_sync_status,
     handoffPath: params.request.claude_handoff_path,
-    detailHref: `/ai/feature-requests/${params.request.id}`,
+    detailHref: `/ai-assistant/feature-requests/${params.request.id}`,
   };
 }

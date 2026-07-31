@@ -27,16 +27,6 @@ export type HelpActionDefinition = {
 
 export const HELP_ACTIONS = [
   {
-    id: "create_rfi",
-    label: "Create RFI",
-    description:
-      "Propose an RFI in the main AI Assistant, pause for explicit approval, and create the approved record once.",
-    status: "executable",
-    safetyLevel: "preview_confirm",
-    relatedRoutes: ["/ai", "/[projectId]/rfis"],
-    toolName: "createRFI",
-  },
-  {
     id: "invite_user",
     label: "Invite user",
     description:

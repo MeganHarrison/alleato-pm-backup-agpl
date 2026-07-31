@@ -128,6 +128,6 @@ export async function loadMonthlyExecutiveReview(artifact: GovernedExecutiveArti
 
 export async function appendMonthlyReviewGovernanceEvent(input: { reviewId: string; action: "finance_closed" | "executive_approved"; actorUserId: string; actorLabel: string; rationale?: string | null }): Promise<void> {
   const db = createServiceClient();
-  const { error } = await db.rpc("record_executive_monthly_review_governance", { p_review_id: input.reviewId, p_action: input.action, p_actor_user_id: input.actorUserId, p_actor_label: input.actorLabel, p_rationale: input.rationale?.trim() || null });
+  const { error } = await db.rpc("record_executive_monthly_review_governance", { p_review_id: input.reviewId, p_action: input.action, p_actor_user_id: input.actorUserId, p_actor_label: input.actorLabel, p_rationale: input.rationale?.trim() || undefined });
   if (error) throw new Error(`Monthly review ${input.action.replaceAll("_", " ")} could not be recorded: ${error.message}`);
 }

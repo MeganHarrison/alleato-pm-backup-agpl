@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { format } from "date-fns";
-import { ArrowUpRight, CheckCircle2, Plus, Trash2 } from "lucide-react";
+import { ArrowUpRight, ChevronRight, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 
@@ -145,48 +145,65 @@ function TaskRow({
 }) {
   const done = isDone(task.status);
   const priority = (task.priority ?? "").toLowerCase();
+  const showPriority = Boolean(priority) && priority !== "normal";
+  const assignee = task.assignee_name || task.assignee_email || null;
 
   return (
-    <li className="group flex items-start gap-3">
-      <Checkbox
-        checked={done}
-        onCheckedChange={() => onToggleDone(task)}
-        disabled={busy}
-        aria-label={done ? "Mark task as open" : "Mark task as done"}
-        className="mt-0.5 shrink-0"
-      />
+    <li className="group">
+      {/* Whole row is one line: [✓] title …………… assignee · priority · due · ›
+          The row highlights on hover and the trailing chevron is always
+          visible so it's obvious the task opens to a detail panel. */}
+      <div className="-mx-2 flex items-center gap-3 rounded-md px-2 py-1.5 transition-colors group-hover:bg-muted/60">
+        <Checkbox
+          checked={done}
+          onCheckedChange={() => onToggleDone(task)}
+          disabled={busy}
+          aria-label={done ? "Mark task as open" : "Mark task as done"}
+          className="shrink-0"
+        />
 
-      <Button
-        type="button"
-        variant="ghost"
-        onClick={() => onOpen(task)}
-        className="h-auto min-w-0 flex-1 flex-col items-start gap-0.5 whitespace-normal rounded-sm px-0 py-0 text-left font-normal hover:bg-transparent"
-      >
-        <p
-          className={`text-sm leading-snug ${
-            done ? "text-muted-foreground line-through" : "text-foreground"
-          }`}
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={() => onOpen(task)}
+          title="Open task details"
+          aria-label={`Open task details: ${task.title || task.description}`}
+          className="h-auto min-w-0 flex-1 justify-start gap-3 rounded-sm px-0 py-0 text-left font-normal hover:bg-transparent"
         >
-          {task.title || task.description}
-        </p>
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 pt-0.5">
-          <span className="text-xs text-muted-foreground">
-            {task.assignee_name || task.assignee_email || "Unassigned"}
+          <span
+            className={`min-w-0 flex-1 truncate text-sm ${
+              done ? "text-muted-foreground line-through" : "text-foreground"
+            }`}
+          >
+            {task.title || task.description}
           </span>
-          {priority && priority !== "normal" && (
-            <span
-              className={`text-xs font-medium capitalize ${PRIORITY_TEXT[priority] ?? "text-muted-foreground"}`}
-            >
-              {priority}
-            </span>
-          )}
-          {task.due_date && (
-            <span className="text-xs text-muted-foreground">
-              Due {format(new Date(task.due_date), "MMM d")}
-            </span>
-          )}
-        </div>
-      </Button>
+
+          <span className="flex shrink-0 items-center gap-3">
+            {assignee && (
+              <span className="hidden max-w-40 truncate text-xs text-muted-foreground sm:inline">
+                {assignee}
+              </span>
+            )}
+            {showPriority && (
+              <span
+                className={`text-xs font-medium capitalize ${PRIORITY_TEXT[priority] ?? "text-muted-foreground"}`}
+              >
+                {priority}
+              </span>
+            )}
+            {task.due_date && (
+              <span className="text-xs tabular-nums text-muted-foreground">
+                {format(new Date(task.due_date), "MMM d")}
+              </span>
+            )}
+          </span>
+
+          <ChevronRight
+            aria-hidden
+            className="h-4 w-4 shrink-0 text-muted-foreground/40 transition-colors group-hover:text-foreground"
+          />
+        </Button>
+      </div>
     </li>
   );
 }
@@ -369,7 +386,7 @@ export function MeetingTasksManager({
   return (
     <div className="space-y-4">
       {tasks.length > 0 ? (
-        <ul className="space-y-3">
+        <ul className="space-y-0.5">
           {tasks.map((task) => (
             <TaskRow
               key={task.id}

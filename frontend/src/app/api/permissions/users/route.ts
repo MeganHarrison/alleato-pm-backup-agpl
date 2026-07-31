@@ -19,6 +19,14 @@ const InviteUserSchema = z.object({
   last_name: z.string().trim().min(1, "Last name is required"),
   email: z.string().trim().email("A valid email is required"),
   job_title: z.string().trim().optional(),
+  // Optional company to tag the person with (e.g. "Alleato Group" when invited
+  // from the Employees directory, so the company-scoped table actually shows them).
+  company: z.string().trim().optional(),
+  // Optional explicit person to link to. When the invite is launched by picking
+  // an existing person from the dropdown, this targets that exact row instead of
+  // email-matching only person_type='user' (which would create a duplicate for an
+  // existing person_type='employee' record).
+  person_id: z.string().uuid().optional(),
   access_scope: z.enum(["all_projects", "selected_projects"]),
   template_id: z.string().uuid("A role is required"),
   project_ids: z.array(z.coerce.number().int().positive()).default([]),
@@ -481,23 +489,30 @@ export const POST = withApiGuardrails(
       });
     }
 
-    const { data: existingPerson, error: existingPersonError } = await serviceDb.from("people")
-      .select("id, auth_user_id")
-      .ilike("email", email)
-      .eq("person_type", "user")
-      .limit(1)
-      .maybeSingle();
+    // Prefer an explicitly selected person (from the invite dropdown) so we link
+    // to that exact record — even a person_type='employee' one — instead of
+    // creating a duplicate. Otherwise fall back to matching an existing app user
+    // by email.
+    let personId = body.person_id ?? null;
+    if (!personId) {
+      const { data: existingPerson, error: existingPersonError } = await serviceDb.from("people")
+        .select("id, auth_user_id")
+        .ilike("email", email)
+        .eq("person_type", "user")
+        .limit(1)
+        .maybeSingle();
 
-    if (existingPersonError) {
-      throw new GuardrailError({
-        code: "UPSTREAM_FAILURE",
-        where: "permissions/users#POST",
-        message: `Could not check existing employee record: ${existingPersonError.message}`,
-        details: existingPersonError,
-      });
+      if (existingPersonError) {
+        throw new GuardrailError({
+          code: "UPSTREAM_FAILURE",
+          where: "permissions/users#POST",
+          message: `Could not check existing employee record: ${existingPersonError.message}`,
+          details: existingPersonError,
+        });
+      }
+
+      personId = existingPerson?.id ?? null;
     }
-
-    let personId = existingPerson?.id ?? null;
     if (personId) {
       const { error: personUpdateError } = await serviceDb.from("people")
         .update({
@@ -507,6 +522,7 @@ export const POST = withApiGuardrails(
           job_title: body.job_title || null,
           auth_user_id: authUserId,
           status: "active",
+          ...(body.company ? { company: body.company } : {}),
           updated_at: new Date().toISOString(),
         })
         .eq("id", personId);
@@ -529,6 +545,7 @@ export const POST = withApiGuardrails(
           auth_user_id: authUserId,
           person_type: "user",
           status: "active",
+          company: body.company ?? null,
         })
         .select("id")
         .single();

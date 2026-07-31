@@ -1,0 +1,26 @@
+PASS
+
+Frontend:
+  npm run test:unit -- --runInBand --runTestsByPath \
+    src/lib/ai/tools/__tests__/business-area-guardrails.test.ts \
+    src/lib/ai/retrieval/__tests__/retrieve-chunks.test.ts \
+    src/lib/ai/__tests__/tool-registry.test.ts
+
+Result:
+  Test Suites: 3 passed, 3 total
+  Tests: 34 passed, 34 total
+
+Changed-file quality:
+  npm run quality:changed
+
+Result:
+  ESLint debt: PASS
+  New any debt: PASS
+  Unsafe patterns: PASS
+  Route guardrails: PASS
+
+Database:
+  Transactional final migration compile with ROLLBACK: PASS
+  Verifier self-test: PASS
+  Live verifier: PASS
+  Live negative path: PASS

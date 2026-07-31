@@ -1,0 +1,29 @@
+{
+  "extends": "../../../../frontend/tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "incremental": false,
+    "skipLibCheck": true
+  },
+  "include": [
+    "../../../../frontend/src/app/(main)/content/**/*.ts",
+    "../../../../frontend/src/app/(main)/content/**/*.tsx",
+    "../../../../frontend/src/app/(main)/training/page.tsx",
+    "../../../../frontend/src/app/(main)/training/actions.ts",
+    "../../../../frontend/src/app/(main)/training/training-page-client.tsx",
+    "../../../../frontend/src/app/(main)/training/library/page.tsx",
+    "../../../../frontend/src/app/(main)/training/content/**/*.tsx",
+    "../../../../frontend/src/app/(main)/training/courses/**/*.tsx",
+    "../../../../frontend/src/app/(main)/training/learn/**/*.tsx",
+    "../../../../frontend/src/app/(main)/training/manage/**/*.tsx",
+    "../../../../frontend/src/features/content-studio/**/*.ts",
+    "../../../../frontend/src/features/content-studio/**/*.tsx",
+    "../../../../frontend/src/features/training/TrainingLibraryView.tsx",
+    "../../../../frontend/src/lib/learning/**/*.ts",
+    "../../../../frontend/src/types/database.types.ts",
+    "../../../../frontend/src/lib/navigation-config.ts"
+  ],
+  "exclude": [
+    "../../../../frontend/src/**/__tests__/**"
+  ]
+}

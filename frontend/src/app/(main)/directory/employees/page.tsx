@@ -29,6 +29,9 @@ import {
 } from "@/components/tables/unified";
 import type { ColumnConfig, TableColumn } from "@/components/tables/unified";
 import { Button } from "@/components/ui/button";
+import { DetailField } from "@/components/ds";
+import { InviteAppUserDialog } from "@/components/domain/permissions/invite-app-user-dialog";
+import { useCurrentUserProfile } from "@/hooks/use-current-user-profile";
 import { useServerTableDefinition } from "@/features/tables/server-table";
 import {
   ALLEATO_COMPANY,
@@ -42,6 +45,11 @@ import {
 const STATUS_COLORS: CellColorMap = {
   active: "bg-success/10 text-success",
   inactive: "bg-muted text-muted-foreground",
+};
+
+const ACCESS_STATUS_COLORS: CellColorMap = {
+  active: "bg-success/10 text-success",
+  invited: "bg-warning/10 text-warning",
 };
 
 const EMPLOYEE_STATUS_OPTIONS = [
@@ -143,6 +151,14 @@ function buildEmployeeTableColumns(
       render: (item) => <TableDateValue value={item.created_at} emptyLabel="-" />,
       sortValue: (item) => (item.created_at ? new Date(item.created_at).getTime() : 0),
     },
+    {
+      ...employeeColumns[8],
+      render: (item) =>
+        item.access_status ? (
+          <CellBadge value={item.access_status} colorMap={ACCESS_STATUS_COLORS} />
+        ) : null,
+      sortValue: (item) => item.access_status ?? "",
+    },
   ];
 }
 
@@ -151,11 +167,17 @@ function EmployeePreviewPane({
   employees,
   onSelectEmployee,
   onClose,
+  canInvite,
+  resendingId,
+  onResendInvite,
 }: {
   employee: EmployeeRow | null;
   employees: EmployeeRow[];
   onSelectEmployee: (id: string) => void;
   onClose: () => void;
+  canInvite: boolean;
+  resendingId: string | null;
+  onResendInvite: (employee: EmployeeRow) => void;
 }): ReactElement {
   const currentIndex = employee ? employees.findIndex((e) => e.id === employee.id) : -1;
   const hasPrev = currentIndex > 0;
@@ -224,6 +246,12 @@ function EmployeePreviewPane({
                 {employee.status && (
                   <CellBadge value={employee.status} colorMap={STATUS_COLORS} />
                 )}
+                {employee.access_status && (
+                  <CellBadge
+                    value={employee.access_status}
+                    colorMap={ACCESS_STATUS_COLORS}
+                  />
+                )}
               </div>
             </div>
           </div>
@@ -265,12 +293,31 @@ function EmployeePreviewPane({
             <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground mb-2">
               Details
             </p>
-            <dl className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <dt className="text-muted-foreground">Added</dt>
-                <dd><TableDateValue value={employee.created_at} /></dd>
-              </div>
-            </dl>
+            <DetailField
+              label="Added"
+              value={<TableDateValue value={employee.created_at} />}
+            />
+          </div>
+        )}
+
+        {canInvite && employee.access_status === "invited" && (
+          <div className="px-5 pb-5">
+            <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground mb-2">
+              App access
+            </p>
+            <p className="text-sm text-muted-foreground mb-3">
+              Invited but hasn&apos;t logged in yet. Resend the invite email so
+              they can set a password and sign in.
+            </p>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => onResendInvite(employee)}
+              disabled={resendingId === employee.id}
+            >
+              <Mail className="h-4 w-4" />
+              {resendingId === employee.id ? "Sending…" : "Resend invite"}
+            </Button>
           </div>
         )}
       </div>
@@ -282,6 +329,11 @@ export default function DirectoryEmployeesPage(): ReactElement {
   const pathname = usePathname()! ?? "";
   const router = useRouter();
   const searchParams = (useSearchParams() ?? new URLSearchParams()) as NonNullable<ReturnType<typeof useSearchParams>>;
+
+  const { profile } = useCurrentUserProfile();
+  const canInvite = profile?.isAdmin === true;
+  const [showInvite, setShowInvite] = React.useState(false);
+  const [resendingId, setResendingId] = React.useState<string | null>(null);
 
   const {
     tableState,
@@ -333,17 +385,39 @@ export default function DirectoryEmployeesPage(): ReactElement {
     [handleInlineEmployeeEdit],
   );
 
+  const handleResendInvite = React.useCallback(
+    async (employee: EmployeeRow) => {
+      setResendingId(employee.id);
+      try {
+        await apiFetch(`/api/directory/employees/${employee.id}/resend-invite`, {
+          method: "POST",
+        });
+        toast.success(`Invite sent to ${employee.full_name}`);
+        await refresh();
+      } catch {
+        toast.error("Could not resend the invite");
+      } finally {
+        setResendingId(null);
+      }
+    },
+    [refresh],
+  );
+
   return (
+    <>
     <UnifiedTablePage
       header={{
         title: "Employees",
         description: "Alleato Group employees",
-        actions: (
-          <Button className="bg-primary hover:bg-primary/90">
+        actions: canInvite ? (
+          <Button
+            className="bg-primary hover:bg-primary/90"
+            onClick={() => setShowInvite(true)}
+          >
             <Plus />
             New Employee
           </Button>
-        ),
+        ) : undefined,
       }}
       tabs={tabs}
       toolbar={{
@@ -411,6 +485,9 @@ export default function DirectoryEmployeesPage(): ReactElement {
             employees={tableData}
             onSelectEmployee={(id) => tableState.setSearchParams({ detail: id })}
             onClose={() => tableState.setSearchParams({ detail: null })}
+            canInvite={canInvite}
+            resendingId={resendingId}
+            onResendInvite={handleResendInvite}
           />
         ),
       }}
@@ -443,5 +520,14 @@ export default function DirectoryEmployeesPage(): ReactElement {
         removeTableFrame: true,
       }}
     />
+    {canInvite ? (
+      <InviteAppUserDialog
+        open={showInvite}
+        onOpenChange={setShowInvite}
+        onInvited={() => void refresh()}
+        peopleScope="alleato-employees"
+      />
+    ) : null}
+    </>
   );
 }

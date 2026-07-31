@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 
 import { SiteHeader } from "@/components/header";
+import { SiteFooter } from "@/components/layout/site-footer";
 import { AppSidebar } from "@/components/nav/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import aiDashboardThemeStyles from "../(main)/ai-dashboard-theme.module.css";
@@ -29,11 +30,12 @@ export function AdminLayoutClient({ children }: { children: React.ReactNode }) {
           <SiteHeader />
           <main
             id="app-main-content"
-            className="flex min-h-0 min-w-0 flex-1 flex-col"
+            className="flex min-w-0 flex-1 flex-col"
           >
-            <div className="flex min-h-0 flex-1 flex-col">{children}</div>
+            <div className="flex flex-1 flex-col">{children}</div>
             <div className="global-overlay-safe-zone" aria-hidden="true" />
           </main>
+          <SiteFooter />
         </div>
       </SidebarInset>
     </SidebarProvider>

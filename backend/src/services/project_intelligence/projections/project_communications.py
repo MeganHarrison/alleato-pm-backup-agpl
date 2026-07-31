@@ -746,6 +746,7 @@ def reconcile_project_flags(project_id: int, *, model: Optional[str] = None) -> 
                     stage="signals_extracted",
                     operation="reconcile_project_flag",
                     project_id=int(project_id),
+                    budget_bucket="signal",
                     metadata={"flag_id": flag["id"]},
                 ),
             )

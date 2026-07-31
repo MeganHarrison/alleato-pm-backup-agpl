@@ -25,9 +25,11 @@ type Tables = Database["public"]["Tables"];
 export type AiFeedbackEventRow = Tables["ai_feedback_events"]["Row"];
 export type AiFeedbackEventInsert = Tables["ai_feedback_events"]["Insert"];
 export type AiLearningPromotionRow = Tables["ai_learning_promotions"]["Row"];
-export type AiLearningPromotionInsert = Tables["ai_learning_promotions"]["Insert"];
+export type AiLearningPromotionInsert =
+  Tables["ai_learning_promotions"]["Insert"];
 export type AiRetrievalFeedbackRow = Tables["ai_retrieval_feedback"]["Row"];
-export type AiRetrievalFeedbackInsert = Tables["ai_retrieval_feedback"]["Insert"];
+export type AiRetrievalFeedbackInsert =
+  Tables["ai_retrieval_feedback"]["Insert"];
 export type AiRetrievalWeightRow = Tables["ai_retrieval_weights"]["Row"];
 export type AiRetrievalWeightInsert = Tables["ai_retrieval_weights"]["Insert"];
 export type AiTaskFeedbackRow = Tables["ai_task_feedback"]["Row"];
@@ -67,12 +69,7 @@ export type AiFeedbackSignal =
   | "conflicting";
 
 export type AiLearningPromotionStatus =
-  | "candidate"
-  | "approved"
-  | "rejected"
-  | "applied"
-  | "expired"
-  | "superseded";
+  "candidate" | "approved" | "rejected" | "applied" | "expired" | "superseded";
 
 export type AiLearningPromotionType =
   | "agent_prevention_prompt"
@@ -179,11 +176,7 @@ export interface RecordRetrievalFeedbackParams {
 export type PacketCardFeedbackSignal = "useful" | "wrong" | "stale";
 
 export type EmailDraftFeedbackSignal =
-  | "good"
-  | "bad"
-  | "accepted"
-  | "edited"
-  | "ignored";
+  "good" | "bad" | "accepted" | "edited" | "ignored";
 
 export type EmailDraftFeedbackReasonCategory =
   | "too_formal"
@@ -399,10 +392,7 @@ export interface ApplyAttributionRulePromotionResult {
  * Rule kinds the AI proposes from manual project assignments. These map directly
  * onto `project_attribution_rules.rule_type`.
  */
-export type AttributionRuleKind =
-  | "domain"
-  | "email"
-  | "title_keyword";
+export type AttributionRuleKind = "domain" | "email" | "title_keyword";
 
 export interface RecordAttributionAssignmentFeedbackParams {
   userId?: string | null;
@@ -508,10 +498,18 @@ export interface PreviewRetrievalWeightPromotionImpactResult {
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-function assertNonEmpty(value: string, fieldName: string, table: string): string {
+function assertNonEmpty(
+  value: string,
+  fieldName: string,
+  table: string,
+): string {
   const trimmed = value.trim();
   if (!trimmed) {
-    throw new AiFeedbackEventError(table, "validate", `${fieldName} is required`);
+    throw new AiFeedbackEventError(
+      table,
+      "validate",
+      `${fieldName} is required`,
+    );
   }
   return trimmed;
 }
@@ -561,10 +559,18 @@ export async function recordAiFeedbackEvent(
     session_id: optionalSessionUuid(params.sessionId),
     source_table: params.sourceTable ?? null,
     source_record_id: params.sourceRecordId ?? null,
-    event_type: assertNonEmpty(params.eventType, "eventType", "ai_feedback_events"),
+    event_type: assertNonEmpty(
+      params.eventType,
+      "eventType",
+      "ai_feedback_events",
+    ),
     event_family: params.eventFamily,
     surface: assertNonEmpty(params.surface, "surface", "ai_feedback_events"),
-    subject_type: assertNonEmpty(params.subjectType, "subjectType", "ai_feedback_events"),
+    subject_type: assertNonEmpty(
+      params.subjectType,
+      "subjectType",
+      "ai_feedback_events",
+    ),
     subject_id: params.subjectId ?? null,
     signal: params.signal,
     reason_category: params.reasonCategory ?? null,
@@ -671,11 +677,19 @@ export async function createLearningPromotion(
   const supabase = createServiceClient();
   const payload: AiLearningPromotionInsert = {
     reviewed_at: params.reviewedAt ?? null,
-    reviewed_by: optionalUuid(params.reviewedBy, "reviewedBy", "ai_learning_promotions"),
+    reviewed_by: optionalUuid(
+      params.reviewedBy,
+      "reviewedBy",
+      "ai_learning_promotions",
+    ),
     status: params.status ?? "candidate",
     promotion_type: params.promotionType,
     project_id: params.projectId ?? null,
-    target_id: optionalUuid(params.targetId, "targetId", "ai_learning_promotions"),
+    target_id: optionalUuid(
+      params.targetId,
+      "targetId",
+      "ai_learning_promotions",
+    ),
     source_event_ids: params.sourceEventIds ?? [],
     destination_table: params.destinationTable ?? null,
     destination_record_id: params.destinationRecordId ?? null,
@@ -684,7 +698,11 @@ export async function createLearningPromotion(
     proposed_learning: normalizeJson(params.proposedLearning),
     review_notes: params.reviewNotes ?? null,
     expires_at: params.expiresAt ?? null,
-    superseded_by: optionalUuid(params.supersededBy, "supersededBy", "ai_learning_promotions"),
+    superseded_by: optionalUuid(
+      params.supersededBy,
+      "supersededBy",
+      "ai_learning_promotions",
+    ),
   };
 
   const { data, error } = await supabase
@@ -723,7 +741,9 @@ export async function updateLearningPromotion(
   }
 
   const payload: Tables["ai_learning_promotions"]["Update"] = {
-    ...(params.reviewedAt !== undefined ? { reviewed_at: params.reviewedAt } : {}),
+    ...(params.reviewedAt !== undefined
+      ? { reviewed_at: params.reviewedAt }
+      : {}),
     ...(params.reviewedBy !== undefined
       ? {
           reviewed_by: optionalUuid(
@@ -744,7 +764,9 @@ export async function updateLearningPromotion(
       ? { confidence: clampConfidence(params.confidence) }
       : {}),
     ...(params.riskLevel !== undefined ? { risk_level: params.riskLevel } : {}),
-    ...(params.reviewNotes !== undefined ? { review_notes: params.reviewNotes } : {}),
+    ...(params.reviewNotes !== undefined
+      ? { review_notes: params.reviewNotes }
+      : {}),
     ...(params.expiresAt !== undefined ? { expires_at: params.expiresAt } : {}),
     ...(params.supersededBy !== undefined
       ? {
@@ -782,10 +804,22 @@ export async function recordRetrievalFeedback(
   const payload: AiRetrievalFeedbackInsert = {
     user_id: optionalUuid(params.userId, "userId", "ai_retrieval_feedback"),
     project_id: params.projectId ?? null,
-    target_id: optionalUuid(params.targetId, "targetId", "ai_retrieval_feedback"),
+    target_id: optionalUuid(
+      params.targetId,
+      "targetId",
+      "ai_retrieval_feedback",
+    ),
     session_id: optionalSessionUuid(params.sessionId),
-    tool_name: assertNonEmpty(params.toolName, "toolName", "ai_retrieval_feedback"),
-    query_text: assertNonEmpty(params.queryText, "queryText", "ai_retrieval_feedback"),
+    tool_name: assertNonEmpty(
+      params.toolName,
+      "toolName",
+      "ai_retrieval_feedback",
+    ),
+    query_text: assertNonEmpty(
+      params.queryText,
+      "queryText",
+      "ai_retrieval_feedback",
+    ),
     source_document_id: params.sourceDocumentId ?? null,
     source_chunk_id: params.sourceChunkId ?? null,
     rank: params.rank ?? null,
@@ -823,10 +857,22 @@ export async function recordRetrievalFeedbackBatch(
   const payload: AiRetrievalFeedbackInsert[] = rows.map((params) => ({
     user_id: optionalUuid(params.userId, "userId", "ai_retrieval_feedback"),
     project_id: params.projectId ?? null,
-    target_id: optionalUuid(params.targetId, "targetId", "ai_retrieval_feedback"),
+    target_id: optionalUuid(
+      params.targetId,
+      "targetId",
+      "ai_retrieval_feedback",
+    ),
     session_id: optionalSessionUuid(params.sessionId),
-    tool_name: assertNonEmpty(params.toolName, "toolName", "ai_retrieval_feedback"),
-    query_text: assertNonEmpty(params.queryText, "queryText", "ai_retrieval_feedback"),
+    tool_name: assertNonEmpty(
+      params.toolName,
+      "toolName",
+      "ai_retrieval_feedback",
+    ),
+    query_text: assertNonEmpty(
+      params.queryText,
+      "queryText",
+      "ai_retrieval_feedback",
+    ),
     source_document_id: params.sourceDocumentId ?? null,
     source_chunk_id: params.sourceChunkId ?? null,
     rank: params.rank ?? null,
@@ -870,7 +916,9 @@ function packetCardReviewReason(params: {
   const parts = [
     `packet_card_${params.signal}`,
     params.reason?.trim() ? `Reason: ${params.reason.trim()}` : null,
-    params.correction?.trim() ? `Correction: ${params.correction.trim()}` : null,
+    params.correction?.trim()
+      ? `Correction: ${params.correction.trim()}`
+      : null,
   ].filter((part): part is string => Boolean(part));
   return parts.join("\n");
 }
@@ -959,7 +1007,7 @@ export async function recordPacketCardFeedback(
       reviewId: review.id,
       signal: params.signal,
       visibility: "team",
-      ...(jsonRecord(params.metadata ?? null)),
+      ...jsonRecord(params.metadata ?? null),
     },
   });
 
@@ -1010,7 +1058,10 @@ function optionalLearningStringArray(
 ): string[] {
   const value = learning[fieldName];
   return Array.isArray(value)
-    ? value.filter((item): item is string => typeof item === "string" && item.trim().length > 0)
+    ? value.filter(
+        (item): item is string =>
+          typeof item === "string" && item.trim().length > 0,
+      )
     : [];
 }
 
@@ -1168,7 +1219,9 @@ function normalizeQuerySignature(value: string): string {
     .join(" ");
 }
 
-function retrievalPromotionGroupKey(row: AiRetrievalFeedbackRow): string | null {
+function retrievalPromotionGroupKey(
+  row: AiRetrievalFeedbackRow,
+): string | null {
   const metadata = jsonRecord(row.metadata);
   const sourceKey =
     row.source_chunk_id ??
@@ -1184,7 +1237,10 @@ function retrievalPromotionGroupKey(row: AiRetrievalFeedbackRow): string | null 
   ].join("|");
 }
 
-function retrievalPromotionSignature(groupKey: string, direction: "boost" | "downrank_review"): string {
+function retrievalPromotionSignature(
+  groupKey: string,
+  direction: "boost" | "downrank_review",
+): string {
   return `retrieval_weight:${direction}:${groupKey}`;
 }
 
@@ -1230,7 +1286,9 @@ async function existingPromotionSignatures(
   return new Set(
     (data ?? [])
       .map((row) => jsonRecord(row.proposed_learning).signature)
-      .filter((signature): signature is string => typeof signature === "string"),
+      .filter(
+        (signature): signature is string => typeof signature === "string",
+      ),
   );
 }
 
@@ -1255,7 +1313,9 @@ async function existingPromotionSignaturesForType(
   return new Set(
     (data ?? [])
       .map((row) => jsonRecord(row.proposed_learning).signature)
-      .filter((signature): signature is string => typeof signature === "string"),
+      .filter(
+        (signature): signature is string => typeof signature === "string",
+      ),
   );
 }
 
@@ -1288,7 +1348,11 @@ const BRANDON_EMAIL_VOICE_PROFILE_VERSION = "2026-05-19";
 
 const EMAIL_VOICE_REASON_RULES: Record<
   string,
-  { proposedRule: string; profileSection: string; riskLevel: AiLearningRiskLevel }
+  {
+    proposedRule: string;
+    profileSection: string;
+    riskLevel: AiLearningRiskLevel;
+  }
 > = {
   too_formal: {
     profileSection: "Avoid",
@@ -1383,7 +1447,10 @@ function emailVoiceSignature(groupKey: string): string {
   return `outlook_email_voice|${groupKey}`;
 }
 
-function emailVoiceConfidence(signalCount: number, inspectedRows: number): number {
+function emailVoiceConfidence(
+  signalCount: number,
+  inspectedRows: number,
+): number {
   const base = signalCount / Math.max(inspectedRows, signalCount);
   const volumeBonus = Math.min(0.25, signalCount * 0.04);
   return Math.min(0.9, Math.max(0.6, base + volumeBonus));
@@ -1400,7 +1467,9 @@ export async function generateEmailVoicePromotionCandidates(
   const minSignals = Math.min(25, Math.max(2, params.minSignals ?? 2));
   const limit = Math.min(100, Math.max(1, params.limit ?? 25));
   const dryRun = params.dryRun ?? false;
-  const since = new Date(Date.now() - windowDays * 24 * 60 * 60 * 1000).toISOString();
+  const since = new Date(
+    Date.now() - windowDays * 24 * 60 * 60 * 1000,
+  ).toISOString();
   const supabase = createServiceClient();
 
   const { data, error } = await supabase
@@ -1443,7 +1512,9 @@ export async function generateEmailVoicePromotionCandidates(
     if (!representative) continue;
 
     const reasonCategory = representative.reason_category || "other";
-    const rule = EMAIL_VOICE_REASON_RULES[reasonCategory] ?? EMAIL_VOICE_REASON_RULES.other;
+    const rule =
+      EMAIL_VOICE_REASON_RULES[reasonCategory] ??
+      EMAIL_VOICE_REASON_RULES.other;
     const sourceEventIds = groupRows.map((row) => row.id);
     const signature = emailVoiceSignature(groupKey);
     if (existingSignatures.has(signature)) continue;
@@ -1473,7 +1544,10 @@ export async function generateEmailVoicePromotionCandidates(
       signalCount: groupRows.length,
       sampleFeedback: groupRows
         .map((row) => row.free_text)
-        .filter((text): text is string => typeof text === "string" && text.trim().length > 0)
+        .filter(
+          (text): text is string =>
+            typeof text === "string" && text.trim().length > 0,
+        )
         .slice(0, 5),
       rationale:
         "Repeated Outlook draft feedback for Brandon crossed the configured threshold. Review before updating the Markdown voice profile.",
@@ -1485,7 +1559,8 @@ export async function generateEmailVoicePromotionCandidates(
       projectId: null,
       confidence: emailVoiceConfidence(groupRows.length, rows.length),
       riskLevel: rule.riskLevel,
-      destinationTable: "docs/architecture/memory/brandon-brand-voice/brandon-email-voice-profile.md",
+      destinationTable:
+        "docs/architecture/memory/brandon-brand-voice/brandon-email-voice-profile.md",
       destinationRecordId: voiceProfilePath,
       sourceEventIds,
       proposedLearning,
@@ -1548,7 +1623,9 @@ export async function generateTaskPromotionCandidates(
   const windowDays = Math.min(90, Math.max(1, params.windowDays ?? 30));
   const limit = Math.min(100, Math.max(1, params.limit ?? 25));
   const dryRun = params.dryRun ?? false;
-  const since = new Date(Date.now() - windowDays * 24 * 60 * 60 * 1000).toISOString();
+  const since = new Date(
+    Date.now() - windowDays * 24 * 60 * 60 * 1000,
+  ).toISOString();
   const supabase = createServiceClient();
 
   const { data, error } = await supabase
@@ -1561,11 +1638,7 @@ export async function generateTaskPromotionCandidates(
     .limit(1_000);
 
   if (error) {
-    throw new AiFeedbackEventError(
-      "ai_task_feedback",
-      "select",
-      error.message,
-    );
+    throw new AiFeedbackEventError("ai_task_feedback", "select", error.message);
   }
 
   const rows = (data ?? []) as AiTaskFeedbackRow[];
@@ -1663,11 +1736,19 @@ export async function generateRetrievalPromotionCandidates(
   params: GenerateRetrievalPromotionCandidatesParams = {},
 ): Promise<GenerateRetrievalPromotionCandidatesResult> {
   const windowDays = Math.min(90, Math.max(1, params.windowDays ?? 30));
-  const minHelpfulSignals = Math.min(25, Math.max(2, params.minHelpfulSignals ?? 3));
-  const minProblemSignals = Math.min(25, Math.max(2, params.minProblemSignals ?? 2));
+  const minHelpfulSignals = Math.min(
+    25,
+    Math.max(2, params.minHelpfulSignals ?? 3),
+  );
+  const minProblemSignals = Math.min(
+    25,
+    Math.max(2, params.minProblemSignals ?? 2),
+  );
   const limit = Math.min(100, Math.max(1, params.limit ?? 25));
   const dryRun = params.dryRun ?? false;
-  const since = new Date(Date.now() - windowDays * 24 * 60 * 60 * 1000).toISOString();
+  const since = new Date(
+    Date.now() - windowDays * 24 * 60 * 60 * 1000,
+  ).toISOString();
   const supabase = createServiceClient();
 
   const { data, error } = await supabase
@@ -1701,14 +1782,15 @@ export async function generateRetrievalPromotionCandidates(
   for (const [groupKey, groupRows] of grouped) {
     if (candidates.length >= limit) break;
 
-    const helpfulRows = groupRows.filter((row) =>
-      row.outcome === "helpful" && (row.cited || row.used_in_answer),
+    const helpfulRows = groupRows.filter(
+      (row) => row.outcome === "helpful" && (row.cited || row.used_in_answer),
     );
-    const problemRows = groupRows.filter((row) =>
-      row.outcome === "unhelpful" ||
-      row.outcome === "wrong_project" ||
-      row.outcome === "stale" ||
-      row.outcome === "unsupported",
+    const problemRows = groupRows.filter(
+      (row) =>
+        row.outcome === "unhelpful" ||
+        row.outcome === "wrong_project" ||
+        row.outcome === "stale" ||
+        row.outcome === "unsupported",
     );
 
     const direction =
@@ -2043,7 +2125,10 @@ export async function previewRetrievalWeightPromotionImpact(
   );
   const scoredRows = relevantRows.map((row) => {
     const originalScore = typeof row.score === "number" ? row.score : 0;
-    const matchedPromotionSource = learningSourceMatchesRetrievalFeedback(learning, row);
+    const matchedPromotionSource = learningSourceMatchesRetrievalFeedback(
+      learning,
+      row,
+    );
     return {
       row,
       originalScore,
@@ -2312,7 +2397,8 @@ export async function applyPositiveTaskExamplePromotion(
     throw new AiFeedbackEventError(
       "ai_task_feedback",
       "update",
-      feedbackError?.message ?? "task feedback promotion update returned no row",
+      feedbackError?.message ??
+        "task feedback promotion update returned no row",
     );
   }
 
@@ -2443,10 +2529,31 @@ export async function applyMemoryPromotion(
 
   const learning = jsonRecord(promotion.proposed_learning);
   const memoryType = memoryTypeFromPromotion(promotion, learning);
+  const skillCandidate = optionalLearningRecord(learning, "skillCandidate");
+  const content =
+    optionalLearningString(learning, "content") ??
+    optionalLearningString(skillCandidate, "body") ??
+    optionalLearningString(skillCandidate, "instructions") ??
+    optionalLearningString(learning, "proposedRule");
+  if (!content) {
+    throw new AiFeedbackEventError(
+      "ai_learning_promotions",
+      "validate",
+      "promotion proposed_learning.content, skillCandidate.body, or proposedRule is required",
+    );
+  }
+  const sourceUserId = optionalLearningString(learning, "sourceUserId");
+  const memoryOwnerId = sourceUserId
+    ? optionalUuid(
+        sourceUserId,
+        "proposed_learning.sourceUserId",
+        "ai_learning_promotions",
+      )
+    : reviewedBy;
   const memoryResult = await writeMemory({
-    userId: reviewedBy,
+    userId: memoryOwnerId ?? reviewedBy,
     type: memoryType,
-    content: requiredLearningString(learning, "content"),
+    content,
     projectId: promotion.project_id,
     confidence: promotion.confidence,
     importance: optionalLearningNumber(learning, "importance") ?? 0.7,
@@ -2455,11 +2562,7 @@ export async function applyMemoryPromotion(
   });
 
   if ("error" in memoryResult) {
-    throw new AiFeedbackEventError(
-      "ai_memories",
-      "write",
-      memoryResult.error,
-    );
+    throw new AiFeedbackEventError("ai_memories", "write", memoryResult.error);
   }
 
   const { data: updatedPromotion, error: updateError } = await supabase
@@ -2756,18 +2859,60 @@ const ATTRIBUTION_DOMAIN_EXCLUSIONS = new Set([
 ]);
 
 const ATTRIBUTION_TITLE_STOPWORDS = new Set([
-  "the", "and", "for", "with", "from", "this", "that", "have", "has", "are",
-  "was", "were", "you", "your", "our", "their", "his", "her", "its", "meeting",
-  "call", "email", "re", "fwd", "fw", "update", "weekly", "daily", "notes",
-  "discussion", "review", "sync", "catch", "general", "team", "project",
-  "regarding", "about", "please", "thanks", "thank", "hi", "hello", "all",
+  "the",
+  "and",
+  "for",
+  "with",
+  "from",
+  "this",
+  "that",
+  "have",
+  "has",
+  "are",
+  "was",
+  "were",
+  "you",
+  "your",
+  "our",
+  "their",
+  "his",
+  "her",
+  "its",
+  "meeting",
+  "call",
+  "email",
+  "re",
+  "fwd",
+  "fw",
+  "update",
+  "weekly",
+  "daily",
+  "notes",
+  "discussion",
+  "review",
+  "sync",
+  "catch",
+  "general",
+  "team",
+  "project",
+  "regarding",
+  "about",
+  "please",
+  "thanks",
+  "thank",
+  "hi",
+  "hello",
+  "all",
 ]);
 
 function extractEmailDomain(email: string | null | undefined): string | null {
   if (!email) return null;
   const at = email.lastIndexOf("@");
   if (at < 0) return null;
-  const domain = email.slice(at + 1).trim().toLowerCase();
+  const domain = email
+    .slice(at + 1)
+    .trim()
+    .toLowerCase();
   if (!domain || !domain.includes(".")) return null;
   return domain;
 }
@@ -2816,7 +2961,10 @@ function attributionRulePriority(ruleType: AttributionRuleKind): number {
   return 42; // title_keyword — broadest, lowest precedence
 }
 
-function attributionRuleConfidence(signalCount: number, consistency: number): number {
+function attributionRuleConfidence(
+  signalCount: number,
+  consistency: number,
+): number {
   const volume = Math.min(0.2, signalCount * 0.04);
   return Math.min(0.97, Math.max(0.7, 0.6 + volume + (consistency - 0.8)));
 }
@@ -2874,11 +3022,17 @@ export async function recordAttributionAssignmentFeedback(
 interface AttributionPatternGroup {
   ruleType: AttributionRuleKind;
   pattern: string;
-  byProject: Map<number, { count: number; eventIds: string[]; projectName: string | null }>;
+  byProject: Map<
+    number,
+    { count: number; eventIds: string[]; projectName: string | null }
+  >;
   total: number;
 }
 
-function attributionGroupKey(ruleType: AttributionRuleKind, pattern: string): string {
+function attributionGroupKey(
+  ruleType: AttributionRuleKind,
+  pattern: string,
+): string {
   return `${ruleType}|${normalizeAttributionPattern(pattern)}`;
 }
 
@@ -2887,10 +3041,15 @@ export async function generateAttributionRulePromotionCandidates(
 ): Promise<GenerateAttributionRulePromotionCandidatesResult> {
   const windowDays = Math.min(180, Math.max(1, params.windowDays ?? 60));
   const minSignals = Math.min(25, Math.max(2, params.minSignals ?? 3));
-  const minConsistency = Math.min(1, Math.max(0.5, params.minConsistency ?? 0.8));
+  const minConsistency = Math.min(
+    1,
+    Math.max(0.5, params.minConsistency ?? 0.8),
+  );
   const limit = Math.min(100, Math.max(1, params.limit ?? 25));
   const dryRun = params.dryRun ?? false;
-  const since = new Date(Date.now() - windowDays * 24 * 60 * 60 * 1000).toISOString();
+  const since = new Date(
+    Date.now() - windowDays * 24 * 60 * 60 * 1000,
+  ).toISOString();
   const supabase = createServiceClient();
 
   const { data, error } = await supabase
@@ -2903,7 +3062,11 @@ export async function generateAttributionRulePromotionCandidates(
     .limit(5_000);
 
   if (error) {
-    throw new AiFeedbackEventError("ai_feedback_events", "select", error.message);
+    throw new AiFeedbackEventError(
+      "ai_feedback_events",
+      "select",
+      error.message,
+    );
   }
 
   const rows = (data ?? []) as AiFeedbackEventRow[];
@@ -2918,7 +3081,8 @@ export async function generateAttributionRulePromotionCandidates(
   ) => {
     const normalized = normalizeAttributionPattern(pattern);
     if (!normalized) return;
-    if (ruleType === "domain" && ATTRIBUTION_DOMAIN_EXCLUSIONS.has(normalized)) return;
+    if (ruleType === "domain" && ATTRIBUTION_DOMAIN_EXCLUSIONS.has(normalized))
+      return;
     if (ruleType === "email") {
       const domain = extractEmailDomain(normalized);
       if (domain && ATTRIBUTION_DOMAIN_EXCLUSIONS.has(domain)) return;
@@ -2943,7 +3107,8 @@ export async function generateAttributionRulePromotionCandidates(
 
   for (const row of rows) {
     const context = jsonRecord(row.source_context);
-    const projectId = optionalLearningNumber(context, "projectId") ?? row.project_id;
+    const projectId =
+      optionalLearningNumber(context, "projectId") ?? row.project_id;
     if (!projectId || projectId <= 0) continue;
     const projectName = optionalLearningString(context, "projectName");
 
@@ -2953,7 +3118,10 @@ export async function generateAttributionRulePromotionCandidates(
     const email = optionalLearningString(context, "fromEmail");
     if (email) register("email", email, projectId, projectName, row.id);
 
-    for (const keyword of optionalLearningStringArray(context, "titleKeywords")) {
+    for (const keyword of optionalLearningStringArray(
+      context,
+      "titleKeywords",
+    )) {
       register("title_keyword", keyword, projectId, projectName, row.id);
     }
   }
@@ -2986,7 +3154,11 @@ export async function generateAttributionRulePromotionCandidates(
     if (group.total < minSignals) continue;
 
     let dominantProjectId = 0;
-    let dominant = { count: 0, eventIds: [] as string[], projectName: null as string | null };
+    let dominant = {
+      count: 0,
+      eventIds: [] as string[],
+      projectName: null as string | null,
+    };
     for (const [projectId, bucket] of group.byProject) {
       if (bucket.count > dominant.count) {
         dominant = bucket;
@@ -3264,7 +3436,9 @@ export async function applyAttributionRulePromotion(
   const learning = jsonRecord(promotion.proposed_learning);
 
   // Generalizable rule mined from manual assignments → project_attribution_rules.
-  if (optionalLearningString(learning, "ruleKind") === "project_attribution_rule") {
+  if (
+    optionalLearningString(learning, "ruleKind") === "project_attribution_rule"
+  ) {
     return applyProjectAttributionRulePromotion(promotion, learning, params);
   }
 
@@ -3297,8 +3471,14 @@ export async function applyAttributionRulePromotion(
     }
     attributionCandidate = candidate as DocumentAttributionCandidateRow;
   } else {
-    const sourceDocumentId = requiredLearningString(learning, "sourceDocumentId");
-    const candidateProjectId = optionalLearningNumber(learning, "candidateProjectId");
+    const sourceDocumentId = requiredLearningString(
+      learning,
+      "sourceDocumentId",
+    );
+    const candidateProjectId = optionalLearningNumber(
+      learning,
+      "candidateProjectId",
+    );
     if (!candidateProjectId) {
       throw new AiFeedbackEventError(
         "document_attribution_candidates",
@@ -3310,7 +3490,10 @@ export async function applyAttributionRulePromotion(
     const payload: DocumentAttributionCandidateInsert = {
       source_document_id: sourceDocumentId,
       candidate_project_id: candidateProjectId,
-      candidate_project_name: optionalLearningString(learning, "candidateProjectName"),
+      candidate_project_name: optionalLearningString(
+        learning,
+        "candidateProjectName",
+      ),
       confidence: clampConfidence(promotion.confidence),
       confidence_label: optionalLearningString(learning, "confidenceLabel"),
       attribution_method:

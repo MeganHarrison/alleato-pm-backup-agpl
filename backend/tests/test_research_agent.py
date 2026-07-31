@@ -6,7 +6,7 @@ from typing import Any
 
 from src.api import main as api_main
 from src.services.agents.research_agent import ResearchRequest, run_research_agent
-from src.services.agents.research_agent.tools import web_search
+from src.services.agents.research_agent.tools import search_public_web, web_search
 
 
 def _override_research_auth(app, path="/api/intelligence/research"):
@@ -139,6 +139,59 @@ def test_web_search_reports_missing_tavily_key(monkeypatch):
     assert "TAVILY_API_KEY" in result
 
 
+def test_structured_web_search_preserves_raw_content_for_deterministic_jobs(
+    monkeypatch,
+):
+    captured = {}
+
+    class FakeResponse:
+        def raise_for_status(self):
+            return None
+
+        def json(self):
+            return {
+                "results": [
+                    {
+                        "title": " Full construction course ",
+                        "url": "https://example.com/course",
+                        "content": " Search snippet ",
+                        "raw_content": " Detailed lesson content ",
+                        "score": 0.87,
+                    }
+                ]
+            }
+
+    class FakeClient:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            return None
+
+        def post(self, url, *, json, headers):
+            captured.update({"url": url, "json": json, "headers": headers})
+            return FakeResponse()
+
+    monkeypatch.setenv("TAVILY_API_KEY", "test-tavily-key")
+    monkeypatch.setattr(
+        "src.services.agents.research_agent.tools.httpx.Client",
+        lambda **_kwargs: FakeClient(),
+    )
+
+    results = search_public_web(
+        "construction course",
+        3,
+        search_depth="advanced",
+        include_raw_content=True,
+    )
+
+    assert len(results) == 1
+    assert results[0].raw_content == "Detailed lesson content"
+    assert results[0].score == 0.87
+    assert captured["json"]["search_depth"] == "advanced"
+    assert captured["json"]["include_raw_content"] is True
+
+
 def test_research_route_is_feature_gated(client, monkeypatch):
     _override_research_auth(client.app)
     monkeypatch.setenv("DEEP_AGENTS_RESEARCH_ENABLED", "false")
@@ -160,7 +213,7 @@ def test_research_route_returns_research_payload(client, monkeypatch):
 
     def fake_run_research_agent(request, *, model):
         assert request.question == "Research test"
-        assert model == "openai:gpt-5.4-mini"
+        assert model == "openai:gpt-5.5"
         return run_research_agent(
             request,
             create_agent=lambda **_kwargs: _FakeAgent({}),

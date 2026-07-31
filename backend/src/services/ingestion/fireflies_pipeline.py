@@ -17,6 +17,7 @@ from uuid import NAMESPACE_URL, uuid4, uuid5
 
 import requests
 
+from ..ai_transport import get_openai_client, retry_ai_call
 from ..pipeline.source_processing import (
     INTENTIONALLY_EXCLUDED_STATUS,
     SourceProcessingContext,
@@ -40,6 +41,7 @@ except ImportError:  # pragma: no cover - handled in EmbeddingGenerator
 from supabase_helpers import (
     DocumentChunk,
     SupabaseRagStore,
+    get_rag_write_client,
     update_ingestion_job_state,
 )
 
@@ -123,7 +125,7 @@ class EmbeddingGenerator:
     def embed(self, texts: List[str]) -> List[List[float]]:
         if not texts:
             return []
-        from ..ai_transport import get_openai_client, retry_ai_call
+        from ..ai_transport import get_ai_provider_path, get_openai_client, retry_ai_call
         from ..pipeline.model_usage import (
             ModelUsageContext,
             assert_background_model_budget_available,
@@ -131,11 +133,17 @@ class EmbeddingGenerator:
         )
 
         truncated = [text[:8000] for text in texts]
-        usage_context = ModelUsageContext(stage="indexed_for_rag", operation="fireflies_embedding_batch")
+        usage_context = ModelUsageContext(
+            stage="indexed_for_rag",
+            operation="fireflies_embedding_batch",
+            budget_bucket="embedding",
+        )
         assert_background_model_budget_available(
             stage=usage_context.stage,
             operation=usage_context.operation,
             model=self.model,
+            budget_bucket=usage_context.budget_bucket,
+            usage_context=usage_context,
         )
         response = retry_ai_call(
             lambda: get_openai_client().embeddings.create(
@@ -150,6 +158,7 @@ class EmbeddingGenerator:
         record_model_usage(
             usage_context,
             model=self.model,
+            provider=get_ai_provider_path(),
             response=response,
             input_items=len(texts),
             output_items=len(embeddings),
@@ -175,8 +184,10 @@ class FirefliesIngestionPipeline:
             return self._project_assigner
         try:
             from .project_assignment import ProjectAssigner
-        except Exception:
-            return None
+        except Exception as exc:
+            raise RuntimeError(
+                "Fireflies typed scope assignment is unavailable; refusing ingestion"
+            ) from exc
         self._project_assigner = ProjectAssigner(self.store._client)
         return self._project_assigner
 
@@ -202,35 +213,142 @@ class FirefliesIngestionPipeline:
         participants: List[str],
         content: str,
         existing_project_id: Optional[int] = None,
-    ) -> Optional[int]:
+    ) -> Any:
+        """Return one typed assignment target for Fireflies ingestion.
+
+        The legacy method name is retained for test/caller compatibility, but
+        the returned value is now ``AssignmentTarget``. Mapping or assignment
+        failures abort ingestion instead of silently falling back to a fake
+        project container.
+        """
+        from .project_assignment import AssignmentTarget
+
         assigner = self._get_project_assigner()
-        if assigner is None:
-            return None
 
         min_confidence = float(os.getenv("FIREFLIES_PROJECT_ASSIGN_MIN_CONFIDENCE", "0.8"))
         try:
-            inferred_id, method, confidence = assigner.assign_project(
+            target = assigner.assign_scope(
                 meeting_title=title,
                 participants=participants,
                 content=content[:3000],
                 existing_project_id=existing_project_id,
+                migrate_mapped_existing=True,
             )
         except Exception as exc:
-            logger.warning("[FirefliesIngestion] Project inference failed: %s", exc)
-            return None
+            raise RuntimeError(
+                "Fireflies typed scope assignment failed; document was not persisted"
+            ) from exc
 
-        if inferred_id and (
-            confidence >= min_confidence
-            or (method == "title_correction" and confidence >= 0.93)
+        has_target = (
+            target.project_id is not None or target.business_area_id is not None
+        )
+        if has_target and (
+            target.confidence >= min_confidence
+            or (
+                target.method == "title_correction"
+                and target.confidence >= 0.93
+            )
         ):
             logger.info(
-                "[FirefliesIngestion] Auto-assigned project_id=%s via %s (confidence=%.2f)",
-                inferred_id,
-                method,
-                confidence,
+                "[FirefliesIngestion] Auto-assigned %s=%s via %s (confidence=%.2f)",
+                "business_area_id"
+                if target.business_area_id is not None
+                else "project_id",
+                target.business_area_id
+                if target.business_area_id is not None
+                else target.project_id,
+                target.method,
+                target.confidence,
             )
-            return int(inferred_id)
-        return None
+            return target
+        return AssignmentTarget(
+            project_id=None,
+            business_area_id=None,
+            method=target.method,
+            confidence=target.confidence,
+        )
+
+    def _hydrate_existing_document(
+        self,
+        existing: Optional[Dict[str, Any]],
+    ) -> Optional[Dict[str, Any]]:
+        """Load the canonical persisted scope before deciding to short-circuit."""
+        if not existing or not existing.get("id"):
+            return existing
+        fetcher = getattr(self.store, "fetch_document_metadata", None)
+        if not callable(fetcher):
+            return existing
+        hydrated = fetcher(str(existing["id"]))
+        if not hydrated:
+            raise RuntimeError(
+                f"Fireflies existing document {existing['id']} could not be hydrated"
+            )
+        return {**existing, **hydrated}
+
+    def _resolve_assignment_target(
+        self,
+        *,
+        title: str,
+        participants: List[str],
+        content: str,
+        existing_project_id: Optional[int],
+        existing_business_area_id: Optional[int],
+    ) -> Any:
+        from .project_assignment import AssignmentTarget
+
+        if existing_business_area_id is not None:
+            return AssignmentTarget(
+                project_id=None,
+                business_area_id=int(existing_business_area_id),
+                legacy_project_id=(
+                    int(existing_project_id)
+                    if existing_project_id is not None
+                    else None
+                ),
+                method="existing_business_area",
+                confidence=1.0,
+            )
+
+        target = self._infer_project_id_from_context(
+            title=title,
+            participants=participants,
+            content=content,
+            existing_project_id=existing_project_id,
+        )
+        # Compatibility for focused tests that monkeypatch the old private
+        # helper to return ``None``. Production assignment never returns None.
+        if target is None:
+            return AssignmentTarget(
+                project_id=(
+                    int(existing_project_id)
+                    if existing_project_id is not None
+                    else None
+                ),
+                business_area_id=None,
+                method="existing" if existing_project_id is not None else "unassigned",
+                confidence=1.0 if existing_project_id is not None else 0.0,
+            )
+        return target
+
+    def _business_area_access_level(
+        self,
+        business_area_id: Optional[int],
+    ) -> Optional[str]:
+        if business_area_id is None:
+            return None
+        response = (
+            self.store._client.table("business_areas")
+            .select("id,is_restricted")
+            .eq("id", int(business_area_id))
+            .limit(1)
+            .execute()
+        )
+        rows = response.data or []
+        if not rows:
+            raise RuntimeError(
+                f"Fireflies Business Area {business_area_id} is unavailable"
+            )
+        return "restricted" if rows[0].get("is_restricted") is True else None
 
     @staticmethod
     def _build_summary_embedding_text(
@@ -637,33 +755,60 @@ class FirefliesIngestionPipeline:
         if not dry_run:
             record_source_processing_status(source_context, status="captured")
 
-        existing = self.store.find_document_by_hash(content_hash)
+        existing = self._hydrate_existing_document(
+            self.store.find_document_by_hash(content_hash)
+        )
+        initial_existing_project_id = (
+            project_id
+            if project_id is not None
+            else (existing or {}).get("project_id")
+        )
+        initial_target = self._resolve_assignment_target(
+            title=parsed.title,
+            participants=parsed.attendees,
+            content=parsed.raw_text,
+            existing_project_id=initial_existing_project_id,
+            existing_business_area_id=(existing or {}).get("business_area_id"),
+        )
+        initial_scope_needs_rewrite = bool(
+            existing
+            and (
+                (existing or {}).get("project_id") != initial_target.project_id
+                or (existing or {}).get("business_area_id")
+                != initial_target.business_area_id
+            )
+        )
         # Exact-content re-ingests must short-circuit before any LLM or embedding
         # work. Fireflies sync polls the latest transcripts repeatedly; without
         # this guard the same meeting is reprocessed every run, re-burning task
         # rewrite, memory extraction, and embedding credits for unchanged content.
+        # A stale legacy-container scope is the exception: it must pass through
+        # the exact-scope persistence boundary and rebuild chunk metadata.
         existing_document_id = str(existing.get("id") or "") if existing else None
         if (
             existing is not None
             and not dry_run
+            and not initial_scope_needs_rewrite
             and self.store.has_embedded_chunks_for_document(existing_document_id)
         ):
+            skipped_project_id = (
+                initial_target.project_id or initial_target.legacy_project_id
+            )
             record_source_processing_status(
                 SourceProcessingContext(
                     **{
                         **source_context.__dict__,
                         "source_document_id": str(existing_document_id or parsed.fireflies_id or source_item_id),
-                        "project_id": existing.get("project_id"),
+                        "project_id": initial_target.project_id,
+                        "metadata": {
+                            **source_context.metadata,
+                            "business_area_id": initial_target.business_area_id,
+                        },
                     }
                 ),
                 status="skipped_unchanged",
                 metadata={"reason": "content_hash_already_ingested"},
             )
-            # NOTE: `existing_project_id` is not yet defined at this point in the
-            # function (it's only assigned further below, after this early-return
-            # branch) — use `existing.get("project_id")` directly, same as the
-            # `record_source_processing_status` call immediately above.
-            skipped_project_id = (existing or {}).get("project_id")
             self._link_transcript_to_meeting(
                 document_id=str(existing_document_id or parsed.fireflies_id or source_item_id),
                 meeting_title=parsed.title,
@@ -677,6 +822,7 @@ class FirefliesIngestionPipeline:
                 {
                     "id": skipped_document_id,
                     "project_id": skipped_project_id,
+                    "business_area_id": initial_target.business_area_id,
                     "title": parsed.title,
                     "date": parsed.captured_at.isoformat() if parsed.captured_at else None,
                     "meeting_link": (existing or {}).get("meeting_link"),
@@ -691,25 +837,26 @@ class FirefliesIngestionPipeline:
                 skipped=True,
                 dry_run=False,
             )
-        existing_by_fireflies = self.store.find_document_by_fireflies_id(parsed.fireflies_id)
+        existing_by_fireflies = self._hydrate_existing_document(
+            self.store.find_document_by_fireflies_id(parsed.fireflies_id)
+        )
+        existing_document = existing or existing_by_fireflies or {}
         existing_project_id = (
             project_id
             if project_id is not None
-            else (existing or {}).get("project_id")
-            or (existing_by_fireflies or {}).get("project_id")
+            else existing_document.get("project_id")
         )
-        inferred_project_id: Optional[int] = self._infer_project_id_from_context(
+        assignment_target = self._resolve_assignment_target(
             title=parsed.title,
             participants=parsed.attendees,
             content=parsed.raw_text,
             existing_project_id=existing_project_id,
+            existing_business_area_id=existing_document.get("business_area_id"),
         )
-        effective_project_id = (
-            project_id
-            if project_id is not None
-            else inferred_project_id
-            or (existing or {}).get("project_id")
-            or (existing_by_fireflies or {}).get("project_id")
+        effective_project_id = assignment_target.project_id
+        effective_business_area_id = assignment_target.business_area_id
+        meeting_linkage_project_id = (
+            effective_project_id or assignment_target.legacy_project_id
         )
         document_id = (
             (existing or {}).get("id")
@@ -726,13 +873,29 @@ class FirefliesIngestionPipeline:
             source_title=source_context.source_title,
             source_url=source_context.source_url,
             occurred_at=source_context.occurred_at,
-            metadata=source_context.metadata,
+            metadata={
+                **source_context.metadata,
+                "business_area_id": effective_business_area_id,
+                "assignment_method": assignment_target.method,
+                "assignment_confidence": assignment_target.confidence,
+            },
         )
         if not dry_run:
             record_source_processing_status(
                 source_context,
-                status=status_for_project_assignment(effective_project_id),
-                metadata={"project_assignment_source": "fireflies_context_inference"},
+                status=status_for_project_assignment(
+                    effective_project_id or assignment_target.legacy_project_id
+                ),
+                metadata={
+                    "project_assignment_source": "fireflies_typed_scope_inference",
+                    "target_type": (
+                        "business_area"
+                        if effective_business_area_id is not None
+                        else "project"
+                        if effective_project_id is not None
+                        else "unassigned"
+                    ),
+                },
             )
         skipped = False
 
@@ -755,7 +918,29 @@ class FirefliesIngestionPipeline:
             "content": parsed.raw_text,
             "raw_text": parsed.raw_text,
             "project_id": effective_project_id,
+            "business_area_id": effective_business_area_id,
             "url": storage_url,
+            "source_metadata": {
+                "project_assignment": {
+                    "status": (
+                        "assigned"
+                        if effective_project_id is not None
+                        or effective_business_area_id is not None
+                        else "review_needed"
+                    ),
+                    "target_type": (
+                        "business_area"
+                        if effective_business_area_id is not None
+                        else "project"
+                        if effective_project_id is not None
+                        else "unassigned"
+                    ),
+                    "method": assignment_target.method,
+                    "confidence": assignment_target.confidence,
+                    "business_area_id": effective_business_area_id,
+                    "legacy_project_id": assignment_target.legacy_project_id,
+                }
+            },
             **FIREFLIES_DOCUMENT_METADATA_CONTRACT,
             "phase": "construction",
             "status": "processed",
@@ -771,6 +956,13 @@ class FirefliesIngestionPipeline:
                 if value is None or value == {} or value == []:
                     continue
                 metadata[key] = value
+        # Extra source metadata must never override the typed authorization
+        # target resolved above.
+        metadata["project_id"] = effective_project_id
+        metadata["business_area_id"] = effective_business_area_id
+        access_level = self._business_area_access_level(effective_business_area_id)
+        if access_level is not None:
+            metadata["access_level"] = access_level
 
         segments = parsed.transcript_segments
         chunks = list(
@@ -778,6 +970,7 @@ class FirefliesIngestionPipeline:
                 document_id,
                 segments,
                 effective_project_id,
+                business_area_id=effective_business_area_id,
                 title=parsed.title,
                 captured_at=parsed.captured_at,
                 fireflies_id=parsed.fireflies_id,
@@ -803,14 +996,25 @@ class FirefliesIngestionPipeline:
 
         try:
             self.store.upsert_document_metadata(metadata)
+            self.store.set_document_scope(
+                str(document_id),
+                project_id=effective_project_id,
+                business_area_id=effective_business_area_id,
+            )
             self._link_transcript_to_meeting(
                 document_id=str(document_id),
                 meeting_title=parsed.title,
-                project_id=effective_project_id,
+                project_id=meeting_linkage_project_id,
                 captured_at=parsed.captured_at,
                 fireflies_id=parsed.fireflies_id,
             )
-            self._upsert_structured_meeting(self.store._client, metadata)
+            self._upsert_structured_meeting(
+                self.store._client,
+                {
+                    **metadata,
+                    "project_id": meeting_linkage_project_id,
+                },
+            )
             if self._is_interview_title(parsed.title):
                 reason = (
                     'INTENTIONALLY_EXCLUDED: Meeting title contains "Interview", '
@@ -858,6 +1062,7 @@ class FirefliesIngestionPipeline:
                 source_type="fireflies",
                 project_hint=effective_project_id,
             )
+
             self.store.complete_ingestion_job(job_id, status="completed")
             self._update_ingestion_job_state(
                 str(document_id),
@@ -1096,24 +1301,6 @@ class FirefliesIngestionPipeline:
 
                 apps_outputs = self._fetch_apps_outputs(transcript_id)
                 markdown = self._format_transcript_markdown(transcript, apps_outputs)
-                content_hash = self._stable_content_hash(markdown)
-                existing = self.store.find_document_by_hash(content_hash)
-                existing_document_id = str(existing.get("id") or "") if existing else None
-                if (
-                    existing
-                    and not dry_run
-                    and self.store.has_embedded_chunks_for_document(existing_document_id)
-                ):
-                    results.append(
-                        {
-                            "transcript_id": transcript_id,
-                            "title": transcript.get("title"),
-                            "skipped": True,
-                            "reason": "unchanged_content",
-                            "document_id": existing.get("id"),
-                        }
-                    )
-                    continue
                 captured_at = self._parse_datetime(
                     transcript.get("dateString") or transcript.get("date")
                 )
@@ -1962,6 +2149,7 @@ class FirefliesIngestionPipeline:
         chunk_size: int = 12,
         overlap: int = 2,
         *,
+        business_area_id: Optional[int] = None,
         title: Optional[str] = None,
         captured_at: Optional[datetime] = None,
         fireflies_id: Optional[str] = None,
@@ -1978,6 +2166,7 @@ class FirefliesIngestionPipeline:
                     index,
                     window,
                     project_id,
+                    business_area_id=business_area_id,
                     title=title,
                     captured_at=captured_at,
                     fireflies_id=fireflies_id,
@@ -1990,6 +2179,7 @@ class FirefliesIngestionPipeline:
                 index,
                 window,
                 project_id,
+                business_area_id=business_area_id,
                 title=title,
                 captured_at=captured_at,
                 fireflies_id=fireflies_id,
@@ -2002,6 +2192,7 @@ class FirefliesIngestionPipeline:
         segments: List[TranscriptSegment],
         project_id: Optional[int],
         *,
+        business_area_id: Optional[int] = None,
         title: Optional[str] = None,
         captured_at: Optional[datetime] = None,
         fireflies_id: Optional[str] = None,
@@ -2014,17 +2205,24 @@ class FirefliesIngestionPipeline:
         # downstream RAG filters (title, file_date) work uniformly across the
         # transcript and summary paths.
         captured_at_iso = captured_at.isoformat() if captured_at else None
+        if project_id is not None and business_area_id is not None:
+            raise ValueError(
+                "Fireflies chunk scope cannot contain both project_id and business_area_id"
+            )
         metadata = {
             "chunk_index": index,
             "speakers": sorted({seg.speaker or "Unknown" for seg in segments}),
             "start_timestamp": segments[0].timestamp,
             "end_timestamp": segments[-1].timestamp,
-            "project_id": project_id,
             "title": title,
             "captured_at": captured_at_iso,
             "file_date": captured_at_iso,
             "fireflies_id": fireflies_id,
         }
+        if project_id is not None:
+            metadata["project_id"] = project_id
+        if business_area_id is not None:
+            metadata["business_area_id"] = business_area_id
         return DocumentChunk(
             document_id=document_id,
             chunk_index=index,
@@ -2212,6 +2410,175 @@ class FirefliesIngestionPipeline:
         lines.append(json.dumps(value, indent=2))
         lines.append("```")
         lines.append("")
+
+    # -------------------------------------------------------------------------
+    # Meeting-triggered memory extraction
+    # -------------------------------------------------------------------------
+
+    def _extract_meeting_memories(
+        self,
+        document_id: str,
+        project_id: Optional[int],
+        title: str,
+        content: str,
+        action_items: List[str],
+    ) -> None:
+        """Extract team-scoped AI memories from an ingested meeting transcript.
+
+        Uses GPT-4.1-nano to identify facts, lessons, and commitments from the
+        meeting. Stores them directly in ai_memories with visibility='team' so
+        they are injected for all users, not just the one who triggered ingestion.
+
+        Commitment memories are stored with project linkage so they also surface
+        as ai_insights action items via the TypeScript bridge.
+        """
+        if OpenAI is None:
+            logger.debug("OpenAI not available, skipping memory extraction")
+            return
+
+        if not os.getenv("OPENAI_API_KEY"):
+            raise RuntimeError(
+                "OPENAI_API_KEY is required for meeting memory extraction"
+            )
+
+        # Build a compact transcript excerpt (first 4,000 chars)
+        excerpt = content[:4000]
+
+        # Build action items summary
+        action_summary = ""
+        if action_items:
+            action_summary = "\n\nAction items identified:\n" + "\n".join(
+                f"- {item}" for item in action_items[:20]
+            )
+
+        prompt = (
+            f"Meeting: {title}\n\n"
+            f"Transcript excerpt:\n{excerpt}"
+            f"{action_summary}\n\n"
+            "Extract durable team memories from this meeting. Return a JSON array. "
+            "Each object: {\"type\": \"fact\"|\"lesson\"|\"commitment\", "
+            "\"content\": \"1-2 sentence memory\", "
+            "\"importance\": 0.1-1.0, \"confidence\": 0.1-1.0}\n"
+            "Types:\n"
+            "- fact: objective facts about projects, people, decisions made\n"
+            "- lesson: patterns or institutional knowledge worth remembering\n"
+            "- commitment: specific commitments with owner + deadline\n"
+            "Rules: be specific (include names, numbers, dates). Max 5 memories. "
+            "Return [] if nothing meaningful. Return ONLY valid JSON array."
+        )
+
+        client = get_openai_client()
+        response = retry_ai_call(
+            lambda: client.chat.completions.create(
+                model="gpt-4.1-nano",
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0,
+                max_tokens=512,
+                timeout=20,
+            ),
+            provider_name="OpenAI",
+            operation="meeting memory extraction chat",
+            max_retries=0,
+        )
+
+        raw = (response.choices[0].message.content or "").strip()
+        raw = raw.lstrip("```json").lstrip("```").rstrip("```").strip()
+
+        try:
+            memories = json.loads(raw)
+            if not isinstance(memories, list):
+                return
+        except (json.JSONDecodeError, ValueError):
+            return
+
+        if not memories:
+            return
+
+        valid = [
+            m for m in memories
+            if isinstance(m, dict)
+            and m.get("content", "").strip()
+            and m.get("type") in ("fact", "lesson", "commitment")
+            and float(m.get("importance", 0)) >= 0.3
+        ]
+        if not valid:
+            return
+
+        supabase_url = os.environ.get("SUPABASE_URL") or os.environ.get("NEXT_PUBLIC_SUPABASE_URL")
+        supabase_key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
+        if not supabase_url or not supabase_key:
+            logger.warning("Supabase env vars not set, cannot store meeting memories")
+            return
+
+        import urllib.request
+
+        for mem in valid:
+            # DO NOT write embedding to PM APP ai_memories.embedding — HNSW index OOMs under concurrent inserts.
+            # Instead: insert text-only to PM APP, then sync embedding to AI DB document_chunks.
+            content_text = mem["content"].strip()
+            payload = json.dumps({
+                "user_id": "00000000-0000-0000-0000-000000000001",
+                "type": mem["type"],
+                "content": content_text,
+                "project_id": project_id,
+                "meeting_id": document_id,
+                "confidence": float(mem.get("confidence", 0.85)),
+                "importance": float(mem.get("importance", 0.5)),
+                "source": "meeting_ingest",
+                "visibility": "team",
+            }).encode("utf-8")
+
+            req = urllib.request.Request(
+                f"{supabase_url}/rest/v1/ai_memories",
+                data=payload,
+                headers={
+                    "Content-Type": "application/json",
+                    "apikey": supabase_key,
+                    "Authorization": f"Bearer {supabase_key}",
+                    "Prefer": "return=representation",
+                },
+                method="POST",
+            )
+            memory_id: Optional[str] = None
+            try:
+                with urllib.request.urlopen(req, timeout=10) as resp:
+                    if resp.status in (200, 201):
+                        body = json.loads(resp.read().decode("utf-8"))
+                        rows = body if isinstance(body, list) else [body]
+                        if rows and rows[0].get("id"):
+                            memory_id = rows[0]["id"]
+                    else:
+                        logger.warning("Memory insert returned %d", resp.status)
+            except Exception as e:
+                logger.warning("Failed to insert meeting memory: %s", e)
+
+            # Sync embedding to AI Database document_chunks for semantic search
+            if memory_id:
+                try:
+                    embed_text = f"ai_memory: {content_text}"
+                    vecs = EmbeddingGenerator(model=self._embedding_model).embed([embed_text])
+                    if vecs:
+                        rag_client = get_rag_write_client()
+                        rag_client.table("document_chunks").upsert(
+                            {
+                                "chunk_id": f"ai_memory_{memory_id}",
+                                "document_id": memory_id,
+                                "chunk_index": 0,
+                                "text": embed_text,
+                                "source_type": "ai_memory",
+                                "embedding": json.dumps(vecs[0]),
+                                "metadata": {
+                                    "type": mem["type"],
+                                    "project_id": project_id,
+                                    "meeting_id": document_id,
+                                    "source": "meeting_ingest",
+                                },
+                            },
+                            on_conflict="chunk_id",
+                        ).execute()
+                except Exception as e:
+                    logger.warning("Failed to sync memory embedding to AI DB: %s", e)
+
 
 if __name__ == "__main__":
     # Reason: Provide feedback when script is run directly to confirm imports work

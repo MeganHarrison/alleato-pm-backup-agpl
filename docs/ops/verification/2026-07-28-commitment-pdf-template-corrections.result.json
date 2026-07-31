@@ -1,0 +1,53 @@
+{
+  "status": "PASS",
+  "taskId": "LOCAL-2026-07-28-COMMITMENT-PDF",
+  "evidence": {
+    "screenshots": [
+      "docs/ops/verification/2026-07-28-commitment-pdf-template-corrections-rendered-contact-sheet.png"
+    ],
+    "actionLog": [
+      "docs/ops/verification/2026-07-28-commitment-pdf-template-corrections-action-log.md"
+    ],
+    "negativePath": [
+      "docs/ops/verification/2026-07-28-commitment-pdf-template-corrections-negative-path.md"
+    ],
+    "visualReview": [
+      "docs/ops/verification/2026-07-28-commitment-pdf-template-corrections-independent-review.md"
+    ],
+    "regressionTest": [
+      "docs/ops/verification/2026-07-28-commitment-pdf-template-corrections-regression-test.md"
+    ]
+  },
+  "claims": {
+    "authoritative-values": {
+      "screenshots": [
+        "docs/ops/verification/2026-07-28-commitment-pdf-template-corrections-rendered-contact-sheet.png"
+      ],
+      "regressionTest": [
+        "docs/ops/verification/2026-07-28-commitment-pdf-template-corrections-regression-test.md"
+      ]
+    },
+    "party-mapping": {
+      "regressionTest": [
+        "docs/ops/verification/2026-07-28-commitment-pdf-template-corrections-regression-test.md"
+      ],
+      "visualReview": [
+        "docs/ops/verification/2026-07-28-commitment-pdf-template-corrections-independent-review.md"
+      ]
+    },
+    "failure-path": {
+      "negativePath": [
+        "docs/ops/verification/2026-07-28-commitment-pdf-template-corrections-negative-path.md"
+      ],
+      "regressionTest": [
+        "docs/ops/verification/2026-07-28-commitment-pdf-template-corrections-regression-test.md"
+      ]
+    }
+  },
+  "independentReview": {
+    "reviewer": "commitment_pdf_review",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-29T20:45:07Z",
+    "artifact": "docs/ops/verification/2026-07-28-commitment-pdf-template-corrections-independent-review.md"
+  }
+}

@@ -1,26 +1,23 @@
 ---
 title: AI Assistant Overview
-description: Understand Ask Alleato — the Eve assistant with six domain skills embedded in the platform.
+description: Understand Ask Alleato — the multi-agent AI system with C-Suite advisors embedded in the platform.
 audience: client
 visibility: published
 module: ai-assistant
 category: AI & Intelligence
-tags: [ai-assistant, ask-alleato, eve, skills]
+tags: [ai-assistant, ask-alleato, c-suite, cfo, coo, cro, chro, vpbd]
 featured: true
 client_visible: true
 ai_visible: true
 order: 600
 related_routes:
-  - /ai
+  - /ai-assistant
 related_actions: []
 ---
 
 # AI Assistant Overview
 
-Ask Alleato is powered by Eve, one authenticated assistant embedded directly in
-the platform. Eve can read approved project, financial, schedule, meeting,
-email, and accounting information through the app-owned tool bridge. Every
-answer should be grounded in data available to the signed-in user.
+Ask Alleato is a multi-agent AI system embedded directly in the platform. It is not a generic chatbot — it has live access to your projects, financials, schedules, meetings, emails, and accounting system. Every answer is grounded in real data from your work.
 
 ## Open the Assistant
 
@@ -30,20 +27,13 @@ answer should be grounded in data available to the signed-in user.
 
 ## How It Works
 
-Every question reaches the same Eve runtime. Eve loads the skills relevant to
-the request and can combine multiple skills for cross-functional questions such
-as “why is this project struggling?”
+Every question first reaches the **Chief Strategist** — an orchestrator that reads your question, decides which specialist to consult, and synthesizes a unified answer. For cross-functional questions (e.g., "why is this project struggling?") the Strategist consults multiple advisors simultaneously and connects their findings.
 
-Eve's current production tool bridge is read-only. Eve can retrieve and explain
-authorized data, but it cannot create, update, delete, send, approve, sign, or
-pay from chat. Use the linked application page for those actions.
+## The C-Suite Advisors
 
-## Eve's Domain Skills
+Each advisor has its own domain, live data access, and perspective.
 
-Eve can load six domain skills. They are operating instructions for the same
-assistant identity, not separate agents or personas.
-
-### Financial analysis skill
+### CFO — Chief Financial Officer
 
 Owns all financial analysis. Analyzes through five lenses: margin protection, cash position, exposure, change order lifecycle, and billing and collections.
 
@@ -56,7 +46,7 @@ Owns all financial analysis. Analyzes through five lenses: margin protection, ca
 
 **Data sources:** Budgets, change orders, commitments, direct costs, invoices, prime contracts, Acumatica ERP (live AP/AR aging, cash position, vendor spend).
 
-### Operations review skill
+### COO — Chief Operations Officer
 
 Owns field operations, scheduling, and productivity.
 
@@ -68,7 +58,7 @@ Owns field operations, scheduling, and productivity.
 
 **Data sources:** Schedule tasks, daily logs, punch lists, people and roles.
 
-### Risk review skill
+### CRO — Chief Risk Officer
 
 Owns risk identification and exposure tracking.
 
@@ -80,7 +70,7 @@ Owns risk identification and exposure tracking.
 
 **Data sources:** AI insights, RFI status, submittal status, budget variance, schedule slippage.
 
-### People capacity skill
+### CHRO — Chief Human Resources Officer
 
 Owns team, staffing, and capacity.
 
@@ -91,10 +81,9 @@ Owns team, staffing, and capacity.
 
 **Data sources:** Project directory, people records, roles and assignments.
 
-### Business-development skill
+### VP Business Development
 
-Reviews pipeline, prospects, and market intelligence using the tools exposed to
-the current Eve deployment.
+Owns pipeline, prospects, and market intelligence. Uniquely, this advisor can search the web in real time for competitive intelligence, industry trends, and company research.
 
 **What to ask:**
 - "Summarize our win rate on ground-up industrial projects."
@@ -103,16 +92,9 @@ the current Eve deployment.
 
 **Data sources:** Company knowledge base, prospect records, live web search.
 
-### Marketing strategy skill
-
-Reviews positioning, campaigns, content strategy, and audience priorities using
-approved company and market context.
-
 ## Cross-Project and Portfolio Questions
 
-Eve can handle questions that span multiple projects. You do not need to select
-a project before asking, although project-scoped tools are available only after
-the app verifies the selected project.
+The Strategist handles questions that span multiple projects. You do not need to select a project before asking.
 
 - "Catch me up on everything happening this week."
 - "Which projects need my attention today?"
@@ -128,7 +110,7 @@ Past conversations are saved and shown in the left panel of the full-screen assi
 
 ## Related Articles
 
-- [AI Assistant Actions and Current Limits](/help/articles/ai-assistant-actions)
+- [What the AI Assistant Can Do (Actions)](/help/articles/ai-assistant-actions)
 - [Ask the AI About Meetings](/help/articles/ai-meeting-intelligence)
 - [Project Intelligence](/help/articles/project-intelligence)
 - [AI Memory](/help/articles/ai-memory)

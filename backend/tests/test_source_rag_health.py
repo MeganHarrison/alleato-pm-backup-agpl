@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta, timezone
 
-from src.services.health import source_rag_health
+from src.services.health import source_rag_health as source_rag_health_mod
 from src.services.health.source_rag_health import (
     SEARCHABLE_MEETING_CHUNK_SOURCE_TYPES,
     _counts_project_intelligence_outcome,
@@ -12,21 +12,15 @@ from src.services.health.source_rag_health import (
     _is_past_lifecycle_processing_grace,
     _is_project_required_row,
     _latest_job_metadata_by_document_id,
+    _load_sharepoint_vector_contract,
     _merge_source_synthesis_metadata,
     main,
 )
 
 
 def test_main_exits_zero_on_a_completed_but_degraded_run(monkeypatch):
-    """Guardrail for the 2026-07-24 incident: a degraded finding is a monitoring
-    result (delivered via system_alerts + the throttled Teams DM), not a script
-    failure. Returning 1 here made Render re-alert "server failure" on every
-    5-minute cron tick for as long as any real source stayed unhealthy —
-    duplicating, via Render's own unthrottled cron-failure email, the exact
-    Teams flood #98 fixed.
-    """
     monkeypatch.setattr(
-        source_rag_health,
+        source_rag_health_mod,
         "run_source_rag_health_check",
         lambda: {"passed": False, "notification": {"status": "sent"}},
     )
@@ -36,7 +30,7 @@ def test_main_exits_zero_on_a_completed_but_degraded_run(monkeypatch):
 
 def test_main_exits_zero_on_a_healthy_run(monkeypatch):
     monkeypatch.setattr(
-        source_rag_health,
+        source_rag_health_mod,
         "run_source_rag_health_check",
         lambda: {"passed": True, "notification": {"status": "skipped"}},
     )
@@ -45,19 +39,65 @@ def test_main_exits_zero_on_a_healthy_run(monkeypatch):
 
 
 def test_main_propagates_an_unhandled_exception(monkeypatch):
-    """An actual execution failure (bad env, DB unreachable, Teams delivery
-    itself erroring) must still reach Render as a real failure."""
-
     def _raise():
         raise RuntimeError("boom")
 
-    monkeypatch.setattr(source_rag_health, "run_source_rag_health_check", lambda: _raise())
+    monkeypatch.setattr(source_rag_health_mod, "run_source_rag_health_check", _raise)
 
     try:
         main()
         assert False, "expected RuntimeError to propagate"
     except RuntimeError as exc:
         assert "boom" in str(exc)
+
+
+class _ContractQuery:
+    def __init__(self, rows):
+        self.rows = list(rows)
+        self.filters = []
+        self.range_start = 0
+        self.range_end = 999
+
+    def select(self, *_args, **_kwargs):
+        return self
+
+    def eq(self, column, value):
+        self.filters.append(("eq", column, value))
+        return self
+
+    def in_(self, column, values):
+        self.filters.append(("in", column, set(values)))
+        return self
+
+    def range(self, start, end):
+        self.range_start = start
+        self.range_end = end
+        return self
+
+    def order(self, *_args, **_kwargs):
+        return self
+
+    def limit(self, value):
+        self.range_end = self.range_start + value - 1
+        return self
+
+    def execute(self):
+        rows = self.rows
+        for kind, column, value in self.filters:
+            if kind == "eq":
+                rows = [row for row in rows if row.get(column) == value]
+            else:
+                rows = [row for row in rows if row.get(column) in value]
+        rows = rows[self.range_start : self.range_end + 1]
+        return type("Result", (), {"data": rows})()
+
+
+class _ContractClient:
+    def __init__(self, tables):
+        self.tables = tables
+
+    def table(self, name):
+        return _ContractQuery(self.tables.get(name, []))
 
 
 def test_searchable_meeting_chunk_source_types_include_summary_repairs():
@@ -68,6 +108,224 @@ def test_searchable_meeting_chunk_source_types_include_summary_repairs():
         "meeting_notes",
         "meeting_section",
     }.issubset(SEARCHABLE_MEETING_CHUNK_SOURCE_TYPES)
+
+
+def test_sharepoint_vector_contract_requires_rag_replica_and_chunks(monkeypatch):
+    app_client = _ContractClient(
+        {
+            "document_metadata": [
+                {
+                    "id": "sharepoint_1",
+                    "source_system": "sharepoint",
+                    "source_item_id": "1",
+                    "status": "embedded",
+                    "source_etag": '"one"',
+                    "source_path": None,
+                    "source_web_url": (
+                        "https://alleato.sharepoint.com/sites/AlleatoGroup/"
+                        "Shared%20Documents/Alleato%20Group/2026%20Jobs/"
+                        "26-119/a.pdf"
+                    ),
+                    "deleted_at": None,
+                },
+                {
+                    "id": "sharepoint_2",
+                    "source_system": "sharepoint",
+                    "source_item_id": "2",
+                    "status": "raw_ingested",
+                    "source_etag": '"two"',
+                    "source_path": "/Alleato Group/2026 Jobs/26-119/b.pdf",
+                    "deleted_at": None,
+                },
+            ]
+        }
+    )
+    rag_client = _ContractClient(
+        {
+            "rag_document_metadata": [
+                {
+                    "id": "sharepoint_1",
+                    "source_system": "sharepoint",
+                    "source_item_id": "1",
+                    "embedding_status": "embedded",
+                    "source_metadata": {
+                        "source_folder": "/Alleato Group/2026 Jobs/26-119"
+                    },
+                }
+            ],
+            "document_chunks": [{"document_id": "sharepoint_1"}],
+        }
+    )
+    monkeypatch.setattr(
+        source_rag_health_mod,
+        "get_rag_read_client",
+        lambda: rag_client,
+    )
+
+    report = _load_sharepoint_vector_contract(app_client)
+
+    assert report["cataloged"] == 2
+    assert report["missingRagMetadata"] == 1
+    assert report["withoutChunks"] == 1
+    assert report["status"] == "degraded"
+    assert {
+        alert["code"] for alert in report["alerts"]
+    } >= {
+        "sharepoint_catalog_missing_rag_metadata",
+        "sharepoint_catalog_missing_vector_chunks",
+    }
+
+
+def test_sharepoint_vector_contract_passes_exact_catalog_rag_chunk_chain(
+    monkeypatch,
+):
+    app_client = _ContractClient(
+        {
+            "document_metadata": [
+                {
+                    "id": "sharepoint_1",
+                    "source_system": "sharepoint",
+                    "source_item_id": "1",
+                    "status": "embedded",
+                    "source_etag": '"one"',
+                    "source_path": "/Alleato Group/2026 Jobs/26-119/a.pdf",
+                    "deleted_at": None,
+                }
+            ]
+        }
+    )
+    rag_client = _ContractClient(
+        {
+            "rag_document_metadata": [
+                {
+                    "id": "sharepoint_1",
+                    "source_system": "sharepoint",
+                    "source_item_id": "1",
+                    "embedding_status": "embedded",
+                    "source_metadata": {
+                        "source_folder": "/Alleato Group/2026 Jobs/26-119"
+                    },
+                }
+            ],
+            "document_chunks": [{"document_id": "sharepoint_1"}],
+        }
+    )
+    monkeypatch.setattr(
+        source_rag_health_mod,
+        "get_rag_read_client",
+        lambda: rag_client,
+    )
+
+    report = _load_sharepoint_vector_contract(app_client)
+
+    assert report["status"] == "healthy"
+    assert report["withChunks"] == 1
+    assert report["alerts"] == []
+
+
+def test_sharepoint_vector_contract_includes_explicit_discovery_overrides(
+    monkeypatch,
+):
+    app_client = _ContractClient(
+        {
+            "document_metadata": [
+                {
+                    "id": "sharepoint_override",
+                    "source_system": "sharepoint",
+                    "status": "embedded",
+                    "source_etag": '"one"',
+                    "source_path": "/Special Project Evidence/proposal.pdf",
+                    "deleted_at": None,
+                }
+            ]
+        }
+    )
+    rag_client = _ContractClient(
+        {
+            "source_sync_runs": [
+                {
+                    "source": "microsoft_graph_source_sync",
+                    "started_at": "2026-07-24T10:00:00Z",
+                    "metadata": {
+                        "sharepoint_discovery": {
+                            "resource_ids": [
+                                "sharepoint:AlleatoGroup:/Special Project Evidence"
+                            ]
+                        }
+                    },
+                }
+            ],
+            "rag_document_metadata": [
+                {
+                    "id": "sharepoint_override",
+                    "source_system": "sharepoint",
+                    "embedding_status": "embedded",
+                    "source_metadata": {
+                        "source_folder": "/Special Project Evidence"
+                    },
+                }
+            ],
+            "document_chunks": [{"document_id": "sharepoint_override"}],
+        }
+    )
+    monkeypatch.setattr(
+        source_rag_health_mod,
+        "get_rag_read_client",
+        lambda: rag_client,
+    )
+
+    report = _load_sharepoint_vector_contract(app_client)
+
+    assert report["status"] == "healthy"
+    assert report["cataloged"] == 1
+    assert report["withChunks"] == 1
+
+
+def test_sharepoint_vector_contract_rejects_terminal_rows_with_stale_chunks(
+    monkeypatch,
+):
+    app_client = _ContractClient(
+        {
+            "document_metadata": [
+                {
+                    "id": "sharepoint_stale",
+                    "source_system": "sharepoint",
+                    "status": "ocr_failed",
+                    "source_etag": '"new"',
+                    "source_path": "/Alleato Group/2026 Jobs/26-119/scan.pdf",
+                    "deleted_at": None,
+                }
+            ]
+        }
+    )
+    rag_client = _ContractClient(
+        {
+            "rag_document_metadata": [
+                {
+                    "id": "sharepoint_stale",
+                    "source_system": "sharepoint",
+                    "embedding_status": "error",
+                    "source_metadata": {
+                        "source_folder": "/Alleato Group/2026 Jobs/26-119"
+                    },
+                }
+            ],
+            "document_chunks": [{"document_id": "sharepoint_stale"}],
+        }
+    )
+    monkeypatch.setattr(
+        source_rag_health_mod,
+        "get_rag_read_client",
+        lambda: rag_client,
+    )
+
+    report = _load_sharepoint_vector_contract(app_client)
+
+    assert report["status"] == "degraded"
+    assert report["terminalWithChunks"] == 1
+    assert {
+        alert["code"] for alert in report["alerts"]
+    } == {"sharepoint_terminal_document_has_stale_chunks"}
 
 
 def test_graph_conversation_chunk_alerts_pass_for_source_owned_chunks_and_skips():
@@ -458,6 +716,11 @@ def _run_gate(monkeypatch, *, health, lifecycle, persist_notified, digest_due, t
     monkeypatch.setattr(srh, "get_supabase_client", object)
     monkeypatch.setattr(srh, "get_source_sync_health", lambda _s: health)
     monkeypatch.setattr(srh, "_load_recent_rag_lifecycle_alerts", lambda _s: lifecycle)
+    monkeypatch.setattr(
+        srh,
+        "_load_sharepoint_vector_contract",
+        lambda _s: {"status": "healthy", "alerts": []},
+    )
     monkeypatch.setattr(srh, "update_source_health_snapshot", lambda *_a, **_k: None)
 
     calls = {"reserve": None, "digest_mark": None, "posts": 0, "resolves": 0}
@@ -517,7 +780,7 @@ def test_gate_degraded_all_throttled_suppresses_dm(monkeypatch):
     assert report["notification"]["status"] == "throttled"
 
 
-def test_gate_new_alert_notifies_and_resets_digest_heartbeat(monkeypatch):
+def test_gate_new_alert_within_digest_window_does_not_bypass_digest_throttle(monkeypatch):
     alert = {"severity": "critical", "code": "source_sync_error", "source": "emails", "resourceId": "e", "message": "boom"}
     _report, calls = _run_gate(
         monkeypatch,
@@ -527,9 +790,11 @@ def test_gate_new_alert_notifies_and_resets_digest_heartbeat(monkeypatch):
         digest_due=False,
     )
 
-    assert calls["posts"] == 1
-    # Delivery happened for a new alert, so the digest reservation is stamped too.
-    assert calls["digest_mark"] is True
+    assert calls["posts"] == 0
+    # Per-alert reservations still record the finding, but must not cause a
+    # report-level DM while the digest itself is inside its cooldown window.
+    assert calls["digest_mark"] is False
+    assert _report["notification"]["status"] == "throttled"
 
 
 def test_gate_non_delivering_readback_does_not_reserve(monkeypatch):
@@ -560,3 +825,10 @@ def test_gate_recovery_resolves_digest(monkeypatch):
     assert report["passed"] is True
     assert calls["resolves"] == 1
     assert calls["posts"] == 0
+
+
+def test_main_does_not_turn_degraded_health_into_a_cron_failure(monkeypatch, capsys):
+    monkeypatch.setattr(srh, "run_source_rag_health_check", lambda: {"passed": False, "status": "degraded"})
+
+    assert srh.main() == 0
+    assert '"status": "degraded"' in capsys.readouterr().out

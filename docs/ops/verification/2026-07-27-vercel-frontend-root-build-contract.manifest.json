@@ -1,0 +1,15 @@
+{
+  "contractVersion": 1,
+  "taskId": "VERCEL-frontend-root-build-contract",
+  "riskLevel": "high",
+  "feature": "Vercel frontend-root route inventory preparation",
+  "route": "Vercel frontend project build",
+  "flows": [{ "name": "Production build route inventory", "steps": ["Generate locally", "Validate in frontend-root build"], "expectedOutcome": "No repository-level script is resolved in Vercel." }],
+  "requiredEvidence": ["summary", "actionLog", "negativePath", "regressionTest"],
+  "visual": { "viewports": [], "checks": [] },
+  "independentReview": { "required": true },
+  "claims": [
+    { "id": "root-boundary", "description": "Vercel frontend-root builds do not execute repository-level audit paths.", "evidence": [{ "key": "summary", "min": 1 }, { "key": "negativePath", "min": 1 }] },
+    { "id": "canonical-local-generation", "description": "Complete checkouts use the canonical audit.", "evidence": [{ "key": "actionLog", "min": 1 }, { "key": "regressionTest", "min": 1 }] }
+  ]
+}

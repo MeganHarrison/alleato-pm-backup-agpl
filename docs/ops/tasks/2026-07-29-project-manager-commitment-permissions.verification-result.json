@@ -1,0 +1,42 @@
+{
+  "status": "PASS",
+  "observedStatus": "PASS",
+  "taskId": "PM-PERMISSIONS-20260729",
+  "evidence": {
+    "databaseReadback": [
+      "docs/ops/tasks/2026-07-29-project-manager-commitment-permissions.md"
+    ],
+    "regressionTest": [
+      "docs/ops/tasks/2026-07-29-project-manager-commitment-permissions.md"
+    ],
+    "negativePath": [
+      "docs/ops/tasks/2026-07-29-project-manager-commitment-permissions.md"
+    ],
+    "summary": [
+      "docs/ops/handoffs/2026-07-29-SROOT-project-manager-commitment-permissions.md"
+    ]
+  },
+  "claims": {
+    "shared-access": {
+      "regressionTest": [
+        "docs/ops/tasks/2026-07-29-project-manager-commitment-permissions.md"
+      ]
+    },
+    "commitment-write": {
+      "databaseReadback": [
+        "docs/ops/tasks/2026-07-29-project-manager-commitment-permissions.md"
+      ]
+    },
+    "fail-closed": {
+      "negativePath": [
+        "docs/ops/tasks/2026-07-29-project-manager-commitment-permissions.md"
+      ]
+    }
+  },
+  "independentReview": {
+    "reviewer": "billing_review and billing_db_review",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-30T01:54:12Z",
+    "artifact": "docs/ops/handoffs/2026-07-29-SROOT-project-manager-commitment-permissions.md"
+  }
+}

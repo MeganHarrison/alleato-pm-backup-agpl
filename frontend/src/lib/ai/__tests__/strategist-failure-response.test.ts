@@ -6,7 +6,7 @@
  * response is contextual (not generic) and the function never silently regresses.
  *
  * @see CLAUDE.md Rules 14 & 15 — Bug Fix Completion Gate + Regression Test Gate
- * Legacy response-format regression coverage retained for non-assistant callers.
+ * @see frontend/src/app/api/ai-assistant/chat/route.ts — where this is called
  */
 
 import { createStrategistFailureResponse } from "../strategist-failure-response";

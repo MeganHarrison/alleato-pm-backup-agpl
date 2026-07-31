@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
  */
 
 import { NextResponse } from "next/server";
-import { sendProactiveMessage } from "@/lib/bot/teams-delivery";
+import { sendProactiveMessage } from "@/lib/bot/teams-chat";
 import { withApiGuardrails } from "@/lib/guardrails/api";
 
 export const POST = withApiGuardrails("bot/teams/notify#POST", async ({ request }): Promise<Response> => {

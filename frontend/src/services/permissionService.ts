@@ -213,10 +213,10 @@ export class PermissionService {
       rules?: PermissionRules;
     },
   ): Promise<PermissionTemplate> {
-    const updateData: Record<string, unknown> = {};
+    const updateData: Database["public"]["Tables"]["permission_templates"]["Update"] = {};
     if (updates.name) updateData.name = updates.name;
     if (updates.description) updateData.description = updates.description;
-    if (updates.rules) updateData.rules_json = updates.rules;
+    if (updates.rules) updateData.rules_json = updates.rules as unknown as Database["public"]["Tables"]["permission_templates"]["Update"]["rules_json"];
 
     const { data, error } = await this.supabase
       .from("permission_templates")

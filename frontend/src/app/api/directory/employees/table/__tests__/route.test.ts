@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 
 import { GET } from "../route";
 import { createClient, getApiRouteUser } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 
 jest.mock("@/lib/guardrails/api", () => ({
   withApiGuardrails:
@@ -18,8 +19,27 @@ jest.mock("@/lib/supabase/server", () => ({
   getApiRouteUser: jest.fn(),
 }));
 
+jest.mock("@/lib/supabase/service", () => ({
+  createServiceClient: jest.fn(),
+}));
+
 const createClientMock = createClient as jest.MockedFunction<typeof createClient>;
 const getApiRouteUserMock = getApiRouteUser as jest.MockedFunction<typeof getApiRouteUser>;
+const createServiceClientMock = createServiceClient as jest.MockedFunction<
+  typeof createServiceClient
+>;
+
+function mockAuthUsers(
+  users: Array<{ email: string; last_sign_in_at: string | null }>,
+): void {
+  createServiceClientMock.mockReturnValue({
+    auth: {
+      admin: {
+        listUsers: jest.fn().mockResolvedValue({ data: { users }, error: null }),
+      },
+    },
+  } as never);
+}
 
 function makeQuery(result: unknown) {
   const query = {
@@ -71,11 +91,15 @@ describe("GET /api/directory/employees/table", () => {
           person_type: "employee",
           created_at: "2026-06-29T00:00:00.000Z",
           company: "Alleato Group",
+          auth_user_id: "auth-1",
         },
       ],
       error: null,
       count: 1,
     });
+    mockAuthUsers([
+      { email: "active@example.com", last_sign_in_at: "2026-06-30T00:00:00.000Z" },
+    ]);
 
     const response = await GET(
       new NextRequest(
@@ -96,7 +120,42 @@ describe("GET /api/directory/employees/table", () => {
         id: "person-1",
         full_name: "Active Employee",
         status: "active",
+        access_status: "active",
       }),
+    ]);
+  });
+
+  it("marks an account that has never signed in as invited", async () => {
+    makeQuery({
+      data: [
+        {
+          id: "person-2",
+          first_name: "Invited",
+          last_name: "Employee",
+          email: "invited@example.com",
+          job_title: null,
+          business_unit: null,
+          phone_business: null,
+          phone_mobile: null,
+          status: "active",
+          person_type: "employee",
+          created_at: "2026-06-29T00:00:00.000Z",
+          company: "Alleato Group",
+          auth_user_id: "auth-2",
+        },
+      ],
+      error: null,
+      count: 1,
+    });
+    mockAuthUsers([{ email: "invited@example.com", last_sign_in_at: null }]);
+
+    const response = await GET(
+      new NextRequest("http://localhost/api/directory/employees/table?page=1"),
+    );
+    const body = await response.json();
+
+    expect(body.data).toEqual([
+      expect.objectContaining({ id: "person-2", access_status: "invited" }),
     ]);
   });
 
@@ -106,6 +165,7 @@ describe("GET /api/directory/employees/table", () => {
       error: null,
       count: 0,
     });
+    mockAuthUsers([]);
 
     await GET(
       new NextRequest(

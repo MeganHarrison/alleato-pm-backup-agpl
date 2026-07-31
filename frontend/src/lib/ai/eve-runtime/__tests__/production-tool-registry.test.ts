@@ -265,6 +265,20 @@ describe("Eve production tool registry adapter", () => {
 
     expect(result.catalog.executableNames).toContain("findProject");
     expect(result.catalog.executableNames).toContain("getPortfolioOverview");
+    expect(result.catalog.executableNames).toEqual(
+      expect.arrayContaining([
+        "getAPAgingReport",
+        "getARAgingReport",
+        "getCashPositionReport",
+        "getVendorSpendReport",
+        "getRecentBills",
+        "getRecentInvoices",
+        "getAcumaticaProjectBudget",
+        "getAcumaticaProjectList",
+        "getPurchaseOrderSummary",
+        "getVendorPerformance",
+      ]),
+    );
     expect(result.catalog.executableNames).not.toContain("getProjectDetails");
     expect(result.catalog.executableNames).not.toContain("getBudgetLineItems");
   });

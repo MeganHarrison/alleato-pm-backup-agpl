@@ -94,7 +94,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "if echo \"$TOOL_INPUT\" | grep -q 'supabase/migrations'; then echo '\u26a0\ufe0f Migration file changed \u2014 run `npm run db:types` to regenerate database types'; fi"
+            "command": "if echo \"$TOOL_INPUT\" | grep -q 'supabase/migrations'; then echo '⚠️ Migration file changed — run `npm run db:types` to regenerate database types'; fi"
           }
         ]
       },
@@ -116,6 +116,11 @@
             "type": "command",
             "command": "[ -n \"$ALLEATO_REFLECT_LOCK\" ] && exit 0; D=\"${CLAUDE_PROJECT_DIR:-$PWD}/claude-memory-compiler-main\"; [ -d \"$D\" ] && uv run --directory \"$D\" python hooks/session-start.py || exit 0",
             "timeout": 15
+          },
+          {
+            "type": "command",
+            "command": "[ -n \"$ALLEATO_REFLECT_LOCK\" ] && exit 0; cd \"${CLAUDE_PROJECT_DIR:-$PWD}\" 2>/dev/null || exit 0; mkdir -p .claude; (nohup bash scripts/git/sync.sh --prune > .claude/last-git-sync.log 2>&1 &) ; exit 0",
+            "timeout": 10
           }
         ]
       }

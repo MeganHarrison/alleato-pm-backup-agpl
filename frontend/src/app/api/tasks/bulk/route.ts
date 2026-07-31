@@ -14,14 +14,18 @@ interface BulkDeleteRequest {
 
 type JsonRecord = { [key: string]: Json | undefined };
 
-const BulkPatchBodySchema = z.object({
-  task_ids: z.array(z.string().uuid()).min(1),
-  category: z.union([z.string().trim().min(1), z.null()]).optional(),
-  assignee_user_id: z.union([z.string().uuid(), z.null()]).optional(),
-}).refine(
-  (body) => body.category !== undefined || body.assignee_user_id !== undefined,
-  { message: "At least one bulk update field is required." },
-);
+const BulkPatchBodySchema = z
+  .object({
+    task_ids: z.array(z.string().uuid()).min(1),
+    category: z.union([z.string().trim().min(1), z.null()]).optional(),
+    assignee_user_id: z.union([z.string().uuid(), z.null()]).optional(),
+  })
+  .strict()
+  .refine(
+    (body) =>
+      body.category !== undefined || body.assignee_user_id !== undefined,
+    { message: "At least one bulk update field is required." },
+  );
 
 function toJsonRecord(value: unknown): JsonRecord {
   return typeof value === "object" && value !== null && !Array.isArray(value)
@@ -38,7 +42,8 @@ async function resolveAssignee(userId: string | null) {
     };
   }
 
-    const { data: profile, error: profileError } = await serviceDb.from("user_profiles")
+  const { data: profile, error: profileError } = await serviceDb
+    .from("user_profiles")
     .select("id, email, full_name")
     .eq("id", userId)
     .maybeSingle();
@@ -53,7 +58,8 @@ async function resolveAssignee(userId: string | null) {
     });
   }
 
-  const { data: personByAuthId, error: authPersonError } = await serviceDb.from("people")
+  const { data: personByAuthId, error: authPersonError } = await serviceDb
+    .from("people")
     .select("id")
     .eq("auth_user_id", userId)
     .maybeSingle();
@@ -70,7 +76,8 @@ async function resolveAssignee(userId: string | null) {
 
   const { data: personByEmail, error: emailPersonError } =
     !personByAuthId && profile.email
-      ? await serviceDb.from("people")
+      ? await serviceDb
+          .from("people")
           .select("id")
           .ilike("email", profile.email)
           .maybeSingle()
@@ -100,7 +107,11 @@ export const PATCH = withApiGuardrails(
     const user = await getApiRouteUser();
 
     if (!user) {
-      throw new GuardrailError({ code: "AUTH_EXPIRED", where: "tasks/bulk#PATCH", message: "Authentication required." });
+      throw new GuardrailError({
+        code: "AUTH_EXPIRED",
+        where: "tasks/bulk#PATCH",
+        message: "Authentication required.",
+      });
     }
 
     const parsed = BulkPatchBodySchema.safeParse(await request.json());
@@ -121,7 +132,10 @@ export const PATCH = withApiGuardrails(
     };
 
     if (parsed.data.assignee_user_id !== undefined) {
-      Object.assign(sharedUpdates, await resolveAssignee(parsed.data.assignee_user_id));
+      Object.assign(
+        sharedUpdates,
+        await resolveAssignee(parsed.data.assignee_user_id),
+      );
     }
 
     if (parsed.data.category === undefined) {
@@ -134,7 +148,10 @@ export const PATCH = withApiGuardrails(
         return apiErrorResponse(error);
       }
 
-      return NextResponse.json({ success: true, updated: parsed.data.task_ids.length });
+      return NextResponse.json({
+        success: true,
+        updated: parsed.data.task_ids.length,
+      });
     }
 
     const { data: currentTasks, error: currentTasksError } = await supabase
@@ -170,19 +187,25 @@ export const PATCH = withApiGuardrails(
       return apiErrorResponse(failedUpdate.error);
     }
 
-    return NextResponse.json({ success: true, updated: currentTasks?.length ?? 0 });
+    return NextResponse.json({
+      success: true,
+      updated: currentTasks?.length ?? 0,
+    });
   },
 );
 
 export const DELETE = withApiGuardrails(
   "tasks/bulk#DELETE",
   async ({ request }) => {
-
     const supabase = await createClient();
     const user = await getApiRouteUser();
 
     if (!user) {
-      throw new GuardrailError({ code: "AUTH_EXPIRED", where: "tasks/bulk#DELETE", message: "Authentication required." });
+      throw new GuardrailError({
+        code: "AUTH_EXPIRED",
+        where: "tasks/bulk#DELETE",
+        message: "Authentication required.",
+      });
     }
 
     const body = (await request.json()) as BulkDeleteRequest;
@@ -204,5 +227,5 @@ export const DELETE = withApiGuardrails(
     }
 
     return NextResponse.json({ success: true, deleted: taskIds.length });
-    },
+  },
 );

@@ -1,13 +1,14 @@
-import io
 import importlib
+import io
 import sys
 import types
 from datetime import date
 from types import SimpleNamespace
 from zipfile import ZipFile
 
-from src.services.integrations.microsoft_graph import onedrive
 import pytest
+from src.services.ingestion.project_assignment import AssignmentTarget
+from src.services.integrations.microsoft_graph import onedrive
 
 
 class _Result:
@@ -72,7 +73,9 @@ class _Table:
     def execute(self):
         rows = self.store.setdefault(self.name, [])
         matches = [
-            row for row in rows if all(row.get(key) == value for key, value in self.filters.items())
+            row
+            for row in rows
+            if all(row.get(key) == value for key, value in self.filters.items())
         ]
 
         if self.action == "insert":
@@ -87,7 +90,9 @@ class _Table:
 
         if self.action == "upsert":
             payload = self.payload
-            existing = next((row for row in rows if row.get("id") == payload.get("id")), None)
+            existing = next(
+                (row for row in rows if row.get("id") == payload.get("id")), None
+            )
             if existing:
                 existing.update(payload)
                 return _Result([existing])
@@ -122,6 +127,10 @@ class _OfflineRagStore:
         self.supabase.from_("document_metadata").upsert(catalog).execute()
         self.supabase.from_("rag_document_metadata").upsert(dict(payload)).execute()
         return payload
+
+    def fetch_rag_document_metadata(self, document_id):
+        rows = self.supabase.store.get("rag_document_metadata", [])
+        return next((row for row in rows if row.get("id") == document_id), None)
 
 
 @pytest.fixture(autouse=True)
@@ -180,7 +189,9 @@ def _workbook_bytes(*, large=False, cached_formula=False):
     details["C2"] = date(2026, 7, 22)
     if large:
         for row_index in range(1, 81):
-            details.cell(row=row_index + 2, column=1, value=f"Line {row_index}: " + ("x" * 900))
+            details.cell(
+                row=row_index + 2, column=1, value=f"Line {row_index}: " + ("x" * 900)
+            )
 
     output = io.BytesIO()
     workbook.save(output)
@@ -193,7 +204,10 @@ def _workbook_bytes(*, large=False, cached_formula=False):
     # persists beside the formula so the dual-load extractor can prove it keeps
     # both the expression and the last calculated result.
     patched = io.BytesIO()
-    with ZipFile(io.BytesIO(workbook_content), "r") as source, ZipFile(patched, "w") as target:
+    with (
+        ZipFile(io.BytesIO(workbook_content), "r") as source,
+        ZipFile(patched, "w") as target,
+    ):
         for entry in source.infolist():
             content = source.read(entry.filename)
             if entry.filename == "xl/worksheets/sheet1.xml":
@@ -231,14 +245,28 @@ def test_onedrive_sync_promotes_assigned_file_to_project_documents(monkeypatch):
     supabase = _Supabase()
     graph = _Graph([_drive_item()])
     monkeypatch.setattr(onedrive, "get_graph_client", lambda: graph)
-    monkeypatch.setattr(onedrive, "infer_project_id", lambda *_args, **_kwargs: (25125, "project_number", 0.95))
+    monkeypatch.setattr(
+        onedrive,
+        "infer_assignment_target",
+        lambda *_args, **_kwargs: AssignmentTarget(
+            project_id=25125,
+            business_area_id=None,
+            method="project_number",
+            confidence=0.95,
+        ),
+    )
 
-    count, token = onedrive.sync_onedrive_folder(supabase, "pm@example.com", "/Projects")
+    count, token = onedrive.sync_onedrive_folder(
+        supabase, "pm@example.com", "/Projects"
+    )
 
     assert count == 1
     assert token == "next-token"
     assert graph.downloads == ["https://download.example/scope"]
-    assert supabase.storage.bucket.uploads[0][0] == "onedrive/pm@example.com/drive-item-1.txt.txt"
+    assert (
+        supabase.storage.bucket.uploads[0][0]
+        == "onedrive/pm@example.com/drive-item-1.txt.txt"
+    )
 
     metadata = supabase.store["document_metadata"][0]
     assert metadata["id"] == "onedrive_drive-item-1"
@@ -264,10 +292,28 @@ def test_existing_onedrive_metadata_still_promotes_to_project_documents(monkeypa
             "content": "Existing extracted text",
         }
     ]
+    supabase.store["rag_document_metadata"] = [
+        {
+            "id": "onedrive_drive-item-1",
+            "content": "Existing extracted text",
+        }
+    ]
     graph = _Graph([_drive_item()])
     monkeypatch.setattr(onedrive, "get_graph_client", lambda: graph)
+    monkeypatch.setattr(
+        onedrive,
+        "_target_for_matched_project",
+        lambda *_args, **_kwargs: AssignmentTarget(
+            project_id=25125,
+            business_area_id=None,
+            method="existing_project",
+            confidence=1.0,
+        ),
+    )
 
-    count, _token = onedrive.sync_onedrive_folder(supabase, "pm@example.com", "/Projects")
+    count, _token = onedrive.sync_onedrive_folder(
+        supabase, "pm@example.com", "/Projects"
+    )
 
     assert count == 0
     assert graph.downloads == []
@@ -277,14 +323,62 @@ def test_existing_onedrive_metadata_still_promotes_to_project_documents(monkeypa
     assert project_doc["source_item_id"] == "drive-item-1"
 
 
+def test_existing_onedrive_metadata_without_rag_replica_rehydrates(monkeypatch):
+    supabase = _Supabase()
+    supabase.store["document_metadata"] = [
+        {
+            "id": "onedrive_drive-item-1",
+            "project_id": 25125,
+        }
+    ]
+    graph = _Graph([_drive_item()])
+    monkeypatch.setattr(onedrive, "get_graph_client", lambda: graph)
+    monkeypatch.setattr(
+        onedrive,
+        "_target_for_matched_project",
+        lambda *_args, **_kwargs: AssignmentTarget(
+            project_id=25125,
+            business_area_id=None,
+            method="existing_project",
+            confidence=1.0,
+        ),
+    )
+
+    count, token = onedrive.sync_onedrive_folder(
+        supabase,
+        "pm@example.com",
+        "/Projects",
+    )
+
+    assert count == 1
+    assert token == "next-token"
+    assert graph.downloads == ["https://download.example/scope"]
+    assert supabase.store["rag_document_metadata"][0]["id"] == ("onedrive_drive-item-1")
+    assert (
+        "enough project scope text"
+        in (supabase.store["rag_document_metadata"][0]["content"])
+    )
+
+
 def test_onedrive_sync_caps_supported_files_per_folder(monkeypatch, caplog):
     supabase = _Supabase()
     graph = _Graph([_drive_item_with_id("a"), _drive_item_with_id("b")])
     monkeypatch.setenv("GRAPH_INGEST_MAX_FILES_PER_FOLDER", "1")
     monkeypatch.setattr(onedrive, "get_graph_client", lambda: graph)
-    monkeypatch.setattr(onedrive, "infer_project_id", lambda *_args, **_kwargs: (25125, "project_number", 0.95))
+    monkeypatch.setattr(
+        onedrive,
+        "infer_assignment_target",
+        lambda *_args, **_kwargs: AssignmentTarget(
+            project_id=25125,
+            business_area_id=None,
+            method="project_number",
+            confidence=0.95,
+        ),
+    )
 
-    count, token = onedrive.sync_onedrive_folder(supabase, "pm@example.com", "/Projects")
+    count, token = onedrive.sync_onedrive_folder(
+        supabase, "pm@example.com", "/Projects"
+    )
 
     assert count == 1
     assert token == ""
@@ -297,7 +391,10 @@ def test_onedrive_sync_caps_supported_files_per_folder(monkeypatch, caplog):
 
     assert replay_count == 1
     assert replay_token == "next-token"
-    assert graph.downloads == ["https://download.example/a", "https://download.example/b"]
+    assert graph.downloads == [
+        "https://download.example/a",
+        "https://download.example/b",
+    ]
 
 
 def test_pdf_optional_dependency_warning_logs_once(monkeypatch, caplog):
@@ -319,7 +416,12 @@ def test_pdf_optional_dependency_warning_logs_once(monkeypatch, caplog):
 
 
 def test_pdf_extraction_reads_pages_after_the_previous_fifty_page_cap(monkeypatch):
-    pages = [SimpleNamespace(extract_text=lambda index=index: f"Page {index} complete source text") for index in range(1, 52)]
+    pages = [
+        SimpleNamespace(
+            extract_text=lambda index=index: f"Page {index} complete source text"
+        )
+        for index in range(1, 52)
+    ]
     fake_pypdf = SimpleNamespace(PdfReader=lambda _stream: SimpleNamespace(pages=pages))
     monkeypatch.setitem(sys.modules, "pypdf", fake_pypdf)
 
@@ -370,6 +472,44 @@ def test_openxml_workbook_extraction_does_not_truncate_large_materialized_text()
     assert len(text) > 50000
     assert "Line 1:" in text
     assert "Line 80:" in text
+
+
+def test_openxml_workbook_falls_back_when_named_styles_are_invalid():
+    workbook = _workbook_bytes(cached_formula=True)
+    source = io.BytesIO(workbook)
+    output = io.BytesIO()
+    with ZipFile(source) as input_archive, ZipFile(output, "w") as output_archive:
+        for name in input_archive.namelist():
+            payload = input_archive.read(name)
+            if name == "xl/styles.xml":
+                payload = payload.replace(
+                    b'<cellStyle name="Normal" xfId="0" builtinId="0"/>',
+                    b'<cellStyle name="Normal" xfId="999" builtinId="0"/>',
+                )
+            output_archive.writestr(name, payload)
+
+    text = onedrive._extract_text(output.getvalue(), ".xlsx")
+
+    assert "[Worksheet: Summary]" in text
+    assert "A1: Union Collective estimate" in text
+    assert "A4 formula: =SUM(A2:A3) | cached value: 200000" in text
+    assert "[Worksheet: Scope Detail]" in text
+    assert "B2: Fire sprinkler material takeoff" in text
+
+
+def test_mislabeled_docx_with_pdf_signature_uses_pdf_extractor(monkeypatch):
+    calls = []
+    monkeypatch.setattr(
+        onedrive,
+        "_extract_text_from_pdf",
+        lambda content: calls.append(content) or "Complete proposal text",
+    )
+
+    content = b"%PDF-1.4\nmislabeled proposal"
+    extracted = onedrive._extract_text(content, ".docx")
+
+    assert extracted == "Complete proposal text"
+    assert calls == [content]
 
 
 def test_workbook_extensions_are_part_of_the_canonical_graph_contract():

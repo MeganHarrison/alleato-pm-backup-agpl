@@ -52,6 +52,6 @@ export const config = {
      * MUST be here — otherwise the auth middleware 307-redirects the file request
      * to /auth/login and an `<a download>` click silently downloads nothing.
      */
-    '/((?!monitoring|webviewer/|_next/|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|mjs|map|txt|xml|xlsx|xls|csv)$).*)',
+    '/((?!monitoring|\\.well-known/workflow/|webviewer/|_next/|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|mjs|map|txt|xml|xlsx|xls|csv)$).*)',
   ],
 }

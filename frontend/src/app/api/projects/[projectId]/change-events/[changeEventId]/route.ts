@@ -17,6 +17,7 @@ import {
   mapChangedBy,
 } from "@/lib/change-events/history-formatters";
 import { computeLineItemRevenueRom } from "@/lib/change-events/financial-summary";
+import type { Database } from "@/types/database.types";
 
 interface RouteParams {
   params: Promise<{ projectId: string; changeEventId: string }>;
@@ -536,16 +537,21 @@ export const PATCH = withApiGuardrails(
     }
 
     // Map validated data to database schema
-    const updates: Record<string, any> = {
+    const updates: Database["public"]["Tables"]["change_events"]["Update"] = {
       updated_at: new Date().toISOString(),
       updated_by: user.id,
     };
 
     if (validatedData.title !== undefined) updates.title = validatedData.title;
-    if (validatedData.type !== undefined) updates.type = validatedData.type;
+    // `type` and `scope` are NOT NULL columns — the update schema allows
+    // `null` through so the client can send "unchanged", but a null value
+    // can never be persisted, so treat it the same as "not provided".
+    if (validatedData.type !== null && validatedData.type !== undefined)
+      updates.type = validatedData.type;
     if (validatedData.reason !== undefined)
       updates.reason = validatedData.reason;
-    if (validatedData.scope !== undefined) updates.scope = validatedData.scope;
+    if (validatedData.scope !== null && validatedData.scope !== undefined)
+      updates.scope = validatedData.scope;
     if (validatedData.origin !== undefined)
       updates.origin = validatedData.origin;
     if ("originId" in body)

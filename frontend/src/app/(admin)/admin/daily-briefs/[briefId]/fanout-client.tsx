@@ -257,7 +257,7 @@ function CardTable({ cardType, cards }: { cardType: string; cards: CardRow[] }) 
     toolbar={{ totalItems: cards.length, filteredItems: cards.length, searchValue: "", onSearchChange: () => undefined, currentView: "table", onViewChange: () => undefined, enabledViews: ["table"] }}
     data={{ items: cards, isLoading: false }}
     table={{ columns, getRowId: (item) => item.id, stickyHeader: true, density: "compact" }}
-    emptyState={{ title: `No ${cardType.replaceAll("_", " ")} cards`, description: "No cards of this type were promoted for this brief.", isFiltered: false }}
+    emptyState={{ title: `No ${cardType.replaceAll("_", " ")} cards`, description: "No cards of this type were promoted for this brief.", filteredDescription: "No cards of this type were promoted for this brief.", isFiltered: false }}
     layout={{ fullBleedTable: false }}
     features={{ enableViews: false, enableRowSelection: false, enableRowActions: false, enableSearch: false, enableColumnToggle: false }}
   />;
@@ -265,7 +265,7 @@ function CardTable({ cardType, cards }: { cardType: string; cards: CardRow[] }) 
 
 function TasksTable({ tasks }: { tasks: TaskRow[] }) {
   const columns = React.useMemo<TableColumn<TaskRow>[]>(() => [
-    { id: "title", label: "Task", alwaysVisible: true, sortable: true, sortValue: (item) => item.title, render: (item) => <span className="font-medium text-foreground">{item.title}</span>, csvValue: (item) => item.title, width: 420 },
+    { id: "title", label: "Task", alwaysVisible: true, sortable: true, sortValue: (item) => item.title ?? "", render: (item) => <span className="font-medium text-foreground">{item.title}</span>, csvValue: (item) => item.title ?? "", width: 420 },
     { id: "status", label: "Status", defaultVisible: true, sortable: true, sortValue: (item) => item.status ?? "", render: (item) => <CellStatus value={item.status ?? "unknown"} />, csvValue: (item) => item.status ?? "unknown", width: 130 },
     { id: "due", label: "Due", defaultVisible: true, sortable: true, sortValue: (item) => item.due_date ?? "", render: (item) => <CellDate value={item.due_date} />, csvValue: (item) => item.due_date ?? "", width: 150 },
   ], []);
@@ -275,7 +275,7 @@ function TasksTable({ tasks }: { tasks: TaskRow[] }) {
     toolbar={{ totalItems: tasks.length, filteredItems: tasks.length, searchValue: "", onSearchChange: () => undefined, currentView: "table", onViewChange: () => undefined, enabledViews: ["table"] }}
     data={{ items: tasks, isLoading: false }}
     table={{ columns, getRowId: (item) => item.id, stickyHeader: true, density: "compact" }}
-    emptyState={{ title: "No tasks", description: "No tasks were generated from this brief.", isFiltered: false }}
+    emptyState={{ title: "No tasks", description: "No tasks were generated from this brief.", filteredDescription: "No tasks were generated from this brief.", isFiltered: false }}
     layout={{ fullBleedTable: false }}
     features={{ enableViews: false, enableRowSelection: false, enableRowActions: false, enableSearch: false, enableColumnToggle: false }}
   />;
@@ -306,7 +306,7 @@ export function DailyBriefFanoutReview({ run }: { run: DailyBriefFanoutReadback 
     <section className="space-y-4">
       <div><h2 className="text-lg font-semibold text-foreground">Insight cards</h2><p className="text-sm text-muted-foreground">Grouped by card type so review starts with the kind of signal, not an undifferentiated list.</p></div>
       {run.candidateReadError ? <p className="text-sm text-danger">{run.candidateReadError}</p> : null}
-      {groupedCards.length ? <div className="space-y-8">{groupedCards.map(([type, cards]) => <section key={type} className="space-y-3"><h3 className="text-sm font-semibold capitalize text-foreground">{type.replaceAll("_", " ")} <span className="font-normal text-muted-foreground">({cards.length})</span></h3><CardTable cardType={type} cards={cards} /></section>)}</div> : <p className="text-sm text-danger">No promoted insight cards are linked to this packet.</p>}
+      {groupedCards.length ? <div className="space-y-8">{groupedCards.map(([type, cards]) => { const cardRows = cards ?? []; return <section key={type} className="space-y-3"><h3 className="text-sm font-semibold capitalize text-foreground">{type.replaceAll("_", " ")} <span className="font-normal text-muted-foreground">({cardRows.length})</span></h3><CardTable cardType={type} cards={cardRows} /></section>; })}</div> : <p className="text-sm text-danger">No promoted insight cards are linked to this packet.</p>}
     </section>
     <section className="space-y-4">
       <div><h2 className="text-lg font-semibold text-foreground">Tasks</h2><p className="text-sm text-muted-foreground">Tasks generated from this brief, with status and due date in one table.</p></div>

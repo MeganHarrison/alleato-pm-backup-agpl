@@ -235,34 +235,45 @@ function DependencyArrow({
 
   if (fromIndex === undefined || toIndex === undefined) return null;
 
-  // Calculate positions based on dependency type
-  let fromX: number;
-  let toX: number;
-
   const getDateX = (dateStr: string) =>
     differenceInDays(parseGanttDate(dateStr), startDate) * dayWidth;
 
+  let fromDate: string | null;
+  let toDate: string | null;
+  let fromUsesFinish = false;
+  let toUsesFinish = false;
+
   switch (dependencyType) {
     case "finish_to_start": // Finish-to-Start
-      fromX = getDateX(from.finish_date) + dayWidth;
-      toX = getDateX(to.start_date);
+      fromDate = from.finish_date;
+      toDate = to.start_date;
+      fromUsesFinish = true;
       break;
     case "start_to_start": // Start-to-Start
-      fromX = getDateX(from.start_date);
-      toX = getDateX(to.start_date);
+      fromDate = from.start_date;
+      toDate = to.start_date;
       break;
     case "finish_to_finish": // Finish-to-Finish
-      fromX = getDateX(from.finish_date) + dayWidth;
-      toX = getDateX(to.finish_date) + dayWidth;
+      fromDate = from.finish_date;
+      toDate = to.finish_date;
+      fromUsesFinish = true;
+      toUsesFinish = true;
       break;
     case "start_to_finish": // Start-to-Finish
-      fromX = getDateX(from.start_date);
-      toX = getDateX(to.finish_date) + dayWidth;
+      fromDate = from.start_date;
+      toDate = to.finish_date;
+      toUsesFinish = true;
       break;
     default:
-      fromX = getDateX(from.finish_date) + dayWidth;
-      toX = getDateX(to.start_date);
+      fromDate = from.finish_date;
+      toDate = to.start_date;
+      fromUsesFinish = true;
   }
+
+  if (!fromDate || !toDate) return null;
+
+  const fromX = getDateX(fromDate) + (fromUsesFinish ? dayWidth : 0);
+  const toX = getDateX(toDate) + (toUsesFinish ? dayWidth : 0);
 
   const fromY = HEADER_HEIGHT + fromIndex * ROW_HEIGHT + ROW_HEIGHT / 2;
   const toY = HEADER_HEIGHT + toIndex * ROW_HEIGHT + ROW_HEIGHT / 2;
@@ -275,7 +286,10 @@ function DependencyArrow({
       : `M ${fromX} ${fromY} L ${midX} ${fromY} L ${midX} ${toY} L ${toX - 6} ${toY}`; // Stepped line
 
   return (
-    <g className="dependency-arrow">
+    <g
+      className="dependency-arrow"
+      data-testid={`gantt-dependency-${from.id}-${to.id}`}
+    >
       <path
         d={path}
         fill="none"
@@ -330,6 +344,8 @@ function TaskBar({
   totalWidth,
   onTaskClick,
 }: TaskBarProps) {
+  if (!task.start_date || !task.finish_date) return null;
+
   const taskStart = parseGanttDate(task.start_date);
   const taskEnd = parseGanttDate(task.finish_date);
 
@@ -1160,18 +1176,24 @@ export function GanttChart({
                             </div>
                           ) : column.id === "start_date" ? (
                             <span className="text-[12px] text-muted-foreground">
-                              {format(parseGanttDate(task.start_date), "MMM d")}
+                              {task.start_date
+                                ? format(parseGanttDate(task.start_date), "MMM d")
+                                : "Unscheduled"}
                             </span>
                           ) : column.id === "finish_date" ? (
                             <span className="text-[12px] text-muted-foreground">
-                              {format(
-                                parseGanttDate(task.finish_date),
-                                "MMM d",
-                              )}
+                              {task.finish_date
+                                ? format(
+                                    parseGanttDate(task.finish_date),
+                                    "MMM d",
+                                  )
+                                : "—"}
                             </span>
                           ) : column.id === "duration_days" ? (
                             <span className="text-[12px] text-muted-foreground">
-                              {task.duration_days}d
+                              {task.duration_days === null
+                                ? "—"
+                                : `${task.duration_days}d`}
                             </span>
                           ) : column.id === "percent_complete" ? (
                             <span className="text-[12px] text-muted-foreground">

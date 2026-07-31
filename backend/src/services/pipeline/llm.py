@@ -7,6 +7,9 @@ from __future__ import annotations
 import json
 import logging
 import os
+from contextlib import contextmanager
+from contextvars import ContextVar
+from dataclasses import replace
 from typing import Any, Dict, List, Optional
 
 from openai import OpenAI
@@ -19,7 +22,12 @@ from ..ai_transport import (
     retry_ai_call,
 )
 from .config import EMBEDDING_MODEL, MODEL_SIGNAL_EXTRACTION
-from .model_usage import ModelUsageContext, assert_background_model_budget_available, record_model_usage
+from .model_usage import (
+    ModelUsageContext,
+    assert_background_model_budget_available,
+    record_model_usage,
+    signal_completion_limit,
+)
 from .models import (
     DecisionItem,
     FlagItem,
@@ -42,6 +50,10 @@ _MODEL_DIMENSIONS: dict[str, int] = {
 }
 
 logger = logging.getLogger(__name__)
+
+_USAGE_SCOPE: ContextVar[ModelUsageContext | None] = ContextVar(
+    "pipeline_llm_usage_scope", default=None
+)
 
 CHAT_MODEL = MODEL_SIGNAL_EXTRACTION
 SEGMENT_TRANSCRIPT_MAX_CHARS = int(os.getenv("SEGMENT_TRANSCRIPT_MAX_CHARS", "0"))
@@ -82,11 +94,17 @@ def batch_embed(
         )
     truncated = [t[:8000] for t in texts]
     logger.info("[LLM] Embedding %d texts with %s (dimensions=%d)", len(texts), model, dimensions)
-    context = usage_context or ModelUsageContext(stage="indexed_for_rag", operation="batch_embed")
+    context = usage_context or ModelUsageContext(
+        stage="indexed_for_rag",
+        operation="batch_embed",
+        budget_bucket="embedding",
+    )
     assert_background_model_budget_available(
         stage=context.stage,
         operation=context.operation,
         model=model,
+        budget_bucket=context.budget_bucket,
+        usage_context=context,
     )
     def _create(force_path: Optional[str] = None):
         client = get_openai_client(force_path=force_path) if force_path else _client()
@@ -106,6 +124,7 @@ def batch_embed(
     # dies on a gateway cap-out while the graph path (which already has failover)
     # survives. Keeps reliability a property of the transport, not one function.
     primary_path = get_ai_provider_path()
+    actual_provider_path = primary_path
     try:
         response = _create()
     except Exception as exc:
@@ -118,12 +137,14 @@ def batch_embed(
                 exc,
                 alt_path,
             )
+            actual_provider_path = alt_path
             response = _create(force_path=alt_path)
         else:
             raise
     record_model_usage(
         context,
         model=model,
+        provider=actual_provider_path,
         response=response,
         status="succeeded",
         input_items=len(texts),
@@ -139,20 +160,51 @@ def batch_embed(
 # Chat completions
 # ---------------------------------------------------------------------------
 
-def _call_llm(prompt: str, json_mode: bool = False, max_tokens: Optional[int] = None) -> str:
-    context = ModelUsageContext(stage="signals_extracted", operation="pipeline_chat_completion")
+@contextmanager
+def model_usage_scope(context: ModelUsageContext):
+    """Attach source identity to nested legacy pipeline LLM helpers."""
+
+    token = _USAGE_SCOPE.set(context)
+    try:
+        yield
+    finally:
+        _USAGE_SCOPE.reset(token)
+
+
+def _call_llm(
+    prompt: str,
+    json_mode: bool = False,
+    max_tokens: Optional[int] = None,
+    *,
+    operation: str = "pipeline_chat_completion",
+    usage_context: ModelUsageContext | None = None,
+) -> str:
+    base_context = usage_context or _USAGE_SCOPE.get()
+    context = replace(
+        base_context,
+        operation=operation,
+        budget_bucket="signal",
+    ) if base_context else ModelUsageContext(
+        stage="signals_extracted",
+        operation=operation,
+        budget_bucket="signal",
+    )
     assert_background_model_budget_available(
         stage=context.stage,
         operation=context.operation,
         model=CHAT_MODEL,
+        budget_bucket=context.budget_bucket,
+        usage_context=context,
     )
     kwargs: Dict[str, Any] = {
         "model": CHAT_MODEL,
         "messages": [{"role": "user", "content": prompt}],
         "temperature": 0.3,
     }
-    if max_tokens:
-        kwargs["max_tokens"] = max_tokens
+    kwargs["max_tokens"] = min(
+        max_tokens if max_tokens is not None else signal_completion_limit(),
+        signal_completion_limit(),
+    )
 
     provider_path = get_ai_provider_path()
     logger.info("[LLM] Calling %s via %s (json=%s)", CHAT_MODEL, provider_path, json_mode)
@@ -194,7 +246,13 @@ def _call_llm(prompt: str, json_mode: bool = False, max_tokens: Optional[int] = 
             provider_name="OpenAI",
             operation="chat completion without response_format",
         )
-    record_model_usage(context, model=CHAT_MODEL, response=response, status="succeeded")
+    record_model_usage(
+        context,
+        model=CHAT_MODEL,
+        provider=provider_path,
+        response=response,
+        status="succeeded",
+    )
     return response.choices[0].message.content or ""
 
 
@@ -220,7 +278,7 @@ Write a 3-5 paragraph summary covering:
 
 Be specific and include names, dates, and concrete details where mentioned."""
 
-    return _call_llm(prompt)
+    return _call_llm(prompt, operation="meeting_summary")
 
 
 # ---------------------------------------------------------------------------
@@ -280,7 +338,7 @@ Guidelines:
 - Include opening/closing segments if present
 - Extract decisions, risks, tasks mentioned in each segment"""
 
-    raw = _call_llm(prompt, json_mode=True)
+    raw = _call_llm(prompt, json_mode=True, operation="meeting_segmentation")
     try:
         parsed = json.loads(raw)
     except Exception as exc:
@@ -366,7 +424,7 @@ Guidelines:
   * If no date mentioned, leave as null
 - Identify implied opportunities from discussion"""
 
-    raw = _call_llm(prompt, json_mode=True)
+    raw = _call_llm(prompt, json_mode=True, operation="meeting_structured_extraction")
     try:
         data = json.loads(raw)
     except Exception as exc:
@@ -568,6 +626,7 @@ Output ONLY the JSON object."""
         usage_context=ModelUsageContext(
             stage="signals_extracted",
             operation="deep_meeting_signal_extraction",
+            budget_bucket="signal",
             metadata={"title": title, "date": date},
         ),
     )
@@ -781,6 +840,7 @@ severity is 1 (minor) to 5 (critical: safety/inspection/major cost/schedule-kill
         usage_context=ModelUsageContext(
             stage="signals_extracted",
             operation=f"deep_{comm_type}_signal_extraction",
+            budget_bucket="signal",
             metadata={"title": title, "date": date, "comm_type": comm_type},
         ),
     )
@@ -958,7 +1018,7 @@ executive who missed the meeting.",
 
 Be specific. Use actual names and details from the meeting data."""
 
-    raw = _call_llm(prompt, json_mode=True)
+    raw = _call_llm(prompt, json_mode=True, operation="meeting_digest")
     try:
         return json.loads(raw)
     except Exception as exc:

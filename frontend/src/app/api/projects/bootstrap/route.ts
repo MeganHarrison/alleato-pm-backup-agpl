@@ -2,8 +2,13 @@ import { withApiGuardrails } from "@/lib/guardrails/api";
 import { GuardrailError } from "@/lib/guardrails/errors";
 import { NextResponse } from "next/server";
 import { createClient, getApiRouteUser } from "@/lib/supabase/server";
-import { apiErrorResponse } from "@/lib/api-error";
+import { createServiceClient } from "@/lib/supabase/service";
 import { buildRequestProjectCreationAttribution } from "@/lib/projects/creation-attribution";
+import {
+  provisionProjectCreatorAccess,
+  resolveProjectCreatorAccess,
+} from "@/lib/projects/project-creator-access";
+import { buildBootstrapProjectIdentity } from "./bootstrap-identity";
 
 /**
  * Project Bootstrap API
@@ -94,8 +99,8 @@ const WAREHOUSE_TEMPLATE = {
 export const POST = withApiGuardrails(
   "projects/bootstrap#POST",
   async ({ request, requestId }) => {
-  
     const supabase = await createClient();
+    const serviceClient = createServiceClient();
     const body = await request.json().catch(() => ({}));
 
     const template = body.template || "warehouse";
@@ -104,14 +109,27 @@ export const POST = withApiGuardrails(
     // Get current user
     const user = await getApiRouteUser();
     if (!user) {
-      throw new GuardrailError({ code: "AUTH_EXPIRED", where: "projects/bootstrap#POST", message: "Authentication required." });
+      throw new GuardrailError({
+        code: "AUTH_EXPIRED",
+        where: "projects/bootstrap#POST",
+        message: "Authentication required.",
+      });
     }
 
     // Use warehouse template (only one for now)
     const projectTemplate = WAREHOUSE_TEMPLATE;
+    const creatorAccess = await resolveProjectCreatorAccess({
+      serviceClient,
+      authUserId: user.id,
+      where: "projects/bootstrap#POST",
+    });
 
-    const projectName = customName || projectTemplate.name;
-    const projectNumber = `${projectTemplate.projectNumber}-${Date.now()}`;
+    const { projectName, projectNumber } = buildBootstrapProjectIdentity({
+      templateName: projectTemplate.name,
+      templateProjectNumber: projectTemplate.projectNumber,
+      customName,
+      requestId,
+    });
 
     // ============================================
     // 1. CREATE PROJECT
@@ -139,6 +157,34 @@ export const POST = withApiGuardrails(
         { error: `Failed to create project: ${projectError.message}` },
         { status: 500 },
       );
+    }
+
+    const membershipError = await provisionProjectCreatorAccess({
+      serviceClient,
+      projectId: project.id,
+      access: creatorAccess,
+    });
+
+    if (membershipError) {
+      const { error: cleanupError } = await serviceClient
+        .from("projects")
+        .delete()
+        .eq("id", project.id);
+
+      throw new GuardrailError({
+        code: "INTERNAL_ERROR",
+        where: "projects/bootstrap#POST",
+        message:
+          "Bootstrap project was not created because creator access could not be assigned.",
+        status: 500,
+        severity: "high",
+        details: {
+          projectId: project.id,
+          membershipReason: membershipError.message,
+          cleanupReason: cleanupError?.message ?? null,
+        },
+        cause: membershipError,
+      });
     }
 
     // ============================================
@@ -296,5 +342,5 @@ export const POST = withApiGuardrails(
     };
 
     return NextResponse.json(response, { status: 201 });
-    },
+  },
 );

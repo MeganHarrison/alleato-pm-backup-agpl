@@ -49,7 +49,7 @@ function main() {
 
   const entries = fs
     .readdirSync(options.runRoot, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory());
+    .filter((entry) => entry.isDirectory() && entry.name !== ".runtime");
 
   let removed = 0;
   let kept = 0;

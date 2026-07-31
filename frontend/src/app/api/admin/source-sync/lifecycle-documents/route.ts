@@ -80,7 +80,7 @@ async function loadSupport(rows: SourceRow[], window: Window): Promise<Lifecycle
   const ids = rows.map((row) => row.id);
 
   const chunkRows: Array<{ document_id: string; source_type: string | null }> = [];
-  const taskRows: Array<{ metadata_id: string }> = [];
+  const taskRows: Array<{ metadata_id: string | null }> = [];
   const evidenceRows: Array<{ source_document_id: string | null }> = [];
   const jobRows: LifecycleJobRow[] = [];
 
@@ -95,7 +95,7 @@ async function loadSupport(rows: SourceRow[], window: Window): Promise<Lifecycle
             .not("embedding", "is", null)
             .limit(1000),
         ),
-        readSupabaseRows<{ metadata_id: string }>("extracted tasks", () =>
+        readSupabaseRows<{ metadata_id: string | null }>("extracted tasks", () =>
           serviceDb.from("tasks")
             .select("metadata_id,created_at")
             .in("metadata_id", batch)
@@ -137,7 +137,11 @@ async function loadSupport(rows: SourceRow[], window: Window): Promise<Lifecycle
         .filter((row) => row.source_type === "meeting_transcript")
         .map((row) => row.document_id),
     ),
-    taskIds: new Set(taskRows.map((row) => row.metadata_id)),
+    taskIds: new Set(
+      taskRows
+        .map((row) => row.metadata_id)
+        .filter((id): id is string => id !== null),
+    ),
     evidenceIds: new Set(
       evidenceRows
         .map((row) => row.source_document_id)

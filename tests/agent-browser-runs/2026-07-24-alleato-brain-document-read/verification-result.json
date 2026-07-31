@@ -1,0 +1,68 @@
+{
+  "status": "PASS",
+  "observedStatus": "PASS",
+  "taskId": "ALL-11-DOCUMENT-READ",
+  "evidence": {
+    "summary": [
+      "tests/agent-browser-runs/2026-07-24-alleato-brain-document-read/summary.md"
+    ],
+    "databaseReadback": [
+      "tests/agent-browser-runs/2026-07-24-alleato-brain-document-read/database-readback.md"
+    ],
+    "negativePath": [
+      "tests/agent-browser-runs/2026-07-24-alleato-brain-document-read/negative-path.md"
+    ],
+    "regressionTest": [
+      "tests/agent-browser-runs/2026-07-24-alleato-brain-document-read/regression-test.txt"
+    ]
+  },
+  "claims": {
+    "internal-open-finance-closed": {
+      "databaseReadback": [
+        "tests/agent-browser-runs/2026-07-24-alleato-brain-document-read/database-readback.md"
+      ],
+      "negativePath": [
+        "tests/agent-browser-runs/2026-07-24-alleato-brain-document-read/negative-path.md"
+      ]
+    },
+    "external-business-area-closed": {
+      "databaseReadback": [
+        "tests/agent-browser-runs/2026-07-24-alleato-brain-document-read/database-readback.md"
+      ],
+      "regressionTest": [
+        "tests/agent-browser-runs/2026-07-24-alleato-brain-document-read/regression-test.txt"
+      ]
+    },
+    "finance-member-open": {
+      "databaseReadback": [
+        "tests/agent-browser-runs/2026-07-24-alleato-brain-document-read/database-readback.md"
+      ],
+      "negativePath": [
+        "tests/agent-browser-runs/2026-07-24-alleato-brain-document-read/negative-path.md"
+      ]
+    },
+    "finance-admin-open": {
+      "databaseReadback": [
+        "tests/agent-browser-runs/2026-07-24-alleato-brain-document-read/database-readback.md"
+      ],
+      "regressionTest": [
+        "tests/agent-browser-runs/2026-07-24-alleato-brain-document-read/regression-test.txt"
+      ]
+    },
+    "unscoped-legacy-preserved": {
+      "databaseReadback": [
+        "tests/agent-browser-runs/2026-07-24-alleato-brain-document-read/database-readback.md"
+      ],
+      "regressionTest": [
+        "tests/agent-browser-runs/2026-07-24-alleato-brain-document-read/regression-test.txt"
+      ]
+    }
+  },
+  "findings": [],
+  "independentReview": {
+    "reviewer": "Independent Codex high-risk review",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-24T09:03:10Z",
+    "artifact": "tests/agent-browser-runs/2026-07-24-alleato-brain-document-read/independent-review.md"
+  }
+}

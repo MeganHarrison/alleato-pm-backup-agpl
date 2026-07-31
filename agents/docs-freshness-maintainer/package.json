@@ -6,9 +6,12 @@
   "scripts": {
     "eve": "eve",
     "info": "eve info",
+    "postinstall": "node scripts/patch-eve-linear-agent-session.mjs",
     "dev": "eve dev",
     "eval": "eve eval",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "weekday:build": "tsc --outDir .weekday-dist",
+    "weekday:scan": "npm run weekday:build && node .weekday-dist/agent/scripts/run-weekday-docs-scan.js"
   },
   "dependencies": {
     "dotenv": "^17.2.3",

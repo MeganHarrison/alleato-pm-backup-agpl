@@ -20,3 +20,24 @@ export function buildPublishedScheduleAlert(input: AlertInput) {
     },
   };
 }
+
+/** Builds one deterministic delivery per unique eligible company user. */
+export function buildPublishedScheduleAlerts(
+  input: Omit<AlertInput, "recipientUserId"> & {
+    recipientUserIds: string[];
+  },
+) {
+  const uniqueRecipientIds = [...new Set(
+    input.recipientUserIds.map((recipientUserId) => recipientUserId.trim()),
+  )]
+    .filter(Boolean)
+    .sort();
+
+  return uniqueRecipientIds.flatMap((recipientUserId) => {
+    const alert = buildPublishedScheduleAlert({
+      ...input,
+      recipientUserId,
+    });
+    return alert ? [{ recipientUserId, ...alert }] : [];
+  });
+}

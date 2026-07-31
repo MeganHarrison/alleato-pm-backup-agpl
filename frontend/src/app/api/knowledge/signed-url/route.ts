@@ -20,6 +20,8 @@ function getSourceDocumentUrl(doc: { source_web_url?: string | null; url?: strin
 }
 
 // GET /api/knowledge/signed-url?id=<documentId>
+// Kept at the existing compatibility path, but authorization is intentionally
+// defined by document_metadata RLS rather than a category-specific filter.
 export const GET = withApiGuardrails(
   "knowledge/signed-url#GET",
   async ({ request }) => {
@@ -49,7 +51,6 @@ export const GET = withApiGuardrails(
       .from("document_metadata")
       .select("file_path, storage_bucket, source_web_url, url")
       .eq("id", id)
-      .eq("category", "knowledge")
       .maybeSingle();
 
     if (fetchError || !doc) {

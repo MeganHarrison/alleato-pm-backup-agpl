@@ -39,6 +39,9 @@ export interface TasksRow {
   segment_id: string | null;
   source_chunk_id: string | null;
   schedule_task_id: string | null;
+  company_id: string | null;
+  crm_lead_id: string | null;
+  crm_deal_id: string | null;
   description: string | null;
   assignee_person_id: string | null;
   assignee_name: string | null;
@@ -228,6 +231,9 @@ export function mapTaskRow(task: JoinedTaskRow): TasksRow {
     segment_id: task.segment_id ?? null,
     source_chunk_id: task.source_chunk_id ?? null,
     schedule_task_id: task.schedule_task_id ?? null,
+    company_id: task.company_id ?? null,
+    crm_lead_id: task.crm_lead_id ?? null,
+    crm_deal_id: task.crm_deal_id ?? null,
     description: nullableText(task.description),
     assignee_person_id: task.assignee_person_id ?? null,
     assignee_name: nullableText(task.assignee_name),
@@ -246,9 +252,14 @@ export function mapTaskRow(task: JoinedTaskRow): TasksRow {
     project_ids: task.project_ids ?? null,
     file_name: nullableText(task.file_name),
     source_title: task.document_metadata?.title ?? null,
-    source_type: task.document_metadata?.type ?? null,
+    source_type:
+      nullableText(task.source_type) ?? task.document_metadata?.type ?? null,
     source_date: sourceDateFromMetadata(task.document_metadata),
-    source_url: task.document_metadata?.url ?? task.document_metadata?.source ?? null,
+    source_url:
+      nullableText(task.source_url) ??
+      task.document_metadata?.url ??
+      task.document_metadata?.source ??
+      null,
     source_web_url: task.document_metadata?.source_web_url ?? null,
     fireflies_link: task.document_metadata?.fireflies_link ?? null,
     meeting_link: task.document_metadata?.meeting_link ?? null,
@@ -265,6 +276,7 @@ export function mapTaskRow(task: JoinedTaskRow): TasksRow {
 export function getTaskSourceLabel(task: Pick<TasksRow, "source_system" | "source_type" | "source_url">): string {
   const normalized = `${task.source_system ?? ""} ${task.source_type ?? ""} ${task.source_url ?? ""}`.toLowerCase();
 
+  if (normalized.includes("crm")) return "CRM";
   if (normalized.includes("team")) return "Teams";
   if (normalized.includes("outlook") || normalized.includes("email")) return "Email";
   if (normalized.includes("fireflies") || normalized.includes("meeting")) return "Meeting";
@@ -365,6 +377,14 @@ export function getTaskSourceTarget(
   const normalized = `${task.source_system ?? ""} ${task.source_type ?? ""}`.toLowerCase();
   const externalHref =
     task.meeting_link ?? task.fireflies_link ?? task.source_web_url ?? task.source_url;
+
+  if (
+    normalized.includes("crm") &&
+    task.source_url &&
+    task.source_url.startsWith("/crm/")
+  ) {
+    return { href: task.source_url, external: false };
+  }
 
   if (task.metadata_id && (normalized.includes("meeting") || normalized.includes("fireflies"))) {
     return {

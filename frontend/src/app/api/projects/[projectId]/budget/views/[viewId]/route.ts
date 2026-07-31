@@ -6,6 +6,7 @@ import type { UpdateBudgetViewRequest } from "@/types/budget-views";
 import { apiErrorResponse } from "@/lib/api-error";
 import { requirePermission } from "@/lib/permissions-guard";
 import { logger } from "@/lib/logger";
+import type { Database } from "@/types/database.types";
 
 // GET /api/projects/[id]/budget/views/[viewId]
 // Fetch a single budget view
@@ -133,7 +134,7 @@ export const PATCH = withApiGuardrails<{ projectId: string; viewId: string }>(
 
     // Update the view metadata
     if (name || description !== undefined || is_default !== undefined) {
-      const updateData: Record<string, unknown> = {};
+      const updateData: Database["public"]["Tables"]["budget_views"]["Update"] = {};
       if (name) updateData.name = name;
       if (description !== undefined) updateData.description = description;
       if (is_default !== undefined) updateData.is_default = is_default;

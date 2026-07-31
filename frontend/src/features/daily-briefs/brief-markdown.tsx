@@ -9,6 +9,7 @@ import type { DailyBriefSourceRef } from "@/lib/daily-briefs/canonical-packets";
 import {
   buildSourceIndex,
   cleanSourceTitle,
+  internalSourceHref,
   markKnownSourceCitations,
   type DailyBriefSourceIndex,
 } from "@/lib/daily-briefs/source-links";
@@ -53,12 +54,11 @@ function renderCode(
   }
 
   const label = clipLabel(cleanSourceTitle(ref));
-  if (ref.url) {
+  const href = internalSourceHref(ref);
+  if (href) {
     return (
       <a
-        href={ref.url}
-        target="_blank"
-        rel="noopener noreferrer"
+        href={href}
         title={ref.title}
         className={CITATION_LINK_CLASS}
       >

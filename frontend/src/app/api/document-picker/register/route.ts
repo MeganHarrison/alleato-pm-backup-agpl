@@ -3,10 +3,10 @@ import { apiErrorResponse } from '@/lib/api-error';
 import { createClient, getApiRouteUser } from '@/lib/supabase/server';
 import { createServiceClient } from '@/lib/supabase/service';
 import {
-  registerUploadedPatternCDocument,
   resolvePatternCEntity,
   validatePatternCDocumentType,
 } from '@/lib/documents/pattern-c-attachments';
+import { registerUploadedPatternCDocument } from '@/lib/documents/pattern-c-attachments.server';
 
 export const dynamic = 'force-dynamic';
 

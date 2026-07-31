@@ -43,6 +43,18 @@ const calendarStatusSchema = z.enum([
   "archived",
 ]);
 
+const getMarketingCalendarInputSchema = z.object({
+  dateRange: z
+    .object({
+      start: z.string().nullable().default(null),
+      end: z.string().nullable().default(null),
+    })
+    .nullable()
+    .default(null),
+  status: calendarStatusSchema.nullable().default(null),
+  projectId: z.number().nullable().default(null),
+});
+
 const assetStatusSchema = z.enum([
   "draft",
   "needs_review",
@@ -284,17 +296,18 @@ export function createMarketingTools(
 
     getMarketingCalendar: tool({
       description:
-        "Retrieve persisted marketing calendar items, draft assets, source citations, and review states for the marketing review page.",
-      inputSchema: z.object({
-        dateRange: dateRangeSchema,
-        status: calendarStatusSchema.optional(),
-        projectId: z.number().optional(),
-      }),
+        "Retrieve persisted marketing calendar items, draft assets, source citations, and review states for the marketing review page. Set dateRange, status, and projectId to null to retrieve without those filters.",
+      inputSchema: getMarketingCalendarInputSchema,
       execute: async (input) => {
         const items = await getMarketingCalendar({
-          dateRange: input.dateRange,
-          status: input.status ?? null,
-          projectId: input.projectId ?? options.pinnedProjectId ?? null,
+          dateRange: input.dateRange
+            ? {
+                start: input.dateRange.start ?? undefined,
+                end: input.dateRange.end ?? undefined,
+              }
+            : undefined,
+          status: input.status ?? undefined,
+          projectId: input.projectId ?? undefined,
         });
         const output = { items, reviewHref: "/ai/marketing" };
         trace(options, "getMarketingCalendar", input, output);

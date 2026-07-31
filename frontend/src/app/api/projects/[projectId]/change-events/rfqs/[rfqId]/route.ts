@@ -6,6 +6,7 @@ import { z } from "zod";
 import { createClient, getApiRouteUser } from "@/lib/supabase/server";
 import { apiErrorResponse } from "@/lib/api-error";
 import { requirePermission } from "@/lib/permissions-guard";
+import type { Database } from "@/types/database.types";
 
 interface RouteParams {
   params: Promise<{ projectId: string; rfqId: string }>;
@@ -107,7 +108,7 @@ export const PATCH = withApiGuardrails(
       return NextResponse.json({ error: "RFQ not found" }, { status: 404 });
     }
 
-    const updates: Record<string, unknown> = { updated_by: user.id };
+    const updates: Database["public"]["Tables"]["change_event_rfqs"]["Update"] = { updated_by: user.id };
     if (parsed.data.status !== undefined) updates.status = parsed.data.status;
     if (parsed.data.title !== undefined) updates.title = parsed.data.title.trim();
     if (parsed.data.dueDate !== undefined) updates.due_date = parsed.data.dueDate.slice(0, 10);

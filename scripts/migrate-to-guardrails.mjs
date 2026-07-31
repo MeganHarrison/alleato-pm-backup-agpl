@@ -24,7 +24,7 @@ const API_DIR = resolve(
 
 // Skip patterns — streaming, webhooks, proxies
 const SKIP_PATTERNS = [
-  "/ai-assistant/eve/proxy/",
+  "/ai-assistant/chat/",
   "/bot/",
   "/monitoring/websocket/",
   "/procore-docs/chat/",

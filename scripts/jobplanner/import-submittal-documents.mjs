@@ -15,7 +15,7 @@
  *   2. document_metadata  — the canonical document row (source_system="jobplanner",
  *                           status="uploaded", category="attachment").
  *   3. submittal_doc_links — junction { submittal_id, document_metadata_id, attached_by, attached_at }.
- *   4. OCR/embedding: POST {APP_URL}/api/rag-pipeline/process { documentId } (best-effort),
+ *   4. OCR/embedding: POST {BACKEND_URL}/api/pipeline/process { metadataId } (best-effort),
  *                     so extracted_text / AI-review become available downstream.
  *
  * NOTE: does NOT write the legacy `submittal_documents` table (dead for writes;
@@ -57,13 +57,8 @@ if (!Number.isInteger(JP) || !Number.isInteger(APP)) {
 const JP_KEY = process.env.JOBPLANNER_API_KEY?.trim()?.replace(/^["']|["']$/g, "");
 const SUPABASE_URL = process.env.SUPABASE_URL?.trim() || process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() || process.env.SUPABASE_SERVICE_KEY?.trim();
-const APP_URL = (
-  process.env.ALLEATO_APP_URL ||
-  process.env.NEXT_PUBLIC_APP_URL ||
-  "https://projects.alleatogroup.com"
-).replace(/\/+$/, "");
-const WORKFLOW_SECRET =
-  process.env.RAG_PIPELINE_WORKFLOW_SECRET?.trim();
+const BACKEND_URL = (process.env.BACKEND_URL || process.env.PYTHON_BACKEND_URL || "").replace(/\/+$/, "").trim();
+const ADMIN_API_KEY = process.env.ADMIN_API_KEY?.trim();
 if (!JP_KEY) { console.error("Missing JOBPLANNER_API_KEY."); process.exit(1); }
 if (!SUPABASE_URL || !SERVICE_KEY) { console.error("Missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY."); process.exit(1); }
 
@@ -92,20 +87,18 @@ async function jpGet(pathname) {
 }
 
 async function triggerOcr(metadataId) {
-  if (NO_OCR) return { queued: false, message: "skipped" };
-  if (!WORKFLOW_SECRET) {
-    return { queued: false, message: "no RAG_PIPELINE_WORKFLOW_SECRET" };
-  }
+  if (NO_OCR || !BACKEND_URL) return { queued: false, message: NO_OCR ? "skipped" : "no BACKEND_URL" };
+  if (!ADMIN_API_KEY) return { queued: false, message: "no ADMIN_API_KEY" };
   try {
-    const res = await fetch(`${APP_URL}/api/rag-pipeline/process`, {
+    const res = await fetch(`${BACKEND_URL}/api/pipeline/process`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${WORKFLOW_SECRET}`,
         "Content-Type": "application/json",
+        "x-admin-api-key": ADMIN_API_KEY,
       },
-      body: JSON.stringify({ documentId: metadataId }), cache: "no-store",
+      body: JSON.stringify({ metadataId }), cache: "no-store",
     });
-    return res.status === 202 ? { queued: true, message: null } : { queued: false, message: `HTTP ${res.status}` };
+    return res.ok ? { queued: true, message: null } : { queued: false, message: `HTTP ${res.status}` };
   } catch (e) { return { queued: false, message: e.message }; }
 }
 

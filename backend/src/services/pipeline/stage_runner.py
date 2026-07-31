@@ -31,35 +31,45 @@ _GRAPH_SOURCES = {
     "onedrive",
     "sharepoint",
 }
+_GRAPH_COMMUNICATION_SOURCES = {
+    "outlook",
+    "outlook_email",
+    "email",
+    "teams",
+    "teams_dm",
+}
 
 
 def _load_document(client: Any, metadata_id: str) -> Dict[str, Any]:
-    try:
-        response = (
-            client.table("document_metadata")
-            .select(
-                "id, category, file_name, file_path, source, source_system, "
-                "status, project_id"
-            )
-            .eq("id", metadata_id)
-            .single()
-            .execute()
+    response = (
+        client.table("document_metadata")
+        .select(
+            "id, category, file_name, file_path, source, source_system, "
+            "status, project_id"
         )
-        row = response.data
-    except Exception:
-        response = (
+        .eq("id", metadata_id)
+        .limit(1)
+        .execute()
+    )
+    rows = response.data or []
+    row = rows[0] if rows else None
+
+    if not row:
+        rag_response = (
             get_rag_read_client()
             .table("rag_document_metadata")
             .select(
-                "id, category, file_name, file_path, source, source_system, "
+                "id, category, file_name, storage_path, source, source_system, "
                 "embedding_status, project_id"
             )
             .eq("id", metadata_id)
-            .single()
+            .limit(1)
             .execute()
         )
-        row = response.data
+        rag_rows = rag_response.data or []
+        row = rag_rows[0] if rag_rows else None
         if row:
+            row["file_path"] = row.get("storage_path")
             row["status"] = row.get("embedding_status")
     if not row:
         raise ValueError(f"Document metadata row not found: {metadata_id}")
@@ -135,6 +145,13 @@ def run_pipeline_stage(
         return {"metadataId": metadata_id, "stage": stage, "result": result}
 
     if stage == "vision":
+        if effective_source in _GRAPH_COMMUNICATION_SOURCES:
+            return {
+                "metadataId": metadata_id,
+                "stage": stage,
+                "skipped": True,
+                "reason": "Vision does not apply to normalized Graph communications.",
+            }
         if not classification["isDocument"]:
             return {
                 "metadataId": metadata_id,

@@ -831,7 +831,6 @@ export function EmailAttachmentsClient({
         render: (item) => (
           <CellStackText
             primary={item.fileName}
-            secondary={item.contentType || "Unknown type"}
             icon={<Paperclip className="size-4" />}
           />
         ),
@@ -925,11 +924,15 @@ export function EmailAttachmentsClient({
         sortable: true,
         sortValue: senderLabel,
         render: (item) => (
-          <CellStackText
-            primary={
+          <CellText
+            value={
               item.email?.fromName || item.email?.fromEmail || "Unknown sender"
             }
-            secondary={item.email?.fromName ? item.email.fromEmail : null}
+            title={
+              item.email?.fromName
+                ? item.email.fromEmail ?? undefined
+                : undefined
+            }
           />
         ),
       },

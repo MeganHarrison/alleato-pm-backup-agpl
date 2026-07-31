@@ -5,7 +5,7 @@ architecture docs in sync with the code and database. It orchestrates the
 EXISTING generators and gates; it does not author docs or replace a generator.
 
 Sibling of `agents/project-intelligence-maintainer/` — same house pattern
-(read-only inspection tools, approval-gated mutation, report-only schedule,
+(read-only inspection tools, approval-gated mutation, verified Linear delivery,
 redaction, compact failure contract, evals).
 
 ## Source of truth
@@ -47,20 +47,27 @@ Read-only:
 Approval-gated:
 
 - `regenerate_generated_docs` — dry-run by default. With `dryRun=false` it leaves
-  the regenerated PROJECT-MAP / TABLE-LIST staged in the working tree for a human
+  the regenerated PROJECT-MAP / TABLE-LIST modified in the working tree for a human
   to review and open a PR. It never commits, pushes, or bypasses the pre-commit
   gates.
 
-The read-only drift checks regenerate into a scratch comparison and `git checkout`
-the file back, so they never leave the working tree modified. They refuse
-(`blocked`) if the target is already dirty.
+The read-only drift checks regenerate in an isolated scratch worktree, so they
+never write to or restore the caller's checkout. They refuse (`blocked`) if the
+target is already dirty.
 
 ## Schedule
 
-`agent/schedules/weekday-docs-scan.ts` fires 12:30 UTC on weekdays and is
-report-only in v1. Wire a Slack/Teams/Linear channel handoff (eve docs:
-Schedules → handler form) before enabling delivery; the tools do not need to
-change.
+`.github/workflows/docs-freshness-weekday.yml` is the production owner and fires
+at 12:30 UTC on weekdays. It checks out the repository, runs the read-only
+summary, posts the report to `EVE_DOCS_MAINTAINER_LINEAR_ISSUE_ID`, and reads the
+created comment back. Missing configuration, a failed generator, or missing
+read-back evidence fails the workflow loudly after delivering any actionable
+report it could produce.
+
+`agent/schedules/weekday-docs-scan.ts` provides the equivalent Eve Linear Agent
+Session path for an installed Linear agent. It requires
+`LINEAR_AGENT_ACCESS_TOKEN` and `LINEAR_WEBHOOK_SECRET`; those OAuth credentials
+are intentionally distinct from the GitHub workflow's `LINEAR_API_KEY`.
 
 ## Failure contract
 

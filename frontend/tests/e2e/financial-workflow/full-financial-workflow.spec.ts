@@ -27,7 +27,10 @@ let projectId: number;
 let primeContractId: string;
 const ts = Date.now();
 const authFile = path.join(__dirname, "../../.auth/user.json");
-const baseUrl = process.env.BASE_URL || "http://localhost:3000";
+const baseUrl =
+  process.env.PLAYWRIGHT_BASE_URL ||
+  process.env.BASE_URL ||
+  "http://localhost:3000";
 
 // ─── Serial describe — shared worker + beforeAll/afterAll run once ────────────
 test.describe.serial("Full Financial Workflow", () => {
@@ -56,7 +59,7 @@ test.describe.serial("Full Financial Workflow", () => {
         `${baseUrl}/api/projects/${projectId}`,
       );
       if (res.ok()) {
-        console.log(`[FullWorkflow] Project ${projectId} deleted`);
+        console.log(`[FullWorkflow] Project ${projectId} archived`);
       } else {
         console.warn(`[FullWorkflow] Delete failed: ${res.status()}`);
       }
@@ -73,29 +76,12 @@ test.describe.serial("Full Financial Workflow", () => {
   }) => {
     await safeNavigate(`/${projectId}/prime-contracts/new`);
 
-    // Next.js may show compilation errors on first load — retry up to 3 times
-    for (let attempt = 0; attempt < 3; attempt++) {
-      const hasModuleError = await page
-        .getByText("Cannot find module")
-        .isVisible({ timeout: 1500 })
-        .catch(() => false);
-      const hasServerError = await page
-        .getByText("Internal Server Error")
-        .isVisible({ timeout: 500 })
-        .catch(() => false);
-      if (hasModuleError || hasServerError) {
-        console.log(
-          `[FullWorkflow] Page error detected (attempt ${attempt + 1}) — waiting and reloading...`
-        );
-        await page.waitForTimeout(3000);
-        await page.reload();
-        await page.waitForLoadState("domcontentloaded");
-      } else {
-        break;
-      }
-    }
+    // A compiler/server error is a failed boundary. Do not hide it with an
+    // unsolicited reload because that can invalidate form hydration.
+    await expect(page.getByText("Cannot find module")).not.toBeVisible();
+    await expect(page.getByText("Internal Server Error")).not.toBeVisible();
 
-    // Wait for the form to be ready (allow up to 45s for Next.js compilation)
+    // Wait for the form to be ready.
     await expect(page.getByLabel("Contract #")).toBeVisible({ timeout: 45000 });
     // Small delay for React to attach event handlers after hydration
     await page.waitForTimeout(500);
@@ -110,7 +96,9 @@ test.describe.serial("Full Financial Workflow", () => {
     await page.getByLabel("Status").click();
     await page.waitForTimeout(500); // wait for dropdown to render
     // Options appear as role="option" within the Select portal
-    await page.getByRole("option", { name: "Approved" }).click({ timeout: 10000 });
+    await page
+      .getByRole("option", { name: "Approved" })
+      .click({ timeout: 10000 });
 
     // Mark as executed
     await page.getByLabel("Contract is executed").click();
@@ -155,9 +143,26 @@ test.describe.serial("Full Financial Workflow", () => {
       await expect(total).toContainText("400");
     }
 
-    await page.getByRole("button", { name: "Create" }).click();
+    const createResponsePromise = page.waitForResponse(
+      (response) =>
+        response.request().method() === "POST" &&
+        new URL(response.url()).pathname ===
+          `/api/projects/${projectId}/contracts`,
+      { timeout: 20000 },
+    );
+    await page.getByRole("button", { name: "Create Prime Contract" }).click();
+    const createResponse = await createResponsePromise;
+    const responseBody = await createResponse.json().catch(() => null);
 
-    await page.waitForURL(
+    expect(
+      createResponse.status(),
+      `Prime contract creation failed: ${JSON.stringify(responseBody)}`,
+    ).toBe(201);
+    expect(responseBody?.id).toMatch(/^[a-f0-9-]{36}$/);
+    expect(responseBody?.creation_receipt?.lineItems?.attempted).toBe(2);
+    expect(responseBody?.creation_receipt?.lineItems?.failed).toEqual([]);
+
+    await expect(page).toHaveURL(
       new RegExp(`/${projectId}/prime-contracts/[a-f0-9-]{36}`),
       { timeout: 15000 },
     );
@@ -173,11 +178,12 @@ test.describe.serial("Full Financial Workflow", () => {
   });
 
   // ─── Step 3: Budget Line Items ───────────────────────────────────────────
-  // BudgetLineItemCreatorModal is an AnimatePresence overlay (NOT role=dialog).
-  // Interact with: "Add Budget Line Items" heading, "Select budget code..." popover,
-  // unit cost input, "Create 1 Line Item" button.
+  // Executing the prime contract locks newly created budget amounts at $0.00.
+  // Create two lines so the subsequent balanced-transfer flow has From/To rows.
 
-  test("Step 3 – adds a budget line item", async ({ page }) => {
+  test("Step 3 – adds zero-dollar budget lines after contract execution", async ({
+    page,
+  }) => {
     await page.goto(`/${projectId}/budget`);
     await page.waitForLoadState("domcontentloaded");
 
@@ -197,104 +203,95 @@ test.describe.serial("Full Financial Workflow", () => {
     await expect(lineItemOption).toBeVisible({ timeout: 3000 });
     await lineItemOption.click();
 
-    // The animated overlay appears (not a dialog) — wait for its heading
-    await expect(
-      page.getByText("Add Budget Line Items"),
-    ).toBeVisible({ timeout: 5000 });
+    const modal = page.getByRole("dialog", { name: "Add Budget Line Items" });
+    await expect(modal).toBeVisible({ timeout: 5000 });
+    await expect(modal.getByText("Budget amounts are locked")).toBeVisible();
 
-    // Click the budget code Popover trigger ("Select budget code...")
-    const codePickerBtn = page.getByText("Select budget code...").first();
-    await expect(codePickerBtn).toBeVisible({ timeout: 5000 });
-    await codePickerBtn.click();
-    await page.waitForTimeout(800);
-
-    // Try to select an existing budget code (exclude the "Create New" option)
-    const existingCodeOption = page
-      .locator('[role="option"]')
-      .filter({ hasNotText: /create new budget code/i })
-      .first();
-
-    const hasExisting =
-      (await existingCodeOption.count()) > 0 &&
-      (await existingCodeOption.isVisible().catch(() => false));
-
-    if (hasExisting) {
-      await existingCodeOption.click();
-    } else {
-      // No existing budget codes — click "Create New Budget Code"
-      const createNewCodeOption = page
-        .locator('[role="option"]')
-        .filter({ hasText: /create new budget code/i })
-        .first();
-
-      if ((await createNewCodeOption.count()) > 0) {
-        await createNewCodeOption.click();
-      } else {
-        await page.keyboard.press("Escape");
-      }
-
-      // "Create New Budget Code" Dialog is now open
-      const createCodeDialog = page.getByRole("dialog", {
-        name: /create new budget code/i,
+    const createBudgetCodeForRow = async (
+      rowNumber: number,
+      costType: "L - Labor" | "M - Material",
+    ) => {
+      const codeSelect = modal.getByRole("combobox", {
+        name: `Cost Code for line item ${rowNumber}`,
       });
-      await expect(createCodeDialog).toBeVisible({ timeout: 5000 });
+      await expect(codeSelect).toBeEnabled({ timeout: 10000 });
+      await codeSelect.click();
+      await page.getByRole("option", { name: /create budget code/i }).click();
 
-      // Wait for cost codes to finish loading
+      const codeDialog = page.getByRole("dialog", {
+        name: "Create New Budget Code",
+      });
+      await expect(codeDialog).toBeVisible({ timeout: 5000 });
       await expect(
-        createCodeDialog.getByText("Loading cost codes..."),
+        codeDialog.getByText("Loading cost codes..."),
       ).not.toBeVisible({ timeout: 10000 });
 
-      // Click "01 General Requirements" division to expand it (use text, not class)
-      const firstDivisionBtn = createCodeDialog
-        .getByRole("button")
-        .filter({ hasText: /01.*general requirements/i })
-        .first();
-      await expect(firstDivisionBtn).toBeVisible({ timeout: 5000 });
-      await firstDivisionBtn.click();
-      await page.waitForTimeout(500);
-
-      // Click the first cost code inside the expanded division
-      // Cost codes render as "{id} – {title}" e.g. "015200 – Temporary Facilities"
-      const firstCostCode = createCodeDialog
+      const costCodeButton = codeDialog
         .getByRole("button")
         .filter({ hasText: /\d{4,6}.*–/ })
         .first();
-      await expect(firstCostCode).toBeVisible({ timeout: 5000 });
-      await firstCostCode.click();
-      await page.waitForTimeout(200);
+      if (!(await costCodeButton.isVisible().catch(() => false))) {
+        await codeDialog
+          .getByRole("button")
+          .filter({ hasText: /01.*general requirements/i })
+          .first()
+          .click();
+      }
+      await expect(costCodeButton).toBeVisible({ timeout: 5000 });
+      await costCodeButton.click();
 
-      // Cost type defaults to "L" — no change needed
-      // Click "Create Budget Code"
-      await createCodeDialog
-        .getByRole("button", { name: /^create budget code$/i })
+      await codeDialog.getByRole("combobox").click();
+      await page.getByRole("option", { name: costType }).click();
+
+      const responsePromise = page.waitForResponse(
+        (response) =>
+          response.request().method() === "POST" &&
+          new URL(response.url()).pathname ===
+            `/api/projects/${projectId}/budget-codes`,
+      );
+      await codeDialog
+        .getByRole("button", { name: "Create Budget Code" })
         .click();
+      const response = await responsePromise;
+      expect(
+        response.status(),
+        `Budget code creation failed: ${await response.text()}`,
+      ).toBe(200);
+      await expect(codeDialog).not.toBeVisible({ timeout: 5000 });
+    };
 
-      // Dialog closes and budget code is now selected in the row
-      await expect(createCodeDialog).not.toBeVisible({ timeout: 5000 });
-      await page.waitForTimeout(300);
-    }
+    await createBudgetCodeForRow(1, "L - Labor");
 
-    // Fill in unit cost (qty defaults to 1, amount auto-calculates)
-    const unitCostInput = page.locator('input[placeholder="Unit cost"]').first();
-    if ((await unitCostInput.count()) > 0) {
-      await unitCostInput.fill("500000");
-      await page.waitForTimeout(200);
-    }
+    await modal.getByRole("button", { name: "Add line item" }).click();
+    await createBudgetCodeForRow(2, "M - Material");
 
-    // Submit: "Create 1 Line Item" (button is disabled until costCodeId is set)
+    await expect(
+      modal.getByRole("textbox", { name: "Unit cost" }).first(),
+    ).toBeDisabled();
+    await expect(modal.getByText("Total").locator("..")).toContainText("$0.00");
+
+    const createResponsePromise = page.waitForResponse(
+      (response) =>
+        response.request().method() === "POST" &&
+        new URL(response.url()).pathname ===
+          `/api/projects/${projectId}/budget`,
+      { timeout: 15000 },
+    );
     const createLineBtn = page.getByRole("button", {
       name: /create.*line item/i,
     });
     await expect(createLineBtn).toBeVisible({ timeout: 5000 });
-    await expect(createLineBtn).toBeEnabled({ timeout: 3000 });
+    await expect(createLineBtn).toBeEnabled({ timeout: 5000 });
     await createLineBtn.click();
+    const createResponse = await createResponsePromise;
+    expect(
+      createResponse.status(),
+      `Budget line creation failed: ${await createResponse.text()}`,
+    ).toBe(200);
 
-    // Overlay disappears
-    await expect(
-      page.getByText("Add Budget Line Items"),
-    ).not.toBeVisible({ timeout: 10000 });
+    await expect(modal).not.toBeVisible({ timeout: 10000 });
 
-    console.log("[FullWorkflow] Budget line item created ✓");
+    console.log("[FullWorkflow] Two zero-dollar budget lines created ✓");
   });
 
   // ─── Step 4: Lock Budget ─────────────────────────────────────────────────
@@ -305,7 +302,7 @@ test.describe.serial("Full Financial Workflow", () => {
     await page.waitForLoadState("domcontentloaded");
 
     // Ensure unlocked state first
-    const unlockFirst = page.getByRole("button", { name: /unlock budget/i });
+    const unlockFirst = page.getByRole("button", { name: /^locked /i });
     if ((await unlockFirst.count()) > 0) {
       await unlockFirst.click();
       const preserveBtn = page.getByRole("button", {
@@ -316,54 +313,60 @@ test.describe.serial("Full Financial Workflow", () => {
     }
 
     // Click "Lock Budget" trigger button
-    const lockBtn = page.getByRole("button", { name: /lock budget/i });
+    const lockBtn = page.getByRole("button", {
+      name: /click to lock budget/i,
+    });
     await expect(lockBtn).toBeVisible({ timeout: 5000 });
     await lockBtn.click();
 
     // AlertDialog confirmation: click the action "Lock Budget" button
-    const confirmLockBtn = page
-      .getByRole("button", { name: /^lock budget$/i })
-      .last();
+    const lockDialog = page.getByRole("alertdialog", {
+      name: "Lock Budget",
+    });
+    await expect(lockDialog).toBeVisible();
+    const confirmLockBtn = lockDialog.getByRole("button", {
+      name: "Lock Budget",
+    });
     await expect(confirmLockBtn).toBeVisible({ timeout: 5000 });
+    const lockResponsePromise = page.waitForResponse(
+      (response) =>
+        response.request().method() === "POST" &&
+        new URL(response.url()).pathname ===
+          `/api/projects/${projectId}/budget/lock`,
+    );
     await confirmLockBtn.click();
+    const lockResponse = await lockResponsePromise;
+    const lockBody = await lockResponse.json().catch(() => null);
+    expect(
+      lockResponse.status(),
+      `Budget lock failed: ${JSON.stringify(lockBody)}`,
+    ).toBe(200);
 
-    // Toast: "Budget locked successfully"
+    // Header status control should now expose the locked timestamp/owner.
+    await expect(page.getByRole("button", { name: /^locked /i })).toBeVisible({
+      timeout: 5000,
+    });
+
+    // Locked budgets replace the create menu with the only valid action.
     await expect(
-      page.getByText(/budget locked successfully/i),
-    ).toBeVisible({ timeout: 5000 });
-
-    // Header button should now show "Unlock Budget"
-    await expect(
-      page.getByRole("button", { name: /unlock budget/i }),
-    ).toBeVisible({ timeout: 5000 });
-
-    // Verify create is blocked
-    const createBtn = page.getByRole("button", { name: /create/i }).first();
-    const isDisabled = await createBtn.isDisabled();
-    if (!isDisabled) {
-      await createBtn.click();
-      // Click "Budget Line Item" to trigger the locked error
-      const menuItem = page.getByRole("menuitem", { name: /budget line item/i });
-      if ((await menuItem.count()) > 0) await menuItem.click();
-      await expect(
-        page.getByText(/budget is locked/i),
-      ).toBeVisible({ timeout: 3000 });
-    } else {
-      console.log("[FullWorkflow] Create button disabled while locked ✓");
-    }
+      page.getByRole("button", { name: "Budget Change", exact: true }),
+    ).toBeVisible();
+    await expect(page.getByRole("button", { name: /^create$/i })).toHaveCount(
+      0,
+    );
 
     // Reload and verify persists
     await page.reload();
     await page.waitForLoadState("domcontentloaded");
-    await expect(
-      page.getByRole("button", { name: /unlock budget/i }),
-    ).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole("button", { name: /^locked /i })).toBeVisible({
+      timeout: 10000,
+    });
 
     console.log("[FullWorkflow] Budget locked ✓");
   });
 
   // ─── Step 8 (inserted here): Budget Modification ─────────────────────────
-  // "Budget Modification" ONLY appears in dropdown when isLocked === true.
+  // The locked header replaces Create with the canonical Budget Change action.
   // Run immediately after lock (step 4), before unlock (step 5).
 
   test("Step 8 – creates a budget modification (while locked)", async ({
@@ -372,67 +375,60 @@ test.describe.serial("Full Financial Workflow", () => {
     await page.goto(`/${projectId}/budget`);
     await page.waitForLoadState("domcontentloaded");
 
-    // Budget should still be locked from step 4
-    // Open Create dropdown
-    const createBtn = page.getByRole("button", { name: /create/i }).first();
-    await expect(createBtn).toBeVisible({ timeout: 5000 });
-    await createBtn.click();
-
-    // "Budget Modification" appears only when isLocked
-    const modOption = page.getByRole("menuitem", {
-      name: /budget modification/i,
+    const budgetChangeButton = page.getByRole("button", {
+      name: "Budget Change",
+      exact: true,
     });
+    await expect(budgetChangeButton).toBeVisible({ timeout: 5000 });
+    await budgetChangeButton.click();
 
-    if ((await modOption.count()) > 0) {
-      await modOption.click();
+    const modal = page.getByRole("dialog", {
+      name: "Add Budget Modification",
+    });
+    await expect(modal).toBeVisible({ timeout: 5000 });
 
-      // Modal opens (this uses a proper Dialog)
-      const modal = page.getByRole("dialog");
-      await expect(modal).toBeVisible({ timeout: 5000 });
+    const fromSelect = modal.getByLabel("From");
+    await fromSelect.click();
+    await page.getByRole("option").first().click();
 
-      // Select cost code / line item
-      const lineSelect = modal
-        .getByLabel(/budget code|cost code|line item/i)
-        .first();
-      if ((await lineSelect.count()) > 0) {
-        await lineSelect.click();
-        await page.getByRole("option").first().click();
-      }
+    const toSelect = modal.getByLabel("To");
+    await toSelect.click();
+    await page.getByRole("option").last().click();
 
-      // Enter modification amount
-      await modal.getByLabel(/amount|modification/i).first().fill("25000");
+    await modal.getByLabel("Amount").fill("25000");
+    await modal
+      .getByLabel("Notes")
+      .fill("Balanced transfer for scope expansion");
 
-      // Optional reason
-      const reasonField = modal
-        .getByLabel(/reason|description|notes/i)
-        .first();
-      if ((await reasonField.count()) > 0) {
-        await reasonField.fill("Scope expansion per change directive");
-      }
-
-      await modal.getByRole("button", { name: /save|create/i }).click();
-      await expect(modal).not.toBeVisible({ timeout: 10000 });
-
-      await expect(page.getByText(/25,000/)).toBeVisible({ timeout: 5000 });
-      console.log("[FullWorkflow] Budget modification created ✓");
-    } else {
-      // Budget not locked or modification menu item missing — close and log
-      await page.keyboard.press("Escape");
-      console.warn(
-        "[FullWorkflow] 'Budget Modification' not in dropdown — budget may not be locked",
-      );
-    }
+    const responsePromise = page.waitForResponse(
+      (response) =>
+        response.request().method() === "POST" &&
+        new URL(response.url()).pathname ===
+          `/api/projects/${projectId}/budget/modifications`,
+    );
+    await modal.getByRole("button", { name: "Save" }).click();
+    const response = await responsePromise;
+    expect(
+      response.status(),
+      `Budget modification failed: ${await response.text()}`,
+    ).toBe(200);
+    await expect(modal).not.toBeVisible({ timeout: 10000 });
+    console.log("[FullWorkflow] Budget modification created ✓");
   });
 
   // ─── Step 5: Unlock Budget ───────────────────────────────────────────────
   // "Unlock Budget" → UnlockBudgetDialog → "Unlock and Preserve"
 
-  test("Step 5 – unlocks the budget", async ({ page }) => {
+  test("Step 5 – blocks unlock while an active modification exists", async ({
+    page,
+  }) => {
     await page.goto(`/${projectId}/budget`);
     await page.waitForLoadState("domcontentloaded");
 
     // Ensure it's locked (from step 4)
-    const lockFirst = page.getByRole("button", { name: /lock budget/i });
+    const lockFirst = page.getByRole("button", {
+      name: /click to lock budget/i,
+    });
     if ((await lockFirst.count()) > 0) {
       await lockFirst.click();
       const confirmLockBtn = page
@@ -443,32 +439,28 @@ test.describe.serial("Full Financial Workflow", () => {
     }
 
     // Click "Unlock Budget"
-    const unlockBtn = page.getByRole("button", { name: /unlock budget/i });
+    const unlockBtn = page.getByRole("button", { name: /^locked /i });
     await expect(unlockBtn).toBeVisible({ timeout: 5000 });
     await unlockBtn.click();
 
-    // UnlockBudgetDialog: choose "Unlock and Preserve"
-    const preserveBtn = page.getByRole("button", {
-      name: /unlock and preserve/i,
+    const unlockDialog = page.getByRole("dialog", { name: "Unlock Budget" });
+    await expect(unlockDialog).toBeVisible({ timeout: 10000 });
+    await expect(
+      unlockDialog.getByText("Budget cannot be unlocked."),
+    ).toBeVisible({
+      timeout: 5000,
     });
-    await expect(preserveBtn).toBeVisible({ timeout: 5000 });
-    await preserveBtn.click();
-
-    // Toast: "Budget unlocked successfully"
     await expect(
-      page.getByText(/budget unlocked successfully/i),
-    ).toBeVisible({ timeout: 5000 });
+      unlockDialog.getByRole("button", { name: /unlock and preserve/i }),
+    ).toHaveCount(0);
+    await expect(unlockDialog.getByRole("listitem")).toContainText(
+      "Modification BM-0001",
+    );
+    await unlockDialog.getByRole("button", { name: "Close" }).last().click();
+    await expect(unlockDialog).not.toBeVisible();
+    await expect(page.getByRole("button", { name: /^locked /i })).toBeVisible();
 
-    // Header button reverts to "Lock Budget"
-    await expect(
-      page.getByRole("button", { name: /lock budget/i }),
-    ).toBeVisible({ timeout: 5000 });
-
-    // Create button re-enabled
-    const createBtn = page.getByRole("button", { name: /create/i }).first();
-    await expect(createBtn).toBeEnabled({ timeout: 3000 });
-
-    console.log("[FullWorkflow] Budget unlocked ✓");
+    console.log("[FullWorkflow] Active modification blocks unlock ✓");
   });
 
   // ─── Step 6: Purchase Order ──────────────────────────────────────────────
@@ -487,21 +479,20 @@ test.describe.serial("Full Financial Workflow", () => {
     await contractField.clear();
     await contractField.fill(`PO-WF-${ts}`);
 
-    await page
-      .getByLabel(/title/i)
-      .first()
-      .fill(`E2E Purchase Order ${ts}`);
+    const purchaseOrderTitle = `E2E Purchase Order ${ts}`;
+    await page.getByLabel(/title/i).first().fill(purchaseOrderTitle);
 
-    // Vendor company (first available)
-    const companySelect = page.locator('[data-slot="select-trigger"]').first();
-    if ((await companySelect.count()) > 0) {
-      await companySelect.click();
-      await page.waitForTimeout(500);
-      const firstOption = page.locator('[data-slot="select-item"]').first();
-      if (await firstOption.isVisible({ timeout: 2000 })) {
-        await firstOption.click();
-      }
-    }
+    const companyCombobox = page.getByRole("combobox", {
+      name: /contract company/i,
+    });
+    await expect(companyCombobox).toBeEnabled({ timeout: 10000 });
+    await companyCombobox.click();
+    const firstCompanyOption = page.getByRole("option").first();
+    await expect(firstCompanyOption).toBeVisible({ timeout: 5000 });
+    const selectedCompany = (await firstCompanyOption.textContent())?.trim();
+    expect(selectedCompany).toBeTruthy();
+    await firstCompanyOption.click();
+    await expect(companyCombobox).toContainText(selectedCompany!);
 
     // Payment terms
     const paymentTerms = page.getByLabel(/payment terms/i);
@@ -509,25 +500,27 @@ test.describe.serial("Full Financial Workflow", () => {
       await paymentTerms.fill("Net 30");
     }
 
-    await page
-      .getByRole("button", { name: /create purchase order/i })
-      .click();
-    await page.waitForTimeout(3000);
-
-    const currentUrl = page.url();
-    if (!currentUrl.includes("/commitments/new")) {
-      await expect(
-        page.getByText(/purchase order/i).first(),
-      ).toBeVisible({ timeout: 10000 });
-      console.log(`[FullWorkflow] PO created → ${currentUrl} ✓`);
-    } else {
-      const err = await page
-        .locator('[role="alert"]')
-        .first()
-        .textContent()
-        .catch(() => null);
-      console.warn("[FullWorkflow] PO still on form, error:", err);
-    }
+    const purchaseOrderResponsePromise = page.waitForResponse(
+      (response) =>
+        response.request().method() === "POST" &&
+        new URL(response.url()).pathname ===
+          `/api/projects/${projectId}/purchase-orders`,
+    );
+    await page.getByRole("button", { name: /create purchase order/i }).click();
+    const purchaseOrderResponse = await purchaseOrderResponsePromise;
+    expect(
+      purchaseOrderResponse.status(),
+      `Purchase order creation failed: ${await purchaseOrderResponse.text()}`,
+    ).toBe(200);
+    await expect(page).not.toHaveURL(/\/commitments\/new/, {
+      timeout: 15000,
+    });
+    await expect(
+      page
+        .getByRole("link", { name: purchaseOrderTitle, exact: true })
+        .filter({ visible: true }),
+    ).toBeVisible({ timeout: 10000 });
+    console.log(`[FullWorkflow] PO created → ${page.url()} ✓`);
   });
 
   // ─── Step 7: Subcontract ─────────────────────────────────────────────────
@@ -546,21 +539,20 @@ test.describe.serial("Full Financial Workflow", () => {
     await contractField.clear();
     await contractField.fill(`SC-WF-${ts}`);
 
-    await page
-      .getByLabel(/title/i)
-      .first()
-      .fill(`E2E Subcontract ${ts}`);
+    const subcontractTitle = `E2E Subcontract ${ts}`;
+    await page.getByLabel(/title/i).first().fill(subcontractTitle);
 
-    // Vendor company (first available)
-    const companySelect = page.locator('[data-slot="select-trigger"]').first();
-    if ((await companySelect.count()) > 0) {
-      await companySelect.click();
-      await page.waitForTimeout(500);
-      const firstOption = page.locator('[data-slot="select-item"]').first();
-      if (await firstOption.isVisible({ timeout: 2000 })) {
-        await firstOption.click();
-      }
-    }
+    const companyCombobox = page.getByRole("combobox", {
+      name: /contract company/i,
+    });
+    await expect(companyCombobox).toBeEnabled({ timeout: 10000 });
+    await companyCombobox.click();
+    const firstCompanyOption = page.getByRole("option").first();
+    await expect(firstCompanyOption).toBeVisible({ timeout: 5000 });
+    const selectedCompany = (await firstCompanyOption.textContent())?.trim();
+    expect(selectedCompany).toBeTruthy();
+    await firstCompanyOption.click();
+    await expect(companyCombobox).toContainText(selectedCompany!);
 
     // Scope of work
     const description = page.getByLabel(/description|scope/i).first();
@@ -568,187 +560,70 @@ test.describe.serial("Full Financial Workflow", () => {
       await description.fill("Concrete and foundation work per drawings");
     }
 
+    const subcontractResponsePromise = page.waitForResponse(
+      (response) =>
+        response.request().method() === "POST" &&
+        new URL(response.url()).pathname ===
+          `/api/projects/${projectId}/subcontracts`,
+    );
     await page.getByRole("button", { name: /create subcontract/i }).click();
-    await page.waitForTimeout(3000);
-
-    const currentUrl = page.url();
-    if (!currentUrl.includes("/commitments/new")) {
-      await expect(
-        page.getByText(/subcontract/i).first(),
-      ).toBeVisible({ timeout: 10000 });
-      console.log(`[FullWorkflow] Subcontract created → ${currentUrl} ✓`);
-    } else {
-      const err = await page
-        .locator('[role="alert"]')
-        .first()
-        .textContent()
-        .catch(() => null);
-      console.warn("[FullWorkflow] SC still on form, error:", err);
-    }
+    const subcontractResponse = await subcontractResponsePromise;
+    expect(
+      subcontractResponse.status(),
+      `Subcontract creation failed: ${await subcontractResponse.text()}`,
+    ).toBe(200);
+    await expect(page).not.toHaveURL(/\/commitments\/new/, {
+      timeout: 15000,
+    });
+    await expect(
+      page
+        .getByRole("link", { name: subcontractTitle, exact: true })
+        .filter({ visible: true }),
+    ).toBeVisible({ timeout: 10000 });
+    console.log(`[FullWorkflow] Subcontract created → ${page.url()} ✓`);
   });
 
   // ─── Step 9: Direct Cost ─────────────────────────────────────────────────
-  // Navigate directly to /direct-costs/new (button pushes router there anyway).
+  // Direct costs are owned by Acumatica and intentionally read-only in Alleato.
 
-  test("Step 9 – creates a direct cost", async ({ page }) => {
+  test("Step 9 – explains the direct-cost source of truth", async ({
+    page,
+  }) => {
     await page.goto(`/${projectId}/direct-costs/new`);
     await page.waitForLoadState("domcontentloaded");
 
-    // Handle Next.js module error (first compilation)
-    const moduleError = page.getByText("Cannot find module");
-    if (await moduleError.isVisible({ timeout: 2000 }).catch(() => false)) {
-      await page.waitForTimeout(2000);
-      await page.reload();
-      await page.waitForLoadState("domcontentloaded");
-    }
-
     await expect(
-      page.getByRole("heading", { name: /new direct cost/i }).first(),
+      page.getByRole("heading", { name: "Direct Costs Are Read-Only" }),
     ).toBeVisible({ timeout: 15000 });
-
-    // Cost Type (required) — select the first option
-    const costTypeSelect = page.locator('[data-slot="select-trigger"]').first();
-    if ((await costTypeSelect.count()) > 0) {
-      await costTypeSelect.click();
-      await page.waitForTimeout(300);
-      const firstOption = page.locator('[data-slot="select-item"]').first();
-      if (await firstOption.isVisible({ timeout: 1000 }).catch(() => false)) {
-        await firstOption.click();
-      }
-    }
-
-    // Incurred Date (required)
-    const dateInput = page.getByLabel(/incurred date/i).first();
-    if ((await dateInput.count()) > 0) {
-      await dateInput.fill("2026-03-05");
-    }
-
-    // Description
-    const descInput = page.getByLabel(/description/i).first();
-    if ((await descInput.count()) > 0) {
-      await descInput.fill(`E2E Direct Cost ${ts}`);
-    }
-
-    // Add a line item (required by schema: at least one line item)
-    const addLineBtn = page
-      .getByRole("button", { name: /add line item|add item/i })
-      .first();
-    if ((await addLineBtn.count()) > 0) {
-      await addLineBtn.click();
-      await page.waitForTimeout(500);
-
-      // Fill unit cost on the new line item
-      const unitCostInput = page
-        .locator('input[placeholder*="unit cost" i], input[placeholder*="cost" i]')
-        .first();
-      if ((await unitCostInput.count()) > 0) {
-        await unitCostInput.fill("15000");
-      }
-    }
-
-    // Submit — button text: "Create Direct Cost"
-    const submitBtn = page.getByRole("button", { name: /create direct cost/i });
-    await expect(submitBtn).toBeVisible({ timeout: 5000 });
-    await submitBtn.click();
-
-    // Wait briefly then check result
-    await page.waitForTimeout(2000);
-    const afterUrl = page.url();
-
-    if (!afterUrl.includes("/direct-costs/new")) {
-      console.log(`[FullWorkflow] Direct cost created → ${afterUrl} ✓`);
-    } else {
-      // Check for toast — use short timeout to avoid hanging the full test
-      const toastText = await page
-        .getByText(/created successfully|failed|error/i)
-        .first()
-        .textContent({ timeout: 1000 })
-        .catch(() => null);
-      console.log(
-        "[FullWorkflow] Direct cost: still on form. Message:",
-        toastText ?? "(none)",
-      );
-    }
+    await expect(page.getByText(/synced from Acumatica/i)).toBeVisible();
+    await page.getByRole("link", { name: "Back to Direct Costs" }).click();
+    await expect(page).toHaveURL(new RegExp(`/${projectId}/direct-costs$`));
   });
 
   // ─── Step 10: Invoice ────────────────────────────────────────────────────
 
-  test("Step 10 – creates a prime contract invoice", async ({ page }) => {
-    if (primeContractId) {
-      await page.goto(`/${projectId}/prime-contracts/${primeContractId}`);
-    } else {
-      await page.goto(`/${projectId}/prime-contracts`);
-      await page.waitForLoadState("domcontentloaded");
-      const firstRow = page
-        .getByRole("row")
-        .filter({ has: page.locator("td") })
-        .first();
-      if ((await firstRow.count()) > 0) await firstRow.click();
-    }
+  test("Step 10 – opens invoice creation with contract context", async ({
+    page,
+  }) => {
+    expect(primeContractId).toMatch(/^[a-f0-9-]{36}$/);
+    await page.goto(`/${projectId}/prime-contracts/${primeContractId}`);
     await page.waitForLoadState("domcontentloaded");
 
     await expect(
       page.getByRole("heading", { name: /prime contract/i }).first(),
     ).toBeVisible({ timeout: 10000 });
 
-    // Find Invoices tab (only click if it exists on the current page)
-    const invoicesTab = page.getByRole("tab", { name: /invoice/i });
-    if ((await invoicesTab.count()) > 0) {
-      await invoicesTab.click();
-      await page.waitForTimeout(500);
-    }
-    // Do NOT navigate to /invoices URL — that route may not exist yet
-
-    // Look for a "New Invoice" button on the current page
-    const newInvoiceBtn = page
-      .getByRole("button", { name: /new invoice|create invoice|add invoice/i })
-      .first();
-
-    if ((await newInvoiceBtn.count()) > 0) {
-      await newInvoiceBtn.click();
-      await page.waitForTimeout(1000);
-
-      const modal = page.getByRole("dialog");
-      const isModal = (await modal.count()) > 0 && (await modal.isVisible());
-      const isNavigation = page.url().includes("/invoices/new");
-      const container = isModal ? modal : page;
-
-      if (isModal || isNavigation) {
-        // Invoice #
-        const invoiceNum = container.getByLabel(/invoice #|invoice number/i).first();
-        if ((await invoiceNum.count()) > 0) {
-          await invoiceNum.fill(`INV-WF-${ts}`);
-        }
-        // Date
-        const dateField = container.getByLabel(/invoice date|date/i).first();
-        if ((await dateField.count()) > 0) await dateField.fill("2026-03-05");
-
-        // Period
-        const pStart = container.getByLabel(/period.*start|billing.*start/i).first();
-        if ((await pStart.count()) > 0) await pStart.fill("2026-02-01");
-        const pEnd = container.getByLabel(/period.*end|billing.*end/i).first();
-        if ((await pEnd.count()) > 0) await pEnd.fill("2026-02-28");
-
-        // Amount
-        const amt = container.getByLabel(/amount|work completed/i).first();
-        if ((await amt.count()) > 0) await amt.fill("50000");
-
-        const submitBtn = container
-          .getByRole("button", { name: /save|create|submit invoice/i })
-          .first();
-        if ((await submitBtn.count()) > 0) {
-          await submitBtn.click();
-          await page.waitForTimeout(2000);
-          console.log("[FullWorkflow] Invoice submitted ✓");
-        }
-      }
-    } else {
-      // Invoice UI not yet implemented on this page — log and pass
-      console.log("[FullWorkflow] No 'New Invoice' button found — invoice feature not yet on this page");
-      // Verify we're still on the prime contract detail page (not a 404)
-      const currentUrl = page.url();
-      expect(currentUrl).toContain("/prime-contracts/");
-    }
+    await page.getByRole("button", { name: "Create" }).click();
+    await page.getByRole("menuitem", { name: "Create Invoice" }).click();
+    await expect(page).toHaveURL(
+      new RegExp(
+        `/${projectId}/invoices/new\\?contractType=prime&contractId=${primeContractId}`,
+      ),
+      { timeout: 15000 },
+    );
+    await expect(
+      page.getByRole("heading", { name: "New Invoice" }),
+    ).toBeVisible({ timeout: 15000 });
   });
 
   // ─── Validation ──────────────────────────────────────────────────────────

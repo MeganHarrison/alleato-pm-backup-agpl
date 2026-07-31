@@ -11,7 +11,7 @@ export interface AppHelpToolGroup {
   articles: AppHelpArticle[];
 }
 
-const DOCS_BASE_URL = "https://docs.alleatogroup.com/help/articles";
+const DOCS_BASE_URL = "https://alleato-os-docs.vercel.app/help/articles";
 
 function article(
   slug: string,
@@ -172,7 +172,7 @@ export const appHelpToolGroups: AppHelpToolGroup[] = [
         "ai-meeting-intelligence",
         "Ask the AI About Meetings",
         "Use meeting transcripts and decisions as source-backed AI context.",
-        ["/ai", "/[projectId]/meetings"],
+        ["/ai-assistant", "/[projectId]/meetings"],
       ),
     ],
   },
@@ -240,7 +240,7 @@ export const appHelpToolGroups: AppHelpToolGroup[] = [
       article(
         "company-directory",
         "Company Directory",
-        "Manage companies, contacts, vendors, prospects, and employees.",
+        "Manage companies, contacts, vendors, and employees.",
         ["/directory"],
       ),
       article(
@@ -272,13 +272,13 @@ export const appHelpToolGroups: AppHelpToolGroup[] = [
         "ai-assistant-overview",
         "AI Assistant Overview",
         "Understand Ask Alleato and the embedded advisor system.",
-        ["/ai"],
+        ["/ai-assistant"],
       ),
       article(
         "ai-assistant-actions",
         "What the AI Assistant Can Do",
-        "Review Eve's governed RFI action and the mutations that remain unavailable.",
-        ["/ai"],
+        "Learn which database actions use confirmation previews.",
+        ["/ai-assistant"],
       ),
       article(
         "project-intelligence",

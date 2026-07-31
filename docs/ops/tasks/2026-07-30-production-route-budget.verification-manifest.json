@@ -1,0 +1,57 @@
+{
+  "contractVersion": 1,
+  "taskId": "ROUTE-BUDGET-20260730",
+  "feature": "Production route budget correction",
+  "route": "/api/health",
+  "riskLevel": "high",
+  "flows": [
+    {
+      "name": "Validate the production route manifest",
+      "steps": [
+        "Verify every exclusion exists and is unique",
+        "Count dynamic production source boundaries",
+        "Confirm the estimated generated-route budget is below its guardrail"
+      ],
+      "expectedOutcome": "The route manifest passes with sufficient headroom for Vercel's hard limit"
+    },
+    {
+      "name": "Preserve PM user workflows",
+      "steps": [
+        "Limit new exclusions to internal diagnostic, feedback, and marketing APIs",
+        "Confirm no project or financial route appears in the exclusion diff",
+        "Verify the live PM route after deployment"
+      ],
+      "expectedOutcome": "Project users retain commitments and billing access"
+    }
+  ],
+  "requiredEvidence": [
+    "regressionTest",
+    "negativePath",
+    "summary"
+  ],
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "route-budget",
+      "description": "The production route source count is below the repository guardrail",
+      "evidence": [
+        {
+          "key": "regressionTest",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "pm-preservation",
+      "description": "No PM project or financial route is excluded",
+      "evidence": [
+        {
+          "key": "negativePath",
+          "min": 1
+        }
+      ]
+    }
+  ]
+}

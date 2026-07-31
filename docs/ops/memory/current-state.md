@@ -1,6 +1,6 @@
 # Current State
 
-Last updated: 2026-07-21
+Last updated: 2026-07-26
 Owner: Engineering
 
 ## Current Focus
@@ -52,6 +52,10 @@ Reference: `docs/ops/orchestration/session-board.md`
   production verification are documented in
   `docs/architecture/PROJECT-INTELLIGENCE.md` and
   `docs/ops/project-intelligence-runbook.md`.
+- 2026-07-26: Training Module ALL-23 accepted. The canonical admin-only
+  resource finder is live with dual authorization and server-enforced caps;
+  the production flow added two review-only Procurement candidates, preserved
+  the learner library, passed responsive proof, strict verification, and independent review.
 
 ## Next Actions
 

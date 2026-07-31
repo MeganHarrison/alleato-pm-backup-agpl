@@ -13,7 +13,6 @@ import {
   ScheduleTask,
   ScheduleTaskCreate,
   ScheduleTaskUpdate,
-  ScheduleTaskBulkUpdate,
   ScheduleDependency,
   ScheduleDependencyCreate,
   ScheduleDependencyUpdate,
@@ -27,16 +26,27 @@ import {
 } from "@/types/scheduling";
 import { analyzeScheduleNetwork } from "@/lib/scheduling/schedule-network-analysis";
 import { addWorkingDays, defaultScheduleCalendar, type ScheduleCalendar } from "@/lib/scheduling/schedule-calendar";
+import { GuardrailError } from "@/lib/guardrails/errors";
 import {
   computeAutoScheduleUpdates,
   computeAutoScheduleUpdatesForDependencyChange,
-  type AutoScheduleUpdate,
+  computeAutoScheduleUpdatesForDependencyReassignment,
+  type AutoScheduleResult,
 } from "@/lib/scheduling/schedule-auto-scheduler";
+import {
+  planScheduleTaskInsertion,
+  planScheduleTaskMove,
+  type ScheduleOrderExpectation,
+  type ScheduleOrderTask,
+  type ScheduleOrderUpdate,
+} from "@/lib/scheduling/schedule-task-ordering";
+import type { Database, Json } from "@/types/database.types";
 
 const AUTO_SCHEDULE_TRIGGER_FIELDS = [
   "start_date",
   "finish_date",
   "duration_days",
+  "is_milestone",
   "constraint_type",
   "constraint_date",
 ] as const satisfies ReadonlyArray<keyof ScheduleTaskUpdate>;
@@ -45,8 +55,256 @@ type CalendarRow = { working_weekdays: number[] };
 type CalendarExceptionRow = { exception_date: string; is_working: boolean };
 const SCHEDULE_QUERY_PAGE_SIZE = 500;
 
+function assertAutoScheduleAvailable(result: AutoScheduleResult): void {
+  if (result.status !== "unavailable") return;
+  if (result.reason === "circular_dependency") {
+    throw new GuardrailError({
+      code: "PRECONDITION_FAILED",
+      where: "SchedulingService auto-schedule analysis",
+      message:
+        "Auto-scheduling could not calculate this change because the affected dependency chain is circular. Remove a circular dependency, then retry.",
+    });
+  }
+  if (result.reason === "invalid_anchor_set") {
+    throw new GuardrailError({
+      code: "PRECONDITION_FAILED",
+      where: "SchedulingService auto-schedule analysis",
+      message:
+        "Auto-scheduling could not calculate this dependency change because it has no valid predecessor anchor.",
+    });
+  }
+  throw new GuardrailError({
+    code: "PRECONDITION_FAILED",
+    where: "SchedulingService auto-schedule analysis",
+    message:
+      "Auto-scheduling could not calculate this change. Complete valid dates and duration for every affected task, then retry.",
+  });
+}
+
+type AuthoritativeMutationKind =
+  | "task_create"
+  | "task_update"
+  | "task_delete"
+  | "dependency_create"
+  | "dependency_update"
+  | "dependency_delete";
+
+type CascadeOutcome =
+  | "applied"
+  | "no_change"
+  | "skipped_constraint"
+  | "skipped_unavailable";
+
+interface AuthoritativeMutationResult {
+  mutation_kind: AuthoritativeMutationKind;
+  cascade_outcome: CascadeOutcome;
+  task: ScheduleTask | null;
+  dependency: ScheduleDependency | null;
+  task_versions: Record<string, number>;
+}
+
+export interface SchedulingMutationContext {
+  actorUserId: string;
+  mutationClient: SupabaseClient<Database>;
+}
+
+function dependencySnapshot(dependencies: ScheduleDependency[]): Json {
+  return dependencies
+    .map((dependency) => ({
+      id: dependency.id,
+      task_id: dependency.task_id,
+      predecessor_task_id: dependency.predecessor_task_id,
+      dependency_type: dependency.dependency_type,
+      lag_days: dependency.lag_days,
+    }))
+    .sort((left, right) => left.id.localeCompare(right.id));
+}
+
+function requireScheduleVersion(task: ScheduleTask): number {
+  if (
+    !Number.isInteger(task.schedule_version) ||
+    Number(task.schedule_version) < 0
+  ) {
+    throw new GuardrailError({
+      code: "PRECONDITION_FAILED",
+      where: "SchedulingService authoritative mutation",
+      message: `Schedule task ${task.id} is missing a valid concurrency version. Refresh the schedule, then retry.`,
+    });
+  }
+  return Number(task.schedule_version);
+}
+
+function expectedTaskVersions(tasks: ScheduleTask[]): Json {
+  return Object.fromEntries(
+    tasks.map((task) => [task.id, requireScheduleVersion(task)]),
+  );
+}
+
+function orderTask(task: ScheduleTask): ScheduleOrderTask {
+  return {
+    id: task.id,
+    parent_task_id: task.parent_task_id,
+    sort_order: task.sort_order,
+    schedule_version: requireScheduleVersion(task),
+  };
+}
+
+function orderingSnapshot(
+  expectations: ScheduleOrderExpectation[],
+): Json {
+  return expectations.map((expectation) => ({
+    id: expectation.task_id,
+    parent_task_id: expectation.parent_task_id,
+    sort_order: expectation.sort_order,
+    schedule_version: expectation.expected_schedule_version,
+  }));
+}
+
+function orderingUpdates(updates: ScheduleOrderUpdate[]): Json {
+  return updates.map((update) => ({
+    id: update.task_id,
+    parent_task_id: update.parent_task_id,
+    sort_order: update.sort_order,
+  }));
+}
+
+function cascadeOutcome(result: AutoScheduleResult | null): CascadeOutcome {
+  if (!result || result.status === "no_change") return "no_change";
+  if (result.status === "applied") {
+    return result.updates.length > 0 ? "applied" : "no_change";
+  }
+  if (result.status === "blocked") return "skipped_constraint";
+  return "skipped_unavailable";
+}
+
+function isAuthoritativeConflict(error: {
+  code?: string | null;
+}): boolean {
+  // PT409 is PostgREST's explicit HTTP-conflict SQLSTATE. The scheduling
+  // migration rewrites PostgreSQL's transaction-conflict 40001 to PT409 so
+  // PostgREST does not classify an expected optimistic-concurrency rejection
+  // as a server failure. Keep 40001 for compatible pre-rewrite databases.
+  return error.code === "PT409" || error.code === "40001";
+}
+
+function jsonRecord(value: Json | undefined): Record<string, Json | undefined> | null {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? value
+    : null;
+}
+
+function parseMutationTask(value: Json | undefined): ScheduleTask | null {
+  const task = jsonRecord(value);
+  if (
+    !task ||
+    typeof task.id !== "string" ||
+    typeof task.project_id !== "number" ||
+    typeof task.name !== "string" ||
+    typeof task.percent_complete !== "number" ||
+    typeof task.status !== "string" ||
+    typeof task.is_milestone !== "boolean" ||
+    typeof task.sort_order !== "number" ||
+    typeof task.created_at !== "string" ||
+    typeof task.updated_at !== "string"
+  ) {
+    return null;
+  }
+  return {
+    id: task.id,
+    project_id: task.project_id,
+    parent_task_id: typeof task.parent_task_id === "string" ? task.parent_task_id : null,
+    name: task.name,
+    start_date: typeof task.start_date === "string" ? task.start_date : null,
+    finish_date: typeof task.finish_date === "string" ? task.finish_date : null,
+    duration_days: typeof task.duration_days === "number" ? task.duration_days : null,
+    percent_complete: task.percent_complete,
+    status: task.status as ScheduleTask["status"],
+    is_milestone: task.is_milestone,
+    constraint_type:
+      typeof task.constraint_type === "string"
+        ? task.constraint_type as ScheduleTask["constraint_type"]
+        : null,
+    constraint_date:
+      typeof task.constraint_date === "string" ? task.constraint_date : null,
+    wbs_code: typeof task.wbs_code === "string" ? task.wbs_code : null,
+    sort_order: task.sort_order,
+    created_at: task.created_at,
+    updated_at: task.updated_at,
+    actual_start_date:
+      typeof task.actual_start_date === "string" ? task.actual_start_date : null,
+    actual_finish_date:
+      typeof task.actual_finish_date === "string" ? task.actual_finish_date : null,
+    forecast_start_date:
+      typeof task.forecast_start_date === "string" ? task.forecast_start_date : null,
+    forecast_finish_date:
+      typeof task.forecast_finish_date === "string" ? task.forecast_finish_date : null,
+    remaining_duration_days:
+      typeof task.remaining_duration_days === "number"
+        ? task.remaining_duration_days
+        : null,
+    assignee: typeof task.assignee === "string" ? task.assignee : null,
+    assignee_person_id:
+      typeof task.assignee_person_id === "string" ? task.assignee_person_id : null,
+    priority: typeof task.priority === "string" ? task.priority : null,
+    work_minutes: typeof task.work_minutes === "number" ? task.work_minutes : null,
+    allow_leveling_split:
+      typeof task.allow_leveling_split === "boolean"
+        ? task.allow_leveling_split
+        : false,
+    leveling_priority:
+      typeof task.leveling_priority === "number" ? task.leveling_priority : 500,
+    schedule_version:
+      typeof task.schedule_version === "number" ? task.schedule_version : undefined,
+    schedule_mode:
+      typeof task.schedule_mode === "string"
+        ? task.schedule_mode as ScheduleTask["schedule_mode"]
+        : "auto",
+  };
+}
+
+function parseMutationDependency(
+  value: Json | undefined,
+): ScheduleDependency | null {
+  const dependency = jsonRecord(value);
+  if (
+    !dependency ||
+    typeof dependency.id !== "string" ||
+    typeof dependency.task_id !== "string" ||
+    typeof dependency.predecessor_task_id !== "string" ||
+    typeof dependency.dependency_type !== "string" ||
+    typeof dependency.lag_days !== "number"
+  ) {
+    return null;
+  }
+  return {
+    id: dependency.id,
+    task_id: dependency.task_id,
+    predecessor_task_id: dependency.predecessor_task_id,
+    dependency_type:
+      dependency.dependency_type as ScheduleDependency["dependency_type"],
+    lag_days: dependency.lag_days,
+    created_at:
+      typeof dependency.created_at === "string" ? dependency.created_at : "",
+  };
+}
+
+function parseTaskVersions(
+  value: Json | undefined,
+): Record<string, number> {
+  const versions = jsonRecord(value);
+  if (!versions) return {};
+  return Object.fromEntries(
+    Object.entries(versions).filter(
+      (entry): entry is [string, number] => typeof entry[1] === "number",
+    ),
+  );
+}
+
 export class SchedulingService {
-  constructor(private supabase: SupabaseClient) {}
+  constructor(
+    private supabase: SupabaseClient,
+    private mutationContext?: SchedulingMutationContext,
+  ) {}
 
   // =============================================================================
   // TASK OPERATIONS
@@ -203,43 +461,43 @@ export class SchedulingService {
     projectId: string,
     data: ScheduleTaskCreate
   ): Promise<ScheduleTask> {
-    // Get current user
-    const {
-      data: { user },
-    } = await this.supabase.auth.getUser();
-    if (!user) throw new Error("Authentication required");
-
-    // Get max sort_order for the parent level
-    const sortOrder = await this.getNextSortOrder(
+    const { tasks, dependencies } = await this.fetchScheduleGraph(projectId);
+    const taskId = globalThis.crypto.randomUUID();
+    const plan = planScheduleTaskInsertion({
+      tasks: tasks.map(orderTask),
+      new_task_id: taskId,
+      after_task_id: data.after_task_id,
+      parent_task_id: data.parent_task_id ?? null,
+    });
+    const { after_task_id: _afterTaskId, project_id: _projectId, ...values } = data;
+    const result = await this.applyAuthoritativeMutation({
       projectId,
-      data.parent_task_id || null
-    );
-
-    const { data: task, error } = await this.supabase
-      .from("schedule_tasks")
-      .insert({
-        project_id: data.project_id,
-        parent_task_id: data.parent_task_id || null,
-        name: data.name,
-        start_date: data.start_date || null,
-        finish_date: data.finish_date || null,
-        duration_days: data.duration_days || null,
-        percent_complete: data.percent_complete || 0,
-        status: data.status || "not_started",
-        is_milestone: data.is_milestone || false,
-        constraint_type: data.constraint_type || null,
-        constraint_date: data.constraint_date || null,
-        wbs_code: data.wbs_code || null,
-        sort_order: data.sort_order ?? sortOrder,
-      })
-      .select()
-      .single();
-
-    if (error) {
-      throw new Error(`Failed to create task: ${error.message}`);
+      mutation: {
+        kind: "task_create",
+        task_id: taskId,
+        values: {
+          ...values,
+          parent_task_id: plan.insert.parent_task_id,
+          sort_order: plan.insert.sort_order,
+        },
+      },
+      tasks,
+      dependencies,
+      orderingExpectations: plan.expected_siblings,
+      orderingPlan: [
+        {
+          task_id: taskId,
+          parent_task_id: plan.insert.parent_task_id,
+          sort_order: plan.insert.sort_order,
+          expected_schedule_version: 0,
+        },
+        ...plan.updates,
+      ],
+    });
+    if (!result.task) {
+      throw new Error("Authoritative schedule task creation returned no task.");
     }
-
-    return task as ScheduleTask;
+    return result.task;
   }
 
   /**
@@ -250,123 +508,147 @@ export class SchedulingService {
     taskId: string,
     data: ScheduleTaskUpdate
   ): Promise<ScheduleTask | null> {
-    // Get current user
     const {
-      data: { user },
-    } = await this.supabase.auth.getUser();
-    if (!user) throw new Error("Authentication required");
+      tasks,
+      dependencies,
+      calendar = defaultScheduleCalendar,
+    } = await this.fetchScheduleGraph(projectId);
+    const current = tasks.find((task) => task.id === taskId);
+    if (!current) return null;
 
-    // Validate hierarchy constraints
-    if (data.parent_task_id !== undefined) {
-      await this.validateParentChange(taskId, data.parent_task_id);
+    const {
+      expected_schedule_version: expectedScheduleVersion,
+      ...requestedChanges
+    } = data;
+    const normalized: ScheduleTaskUpdate = { ...requestedChanges };
+    if (normalized.is_milestone === true) {
+      normalized.duration_days = 0;
+      const milestoneDate = normalized.start_date ?? current.start_date;
+      if (milestoneDate) normalized.finish_date = milestoneDate;
     }
 
-    // Validate milestone constraints
-    if (data.is_milestone === true) {
-      data.duration_days = 0;
-      if (data.start_date) {
-        data.finish_date = data.start_date;
-      }
+    let orderingExpectations: ScheduleOrderExpectation[] = [];
+    let orderingPlan: ScheduleOrderUpdate[] = [];
+    if (
+      normalized.parent_task_id !== undefined ||
+      normalized.sort_order !== undefined ||
+      normalized.target_index !== undefined
+    ) {
+      const targetParent = normalized.parent_task_id ?? current.parent_task_id;
+      const targetSiblings = tasks.filter(
+        (task) => task.parent_task_id === targetParent && task.id !== taskId,
+      );
+      const targetIndex =
+        normalized.target_index ??
+        (normalized.sort_order === undefined
+          ? targetSiblings.length
+          : Math.max(0, normalized.sort_order - 1));
+      const plan = planScheduleTaskMove({
+        tasks: tasks.map(orderTask),
+        task_id: taskId,
+        target_parent_task_id: targetParent,
+        target_index: targetIndex,
+      });
+      orderingExpectations = plan.expected_siblings;
+      orderingPlan = plan.updates;
+      normalized.parent_task_id = plan.parent_task_id;
+      normalized.sort_order = plan.sort_order;
     }
+    delete normalized.target_index;
 
     // Auto-scheduling: a date/duration/constraint edit cascades to this task's
     // successors (see schedule-auto-scheduler.ts). Computed against the graph
     // BEFORE this task's own update is persisted, and blocked entirely (nothing
     // written, including this task's own change) if it would violate a downstream
     // constraint — never silently overwrite a constrained task's date.
-    const triggersAutoSchedule = AUTO_SCHEDULE_TRIGGER_FIELDS.some((field) => data[field] !== undefined);
-    let cascadeUpdates: AutoScheduleUpdate[] = [];
-    if (triggersAutoSchedule) {
-      const { tasks, dependencies } = await this.fetchScheduleGraph(projectId);
-      const result = computeAutoScheduleUpdates({ taskId, tasks, dependencies, update: data });
-      if (result.status === "blocked") {
-        const conflict = result.constraint_conflicts[0];
-        throw new Error(conflict?.message ?? "This change conflicts with a downstream task's schedule constraint.");
+    const triggersAutoSchedule = AUTO_SCHEDULE_TRIGGER_FIELDS.some(
+      (field) => normalized[field] !== undefined,
+    );
+    const cascade = triggersAutoSchedule
+      ? computeAutoScheduleUpdates({
+          taskId,
+          tasks,
+          dependencies,
+          update: normalized,
+          calendar,
+        })
+      : null;
+    if (cascade) {
+      assertAutoScheduleAvailable(cascade);
+      if (cascade.status === "blocked") {
+        const conflict = cascade.constraint_conflicts[0];
+        throw new Error(
+          conflict?.message ??
+            "This change conflicts with a downstream task's schedule constraint.",
+        );
       }
-      if (result.status === "applied") cascadeUpdates = result.updates;
     }
 
-    const updateData: Record<string, unknown> = {
-      ...data,
-    };
-
-    const { data: task, error } = await this.supabase
-      .from("schedule_tasks")
-      .update(updateData)
-      .eq("id", taskId)
-      .eq("project_id", projectId)
-      .select()
-      .single();
-
-    if (error) {
-      throw new Error(`Failed to update task: ${error.message}`);
-    }
-
-    if (cascadeUpdates.length > 0) {
-      await this.applyAutoScheduleUpdates(projectId, cascadeUpdates);
-    }
-
-    return task as ScheduleTask;
+    const expectedTasks =
+      expectedScheduleVersion === undefined
+        ? tasks
+        : tasks.map((task) =>
+            task.id === taskId
+              ? { ...task, schedule_version: expectedScheduleVersion }
+              : task,
+          );
+    const result = await this.applyAuthoritativeMutation({
+      projectId,
+      mutation: {
+        kind: "task_update",
+        task_id: taskId,
+        changes: normalized,
+      },
+      tasks: expectedTasks,
+      dependencies,
+      cascade,
+      orderingExpectations,
+      orderingPlan,
+    });
+    return result.task;
   }
 
   /**
    * Delete a task
    */
   async deleteTask(projectId: string, taskId: string): Promise<boolean> {
-    // Delete will cascade to dependencies and deadlines
-    const { error } = await this.supabase
-      .from("schedule_tasks")
-      .delete()
-      .eq("id", taskId)
-      .eq("project_id", projectId);
-
-    if (error) {
-      throw new Error(`Failed to delete task: ${error.message}`);
-    }
-
+    const { tasks, dependencies } = await this.fetchScheduleGraph(projectId);
+    const deleted = tasks.find((task) => task.id === taskId);
+    if (!deleted) return false;
+    const siblings = tasks
+      .filter((task) => task.parent_task_id === deleted.parent_task_id)
+      .sort((left, right) =>
+        left.sort_order === right.sort_order
+          ? left.id.localeCompare(right.id)
+          : left.sort_order - right.sort_order,
+      );
+    const orderingExpectations = siblings.map((task) => ({
+      task_id: task.id,
+      parent_task_id: task.parent_task_id,
+      sort_order: task.sort_order,
+      expected_schedule_version: requireScheduleVersion(task),
+    }));
+    const orderingPlan = siblings
+      .filter((task) => task.id !== taskId)
+      .map((task, index) => ({
+        task_id: task.id,
+        parent_task_id: task.parent_task_id,
+        sort_order: index + 1,
+        expected_schedule_version: requireScheduleVersion(task),
+      }))
+      .filter((update) => {
+        const task = tasks.find((item) => item.id === update.task_id);
+        return task?.sort_order !== update.sort_order;
+      });
+    await this.applyAuthoritativeMutation({
+      projectId,
+      mutation: { kind: "task_delete", task_id: taskId },
+      tasks,
+      dependencies,
+      orderingExpectations,
+      orderingPlan,
+    });
     return true;
-  }
-
-  /**
-   * Bulk update multiple tasks
-   */
-  async bulkUpdateTasks(
-    projectId: string,
-    bulkUpdate: ScheduleTaskBulkUpdate
-  ): Promise<{
-    success: string[];
-    failed: Array<{ id: string; error: string }>;
-  }> {
-    const {
-      data: { user },
-    } = await this.supabase.auth.getUser();
-    if (!user) throw new Error("Authentication required");
-
-    const success: string[] = [];
-    const failed: Array<{ id: string; error: string }> = [];
-
-    for (const id of bulkUpdate.ids) {
-      try {
-        const { error } = await this.supabase
-          .from("schedule_tasks")
-          .update({
-            ...bulkUpdate.updates,
-          })
-          .eq("id", id)
-          .eq("project_id", projectId);
-
-        if (error) {
-          failed.push({ id, error: error.message });
-        } else {
-          success.push(id);
-        }
-      } catch (err) {
-        const message = err instanceof Error ? err.message : "an unexpected error occurred";
-        failed.push({ id, error: message });
-      }
-    }
-
-    return { success, failed };
   }
 
   // =============================================================================
@@ -406,36 +688,28 @@ export class SchedulingService {
     projectId: string,
     data: ScheduleDependencyCreate
   ): Promise<ScheduleDependency> {
-    const {
-      data: { user },
-    } = await this.supabase.auth.getUser();
-    if (!user) throw new Error("Authentication required");
-
     if (data.task_id === data.predecessor_task_id) {
       throw new Error("A task cannot depend on itself. Select another predecessor.");
     }
-
-    const [task, predecessor] = await Promise.all([
-      this.getTaskById(projectId, data.task_id),
-      this.getTaskById(projectId, data.predecessor_task_id),
-    ]);
+    const {
+      tasks,
+      dependencies,
+      calendar = defaultScheduleCalendar,
+    } = await this.fetchScheduleGraph(projectId);
+    const task = tasks.find((item) => item.id === data.task_id);
+    const predecessor = tasks.find(
+      (item) => item.id === data.predecessor_task_id,
+    );
     if (!task || !predecessor) {
       throw new Error("Both the task and predecessor must belong to this project.");
     }
-
-    const wouldCreateCycle = await this.wouldCreateDependencyCycle(
-      projectId,
+    if (this.wouldCreateDependencyCycleInGraph(
+      dependencies,
       data.task_id,
       data.predecessor_task_id,
-    );
-    if (wouldCreateCycle) {
+    )) {
       throw new Error("Cannot create dependency: this predecessor would create a circular dependency chain.");
     }
-
-    // Check the auto-scheduling cascade BEFORE writing, so a blocked cascade
-    // rejects the whole operation instead of leaving an orphaned dependency row
-    // behind a thrown error.
-    const dependenciesBefore = await this.getDependencies(projectId);
     const pendingDependency: ScheduleDependency = {
       id: "pending",
       task_id: data.task_id,
@@ -444,73 +718,80 @@ export class SchedulingService {
       lag_days: data.lag_days ?? 0,
       created_at: new Date(0).toISOString(),
     };
-    const cascade = await this.computeDependencyCascade(
-      projectId,
-      data.predecessor_task_id,
-      dependenciesBefore,
-      [...dependenciesBefore, pendingDependency],
-    );
+    const cascade = computeAutoScheduleUpdatesForDependencyChange({
+      predecessorTaskId: data.predecessor_task_id,
+      tasks,
+      dependenciesBefore: dependencies,
+      dependenciesAfter: [...dependencies, pendingDependency],
+      calendar,
+    });
+    assertAutoScheduleAvailable(cascade);
     if (cascade.status === "blocked") {
       const conflict = cascade.constraint_conflicts[0];
       throw new Error(conflict?.message ?? "This dependency conflicts with a downstream task's schedule constraint.");
     }
-
-    const { data: dependency, error } = await this.supabase
-      .from("schedule_dependencies")
-      .insert({
+    const result = await this.applyAuthoritativeMutation({
+      projectId,
+      mutation: {
+        kind: "dependency_create",
         task_id: data.task_id,
         predecessor_task_id: data.predecessor_task_id,
         dependency_type: data.dependency_type || "finish_to_start",
         lag_days: data.lag_days ?? 0,
-      })
-      .select()
-      .single();
-
-    if (error) {
-      throw new Error(`Failed to create dependency: ${error.message}`);
+      },
+      tasks,
+      dependencies,
+      cascade,
+    });
+    if (!result.dependency) {
+      throw new Error("Authoritative dependency creation returned no dependency.");
     }
-
-    if (cascade.status === "applied") {
-      await this.applyAutoScheduleUpdates(projectId, cascade.updates);
-    }
-
-    return dependency as ScheduleDependency;
+    return result.dependency;
   }
 
   /**
    * Delete a dependency
    */
   async deleteDependency(projectId: string, taskId: string, dependencyId: string): Promise<boolean> {
-    if (!(await this.getTaskById(projectId, taskId))) {
+    const {
+      tasks,
+      dependencies,
+      calendar = defaultScheduleCalendar,
+    } = await this.fetchScheduleGraph(projectId);
+    if (!tasks.some((task) => task.id === taskId)) {
       throw new Error("Task not found for this project.");
     }
-    const dependenciesBefore = await this.getDependencies(projectId);
-    const deleted = dependenciesBefore.find((dependency) => dependency.id === dependencyId);
-    const dependenciesAfter = dependenciesBefore.filter((dependency) => dependency.id !== dependencyId);
-
-    // Removing a dependency only ever relaxes the schedule, so unlike create/update
-    // it never blocks: if the cascade it implies would conflict with a downstream
-    // constraint, the deletion still proceeds and the auto-cascade is simply skipped
-    // for this trigger (existing constraint-violation warnings on the Gantt still
-    // surface the issue for a human to resolve).
+    const deleted = dependencies.find(
+      (dependency) =>
+        dependency.id === dependencyId && dependency.task_id === taskId,
+    );
+    if (!deleted) {
+      throw new Error("Dependency not found for this schedule task.");
+    }
+    const dependenciesAfter = dependencies.filter(
+      (dependency) => dependency.id !== dependencyId,
+    );
     const cascade = deleted
-      ? await this.computeDependencyCascade(projectId, deleted.predecessor_task_id, dependenciesBefore, dependenciesAfter)
+      ? computeAutoScheduleUpdatesForDependencyChange({
+          predecessorTaskId: deleted.predecessor_task_id,
+          tasks,
+          dependenciesBefore: dependencies,
+          dependenciesAfter,
+          calendar,
+        })
       : null;
-
-    const { error } = await this.supabase
-      .from("schedule_dependencies")
-      .delete()
-      .eq("id", dependencyId)
-      .eq("task_id", taskId);
-
-    if (error) {
-      throw new Error(`Failed to delete dependency: ${error.message}`);
-    }
-
-    if (cascade?.status === "applied") {
-      await this.applyAutoScheduleUpdates(projectId, cascade.updates);
-    }
-
+    await this.applyAuthoritativeMutation({
+      projectId,
+      mutation: {
+        kind: "dependency_delete",
+        task_id: taskId,
+        dependency_id: dependencyId,
+      },
+      tasks,
+      dependencies,
+      cascade,
+      allowSkippedCascade: true,
+    });
     return true;
   }
 
@@ -524,12 +805,11 @@ export class SchedulingService {
     data: ScheduleDependencyUpdate,
   ): Promise<ScheduleDependency> {
     const {
-      data: { user },
-    } = await this.supabase.auth.getUser();
-    if (!user) throw new Error("Authentication required");
-
-    const dependenciesBefore = await this.getDependencies(projectId);
-    const existing = dependenciesBefore.find(
+      tasks,
+      dependencies,
+      calendar = defaultScheduleCalendar,
+    } = await this.fetchScheduleGraph(projectId);
+    const existing = dependencies.find(
       (dependency) => dependency.id === dependencyId && dependency.task_id === taskId,
     );
     if (!existing) throw new Error("Dependency not found for this schedule task.");
@@ -539,10 +819,14 @@ export class SchedulingService {
       throw new Error("A task cannot depend on itself. Select another predecessor.");
     }
     if (data.predecessor_task_id && data.predecessor_task_id !== existing.predecessor_task_id) {
-      if (!(await this.getTaskById(projectId, data.predecessor_task_id))) {
+      if (!tasks.some((task) => task.id === data.predecessor_task_id)) {
         throw new Error("The predecessor must belong to this project.");
       }
-      if (await this.wouldCreateDependencyCycle(projectId, taskId, predecessorTaskId)) {
+      if (this.wouldCreateDependencyCycleInGraph(
+        dependencies.filter((dependency) => dependency.id !== dependencyId),
+        taskId,
+        predecessorTaskId,
+      )) {
         throw new Error("Cannot update dependency: this predecessor would create a circular dependency chain.");
       }
     }
@@ -553,40 +837,43 @@ export class SchedulingService {
       dependency_type: data.dependency_type ?? existing.dependency_type,
       lag_days: data.lag_days ?? existing.lag_days,
     };
-    // Anchored at the (possibly new) predecessor. If the predecessor itself changed
-    // (rare — most updates only touch lag/type on an existing link), the "before"
-    // computation is anchored at the new predecessor too, so it won't fully capture
-    // the old predecessor's prior influence — an acceptable inaccuracy for that edge
-    // case rather than a two-anchor reconciliation.
-    const cascade = await this.computeDependencyCascade(
-      projectId,
-      predecessorTaskId,
-      dependenciesBefore,
-      dependenciesBefore.map((dependency) => (dependency.id === dependencyId ? pendingDependency : dependency)),
+    // Reconcile both the old and replacement predecessor closures so moving a
+    // dependency can shift the successor network earlier or later atomically.
+    const dependenciesAfter = dependencies.map((dependency) =>
+      dependency.id === dependencyId ? pendingDependency : dependency,
     );
+    const cascade = computeAutoScheduleUpdatesForDependencyReassignment({
+      predecessorTaskIds: [
+        existing.predecessor_task_id,
+        predecessorTaskId,
+      ],
+      tasks,
+      dependenciesBefore: dependencies,
+      dependenciesAfter,
+      calendar,
+    });
+    assertAutoScheduleAvailable(cascade);
     if (cascade.status === "blocked") {
       const conflict = cascade.constraint_conflicts[0];
       throw new Error(conflict?.message ?? "This dependency conflicts with a downstream task's schedule constraint.");
     }
 
-    const { data: dependency, error } = await this.supabase
-      .from("schedule_dependencies")
-      .update({
-        ...(data.predecessor_task_id === undefined ? {} : { predecessor_task_id: data.predecessor_task_id }),
-        ...(data.dependency_type === undefined ? {} : { dependency_type: data.dependency_type }),
-        ...(data.lag_days === undefined ? {} : { lag_days: data.lag_days }),
-      })
-      .eq("id", dependencyId)
-      .eq("task_id", taskId)
-      .select()
-      .single();
-    if (error) throw new Error(`Failed to update dependency: ${error.message}`);
-
-    if (cascade.status === "applied") {
-      await this.applyAutoScheduleUpdates(projectId, cascade.updates);
+    const result = await this.applyAuthoritativeMutation({
+      projectId,
+      mutation: {
+        kind: "dependency_update",
+        task_id: taskId,
+        dependency_id: dependencyId,
+        changes: data,
+      },
+      tasks,
+      dependencies,
+      cascade,
+    });
+    if (!result.dependency) {
+      throw new Error("Authoritative dependency update returned no dependency.");
     }
-
-    return dependency as ScheduleDependency;
+    return result.dependency;
   }
 
   // =============================================================================
@@ -810,13 +1097,14 @@ export class SchedulingService {
    * today — e.g. start=2026-08-03, missing finish -> {start: 2026-08-03, finish:
    * today}, finish before start — which breaks the Gantt bar's position and any
    * dependency line anchored to it. Derive the missing date from duration_days using
-   * the same working-day math as the auto-scheduler before resorting to `today`.
+   * the same working-day math as the auto-scheduler. If neither endpoint can be
+   * derived, preserve the null facts so the renderer can label the task
+   * Unscheduled without inventing a date or dependency endpoint.
    */
   private deriveGanttDates(
     task: ScheduleTask,
     calendar: ScheduleCalendar,
-    today: string,
-  ): { start_date: string; finish_date: string } {
+  ): { start_date: string | null; finish_date: string | null } {
     if (task.start_date && task.finish_date) {
       return { start_date: task.start_date, finish_date: task.finish_date };
     }
@@ -827,7 +1115,10 @@ export class SchedulingService {
     if (task.finish_date && duration) {
       return { start_date: addWorkingDays(task.finish_date, -(duration - 1), calendar), finish_date: task.finish_date };
     }
-    return { start_date: task.start_date || today, finish_date: task.finish_date || today };
+    return {
+      start_date: task.start_date ?? null,
+      finish_date: task.finish_date ?? null,
+    };
   }
 
   async getGanttData(projectId: string): Promise<GanttChartItem[]> {
@@ -877,13 +1168,13 @@ export class SchedulingService {
 
     return labeledTasks.map((task) => {
       const analysis = networkAnalysis.tasks[task.id];
-      const { start_date, finish_date } = this.deriveGanttDates(task, calendar, today);
+      const { start_date, finish_date } = this.deriveGanttDates(task, calendar);
       return {
         id: task.id,
         name: task.name,
         start_date,
         finish_date,
-        duration_days: task.duration_days || 0,
+        duration_days: task.duration_days ?? null,
         percent_complete: task.percent_complete || 0,
         assignee: task.assignee ?? null,
         status: (task.status || "not_started") as "not_started" | "in_progress" | "complete",
@@ -926,7 +1217,11 @@ export class SchedulingService {
    */
   private async fetchScheduleGraph(
     projectId: string,
-  ): Promise<{ tasks: ScheduleTask[]; dependencies: ScheduleDependency[] }> {
+  ): Promise<{
+    tasks: ScheduleTask[];
+    dependencies: ScheduleDependency[];
+    calendar: ScheduleCalendar;
+  }> {
     const tasks: ScheduleTask[] = [];
     for (let offset = 0; ; offset += SCHEDULE_QUERY_PAGE_SIZE) {
       const { data, error } = await this.supabase
@@ -940,9 +1235,10 @@ export class SchedulingService {
       if (page.length < SCHEDULE_QUERY_PAGE_SIZE) break;
     }
 
-    const [dependencies, segments] = await Promise.all([
+    const [dependencies, segments, calendar] = await Promise.all([
       this.getDependencies(projectId),
       this.getTaskSegments(projectId),
+      this.getProjectScheduleCalendar(projectId),
     ]);
     const segmentsByTaskId = new Map<string, ScheduleTask["segments"]>();
     for (const segment of segments) {
@@ -952,6 +1248,7 @@ export class SchedulingService {
     return {
       tasks: tasks.map((task) => ({ ...task, segments: segmentsByTaskId.get(task.id) ?? [] })),
       dependencies,
+      calendar,
     };
   }
 
@@ -959,33 +1256,140 @@ export class SchedulingService {
    * Persists auto-scheduling cascade updates directly (not via `updateTask`, which
    * would recompute and re-trigger the cascade — this is the terminal write).
    */
-  private async applyAutoScheduleUpdates(projectId: string, updates: AutoScheduleUpdate[]): Promise<void> {
-    for (const update of updates) {
-      const { error } = await this.supabase
-        .from("schedule_tasks")
-        .update({ start_date: update.start_date, finish_date: update.finish_date })
-        .eq("id", update.task_id)
-        .eq("project_id", projectId);
-      if (error) {
-        throw new Error(`Failed to auto-schedule task ${update.task_id}: ${error.message}`);
-      }
+  private async getMutationIdentity(): Promise<{
+    actorUserId: string;
+    client: SupabaseClient<Database>;
+  }> {
+    if (!this.mutationContext) {
+      throw new GuardrailError({
+        code: "PRECONDITION_FAILED",
+        where: "SchedulingService authoritative mutation",
+        message:
+          "The server scheduling mutation boundary is not configured. Retry from a supported scheduling action.",
+      });
     }
+    return {
+      actorUserId: this.mutationContext.actorUserId,
+      client: this.mutationContext.mutationClient,
+    };
   }
 
-  /**
-   * Computes (but does not write) the auto-scheduling cascade for a dependency
-   * change, given the dependency set before and after. Callers check this BEFORE
-   * persisting the dependency change itself, so a blocked cascade rejects the whole
-   * operation instead of leaving an orphaned dependency row behind a thrown error.
-   */
-  private async computeDependencyCascade(
-    projectId: string,
-    predecessorTaskId: string,
-    dependenciesBefore: ScheduleDependency[],
-    dependenciesAfter: ScheduleDependency[],
-  ): Promise<ReturnType<typeof computeAutoScheduleUpdatesForDependencyChange>> {
-    const { tasks } = await this.fetchScheduleGraph(projectId);
-    return computeAutoScheduleUpdatesForDependencyChange({ predecessorTaskId, tasks, dependenciesBefore, dependenciesAfter });
+  private async applyAuthoritativeMutation(input: {
+    projectId: string;
+    mutation: Record<string, unknown>;
+    tasks: ScheduleTask[];
+    dependencies: ScheduleDependency[];
+    cascade?: AutoScheduleResult | null;
+    allowSkippedCascade?: boolean;
+    orderingExpectations?: ScheduleOrderExpectation[];
+    orderingPlan?: ScheduleOrderUpdate[];
+  }): Promise<AuthoritativeMutationResult> {
+    const outcome = cascadeOutcome(input.cascade ?? null);
+    if (
+      !input.allowSkippedCascade &&
+      (outcome === "skipped_constraint" || outcome === "skipped_unavailable")
+    ) {
+      if (input.cascade) assertAutoScheduleAvailable(input.cascade);
+      throw new GuardrailError({
+        code: "PRECONDITION_FAILED",
+        where: "SchedulingService authoritative mutation",
+        message: "The schedule mutation could not produce a safe cascade.",
+      });
+    }
+    const identity = await this.getMutationIdentity();
+    const cascadeUpdates =
+      input.cascade?.status === "applied" ? input.cascade.updates : [];
+    const args: Database["public"]["Functions"]["apply_authoritative_schedule_cascade_mutation"]["Args"] = {
+      p_actor_user_id: identity.actorUserId,
+      p_project_id: Number(input.projectId),
+      p_mutation: input.mutation as Json,
+      p_expected_task_versions: expectedTaskVersions(input.tasks),
+      p_expected_dependencies: dependencySnapshot(input.dependencies),
+      p_cascade_updates: cascadeUpdates.map((update) => ({
+        task_id: update.task_id,
+        start_date: update.start_date,
+        finish_date: update.finish_date,
+      })),
+      p_cascade_outcome: outcome,
+      p_ordering_snapshot: orderingSnapshot(
+        input.orderingExpectations ?? [],
+      ),
+      p_ordering_updates: orderingUpdates(input.orderingPlan ?? []),
+    };
+    const { data, error } = await identity.client.rpc(
+      "apply_authoritative_schedule_cascade_mutation",
+      args,
+    );
+    if (error) {
+      if (error.code === "42501") {
+        throw new GuardrailError({
+          code: "AUTH_FORBIDDEN",
+          where: "SchedulingService authoritative mutation",
+          message: error.message,
+          cause: error,
+        });
+      }
+      if (isAuthoritativeConflict(error)) {
+        throw new GuardrailError({
+          code: "PRECONDITION_FAILED",
+          where: "SchedulingService authoritative mutation",
+          message: `${error.message}. Refresh the schedule, then retry.`,
+          status: 409,
+          cause: error,
+        });
+      }
+      if (error.code === "P0002") {
+        throw new GuardrailError({
+          code: "NOT_FOUND",
+          where: "SchedulingService authoritative mutation",
+          message: error.message,
+          cause: error,
+        });
+      }
+      if (error.code === "22023" || error.code === "23514") {
+        throw new GuardrailError({
+          code: "VALIDATION",
+          where: "SchedulingService authoritative mutation",
+          message: error.message,
+          status: 422,
+          cause: error,
+        });
+      }
+      throw new Error(`Authoritative schedule mutation failed: ${error.message}`);
+    }
+    if (!data || Array.isArray(data) || typeof data !== "object") {
+      throw new Error("Authoritative schedule mutation returned an invalid response.");
+    }
+    const result = data as Record<string, Json | undefined>;
+    const mutationKind = result.mutation_kind;
+    const resultOutcome = result.cascade_outcome;
+    if (
+      typeof mutationKind !== "string" ||
+      ![
+        "task_create",
+        "task_update",
+        "task_delete",
+        "dependency_create",
+        "dependency_update",
+        "dependency_delete",
+      ].includes(mutationKind) ||
+      typeof resultOutcome !== "string" ||
+      ![
+        "applied",
+        "no_change",
+        "skipped_constraint",
+        "skipped_unavailable",
+      ].includes(resultOutcome)
+    ) {
+      throw new Error("Authoritative schedule mutation returned an invalid contract.");
+    }
+    return {
+      mutation_kind: mutationKind as AuthoritativeMutationKind,
+      cascade_outcome: resultOutcome as CascadeOutcome,
+      task: parseMutationTask(result.task),
+      dependency: parseMutationDependency(result.dependency),
+      task_versions: parseTaskVersions(result.task_versions),
+    };
   }
 
   private async withAssigneeLabels(tasks: ScheduleTask[]): Promise<ScheduleTask[]> {
@@ -1010,74 +1414,11 @@ export class SchedulingService {
     return mapping[sort] || "sort_order";
   }
 
-  private async getNextSortOrder(
-    projectId: string,
-    parentTaskId: string | null
-  ): Promise<number> {
-    let query = this.supabase
-      .from("schedule_tasks")
-      .select("sort_order")
-      .eq("project_id", projectId)
-      .order("sort_order", { ascending: false })
-      .limit(1);
-
-    if (parentTaskId === null) {
-      query = query.is("parent_task_id", null);
-    } else {
-      query = query.eq("parent_task_id", parentTaskId);
-    }
-
-    const { data } = await query;
-
-    if (data && data.length > 0) {
-      return (data[0].sort_order || 0) + 1;
-    }
-
-    return 0;
-  }
-
-  private async validateParentChange(
-    taskId: string,
-    newParentId: string | null
-  ): Promise<void> {
-    if (!newParentId) return;
-
-    // Check for circular reference
-    if (newParentId === taskId) {
-      throw new Error("Cannot set a task as its own parent");
-    }
-
-    // Check if the new parent is a descendant of this task
-    const descendants = await this.getDescendants(taskId);
-    if (descendants.includes(newParentId)) {
-      throw new Error("Cannot set a descendant as the parent");
-    }
-  }
-
-  private async getDescendants(taskId: string): Promise<string[]> {
-    const { data } = await this.supabase
-      .from("schedule_tasks")
-      .select("id")
-      .eq("parent_task_id", taskId);
-
-    if (!data || data.length === 0) return [];
-
-    const descendants: string[] = data.map((d) => d.id);
-
-    for (const child of data) {
-      const childDescendants = await this.getDescendants(child.id);
-      descendants.push(...childDescendants);
-    }
-
-    return descendants;
-  }
-
-  private async wouldCreateDependencyCycle(
-    projectId: string,
+  private wouldCreateDependencyCycleInGraph(
+    dependencies: ScheduleDependency[],
     taskId: string,
     predecessorTaskId: string,
-  ): Promise<boolean> {
-    const dependencies = await this.getDependencies(projectId);
+  ): boolean {
     const predecessorIdsByTaskId = new Map<string, string[]>();
     for (const dependency of dependencies) {
       const current = predecessorIdsByTaskId.get(dependency.task_id) ?? [];

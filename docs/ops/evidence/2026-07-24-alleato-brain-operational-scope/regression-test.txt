@@ -1,0 +1,12 @@
+PASS node --check scripts/database/verify-alleato-brain-operational-scope.mjs
+PASS node scripts/database/verify-alleato-brain-operational-scope.mjs --self-test
+PASS node --env-file=/home/friday/code/project-management/.env scripts/ops/check-supabase-migration-ledger.mjs supabase/migrations/20260724061000_add_business_area_operational_scope.sql
+PASS ALLEATO_ENV_FILE=/home/friday/code/project-management/.env node scripts/database/verify-alleato-brain-operational-scope.mjs
+PASS ALLEATO_ENV_FILE=/home/friday/code/project-management/.env node scripts/database/verify-alleato-brain-operational-scope.mjs --negative-path
+PASS git diff --check
+
+The repository bounded typecheck ran with canonical dependencies and reported
+pre-existing errors. It also identified that the project-only attribution-rules
+API must be expanded before Business Area routing activation. Phase 1B is
+dormant schema and authorization infrastructure and explicitly excludes routing
+activation; this caller is a required Phase 3 compatibility guardrail.

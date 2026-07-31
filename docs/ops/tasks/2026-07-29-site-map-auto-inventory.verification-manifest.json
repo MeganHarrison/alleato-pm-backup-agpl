@@ -1,0 +1,19 @@
+{
+  "contractVersion": 1,
+  "taskId": "SITE-MAP-AUTO-INVENTORY",
+  "riskLevel": "high",
+  "feature": "Automatic Page Access route inventory generation",
+  "route": "Vercel frontend build -> /site-map",
+  "flows": [{
+    "name": "Frontend-root build generation",
+    "steps": ["Prepare the production build from the frontend root", "Generate route inventory from frontend/src/app", "Compile Next.js with the regenerated static import"],
+    "expectedOutcome": "The deployed Page Access inventory reflects the routes in that deployment without a manually refreshed committed snapshot."
+  }],
+  "requiredEvidence": ["summary", "actionLog", "negativePath", "regressionTest"],
+  "independentReview": { "required": true },
+  "claims": [
+    {"id": "fresh-deployment-inventory", "description": "The Vercel frontend-root build derives inventory rows from deployed source before compilation.", "evidence": [{"key": "actionLog", "min": 1}, {"key": "regressionTest", "min": 1}]},
+    {"id": "failure-loudly", "description": "Missing source or empty inventory stops the build with a recovery action.", "evidence": [{"key": "negativePath", "min": 1}]},
+    {"id": "shared-derivation", "description": "Local audit reporting and frontend-root build generation share one route derivation.", "evidence": [{"key": "regressionTest", "min": 1}, {"key": "summary", "min": 1}]}
+  ]
+}

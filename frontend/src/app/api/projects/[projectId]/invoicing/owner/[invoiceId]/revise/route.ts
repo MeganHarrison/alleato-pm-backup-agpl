@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { requirePermission } from "@/lib/permissions-guard";
 import { syncLinkedOwnerPaymentApplication } from "@/lib/invoicing/owner-payment-application-sync";
+import type { Database } from "@/types/database.types";
 
 // POST /api/projects/[projectId]/invoicing/owner/[invoiceId]/revise
 // Request revision of an invoice (UNDER REVIEW → REVISE AND RESUBMIT)
@@ -58,7 +59,7 @@ export const POST = withApiGuardrails<{ projectId: string; invoiceId: string }>(
       });
     }
 
-    const updatePayload: Record<string, unknown> = { status: "revise_and_resubmit" };
+    const updatePayload: Database["public"]["Tables"]["owner_invoices"]["Update"] = { status: "revise_and_resubmit" };
     if (reason) updatePayload.notes = reason;
 
     const { data: updated, error: updateError } = await supabase

@@ -15,6 +15,11 @@ minimumReleaseAgeExclude:
   - rolldown
   - workflow
 allowBuilds:
+  '@mongodb-js/zstd': false
+  '@prisma/engines': false
+  '@snaplet/seed': false
+  esbuild: true
+  node-liblzma: false
   sharp: false
 # Compatibility for eve releases with an incomplete runtime manifest.
 packageExtensions:

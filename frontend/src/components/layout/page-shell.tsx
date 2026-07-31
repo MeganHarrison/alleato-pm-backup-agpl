@@ -23,8 +23,8 @@ import { PageHeader } from "./page-header-unified";
 //   dashboard — max-w-[1800px] centered, standard padding. Use for home/overview pages with KPI cards + charts.
 //   table     — full-width, tight padding. Use for data table pages (UnifiedTablePage goes inside).
 //   form      — max-w-5xl centered, space-y-8. Use for create/edit forms. Includes optional back button.
-//   detail    — max-w-6xl centered. Use for record detail pages (tabs, line items).
-//   detailWide — max-w-screen-2xl centered. Use when detail pages need more canvas without going full dashboard width.
+//   detail    — max-w-screen-2xl centered. Use for record detail pages (tabs, line items).
+//   detailWide — max-w-screen-2xl centered. Legacy alias for wide detail routes.
 //   detailXWide — max-w-[1800px] centered. Use for detail pages with wide tables (e.g. schedule of values) that need more horizontal room than detailWide but shouldn't span the full viewport.
 //   content   — max-w-4xl centered. Use for document/settings/read-heavy pages.
 // ─────────────────────────────────────────────────────────────────────────────
@@ -78,7 +78,7 @@ const variantConfig: Record<
   dashboard: { containerMaxWidth: "full", contentMaxWidth: "max-w-[1800px]", spacing: "space-y-14" },
   table:     { containerMaxWidth: "full", spacing: "space-y-4" },
   form:      { containerMaxWidth: "full", contentMaxWidth: "max-w-5xl",  spacing: "space-y-8" },
-  detail:    { containerMaxWidth: "full", contentMaxWidth: "max-w-6xl",  spacing: "space-y-6" },
+  detail:    { containerMaxWidth: "full", contentMaxWidth: "max-w-screen-2xl",  spacing: "space-y-6" },
   detailWide:{ containerMaxWidth: "full", contentMaxWidth: "max-w-screen-2xl",  spacing: "space-y-6" },
   detailXWide:{ containerMaxWidth: "full", contentMaxWidth: "max-w-[1800px]",  spacing: "space-y-6" },
   content:   { containerMaxWidth: "full", contentMaxWidth: "max-w-4xl",  spacing: "space-y-8" },

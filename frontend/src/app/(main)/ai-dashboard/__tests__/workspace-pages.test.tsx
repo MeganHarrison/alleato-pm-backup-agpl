@@ -14,9 +14,15 @@ import AiDashboardReconciliationPage from "../accounting/reconciliation/page";
 import AiDashboardWipPage from "../accounting/wip/page";
 import AiDashboardDecisionsPage from "../decisions/page";
 import { ProjectsActivityPreview } from "../projects/projects-activity-preview";
+import AiDashboardRagPipelinePage from "../rag-pipeline/page";
+import {
+  formatRecoveryError,
+  RECOVERY_ERROR_MAX_LENGTH,
+} from "../rag-pipeline/rag-pipeline-preview";
 import {
   useAccountingDashboard,
   useAttentionFeed,
+  useDocumentLifecycle,
   usePortfolioState,
   useWipPortfolio,
 } from "../live-data";
@@ -38,6 +44,7 @@ jest.mock("../live-data", () => {
     ...actual,
     useAccountingDashboard: jest.fn(),
     useAttentionFeed: jest.fn(),
+    useDocumentLifecycle: jest.fn(),
     usePortfolioState: jest.fn(),
     useWipPortfolio: jest.fn(),
   };
@@ -136,6 +143,23 @@ describe("AI dashboard workspace", () => {
         generatedAt: "2026-07-16T10:00:00Z",
       }) as never,
     );
+    jest.mocked(useDocumentLifecycle).mockReturnValue(
+      queryResult({
+        documents: [
+          { id: "d1", title: "Weekly project review", created_at: "2026-07-16T08:00:00Z", project_name: "Harbor Point", lifecycle_label: "Tasks extracted", pipeline_stage: "done", task_count: 4, error_message: null },
+          { id: "d2", title: "Owner meeting", created_at: "2026-07-15T08:00:00Z", project_name: null, lifecycle_label: "Failed", pipeline_stage: "failed", task_count: 0, error_message: "Embedding request failed." },
+        ],
+        total: 2,
+      }) as never,
+    );
+  });
+
+  it("keeps recovery errors compact while preserving their actionable prefix", () => {
+    const error = `canceling statement due to statement timeout ${"x".repeat(200)}`;
+
+    expect(formatRecoveryError(error)).toHaveLength(RECOVERY_ERROR_MAX_LENGTH);
+    expect(formatRecoveryError(error)).toMatch(/^canceling statement due to statement timeout/);
+    expect(formatRecoveryError(error)).toMatch(/…$/);
   });
 
   it("exposes every child route through one shared responsive navigation", () => {
@@ -168,6 +192,7 @@ describe("AI dashboard workspace", () => {
       ["Daily brief", "/daily-brief"],
       ["Decisions", "/ai-dashboard/decisions"],
       ["Accounting", "/ai-dashboard/accounting"],
+      ["RAG Pipeline", "/ai-dashboard/rag-pipeline"],
       ["Architecture", "/ai-dashboard/architecture"],
     ]) {
       expect(screen.getAllByRole("link", { name: label })[0]).toHaveAttribute(
@@ -256,7 +281,7 @@ describe("AI dashboard workspace", () => {
     );
   });
 
-  it("renders live accounting details with canonical drill-throughs", () => {
+  it("renders live accounting details and the canonical RAG pipeline", () => {
     const cash = render(<AiDashboardCashFlowPage />);
     expect(
       screen.getByRole("link", { name: /Open accounting dashboard/i }),
@@ -275,6 +300,13 @@ describe("AI dashboard workspace", () => {
     ).toHaveAttribute("href", "/accounting/reconciliation");
     reconciliation.unmount();
 
+    render(<AiDashboardRagPipelinePage />);
+    expect(screen.getAllByText("Tasks extracted").length).toBeGreaterThan(0);
+    expect(screen.getByText("Embedding request failed.")).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: /Open pipeline operations/i }),
+    ).toHaveAttribute("href", "/pipeline");
+    expect(screen.queryByText(/RAD Pipeline/i)).not.toBeInTheDocument();
   });
 
   it("renders a source-backed interactive architecture explorer without repository controls", () => {

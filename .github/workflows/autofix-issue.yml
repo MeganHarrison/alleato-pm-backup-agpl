@@ -80,6 +80,7 @@ jobs:
       id-token: write
     env:
       AUTOFIX_ENGINE_CHOICE: ${{ needs.resolve-engine.outputs.engine }}
+      AUTOFIX_CODEX_MODEL: ${{ vars.AUTOFIX_CODEX_MODEL }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v6
@@ -400,8 +401,57 @@ jobs:
         if: steps.prepare.outputs.blocked != 'true'
         run: mkdir -p .github/autofix-artifacts
 
-      - name: Run Codex
+      # Do not invoke Codex until the requested model is confirmed as available
+      # to this exact API project. A model alias can be valid elsewhere yet fail
+      # at runtime here, which previously left feedback issues with a generic
+      # "agent exited" comment and no actionable recovery step.
+      - name: Verify Codex model access
         if: steps.prepare.outputs.blocked != 'true' && env.AUTOFIX_ENGINE_CHOICE == 'codex'
+        id: codex_model
+        shell: bash
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          set -uo pipefail
+          response_file="$RUNNER_TEMP/openai-models.json"
+          requested_model="${AUTOFIX_CODEX_MODEL:-}"
+          ready=false
+          reason=""
+
+          http_code="$(curl --silent --show-error --output "$response_file" --write-out "%{http_code}" \
+            --connect-timeout 15 --max-time 45 \
+            --header "Authorization: Bearer $OPENAI_API_KEY" \
+            https://api.openai.com/v1/models)" || http_code="request-failed"
+
+          if [ "$http_code" != "200" ]; then
+            api_message="$(jq -r '.error.message // empty' "$response_file" 2>/dev/null | head -c 300)"
+            reason="OpenAI model inventory request failed (HTTP $http_code${api_message:+: $api_message})."
+          else
+            available_models="$(jq -r '[.data[]?.id | select(test("codex"; "i"))] | unique | join(", ")' "$response_file" 2>/dev/null)"
+            available_models="${available_models:-none}"
+
+            if [ -z "$requested_model" ]; then
+              reason="Repository variable AUTOFIX_CODEX_MODEL is not configured. Available Codex models for this API project: $available_models."
+            elif jq -e --arg model "$requested_model" 'any(.data[]?; .id == $model)' "$response_file" >/dev/null 2>&1; then
+              ready=true
+            else
+              reason="Configured AUTOFIX_CODEX_MODEL '$requested_model' is not available to this API project. Available Codex models: $available_models."
+            fi
+          fi
+
+          echo "ready=$ready" >> "$GITHUB_OUTPUT"
+          {
+            echo "reason<<AUTOFIX_MODEL_REASON_EOF"
+            echo "$reason"
+            echo "AUTOFIX_MODEL_REASON_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+          if [ "$ready" != "true" ]; then
+            echo "$reason"
+          fi
+
+      - name: Run Codex
+        if: steps.prepare.outputs.blocked != 'true' && env.AUTOFIX_ENGINE_CHOICE == 'codex' && steps.codex_model.outputs.ready == 'true'
         id: run_codex
         continue-on-error: true
         uses: openai/codex-action@v1
@@ -409,7 +459,7 @@ jobs:
           openai-api-key: ${{ secrets.OPENAI_API_KEY }}
           prompt-file: ${{ runner.temp }}/autofix-prompt.md
           output-file: .github/autofix-artifacts/final-message.md
-          model: gpt-5.4
+          model: ${{ vars.AUTOFIX_CODEX_MODEL }}
           effort: high
           sandbox: workspace-write
           safety-strategy: drop-sudo
@@ -482,7 +532,10 @@ jobs:
         if: steps.prepare.outputs.blocked != 'true'
         id: agent
         env:
+          ENGINE: ${{ env.AUTOFIX_ENGINE_CHOICE }}
           CODEX_OUTCOME: ${{ steps.run_codex.outcome }}
+          CODEX_MODEL_READY: ${{ steps.codex_model.outputs.ready }}
+          CODEX_MODEL_REASON: ${{ steps.codex_model.outputs.reason }}
           CLAUDE_OK: ${{ steps.claude_result.outputs.ok }}
           CLAUDE_RETRY_OK: ${{ steps.claude_retry_result.outputs.ok }}
           CLAUDE_EXEC_FILE: ${{ steps.run_claude.outputs.execution_file }}
@@ -491,6 +544,21 @@ jobs:
           outcome=failure
           if [ "$CODEX_OUTCOME" = "success" ] || [ "$CLAUDE_OK" = "true" ] || [ "$CLAUDE_RETRY_OK" = "true" ]; then
             outcome=success
+          fi
+
+          if [ "$ENGINE" = "codex" ] && [ "$CODEX_MODEL_READY" != "true" ]; then
+            cat > .github/autofix-artifacts/final-message.md <<EOF
+          Codex autofix did not start.
+
+          Cause:
+          - ${CODEX_MODEL_REASON:-Codex model access could not be verified.}
+
+          Detection gap:
+          - The workflow previously invoked a configured model without verifying that this API project could access it.
+
+          Prevention step:
+          - Set the repository variable AUTOFIX_CODEX_MODEL to one of the model IDs reported above, then re-apply codex:fix or autofix.
+          EOF
           fi
 
           # Surface Claude's final result text (error messages included) so
@@ -839,6 +907,8 @@ jobs:
 
             if (process.env.BLOCKED === "true") {
               body = process.env.BLOCKER_COMMENT;
+            } else if (process.env.AGENT_OUTCOME === "failure" && process.env.FINAL_MESSAGE?.startsWith("Codex autofix did not start.")) {
+              body = process.env.FINAL_MESSAGE;
             } else if (process.env.AGENT_OUTCOME === "failure") {
               body = [
                 `Autofix (${engine}) attempted the fix but did not complete successfully.`,

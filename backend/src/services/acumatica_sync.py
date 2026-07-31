@@ -417,10 +417,6 @@ class AcumaticaFinancialSyncService:
         self.commitment_sov_budget_code_map: Dict[tuple[int, str], str] = {}
         self._subcontract_cost_type_id_cache: Optional[str] = None
         self.cost_codes: Dict[str, str] = {}
-        # Lazily-loaded Acumatica customer code (companies.customer_id) -> companies.id.
-        # Used to attribute new projects to the correct client instead of a
-        # bogus "first project's company" default. See _sync_projects.
-        self.company_id_by_customer_code: Optional[Dict[str, str]] = None
 
     def sync_all(self) -> Dict[str, Any]:
         self.session.login()
@@ -736,36 +732,6 @@ class AcumaticaFinancialSyncService:
                 return row
         return None
 
-    def _load_company_id_by_customer_code(self) -> Dict[str, str]:
-        """Map an Acumatica customer code (companies.customer_id) -> companies.id.
-
-        Used to attribute a newly-created project to the RIGHT client. Before
-        this existed, `_sync_projects` fell back to an arbitrary "first project's
-        company_id" default, which silently stamped ~46 projects with the wrong
-        client (all became "Aspire Health Group"). Resolving the project's own
-        Acumatica Customer is the only correct source.
-        """
-        response = (
-            self.supabase.table("companies")
-            .select("id, customer_id")
-            .not_.is_("customer_id", "null")
-            .execute()
-        )
-        mapping: Dict[str, str] = {}
-        for row in response.data or []:
-            code = (row.get("customer_id") or "").strip()
-            company_id = row.get("id")
-            if code and company_id and code not in mapping:
-                mapping[code] = company_id
-        return mapping
-
-    def _resolve_company_id_for_customer(self, customer_code: Optional[str]) -> Optional[str]:
-        if not customer_code:
-            return None
-        if self.company_id_by_customer_code is None:
-            self.company_id_by_customer_code = self._load_company_id_by_customer_code()
-        return self.company_id_by_customer_code.get(str(customer_code).strip())
-
     def _remember_project_row(self, row: Dict[str, Any]) -> None:
         for source in (
             row.get("acumatica_project_id"),
@@ -851,6 +817,11 @@ class AcumaticaFinancialSyncService:
         if not records:
             return result
 
+        default_company_id = next(
+            (row.get("company_id") for row in self.project_map.values() if row.get("company_id")),
+            None,
+        )
+
         created = 0
         updated = 0
         skipped = 0
@@ -892,28 +863,16 @@ class AcumaticaFinancialSyncService:
                 skipped += 1
                 continue
 
-            # Attribute the new project to its OWN Acumatica customer. Never fall
-            # back to a shared "default" company: that is exactly how ~46 projects
-            # were silently stamped "Aspire Health Group". A missing/unresolvable
-            # customer means leave the client blank (null) — a blank client is
-            # correct and fixable; a confidently-wrong one is neither.
-            customer_code = _first_text(project, ("Customer", "CustomerID", "CustomerCD"))
-            resolved_company_id = self._resolve_company_id_for_customer(customer_code)
-            if customer_code and not resolved_company_id:
-                logger.warning(
-                    "[AcumaticaSync] No company matches Acumatica customer=%r for new project_code=%s "
-                    "name=%r — creating with blank client (company_id=null).",
-                    customer_code,
-                    project_code,
-                    project_name,
-                )
+            if not default_company_id:
+                skipped += 1
+                continue
 
             insert_payload = {
                 "name": project_name,
                 "job number": formatted_job_number,
                 "project_number": formatted_job_number,
                 "acumatica_project_id": project_code,
-                "company_id": resolved_company_id,
+                "company_id": default_company_id,
                 "erp_system": "acumatica",
                 "erp_sync_status": "synced",
                 # The integration run is the evidence. Do not attribute an

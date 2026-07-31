@@ -1,6 +1,6 @@
 ---
 title: Understand Feature Status
-description: Learn how Alleato PM distinguishes live, partial, planned, blocked, and inactive app behavior.
+description: Learn how Alleato PM distinguishes live, partial, planned, blocked, and deprecated app behavior.
 audience: client
 visibility: published
 module: app-expert
@@ -11,7 +11,7 @@ client_visible: true
 ai_visible: true
 order: 34
 related_routes:
-  - /ai
+  - /ai-assistant
   - /docs
 related_actions: []
 ---
@@ -45,5 +45,5 @@ what remains uncertain instead of guessing.
 ## Current Boundary
 
 Ask Alleato can guide you to app workflows and explain known action status. It
-must not claim that it performed a write action. Eve's current production bridge
-is read-only; users complete writes through the normal authenticated app pages.
+should not claim that it performed a write action unless the request went
+through an approved preview-and-confirm tool.

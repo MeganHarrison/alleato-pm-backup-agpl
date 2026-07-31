@@ -1,0 +1,95 @@
+{
+  "contractVersion": 1,
+  "taskId": "ALL-23",
+  "riskLevel": "high",
+  "feature": "Weekly training resource finder cron",
+  "route": "backend/src/scripts/run_training_resource_finder_weekly.py",
+  "flows": [
+    {
+      "name": "Select the weekly role/topic target",
+      "steps": [
+        "Resolve the UTC week against the documented rotation anchor",
+        "Select one configured role/topic target",
+        "Run the existing finder in default dry-run mode"
+      ],
+      "expectedOutcome": "The operator output names the deterministic target and performs no write without an explicit commit."
+    },
+    {
+      "name": "Run the scheduled review-candidate job",
+      "steps": [
+        "Render invokes the weekly runner with explicit commit and a one-row cap",
+        "The existing ALL-22 finder searches, vets, and deduplicates results",
+        "The existing atomic RPC creates at most one free review candidate"
+      ],
+      "expectedOutcome": "The cron succeeds with an explicit outcome, never publishes, and retry dedupe prevents duplicate rows."
+    }
+  ],
+  "requiredEvidence": [
+    "actionLog",
+    "databaseReadback",
+    "regressionTest",
+    "visualReview"
+  ],
+  "visual": {
+    "viewports": [
+      "server"
+    ],
+    "checks": [
+      "Not applicable: ALL-23 has no rendered frontend surface.",
+      "Render service and run output expose schedule, selected target, and completion status."
+    ]
+  },
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "deterministic-weekly-rotation",
+      "description": "Consecutive weeks rotate targets predictably from a documented UTC anchor.",
+      "evidence": [
+        {
+          "key": "regressionTest",
+          "min": 1
+        },
+        {
+          "key": "actionLog",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "bounded-review-only-delivery",
+      "description": "The live cron commits at most one candidate through the review-only RPC and never publishes.",
+      "evidence": [
+        {
+          "key": "databaseReadback",
+          "min": 1
+        },
+        {
+          "key": "regressionTest",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "render-schedule-readiness",
+      "description": "The weekly Render cron, exact code revision, secrets, and manual run are verified by provider readback.",
+      "evidence": [
+        {
+          "key": "actionLog",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "independent-review",
+      "description": "An independent reviewer approves schedule, write-cap, and failure-loud boundaries.",
+      "evidence": [
+        {
+          "key": "visualReview",
+          "min": 1
+        }
+      ]
+    }
+  ]
+}

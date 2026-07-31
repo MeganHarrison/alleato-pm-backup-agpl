@@ -155,7 +155,7 @@ export function createMemoryReadTools(internals: OperationalToolInternals) {
           .array(z.string())
           .optional()
           .describe(
-            "Tags for searchability (e.g. ['ASRS', 'fire suppression', 'pricing'])",
+            "Tags for searchability (e.g. ['fire suppression', 'pricing', 'safety'])",
           ),
         source: z
           .string()

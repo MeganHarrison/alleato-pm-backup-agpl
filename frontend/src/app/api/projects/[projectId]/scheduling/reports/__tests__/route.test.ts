@@ -31,11 +31,13 @@ function listQuery(result: { data: unknown; error: unknown }) {
   const value = {
     select: jest.fn(),
     eq: jest.fn(),
+    in: jest.fn(),
     order: jest.fn(),
     then: (resolve: (result: { data: unknown; error: unknown }) => unknown) => Promise.resolve(result).then(resolve),
   };
   value.select.mockReturnValue(value);
   value.eq.mockReturnValue(value);
+  value.in.mockReturnValue(value);
   value.order.mockReturnValue(value);
   return value;
 }
@@ -193,21 +195,169 @@ describe("consolidated schedule reports API", () => {
     expect(serviceClient.from).toHaveBeenCalledTimes(1);
   });
 
-  it("filters published trade activities to the requesting project member", async () => {
+  it("filters published trade activities to active project members in the caller's company", async () => {
     const revision = revisionQuery({ data: { id: "revision-2", status: "published" }, error: null });
-    const tasks = { select: jest.fn(), eq: jest.fn(), order: jest.fn() };
-    tasks.select.mockReturnValue(tasks);
-    tasks.eq.mockReturnValue(tasks);
-    tasks.order.mockResolvedValue({ data: [{ source_task_id: "electrical", name: "Electrical", assignee_person_id: "person-electric" }], error: null });
-    const serviceClient = { from: jest.fn().mockReturnValueOnce(revision).mockReturnValueOnce(tasks) };
+    const actor = revisionQuery({
+      data: {
+        company_id: "company-trade",
+        company: { name: "Trade Partners LLC" },
+      },
+      error: null,
+    });
+    const people = listQuery({
+      data: [{ id: "person-electric" }, { id: "person-foreman" }, { id: "person-off-project" }],
+      error: null,
+    });
+    const memberships = listQuery({
+      data: [
+        { person_id: "person-electric" },
+        { person_id: "person-foreman" },
+      ],
+      error: null,
+    });
+    const tasks = listQuery({
+      data: [
+        {
+          source_task_id: "electrical",
+          name: "Electrical",
+          assignee_person_id: "person-electric",
+        },
+        {
+          source_task_id: "foreman",
+          name: "Foreman inspection",
+          assignee_person_id: "person-foreman",
+        },
+      ],
+      error: null,
+    });
+    const serviceClient = {
+      from: jest.fn()
+        .mockReturnValueOnce(revision)
+        .mockReturnValueOnce(actor)
+        .mockReturnValueOnce(people)
+        .mockReturnValueOnce(memberships)
+        .mockReturnValueOnce(tasks),
+    };
     verifyProjectAccessMock.mockResolvedValue({ membership: { personId: "person-electric", projectId: 43 }, serviceClient } as never);
 
     const response = await GET(new NextRequest("http://localhost/api/projects/43/scheduling/reports?view=trade-activities"), context);
     expect(response.status).toBe(200);
-    expect(tasks.eq).toHaveBeenCalledWith("assignee_person_id", "person-electric");
+    expect(actor.select).toHaveBeenCalledWith(
+      "company_id, company:companies!people_company_id_fkey(name)",
+    );
+    expect(memberships.in).toHaveBeenCalledWith("person_id", [
+      "person-electric",
+      "person-foreman",
+      "person-off-project",
+    ]);
+    expect(tasks.in).toHaveBeenCalledWith("assignee_person_id", [
+      "person-electric",
+      "person-foreman",
+    ]);
     await expect(response.json()).resolves.toEqual({
-      data: [{ sourceTaskId: "electrical", name: "Electrical", assigneePersonId: "person-electric" }],
+      data: [
+        {
+          sourceTaskId: "electrical",
+          name: "Electrical",
+          assigneePersonId: "person-electric",
+        },
+        {
+          sourceTaskId: "foreman",
+          name: "Foreman inspection",
+          assigneePersonId: "person-foreman",
+        },
+      ],
       revisionId: "revision-2",
+      visibility: {
+        type: "company",
+        companyId: "company-trade",
+        label: "Trade Partners LLC",
+      },
+    });
+  });
+
+  it("falls back to the caller's assignments when no company identity exists", async () => {
+    const revision = revisionQuery({
+      data: { id: "revision-2", status: "published" },
+      error: null,
+    });
+    const actor = revisionQuery({
+      data: { company_id: null, company: null },
+      error: null,
+    });
+    const tasks = listQuery({
+      data: [
+        {
+          source_task_id: "electrical",
+          name: "Electrical",
+          assignee_person_id: "person-electric",
+        },
+      ],
+      error: null,
+    });
+    const serviceClient = {
+      from: jest.fn()
+        .mockReturnValueOnce(revision)
+        .mockReturnValueOnce(actor)
+        .mockReturnValueOnce(tasks),
+    };
+    verifyProjectAccessMock.mockResolvedValue({
+      membership: { personId: "person-electric", projectId: 43 },
+      serviceClient,
+    } as never);
+
+    const response = await GET(
+      new NextRequest(
+        "http://localhost/api/projects/43/scheduling/reports?view=trade-activities",
+      ),
+      context,
+    );
+
+    expect(response.status).toBe(200);
+    expect(tasks.in).toHaveBeenCalledWith("assignee_person_id", [
+      "person-electric",
+    ]);
+    await expect(response.json()).resolves.toMatchObject({
+      visibility: {
+        type: "person",
+        companyId: null,
+        label: "Your assignments",
+      },
+    });
+  });
+
+  it("fails loudly when the caller's company identity cannot be verified", async () => {
+    const revision = revisionQuery({
+      data: { id: "revision-2", status: "published" },
+      error: null,
+    });
+    const actor = revisionQuery({
+      data: null,
+      error: { code: "XX000", message: "People directory unavailable" },
+    });
+    const serviceClient = {
+      from: jest.fn()
+        .mockReturnValueOnce(revision)
+        .mockReturnValueOnce(actor),
+    };
+    verifyProjectAccessMock.mockResolvedValue({
+      membership: { personId: "person-electric", projectId: 43 },
+      serviceClient,
+    } as never);
+
+    const response = await GET(
+      new NextRequest(
+        "http://localhost/api/projects/43/scheduling/reports?view=trade-activities",
+      ),
+      context,
+    );
+
+    expect(response.status).toBe(500);
+    expect(serviceClient.from).toHaveBeenCalledTimes(2);
+    await expect(response.json()).resolves.toMatchObject({
+      success: false,
+      error_code: "DB_ERROR",
+      error_message: "People directory unavailable",
     });
   });
 });

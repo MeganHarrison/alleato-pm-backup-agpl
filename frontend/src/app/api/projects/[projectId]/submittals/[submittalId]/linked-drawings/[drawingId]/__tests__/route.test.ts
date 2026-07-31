@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 
-import { createSubmittalAIReviewService } from "@/lib/submittals/ai-review/review-run-service";
+import { createSubmittalLinkedDrawingsService } from "@/lib/submittals/linked-drawings-service";
 import { createClient, getApiRouteUser } from "@/lib/supabase/server";
 import { DELETE } from "../route";
 
@@ -11,16 +11,16 @@ jest.mock("@/lib/supabase/server", () => ({
 
 const getApiRouteUserMock = getApiRouteUser as jest.MockedFunction<typeof getApiRouteUser>;
 
-jest.mock("@/lib/submittals/ai-review/review-run-service", () => ({
-  createSubmittalAIReviewService: jest.fn(),
+jest.mock("@/lib/submittals/linked-drawings-service", () => ({
+  createSubmittalLinkedDrawingsService: jest.fn(),
 }));
 
 const createClientMock = createClient as jest.MockedFunction<
   typeof createClient
 >;
 const createReviewServiceMock =
-  createSubmittalAIReviewService as jest.MockedFunction<
-    typeof createSubmittalAIReviewService
+  createSubmittalLinkedDrawingsService as jest.MockedFunction<
+    typeof createSubmittalLinkedDrawingsService
   >;
 
 function mockAuthedClient(fromImpl?: jest.Mock) {

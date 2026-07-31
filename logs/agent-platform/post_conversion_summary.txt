@@ -1,0 +1,17 @@
+Generated: 2026-02-24 16:20:56 UTC
+
+Symlink conversion results:
+- .claude files converted to symlink:      247
+- .agents files converted to symlink:      713
+
+Current filesystem state:
+- .claude regular files:      195
+- .claude symlinks:      253
+- .agents regular files:       16
+- .agents symlinks:      714
+
+Reference overlap (from pre-conversion comparison):
+- .claude project-only files:      158
+- .claude differing files:       36
+- .agents project-only files:       16
+- .agents differing files:        0

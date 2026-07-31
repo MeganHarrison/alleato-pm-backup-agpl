@@ -1,29 +1,36 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
 import { retrieveChunks, type RagRow } from "../retrieve-chunks";
 import * as toolUtils from "@/lib/ai/tools/tool-utils";
-import type { OpenAI } from "@ai-sdk/openai";
-import type { ServiceClientReturnType } from "@/lib/supabase/service";
+import type OpenAI from "openai";
+import { createRagServiceClient } from "@/lib/supabase/service";
 
 // Mock the dependencies
-vi.mock("@/lib/ai/tools/tool-utils");
-vi.mock("@/lib/supabase/service");
+jest.mock("@/lib/ai/tools/tool-utils", () => ({
+  EMBEDDING: { LARGE: "text-embedding-3-large" },
+  generateEmbedding: jest.fn(),
+}));
+jest.mock("@/lib/supabase/service", () => ({
+  createRagServiceClient: jest.fn(),
+}));
+jest.mock("@sentry/nextjs", () => ({
+  captureException: jest.fn(),
+}));
 
-type MockRagClient = Partial<ServiceClientReturnType>;
+type MockRagClient = Partial<ReturnType<typeof createRagServiceClient>>;
 
 describe("retrieveChunks", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
   });
 
   it("should generate embedding via generateEmbedding", async () => {
     const mockOpenAI = {} as OpenAI;
     const mockRagClient: MockRagClient = {
-      rpc: vi.fn().mockResolvedValue({ data: [], error: null }),
+      rpc: jest.fn().mockResolvedValue({ data: [], error: null }),
     };
 
-    vi.spyOn(toolUtils, "generateEmbedding").mockResolvedValue(
-      '{"vector": "mocked"}',
-    );
+    jest
+      .spyOn(toolUtils, "generateEmbedding")
+      .mockResolvedValue('{"vector": "mocked"}');
 
     await retrieveChunks({
       query: "test query",
@@ -41,11 +48,11 @@ describe("retrieveChunks", () => {
   it("should pass stringified embedding to RPC (never raw array)", async () => {
     const mockOpenAI = {} as OpenAI;
     const mockRagClient: MockRagClient = {
-      rpc: vi.fn().mockResolvedValue({ data: [], error: null }),
+      rpc: jest.fn().mockResolvedValue({ data: [], error: null }),
     };
 
     const mockEmbedding = "[0.1, 0.2, 0.3]"; // Already JSON stringified
-    vi.spyOn(toolUtils, "generateEmbedding").mockResolvedValue(mockEmbedding);
+    jest.spyOn(toolUtils, "generateEmbedding").mockResolvedValue(mockEmbedding);
 
     await retrieveChunks({
       query: "test query",
@@ -67,15 +74,15 @@ describe("retrieveChunks", () => {
   it("should throw error loudly on RPC failure (never silent)", async () => {
     const mockOpenAI = {} as OpenAI;
     const mockRagClient: MockRagClient = {
-      rpc: vi.fn().mockResolvedValue({
+      rpc: jest.fn().mockResolvedValue({
         data: null,
         error: { message: "RPC failed" },
       }),
     };
 
-    vi.spyOn(toolUtils, "generateEmbedding").mockResolvedValue(
-      '{"vector": "mocked"}',
-    );
+    jest
+      .spyOn(toolUtils, "generateEmbedding")
+      .mockResolvedValue('{"vector": "mocked"}');
 
     await expect(
       retrieveChunks({
@@ -87,9 +94,60 @@ describe("retrieveChunks", () => {
     ).rejects.toThrow("Test search: RPC failed");
   });
 
+  it("forwards an exact Business Area filter to the canonical RPC", async () => {
+    const mockOpenAI = {} as OpenAI;
+    const mockRagClient: MockRagClient = {
+      rpc: jest.fn().mockResolvedValue({ data: [], error: null }),
+    };
+
+    jest
+      .spyOn(toolUtils, "generateEmbedding")
+      .mockResolvedValue('{"vector": "mocked"}');
+
+    await retrieveChunks({
+      query: "quarterly forecast",
+      openai: mockOpenAI,
+      ragClient: mockRagClient,
+      businessAreaId: 17,
+    });
+
+    expect(mockRagClient.rpc).toHaveBeenCalledWith(
+      "search_document_chunks",
+      expect.objectContaining({
+        filter_business_area_id: 17,
+      }),
+    );
+    expect(mockRagClient.rpc.mock.calls[0][1]).not.toHaveProperty(
+      "filter_project_id",
+    );
+  });
+
+  it("rejects mixed project and Business Area filters before embedding", async () => {
+    const mockOpenAI = {} as OpenAI;
+    const mockRagClient: MockRagClient = {
+      rpc: jest.fn(),
+    };
+    const embeddingSpy = jest.spyOn(toolUtils, "generateEmbedding");
+
+    await expect(
+      retrieveChunks({
+        query: "mixed scope",
+        openai: mockOpenAI,
+        ragClient: mockRagClient,
+        projectId: 60,
+        businessAreaId: 17,
+      }),
+    ).rejects.toThrow(
+      "projectId and businessAreaId are mutually exclusive search scopes",
+    );
+
+    expect(embeddingSpy).not.toHaveBeenCalled();
+    expect(mockRagClient.rpc).not.toHaveBeenCalled();
+  });
+
   it("should return normalized rows on success", async () => {
     const mockOpenAI = {} as OpenAI;
-    const mockRows: RagRow[] = [
+    const rpcRows: RagRow[] = [
       {
         id: "1",
         chunk_text: "test chunk",
@@ -98,12 +156,12 @@ describe("retrieveChunks", () => {
       },
     ];
     const mockRagClient: MockRagClient = {
-      rpc: vi.fn().mockResolvedValue({ data: mockRows, error: null }),
+      rpc: jest.fn().mockResolvedValue({ data: rpcRows, error: null }),
     };
 
-    vi.spyOn(toolUtils, "generateEmbedding").mockResolvedValue(
-      '{"vector": "mocked"}',
-    );
+    jest
+      .spyOn(toolUtils, "generateEmbedding")
+      .mockResolvedValue('{"vector": "mocked"}');
 
     const result = await retrieveChunks({
       query: "test query",
@@ -111,18 +169,18 @@ describe("retrieveChunks", () => {
       ragClient: mockRagClient,
     });
 
-    expect(result).toEqual(mockRows);
+    expect(result).toEqual(rpcRows);
   });
 
   it("should use default match_count and threshold", async () => {
     const mockOpenAI = {} as OpenAI;
     const mockRagClient: MockRagClient = {
-      rpc: vi.fn().mockResolvedValue({ data: [], error: null }),
+      rpc: jest.fn().mockResolvedValue({ data: [], error: null }),
     };
 
-    vi.spyOn(toolUtils, "generateEmbedding").mockResolvedValue(
-      '{"vector": "mocked"}',
-    );
+    jest
+      .spyOn(toolUtils, "generateEmbedding")
+      .mockResolvedValue('{"vector": "mocked"}');
 
     await retrieveChunks({
       query: "test query",
@@ -138,12 +196,12 @@ describe("retrieveChunks", () => {
   it("should support hybrid ranking option", async () => {
     const mockOpenAI = {} as OpenAI;
     const mockRagClient: MockRagClient = {
-      rpc: vi.fn().mockResolvedValue({ data: [], error: null }),
+      rpc: jest.fn().mockResolvedValue({ data: [], error: null }),
     };
 
-    vi.spyOn(toolUtils, "generateEmbedding").mockResolvedValue(
-      '{"vector": "mocked"}',
-    );
+    jest
+      .spyOn(toolUtils, "generateEmbedding")
+      .mockResolvedValue('{"vector": "mocked"}');
 
     await retrieveChunks({
       query: "test query",

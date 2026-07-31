@@ -1,0 +1,1766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alleato AI &amp; RAG Architecture</title>
+  <style>
+    :root {
+      --bg:            oklch(11%  0.008 252);
+      --surface:       oklch(15%  0.009 252);
+      --surface-2:     oklch(19%  0.010 252);
+      --border:        oklch(26%  0.012 252);
+      --text:          oklch(91%  0.008 252);
+      --muted:         oklch(55%  0.010 252);
+      --muted-2:       oklch(38%  0.008 252);
+
+      --accent:        oklch(67%  0.15  252);
+      --accent-dim:    oklch(19%  0.08  252);
+      --accent-border: oklch(32%  0.11  252);
+
+      --green:         oklch(72%  0.17  142);
+      --green-dim:     oklch(17%  0.07  142);
+      --green-border:  oklch(27%  0.12  142);
+
+      --amber:         oklch(80%  0.13   78);
+      --amber-dim:     oklch(17%  0.06   78);
+      --amber-border:  oklch(28%  0.10   78);
+
+      --red:           oklch(62%  0.19   25);
+      --red-dim:       oklch(16%  0.08   25);
+      --red-border:    oklch(26%  0.12   25);
+
+      --purple:        oklch(70%  0.17  308);
+      --purple-dim:    oklch(17%  0.08  308);
+      --purple-border: oklch(26%  0.12  308);
+
+      --teal:          oklch(71%  0.14  185);
+      --teal-dim:      oklch(17%  0.07  185);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      font-size: 14px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── HEADER ─────────────────────────────────────────────── */
+    .page-header {
+      padding: 44px 56px 36px;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 18px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .header-eyebrow-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+    }
+    .page-header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      line-height: 1.2;
+      margin-bottom: 10px;
+    }
+    .page-header h1 em {
+      font-style: normal;
+      color: var(--accent);
+    }
+    .page-header .subtitle {
+      color: var(--muted);
+      font-size: 14px;
+      max-width: 640px;
+      line-height: 1.65;
+      margin-bottom: 28px;
+    }
+    .page-header .subtitle code {
+      font-family: 'SF Mono', 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 12px;
+      background: var(--surface-2);
+      padding: 1px 5px;
+      border-radius: 3px;
+      color: var(--accent);
+    }
+
+    /* compact stat bar in header */
+    .header-stats {
+      display: flex;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      width: fit-content;
+      background: var(--surface);
+    }
+    .header-stat {
+      padding: 11px 20px;
+      border-right: 1px solid var(--border);
+    }
+    .header-stat:last-child { border-right: none; }
+    .header-stat-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 3px;
+    }
+    .header-stat-value {
+      font-size: 17px;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: -0.01em;
+    }
+    .header-stat-value.accent { color: var(--accent); }
+    .header-stat-value.green  { color: var(--green);  }
+    .header-stat-value.amber  { color: var(--amber);  }
+    .header-stat-value.purple { color: var(--purple); }
+    .header-stat-note {
+      font-size: 10.5px;
+      color: var(--muted-2);
+      margin-top: 2px;
+    }
+
+    /* ── NAV ─────────────────────────────────────────────────── */
+    .nav-tabs {
+      display: flex;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 56px;
+      overflow-x: auto;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      scrollbar-width: none;
+    }
+    .nav-tabs::-webkit-scrollbar { display: none; }
+    .nav-tab {
+      padding: 12px 16px;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 500;
+      border-bottom: 2px solid transparent;
+      white-space: nowrap;
+      transition: color 0.12s;
+      user-select: none;
+      margin-bottom: -1px;
+    }
+    .nav-tab:hover { color: var(--text); }
+    .nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    /* ── SECTIONS ────────────────────────────────────────────── */
+    .section { display: none; padding: 44px 56px 64px; }
+    .section.active { display: block; }
+
+    /* ── TYPOGRAPHY ──────────────────────────────────────────── */
+    h2 {
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: -0.015em;
+      margin-bottom: 6px;
+    }
+    h3 {
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.10em;
+      color: var(--muted);
+      margin-bottom: 14px;
+      margin-top: 40px;
+    }
+    h3:first-child { margin-top: 0; }
+    .section-intro {
+      font-size: 14px;
+      color: var(--muted);
+      max-width: 680px;
+      line-height: 1.7;
+      margin-bottom: 36px;
+    }
+    .section-intro code {
+      font-family: 'SF Mono', 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 12px;
+      background: var(--surface-2);
+      padding: 1px 5px;
+      border-radius: 3px;
+      color: var(--accent);
+    }
+
+    /* ── STAT STRIP (replaces KPI hero cards) ─────────────────── */
+    .stat-strip {
+      display: flex;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--surface);
+      margin-bottom: 44px;
+    }
+    .stat-strip-item {
+      flex: 1;
+      padding: 18px 22px;
+      border-right: 1px solid var(--border);
+    }
+    .stat-strip-item:last-child { border-right: none; }
+    .stat-strip-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .stat-strip-value {
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+    .stat-strip-value.accent { color: var(--accent); }
+    .stat-strip-value.green  { color: var(--green);  }
+    .stat-strip-value.purple { color: var(--purple); }
+    .stat-strip-value.amber  { color: var(--amber);  }
+    .stat-strip-sub {
+      font-size: 11.5px;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    /* ── CARDS ───────────────────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px 22px;
+    }
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(256px, 1fr));
+      gap: 10px;
+      margin-bottom: 32px;
+    }
+
+    /* ── DIAGRAM ─────────────────────────────────────────────── */
+    .diagram-area {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 28px;
+      margin-bottom: 40px;
+      overflow-x: auto;
+    }
+
+    /* ── BADGES ──────────────────────────────────────────────── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .badge::before { content: '●'; font-size: 7px; }
+    .badge.green  { background: var(--green-dim);  color: var(--green);  }
+    .badge.amber  { background: var(--amber-dim);  color: var(--amber);  }
+    .badge.red    { background: var(--red-dim);    color: var(--red);    }
+    .badge.accent { background: var(--accent-dim); color: var(--accent); }
+    .badge.purple { background: var(--purple-dim); color: var(--purple); }
+    .badge.muted  { background: var(--surface-2);  color: var(--muted);  }
+
+    /* ── TABLES ──────────────────────────────────────────────── */
+    .table-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 32px;
+    }
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .data-table th {
+      text-align: left;
+      padding: 10px 16px;
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface-2);
+    }
+    .data-table td {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+      line-height: 1.5;
+    }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: var(--surface-2); }
+    .data-table code {
+      background: var(--surface-2);
+      padding: 2px 5px;
+      border-radius: 3px;
+      font-family: 'SF Mono', 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 11.5px;
+      color: var(--accent);
+    }
+
+    /* ── PIPELINE STEPS ──────────────────────────────────────── */
+    .pipeline-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      margin-bottom: 36px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .pipeline-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 13px 18px;
+      background: var(--surface);
+    }
+    .pipeline-step-num {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--accent-dim);
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10.5px;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .pipeline-step-content { flex: 1; }
+    .pipeline-step-title {
+      font-weight: 600;
+      font-size: 13px;
+      margin-bottom: 2px;
+    }
+    .pipeline-step-desc {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+    .pipeline-step-desc code {
+      font-family: 'SF Mono', 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 11px;
+      background: var(--surface-2);
+      padding: 1px 4px;
+      border-radius: 3px;
+      color: var(--accent);
+    }
+    .pipeline-step-badge { margin-left: auto; flex-shrink: 0; }
+
+    /* ── LIVE AGENT CARDS ────────────────────────────────────── */
+    .agents-live {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+    .agent-card-live {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px 22px;
+    }
+    .agent-card-live.active {
+      background: oklch(14% 0.012 142);
+      border-color: var(--green-border);
+    }
+    .agent-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .agent-card-title-group { display: flex; align-items: center; gap: 10px; }
+    .agent-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    .agent-name  { font-size: 15px; font-weight: 700; }
+    .agent-model {
+      font-size: 11px;
+      color: var(--muted);
+      font-family: 'SF Mono', 'JetBrains Mono', 'Fira Code', monospace;
+      margin-top: 2px;
+    }
+    .agent-desc { font-size: 12.5px; color: var(--muted); line-height: 1.55; }
+    .agent-desc code {
+      font-family: monospace;
+      font-size: 11px;
+      background: var(--surface-2);
+      padding: 1px 4px;
+      border-radius: 3px;
+      color: var(--accent);
+    }
+
+    /* designed agents as a compact list */
+    .agents-designed {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 32px;
+    }
+    .agent-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .agent-row:last-child { border-bottom: none; }
+    .agent-row:hover { background: var(--surface-2); }
+    .agent-row-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      background: var(--surface-2);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .agent-row-name  { font-size: 13px; font-weight: 600; margin-bottom: 1px; }
+    .agent-row-model {
+      font-size: 11px;
+      color: var(--muted);
+      font-family: 'SF Mono', 'JetBrains Mono', 'Fira Code', monospace;
+      margin-bottom: 3px;
+    }
+    .agent-row-desc { font-size: 12px; color: var(--muted); }
+    .agent-row-desc code {
+      font-family: monospace;
+      font-size: 11px;
+      background: var(--surface-2);
+      padding: 1px 4px;
+      border-radius: 3px;
+      color: var(--accent);
+    }
+    .agent-row-badge { margin-left: auto; flex-shrink: 0; margin-top: 1px; }
+
+    /* ── TOOL PILLS ──────────────────────────────────────────── */
+    .tool-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 24px;
+    }
+    .tool-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      font-size: 11.5px;
+      font-family: 'SF Mono', 'JetBrains Mono', 'Fira Code', monospace;
+      color: var(--muted);
+    }
+    .tool-pill.financial { border-color: var(--accent-border); color: var(--accent); }
+    .tool-pill.operational { border-color: var(--green-border); color: var(--green); }
+    .tool-pill.project { border-color: var(--purple-border); color: var(--purple); }
+    .tool-pill.erp { border-color: var(--amber-border); color: var(--amber); }
+
+    /* ── SECTION TITLE ROW ───────────────────────────────────── */
+    .section-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .section-title-row h3 { margin-top: 0; margin-bottom: 0; }
+
+    /* ── CODE BLOCKS ─────────────────────────────────────────── */
+    pre {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 16px 20px;
+      font-family: 'SF Mono', 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 12px;
+      line-height: 1.65;
+      overflow-x: auto;
+      color: oklch(72% 0.008 252);
+      margin-bottom: 28px;
+    }
+    pre .comment { color: oklch(42% 0.008 252); }
+    pre .keyword { color: oklch(68% 0.12 252); }
+    pre .string  { color: oklch(72% 0.10 78); }
+    pre .accent  { color: var(--accent); }
+
+    /* ── PHASE LIST ──────────────────────────────────────────── */
+    .phase-list { display: flex; flex-direction: column; }
+    .phase-item {
+      display: flex;
+      gap: 20px;
+      padding: 28px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .phase-item:last-child { border-bottom: none; }
+    .phase-num {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 13px;
+      flex-shrink: 0;
+      margin-top: 3px;
+    }
+    .phase-num.complete { background: var(--green-dim);  color: var(--green);  border: 2px solid var(--green-border);  }
+    .phase-num.upcoming { background: var(--surface-2);  color: var(--muted-2); border: 2px solid var(--border);       }
+    .phase-title { font-size: 16px; font-weight: 600; margin-bottom: 6px; letter-spacing: -0.01em; }
+    .phase-items-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 12px;
+    }
+    .phase-item-chip {
+      padding: 4px 10px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .phase-item-chip.done {
+      color: var(--green);
+      border-color: var(--green-border);
+      background: var(--green-dim);
+    }
+
+    /* ── SOURCE GRID ─────────────────────────────────────────── */
+    .source-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 32px;
+    }
+    .source-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 16px;
+      text-align: center;
+    }
+    .source-icon  { font-size: 22px; margin-bottom: 8px; }
+    .source-name  { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
+    .source-count { font-size: 11.5px; color: var(--muted); }
+
+    /* ── EMBED CARDS ─────────────────────────────────────────── */
+    .embed-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .embed-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px 22px;
+    }
+    .embed-card h4 { font-size: 13px; font-weight: 700; margin-bottom: 14px; }
+    .embed-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+    .embed-row:last-child { border-bottom: none; }
+    .embed-key { color: var(--muted); flex-shrink: 0; }
+    .embed-val {
+      font-family: 'SF Mono', 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 12px;
+      color: var(--text);
+      text-align: right;
+    }
+
+    /* ── GAP ITEMS ───────────────────────────────────────────── */
+    .gap-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .gap-item:last-child { border-bottom: none; }
+    .gap-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      margin-top: 6px;
+      flex-shrink: 0;
+    }
+    .gap-title { font-weight: 600; font-size: 13.5px; margin-bottom: 3px; }
+    .gap-desc { font-size: 12.5px; color: var(--muted); line-height: 1.55; }
+    .gap-desc code {
+      font-family: monospace;
+      font-size: 11px;
+      background: var(--surface-2);
+      padding: 1px 4px;
+      border-radius: 3px;
+      color: var(--accent);
+    }
+
+    /* ── DIVIDER ─────────────────────────────────────────────── */
+    .divider { height: 1px; background: var(--border); margin: 36px 0; }
+
+    /* ── NOTICE CARDS ────────────────────────────────────────── */
+    .notice {
+      border-radius: 7px;
+      padding: 14px 18px;
+      margin-bottom: 12px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .notice.amber {
+      background: var(--amber-dim);
+      border: 1px solid var(--amber-border);
+      color: oklch(82% 0.09 78);
+    }
+    .notice.red {
+      background: var(--red-dim);
+      border: 1px solid var(--red-border);
+      color: oklch(78% 0.09 25);
+    }
+    .notice strong { color: var(--text); }
+    .notice code {
+      font-family: monospace;
+      font-size: 11px;
+      background: oklch(22% 0.04 252);
+      padding: 1px 4px;
+      border-radius: 3px;
+    }
+
+    /* ── RESPONSIVE ──────────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .page-header, .section { padding-left: 24px; padding-right: 24px; }
+      .nav-tabs { padding-left: 24px; padding-right: 24px; }
+      .stat-strip { flex-wrap: wrap; }
+      .stat-strip-item { flex: none; width: 50%; }
+      .stat-strip-item:nth-child(odd) { border-right: 1px solid var(--border); }
+      .stat-strip-item:nth-child(even) { border-right: none; }
+      .embed-cards { grid-template-columns: 1fr; }
+      .source-grid { grid-template-columns: repeat(2, 1fr); }
+      .agents-live { grid-template-columns: 1fr; }
+      .header-stats { flex-wrap: wrap; width: 100%; }
+      .header-stat { width: 50%; border-bottom: 1px solid var(--border); }
+    }
+    @media (max-width: 600px) {
+      .page-header h1 { font-size: 22px; }
+      .source-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── HEADER ──────────────────────────────────────────────── -->
+<header class="page-header">
+  <div class="header-eyebrow">
+    <div class="header-eyebrow-dot"></div>
+    Alleato Intelligence Platform
+  </div>
+  <h1>AI &amp; <em>RAG Architecture</em></h1>
+  <p class="subtitle">
+    Authoritative reference for all AI work. Read before touching any file under
+    <code>frontend/src/lib/ai/</code> or <code>backend/src/services/pipeline/</code>.
+  </p>
+  <div class="header-stats">
+    <div class="header-stat">
+      <div class="header-stat-label">Phase</div>
+      <div class="header-stat-value accent">1</div>
+      <div class="header-stat-note">Complete</div>
+    </div>
+    <div class="header-stat">
+      <div class="header-stat-label">Vector Chunks</div>
+      <div class="header-stat-value">24K+</div>
+      <div class="header-stat-note">document_chunks</div>
+    </div>
+    <div class="header-stat">
+      <div class="header-stat-label">Live Agents</div>
+      <div class="header-stat-value green">2</div>
+      <div class="header-stat-note">Strategist + CFO</div>
+    </div>
+    <div class="header-stat">
+      <div class="header-stat-label">RAG Tools</div>
+      <div class="header-stat-value purple">45+</div>
+      <div class="header-stat-note">across 8 files</div>
+    </div>
+    <div class="header-stat">
+      <div class="header-stat-label">Sync Cadence</div>
+      <div class="header-stat-value amber">30m</div>
+      <div class="header-stat-note">Render cron</div>
+    </div>
+    <div class="header-stat">
+      <div class="header-stat-label">Last Verified</div>
+      <div class="header-stat-value" style="font-size:13px;color:var(--muted)">2026-05-07</div>
+      <div class="header-stat-note">&nbsp;</div>
+    </div>
+  </div>
+</header>
+
+<!-- ── NAV ─────────────────────────────────────────────────── -->
+<nav class="nav-tabs">
+  <div class="nav-tab active" onclick="showTab('overview', this)">Overview</div>
+  <div class="nav-tab" onclick="showTab('agents', this)">Agents</div>
+  <div class="nav-tab" onclick="showTab('tools', this)">Tools (45+)</div>
+  <div class="nav-tab" onclick="showTab('pipeline', this)">Ingestion Pipeline</div>
+  <div class="nav-tab" onclick="showTab('comms', this)">Comms Pipeline</div>
+  <div class="nav-tab" onclick="showTab('vector', this)">Vector Store</div>
+  <div class="nav-tab" onclick="showTab('phases', this)">Roadmap</div>
+  <div class="nav-tab" onclick="showTab('gaps', this)">Known Gaps</div>
+</nav>
+
+<!-- ══════════════════ OVERVIEW ═══════════════════════════════ -->
+<section id="tab-overview" class="section active">
+  <h2>System Overview</h2>
+  <p class="section-intro">
+    Alleato AI is a 24/7 business intelligence layer for construction project managers. It answers questions in plain English by pulling from every data source simultaneously — financials, contracts, meeting transcripts, accounting (Acumatica), emails, Teams messages, and company documents.
+  </p>
+
+  <div class="stat-strip">
+    <div class="stat-strip-item">
+      <div class="stat-strip-label">Vector Embeddings</div>
+      <div class="stat-strip-value accent">24K+</div>
+      <div class="stat-strip-sub">document_chunks rows</div>
+    </div>
+    <div class="stat-strip-item">
+      <div class="stat-strip-label">AI Tools Registered</div>
+      <div class="stat-strip-value purple">45+</div>
+      <div class="stat-strip-sub">across 8 tool files</div>
+    </div>
+    <div class="stat-strip-item">
+      <div class="stat-strip-label">Live Agents</div>
+      <div class="stat-strip-value green">2</div>
+      <div class="stat-strip-sub">Strategist + CFO</div>
+    </div>
+    <div class="stat-strip-item">
+      <div class="stat-strip-label">Sync Cadence</div>
+      <div class="stat-strip-value amber">30m</div>
+      <div class="stat-strip-sub">Render cron, all sources</div>
+    </div>
+  </div>
+
+  <h3>Architecture Flow</h3>
+  <div class="diagram-area">
+    <svg width="100%" viewBox="0 0 900 520" xmlns="http://www.w3.org/2000/svg" style="max-width:900px;display:block;margin:0 auto;">
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#22293a"/>
+        </marker>
+        <marker id="arrow-blue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#4b84f0"/>
+        </marker>
+      </defs>
+
+      <!-- User browser -->
+      <rect x="350" y="10" width="200" height="44" rx="8" fill="#141c38" stroke="#4b84f0" stroke-width="1.5"/>
+      <text x="450" y="37" text-anchor="middle" fill="#4b84f0" font-size="13" font-weight="700">User (Browser)</text>
+
+      <line x1="450" y1="54" x2="450" y2="80" stroke="#22293a" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+      <!-- Chat API Route -->
+      <rect x="330" y="80" width="240" height="44" rx="8" fill="#181e2c" stroke="#22293a" stroke-width="1.5"/>
+      <text x="450" y="100" text-anchor="middle" fill="#e4e8f2" font-size="11" font-weight="600">Chat API Route</text>
+      <text x="450" y="116" text-anchor="middle" fill="#7b829a" font-size="10">api/ai-assistant/chat/route.ts</text>
+
+      <line x1="450" y1="124" x2="450" y2="148" stroke="#22293a" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+      <!-- Orchestrator -->
+      <rect x="310" y="148" width="280" height="44" rx="8" fill="#181e2c" stroke="#22293a" stroke-width="1.5"/>
+      <text x="450" y="168" text-anchor="middle" fill="#e4e8f2" font-size="11" font-weight="600">Orchestrator</text>
+      <text x="450" y="184" text-anchor="middle" fill="#7b829a" font-size="10">lib/ai/orchestrator.ts  •  Strategist agent</text>
+
+      <!-- Left: CFO branch -->
+      <line x1="310" y1="170" x2="210" y2="170" stroke="#22293a" stroke-width="1.5"/>
+      <line x1="210" y1="170" x2="210" y2="258" stroke="#22293a" stroke-width="1.5" marker-end="url(#arrow)"/>
+      <!-- Right: Tools branch -->
+      <line x1="590" y1="170" x2="690" y2="170" stroke="#22293a" stroke-width="1.5"/>
+      <line x1="690" y1="170" x2="690" y2="258" stroke="#22293a" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+      <text x="148" y="165" fill="#7b829a" font-size="9" font-style="italic">financial keywords</text>
+      <text x="642" y="165" fill="#7b829a" font-size="9" font-style="italic">direct tools</text>
+
+      <!-- CFO Agent -->
+      <rect x="90" y="258" width="240" height="50" rx="8" fill="#0c2819" stroke="#1fbf5e" stroke-width="1.5"/>
+      <text x="210" y="280" text-anchor="middle" fill="#1fbf5e" font-size="12" font-weight="700">CFO Sub-Agent</text>
+      <text x="210" y="297" text-anchor="middle" fill="#7ee0a0" font-size="10">gpt-5.4-mini  •  agents/cfo.ts</text>
+
+      <!-- Designed agents -->
+      <rect x="340" y="258" width="220" height="50" rx="8" fill="#181e2c" stroke="#22293a" stroke-width="1"/>
+      <text x="450" y="278" text-anchor="middle" fill="#7b829a" font-size="11" font-weight="600">COO / CHRO / CRO / VP BD</text>
+      <text x="450" y="294" text-anchor="middle" fill="#3e4557" font-size="10">designed, not yet wired</text>
+
+      <!-- Tool Layer -->
+      <rect x="565" y="258" width="250" height="50" rx="8" fill="#1e0836" stroke="#a34cf0" stroke-width="1.5"/>
+      <text x="690" y="278" text-anchor="middle" fill="#a34cf0" font-size="12" font-weight="700">Tool Layer  (45+ tools)</text>
+      <text x="690" y="294" text-anchor="middle" fill="#caa8f8" font-size="10">project • financial • operational • ERP</text>
+
+      <!-- Arrows to Supabase layer -->
+      <line x1="210" y1="308" x2="210" y2="380" stroke="#1fbf5e" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+      <line x1="690" y1="308" x2="690" y2="380" stroke="#a34cf0" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+      <line x1="450" y1="308" x2="450" y2="380" stroke="#22293a" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+      <!-- Supabase layer -->
+      <rect x="50" y="380" width="800" height="120" rx="10" fill="#181e2c" stroke="#22293a" stroke-width="1.5"/>
+      <text x="450" y="406" text-anchor="middle" fill="#7b829a" font-size="11" font-weight="700" letter-spacing="0.08em">SUPABASE  ·  PostgreSQL + pgvector</text>
+
+      <rect x="70" y="416" width="170" height="70" rx="6" fill="#131823" stroke="#22293a" stroke-width="1"/>
+      <text x="155" y="436" text-anchor="middle" fill="#4b84f0" font-size="11" font-weight="600">document_chunks</text>
+      <text x="155" y="452" text-anchor="middle" fill="#7b829a" font-size="10">halfvec(3072)</text>
+      <text x="155" y="468" text-anchor="middle" fill="#7b829a" font-size="10">24K+ rows • pgvector</text>
+
+      <rect x="258" y="416" width="160" height="70" rx="6" fill="#131823" stroke="#22293a" stroke-width="1"/>
+      <text x="338" y="436" text-anchor="middle" fill="#e4e8f2" font-size="11" font-weight="600">Project Tables</text>
+      <text x="338" y="452" text-anchor="middle" fill="#7b829a" font-size="10">budgets, contracts</text>
+      <text x="338" y="468" text-anchor="middle" fill="#7b829a" font-size="10">commitments, RFIs...</text>
+
+      <rect x="436" y="416" width="160" height="70" rx="6" fill="#131823" stroke="#22293a" stroke-width="1"/>
+      <text x="516" y="436" text-anchor="middle" fill="#e4e8f2" font-size="11" font-weight="600">Meeting Intel</text>
+      <text x="516" y="452" text-anchor="middle" fill="#7b829a" font-size="10">decisions, risks</text>
+      <text x="516" y="468" text-anchor="middle" fill="#7b829a" font-size="10">tasks, opportunities</text>
+
+      <rect x="614" y="416" width="220" height="70" rx="6" fill="#131823" stroke="#22293a" stroke-width="1"/>
+      <text x="724" y="436" text-anchor="middle" fill="#e4e8f2" font-size="11" font-weight="600">Knowledge + Acumatica</text>
+      <text x="724" y="452" text-anchor="middle" fill="#7b829a" font-size="10">company_knowledge</text>
+      <text x="724" y="468" text-anchor="middle" fill="#7b829a" font-size="10">ai_insights • ERP live data</text>
+    </svg>
+  </div>
+
+  <h3>System Prompt Assembly Order</h3>
+  <div class="pipeline-steps">
+    <div class="pipeline-step">
+      <div class="pipeline-step-num">1</div>
+      <div class="pipeline-step-content">
+        <div class="pipeline-step-title">soul.ts + identity.ts</div>
+        <div class="pipeline-step-desc">Persona foundation — voice, tone, values. Included in every system prompt at top priority. Never changes per user.</div>
+      </div>
+      <span class="badge green pipeline-step-badge">Always</span>
+    </div>
+    <div class="pipeline-step">
+      <div class="pipeline-step-num">2</div>
+      <div class="pipeline-step-content">
+        <div class="pipeline-step-title">USER CONTEXT block</div>
+        <div class="pipeline-step-desc">Per-user profile from <code>user_profiles</code> table, if set. Personalizes delivery without changing voice.</div>
+      </div>
+      <span class="badge amber pipeline-step-badge">If available</span>
+    </div>
+    <div class="pipeline-step">
+      <div class="pipeline-step-num">3</div>
+      <div class="pipeline-step-content">
+        <div class="pipeline-step-title">REMEMBERED CONTEXT</div>
+        <div class="pipeline-step-desc"><code>conversation_memories</code> — top-k by relevance + recent N. Extracted post-conversation by <code>gpt-4.1-nano</code>.</div>
+      </div>
+      <span class="badge amber pipeline-step-badge">If available</span>
+    </div>
+    <div class="pipeline-step">
+      <div class="pipeline-step-num">4</div>
+      <div class="pipeline-step-content">
+        <div class="pipeline-step-title">Operational instructions</div>
+        <div class="pipeline-step-desc"><code>strategist.ts</code> routing rules or agent-specific prompt (e.g. <code>cfo.ts</code>).</div>
+      </div>
+      <span class="badge green pipeline-step-badge">Always</span>
+    </div>
+    <div class="pipeline-step">
+      <div class="pipeline-step-num">5</div>
+      <div class="pipeline-step-content">
+        <div class="pipeline-step-title">RETRIEVED PROJECT DATA</div>
+        <div class="pipeline-step-desc">Results from tool calls executed during the conversation turn.</div>
+      </div>
+      <span class="badge accent pipeline-step-badge">Dynamic</span>
+    </div>
+    <div class="pipeline-step">
+      <div class="pipeline-step-num">6</div>
+      <div class="pipeline-step-content">
+        <div class="pipeline-step-title">USER MESSAGE</div>
+        <div class="pipeline-step-desc">The actual user query, with any selected project context.</div>
+      </div>
+      <span class="badge green pipeline-step-badge">Always</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ AGENTS ═════════════════════════════════ -->
+<section id="tab-agents" class="section">
+  <h2>C-Suite Agent Architecture</h2>
+  <p class="section-intro">
+    A multi-agent system where a Chief Strategist routes questions to domain-specialist agents. Each agent has its own system prompt, tool set, and model config. All agents run server-side via Vercel AI SDK.
+  </p>
+
+  <h3>Live Agents</h3>
+  <div class="agents-live">
+    <div class="agent-card-live active">
+      <div class="agent-card-header">
+        <div class="agent-card-title-group">
+          <div class="agent-icon" style="background:var(--accent-dim)">🎯</div>
+          <div>
+            <div class="agent-name">Strategist</div>
+            <div class="agent-model">openai/gpt-5.4 (user-selectable)</div>
+          </div>
+        </div>
+        <span class="badge green">Live</span>
+      </div>
+      <div class="agent-desc">Receives all messages. Routes financial questions to CFO. Calls project &amp; operational tools directly for everything else.</div>
+    </div>
+    <div class="agent-card-live active">
+      <div class="agent-card-header">
+        <div class="agent-card-title-group">
+          <div class="agent-icon" style="background:var(--green-dim)">💰</div>
+          <div>
+            <div class="agent-name">CFO</div>
+            <div class="agent-model">openai/gpt-5.4-mini</div>
+          </div>
+        </div>
+        <span class="badge green">Live</span>
+      </div>
+      <div class="agent-desc">Spawned via <code>consultCFO</code> tool on financial keywords. Gets its own system prompt and full financial + Acumatica tools.</div>
+    </div>
+  </div>
+
+  <h3>Designed — Not Yet Wired</h3>
+  <div class="agents-designed">
+    <div class="agent-row">
+      <div class="agent-row-icon">🏗️</div>
+      <div style="flex:1">
+        <div class="agent-row-name">COO</div>
+        <div class="agent-row-model">agents/coo.ts</div>
+        <div class="agent-row-desc">Operations, schedule, vendor performance. Needs <code>consultCOO</code> wired in orchestrator.</div>
+      </div>
+      <span class="badge muted agent-row-badge">Designed</span>
+    </div>
+    <div class="agent-row">
+      <div class="agent-row-icon">👥</div>
+      <div style="flex:1">
+        <div class="agent-row-name">CHRO</div>
+        <div class="agent-row-model">agents/chro.ts</div>
+        <div class="agent-row-desc">People, roles, workload, HR questions.</div>
+      </div>
+      <span class="badge muted agent-row-badge">Designed</span>
+    </div>
+    <div class="agent-row">
+      <div class="agent-row-icon">⚠️</div>
+      <div style="flex:1">
+        <div class="agent-row-name">CRO</div>
+        <div class="agent-row-model">agents/cro.ts</div>
+        <div class="agent-row-desc">Risk management, compliance, project risk scoring.</div>
+      </div>
+      <span class="badge muted agent-row-badge">Designed</span>
+    </div>
+    <div class="agent-row">
+      <div class="agent-row-icon">📊</div>
+      <div style="flex:1">
+        <div class="agent-row-name">VP BD</div>
+        <div class="agent-row-model">agents/vpbd.ts</div>
+        <div class="agent-row-desc">Business development, pipeline, proposals.</div>
+      </div>
+      <span class="badge muted agent-row-badge">Designed</span>
+    </div>
+    <div class="agent-row">
+      <div class="agent-row-icon">📣</div>
+      <div style="flex:1">
+        <div class="agent-row-name">CMO</div>
+        <div class="agent-row-model">agents/cmo.ts</div>
+        <div class="agent-row-desc">Marketing intelligence and content advisory.</div>
+      </div>
+      <span class="badge muted agent-row-badge">Designed</span>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <h3>How to Wire a New Agent</h3>
+  <pre>
+<span class="comment">// 1. Add config to agentRegistry in orchestrator.ts</span>
+agentRegistry.register({
+  name: <span class="string">'coo'</span>,
+  model: <span class="string">'openai/gpt-5.4-mini'</span>,
+  systemPrompt: getCOOSystemPrompt,
+  tools: createOperationalTools,
+});
+
+<span class="comment">// 2. Add consultXxx tool in createStrategistTools()</span>
+consultCOO: tool({
+  description: <span class="string">'Consult the COO for operations, schedule, and vendor questions'</span>,
+  <span class="keyword">execute</span>: async ({ question }) => agentRegistry.invoke(<span class="string">'coo'</span>, question),
+});
+
+<span class="comment">// 3. Add name to AGENT_NAMES in agents/types.ts</span>
+<span class="keyword">export const</span> AGENT_NAMES = [<span class="string">'strategist'</span>, <span class="string">'cfo'</span>, <span class="string">'coo'</span>, ...] <span class="keyword">as const</span>;
+
+<span class="comment">// 4. Update routing rules in agents/strategist.ts</span></pre>
+
+  <div class="divider"></div>
+
+  <h3>Model Registry</h3>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr><th>Model</th><th>ID</th><th>Used For</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>GPT-5.4</td><td><code>openai/gpt-5.4</code></td><td>Default Strategist model</td></tr>
+        <tr><td>GPT-5.5</td><td><code>openai/gpt-5.5</code></td><td>Newest general model (user-selectable)</td></tr>
+        <tr><td>GPT-5.4 Mini</td><td><code>openai/gpt-5.4-mini</code></td><td>CFO sub-agent, lightweight responses</td></tr>
+        <tr><td>GPT-4.1</td><td><code>openai/gpt-4.1</code></td><td>Chat route fallback / synthesis retry</td></tr>
+        <tr><td>GPT-4.1 Nano</td><td><code>openai/gpt-4.1-nano</code></td><td>Title generation, artifact generation, memory extraction</td></tr>
+        <tr><td>GPT-5.5 (compiler)</td><td><code>openai/gpt-5.5</code></td><td>Teams/email compiler (backend)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>AI Gateway</h3>
+  <div class="card">
+    <div style="display:flex;gap:32px;flex-wrap:wrap;">
+      <div>
+        <div style="font-size:10.5px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.08em;font-weight:600">Gateway URL</div>
+        <code style="font-family:'SF Mono','JetBrains Mono',monospace;font-size:13px;color:var(--accent)">https://ai-gateway.vercel.sh/v1</code>
+      </div>
+      <div>
+        <div style="font-size:10.5px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.08em;font-weight:600">Auth</div>
+        <code style="font-family:'SF Mono','JetBrains Mono',monospace;font-size:13px;color:var(--accent)">AI_GATEWAY_API_KEY</code>
+      </div>
+      <div>
+        <div style="font-size:10.5px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.08em;font-weight:600">Billing</div>
+        <span style="font-size:13px;">BYOK — stays with OpenAI account</span>
+      </div>
+      <div>
+        <div style="font-size:10.5px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.08em;font-weight:600">Fallback</div>
+        <code style="font-family:'SF Mono','JetBrains Mono',monospace;font-size:13px;color:var(--muted)">OPENAI_API_KEY</code>
+        <span style="font-size:12px;color:var(--muted)"> (local dev only)</span>
+      </div>
+    </div>
+    <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:12px;color:var(--amber)">
+      Use <code style="font-size:12px;font-family:monospace">/v1/chat/completions</code> not <code style="font-size:12px;font-family:monospace">/v1/responses</code> — the Responses API has validation bugs with multi-step tool calling.
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ TOOLS ══════════════════════════════════ -->
+<section id="tab-tools" class="section">
+  <h2>Tool Inventory</h2>
+  <p class="section-intro">45+ tools across 8 files. All tools are server-side only (Next.js API routes). They receive <code>userId</code> for RLS scoping.</p>
+
+  <div class="section-title-row">
+    <h3>Core Project Tools — project-tools.ts</h3>
+    <span class="badge purple">10 tools</span>
+  </div>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Tool</th><th>Queries</th><th>Returns</th></tr></thead>
+      <tbody>
+        <tr><td><code>getProjectBriefingSnapshot</code></td><td>projects, budgets, risks, meetings, tasks</td><td>Full project briefing: financials, schedule, risks, action items</td></tr>
+        <tr><td><code>getPortfolioOverview</code></td><td>projects, project_health_dashboard</td><td>All active projects with health signals</td></tr>
+        <tr><td><code>getProjectsWithRisks</code></td><td>risks, ai_insights, project_issue_summary</td><td>Ranked projects by risk score with explicit signals</td></tr>
+        <tr><td><code>getProjectRiskAnalysis</code></td><td>risks, open_critical_items, ai_insights</td><td>Single-project risk drilldown</td></tr>
+        <tr><td><code>getFinancialAnalysis</code></td><td>budgets, contracts, commitments, change_orders</td><td>Cross-project financial overview</td></tr>
+        <tr><td><code>getProjectBudgetSummary</code></td><td>budget lines, cost codes, commitments</td><td>Per-project budget health with cost code breakdown</td></tr>
+        <tr><td><code>getActionItemsAndInsights</code></td><td>tasks, decisions, opportunities</td><td>Action items, decisions, follow-up tracking</td></tr>
+        <tr><td><code>getMeetingsByDate</code></td><td>document_metadata, meeting_segments</td><td>Meetings filtered by date range</td></tr>
+        <tr><td><code>searchDocuments</code></td><td>document_metadata, document_chunks (full-text)</td><td>Keyword search across all ingested documents</td></tr>
+        <tr><td><code>getProjectDetails</code></td><td>projects + related tables</td><td>Single project record with team and contract info</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title-row">
+    <h3>Financial Tools — financial.ts</h3>
+    <span class="badge accent">6 tools</span>
+  </div>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Tool</th><th>Queries</th><th>Returns</th></tr></thead>
+      <tbody>
+        <tr><td><code>getCommitmentsOverview</code></td><td>commitments, companies, contract_line_items</td><td>All commitments with status, amounts, vendor info, billing summary</td></tr>
+        <tr><td><code>getChangeOrderDetails</code></td><td>change_orders, change_events, prime_contracts</td><td>CO lifecycle: approved/pending/rejected with financial impact</td></tr>
+        <tr><td><code>getDirectCostsSummary</code></td><td>direct_costs, companies, cost_codes</td><td>Direct costs by category, vendor, time period</td></tr>
+        <tr><td><code>getBudgetLineItems</code></td><td>budget_lines, cost_codes</td><td>Granular budget with filterable cost codes and variance</td></tr>
+        <tr><td><code>getCostTrends</code></td><td>direct_costs, commitments (time-bucketed)</td><td>Spending velocity and burn rate over time</td></tr>
+        <tr><td><code>getMarginAnalysis</code></td><td>prime_contracts, commitments, change_orders</td><td>Margin by contract and project, trend over time</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title-row">
+    <h3>Operational Tools — operational.ts</h3>
+    <span class="badge green">15+ tools</span>
+  </div>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Tool</th><th>Queries</th><th>Returns</th></tr></thead>
+      <tbody>
+        <tr><td><code>getPeopleAndRoles</code></td><td>project_members, users, companies</td><td>Who's on which project, roles, workload signals</td></tr>
+        <tr><td><code>getVendorPerformance</code></td><td>companies, commitments, direct_costs</td><td>Delivery history, quality signals, spend by vendor</td></tr>
+        <tr><td><code>getRFIStatus</code></td><td>rfis</td><td>Open RFIs, response times, schedule impact flags</td></tr>
+        <tr><td><code>getSubmittalStatus</code></td><td>submittals</td><td>Submittal workflow status, overdue items</td></tr>
+        <tr><td><code>semanticSearch</code></td><td>document_chunks (pgvector), ai_insights, company_knowledge</td><td>Unified semantic search across all ingested content</td></tr>
+        <tr><td><code>getCompanyKnowledge</code></td><td>company_knowledge, company_context</td><td>Company strategy, goals, competitive landscape</td></tr>
+        <tr><td><code>recallPastConversations</code></td><td>conversation_memories (pgvector)</td><td>Semantically relevant facts from past sessions</td></tr>
+        <tr><td><code>searchMeetingsByTopic</code></td><td>document_chunks (meetings, pgvector)</td><td>Meeting content by topic</td></tr>
+        <tr><td><code>getRecentEmails</code></td><td>outlook_email_intake (by date)</td><td>Recent emails — use for "what emails today?"</td></tr>
+        <tr><td><code>searchEmails</code></td><td>document_chunks (email, pgvector)</td><td>Email content by topic</td></tr>
+        <tr><td><code>searchTeamsMessages</code></td><td>document_chunks (teams, pgvector)</td><td>Teams message content by topic</td></tr>
+        <tr><td><code>saveInsight</code></td><td>ai_insights (write)</td><td>Persist an AI-generated insight</td></tr>
+        <tr><td><code>saveToKnowledgeBase</code></td><td>company_knowledge (write)</td><td>Persist a fact to the knowledge base</td></tr>
+        <tr><td><code>writeMemory</code></td><td>conversation_memories (write)</td><td>Persist a durable fact about the user</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title-row">
+    <h3>Acumatica ERP Tools — acumatica.ts</h3>
+    <span class="badge amber">9 tools · live accounting data</span>
+  </div>
+  <div class="notice amber" style="margin-bottom:16px">
+    <strong>Auth:</strong> Cookie-based (POST /entity/auth/login → 204 + cookies). NOT bearer token. Company: <code>"Alleato Group LLC"</code>. API version: <code>24.200.001</code>. Never use OData <code>$filter</code> — causes HTTP 500. Safe params: <code>$select, $top, $expand</code>. Filter in-memory.
+  </div>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Tool</th><th>Acumatica Endpoint</th><th>Returns</th></tr></thead>
+      <tbody>
+        <tr><td><code>getAPAgingReport</code></td><td>AP aging</td><td>Who you owe, amounts, aging buckets</td></tr>
+        <tr><td><code>getARAgingReport</code></td><td>AR aging</td><td>Who owes you, amounts, days outstanding</td></tr>
+        <tr><td><code>getCashPositionReport</code></td><td>GL cash accounts</td><td>Current balances across bank accounts</td></tr>
+        <tr><td><code>getVendorSpendReport</code></td><td>Vendor transactions</td><td>Total spend by vendor across all projects</td></tr>
+        <tr><td><code>getRecentBills</code></td><td>Bills</td><td>Latest AP bills</td></tr>
+        <tr><td><code>getRecentInvoices</code></td><td>Invoices</td><td>Latest AR invoices</td></tr>
+        <tr><td><code>getAcumaticaProjectBudget</code></td><td>Project budget</td><td>Live project budget from accounting</td></tr>
+        <tr><td><code>getAcumaticaProjectList</code></td><td>Projects</td><td>Project list from Acumatica</td></tr>
+        <tr><td><code>getPurchaseOrderSummary</code></td><td>Purchase orders</td><td>Open PO summary</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Additional Tool Files</h3>
+  <div class="card-grid">
+    <div class="card">
+      <div style="font-family:'SF Mono','JetBrains Mono',monospace;font-size:11.5px;color:var(--accent);margin-bottom:8px">schedule-tools.ts</div>
+      <div style="font-size:13px;font-weight:600;margin-bottom:4px">getScheduleAnalysis</div>
+      <div style="font-size:12.5px;color:var(--muted)">Task status, critical path, delays, look-aheads</div>
+    </div>
+    <div class="card">
+      <div style="font-family:'SF Mono','JetBrains Mono',monospace;font-size:11.5px;color:var(--accent);margin-bottom:8px">forecast-tools.ts</div>
+      <div style="font-size:13px;font-weight:600;margin-bottom:4px">getForecastComparison</div>
+      <div style="font-size:12.5px;color:var(--muted)">Budget vs. actual vs. forecast across cost codes</div>
+    </div>
+    <div class="card">
+      <div style="font-family:'SF Mono','JetBrains Mono',monospace;font-size:11.5px;color:var(--accent);margin-bottom:8px">document-intelligence.ts</div>
+      <div style="font-size:13px;font-weight:600;margin-bottom:4px">searchSpecs + searchOneDriveDocs</div>
+      <div style="font-size:12.5px;color:var(--muted)">Semantic search against document_chunks filtered by category</div>
+    </div>
+    <div class="card">
+      <div style="font-family:'SF Mono','JetBrains Mono',monospace;font-size:11.5px;color:var(--accent);margin-bottom:8px">action-tools.ts</div>
+      <div style="font-size:13px;font-weight:600;margin-bottom:4px">Write-back actions</div>
+      <div style="font-size:12.5px;color:var(--muted)">createGeneratedTask, send alert, create record</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ PIPELINE ═══════════════════════════════ -->
+<section id="tab-pipeline" class="section">
+  <h2>Document Ingestion Pipeline</h2>
+  <p class="section-intro">
+    Four-stage pipeline: parse → embed → extract → digest. All sources funnel into <code>document_chunks</code>.
+  </p>
+
+  <h3>Source Types</h3>
+  <div class="source-grid">
+    <div class="source-card">
+      <div class="source-icon">🎙️</div>
+      <div class="source-name">Fireflies.ai</div>
+      <div class="source-count">Meeting transcripts</div>
+    </div>
+    <div class="source-card">
+      <div class="source-icon">📄</div>
+      <div class="source-name">PDF / DOCX</div>
+      <div class="source-count">Manual upload</div>
+    </div>
+    <div class="source-card">
+      <div class="source-icon">📊</div>
+      <div class="source-name">CSV / XLSX</div>
+      <div class="source-count">Financial sheets</div>
+    </div>
+    <div class="source-card">
+      <div class="source-icon">💬</div>
+      <div class="source-name">Microsoft 365</div>
+      <div class="source-count">Email + Teams + OneDrive</div>
+    </div>
+  </div>
+
+  <h3>Pipeline Stages</h3>
+  <div class="pipeline-steps">
+    <div class="pipeline-step">
+      <div class="pipeline-step-num" style="background:var(--accent-dim);color:var(--accent)">1A</div>
+      <div class="pipeline-step-content">
+        <div class="pipeline-step-title">Meeting Parser — parser.py</div>
+        <div class="pipeline-step-desc">Fireflies meeting markdown → segments, decisions, risks, tasks. Writes to <code>meeting_segments</code>.</div>
+      </div>
+      <span class="badge accent pipeline-step-badge">Stage 1</span>
+    </div>
+    <div class="pipeline-step">
+      <div class="pipeline-step-num" style="background:var(--accent-dim);color:var(--accent)">1B</div>
+      <div class="pipeline-step-content">
+        <div class="pipeline-step-title">Document Parser — document_parser.py</div>
+        <div class="pipeline-step-desc">PDF/DOCX text extraction → LLM segmentation → <code>meeting_segments</code>.</div>
+      </div>
+      <span class="badge accent pipeline-step-badge">Stage 1</span>
+    </div>
+    <div class="pipeline-step">
+      <div class="pipeline-step-num" style="background:var(--accent-dim);color:var(--accent)">1C</div>
+      <div class="pipeline-step-content">
+        <div class="pipeline-step-title">Financial Parser — financial_parser.py</div>
+        <div class="pipeline-step-desc">CSV/XLSX → <code>document_rows</code> with text summaries for embedding.</div>
+      </div>
+      <span class="badge accent pipeline-step-badge">Stage 1</span>
+    </div>
+    <div class="pipeline-step">
+      <div class="pipeline-step-num" style="background:var(--purple-dim);color:var(--purple)">2</div>
+      <div class="pipeline-step-content">
+        <div class="pipeline-step-title">Embedder — embedder.py</div>
+        <div class="pipeline-step-desc">Chunking (3 000 char target, 500 overlap) + embedding via text-embedding-3-large → <code>document_chunks</code>.</div>
+      </div>
+      <span class="badge purple pipeline-step-badge">Embed</span>
+    </div>
+    <div class="pipeline-step">
+      <div class="pipeline-step-num" style="background:var(--green-dim);color:var(--green)">3</div>
+      <div class="pipeline-step-content">
+        <div class="pipeline-step-title">Extractor — extractor.py</div>
+        <div class="pipeline-step-desc">Normalizes and upserts decisions, risks, tasks, opportunities to their respective tables.</div>
+      </div>
+      <span class="badge green pipeline-step-badge">Extract</span>
+    </div>
+    <div class="pipeline-step">
+      <div class="pipeline-step-num" style="background:var(--amber-dim);color:var(--amber)">4</div>
+      <div class="pipeline-step-content">
+        <div class="pipeline-step-title">Digest — digest.py</div>
+        <div class="pipeline-step-desc">Daily digest generation (non-blocking). Summarizes new content for the morning briefing.</div>
+      </div>
+      <span class="badge amber pipeline-step-badge">Async</span>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <h3>Manual Commands</h3>
+  <pre>
+<span class="comment"># Ingest a local folder</span>
+python3 scripts/ingestion/ingest_local_documents.py --source-dir <span class="string">"/absolute/path"</span> --process-now
+
+<span class="comment"># Dry-run scan</span>
+python3 scripts/ingestion/ingest_local_documents.py --source-dir <span class="string">"/absolute/path"</span> --dry-run
+
+<span class="comment"># Manually trigger pipeline for one document</span>
+curl -X POST <span class="string">"$BACKEND_URL/api/pipeline/process"</span> \
+  -H <span class="string">"Content-Type: application/json"</span> \
+  -d <span class="string">'{"metadataId":"&lt;uuid&gt;"}'</span>
+</pre>
+</section>
+
+<!-- ══════════════════ COMMS ══════════════════════════════════ -->
+<section id="tab-comms" class="section">
+  <h2>Communications Data Pipeline</h2>
+  <p class="section-intro">
+    Microsoft 365 sync — Outlook, Teams channels, Teams DMs, and OneDrive/SharePoint — running every 30 minutes via Render cron. The AI only reads <code>document_chunks</code>. Never query <code>document_metadata</code> or <code>outlook_email_intake</code> in AI tools.
+  </p>
+
+  <h3>Data Flow</h3>
+  <div class="diagram-area">
+    <svg width="100%" viewBox="0 0 860 400" xmlns="http://www.w3.org/2000/svg" style="max-width:860px;display:block;margin:0 auto">
+      <defs>
+        <marker id="arr2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="#22293a"/>
+        </marker>
+      </defs>
+      <!-- Sources row -->
+      <rect x="10"  y="10" width="140" height="44" rx="6" fill="#141c38" stroke="#4b84f0" stroke-width="1"/>
+      <text x="80"  y="30" text-anchor="middle" fill="#4b84f0" font-size="11" font-weight="600">Outlook Mail</text>
+      <text x="80"  y="46" text-anchor="middle" fill="#93c5fd" font-size="10">email sync</text>
+
+      <rect x="168" y="10" width="140" height="44" rx="6" fill="#141c38" stroke="#4b84f0" stroke-width="1"/>
+      <text x="238" y="30" text-anchor="middle" fill="#4b84f0" font-size="11" font-weight="600">Teams Channels</text>
+      <text x="238" y="46" text-anchor="middle" fill="#93c5fd" font-size="10">delta queries</text>
+
+      <rect x="326" y="10" width="140" height="44" rx="6" fill="#141c38" stroke="#4b84f0" stroke-width="1"/>
+      <text x="396" y="30" text-anchor="middle" fill="#4b84f0" font-size="11" font-weight="600">Teams DMs</text>
+      <text x="396" y="46" text-anchor="middle" fill="#93c5fd" font-size="10">timestamp-based</text>
+
+      <rect x="484" y="10" width="140" height="44" rx="6" fill="#141c38" stroke="#4b84f0" stroke-width="1"/>
+      <text x="554" y="30" text-anchor="middle" fill="#4b84f0" font-size="11" font-weight="600">OneDrive</text>
+      <text x="554" y="46" text-anchor="middle" fill="#93c5fd" font-size="10">delta queries</text>
+
+      <rect x="642" y="10" width="200" height="44" rx="6" fill="#0c2819" stroke="#1fbf5e" stroke-width="1"/>
+      <text x="742" y="30" text-anchor="middle" fill="#1fbf5e" font-size="11" font-weight="600">Fireflies.ai</text>
+      <text x="742" y="46" text-anchor="middle" fill="#7ee0a0" font-size="10">meeting transcripts</text>
+
+      <!-- Down lines to sync boxes -->
+      <line x1="80"  y1="54" x2="80"  y2="100" stroke="#22293a" stroke-width="1.5"/>
+      <line x1="238" y1="54" x2="238" y2="100" stroke="#22293a" stroke-width="1.5"/>
+      <line x1="396" y1="54" x2="396" y2="100" stroke="#22293a" stroke-width="1.5"/>
+      <line x1="554" y1="54" x2="554" y2="100" stroke="#22293a" stroke-width="1.5"/>
+      <line x1="742" y1="54" x2="742" y2="100" stroke="#1fbf5e" stroke-width="1.5"/>
+
+      <!-- Sync box -->
+      <rect x="10"  y="100" width="480" height="48" rx="8" fill="#181e2c" stroke="#22293a" stroke-width="1.5"/>
+      <text x="250" y="122" text-anchor="middle" fill="#e4e8f2" font-size="12" font-weight="600">microsoft_graph sync — run_graph_sync()</text>
+      <text x="250" y="138" text-anchor="middle" fill="#7b829a" font-size="10">Render cron: alleato-graph-sync  •  every 30 minutes</text>
+
+      <rect x="642" y="100" width="200" height="48" rx="8" fill="#181e2c" stroke="#22293a" stroke-width="1.5"/>
+      <text x="742" y="124" text-anchor="middle" fill="#e4e8f2" font-size="12" font-weight="600">Fireflies pipeline</text>
+      <text x="742" y="140" text-anchor="middle" fill="#7b829a" font-size="10">fireflies_pipeline.py</text>
+
+      <!-- Arrows to table boxes -->
+      <line x1="150" y1="148" x2="100" y2="190" stroke="#22293a" stroke-width="1.5"/>
+      <line x1="250" y1="148" x2="250" y2="190" stroke="#22293a" stroke-width="1.5"/>
+      <line x1="370" y1="148" x2="430" y2="190" stroke="#22293a" stroke-width="1.5"/>
+      <line x1="742" y1="148" x2="742" y2="190" stroke="#1fbf5e" stroke-width="1.5"/>
+
+      <!-- Table boxes -->
+      <rect x="10"  y="190" width="180" height="56" rx="6" fill="#181e2c" stroke="#22293a" stroke-width="1"/>
+      <text x="100" y="212" text-anchor="middle" fill="#e4e8f2" font-size="11" font-weight="600">outlook_email_intake</text>
+      <text x="100" y="228" text-anchor="middle" fill="#7b829a" font-size="10">all emails, raw</text>
+      <text x="100" y="240" text-anchor="middle" fill="#7b829a" font-size="10">getRecentEmails reads here</text>
+
+      <rect x="210" y="190" width="190" height="56" rx="6" fill="#181e2c" stroke="#22293a" stroke-width="1"/>
+      <text x="305" y="212" text-anchor="middle" fill="#e4e8f2" font-size="11" font-weight="600">document_metadata</text>
+      <text x="305" y="228" text-anchor="middle" fill="#7b829a" font-size="10">relevance-filtered</text>
+      <text x="305" y="240" text-anchor="middle" fill="#7b829a" font-size="10">AI-ready staging area</text>
+
+      <rect x="420" y="190" width="160" height="56" rx="6" fill="#181e2c" stroke="#22293a" stroke-width="1"/>
+      <text x="500" y="212" text-anchor="middle" fill="#e4e8f2" font-size="11" font-weight="600">project_emails</text>
+      <text x="500" y="228" text-anchor="middle" fill="#7b829a" font-size="10">project-matched only</text>
+      <text x="500" y="240" text-anchor="middle" fill="#7b829a" font-size="10">UI views read here</text>
+
+      <rect x="642" y="190" width="200" height="56" rx="6" fill="#181e2c" stroke="#1fbf5e" stroke-width="1"/>
+      <text x="742" y="212" text-anchor="middle" fill="#e4e8f2" font-size="11" font-weight="600">document_metadata</text>
+      <text x="742" y="228" text-anchor="middle" fill="#7b829a" font-size="10">meetings category</text>
+      <text x="742" y="240" text-anchor="middle" fill="#7ee0a0" font-size="10">same table, meetings source</text>
+
+      <!-- Arrows to document_chunks -->
+      <line x1="305" y1="246" x2="305" y2="282" stroke="#a34cf0" stroke-width="1.5" marker-end="url(#arr2)"/>
+      <line x1="742" y1="246" x2="742" y2="282" stroke="#1fbf5e" stroke-width="1.5" marker-end="url(#arr2)"/>
+
+      <text x="278" y="268" fill="#7b829a" font-size="9" font-style="italic">embed_pending_graph_documents()</text>
+
+      <!-- document_chunks -->
+      <rect x="120" y="282" width="300" height="60" rx="8" fill="#1e0836" stroke="#a34cf0" stroke-width="2"/>
+      <text x="270" y="307" text-anchor="middle" fill="#a34cf0" font-size="13" font-weight="700">document_chunks</text>
+      <text x="270" y="323" text-anchor="middle" fill="#caa8f8" font-size="10">halfvec(3072) · pgvector · AI queries HERE</text>
+      <text x="270" y="337" text-anchor="middle" fill="#caa8f8" font-size="10">text-embedding-3-large  ·  24K+ rows</text>
+
+      <rect x="640" y="282" width="210" height="60" rx="8" fill="#0c2819" stroke="#1fbf5e" stroke-width="1.5"/>
+      <text x="745" y="307" text-anchor="middle" fill="#1fbf5e" font-size="12" font-weight="700">Teams Compiler</text>
+      <text x="745" y="323" text-anchor="middle" fill="#7ee0a0" font-size="10">run_compiler_batch()  •  batch 25</text>
+      <text x="745" y="337" text-anchor="middle" fill="#7ee0a0" font-size="10">tasks · insights · signals</text>
+
+      <!-- Fireflies dashed line to document_chunks -->
+      <line x1="742" y1="342" x2="430" y2="342" stroke="#1fbf5e" stroke-width="1" stroke-dasharray="3,3"/>
+      <line x1="430" y1="342" x2="420" y2="342" stroke="#1fbf5e" stroke-width="1" marker-end="url(#arr2)"/>
+    </svg>
+  </div>
+
+  <div class="divider"></div>
+
+  <h3>Project Assignment Strategies</h3>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>#</th><th>Strategy</th><th>Method</th><th>Typical Confidence</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Title match</td><td>Project name / alias appears in subject/title</td><td><span class="badge green">High 0.90+</span></td></tr>
+        <tr><td>2</td><td>Contacts match</td><td>Participant email domain matches known project contacts</td><td><span class="badge green">Med-high 0.75–0.90</span></td></tr>
+        <tr><td>3</td><td>Domain match</td><td>Sender domain matches a client domain on a project</td><td><span class="badge amber">Medium 0.70–0.80</span></td></tr>
+        <tr><td>4</td><td>Content match</td><td>Project name / alias mentioned in body text</td><td><span class="badge amber">Medium 0.70–0.85</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:12.5px;color:var(--muted);margin-bottom:36px">Minimum confidence threshold: <strong style="color:var(--text)">0.70</strong>. Items below threshold go to <code style="font-family:monospace;font-size:11px;background:var(--surface-2);padding:1px 4px;border-radius:3px;color:var(--accent)">document_attribution_candidates</code> for manual review (no UI yet).</p>
+
+  <h3>AI Read Path — Use These RPCs, Not Raw Tables</h3>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>User Question Type</th><th>Tool</th><th>Backing Table</th></tr></thead>
+      <tbody>
+        <tr><td>"What emails today / this week?"</td><td><code>getRecentEmails</code></td><td>outlook_email_intake (date filter)</td></tr>
+        <tr><td>"Find emails about [topic]"</td><td><code>searchEmails</code></td><td>document_chunks via search_document_chunks</td></tr>
+        <tr><td>"What Teams messages mention X?"</td><td><code>searchTeamsMessages</code></td><td>document_chunks via search_document_chunks</td></tr>
+        <tr><td>"What risks / decisions on X?"</td><td><code>semanticSearch</code></td><td>document_chunks + search_all_knowledge</td></tr>
+        <tr><td>"What's the latest on [project]?"</td><td>searchEmails + searchTeamsMessages + searchMeetingsByTopic</td><td>document_chunks (all categories)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Known Limitations</h3>
+  <div class="notice red">
+    <strong>Teams DM 403 Errors — Permanent, No Fix.</strong> 273 of 283 chats sync successfully. 10 permanent 403s on cross-tenant (<code>@unq.gbl.spaces</code>) and meeting chats (<code>@thread.v2</code>). Hard Microsoft Graph API limitation with app-only auth. Do not file a bug or attempt a fix.
+  </div>
+  <div class="notice amber">
+    <strong>No Review UI for Low-Confidence Assignments.</strong> Items below 0.70 confidence go to <code>document_attribution_candidates</code> with no frontend. Query directly: <code>SELECT * FROM document_attribution_candidates ORDER BY created_at DESC LIMIT 50;</code>
+  </div>
+</section>
+
+<!-- ══════════════════ VECTOR ══════════════════════════════════ -->
+<section id="tab-vector" class="section">
+  <h2>Vector Store</h2>
+  <p class="section-intro">
+    <code>document_chunks</code> is the unified vector store. This is the ONLY table the AI assistant queries for semantic search. 24K+ rows, halfvec(3072) pgvector index.
+  </p>
+
+  <div class="embed-cards">
+    <div class="embed-card">
+      <h4 style="color:var(--accent)">Primary — document_chunks</h4>
+      <div class="embed-row"><span class="embed-key">Embedding model</span><span class="embed-val">text-embedding-3-large</span></div>
+      <div class="embed-row"><span class="embed-key">Dimensions</span><span class="embed-val">halfvec(3072)</span></div>
+      <div class="embed-row"><span class="embed-key">Row count</span><span class="embed-val">24K+</span></div>
+      <div class="embed-row"><span class="embed-key">Index</span><span class="embed-val">pgvector cosine (HNSW)</span></div>
+      <div class="embed-row"><span class="embed-key">Chunk size</span><span class="embed-val">3 000 chars</span></div>
+      <div class="embed-row"><span class="embed-key">Overlap</span><span class="embed-val">400–500 chars</span></div>
+      <div class="embed-row"><span class="embed-key">Content types</span><span class="embed-val">emails, Teams, meetings, docs</span></div>
+    </div>
+    <div class="embed-card">
+      <h4 style="color:var(--muted)">Secondary — conversation_memories</h4>
+      <div class="embed-row"><span class="embed-key">Embedding model</span><span class="embed-val">text-embedding-3-small</span></div>
+      <div class="embed-row"><span class="embed-key">Dimensions</span><span class="embed-val">vector(1536)</span></div>
+      <div class="embed-row"><span class="embed-key">Purpose</span><span class="embed-val">Short-term user memory</span></div>
+      <div class="embed-row"><span class="embed-key">Written by</span><span class="embed-val">conversation-memory.ts</span></div>
+      <div class="embed-row"><span class="embed-key">Timing</span><span class="embed-val">Async post-response</span></div>
+      <div class="embed-row"><span class="embed-key">Warning</span><span class="embed-val" style="color:var(--amber)">Don't change dims — needs migration</span></div>
+    </div>
+  </div>
+
+  <h3>Search RPCs</h3>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>RPC</th><th>Usage</th><th>Parameters</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>search_document_chunks</code></td>
+          <td>Primary semantic search over all content</td>
+          <td><code>query_embedding</code> halfvec(3072), optional <code>category</code>, <code>match_count</code></td>
+        </tr>
+        <tr>
+          <td><code>search_document_chunks_by_category</code></td>
+          <td>Same but with mandatory category filter</td>
+          <td>Same as above + required <code>category</code></td>
+        </tr>
+        <tr>
+          <td><code>search_all_knowledge</code></td>
+          <td>Searches decisions, risks, opportunities, ai_insights</td>
+          <td>Query text, optional project_id filter</td>
+        </tr>
+        <tr>
+          <td><code>search_knowledge_base</code></td>
+          <td>Searches company_knowledge table only</td>
+          <td>Query text</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Embedding Config — tool-utils.ts (source of truth)</h3>
+  <pre>
+<span class="comment">// Always use this — never call OpenAI SDK directly in tool code</span>
+<span class="keyword">const</span> EMBEDDING = {
+  LARGE: { model: <span class="string">"text-embedding-3-large"</span>, dimensions: <span class="accent">3072</span> },  <span class="comment">// document_chunks, ai_memories, knowledge</span>
+  SMALL: { model: <span class="string">"text-embedding-3-small"</span>, dimensions: <span class="accent">1536</span> },  <span class="comment">// conversation_memories (legacy)</span>
+};
+
+<span class="comment">// For new tools querying document_chunks</span>
+<span class="keyword">const</span> embedding = <span class="keyword">await</span> generateEmbedding(openai, query, EMBEDDING.LARGE);
+<span class="keyword">const</span> results = <span class="keyword">await</span> supabase.rpc(<span class="string">"search_document_chunks"</span>, {
+  query_embedding: embedding,
+  match_count: <span class="accent">10</span>,
+  category: <span class="string">"email"</span>,  <span class="comment">// optional: 'email' | 'teams_message' | 'document' | 'meeting'</span>
+});</pre>
+
+  <h3>Adding a New RAG Tool — Checklist</h3>
+  <div class="pipeline-steps">
+    <div class="pipeline-step">
+      <div class="pipeline-step-num">1</div>
+      <div class="pipeline-step-content">
+        <div class="pipeline-step-title">Choose the right tool file</div>
+        <div class="pipeline-step-desc">financial.ts, operational.ts, project-tools.ts, or a new file.</div>
+      </div>
+    </div>
+    <div class="pipeline-step">
+      <div class="pipeline-step-num">2</div>
+      <div class="pipeline-step-content">
+        <div class="pipeline-step-title">Read an existing tool for the pattern</div>
+        <div class="pipeline-step-desc"><code>tool({ description, parameters: z.object({...}), execute: async (...) => {...} })</code></div>
+      </div>
+    </div>
+    <div class="pipeline-step">
+      <div class="pipeline-step-num">3</div>
+      <div class="pipeline-step-content">
+        <div class="pipeline-step-title">Use createServiceClient() for DB access</div>
+        <div class="pipeline-step-desc">Server-side only. Never call Supabase from a client component in tool code.</div>
+      </div>
+    </div>
+    <div class="pipeline-step">
+      <div class="pipeline-step-num">4</div>
+      <div class="pipeline-step-content">
+        <div class="pipeline-step-title">Use generateEmbedding() for vector search</div>
+        <div class="pipeline-step-desc"><code>generateEmbedding(openai, query, EMBEDDING.LARGE)</code> then <code>supabase.rpc("search_document_chunks", {...})</code></div>
+      </div>
+    </div>
+    <div class="pipeline-step">
+      <div class="pipeline-step-num">5</div>
+      <div class="pipeline-step-content">
+        <div class="pipeline-step-title">Add to the factory function's return object</div>
+        <div class="pipeline-step-desc">e.g. <code>createFinancialTools()</code>, <code>createOperationalTools()</code></div>
+      </div>
+    </div>
+    <div class="pipeline-step">
+      <div class="pipeline-step-num">6</div>
+      <div class="pipeline-step-content">
+        <div class="pipeline-step-title">Update the Strategist system prompt</div>
+        <div class="pipeline-step-desc">Describe when to call the new tool in <code>agents/strategist.ts</code> routing rules.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ PHASES ══════════════════════════════════ -->
+<section id="tab-phases" class="section">
+  <h2>Implementation Roadmap</h2>
+  <p class="section-intro">Four phases. Phase 1 is complete. Phase 2 (Proactive Intelligence) is next.</p>
+
+  <div class="phase-list">
+    <div class="phase-item">
+      <div class="phase-num complete">1</div>
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+          <div class="phase-title">Data Foundation</div>
+          <span class="badge green">Complete</span>
+        </div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:14px">All foundational infrastructure is live and operational.</p>
+        <div class="phase-items-grid">
+          <div class="phase-item-chip done">RAG assistant</div>
+          <div class="phase-item-chip done">28+ registered tools</div>
+          <div class="phase-item-chip done">Strategist + CFO agents</div>
+          <div class="phase-item-chip done">Acumatica ERP (7 tools)</div>
+          <div class="phase-item-chip done">Vector embeddings (24K+ chunks)</div>
+          <div class="phase-item-chip done">Fireflies.ai meeting sync</div>
+          <div class="phase-item-chip done">Microsoft 365 sync</div>
+          <div class="phase-item-chip done">Chat persistence</div>
+          <div class="phase-item-chip done">Guardrails (PII, jailbreak)</div>
+          <div class="phase-item-chip done">Daily digest</div>
+          <div class="phase-item-chip done">Company knowledge base</div>
+          <div class="phase-item-chip done">Conversation memory</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase-item">
+      <div class="phase-num upcoming">2</div>
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+          <div class="phase-title">Proactive Intelligence</div>
+          <span class="badge amber">Not Started</span>
+        </div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:14px">AI surfaces alerts without being asked.</p>
+        <div class="phase-items-grid">
+          <div class="phase-item-chip">Budget erosion alerts (2A)</div>
+          <div class="phase-item-chip">Schedule risk detection (2A)</div>
+          <div class="phase-item-chip">Cash flow gap alerts (2A)</div>
+          <div class="phase-item-chip">Notification routing (2B)</div>
+          <div class="phase-item-chip">Morning briefing (2B)</div>
+          <div class="phase-item-chip">Dashboard AI briefing cards (2C)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase-item">
+      <div class="phase-num upcoming">3</div>
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+          <div class="phase-title">Workflow Automation</div>
+          <span class="badge muted">Future</span>
+        </div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:14px">AI participates in workflows, not just Q&amp;A.</p>
+        <div class="phase-items-grid">
+          <div class="phase-item-chip">Auto-classify uploaded docs (3A)</div>
+          <div class="phase-item-chip">AI status reports (3C)</div>
+          <div class="phase-item-chip">Smart RFI pre-fill (3D)</div>
+          <div class="phase-item-chip">CO description pre-fill (3D)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase-item">
+      <div class="phase-num upcoming">4</div>
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+          <div class="phase-title">Strategic Advisory</div>
+          <span class="badge muted">Future</span>
+        </div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:14px">Predictive and cross-project intelligence.</p>
+        <div class="phase-items-grid">
+          <div class="phase-item-chip">Project completion probability</div>
+          <div class="phase-item-chip">Budget overrun prediction (4B)</div>
+          <div class="phase-item-chip">Cross-project patterns</div>
+          <div class="phase-item-chip">Competitive benchmarking</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ GAPS ════════════════════════════════════ -->
+<section id="tab-gaps" class="section">
+  <h2>Known Gaps</h2>
+  <p class="section-intro">
+    Confirmed missing features as of Phase 1 completion. Not hypothetical — verified against implementation.
+  </p>
+
+  <div class="card" style="margin-bottom:36px">
+    <div style="display:flex;flex-direction:column">
+      <div class="gap-item">
+        <div class="gap-dot" style="background:var(--red)"></div>
+        <div>
+          <div class="gap-title">COO, CHRO, CRO, VP BD not wired</div>
+          <div class="gap-desc">Operational, people, risk, and business development questions fall through to Strategist with general-purpose tools. Prompts exist at <code>frontend/src/lib/ai/agents/</code> — needs wiring only.</div>
+          <div style="margin-top:6px"><span class="badge amber">Phase 2+</span></div>
+        </div>
+      </div>
+      <div class="gap-item">
+        <div class="gap-dot" style="background:var(--amber)"></div>
+        <div>
+          <div class="gap-title">No proactive insight generation</div>
+          <div class="gap-desc">AI only answers questions. No automated budget/schedule/cash flow alerts. The <code>ai_insights</code> table schema is ready for Phase 2 insert operations.</div>
+          <div style="margin-top:6px"><span class="badge amber">Phase 2A</span></div>
+        </div>
+      </div>
+      <div class="gap-item">
+        <div class="gap-dot" style="background:var(--amber)"></div>
+        <div>
+          <div class="gap-title">No notification system</div>
+          <div class="gap-desc">Insights are stored in <code>ai_insights</code> but not routed to users via push, email, or Teams.</div>
+          <div style="margin-top:6px"><span class="badge amber">Phase 2B</span></div>
+        </div>
+      </div>
+      <div class="gap-item">
+        <div class="gap-dot" style="background:var(--amber)"></div>
+        <div>
+          <div class="gap-title">No AI briefing card on dashboard</div>
+          <div class="gap-desc">Users must open chat to see AI analysis. <code>project_health_dashboard</code> and <code>project_issue_summary</code> views exist and are ready to feed dashboard cards.</div>
+          <div style="margin-top:6px"><span class="badge amber">Phase 2C</span></div>
+        </div>
+      </div>
+      <div class="gap-item">
+        <div class="gap-dot" style="background:var(--muted)"></div>
+        <div>
+          <div class="gap-title">Document auto-classification</div>
+          <div class="gap-desc">Uploaded docs are ingested but not auto-classified by type (spec, submittal, drawing, etc.).</div>
+          <div style="margin-top:6px"><span class="badge muted">Phase 3A</span></div>
+        </div>
+      </div>
+      <div class="gap-item">
+        <div class="gap-dot" style="background:var(--muted)"></div>
+        <div>
+          <div class="gap-title">Smart template pre-filling</div>
+          <div class="gap-desc">RFI and change order forms have no AI pre-fill. Requires tool integration with form submission flow.</div>
+          <div style="margin-top:6px"><span class="badge muted">Phase 3D</span></div>
+        </div>
+      </div>
+      <div class="gap-item">
+        <div class="gap-dot" style="background:var(--red)"></div>
+        <div>
+          <div class="gap-title">Low-confidence email attribution UI</div>
+          <div class="gap-desc"><code>document_attribution_candidates</code> review queue has no frontend. Admins must query the table directly.</div>
+          <div style="margin-top:6px"><span class="badge red">Unscheduled</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Debugging Bad Answers</h3>
+  <div class="pipeline-steps">
+    <div class="pipeline-step">
+      <div class="pipeline-step-num" style="background:var(--surface-2);color:var(--muted)">1</div>
+      <div class="pipeline-step-content">
+        <div class="pipeline-step-title">Find the session in chat_history</div>
+        <div class="pipeline-step-desc">Check <code>metadata.tool_trace</code> for which tools were called.</div>
+      </div>
+    </div>
+    <div class="pipeline-step">
+      <div class="pipeline-step-num" style="background:var(--surface-2);color:var(--muted)">2</div>
+      <div class="pipeline-step-content">
+        <div class="pipeline-step-title">Wrong tool called?</div>
+        <div class="pipeline-step-desc">Fix the Strategist prompt routing instructions first, not the SQL. File: <code>agents/strategist.ts</code></div>
+      </div>
+    </div>
+    <div class="pipeline-step">
+      <div class="pipeline-step-num" style="background:var(--surface-2);color:var(--muted)">3</div>
+      <div class="pipeline-step-content">
+        <div class="pipeline-step-title">Right tool, thin results?</div>
+        <div class="pipeline-step-desc">Check table freshness: <code>risks</code>, <code>ai_insights</code>, <code>document_metadata</code>, <code>project_health_dashboard</code>.</div>
+      </div>
+    </div>
+    <div class="pipeline-step">
+      <div class="pipeline-step-num" style="background:var(--surface-2);color:var(--muted)">4</div>
+      <div class="pipeline-step-content">
+        <div class="pipeline-step-title">Stale data?</div>
+        <div class="pipeline-step-desc">Re-run ingestion for affected document metadata IDs.</div>
+      </div>
+    </div>
+    <div class="pipeline-step">
+      <div class="pipeline-step-num" style="background:var(--red-dim);color:var(--red)">!</div>
+      <div class="pipeline-step-content">
+        <div class="pipeline-step-title">Risk portfolio routing rule</div>
+        <div class="pipeline-step-desc">Risk queries <strong>must</strong> call <code>getProjectsWithRisks</code>, NOT <code>getPortfolioOverview</code>. If wrong, fix <code>agents/strategist.ts</code>.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  function showTab(name, tabEl) {
+    document.querySelectorAll('.section').forEach(s => { s.classList.remove('active'); });
+    document.querySelectorAll('.nav-tab').forEach(t => { t.classList.remove('active'); });
+    document.getElementById(`tab-${name}`).classList.add('active');
+    tabEl.classList.add('active');
+  }
+</script>
+</body>
+</html>

@@ -55,6 +55,38 @@ describe("subcontractor invoices POST", () => {
     });
   });
 
+  it("requires under-review creation to use the guarded submit action", async () => {
+    createClientMock.mockResolvedValue({
+      auth: {
+        getUser: jest.fn(async () => ({
+          data: { user: { id: "user-1", email: "pm@example.com" } },
+          error: null,
+        })),
+      },
+      from: jest.fn(),
+    });
+
+    const response = await POST(
+      new NextRequest(
+        "http://localhost/api/projects/67/invoicing/subcontractor/invoices",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            subcontract_id: "sub-1",
+            status: "under_review",
+          }),
+        },
+      ),
+      { params: { projectId: "67" } },
+    );
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({
+      error:
+        "Create the invoice as Draft, then submit it through the guarded submission action.",
+    });
+  });
+
   it("creates retainage release invoices with prefilled release-only line items", async () => {
     const invoiceInsert = jest.fn();
     const lineItemInsert = jest.fn();

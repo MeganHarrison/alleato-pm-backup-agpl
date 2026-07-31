@@ -30,7 +30,7 @@ export function VeltAuthProvider({ children }: { children: React.ReactNode }) {
   const userEnabledRuntime = useCollaborationRuntimeStore(
     (state) => state.enabled,
   );
-  const apiKey = process.env.NEXT_PUBLIC_VELT_API_KEY;
+  const apiKey = process.env.NEXT_PUBLIC_VELT_API_KEY?.trim();
   const shouldMountRuntime =
     Boolean(apiKey) &&
     (userEnabledRuntime || shouldForceCollaborationRuntime(pathname));
@@ -65,9 +65,6 @@ export function VeltAuthProvider({ children }: { children: React.ReactNode }) {
   }, [profile, shouldMountRuntime]);
 
   if (!apiKey) {
-    if (process.env.NODE_ENV !== "production") {
-      console.error("[Velt] NEXT_PUBLIC_VELT_API_KEY is not configured.");
-    }
     return <>{children}</>;
   }
 

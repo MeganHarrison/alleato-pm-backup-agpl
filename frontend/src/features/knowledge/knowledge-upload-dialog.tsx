@@ -21,11 +21,17 @@ import { useQueryClient } from "@tanstack/react-query";
 interface KnowledgeUploadDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  businessAreaId?: number;
+  businessAreaName?: string;
+  onUploaded?: () => void;
 }
 
 export function KnowledgeUploadDialog({
   open,
   onOpenChange,
+  businessAreaId,
+  businessAreaName,
+  onUploaded,
 }: KnowledgeUploadDialogProps) {
   const queryClient = useQueryClient();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -51,7 +57,9 @@ export function KnowledgeUploadDialog({
     }
     const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50 MB
     if (file.size > MAX_FILE_SIZE) {
-      setFileError("File exceeds the 50 MB limit. Please choose a smaller file.");
+      setFileError(
+        "File exceeds the 50 MB limit. Please choose a smaller file.",
+      );
       return;
     }
     setFileError(null);
@@ -60,6 +68,9 @@ export function KnowledgeUploadDialog({
     formData.append("file", file);
     if (title.trim()) formData.append("title", title.trim());
     if (tags.trim()) formData.append("tags", tags.trim());
+    if (businessAreaId) {
+      formData.append("business_area_id", String(businessAreaId));
+    }
 
     setIsUploading(true);
     try {
@@ -71,9 +82,15 @@ export function KnowledgeUploadDialog({
         queryKey: knowledgeDocumentKeys.all,
       });
       toast.success("Knowledge source uploaded and queued for processing");
+      onUploaded?.();
       handleClose();
     } catch (error) {
-      toast.error("Upload failed");
+      toast.error("Knowledge source could not be uploaded", {
+        description:
+          error instanceof Error
+            ? error.message
+            : "The upload service returned an unknown error. Retry or ask an administrator to inspect the ingestion log.",
+      });
     } finally {
       setIsUploading(false);
     }
@@ -83,7 +100,10 @@ export function KnowledgeUploadDialog({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle>Upload Knowledge Source</DialogTitle>
+          <DialogTitle>
+            Upload Knowledge Source
+            {businessAreaName ? ` to ${businessAreaName}` : ""}
+          </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">

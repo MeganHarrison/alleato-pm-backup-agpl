@@ -1,0 +1,66 @@
+{
+  "contractVersion": 1,
+  "taskId": "ALL-15 through ALL-18",
+  "riskLevel": "high",
+  "feature": "Training resource library data foundation",
+  "route": "Supabase public training tables and server-only training helpers",
+  "flows": [
+    {
+      "name": "Enforce learner, reviewer, and automation boundaries",
+      "steps": [
+        "Read published and review fixtures as an ordinary authenticated user",
+        "Publish and archive the review fixture as an active app admin",
+        "Create a free review candidate through the service-role RPC",
+        "Attempt direct service insert, published retag, update, and delete"
+      ],
+      "expectedOutcome": "Learners see only published resources, active app admins review and publish, and automation can create only new free review candidates through the atomic RPC."
+    },
+    {
+      "name": "Read typed filtered resources",
+      "steps": [
+        "Apply role, track, type, level, status, and full-text filters",
+        "Map topics and role tags into the stable frontend domain",
+        "Resolve an exact unambiguous job title to a role",
+        "Surface query failures with operation and filter context"
+      ],
+      "expectedOutcome": "Server-only helpers return typed filtered resources, fail loudly, and never expose a privileged client."
+    }
+  ],
+  "requiredEvidence": [
+    "actionLog",
+    "databaseReadback",
+    "regressionTest",
+    "visualReview"
+  ],
+  "visual": {
+    "viewports": ["server"],
+    "checks": ["Not applicable: this foundation has no rendered route."]
+  },
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "database-access-boundary",
+      "description": "The applied schema enforces learner visibility, app-admin writes, and RPC-only service candidate creation.",
+      "evidence": [
+        { "key": "databaseReadback", "min": 1 },
+        { "key": "regressionTest", "min": 1 }
+      ]
+    },
+    {
+      "id": "typed-filter-contract",
+      "description": "Typed server helpers implement every required filter and unambiguous role resolution with named errors.",
+      "evidence": [
+        { "key": "regressionTest", "min": 1 }
+      ]
+    },
+    {
+      "id": "independent-review",
+      "description": "An independent reviewer approves the permission boundary after remediation.",
+      "evidence": [
+        { "key": "visualReview", "min": 1 }
+      ]
+    }
+  ]
+}

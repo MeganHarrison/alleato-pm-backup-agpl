@@ -8,6 +8,8 @@ import { MobileBottomNav } from "@/components/nav/mobile-bottom-nav";
 import { CreateProjectDevConfigProvider } from "@/components/project/create-project-dev-config";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { SiteHeader } from "@/components/header";
+import { SiteFooter } from "@/components/layout/site-footer";
+import { AuthenticatedAppProviders } from "@/components/providers/authenticated-app-providers";
 import { useProject } from "@/contexts/project-context";
 import { useDeferredMount } from "@/hooks/use-deferred-mount";
 import { useProjectPermissions } from "@/hooks/use-project-permissions";
@@ -68,7 +70,10 @@ export default function MainLayout({
   const pathname = usePathname()!;
   const shouldMountDeferredPanels = useDeferredMount(6_000);
   const isAiDashboard =
-    pathname === "/ai-dashboard" || pathname.startsWith("/ai-dashboard/");
+    pathname === "/ai-dashboard" ||
+    pathname.startsWith("/ai-dashboard/") ||
+    pathname === "/ai/company-brain";
+  const isCompanyBrain = pathname === "/ai/company-brain";
   const isImmersiveChatPage =
     pathname?.startsWith("/team-chat") || pathname?.startsWith("/comments");
   // The AI chat surface is a fixed-height app pane that anchors its composer to
@@ -77,25 +82,30 @@ export default function MainLayout({
   // pages to clear the floating launchers) — on a fixed-height pane it floats
   // the composer up and leaves ~128px of dead space above the bottom nav.
   const isAiChatPage =
-    pathname === "/ai" || pathname.startsWith("/ai/");
+    ((pathname === "/ai" || pathname.startsWith("/ai/")) &&
+      pathname !== "/ai/company-brain") ||
+    pathname === "/ai-assistant" ||
+    pathname.startsWith("/ai-assistant/");
   const isDrawingViewer = /\/drawings\/viewer\//.test(pathname ?? "");
   const isProcoreReferenceOpen = useProcorePanelStore((state) => state.open);
-  if (isImmersiveChatPage) {
-    return (
-      <SidebarProvider defaultOpen={false}>
-        <AppSidebar />
-        <SidebarInset className="h-svh overflow-hidden">
-          <CreateProjectDevConfigProvider>
+  const appShell = isImmersiveChatPage ? (
+    <SidebarProvider defaultOpen={false}>
+      <AppSidebar />
+      <SidebarInset className="h-svh overflow-hidden">
+        <CreateProjectDevConfigProvider>
+          <main
+            id="app-main-content"
+            className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden"
+            {...feedbackTargetProps("app.main-content")}
+          >
             {children}
-          </CreateProjectDevConfigProvider>
-        </SidebarInset>
-      </SidebarProvider>
-    );
-  }
-
-  return (
+          </main>
+        </CreateProjectDevConfigProvider>
+      </SidebarInset>
+    </SidebarProvider>
+  ) : (
     <SidebarProvider
-      defaultOpen={false}
+      defaultOpen={isCompanyBrain}
       className={
         isAiDashboard
           ? `dark ${aiDashboardThemeStyles.theme} bg-background text-foreground`
@@ -116,7 +126,7 @@ export default function MainLayout({
             >
               {!isDrawingViewer && (
                 <div key="site-header" className="hidden md:contents">
-                  <SiteHeader />
+                  <SiteHeader hideBreadcrumbs={isCompanyBrain} />
                 </div>
               )}
               <main
@@ -136,6 +146,11 @@ export default function MainLayout({
               {shouldMountDeferredPanels && isProcoreReferenceOpen && (
                 <ProcoreReferencePanel key="procore-reference-panel" />
               )}
+              {!isDrawingViewer && (
+                <div className="hidden shrink-0 md:block">
+                  <SiteFooter />
+                </div>
+              )}
             </div>
           </div>
         </CreateProjectDevConfigProvider>
@@ -144,4 +159,6 @@ export default function MainLayout({
       </SidebarInset>
     </SidebarProvider>
   );
+
+  return <AuthenticatedAppProviders>{appShell}</AuthenticatedAppProviders>;
 }

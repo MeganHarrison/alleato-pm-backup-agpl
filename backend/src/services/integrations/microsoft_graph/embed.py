@@ -38,7 +38,6 @@ from ...pipeline.source_processing import (
     record_source_processing_status,
     status_for_project_assignment,
 )
-from ...pipeline.workflow_client import enqueue_document_workflow
 from ...supabase_helpers import (
     get_rag_read_client,
     get_rag_write_client,
@@ -383,6 +382,8 @@ def _content_hash(text: str) -> str:
 
 def _source_type_for_document(doc: Dict[str, Any]) -> str:
     category = doc.get("category")
+    if category in ("training_guide", "training_resource"):
+        return str(category)
     source_system = doc.get("source_system") or ""
     if category == "teams_message":
         doc_type = doc.get("type")
@@ -497,11 +498,17 @@ def _batch_embed(texts: List[str]) -> List[List[float]]:
         return []
 
     truncated = [t[:8000] for t in texts]
-    usage_context = ModelUsageContext(stage="indexed_for_rag", operation="graph_embedding_batch")
+    usage_context = ModelUsageContext(
+        stage="indexed_for_rag",
+        operation="graph_embedding_batch",
+        budget_bucket="embedding",
+    )
     assert_background_model_budget_available(
         stage=usage_context.stage,
         operation=usage_context.operation,
         model=EMBEDDING_MODEL,
+        budget_bucket=usage_context.budget_bucket,
+        usage_context=usage_context,
     )
 
     def _create(force_path: Optional[str] = None):
@@ -516,6 +523,7 @@ def _batch_embed(texts: List[str]) -> List[List[float]]:
         )
 
     primary_path = get_ai_provider_path()
+    actual_provider_path = primary_path
     try:
         response = _create()
     except Exception as exc:
@@ -533,6 +541,7 @@ def _batch_embed(texts: List[str]) -> List[List[float]]:
                 exc,
                 alt_path,
             )
+            actual_provider_path = alt_path
             response = _create(force_path=alt_path)
         else:
             raise
@@ -540,6 +549,7 @@ def _batch_embed(texts: List[str]) -> List[List[float]]:
     record_model_usage(
         usage_context,
         model=EMBEDDING_MODEL,
+        provider=actual_provider_path,
         response=response,
         input_items=len(texts),
         output_items=len(embeddings),
@@ -840,6 +850,9 @@ def embed_graph_document(supabase_client, metadata_id: str) -> int:
     # Build chunk rows
     base_metadata: Dict[str, Any] = {
         "title": title,
+        "metadata_id": metadata_id,
+        "source_web_url": doc.get("source_web_url"),
+        "url": doc.get("source_web_url"),
         "category": doc.get("category"),
         "source": doc.get("source"),
         "type": doc.get("type"),
@@ -1030,54 +1043,159 @@ def embed_pending_graph_documents(supabase_client, limit: int = 100) -> Dict[str
         )
         return {"embedded": 0, "errors": 0, "skipped_disabled": skipped_disabled}
 
-    logger.info("[GraphEmbed] Queueing %d pending microsoft_graph documents", len(docs))
-    queued = 0
+    logger.info("[GraphEmbed] Processing %d pending microsoft_graph documents", len(docs))
+    total_chunks = 0
     errors = 0
+    skipped = 0
     by_category: Dict[str, int] = {}
 
     for doc in docs:
         doc_id = doc["id"]
         category = doc.get("category", "unknown")
         try:
-            enqueue_document_workflow(
-                doc_id,
-                source_type=str(doc.get("source_system") or category or "microsoft_graph"),
-                project_hint=doc.get("project_id"),
-            )
-            queued += 1
+            n = embed_graph_document(supabase_client, doc_id)
+            if n <= 0:
+                terminal_status = _rag_embedding_status(doc_id)
+                if terminal_status in {"embedded", "skipped", "intentionally_excluded"}:
+                    logger.info(
+                        "[GraphEmbed] %s produced zero chunks and is terminal status=%s; counting as skipped",
+                        doc_id,
+                        terminal_status,
+                    )
+                    skipped += 1
+                    continue
+                logger.error("[GraphEmbed] %s produced zero chunks; treating as failed embedding", doc_id)
+                errors += 1
+                continue
+            total_chunks += n
             by_category[category] = by_category.get(category, 0) + 1
         except Exception as e:
-            logger.error("[GraphEmbed] Error queueing workflow for %s: %s", doc_id, e)
+            logger.error("[GraphEmbed] Error embedding %s: %s", doc_id, e)
             errors += 1
+        # Throttle DB writes — without this, 1000 docs fire hundreds of queries
+        # per second and saturate the Supabase connection pool.
+        time.sleep(0.1)
 
     logger.info(
-        "[GraphEmbed] Done — %d workflows queued (%d errors). By category: %s",
-        queued,
-        errors,
-        by_category,
+        "[GraphEmbed] Done — %d docs embedded (%d skipped, %d total chunks, %d errors). By category: %s",
+        len(docs) - errors - skipped, skipped, total_chunks, errors, by_category,
     )
     result = {
-        "queued": queued,
-        "embedded": queued,
-        "skipped": 0,
+        "embedded": len(docs) - errors - skipped,
+        "skipped": skipped,
         "skipped_disabled": skipped_disabled,
-        "total_chunks": 0,
+        "total_chunks": total_chunks,
         "errors": errors,
         "by_category": by_category,
-        "owner": "vercel_workflow",
     }
     _record_graph_embed_run(
         supabase_client,
         started_at=started_at,
         status="failed" if errors == len(docs) else "warning" if errors else "succeeded",
         items_seen=len(docs),
-        items_synced=queued,
-        items_created=queued,
+        items_synced=result["embedded"],
+        items_created=total_chunks,
         items_failed=errors,
         error_message=f"{errors} graph documents failed embedding" if errors else None,
         metadata={"limit": limit, **result},
     )
     return result
+
+
+def enqueue_pending_graph_documents(
+    supabase_client,
+    limit: int = 100,
+) -> Dict[str, Any]:
+    """Queue pending Graph documents through the sole durable workflow owner.
+
+    Scheduled Graph sync uses this path. ``embed_pending_graph_documents``
+    remains an explicit single-stage repair utility, but it is not the
+    production ordering/retry owner.
+    """
+    try:
+        try:
+            docs = _fetch_graph_embedding_candidates(limit)
+        except Exception as exc:
+            logger.warning(
+                "[GraphWorkflow] SQL candidate query failed; falling back to Supabase scan: %s",
+                exc,
+            )
+            docs = None
+        if docs is None:
+            docs = _fetch_graph_embedding_candidates_via_supabase(
+                supabase_client,
+                limit,
+            )
+    except Exception as exc:
+        raise RuntimeError(
+            f"Graph workflow candidate discovery failed: {exc}"
+        ) from exc
+
+    docs = [
+        doc
+        for doc in (docs or [])
+        if _graph_embedding_candidate_enabled(doc)
+    ]
+    if not docs:
+        return {"queued": 0, "errors": 0, "run_ids": []}
+
+    from ...pipeline.workflow_client import enqueue_document_workflow
+
+    rag_client = get_rag_write_client()
+    queued = 0
+    errors = 0
+    runs: List[Dict[str, str]] = []
+    error_details: List[Dict[str, str]] = []
+
+    for doc in docs:
+        document_id = str(doc.get("id") or "").strip()
+        if not document_id:
+            errors += 1
+            error_details.append(
+                {"document_id": "", "error": "candidate is missing id"}
+            )
+            continue
+        source_type = str(
+            doc.get("source_system")
+            or doc.get("category")
+            or "microsoft_graph"
+        ).strip()
+        try:
+            result = enqueue_document_workflow(
+                document_id,
+                source_type=source_type,
+            )
+            run_id = str(result["runId"])
+            supabase_client.from_("document_metadata").update(
+                {"status": "workflow_queued"}
+            ).eq("id", document_id).execute()
+            rag_client.from_("rag_document_metadata").update(
+                {"embedding_status": "workflow_queued"}
+            ).eq("id", document_id).execute()
+            record_source_processing_status(
+                _source_processing_context(doc),
+                status="workflow_queued",
+                metadata={"run_id": run_id},
+            )
+            queued += 1
+            runs.append({"document_id": document_id, "run_id": run_id})
+        except Exception as exc:
+            errors += 1
+            error_details.append(
+                {"document_id": document_id, "error": str(exc)}
+            )
+            logger.error(
+                "[GraphWorkflow] Failed to queue %s: %s",
+                document_id,
+                exc,
+            )
+
+    return {
+        "queued": queued,
+        "errors": errors,
+        "run_ids": runs,
+        "error_details": error_details,
+    }
 
 
 def _graph_embedding_candidate_enabled(doc: Dict[str, Any]) -> bool:

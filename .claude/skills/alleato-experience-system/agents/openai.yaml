@@ -1,0 +1,4 @@
+interface:
+  display_name: "Alleato Experience System"
+  short_description: "Design coherent AI-native Alleato experiences"
+  default_prompt: "Use $alleato-experience-system to plan and review this Alleato product experience."

@@ -5,13 +5,13 @@ audience: client
 visibility: published
 module: ai-assistant
 category: AI & Intelligence
-tags: [ai-assistant, ask-alleato, eve, skills, rag, intelligence, index, overview]
+tags: [ai-assistant, ask-alleato, c-suite, rag, intelligence, index, overview]
 featured: true
 client_visible: true
 ai_visible: true
 order: 599
 related_routes:
-  - /ai
+  - /ai-assistant
   - /[projectId]/intelligence
 related_actions: []
 ---
@@ -53,7 +53,7 @@ Past conversations are saved in the left panel of the full-screen assistant. The
 
 | Feature | Where It Lives | What It Does |
 |---------|---------------|--------------|
-| **Financial analysis skill** | Eve | Analyzes margin, cash position, change order exposure, AP/AR, and billing |
+| **CFO Advisor** | AI assistant | Analyzes margin, cash position, change order exposure, AP/AR, and billing |
 | **Budget & Margin Analysis** | AI assistant | Traces margin erosion to specific line items, change orders, or cost overruns |
 | **Cash Flow Forecast** | AI assistant | Combines project receivables with live Acumatica bank data for a 60-day cash view |
 | **Change Order Exposure** | AI assistant | Tracks the full lifecycle (Change Event → CO to Owner → Commitment Adjustment) and flags gaps |
@@ -84,7 +84,7 @@ Past conversations are saved in the left panel of the full-screen assistant. The
 |---------|---------------|--------------|
 | **Proactive Alerts** | Sidebar → Intelligence | Daily flags for budget variance (>10%), overdue RFIs, late tasks, and stale change events |
 | **Risk Insight Cards** | Sidebar → Intelligence | AI-identified risks from meetings, emails, and project records with source citations |
-| **Risk review skill** | Eve | Risk-focused analysis: overdue RFIs, submittal flags, budget variance, schedule slippage |
+| **CRO Advisor** | AI assistant | Risk-focused analysis: overdue RFIs, submittal flags, budget variance, schedule slippage |
 | **Financial Exposure Tracking** | Sidebar → Intelligence | Insight cards for potential cost impacts from RFIs, change events, and commitments |
 
 → See [Proactive AI Alerts](/help/articles/ai-proactive-alerts) and [Project Intelligence](/help/articles/project-intelligence)
@@ -106,17 +106,22 @@ Past conversations are saved in the left panel of the full-screen assistant. The
 
 ---
 
-### Find and understand actions
+### Take action from chat
 
-Eve can explain a workflow and link you to the correct application page. Eve's
-current production bridge is read-only, so it cannot create or update RFIs,
-change events, change orders, tasks, commitments, daily reports, knowledge
-records, email drafts, calendar invitations, or Teams messages from chat.
+| Feature | Where It Lives | What It Does |
+|---------|---------------|--------------|
+| **Create RFI** | AI assistant | Draft and submit an RFI from a description — shows a preview before writing |
+| **Create Change Event** | AI assistant | Log a potential change with cost and schedule impact — requires confirmation |
+| **Create Change Order** | AI assistant | Generate a prime CO from chat — requires confirmation |
+| **Create Task** | AI assistant | Add a schedule task with assignee and due date — no confirmation required |
+| **Create Commitment** | AI assistant | Start a subcontract or PO from a description — requires confirmation |
+| **Update RFI Status** | AI assistant | Mark an RFI as closed or reassign ball-in-court |
+| **Log Daily Report** | AI assistant | Create a daily log entry from a brief description |
+| **Save to Knowledge Base** | AI assistant | "Remember that our standard retainage is 10%" — saves a fact for future sessions |
 
-Typed implementations and preview/approval UI exist for future governed action
-work, but they are not exposed to Eve today.
+All financial write actions show a **preview card** before executing. Reply **confirm** to proceed or **cancel** to abort.
 
-→ See [AI Assistant Actions and Current Limits](/help/articles/ai-assistant-actions)
+→ See [What the AI Can Do (Actions)](/help/articles/ai-assistant-actions)
 
 ---
 
@@ -139,29 +144,26 @@ work, but they are not exposed to Eve today.
 |---------|---------------|--------------|
 | **My Work** | Main sidebar → My Work | Personalized task list aggregated from all projects you're assigned to |
 | **Task Extraction** | Background (automatic) | Action items from meetings and emails are auto-extracted and linked to projects |
-| **Operations review skill** | Eve | Field operations: schedule status, daily log summaries, open punch items, staffing |
-| **People capacity skill** | Eve | Team capacity, over-allocation, directory, role assignments |
+| **COO Advisor** | AI assistant | Field operations: schedule status, daily log summaries, open punch items, staffing |
+| **CHRO Advisor** | AI assistant | Team capacity, over-allocation, directory, role assignments |
 
 → See [My Work](/help/articles/my-work) and [Schedule](/help/articles/schedule)
 
 ---
 
-## Eve's Six Domain Skills
+## The C-Suite Advisors
 
-Every question goes through Eve. Eve loads the relevant domain skills and can
-combine them for cross-domain questions.
+Every question goes through the **Chief Strategist**, which routes to the right specialist. For cross-domain questions, the Strategist consults multiple advisors and synthesizes the answer.
 
-| Skill | Domain | Sample Questions |
+| Advisor | Domain | Sample Questions |
 |---------|--------|-----------------|
-| **Financial analysis** | Finances, margin, cash, ERP | "What's our cash position?" / "Where are we losing margin?" |
-| **Operations review** | Field ops, schedule, daily logs | "What tasks are running late on Vermillion Rise?" |
-| **Risk review** | Risk, exposure, overdue items | "What are our top risks across all projects?" |
-| **People capacity** | Team, staffing, capacity | "Who is over-allocated next month?" |
-| **Business development** | Pipeline, market intelligence, pursuits | "Research tilt-up warehouse costs in our market." |
-| **Marketing strategy** | Positioning, campaigns, content planning | "Build a source-backed case-study outline for this project." |
+| **CFO** | Finances, margin, cash, ERP | "What's our cash position?" / "Where are we losing margin?" |
+| **COO** | Field ops, schedule, daily logs | "What tasks are running late on Vermillion Rise?" |
+| **CRO** | Risk, exposure, overdue items | "What are our top risks across all projects?" |
+| **CHRO** | Team, staffing, capacity | "Who is over-allocated next month?" |
+| **VP Business Development** | Pipeline, market intel, web search | "Research tilt-up warehouse costs in our market." |
 
-The business-development and marketing skills can use web capabilities only
-when those capabilities are enabled for the Eve deployment.
+The VP BD advisor can search the web in real time — the others work from your project data.
 
 ---
 
@@ -183,9 +185,8 @@ when those capabilities are enabled for the Eve deployment.
 
 ## What the AI Cannot Do
 
-- **Create, update, delete, or send from chat** — Eve's current bridge is read-only
-- **Approve, sign, or pay** on your behalf
-- **Access records outside your permissions** — the AI is scoped to projects you can access
+- **Approve, sign, or pay** on your behalf — all financial writes require your confirmation
+- **Access records outside your permissions** — the AI is scoped to projects you can edit
 - **See unsynced data** — emails and Teams messages only appear after the integration syncs (every 30 minutes)
 - **Guarantee accuracy on high-stakes decisions** — always verify financial and schedule data against source records before acting
 - **Access competitor systems** — it only reads the platforms connected to your account
@@ -232,11 +233,11 @@ Copy any of these into the assistant to see it in action.
 
 | Article | Description |
 |---------|-------------|
-| [AI Assistant Overview](/help/articles/ai-assistant-overview) | How Eve works, its six domain skills, and conversation history |
-| [AI Assistant Actions and Current Limits](/help/articles/ai-assistant-actions) | Current read-only boundary and future governed action requirements |
+| [AI Assistant Overview](/help/articles/ai-assistant-overview) | How Ask Alleato works, the C-Suite architecture, conversation history |
+| [What the AI Can Do (Actions)](/help/articles/ai-assistant-actions) | Write actions, confirmation flow, safety rules |
 | [Get a Project Briefing](/help/articles/ai-project-updates) | How to ask for project and portfolio updates |
 | [Project Intelligence](/help/articles/project-intelligence) | Pre-compiled insight cards, KPIs, freshness, evidence citations |
-| [Ask the AI About Finances](/help/articles/ai-financial-advisor) | Financial analysis skill, budget, margin, cash flow, Acumatica |
+| [Ask the AI About Finances](/help/articles/ai-financial-advisor) | CFO advisor, budget, margin, cash flow, Acumatica |
 | [Ask the AI About Meetings](/help/articles/ai-meeting-intelligence) | Transcript search, decisions, action items, meeting prep |
 | [Proactive AI Alerts](/help/articles/ai-proactive-alerts) | Daily flags for budget variance, overdue RFIs, late tasks |
 | [AI Memory](/help/articles/ai-memory) | What the AI remembers, how to manage it, privacy |

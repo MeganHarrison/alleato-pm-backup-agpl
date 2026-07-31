@@ -216,6 +216,41 @@ export interface ScheduleResource {
   eligible: boolean;
 }
 
+export type ScheduleCostResourceKind = "person" | "equipment" | "material";
+export type ScheduleCostRateUnit = "hour" | "day" | "unit";
+
+export interface ScheduleCostResourceRecord {
+  id: string;
+  project_id: number;
+  person_id: string | null;
+  resource_kind: ScheduleCostResourceKind;
+  display_name: string;
+  standard_rate: number | null;
+  cost_per_use: number | null;
+  rate_unit: ScheduleCostRateUnit | null;
+  cost_version: number;
+}
+
+export interface ScheduleCostAssignmentRecord {
+  id: string;
+  project_id: number;
+  task_id: string;
+  resource_id: string;
+  allocation_percent: number;
+  planned_units: number | null;
+  actual_units: number | null;
+  actual_rate: number | null;
+  actual_cost: number | null;
+  cost_version: number;
+}
+
+export interface ScheduleCostModelResponse {
+  project_id: number;
+  can_manage: boolean;
+  resources: ScheduleCostResourceRecord[];
+  assignments: ScheduleCostAssignmentRecord[];
+}
+
 export interface ScheduleResourceCandidate {
   person_id: string;
   resource_id: string | null;
@@ -231,6 +266,7 @@ export interface ScheduleTaskAssignment {
   resource_id: string;
   person_id: string;
   allocation_percent: number;
+  cost_version: number;
 }
 
 export interface ScheduleResourceRoster {
@@ -248,6 +284,12 @@ export interface ScheduleResourceRosterResponse extends ScheduleResourceRoster {
 export interface ScheduleTaskAssignmentInput {
   person_id: string;
   allocation_percent: number;
+}
+
+export interface ScheduleTaskAssignmentExpectation {
+  id: string;
+  person_id: string;
+  cost_version: number;
 }
 
 export interface ScheduleResourceWeekdayCapacityOverride {
@@ -460,6 +502,8 @@ export interface ScheduleDeadline {
 export interface ScheduleTaskCreate {
   name: string;
   project_id: number;
+  /** Insert immediately after this sibling. Omit to append to the parent. */
+  after_task_id?: string | null;
   parent_task_id?: string | null;
   start_date?: string | null;
   finish_date?: string | null;
@@ -480,6 +524,8 @@ export interface ScheduleTaskCreate {
  * Used for partial updates to existing tasks
  */
 export interface ScheduleTaskUpdate {
+  /** Version captured by the editor; stale values fail the atomic RPC with 409. */
+  expected_schedule_version?: number;
   name?: string;
   parent_task_id?: string | null;
   start_date?: string | null;
@@ -494,6 +540,8 @@ export interface ScheduleTaskUpdate {
   sort_order?: number;
   schedule_mode?: ScheduleMode;
   assignee_person_id?: string | null;
+  /** Zero-based sibling destination used by atomic drag/drop ordering. */
+  target_index?: number;
 }
 
 /**
@@ -597,9 +645,9 @@ export interface ScheduleTaskWithHierarchy extends ScheduleTask {
 export interface GanttChartItem {
   id: string;
   name: string;
-  start_date: string;
-  finish_date: string;
-  duration_days: number;
+  start_date: string | null;
+  finish_date: string | null;
+  duration_days: number | null;
   percent_complete: number;
   assignee?: string | null;
   status: TaskStatus;

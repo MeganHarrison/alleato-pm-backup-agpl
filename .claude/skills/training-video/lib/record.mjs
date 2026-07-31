@@ -3,8 +3,10 @@
 // premium gradient backdrop, and outputs an MP4. Self-authenticating.
 //
 // Usage:
-//   node lib/record.mjs flows/<flow>.json [--headed] [--base http://localhost:3000]
+//   node lib/record.mjs flows/<flow>.json [--headed] [--base http://localhost:3000] [--allow-skips]
 //
+// Step execution lives in lib/flow-runner.mjs (the seam shared with
+// lib/preflight.mjs) so a green preflight means this recorder can drive the flow.
 // Requires: local `playwright`, `ffmpeg-static`, and `ffprobe-static` packages.
 // Auth: reuses .auth/state.json if valid; otherwise UI-logs-in with
 //   TEST_USER_1 / TEST_PASSWORD_1 (read from repo .env / frontend/.env.local).
@@ -15,7 +17,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { resolveFlowAssetPath, validateFlow } from './flow-validation.mjs';
+import { validateFlow } from './flow-validation.mjs';
+import { FlowAbortError, createOverlay, runFlow, settle } from './flow-runner.mjs';
+import { assertFlowEntryReachable, ensureSession, readEnvCreds } from './session.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SKILL_DIR = path.join(__dirname, '..');
@@ -25,15 +29,18 @@ const STATE = path.join(SKILL_DIR, '.auth', 'state.json');
 // ---- args ----
 const args = process.argv.slice(2);
 const flowPath = args.find((a) => !a.startsWith('--'));
-if (!flowPath) { console.error('usage: node lib/record.mjs flows/<flow>.json [--headed]'); process.exit(1); }
+if (!flowPath) {
+  console.error('usage: node lib/record.mjs flows/<flow>.json [--headed] [--base URL] [--allow-skips]');
+  process.exit(1);
+}
 const headed = args.includes('--headed');
+// Default is strict: a skipped step fails the run rather than silently shipping
+// a video with a missing beat. --allow-skips is the deliberate escape hatch.
+const strict = !args.includes('--allow-skips');
 const baseIdx = args.indexOf('--base');
 const baseArg = baseIdx >= 0 ? args[baseIdx + 1] : undefined;
 const absoluteFlowPath = path.resolve(flowPath);
-const flow = validateFlow(
-  JSON.parse(fs.readFileSync(absoluteFlowPath, 'utf8')),
-  absoluteFlowPath,
-);
+const flow = validateFlow(JSON.parse(fs.readFileSync(absoluteFlowPath, 'utf8')), absoluteFlowPath);
 const base = baseArg || flow.base || 'http://localhost:3000';
 const viewport = flow.viewport || { width: 1440, height: 900 };
 const ffmpegCommand = ffmpegPath || 'ffmpeg';
@@ -45,210 +52,6 @@ const workingMp4 = path.join(outDir, `.${outputName}.${process.pid}.working.mp4`
 const rawWorkingMp4 = path.join(outDir, `.${outputName}.${process.pid}.raw.mp4`);
 fs.mkdirSync(rawDir, { recursive: true });
 fs.mkdirSync(path.dirname(STATE), { recursive: true });
-
-// ---- minimal .env reader (no dotenv dependency) ----
-// Walks up ancestor dirs from the skill so it finds the repo `.env` whether the
-// skill lives in the main checkout OR inside a git worktree (whose root has no
-// .env — the creds live at the main repo root, an ancestor).
-function readEnvCreds() {
-  const out = {};
-  const keys = ['TEST_USER_1', 'TEST_PASSWORD_1'];
-  const readInto = (f) => {
-    if (!fs.existsSync(f)) return;
-    const t = fs.readFileSync(f, 'utf8');
-    for (const key of keys) {
-      if (out[key]) continue;
-      const m = t.match(new RegExp('^' + key + '=\\s*"?([^"\\n\\r]*)', 'm'));
-      if (m) out[key] = m[1];
-    }
-  };
-  let dir = SKILL_DIR;
-  for (let i = 0; i < 8; i++) {
-    readInto(path.join(dir, '.env'));
-    readInto(path.join(dir, 'frontend', '.env.local'));
-    readInto(path.join(dir, 'frontend', '.env'));
-    if (out.TEST_USER_1 && out.TEST_PASSWORD_1) break;
-    const parent = path.dirname(dir);
-    if (parent === dir) break;
-    dir = parent;
-  }
-  return out;
-}
-const envCreds = readEnvCreds();
-const EMAIL = process.env.TEST_USER_1 || envCreds.TEST_USER_1;
-const PASS = process.env.TEST_PASSWORD_1 || envCreds.TEST_PASSWORD_1;
-
-async function stateIsValid(browser) {
-  if (!fs.existsSync(STATE)) return false;
-  const ctx = await browser.newContext({ storageState: STATE, viewport });
-  const p = await ctx.newPage();
-  let ok = false;
-  try {
-    await p.goto(base + '/tasks', { waitUntil: 'domcontentloaded', timeout: 30000 });
-    await p.waitForTimeout(1500);
-    const apiStatus = await p.evaluate(async () => {
-      const response = await fetch('/api/projects?limit=1', { cache: 'no-store' });
-      return response.status;
-    }).catch(() => 401);
-    ok = !p.url().includes('/auth/login') && apiStatus !== 401 && apiStatus !== 403;
-  } catch { ok = false; }
-  await ctx.close();
-  return ok;
-}
-
-async function login(browser) {
-  if (!EMAIL || !PASS) {
-    throw new Error(
-      'No valid saved session and TEST_USER_1/TEST_PASSWORD_1 are not configured.',
-    );
-  }
-  console.log(`authenticating as ${EMAIL} ...`);
-  const ctx = await browser.newContext({ viewport });
-  const p = await ctx.newPage();
-  const maxAttempts = 3;
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    await p.goto(base + '/auth/login', { waitUntil: 'domcontentloaded', timeout: 60000 }).catch(() => {});
-    const mounted = await p.waitForSelector('#email', { state: 'visible', timeout: 30000 }).then(() => true).catch(() => false);
-    if (!mounted) {
-      if (!p.url().includes('/auth/login')) break; // already redirected = authed
-      continue;
-    }
-    await p.waitForTimeout(3000); // React 19 hydration before handlers attach
-    await p.locator('#email').fill(EMAIL);
-    await p.locator('#password').fill(PASS);
-    await p.getByRole('button', { name: /sign in/i }).click().catch(() => {});
-    let ok = await p.waitForURL((u) => !u.pathname.includes('/auth/login'), { timeout: 20000 }).then(() => true).catch(() => false);
-    if (!ok) { // fallback: submit via Enter
-      await p.locator('#password').press('Enter').catch(() => {});
-      ok = await p.waitForURL((u) => !u.pathname.includes('/auth/login'), { timeout: 15000 }).then(() => true).catch(() => false);
-    }
-    if (ok) {
-      await ctx.storageState({ path: STATE });
-      await ctx.close();
-      console.log('authenticated; session saved');
-      return;
-    }
-    if (attempt < maxAttempts) await p.waitForTimeout(2000);
-  }
-  await ctx.close();
-  throw new Error(`login failed for ${EMAIL} after ${maxAttempts} attempts — check TEST_USER_1/TEST_PASSWORD_1 in .env`);
-}
-
-async function waitForVisibleMatch(page, candidates, description, timeout = 15000) {
-  const deadline = Date.now() + timeout;
-  let el;
-  while (Date.now() < deadline && !el) {
-    const count = Math.min(await candidates.count(), 100);
-    for (let index = 0; index < count; index += 1) {
-      const candidate = candidates.nth(index);
-      if (await candidate.isVisible().catch(() => false)) {
-        el = candidate;
-        break;
-      }
-    }
-    if (!el) await page.waitForTimeout(250);
-  }
-  if (!el) throw new Error(`no visible match for ${description}`);
-  return el;
-}
-
-async function locateCenter(page, selector, timeout = 15000) {
-  const el = await waitForVisibleMatch(page, page.locator(selector), selector, timeout);
-  await el.scrollIntoViewIfNeeded().catch(() => {});
-  const box = await el.boundingBox();
-  if (!box) throw new Error(`no box for ${selector}`);
-  return { el, x: box.x + box.width / 2, y: box.y + box.height / 2 };
-}
-
-async function settle(page, ms = 900) {
-  await page.waitForLoadState('domcontentloaded').catch(() => {});
-  await page.waitForLoadState('networkidle', { timeout: 6000 }).catch(() => {});
-  await page.waitForTimeout(ms);
-}
-
-function ordinal(day) {
-  if (day % 100 >= 11 && day % 100 <= 13) return 'th';
-  if (day % 10 === 1) return 'st';
-  if (day % 10 === 2) return 'nd';
-  if (day % 10 === 3) return 'rd';
-  return 'th';
-}
-
-function formatCalendarButtonName(date) {
-  const weekday = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(date);
-  const month = new Intl.DateTimeFormat('en-US', { month: 'long' }).format(date);
-  return `${weekday}, ${month} ${date.getDate()}${ordinal(date.getDate())}, ${date.getFullYear()}`;
-}
-
-function formatDisplayDate(date) {
-  return new Intl.DateTimeFormat('en-US', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  }).format(date);
-}
-
-function normalizeDisplayDate(value) {
-  return value.replace(/(\d+)(st|nd|rd|th)(?=,)/g, '$1');
-}
-
-function calendarMonthIndex(captionText) {
-  const months = [
-    'january', 'february', 'march', 'april', 'may', 'june',
-    'july', 'august', 'september', 'october', 'november', 'december',
-  ];
-  const match = captionText.trim().match(/^([A-Za-z]+)\s+(\d{4})$/);
-  const month = match ? months.indexOf(match[1].toLowerCase()) : -1;
-  if (!match || month < 0) {
-    throw new Error(`could not determine the visible calendar month from "${captionText}"`);
-  }
-  return Number(match[2]) * 12 + month;
-}
-
-async function selectDate(page, spec) {
-  const date = new Date(`${spec.value}T12:00:00`);
-  const trigger = page.getByRole('button', { name: spec.label }).first();
-  await trigger.waitFor({ state: 'visible', timeout: 15000 });
-  await trigger.scrollIntoViewIfNeeded();
-  const triggerBox = await trigger.boundingBox();
-  if (!triggerBox) throw new Error(`no date trigger box for ${spec.label}`);
-  await page.evaluate(
-    ([x, y]) => window.__vid.moveTo(x, y, 700),
-    [triggerBox.x + triggerBox.width / 2, triggerBox.y + triggerBox.height / 2],
-  );
-  await page.evaluate(() => window.__vid.click());
-  await trigger.click({ timeout: 8000 });
-
-  const dayName = formatCalendarButtonName(date);
-  const day = page.getByRole('button', { name: dayName, exact: true }).last();
-  const targetMonth = date.getFullYear() * 12 + date.getMonth();
-  for (let attempt = 0; attempt < 24; attempt += 1) {
-    if (await day.isVisible({ timeout: 500 }).catch(() => false)) {
-      const dayBox = await day.boundingBox();
-      if (dayBox) {
-        await page.evaluate(
-          ([x, y]) => window.__vid.moveTo(x, y, 500),
-          [dayBox.x + dayBox.width / 2, dayBox.y + dayBox.height / 2],
-        );
-        await page.evaluate(() => window.__vid.click());
-      }
-      await day.click({ timeout: 8000 });
-      const selectedText = (await trigger.textContent()) || '';
-      if (!normalizeDisplayDate(selectedText).includes(formatDisplayDate(date))) {
-        throw new Error(
-          `date assertion failed for ${spec.label}: expected ${formatDisplayDate(date)}, received ${selectedText || '<empty>'}`,
-        );
-      }
-      return;
-    }
-    const captionText = (await page.locator('.rdp-month_caption').last().textContent({ timeout: 3000 })) || '';
-    const visibleMonth = calendarMonthIndex(captionText);
-    const direction = targetMonth < visibleMonth ? 'Previous' : 'Next';
-    const navigation = page.getByRole('button', { name: `Go to the ${direction} Month` }).last();
-    await navigation.click({ timeout: 3000 });
-  }
-  throw new Error(`date ${spec.value} was not available for ${spec.label} after navigating 24 months`);
-}
 
 function frameVideo(webm, mp4) {
   const even = (n) => 2 * Math.round(n / 2);
@@ -298,8 +101,16 @@ async function run() {
     args: ['--force-color-profile=srgb', '--hide-scrollbars', '--disable-features=IsolateOrigins'],
   });
 
-  if (!(await stateIsValid(browser))) await login(browser);
+  const { email, password } = readEnvCreds(SKILL_DIR);
+  await ensureSession({ browser, statePath: STATE, base, viewport, email, password });
   const storageState = STATE;
+
+  // Cheap precondition: is the flow's own entry point even reachable for this
+  // user? A deleted or unshared project fails here in seconds instead of
+  // mid-recording as a mystery selector timeout.
+  await assertFlowEntryReachable({
+    browser, statePath: storageState, base, viewport, startPath: flow.startPath || '/',
+  });
 
   // Pre-warm routes (dev-server cold compiles can exceed 30s) in an unrecorded
   // context. Includes goto targets plus any `flow.warm` hints — use the latter to
@@ -335,6 +146,7 @@ async function run() {
   }, HIDE);
 
   const page = await ctx.newPage();
+  const overlay = createOverlay(page);
 
   // Land + title card. Paint the title the instant navigation COMMITS (not after
   // the page finishes loading) so there is no blank dead-time lead-in; the page
@@ -343,140 +155,49 @@ async function run() {
   await page.goto(base + (flow.startPath || '/'), { waitUntil: showTitle ? 'commit' : 'domcontentloaded' });
   if (showTitle) {
     await page.waitForFunction(() => window.__vid, null, { timeout: 10000 }).catch(() => {});
-    await page.evaluate((t) => window.__vid.card(t.title, t.subtitle, 0), flow.title).catch(() => {});
+    await overlay.card(flow.title.title, flow.title.subtitle, 0);
     await settle(page, flow.title.hold || 1900);
-    await page.evaluate(() => window.__vid.cardHide());
+    await overlay.cardHide();
     await page.waitForTimeout(200);
   } else {
     await settle(page, 1200);
   }
 
-  for (const [stepIndex, step] of flow.steps.entries()) {
-    try {
-      if (step.goto) {
-        await page.evaluate(() => window.__vid.zoomOut()).catch(() => {});
-        await page.evaluate(() => window.__vid.captionHide());
-        await page.goto(base + step.goto, { waitUntil: 'domcontentloaded' });
-        await settle(page, 1000);
-      }
-      if (step.caption && !step.click && !flow.bareFootage) await page.evaluate((c) => window.__vid.caption(c), step.caption);
-
-      if (step.click) {
-        // A lingering zoom transform shifts hit-testing and can drop the click —
-        // always return to 1x before interacting.
-        await page.evaluate(() => window.__vid.zoomOut()).catch(() => {});
-        // Show the caption BEFORE the interaction so it describes the action and
-        // stays visible through a slow submit's navigation wait.
-        if (step.caption && !flow.bareFootage) await page.evaluate((c) => window.__vid.caption(c), step.caption);
-        try {
-          const c = await locateCenter(page, step.click, step.timeout || 15000);
-          const urlBefore = page.url();
-          await page.evaluate(([x, y]) => window.__vid.moveTo(x, y, 780), [c.x, c.y]);
-          await page.evaluate(() => window.__vid.click());
-          if (step.required) await c.el.click({ timeout: 8000 });
-          else await c.el.click({ timeout: 8000 }).catch(() => {});
-          if (step.waitForNav) {
-            if (step.required) {
-              await page.waitForURL((u) => u.toString() !== urlBefore, { timeout: 90000 });
-            } else {
-              await page.waitForURL((u) => u.toString() !== urlBefore, { timeout: 90000 }).catch(() => {});
-            }
-          }
-          await settle(page, 1000);
-        } catch (e) {
-          const href = (step.click.match(/href="([^"]+)"/) || [])[1];
-          if (href && !step.required) { await page.goto(base + href, { waitUntil: 'domcontentloaded' }); await settle(page, 1000); }
-          else throw e;
-        }
-      }
-
-      if (step.type) {
-        await page.evaluate(() => window.__vid.zoomOut()).catch(() => {});
-        const c = await locateCenter(page, step.type.selector, step.timeout || 15000);
-        await page.evaluate(([x, y]) => window.__vid.moveTo(x, y, 700), [c.x, c.y]);
-        await page.evaluate(() => window.__vid.click());
-        if (step.required) await c.el.click({ timeout: 5000 });
-        else await c.el.click({ timeout: 5000 }).catch(() => {});
-        if (step.required) await c.el.fill('');
-        else await c.el.fill('').catch(() => {});
-        await page.keyboard.type(step.type.text, { delay: 90 });
-        if (step.required) {
-          const isContentEditable = await c.el.getAttribute('contenteditable');
-          const actual = isContentEditable === 'true'
-            ? (await c.el.textContent()) || ''
-            : await c.el.inputValue();
-          if (!actual.includes(step.type.text)) {
-            throw new Error(`typed value assertion failed for ${step.type.selector}`);
-          }
-        }
-        await page.waitForTimeout(500);
-      }
-
-      if (step.date) {
-        await page.evaluate(() => window.__vid.zoomOut()).catch(() => {});
-        await selectDate(page, step.date);
-        await page.waitForTimeout(500);
-      }
-
-      if (step.upload) {
-        const assetPath = resolveFlowAssetPath(absoluteFlowPath, step.upload.path);
-        const input = page.locator(step.upload.selector).first();
-        await input.waitFor({ state: 'attached', timeout: step.timeout || 15000 });
-        await input.setInputFiles(assetPath);
-        await settle(page, step.upload.settle || 1500);
-      }
-
-      if (step.zoom) {
-        const c = await locateCenter(page, step.zoom, step.timeout || 15000);
-        await page.evaluate(([x, y]) => window.__vid.moveTo(x, y, 600), [c.x, c.y]);
-        await page.evaluate(([x, y, s]) => window.__vid.zoom(x, y, s || 1.5), [c.x, c.y, step.scale]);
-      }
-
-      if (step.expectVisible) {
-        await waitForVisibleMatch(
-          page,
-          page.locator(step.expectVisible),
-          step.expectVisible,
-          step.timeout || 15000,
-        );
-      }
-      if (step.expectText) {
-        await waitForVisibleMatch(
-          page,
-          page.getByText(step.expectText, { exact: false }),
-          `text ${JSON.stringify(step.expectText)}`,
-          20000,
-        );
-      }
-      if (step.expectTexts) {
-        for (const expectedText of step.expectTexts) {
-          await waitForVisibleMatch(
-            page,
-            page.getByText(expectedText, { exact: false }),
-            `text ${JSON.stringify(expectedText)}`,
-            step.timeout || 20000,
-          );
-        }
-      }
-
-      if (step.hold) await page.waitForTimeout(step.hold);
-      if (step.pause) await page.waitForTimeout(step.pause);
-    } catch (e) {
-      const message = `training-video step ${stepIndex + 1} failed (${JSON.stringify(step).slice(0, 100)}): ${e.message}`;
-      if (step.required) throw new Error(message, { cause: e });
-      console.warn(`step skipped: ${message}`);
-    }
+  let report;
+  let recordingError;
+  try {
+    report = await runFlow(page, flow, {
+      base,
+      overlay,
+      flowPath: absoluteFlowPath,
+      bareFootage: Boolean(flow.bareFootage),
+      dryRun: false,
+      strict,
+    });
+  } catch (error) {
+    recordingError = error;
   }
 
-  await page.evaluate(() => window.__vid.zoomOut()).catch(() => {});
-  await page.evaluate(() => window.__vid.captionHide());
-  if (flow.outro && !flow.bareFootage) await page.evaluate((t) => window.__vid.card(t.title, t.subtitle, t.hold || 2000), flow.outro);
-  await page.waitForTimeout(400);
+  if (!recordingError) {
+    await overlay.zoomOut();
+    await overlay.captionHide();
+    if (flow.outro && !flow.bareFootage) {
+      await overlay.card(flow.outro.title, flow.outro.subtitle, flow.outro.hold || 2000);
+    }
+    await page.waitForTimeout(400);
+  }
 
   const video = page.video();
   await ctx.close();
   const webm = await video.path();
   await browser.close();
+
+  // A failed run must not leave a plausible-looking MP4 behind — the raw footage
+  // is retained for diagnosis instead.
+  if (recordingError) {
+    console.error(`\n✖ recording aborted; raw footage retained at ${webm}`);
+    throw recordingError;
+  }
 
   if (flow.frame === false) plainTranscode(webm, workingMp4);
   else frameVideo(webm, workingMp4);
@@ -496,7 +217,16 @@ async function run() {
 
   fs.renameSync(workingMp4, finalMp4);
   const kb = Math.round(fs.statSync(finalMp4).size / 1024);
-  console.log(`\n✅ ${finalMp4} (${kb} KB)${flow.frame === false ? '' : ' [framed]'}${flow.tighten ? ' [tightened]' : ''}`);
+  const skippedNote = report.skipped.length ? ` [${report.skipped.length} step(s) skipped]` : '';
+  console.log(`\n✅ ${finalMp4} (${kb} KB)${flow.frame === false ? '' : ' [framed]'}${flow.tighten ? ' [tightened]' : ''}${skippedNote}`);
+  if (report.skipped.length) {
+    console.warn('\n⚠ skipped steps (video has missing beats):');
+    for (const entry of report.skipped) console.warn(`  - ${entry.error}`);
+  }
 }
 
-run().catch((e) => { console.error(e); process.exit(1); });
+run().catch((e) => {
+  if (e instanceof FlowAbortError) console.error(`\n${e.message}`);
+  else console.error(e);
+  process.exit(1);
+});

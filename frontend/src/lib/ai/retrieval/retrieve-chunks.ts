@@ -18,12 +18,9 @@
  */
 
 import * as Sentry from "@sentry/nextjs";
-import { OpenAI } from "@ai-sdk/openai";
+import type OpenAI from "openai";
 import { generateEmbedding, EMBEDDING } from "@/lib/ai/tools/tool-utils";
-import {
-  createRagServiceClient,
-  type ServiceClientReturnType,
-} from "@/lib/supabase/service";
+import { createRagServiceClient } from "@/lib/supabase/service";
 import { filterLeadershipRestrictedChunks } from "@/lib/ai/leadership-restriction";
 
 /**
@@ -49,6 +46,8 @@ export type RagRow = {
   doc_metadata?: Record<string, unknown>;
   similarity?: number;
   document_id?: string;
+  doc_business_area_id?: number | null;
+  source_type?: string;
 };
 
 export interface RetrieveChunksOptions {
@@ -59,10 +58,13 @@ export interface RetrieveChunksOptions {
   openai: OpenAI;
 
   /** Optional: Supabase RAG client. If not provided, creates one. */
-  ragClient?: ServiceClientReturnType;
+  ragClient?: ReturnType<typeof createRagServiceClient>;
 
   /** Optional: Project ID to scope search to this project */
   projectId?: number | null;
+
+  /** Optional: Alleato Brain Business Area ID to scope search to this branch */
+  businessAreaId?: number | null;
 
   /** Optional: Filter to specific source types (e.g., ["email", "teams_dm"]) */
   sourceTypes?: string[] | null;
@@ -101,12 +103,15 @@ export interface RetrieveChunksOptions {
  * @returns Array of matching chunks
  * @throws Error if retrieval fails (never silent)
  */
-export async function retrieveChunks(opts: RetrieveChunksOptions): Promise<RagRow[]> {
+export async function retrieveChunks(
+  opts: RetrieveChunksOptions,
+): Promise<RagRow[]> {
   const {
     query,
     openai,
     ragClient: providedRagClient,
     projectId,
+    businessAreaId,
     sourceTypes,
     matchCount = 10,
     matchThreshold = 0.45,
@@ -117,12 +122,21 @@ export async function retrieveChunks(opts: RetrieveChunksOptions): Promise<RagRo
   } = opts;
 
   try {
+    if (typeof projectId === "number" && typeof businessAreaId === "number") {
+      throw new Error(
+        `${errorLabel}: projectId and businessAreaId are mutually exclusive search scopes.`,
+      );
+    }
+
     // Generate embedding via the canonical helper (returns JSON-stringified vector)
     let queryEmbedding: string;
     try {
       queryEmbedding = await generateEmbedding(openai, query, EMBEDDING.LARGE);
     } catch (embeddingErr) {
-      const embeddingError = embeddingErr instanceof Error ? embeddingErr : new Error(String(embeddingErr));
+      const embeddingError =
+        embeddingErr instanceof Error
+          ? embeddingErr
+          : new Error(String(embeddingErr));
       Sentry.captureException(embeddingError, {
         level: "error",
         tags: {
@@ -134,6 +148,7 @@ export async function retrieveChunks(opts: RetrieveChunksOptions): Promise<RagRo
             query_length: query.length,
             source_types: sourceTypes?.join(","),
             project_id: projectId,
+            business_area_id: businessAreaId,
             error_label: errorLabel,
           },
         },
@@ -148,7 +163,12 @@ export async function retrieveChunks(opts: RetrieveChunksOptions): Promise<RagRo
     const { data, error } = await ragClient.rpc("search_document_chunks", {
       query_embedding: queryEmbedding, // Always a JSON string from generateEmbedding
       filter_source_types: sourceTypes ?? undefined,
-      filter_project_id: typeof projectId === "number" ? projectId : undefined,
+      ...(typeof projectId === "number" && {
+        filter_project_id: projectId,
+      }),
+      ...(typeof businessAreaId === "number" && {
+        filter_business_area_id: businessAreaId,
+      }),
       match_count: matchCount,
       match_threshold: matchThreshold,
       ...(hybridRankingEnabled && {
@@ -176,6 +196,7 @@ export async function retrieveChunks(opts: RetrieveChunksOptions): Promise<RagRo
             query_length: query.length,
             source_types: sourceTypes?.join(","),
             project_id: projectId,
+            business_area_id: businessAreaId,
             match_count: matchCount,
             match_threshold: matchThreshold,
             hybrid_ranking: hybridRankingEnabled,
@@ -209,8 +230,9 @@ export async function retrieveChunks(opts: RetrieveChunksOptions): Promise<RagRo
 export async function retrieveChunksByCategory(opts: {
   query: string;
   openai: OpenAI;
-  ragClient?: ServiceClientReturnType;
+  ragClient?: ReturnType<typeof createRagServiceClient>;
   projectId?: number | null;
+  businessAreaId?: number | null;
   sourceTypes?: string[] | null;
   matchCount?: number;
   errorLabel?: string;

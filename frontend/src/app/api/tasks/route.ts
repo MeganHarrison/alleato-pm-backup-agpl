@@ -1,10 +1,6 @@
-import { getApiRouteUser } from "@/lib/supabase/server";
+import { createClient, getApiRouteUser } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { serviceDb } from "@/lib/supabase/service-db";
-import {
-  isAuthError,
-  verifyProjectAccess,
-} from "@/lib/supabase/auth-guard";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { mapTaskRow, type JoinedTaskRow } from "@/features/tasks/task-utils";
@@ -13,7 +9,10 @@ import {
   TASK_STATUS_VALUES,
 } from "@/features/tasks/task-values";
 import { GuardrailError } from "@/lib/guardrails/errors";
-import { validateResponseContract, withApiGuardrails } from "@/lib/guardrails/api";
+import {
+  validateResponseContract,
+  withApiGuardrails,
+} from "@/lib/guardrails/api";
 
 const TaskResponseSchema = z.object({
   project_name: z.string().nullable(),
@@ -34,6 +33,9 @@ const TASK_COLUMNS = `
   segment_id,
   source_chunk_id,
   schedule_task_id,
+  company_id,
+  crm_lead_id,
+  crm_deal_id,
   description,
   assignee_person_id,
   assignee_name,
@@ -44,6 +46,8 @@ const TASK_COLUMNS = `
   priority,
   status,
   source_system,
+  source_type,
+  source_url,
   created_at,
   updated_at,
   project_ids,
@@ -83,44 +87,20 @@ const TASK_SELECT_WITH_DOCUMENT_INNER = TASK_SELECT.replace(
   "document_metadata:tasks_metadata_id_fkey!inner (",
 );
 
-const POSTGRES_INT4_MAX = 2_147_483_647;
-
-function parseProjectIdParam(value: string | null): number | null {
-  if (value === null) return null;
-  if (!/^[1-9]\d*$/.test(value)) {
-    throw new GuardrailError({
-      code: "VALIDATION_ERROR",
-      where: "/api/tasks#GET",
-      message: "project_id must be a positive integer.",
-      details: { projectId: value },
-    });
-  }
-
-  const projectId = Number(value);
-  if (!Number.isSafeInteger(projectId) || projectId > POSTGRES_INT4_MAX) {
-    throw new GuardrailError({
-      code: "VALIDATION_ERROR",
-      where: "/api/tasks#GET",
-      message: "project_id must be a valid positive PostgreSQL integer.",
-      details: { projectId: value },
-    });
-  }
-  return projectId;
-}
-
 export const GET = withApiGuardrails("/api/tasks#GET", async ({ request }) => {
   const projectIdParam = request.nextUrl.searchParams.get("project_id");
-  const projectId = parseProjectIdParam(projectIdParam);
+  const projectId = projectIdParam ? Number.parseInt(projectIdParam, 10) : null;
 
   const rawScope = request.nextUrl.searchParams.get("scope") ?? "mine";
   const scope = rawScope === "all" || rawScope === "mine" ? rawScope : "mine";
+  const context = request.nextUrl.searchParams.get("context");
 
-  if (!["mine", "all"].includes(scope)) {
+  if (context !== null && context !== "crm") {
     throw new GuardrailError({
       code: "VALIDATION_ERROR",
       where: "/api/tasks#GET",
-      message: "Invalid task scope.",
-      details: { scope },
+      message: "Invalid task context.",
+      details: { context },
     });
   }
 
@@ -135,78 +115,70 @@ export const GET = withApiGuardrails("/api/tasks#GET", async ({ request }) => {
     });
   }
 
-  let serviceClient: ReturnType<typeof createServiceClient> | null = null;
-  let profileData: { is_admin: boolean | null; full_name: string | null } | null;
+  // Use service client so profile lookup/admin checks are immune to RLS edge cases.
+  const serviceClient = createServiceClient();
+  const { data: profileData, error: profileError } = await serviceDb
+    .from("user_profiles")
+    .select("is_admin, full_name")
+    .eq("id", user.id)
+    .maybeSingle();
 
-  if (projectId !== null) {
-    const access = await verifyProjectAccess(projectId, user);
-    if (isAuthError(access)) return access;
-    serviceClient = access.serviceClient;
-    profileData = access.userProfile;
-  } else {
-    // Global task reads preserve the existing admin-only `scope=all`
-    // behavior. Project-scoped `scope=all` means all tasks in an authorized
-    // project and is available to ordinary project members.
-    const { data, error } = await serviceDb.from("user_profiles")
-      .select("is_admin, full_name")
-      .eq("id", user.id)
-      .maybeSingle();
-    if (error) {
-      throw new GuardrailError({
-        code: "INTERNAL_ERROR",
-        where: "/api/tasks#GET",
-        message: "Failed to verify task access.",
-        details: { reason: error.message },
-        cause: error,
-      });
-    }
-    profileData = data;
-
-    if (scope === "all" && profileData?.is_admin !== true) {
-      throw new GuardrailError({
-        code: "FORBIDDEN",
-        where: "/api/tasks#GET",
-        message: "Only admins can view all tasks.",
-        details: { userId: user.id, scope },
-      });
-    }
+  if (profileError) {
+    throw new GuardrailError({
+      code: "INTERNAL_ERROR",
+      where: "/api/tasks#GET",
+      message: "Failed to verify task access.",
+      details: { reason: profileError.message },
+      cause: profileError,
+    });
   }
 
-  // Project-scoped: use service client to bypass RLS; deduplicate across three query strategies.
-  if (projectId !== null) {
-    if (serviceClient === null) {
-      throw new GuardrailError({
-        code: "INTERNAL_ERROR",
-        where: "/api/tasks#GET",
-        message: "Authorized project task client was unavailable.",
-        details: { projectId },
-      });
-    }
+  // Admins-only guard for "all" scope.
+  if (scope === "all" && profileData?.is_admin !== true) {
+    throw new GuardrailError({
+      code: "FORBIDDEN",
+      where: "/api/tasks#GET",
+      message: "Only admins can view all tasks.",
+      details: { userId: user.id, scope },
+    });
+  }
 
+  const supabase = await createClient();
+
+  // Project-scoped: use service client to bypass RLS; deduplicate across three query strategies.
+  if (projectId !== null && !Number.isNaN(projectId)) {
     const [byProjectIds, byProjectId, viaDocsMeta] = await Promise.all([
-      serviceClient.from("tasks")
+      serviceDb
+        .from("tasks")
         .select(TASK_SELECT)
         .contains("project_ids", [projectId])
         .order("created_at", { ascending: false }),
-      serviceClient.from("tasks")
+      serviceDb
+        .from("tasks")
         .select(TASK_SELECT)
         .eq("project_id", projectId)
         .order("created_at", { ascending: false }),
-      serviceClient.from("tasks")
+      serviceDb
+        .from("tasks")
         .select(TASK_SELECT_WITH_DOCUMENT_INNER)
-        .is("project_id", null)
         .eq("document_metadata.project_id", projectId)
         .or("project_ids.is.null,project_ids.eq.{}")
         .order("created_at", { ascending: false }),
     ]);
 
     if (byProjectIds.error ?? byProjectId.error ?? viaDocsMeta.error) {
-      const firstError = byProjectIds.error ?? byProjectId.error ?? viaDocsMeta.error;
+      const firstError =
+        byProjectIds.error ?? byProjectId.error ?? viaDocsMeta.error;
       throw new GuardrailError({
         code: "INTERNAL_ERROR",
         where: "/api/tasks#GET",
         message: `Failed to load project tasks: ${firstError?.message}`,
-        details: { projectId, byProjectIdsError: byProjectIds.error?.message, byProjectIdError: byProjectId.error?.message, viaDocsMetaError: viaDocsMeta.error?.message },
+        details: {
+          projectId,
+          byProjectIdsError: byProjectIds.error?.message,
+          byProjectIdError: byProjectId.error?.message,
+          viaDocsMetaError: viaDocsMeta.error?.message,
+        },
       });
     }
 
@@ -233,29 +205,45 @@ export const GET = withApiGuardrails("/api/tasks#GET", async ({ request }) => {
     const currentUserEmail = user.email?.trim().toLowerCase() ?? "";
     const fullName = profileData?.full_name?.trim().toLowerCase() ?? "";
     const { data: currentPerson } = currentUserEmail
-      ? await serviceClient.from("people").select("id").ilike("email", currentUserEmail).maybeSingle()
+      ? await serviceDb
+          .from("people")
+          .select("id")
+          .ilike("email", currentUserEmail)
+          .maybeSingle()
       : { data: null };
 
-    const scopedRows = scope === "mine"
-      ? allRows.filter((t) => {
-          if (currentPerson?.id && t.assignee_person_id === currentPerson.id) return true;
-          if (currentUserEmail && t.assignee_email?.toLowerCase() === currentUserEmail) return true;
-          if (fullName && t.assignee_name?.toLowerCase() === fullName) return true;
-          return false;
-        })
-      : allRows;
+    const scopedRows =
+      scope === "mine"
+        ? allRows.filter((t) => {
+            if (currentPerson?.id && t.assignee_person_id === currentPerson.id)
+              return true;
+            if (
+              currentUserEmail &&
+              t.assignee_email?.toLowerCase() === currentUserEmail
+            )
+              return true;
+            if (fullName && t.assignee_name?.toLowerCase() === fullName)
+              return true;
+            return false;
+          })
+        : allRows;
 
     const tasks = scopedRows.map(mapTaskRow);
-    validateResponseContract(z.array(TaskResponseSchema.passthrough()), tasks, "/api/tasks#GET");
+    validateResponseContract(
+      z.array(TaskResponseSchema.passthrough()),
+      tasks,
+      "/api/tasks#GET",
+    );
     return NextResponse.json({ data: tasks, scope, projectId });
   }
 
   const currentUserEmail = user.email?.trim() ?? "";
   const { data: currentPerson, error: currentPersonError } = currentUserEmail
-    ? await serviceDb.from("people")
-      .select("id")
-      .ilike("email", currentUserEmail)
-      .maybeSingle()
+    ? await serviceDb
+        .from("people")
+        .select("id")
+        .ilike("email", currentUserEmail)
+        .maybeSingle()
     : { data: null, error: null };
 
   if (currentPersonError) {
@@ -268,34 +256,31 @@ export const GET = withApiGuardrails("/api/tasks#GET", async ({ request }) => {
     });
   }
 
-  // This is a server-side list read: authorization is established above, then
-  // scope is enforced below with explicit assignee filters. The browser RLS
-  // client cannot SELECT this table in production, so using it here turns a
-  // valid authenticated request into a database-permission 500.
+  const taskClient = scope === "all" ? serviceClient : supabase;
   // Legacy tasks are document-linked (metadata_id not null). Manual tasks and
-  // tasks the daily deep read creates are legitimately metadata_id-null, so
+  // tasks the daily deep read and CRM create are legitimately metadata_id-null, so
   // include them by source_system instead of filtering them out.
-  let query = serviceDb
+  let query = taskClient
     .from("tasks")
     .select(TASK_SELECT)
-    .or("metadata_id.not.is.null,source_system.in.(manual,daily_deep_read)")
-    .order("created_at", { ascending: false })
+    .or("metadata_id.not.is.null,source_system.in.(manual,daily_deep_read,crm)")
     .limit(1000);
 
-  // Scope: mine → prefer durable people FK, with email/name fallback for legacy rows.
-  if (scope === "mine") {
-    if (!currentUserEmail) {
-      throw new GuardrailError({
-        code: "AUTH_EXPIRED",
-        where: "/api/tasks#GET",
-        message: "Cannot load tasks because the authenticated session has no email.",
-        details: { reason: "Task scope filtering requires the authenticated email" },
-      });
-    }
+  if (context === "crm") {
+    query = query
+      .or("company_id.not.is.null,crm_lead_id.not.is.null")
+      .order("due_date", { ascending: true, nullsFirst: false })
+      .order("created_at", { ascending: false });
+  } else {
+    query = query.order("created_at", { ascending: false });
+  }
 
+  // Scope: mine → prefer durable people FK, with email/name fallback for legacy rows.
+  if (scope === "mine" && currentUserEmail) {
     const fullName = profileData?.full_name?.trim();
     const filters = [`assignee_email.ilike.${currentUserEmail}`];
-    if (currentPerson?.id) filters.unshift(`assignee_person_id.eq.${currentPerson.id}`);
+    if (currentPerson?.id)
+      filters.unshift(`assignee_person_id.eq.${currentPerson.id}`);
     if (fullName) filters.push(`assignee_name.ilike.${fullName}`);
     query = query.or(filters.join(","));
   }
@@ -320,7 +305,7 @@ export const GET = withApiGuardrails("/api/tasks#GET", async ({ request }) => {
     "/api/tasks#GET",
   );
 
-  return NextResponse.json({ data: tasks, scope });
+  return NextResponse.json({ data: tasks, scope, context });
 });
 
 // ---------------------------------------------------------------------------
@@ -338,20 +323,21 @@ export const GET = withApiGuardrails("/api/tasks#GET", async ({ request }) => {
 // (projects.id is INTEGER).
 // ---------------------------------------------------------------------------
 
-const CreateTaskBodySchema = z.object({
-  description: z.string().trim().min(1, "A task description is required."),
-  title: z.string().trim().min(1).max(200).optional(),
-  project_id: z.union([
-    z.number().int().positive().max(POSTGRES_INT4_MAX),
-    z.null(),
-  ]).optional(),
-  assignee_person_id: z.union([z.string().uuid(), z.null()]).optional(),
-  due_date: z
-    .union([z.string().regex(/^\d{4}-\d{2}-\d{2}$/), z.literal(""), z.null()])
-    .optional(),
-  priority: z.union([z.enum(TASK_PRIORITY_VALUES), z.null()]).optional(),
-  status: z.enum(TASK_STATUS_VALUES).optional(),
-});
+const CreateTaskBodySchema = z
+  .object({
+    description: z.string().trim().min(1, "A task description is required."),
+    title: z.string().trim().min(1).max(200).optional(),
+    project_id: z
+      .union([z.coerce.number().int().positive(), z.null()])
+      .optional(),
+    assignee_person_id: z.union([z.string().uuid(), z.null()]).optional(),
+    due_date: z
+      .union([z.string().regex(/^\d{4}-\d{2}-\d{2}$/), z.literal(""), z.null()])
+      .optional(),
+    priority: z.union([z.enum(TASK_PRIORITY_VALUES), z.null()]).optional(),
+    status: z.enum(TASK_STATUS_VALUES).optional(),
+  })
+  .strict();
 
 // The insert trigger (tasks_enforce_quality_on_insert) requires a non-empty
 // title on every row. When the user leaves the title blank, derive a short
@@ -365,10 +351,7 @@ function deriveTitleFromDescription(description: string): string {
   return `${(lastSpace > 40 ? truncated.slice(0, lastSpace) : truncated).trim()}…`;
 }
 
-async function resolveManualAssignee(
-  personId: string | null | undefined,
-  serviceClient: ReturnType<typeof createServiceClient>,
-) {
+async function resolveManualAssignee(personId: string | null | undefined) {
   if (!personId) {
     return {
       assignee_person_id: null as string | null,
@@ -377,7 +360,9 @@ async function resolveManualAssignee(
     };
   }
 
-  const { data: person, error } = await serviceClient.from("people")
+  const serviceClient = createServiceClient();
+  const { data: person, error } = await serviceDb
+    .from("people")
     .select("id, first_name, last_name, email")
     .eq("id", personId)
     .in("person_type", ["employee", "user"])
@@ -414,77 +399,77 @@ async function resolveManualAssignee(
   };
 }
 
-export const POST = withApiGuardrails("/api/tasks#POST", async ({ request }) => {
-  const user = await getApiRouteUser();
-  if (!user) {
-    throw new GuardrailError({
-      code: "AUTH_EXPIRED",
-      where: "/api/tasks#POST",
-      message: "Not authenticated.",
-      details: { reason: "No valid session cookie" },
-    });
-  }
+export const POST = withApiGuardrails(
+  "/api/tasks#POST",
+  async ({ request }) => {
+    const user = await getApiRouteUser();
+    if (!user) {
+      throw new GuardrailError({
+        code: "AUTH_EXPIRED",
+        where: "/api/tasks#POST",
+        message: "Not authenticated.",
+        details: { reason: "No valid session cookie" },
+      });
+    }
 
-  const rawBody = await request.json().catch(() => null);
-  const parsed = CreateTaskBodySchema.safeParse(rawBody);
-  if (!parsed.success) {
-    throw new GuardrailError({
-      code: "VALIDATION_ERROR",
-      where: "/api/tasks#POST",
-      message: "Invalid task payload.",
-      status: 400,
-      details: { issues: parsed.error.flatten() },
-    });
-  }
+    const rawBody = await request.json().catch(() => null);
+    const parsed = CreateTaskBodySchema.safeParse(rawBody);
+    if (!parsed.success) {
+      throw new GuardrailError({
+        code: "VALIDATION_ERROR",
+        where: "/api/tasks#POST",
+        message: "Invalid task payload.",
+        status: 400,
+        details: { issues: parsed.error.flatten() },
+      });
+    }
 
-  const { description, title, project_id, assignee_person_id, due_date, priority, status } =
-    parsed.data;
-
-  const projectId = project_id ?? null;
-  const dueDate = due_date && due_date.length > 0 ? due_date : null;
-  let serviceClient: ReturnType<typeof createServiceClient>;
-
-  if (projectId !== null) {
-    const access = await verifyProjectAccess(projectId, user);
-    if (isAuthError(access)) return access;
-    serviceClient = access.serviceClient;
-  } else {
-    serviceClient = createServiceClient();
-  }
-
-  const assignee = await resolveManualAssignee(
-    assignee_person_id,
-    serviceClient,
-  );
-
-  const { data, error } = await serviceClient.from("tasks")
-    .insert({
-      metadata_id: null,
-      source_system: "manual",
-      status: status ?? "open",
+    const {
       description,
-      title: title?.trim() || deriveTitleFromDescription(description),
-      project_id: projectId,
-      project_ids: projectId === null ? [] : [projectId],
-      due_date: dueDate,
-      priority: priority ?? null,
-      assignee_person_id: assignee.assignee_person_id,
-      assignee_name: assignee.assignee_name,
-      assignee_email: assignee.assignee_email,
-      assigned_by: user.id,
-    })
-    .select()
-    .single();
+      title,
+      project_id,
+      assignee_person_id,
+      due_date,
+      priority,
+      status,
+    } = parsed.data;
 
-  if (error) {
-    throw new GuardrailError({
-      code: "INTERNAL_ERROR",
-      where: "/api/tasks#POST",
-      message: `Failed to create task: ${error.message}`,
-      details: { reason: error.message },
-      cause: error,
-    });
-  }
+    const assignee = await resolveManualAssignee(assignee_person_id);
 
-  return NextResponse.json({ task: data }, { status: 201 });
-});
+    const projectId = project_id ?? null;
+    const dueDate = due_date && due_date.length > 0 ? due_date : null;
+
+    const serviceClient = createServiceClient();
+    const { data, error } = await serviceDb
+      .from("tasks")
+      .insert({
+        metadata_id: null,
+        source_system: "manual",
+        status: status ?? "open",
+        description,
+        title: title?.trim() || deriveTitleFromDescription(description),
+        project_id: projectId,
+        project_ids: projectId === null ? [] : [projectId],
+        due_date: dueDate,
+        priority: priority ?? null,
+        assignee_person_id: assignee.assignee_person_id,
+        assignee_name: assignee.assignee_name,
+        assignee_email: assignee.assignee_email,
+        assigned_by: user.id,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      throw new GuardrailError({
+        code: "INTERNAL_ERROR",
+        where: "/api/tasks#POST",
+        message: `Failed to create task: ${error.message}`,
+        details: { reason: error.message },
+        cause: error,
+      });
+    }
+
+    return NextResponse.json({ task: data }, { status: 201 });
+  },
+);

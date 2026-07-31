@@ -84,7 +84,7 @@ function MemoryUsageDisclosure({
             surface: "assistant_answer_memory_trace",
             route:
               typeof window === "undefined"
-                ? "/ai"
+                ? "/ai-assistant"
                 : window.location.pathname,
             messageId,
             sessionId,

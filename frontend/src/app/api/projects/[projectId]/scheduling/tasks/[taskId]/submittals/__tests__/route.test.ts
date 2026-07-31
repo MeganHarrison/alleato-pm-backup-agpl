@@ -37,7 +37,7 @@ describe("GET schedule task submittal risk", () => {
     getApiRouteUserMock.mockResolvedValue({ id: "user-1" } as Awaited<ReturnType<typeof getApiRouteUser>>);
     const taskQuery = chainableQuery({ data: { id: "task-1", name: "Install", start_date: "2026-07-30" }, error: null });
     const linksQuery = chainableQuery({ data: [], error: null });
-    const dependencyQuery = chainableQuery({ data: [{ schedule_tasks: { name: "Inspection", project_id: 43 } }], error: null });
+    const dependencyQuery = chainableQuery({ data: [{ successor: { name: "Inspection", project_id: 43 } }], error: null });
     const from = jest.fn()
       .mockReturnValueOnce(taskQuery)
       .mockReturnValueOnce(linksQuery)
@@ -47,7 +47,10 @@ describe("GET schedule task submittal risk", () => {
     const response = await GET(new NextRequest("http://localhost/api/projects/43/scheduling/tasks/task-1/submittals"), context);
 
     expect(response.status).toBe(200);
-    expect(dependencyQuery.eq).toHaveBeenCalledWith("schedule_tasks.project_id", 43);
+    expect(dependencyQuery.select).toHaveBeenCalledWith(
+      "successor:schedule_tasks!schedule_dependencies_task_id_fkey!inner(name, project_id)",
+    );
+    expect(dependencyQuery.eq).toHaveBeenCalledWith("successor.project_id", 43);
     expect(dependencyQuery.eq).not.toHaveBeenCalledWith("project_id", 43);
   });
 

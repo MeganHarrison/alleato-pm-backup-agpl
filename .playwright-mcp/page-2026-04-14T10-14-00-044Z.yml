@@ -1,0 +1,858 @@
+- generic:
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - link:
+                - /url: /
+                - img
+              - button:
+                - img
+          - generic:
+            - generic:
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - generic: Financial
+                    - generic:
+                      - link:
+                        - /url: /767/budget
+                        - generic: Budget
+                      - link:
+                        - /url: /767/prime-contracts
+                        - generic: Prime Contracts
+                      - link:
+                        - /url: /767/commitments
+                        - generic: Commitments
+                      - link:
+                        - /url: /767/change-orders
+                        - generic: Change Orders
+                      - link:
+                        - /url: /767/change-events
+                        - generic: Change Events
+                      - link:
+                        - /url: /767/direct-costs
+                        - generic: Direct Costs
+                      - link:
+                        - /url: /767/invoices
+                        - generic: Invoicing
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - generic: Operations
+                    - generic:
+                      - link:
+                        - /url: /767/directory
+                        - generic: Project Directory
+                      - link:
+                        - /url: /767/schedule
+                        - generic: Schedule
+                      - link:
+                        - /url: /767/meetings
+                        - generic: Meetings
+                      - link:
+                        - /url: /767/daily-log
+                        - generic: Daily Log
+                      - link:
+                        - /url: /767/punch-list
+                        - generic: Punch List
+                      - link:
+                        - /url: /767/rfis
+                        - generic: RFIs
+                      - link:
+                        - /url: /767/submittals
+                        - generic: Submittals
+                      - link:
+                        - /url: /767/transmittals
+                        - generic: Transmittals
+                      - link:
+                        - /url: /767/emails
+                        - generic: Emails
+                      - link:
+                        - /url: /767/photos
+                        - generic: Photos
+                      - link:
+                        - /url: /767/drawings
+                        - generic: Drawings
+                      - link:
+                        - /url: /767/specifications
+                        - generic: Specifications
+                      - link:
+                        - /url: /767/documents
+                        - generic: Documents
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - generic: Company
+                    - generic:
+                      - link:
+                        - /url: /directory/companies
+                        - generic: Company Directory
+                      - link:
+                        - /url: /767/meetings
+                        - generic: Meetings
+                      - link:
+                        - /url: /knowledge
+                        - generic: Knowledge Base
+                      - link:
+                        - /url: /ai-assistant
+                        - generic: AI Strategist
+                      - link:
+                        - /url: /767/documents
+                        - generic: Documents
+              - generic:
+                - button:
+                  - img
+                - generic:
+                  - generic:
+                    - generic: Admin
+                    - generic:
+                      - link:
+                        - /url: /settings
+                        - generic: Settings
+                      - link:
+                        - /url: /admin/company-knowledge
+                        - generic: Company Knowledge
+          - generic:
+            - list:
+              - listitem:
+                - button:
+                  - generic:
+                    - img
+          - button
+    - main:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - link:
+                  - /url: /
+                  - text: Projects
+              - generic:
+                - img
+                - link:
+                  - /url: /767/home
+                  - text: Alleato AI
+              - generic:
+                - img
+                - generic: Budget
+          - generic:
+            - button:
+              - generic: Budget
+              - img
+            - combobox:
+              - generic:
+                - generic: Alleato AI
+              - img
+            - button:
+              - img
+            - button:
+              - img
+            - link:
+              - /url: /feedback-inbox
+              - img
+            - link:
+              - /url: /annotation-inbox
+              - img
+            - button:
+              - img
+      - generic:
+        - generic:
+          - main:
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - heading [level=1]: Budget
+                      - generic:
+                        - generic:
+                          - generic:
+                            - button:
+                              - img
+                              - text: Create
+                              - img
+                            - button:
+                              - img
+                              - generic: Lock Budget
+                            - button:
+                              - img
+                            - button [expanded]:
+                              - img
+                            - button:
+                              - img
+              - generic:
+                - navigation:
+                  - generic:
+                    - generic:
+                      - button: Budget
+                      - button: Budget Details
+                      - button: Budget Modifications
+                      - button: Cost Codes
+                      - button: Forecasting
+                      - button: Project Status Snapshots
+                      - button: Change History
+                      - button: Settings
+                  - generic:
+                    - generic:
+                      - button:
+                        - img
+                        - generic: View
+                      - button:
+                        - img
+                      - button:
+                        - img
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - table:
+                            - rowgroup:
+                              - row:
+                                - columnheader:
+                                  - checkbox
+                                - columnheader
+                                - columnheader:
+                                  - generic: Description
+                                - columnheader:
+                                  - generic: original
+                                - columnheader:
+                                  - generic: mods
+                                - columnheader:
+                                  - generic: Approved COs
+                                - columnheader:
+                                  - generic: revised
+                                - columnheader:
+                                  - generic: JTD Cost Detail
+                                - columnheader:
+                                  - generic: Direct Costs
+                                - columnheader:
+                                  - generic: pending
+                                - columnheader:
+                                  - generic: Proj. Budget
+                                - columnheader:
+                                  - generic: committed
+                                - columnheader:
+                                  - generic: pending changes
+                                - columnheader:
+                                  - generic: Proj. Costs
+                                - columnheader:
+                                  - generic: forecast
+                                - columnheader:
+                                  - generic: Est. Total Cost
+                                - columnheader:
+                                  - generic: Proj. +/-
+                                - columnheader
+                            - rowgroup:
+                              - row:
+                                - cell
+                                - cell:
+                                  - button:
+                                    - img
+                                - cell:
+                                  - generic:
+                                    - generic: General Conditions
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - button:
+                                        - generic: $126,500.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - button:
+                                        - generic: $0.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - button:
+                                        - generic: $0.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - generic: $126,500.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - button:
+                                        - generic: $0.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - button:
+                                        - generic: $0.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - button:
+                                        - generic: $0.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - generic: $126,500.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - button:
+                                        - generic: $80,000.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - button:
+                                        - generic: $5,460.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - generic: $85,460.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - button:
+                                        - generic: $82,540.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - generic: $168,000.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - generic: ($41,500.00)
+                                    - button:
+                                      - img
+                                - cell
+                              - row:
+                                - cell
+                                - cell:
+                                  - button:
+                                    - img
+                                - cell:
+                                  - generic:
+                                    - generic: Metals
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - button:
+                                        - generic: $0.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - button:
+                                        - generic: $0.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - button:
+                                        - generic: $0.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - generic: $0.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - button:
+                                        - generic: $0.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - button:
+                                        - generic: $0.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - button:
+                                        - generic: $0.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - generic: $0.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - button:
+                                        - generic: $0.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - button:
+                                        - generic: $0.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - generic: $0.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - button:
+                                        - generic: $0.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - generic: $0.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - generic: $0.00
+                                    - button:
+                                      - img
+                                - cell
+                              - row:
+                                - cell
+                                - cell:
+                                  - button:
+                                    - img
+                                - cell:
+                                  - generic:
+                                    - generic: Wood, Plastics & Composites
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - button:
+                                        - generic: $0.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - button:
+                                        - generic: $0.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - button:
+                                        - generic: $0.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - generic: $0.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - button:
+                                        - generic: $0.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - button:
+                                        - generic: $0.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - button:
+                                        - generic: $0.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - generic: $0.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - button:
+                                        - generic: $65,000.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - button:
+                                        - generic: $0.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - generic: $65,000.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - button:
+                                        - generic: $0.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - generic: $65,000.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - generic: ($65,000.00)
+                                    - button:
+                                      - img
+                                - cell
+                              - row:
+                                - cell
+                                - cell:
+                                  - button:
+                                    - img
+                                - cell:
+                                  - generic:
+                                    - generic: Thermal & Moisture Protection
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - button:
+                                        - generic: $324,500.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - button:
+                                        - generic: $0.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - button:
+                                        - generic: $0.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - generic: $324,500.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - button:
+                                        - generic: $0.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - button:
+                                        - generic: $0.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - button:
+                                        - generic: $0.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - generic: $324,500.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - button:
+                                        - generic: $20,000.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - button:
+                                        - generic: $0.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - generic: $20,000.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - button:
+                                        - generic: $304,500.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - generic: $324,500.00
+                                    - button:
+                                      - img
+                                - cell:
+                                  - generic:
+                                    - generic:
+                                      - generic: $0.00
+                                    - button:
+                                      - img
+                                - cell
+                      - generic:
+                        - table:
+                          - rowgroup:
+                            - row:
+                              - cell
+                              - cell
+                              - cell: Grand Totals
+                              - cell:
+                                - generic: $451,000.00
+                              - cell:
+                                - generic: $0.00
+                              - cell:
+                                - generic: $0.00
+                              - cell:
+                                - generic: $451,000.00
+                              - cell:
+                                - generic: $0.00
+                              - cell:
+                                - generic: $0.00
+                              - cell:
+                                - generic: $0.00
+                              - cell:
+                                - generic: $451,000.00
+                              - cell:
+                                - generic: $165,000.00
+                              - cell:
+                                - generic: $5,460.00
+                              - cell:
+                                - generic: $170,460.00
+                              - cell:
+                                - generic: $387,040.00
+                              - cell:
+                                - generic: $557,500.00
+                              - cell:
+                                - generic: ($106,500.00)
+                              - cell
+          - generic:
+            - generic:
+              - navigation:
+                - generic:
+                  - button:
+                    - text: Admin
+                    - img
+              - paragraph: © 2026 Alleato Group. All rights reserved.
+  - region "Notifications alt+T"
+  - generic:
+    - button:
+      - img
+  - generic:
+    - button:
+      - generic: 🎨
+      - generic: "2"
+  - generic [ref=e213] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e214]:
+      - img [ref=e215]
+    - generic [ref=e2983]:
+      - button "Open issues overlay" [ref=e2984]:
+        - generic [ref=e2985]:
+          - generic [ref=e2986]: "5"
+          - generic [ref=e2987]: "6"
+        - generic [ref=e2988]:
+          - text: Issue
+          - generic [ref=e2989]: s
+      - button "Collapse issues badge" [ref=e2990]:
+        - img [ref=e2991]
+  - alert
+  - button [ref=e3629] [cursor=pointer]:
+    - img [ref=e222]
+    - generic:
+      - generic:
+        - button:
+          - img
+      - generic:
+        - button:
+          - img
+      - generic:
+        - button [disabled]:
+          - img
+      - generic:
+        - button [disabled]:
+          - img
+      - button [disabled]:
+        - img
+      - generic:
+        - button [disabled]:
+          - img
+      - generic:
+        - button:
+          - img
+      - generic:
+        - button:
+          - img
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - link:
+              - /url: https://agentation.com
+              - img
+            - paragraph: v3.0.2
+            - button:
+              - generic:
+                - generic:
+                  - img
+          - generic:
+            - generic:
+              - generic:
+                - text: Output Detail
+                - generic:
+                  - img
+              - button:
+                - generic: Standard
+            - generic:
+              - generic:
+                - text: React Components
+                - generic:
+                  - img
+              - generic:
+                - checkbox [checked]
+            - generic:
+              - generic:
+                - text: Hide Until Restart
+                - generic:
+                  - img
+              - generic:
+                - checkbox
+          - generic:
+            - generic: Marker Color
+            - generic:
+              - button
+              - button
+              - button
+              - button
+              - button
+              - button
+              - button
+          - generic:
+            - generic:
+              - generic:
+                - checkbox
+                - img
+              - generic: Clear on copy/send
+              - generic:
+                - img
+            - generic:
+              - generic:
+                - checkbox
+                - img
+              - generic: Block page interactions
+          - button:
+            - generic: Manage MCP & Webhooks
+            - generic:
+              - img
+        - generic:
+          - button:
+            - img
+            - generic: Manage MCP & Webhooks
+          - generic:
+            - generic:
+              - generic:
+                - text: MCP Connection
+                - generic:
+                  - img
+            - paragraph:
+              - text: MCP connection allows agents to receive and act on annotations.
+              - link:
+                - /url: https://agentation.dev/mcp
+                - text: Learn more
+          - generic:
+            - generic:
+              - generic:
+                - text: Webhooks
+                - generic:
+                  - img
+              - generic:
+                - generic: Auto-Send
+                - generic:
+                  - checkbox [checked] [disabled]
+            - paragraph: The webhook URL will receive live annotation changes and annotation data.
+            - textbox:
+              - /placeholder: Webhook URL
+  - generic:
+    - link:
+      - /url: https://lblcks.io/badge
+      - img
+    - button:
+      - img
+  - menu "Export" [active] [ref=e3630]:
+    - menuitem "Export to PDF" [ref=e3631]
+    - menuitem "Export to Excel" [ref=e3632]
+    - menuitem "Export to CSV" [ref=e3633]

@@ -1,0 +1,77 @@
+{
+  "contractVersion": 1,
+  "taskId": "PM-PERMISSIONS-20260729",
+  "feature": "Project Manager project access and commitment write permissions",
+  "route": "/1144/home",
+  "riskLevel": "high",
+  "flows": [
+    {
+      "name": "Resolve every supported project access source consistently",
+      "steps": [
+        "Resolve active directory membership, project-role membership, and company-wide template access through the shared resolver",
+        "Carry the effective template into the project shell authorization result",
+        "Apply the same company-wide access rule to the project portfolio"
+      ],
+      "expectedOutcome": "A Project Manager with a project role and company template can see and open Nexcom with the Project Manager permission set"
+    },
+    {
+      "name": "Grant and enforce Project Manager commitment writes",
+      "steps": [
+        "Update every Project Manager template without changing other module rules",
+        "Enforce commitment read and write levels in subcontract and purchase-order RLS",
+        "Read back the live templates, policies, and Kebba principal decision"
+      ],
+      "expectedOutcome": "Project Managers can read, create, edit, and delete commitments while users without Commitments write remain denied"
+    },
+    {
+      "name": "Fail unauthorized and broken lookups closed",
+      "steps": [
+        "Exercise a person with no directory, role, or company access",
+        "Exercise an access-source query error",
+        "Confirm both conditions return explicit denial rather than empty permissions"
+      ],
+      "expectedOutcome": "Missing access returns 403 and an access lookup failure returns a specific server error"
+    }
+  ],
+  "requiredEvidence": [
+    "databaseReadback",
+    "regressionTest",
+    "negativePath",
+    "summary"
+  ],
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "shared-access",
+      "description": "Project role and company template access reach the project shell and portfolio through the effective Project Manager template",
+      "evidence": [
+        {
+          "key": "regressionTest",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "commitment-write",
+      "description": "Both Project Manager templates and the live Kebba principal grant Commitments write at the database boundary",
+      "evidence": [
+        {
+          "key": "databaseReadback",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "fail-closed",
+      "description": "Missing access and access-query failures remain explicit denials",
+      "evidence": [
+        {
+          "key": "negativePath",
+          "min": 1
+        }
+      ]
+    }
+  ]
+}

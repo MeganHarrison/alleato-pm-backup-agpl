@@ -16,7 +16,10 @@ import { getPrimeContractPcoDisplayName } from "@/lib/prime-contract-pcos/displa
 import { useProject } from "@/contexts/project-context";
 import { createClient } from "@/lib/supabase/client";
 import { reportNonCriticalFailure } from "@/lib/report-non-critical-failure";
-import { isLikelyRecordIdentifier } from "./breadcrumb-utils";
+import {
+  getRouteBreadcrumbOverride,
+  isLikelyRecordIdentifier,
+} from "./breadcrumb-utils";
 
 interface Project {
   id: number;
@@ -448,6 +451,15 @@ export function useHeaderNav(): UseHeaderNavReturn {
         label = "Users";
         href = "/user-management";
         crumbs.push({ label, href });
+        return;
+      }
+
+      const routeBreadcrumbOverride = getRouteBreadcrumbOverride(
+        segments,
+        index,
+      );
+      if (routeBreadcrumbOverride) {
+        crumbs.push(routeBreadcrumbOverride);
         return;
       }
 

@@ -1,0 +1,9 @@
+<!--
+  App-layer modules read process.env at module top-level. The browser has no
+  Node process, so define a minimal shim before any preview module evaluates.
+  Phase 2 (extracting the design system into its own package) removes the need
+  for this by moving cn()/tokens out of app-coupled files.
+-->
+<script>
+  window.process = window.process || { env: { NODE_ENV: "development" } };
+</script>

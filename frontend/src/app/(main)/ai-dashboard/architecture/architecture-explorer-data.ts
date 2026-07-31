@@ -70,7 +70,7 @@ export const architectureLayers: ArchitectureLayer[] = [
     examples: [
       "frontend/src/lib/ai/tools/",
       "frontend/src/lib/ai/retrieval/",
-      "agents/alleato-assistant/",
+      "frontend/src/app/api/ai-assistant/chat/",
     ],
     sourceLabel: "AI and RAG architecture",
     sourceHref: `${repositoryUrl}/docs/architecture/AI-RAG-ARCHITECTURE.md`,

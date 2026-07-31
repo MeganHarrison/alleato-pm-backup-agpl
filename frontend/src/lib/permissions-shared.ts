@@ -21,7 +21,8 @@ export type PermissionModule =
   | "rfis"
   | "change_orders"
   | "change_events"
-  | "emails";
+  | "emails"
+  | "crm";
 
 /**
  * Granular capability flags layered on top of the base None/Read/Write/Admin
@@ -60,6 +61,7 @@ export const ALL_MODULES: PermissionModule[] = [
   "change_orders",
   "change_events",
   "emails",
+  "crm",
 ];
 
 export const ALL_GRANULAR_FLAGS: GranularFlag[] = [

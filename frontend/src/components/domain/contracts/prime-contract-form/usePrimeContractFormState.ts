@@ -97,7 +97,7 @@ export function usePrimeContractFormState({
     // never strips/coerces the payload, which makes its inferred output a
     // {number,title} + index-signature type. ContractFormData is assignable to
     // that, so a single cast narrows it without a double type-escape.
-    resolver: zodResolver(contractFormSchema) as Resolver<ContractFormData>,
+    resolver: zodResolver(contractFormSchema) as unknown as Resolver<ContractFormData>,
     defaultValues: buildDefaultValues(initialData),
     mode: "onSubmit",
   });

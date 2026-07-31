@@ -1,0 +1,33 @@
+{
+  "contractVersion": 1,
+  "taskId": "ALL-29",
+  "status": "PASS",
+  "verifiedAt": "2026-07-27T01:21:00Z",
+  "summary": "The pre-release ALL-29 implementation passed focused backend, route, grounding, surface, contract, and map checks; an independent reviewer approved the corrected recovery and index-lifecycle boundaries. Production index and signed-in browser acceptance remain explicitly pending in the task.",
+  "evidence": {
+    "actionLog": ["docs/ops/evidence/2026-07-26-training-module-completion/all-29/pre-release-verification.md"],
+    "summary": ["docs/ops/evidence/2026-07-26-training-module-completion/all-29/independent-review.md", "docs/ops/handoffs/2026-07-26-S242-training-library-ai.md"],
+    "regressionTest": ["backend/tests/test_training_rag_index.py", "frontend/src/app/(main)/training/ask/__tests__/page.test.tsx", "frontend/src/app/api/training/library/chat/__tests__/route.test.ts", "frontend/src/lib/ai/training-library/__tests__/grounding.test.ts", "frontend/src/lib/ai/chat-surface.unit.test.ts"]
+  },
+  "claims": {
+    "isolated-shared-surface": {
+      "regressionTest": ["frontend/src/app/(main)/training/ask/__tests__/page.test.tsx", "frontend/src/lib/ai/chat-surface.unit.test.ts"]
+    },
+    "grounded-training-only-response": {
+      "regressionTest": ["frontend/src/app/api/training/library/chat/__tests__/route.test.ts", "frontend/src/lib/ai/training-library/__tests__/grounding.test.ts"]
+    },
+    "durable-index-lifecycle": {
+      "regressionTest": ["backend/tests/test_training_rag_index.py"],
+      "actionLog": ["docs/ops/evidence/2026-07-26-training-module-completion/all-29/pre-release-verification.md"]
+    },
+    "independent-review": {
+      "summary": ["docs/ops/evidence/2026-07-26-training-module-completion/all-29/independent-review.md"]
+    }
+  },
+  "independentReview": {
+    "reviewer": "/root/s235_independent_review",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-27T01:20:00Z",
+    "artifact": "docs/ops/evidence/2026-07-26-training-module-completion/all-29/independent-review.md"
+  }
+}

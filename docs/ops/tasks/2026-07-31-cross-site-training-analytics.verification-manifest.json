@@ -1,0 +1,86 @@
+{
+  "contractVersion": 1,
+  "taskId": "DOCSANALYTICS0731",
+  "feature": "Privacy-safe cross-site training analytics",
+  "route": "/training/content/docs-create-prime-contract-walkthrough",
+  "riskLevel": "high",
+  "flows": [
+    {
+      "name": "Open an attributed Mintlify training lesson",
+      "steps": [
+        "Authenticate in the Project Management product",
+        "Open a cataloged docs video from the training library",
+        "Follow the product-owned attributed documentation link"
+      ],
+      "expectedOutcome": "The product issues an opaque short-lived assertion in the docs URL fragment without sharing an application session cookie"
+    },
+    {
+      "name": "Record privacy-minimized video progress",
+      "steps": [
+        "Remove the assertion fragment immediately on the docs page",
+        "Attach the global tracker only to a cataloged tagged video",
+        "Send a bounded versioned event without credentials or PII"
+      ],
+      "expectedOutcome": "The canonical product endpoint validates origin, audience, expiry, lesson binding, and writes through record_video_learning_progress"
+    }
+  ],
+  "requiredEvidence": [
+    "screenshots",
+    "regressionTest",
+    "negativePath",
+    "summary",
+    "visualReview"
+  ],
+  "visual": {
+    "viewports": [
+      "desktop"
+    ]
+  },
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "privacy-boundary",
+      "description": "The docs origin receives only an opaque short-lived lesson-bound assertion and a minimal event payload, never application cookies or raw PII",
+      "evidence": [
+        {
+          "key": "negativePath",
+          "min": 2
+        },
+        {
+          "key": "regressionTest",
+          "min": 2
+        }
+      ]
+    },
+    {
+      "id": "canonical-analytics",
+      "description": "Attributed docs video progress enters the existing learning progress RPC and reporting model without a parallel analytics store",
+      "evidence": [
+        {
+          "key": "regressionTest",
+          "min": 1
+        },
+        {
+          "key": "summary",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "rendered-training-flow",
+      "description": "The authenticated product lesson and both Mintlify training pages render the tagged video and attributed source action",
+      "evidence": [
+        {
+          "key": "screenshots",
+          "min": 3
+        },
+        {
+          "key": "visualReview",
+          "min": 1
+        }
+      ]
+    }
+  ]
+}

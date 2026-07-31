@@ -5,6 +5,7 @@ import { createClient, getApiRouteUser } from "@/lib/supabase/server";
 import { apiErrorResponse } from "@/lib/api-error";
 import { requirePermission } from "@/lib/permissions-guard";
 import { normalizeOwnerInvoiceLineItems } from "@/lib/invoicing/owner-invoice-line-items";
+import type { Database } from "@/types/database.types";
 
 // GET /api/projects/[projectId]/invoicing/owner/[invoiceId]
 // Fetch a single owner invoice with line items
@@ -187,7 +188,7 @@ export const PATCH = withApiGuardrails<{ projectId: string; invoiceId: string }>
     // Apply the update
     const { data: updated, error: updateError } = await supabase
       .from("owner_invoices")
-      .update(updatePayload)
+      .update(updatePayload as Database["public"]["Tables"]["owner_invoices"]["Update"])
       .eq("id", invoiceIdNum)
       .select()
       .single();

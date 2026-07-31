@@ -2,8 +2,8 @@ import { RagChatPage } from "@/components/ai-assistant/rag-chat-page";
 import { PageShell } from "@/components/layout";
 
 export const metadata = {
-  title: "AI | MKH",
-  description: "Chat with MKH AI and access governed AI workflows.",
+  title: "AI | Alleato",
+  description: "Chat with Alleato AI and access AI workflows.",
 };
 
 export default function AiPage() {

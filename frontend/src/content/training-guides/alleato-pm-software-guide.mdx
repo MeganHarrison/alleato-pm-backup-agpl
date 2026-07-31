@@ -1,0 +1,99 @@
+---
+slug: alleato-pm-software-guide
+title: Alleato PM Software Guide
+description: How to use Alleato-PM - the module map, where training videos live, how we write software how-to's, and a worked example (creating a change event).
+roleIds:
+  - project-engineer
+  - assistant-project-manager
+  - project-manager
+  - estimator
+  - assistant-superintendent
+  - superintendent
+---
+
+# Alleato PM Software — How to Use It
+
+*Your partner from the ground up.*
+
+**What this is:** Alleato‑PM is our own construction project management platform — built in‑house to replace Job Planner. It's modeled on familiar construction-management workflows but built for clarity and source‑backed decisions. This guide is the front door to learning it: what the modules are, where the training videos live, and how we write software how‑to's.
+
+> This is our internal software. It is **not** Job Planner or any third‑party tool — when in doubt, this platform is the system of record for project execution.
+
+---
+
+## Where the training already lives
+
+Before making anything new, check what we already have:
+
+- **SOP's & Training Hub (SharePoint):** the central hub for SOPs and quick training — [SOP's & Training Hub](https://alleato.sharepoint.com/sites/AlleatoGroup/SitePages/SOP's-&-Training-Hub.aspx)
+- **SOP‑Training Videos library (SharePoint):** `Alleato Group‑Shared / SOP‑Training Videos /` organized as `001‑SOP's/` (the written standard) and `002‑Training/` (how to actually perform the task, usually a video), under numbered categories — e.g. `06.RFI's`, `07.Budget‑Forecasting`, `14. Sprinkler Division`, `15. HR‑Administration`, `16. Accounting`, often with a `By Tool/` subfolder.
+- **Recordings are Loom videos**, linked from the matching SOP doc. Example that already exists: **Sprinkler Drawing Review** — [watch on Loom](https://www.loom.com/share/4610124620694538ac3747d9b578f986)
+- **In the codebase:** written, screenshot‑based tutorials live in the repo under `docs/tutorials/` (see the change‑management example below).
+
+**Known videos already created** (find them in the Training Hub): Schedule creation, BuildingConnected setup, PSR (Project Status Report), Prime Contract, Sprinkler drawing review. When you write a new SOP, link the matching video into it rather than duplicating.
+
+---
+
+## The software at a glance (module map)
+
+Alleato‑PM covers project execution end to end. The core modules:
+
+- **Projects** — the container for everything on a job; pick a project, then work inside its modules.
+- **Tasks** — assigned action items with owners and due dates.
+- **Budgets** — the job budget by **budget code**; the basis for cost tracking and change pricing.
+- **Commitments** — subcontracts and purchase orders issued against the budget.
+- **Change Management (Change Events)** — document scope/cost/schedule changes with priced line items (see the worked example below).
+- **Invoices** — billing and payment application workflow.
+- **Meetings** — agendas, minutes, and action items.
+- **Documents** — drawings, specs, and project files.
+- **Scheduling** — project schedule and look‑aheads (pair with the pull‑planning approach in the Superintendent Handbook).
+- **AI‑assisted workflows** — surfacing the next correct action with links back to the source record.
+- **Teams app** — Alleato‑PM is also available inside Microsoft Teams.
+
+Repo (for admins/developers): [github.com/bdclymer/alleato-pm](https://github.com/bdclymer/alleato-pm)
+
+---
+
+## How we write a software how‑to (the standard format)
+
+Every software tutorial follows the same shape used in the codebase (`docs/tutorials/.../documentation-draft.md`) so they all feel the same:
+
+1. **Title** — "Create a Change Event," verb‑first, one task per tutorial.
+2. **Before You Start** — prerequisites and the source of truth (the captured form/screens).
+3. **Steps** — numbered, each with: a short instruction, a **screenshot**, and an **Expected result**.
+4. **Quality Check** — confirm the app state matches each expected result; strip any seeded/demo data before publishing.
+
+Pair the written SOP with a short **Loom screen recording** of the same workflow, and link the two together in the Training Hub.
+
+---
+
+## Worked example — Create a Change Event
+
+*(This is the live tutorial from the codebase, shown here as the model to copy.)*
+
+**Before you start:** use the captured change‑event form as the source of truth for step order and fields; confirm the change is complete enough for pricing review before saving in Open status; attach only records that explain scope, cost, or schedule impact.
+
+1. **Open the new change event form** — select the project, open **Change Events** from the sidebar, and start a new change event. *Expected: the Create Change Event form opens.*
+2. **Fill in general information** — leave **Number** to auto‑generate (or set it), enter a clear **Title** and **Description**, then set **Type**, **Change Reason**, and **Scope**.
+3. **Set the origin** — choose the **Origin** and, if applicable, the **Origin Record**, to tie the change back to its source.
+4. **Set revenue handling** — set **Expecting Revenue** and, when revenue is expected, the **Line Item Revenue Source**; if using markup, set the **Prime Contract** as the markup basis.
+5. **Add cost line items** — for each change, add a row: select the **Budget Code**, enter a **Description**, and the **quantity** and **unit cost** (and revenue where applicable). Totals roll up to the header.
+6. **Attach supporting documents** — upload drawings, RFIs, or photos in **Attachments**.
+7. **Save the change event** — select **Create Change Event**. It's created in **Open** status, ready for pricing review and approval.
+
+**Quality check:** confirm the final state matches the expected result for each step, and remove any environment‑specific or seeded‑data references before publishing.
+
+---
+
+## Adding a new software tutorial
+
+When a workflow needs a tutorial:
+
+1. **Record a short Loom** walking the workflow, and/or capture the screens.
+2. **Draft the written SOP** in the format above (Before You Start → numbered Steps with screenshots + Expected result → Quality Check). In the codebase this can be generated from a captured manifest via `scripts/tutorials/compose-training-doc.mjs`.
+3. **File it** in the SOP‑Training Videos library under the right numbered category (`001‑SOP's/` for the standard, `002‑Training/` for the how‑to video) and **link the video into the SOP**.
+4. **Surface it** in the Training Hub so new hires can find it.
+
+---
+
+*Alleato Group — Indianapolis · St. Petersburg — www.alleatogroup.com*

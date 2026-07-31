@@ -7,14 +7,28 @@ const activities = [
 ];
 
 describe("selectTradePublishedActivities", () => {
-  it("returns only activities assigned to the authorized trade person", () => {
-    expect(selectTradePublishedActivities(activities, "person-electric")).toEqual([
-      { sourceTaskId: "task-electrical", name: "Rough-in electrical", assigneePersonId: "person-electric" },
+  it("returns activities assigned to authorized project members in the same company", () => {
+    expect(
+      selectTradePublishedActivities(
+        activities,
+        ["person-electric", "person-plumbing"],
+      ),
+    ).toEqual([
+      {
+        sourceTaskId: "task-electrical",
+        name: "Rough-in electrical",
+        assigneePersonId: "person-electric",
+      },
+      {
+        sourceTaskId: "task-plumbing",
+        name: "Rough-in plumbing",
+        assigneePersonId: "person-plumbing",
+      },
     ]);
   });
 
-  it("fails closed when the user cannot be resolved to an assigned trade person", () => {
-    expect(selectTradePublishedActivities(activities, null)).toEqual([]);
-    expect(selectTradePublishedActivities(activities, "person-other")).toEqual([]);
+  it("fails closed without an authorized project-member list", () => {
+    expect(selectTradePublishedActivities(activities, [])).toEqual([]);
+    expect(selectTradePublishedActivities(activities, ["person-other"])).toEqual([]);
   });
 });

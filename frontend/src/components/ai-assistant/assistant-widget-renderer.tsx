@@ -2,6 +2,7 @@
 
 import { useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   ActivityIcon,
   AlertTriangleIcon,
@@ -35,7 +36,6 @@ import { toast } from "sonner";
 
 import { InfoAlert } from "@/components/ds/InfoAlert";
 import { TaskFeedbackButtons } from "@/components/ai/TaskFeedbackButtons";
-import { MkhLogo } from "@/components/brand/mkh-logo";
 import { MoneyField } from "@/components/forms/MoneyField";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -791,6 +791,27 @@ function CreateTaskWidget({
   );
 }
 
+function AlleatoWordmark() {
+  return (
+    <span className="flex items-center" aria-label="Alleato Group">
+      <Image
+        src="/Alleato-Group-Logo_Dark.png"
+        alt="Alleato Group"
+        width={72}
+        height={18}
+        className="h-4 w-auto opacity-80 dark:hidden"
+      />
+      <Image
+        src="/Alleato-Group-Logo_Light.png"
+        alt="Alleato Group"
+        width={72}
+        height={18}
+        className="hidden h-4 w-auto opacity-80 dark:block"
+      />
+    </span>
+  );
+}
+
 function ContactField({
   label,
   children,
@@ -852,7 +873,7 @@ function CreateContactWidget({
       eyebrow={created ? "Contact created" : "New contact"}
       title={widget.title}
       icon={<UserIcon className="h-4 w-4 text-primary" />}
-      actions={<MkhLogo className="h-5 w-auto opacity-80" />}
+      actions={<AlleatoWordmark />}
     >
       {created ? (
         <InfoAlert variant="success">
@@ -3416,18 +3437,14 @@ function getSourceHref(source: SourceItem): string | null {
   ).trim();
   const type = String(metadata.doc_type ?? metadata.type ?? metadata.category ?? "").toLowerCase();
 
-  // Governed Project Intelligence and Executive Report citations carry their
-  // canonical route explicitly. Do not fall through to a document/meeting
-  // resolver: these are durable artifacts, not raw source rows.
+  // Governed evidence (Project Intelligence, Executive Reports, and any source
+  // that persists its own canonical route) is honored ONLY as a safe in-app
+  // root-relative path — never a protocol-relative (`//host`) or arbitrary-scheme
+  // (`javascript:`, `data:`) URL, which could smuggle an off-site or script link
+  // into a citation. Legitimate absolute http(s) links are handled by the
+  // external-link fallback below; anything else renders as a non-clickable card.
   const explicitUrl = typeof metadata.url === "string" ? metadata.url.trim() : "";
-  // Revision-scoped evidence (for example FMDS tables and figures) persists a
-  // canonical in-app route. Honor safe root-relative routes before attempting
-  // record-type inference; otherwise valid evidence renders as a non-clickable
-  // card even though its exact source route is already known.
   if (explicitUrl.startsWith("/") && !explicitUrl.startsWith("//")) {
-    return explicitUrl;
-  }
-  if ((type.includes("project_intelligence") || type.includes("executive_report")) && explicitUrl) {
     return explicitUrl;
   }
 

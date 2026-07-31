@@ -41,7 +41,11 @@ const optionalStringArraySchema = z.array(z.string()).optional();
 const featureRequestIdSchema = z.string().uuid().describe("Feature request packet UUID");
 const featureSubIssueIdSchema = z.string().uuid().describe("Feature request Linear sub-issue draft UUID");
 const linearIssueIdSchema = z.string().min(1).describe("Linear issue ID, for example AAI-123");
-const projectIdSchema = z.number().int().positive();
+const POSTGRES_INTEGER_MAX = 2_147_483_647;
+const projectIdSchema = z.number().int().positive().max(
+  POSTGRES_INTEGER_MAX,
+  "Project ID must fit in a PostgreSQL integer.",
+);
 
 const FEATURE_REQUEST_READ_ERROR_GUIDANCE =
   "Feature request packet data could not be checked. Tell the user exactly which packet lookup failed, then continue with any other available context instead of presenting missing data as fact.";
@@ -218,15 +222,54 @@ export function createFeatureRequestTools(
 
     scoreFeatureRequestReadiness: defineReadTool("scoreFeatureRequestReadiness", options, {
       description:
-        "Score whether a feature request packet is ready for build. Use this before marking anything ready for Claude Code/Codex implementation.",
+        "Score whether a feature request packet is ready for build. Identify it by packet UUID or by its title/keywords. Use this before marking anything ready for Claude Code/Codex implementation.",
       inputSchema: z.object({
-        requestId: featureRequestIdSchema,
-      }),
+        requestId: featureRequestIdSchema.optional(),
+        query: z.string().trim().min(2).optional().describe(
+          "Feature request title or keywords. Used to resolve the packet when requestId is unavailable.",
+        ),
+      }).refine(
+        (input) => Boolean(input.requestId || input.query),
+        { message: "Provide either requestId or a title/keyword query." },
+      ),
       errorGuidance: FEATURE_REQUEST_READ_ERROR_GUIDANCE,
       execute: async (input) => {
-        const detail = await getFeatureRequestDetail(input.requestId);
+        let requestId = input.requestId;
+        if (!requestId && input.query) {
+          const matches = await findRelatedFeatureRequests({
+            query: input.query,
+            projectId: options.pinnedProjectId ?? null,
+            limit: 2,
+          });
+          if (matches.length === 0) {
+            return {
+              success: false,
+              error: `No feature request matched "${input.query}".`,
+            };
+          }
+          if (matches.length > 1) {
+            return {
+              success: false,
+              error: `More than one feature request matched "${input.query}". Use a requestId or a more specific query.`,
+              matches: matches.map((match) => ({
+                requestId: match.id,
+                title: match.title,
+              })),
+            };
+          }
+          requestId = matches[0].id;
+        }
+
+        if (!requestId) {
+          return {
+            success: false,
+            error: "Provide either requestId or a title/keyword query.",
+          };
+        }
+
+        const detail = await getFeatureRequestDetail(requestId);
         if (!detail) {
-          return { success: false, error: `Feature request ${input.requestId} was not found.` };
+          return { success: false, error: `Feature request ${requestId} was not found.` };
         }
         const readiness = scoreFeatureRequestReadiness({
           request: detail.request,
@@ -234,7 +277,7 @@ export function createFeatureRequestTools(
         });
         const output = {
           success: true,
-          requestId: input.requestId,
+          requestId,
           ...readiness,
         };
         return output;

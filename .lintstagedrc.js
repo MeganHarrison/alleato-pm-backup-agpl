@@ -3,7 +3,8 @@ const path = require('path');
 const repoRoot = __dirname;
 const eslintWrapper = path.join(repoRoot, 'scripts', 'lint-staged', 'run-frontend-eslint.sh');
 const debtScript = path.join(repoRoot, 'frontend', 'scripts', 'check-no-new-eslint-debt.mjs');
-const FRONTEND_PREFIX = path.join(repoRoot, 'frontend') + path.sep;
+const frontendRoot = path.join(repoRoot, 'frontend');
+const quoteArg = (value) => JSON.stringify(value.replaceAll(path.sep, '/'));
 
 // lint-staged 16 spawns commands without a shell, which breaks `cd X && Y`
 // constructs and breaks single-quoted JSON arguments (the string-argv tokenizer
@@ -16,7 +17,7 @@ const FRONTEND_PREFIX = path.join(repoRoot, 'frontend') + path.sep;
 // so the eslint invocation (which sets cwd=frontend/) finds them.
 const toFrontendRelative = (absPaths) =>
   absPaths
-    .map((p) => (p.startsWith(FRONTEND_PREFIX) ? p.slice(FRONTEND_PREFIX.length) : p))
+    .map((p) => quoteArg(path.relative(frontendRoot, p)))
     .join(' ');
 
 module.exports = {
@@ -24,15 +25,15 @@ module.exports = {
     const rel = toFrontendRelative(filenames);
     return [
       // Fix what can be auto-fixed
-      `${eslintWrapper} fix ${rel}`,
+      `${quoteArg(eslintWrapper)} fix ${rel}`,
       // Then enforce strict design-system rules on changed files only (ratchet-down pattern).
       // Global config keeps many rules at "warn" due to legacy debt, but staged changes
       // must not introduce new drift.
-      `${eslintWrapper} strict ${rel}`,
+      `${quoteArg(eslintWrapper)} strict ${rel}`,
       // Block adding new design-system eslint-disable escapes.
       'node frontend/scripts/design-system/check-no-new-disables.mjs',
       // Block any new lint warnings/errors on added lines in staged files.
-      `node ${debtScript} --staged`,
+      `node ${quoteArg(debtScript)} --staged`,
       // Ratchet no-new-any on staged changes only; existing debt is handled separately.
       'node scripts/check-no-new-any.mjs --staged',
     ];

@@ -4,6 +4,7 @@ import { parseJsonBody, validateResponseContract, withApiGuardrails } from "@/li
 import { GuardrailError } from "@/lib/guardrails/errors";
 import { requirePermission } from "@/lib/permissions-guard";
 import { isAuthError, verifyProjectAccess } from "@/lib/supabase/auth-guard";
+import type { Database } from "@/types/database.types";
 
 const ParamsSchema = z.object({
   projectId: z.string().regex(/^\d+$/, "Project ID must be numeric"),
@@ -142,7 +143,7 @@ export const PUT = withApiGuardrails<
     "/api/projects/[projectId]/commitments/[commitmentId]/pcos/[pcoId]#PUT",
   );
 
-  const updatePayload: Record<string, unknown> = {
+  const updatePayload: Database["public"]["Tables"]["commitment_pcos"]["Update"] = {
     updated_at: new Date().toISOString(),
   };
   if (body.title !== undefined) {

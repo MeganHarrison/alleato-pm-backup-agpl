@@ -100,6 +100,23 @@ if (CHECK_ONLY) {
 // --- activate ---
 git("config", "core.hooksPath", ".husky");
 
+// Register the custom merge driver used by .gitattributes (merge=alleato-regen)
+// for the auto-generated map files. A driver named in .gitattributes does NOTHING
+// unless the local repo config maps the name to a command, so this must run per
+// clone — which `prepare` guarantees. The driver regenerates the generated file
+// from the merged source tree instead of leaving a hand-mergeable conflict.
+// See scripts/dev-tools/merge-regenerate-map.mjs and .gitattributes.
+try {
+  git("config", "merge.alleato-regen.name", "Regenerate auto-generated map files on conflict");
+  git(
+    "config",
+    "merge.alleato-regen.driver",
+    "node scripts/dev-tools/merge-regenerate-map.mjs %A %P",
+  );
+} catch {
+  console.warn("⚠️  Could not register the 'alleato-regen' merge driver (non-fatal).");
+}
+
 let fixed = 0;
 for (const entry of readdirSync(hooksDir)) {
   const p = join(hooksDir, entry);

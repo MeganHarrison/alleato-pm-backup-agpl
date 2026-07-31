@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Subcontract invoices — relational model</title>
+    <style>
+      :root {
+        --paper: #faf6ee;
+        --paper-2: #f2ecdf;
+        --ink: #2b2926;
+        --ink-soft: #68635d;
+        --ink-faint: #928b81;
+        --rule: #d8d0c2;
+        --rule-strong: #a9a093;
+        --blue: #315a76;
+        --blue-wash: #cfe3f0;
+        --green: #49693c;
+        --green-wash: #d5e3c8;
+        --purple: #675483;
+        --purple-wash: #dcd3ee;
+        --yellow: #856816;
+        --yellow-wash: #f5e6a8;
+        --rose: #994e58;
+        --rose-wash: #f3d5d8;
+        --focus: #1b6791;
+        --sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        --serif: Iowan Old Style, Palatino Linotype, Palatino, Georgia, serif;
+        --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      }
+
+      :root[data-theme="dark"] {
+        --paper: #191714;
+        --paper-2: #24201b;
+        --ink: #eee8dc;
+        --ink-soft: #b7afa2;
+        --ink-faint: #8d8579;
+        --rule: #494239;
+        --rule-strong: #766c60;
+        --blue: #9bcde8;
+        --blue-wash: #233643;
+        --green: #afd09d;
+        --green-wash: #263322;
+        --purple: #c7b6e3;
+        --purple-wash: #302840;
+        --yellow: #e2ca78;
+        --yellow-wash: #3c3218;
+        --rose: #e4a2a9;
+        --rose-wash: #41252a;
+        --focus: #8bd2f2;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+          --paper: #191714; --paper-2: #24201b; --ink: #eee8dc; --ink-soft: #b7afa2; --ink-faint: #8d8579;
+          --rule: #494239; --rule-strong: #766c60; --blue: #9bcde8; --blue-wash: #233643; --green: #afd09d;
+          --green-wash: #263322; --purple: #c7b6e3; --purple-wash: #302840; --yellow: #e2ca78; --yellow-wash: #3c3218;
+          --rose: #e4a2a9; --rose-wash: #41252a; --focus: #8bd2f2;
+        }
+      }
+
+      * { box-sizing: border-box; }
+      html { background: var(--paper); }
+      body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.55 var(--sans); }
+      button { font: inherit; }
+      .page { width: min(1320px, 100%); margin: 0 auto; padding: 34px 28px 80px; }
+      .topline { border-top: 2px solid var(--ink); padding-top: 12px; display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+      .eyebrow, .mini-label { color: var(--ink-faint); font: 700 .7rem/1.3 var(--mono); letter-spacing: .13em; text-transform: uppercase; }
+      .theme { border: 1px solid var(--rule-strong); border-radius: 4px; background: transparent; color: var(--ink); padding: 5px 9px; cursor: pointer; font: 700 .7rem var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+      .theme:hover { background: var(--paper-2); }
+      button:focus-visible, summary:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+      h1, h2, h3, p { margin: 0; }
+      h1, h2 { font-family: var(--serif); font-weight: 600; letter-spacing: -.025em; }
+      h1 { max-width: 820px; margin-top: 21px; font-size: clamp(2.25rem, 5.2vw, 4rem); line-height: 1.02; }
+      h2 { font-size: clamp(1.45rem, 3vw, 2rem); line-height: 1.16; }
+      h3 { font-size: .85rem; letter-spacing: .08em; text-transform: uppercase; }
+      .lede { max-width: 790px; margin-top: 18px; color: var(--ink-soft); font: 1.12rem/1.55 var(--serif); }
+      .lede strong { color: var(--ink); font-weight: 700; }
+      .facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 32px; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+      .fact { padding: 14px 18px 15px 0; min-width: 0; }
+      .fact + .fact { border-left: 1px solid var(--rule); padding-left: 18px; }
+      .fact p { margin-top: 5px; color: var(--ink-soft); font-size: .91rem; }
+      .section { margin-top: 62px; }
+      .section-head { display: flex; align-items: end; justify-content: space-between; gap: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--rule); }
+      .section-head p { max-width: 56ch; color: var(--ink-soft); font-size: .92rem; }
+
+      .legend { display: flex; gap: 14px; flex-wrap: wrap; padding: 14px 0 18px; color: var(--ink-soft); font: .72rem var(--mono); }
+      .legend span { display: inline-flex; align-items: center; gap: 6px; }
+      .line { width: 25px; height: 0; border-top: 2px solid var(--ink-soft); display: inline-block; }
+      .line.derived { border-top-style: dashed; color: var(--purple); }
+      .line.warning { border-top-color: var(--rose); }
+      .dot { width: 9px; height: 9px; border: 1px solid var(--ink); border-radius: 50%; display: inline-block; }
+
+      .model { position: relative; display: grid; grid-template-columns: minmax(0, .82fr) 28px minmax(0, 1.08fr) 40px minmax(0, 2.75fr); align-items: center; gap: 0; padding: 20px 0; }
+      .flow { position: relative; height: 2px; background: var(--ink); margin: 0 2px; }
+      .flow::after { content: ""; position: absolute; right: -1px; top: -4px; border-left: 8px solid var(--ink); border-top: 5px solid transparent; border-bottom: 5px solid transparent; }
+      .table { width: 100%; text-align: left; color: var(--ink); background: var(--paper); border: 1.5px solid var(--ink); border-radius: 7px; padding: 0; cursor: pointer; overflow: hidden; box-shadow: 2px 2px 0 color-mix(in srgb, var(--ink) 10%, transparent); transition: transform .15s ease, background .15s ease; }
+      .table:hover, .table[aria-pressed="true"] { transform: translateY(-3px); background: var(--paper-2); }
+      .table[aria-pressed="true"] { outline: 3px solid var(--focus); outline-offset: 3px; }
+      .table .cap { display: flex; justify-content: space-between; gap: 8px; padding: 9px 12px 8px; background: var(--blue-wash); color: var(--blue); font: 700 .66rem var(--mono); letter-spacing: .1em; text-transform: uppercase; }
+      .table.sov .cap { background: var(--green-wash); color: var(--green); }
+      .table.invoice .cap { background: var(--purple-wash); color: var(--purple); }
+      .table.line-item .cap { background: var(--yellow-wash); color: var(--yellow); }
+      .table .body { padding: 13px 12px 14px; }
+      .table-name { display: block; font: 700 .97rem/1.25 var(--mono); overflow-wrap: anywhere; }
+      .db-name { display: block; margin-top: 4px; color: var(--ink-soft); font: .62rem/1.25 var(--mono); overflow-wrap: anywhere; }
+      .table .role { display: block; margin-top: 7px; color: var(--ink-soft); font-size: .78rem; line-height: 1.4; }
+      .key { display: block; margin-top: 11px; color: var(--ink); font: .68rem/1.45 var(--mono); }
+      .pk { color: var(--blue); } .fk { color: var(--purple); }
+
+      .branches { display: grid; grid-template-columns: minmax(0, .86fr) minmax(0, 1.3fr); gap: 20px; min-width: 0; }
+      .branch { min-width: 0; border-top: 1px solid var(--rule-strong); padding-top: 9px; }
+      .branch-label { display: block; margin-bottom: 8px; color: var(--ink-faint); font: 700 .62rem var(--mono); letter-spacing: .1em; text-transform: uppercase; }
+      .billing-chain { display: grid; grid-template-columns: minmax(0, 1fr) 22px minmax(0, 1fr); align-items: center; gap: 0; }
+
+      .spine-note { grid-column: 1 / -1; margin-top: 25px; padding: 12px 14px; border-left: 3px solid var(--rose); background: var(--rose-wash); color: var(--ink); font-size: .87rem; }
+      .spine-note strong { color: var(--rose); }
+      .support { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.28fr) minmax(0, 1fr); gap: 22px; margin-top: 18px; }
+      .support-group { min-width: 0; border-top: 1px solid var(--rule); padding-top: 14px; }
+      .support-group h3 { color: var(--ink-soft); }
+      .support-cards { display: grid; gap: 9px; margin-top: 11px; }
+      .mini-table { width: 100%; min-width: 0; padding: 10px 11px; color: var(--ink); background: transparent; border: 1px solid var(--rule-strong); border-radius: 5px; cursor: pointer; text-align: left; }
+      .mini-table:hover, .mini-table[aria-pressed="true"] { background: var(--paper-2); border-color: var(--ink); }
+      .mini-table[aria-pressed="true"] { outline: 2px solid var(--focus); outline-offset: 2px; }
+      .mini-table code { display: block; color: var(--purple); font: 700 .69rem var(--mono); overflow-wrap: anywhere; }
+      .mini-table span { display: block; margin-top: 3px; color: var(--ink-soft); font-size: .76rem; }
+
+      .reading-pane { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(270px, .9fr); gap: 34px; margin-top: 24px; }
+      .relationship-list { display: grid; gap: 0; border-top: 1px solid var(--rule); }
+      .relation { display: grid; grid-template-columns: 1.1fr 1.05fr 1.4fr; gap: 18px; padding: 15px 4px; border-bottom: 1px solid var(--rule); align-items: center; }
+      .relation code { font: .75rem var(--mono); color: var(--purple); overflow-wrap: anywhere; }
+      .relation p { color: var(--ink-soft); font-size: .84rem; }
+      .badge { width: max-content; margin-bottom: 4px; padding: 2px 5px; border: 1px solid currentColor; border-radius: 3px; font: 700 .6rem var(--mono); letter-spacing: .06em; text-transform: uppercase; }
+      .badge.fk { color: var(--blue); } .badge.runtime { color: var(--purple); } .badge.guard { color: var(--rose); }
+      .focus-card { align-self: start; padding: 19px; border: 1.5px solid var(--ink); border-radius: 7px; background: var(--paper-2); }
+      .focus-card h3 { color: var(--blue); }
+      .focus-card h2 { margin-top: 8px; font-family: var(--mono); font-size: 1rem; letter-spacing: -.04em; }
+      .focus-card p { margin-top: 10px; color: var(--ink-soft); font-size: .89rem; }
+      .focus-card .focus-keys { display: grid; gap: 7px; margin-top: 15px; }
+      .focus-key { padding-top: 7px; border-top: 1px solid var(--rule); color: var(--ink-soft); font: .73rem/1.45 var(--mono); }
+      .focus-key code { color: var(--purple); }
+
+      .flow-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin-top: 24px; }
+      .step { min-width: 0; padding: 14px 18px 16px 0; position: relative; }
+      .step + .step { border-left: 1px solid var(--rule); padding-left: 18px; }
+      .step-number { color: var(--blue); font: 700 .7rem var(--mono); }
+      .step h3 { margin-top: 8px; color: var(--ink); font-size: .84rem; letter-spacing: .03em; text-transform: none; }
+      .step p { margin-top: 6px; color: var(--ink-soft); font-size: .81rem; }
+      .step code { color: var(--purple); font-size: .72rem; }
+
+      details { margin-top: 16px; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+      summary { list-style: none; cursor: pointer; padding: 13px 2px; color: var(--blue); font: 700 .73rem var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+      summary::-webkit-details-marker { display: none; }
+      summary::before { content: "+ "; } details[open] summary::before { content: "− "; }
+      .details-body { padding: 1px 0 17px; color: var(--ink-soft); font-size: .87rem; }
+      .details-body ul { margin: 10px 0 0; padding-left: 19px; display: grid; gap: 8px; }
+      .details-body code { color: var(--purple); }
+      .source { margin-top: 50px; padding-top: 12px; border-top: 1px solid var(--rule); color: var(--ink-faint); font: .7rem/1.55 var(--mono); }
+      .source code { overflow-wrap: anywhere; }
+
+      @media (max-width: 820px) {
+        .page { padding: 25px 18px 52px; }
+        .facts { grid-template-columns: 1fr; } .fact + .fact { border-left: 0; border-top: 1px solid var(--rule); padding-left: 0; }
+        .model { grid-template-columns: 1fr; gap: 8px; padding: 18px 0; }
+        .flow { width: 2px; height: 24px; margin: 0 auto; } .flow::after { right: -4px; top: auto; bottom: -1px; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 8px solid var(--ink); border-bottom: 0; }
+        .branches, .billing-chain { grid-template-columns: 1fr; gap: 8px; }
+        .spine-note { margin-top: 12px; }
+        .support, .reading-pane { grid-template-columns: 1fr; gap: 27px; }
+        .flow-steps { grid-template-columns: 1fr; }
+        .step + .step { border-left: 0; border-top: 1px solid var(--rule); padding-left: 0; }
+      }
+      @media (max-width: 520px) { .section { margin-top: 44px; } .section-head { display: block; } .section-head p { margin-top: 8px; } .relation { grid-template-columns: 1fr; gap: 5px; } }
+      @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; } }
+      @media print { .page { max-width: none; padding: 20px; } .theme { display: none; } .section { break-inside: avoid; } .table:hover { transform: none; } }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <header>
+        <div class="topline">
+          <div class="eyebrow">Alleato · data model field guide · July 2026</div>
+          <button class="theme" type="button" aria-pressed="false" id="theme-toggle">Dark theme</button>
+        </div>
+        <h1>How a subcontract becomes an invoice — and then a payable record.</h1>
+        <p class="lede">For Brandon: the invoice is the billing-period record for <strong>one commitment</strong>. On the subcontract path, its financial shape comes from the subcontract SOV, while its payment status ultimately arrives from Acumatica.</p>
+        <div class="facts" aria-label="Mental model summary">
+          <div class="fact"><div class="mini-label">Primary object</div><p><code>subcontractor_invoices</code> is the pay application header.</p></div>
+          <div class="fact"><div class="mini-label">Line of business</div><p><code>subcontracts → subcontract_sov_items</code> defines the subcontract’s committed scope and value.</p></div>
+          <div class="fact"><div class="mini-label">Critical caveat</div><p>Invoice lines are a billing snapshot; they do not have a direct SOV-line foreign key.</p></div>
+        </div>
+      </header>
+
+      <section class="section" aria-labelledby="map-title">
+        <div class="section-head"><div><div class="eyebrow">The relationship map</div><h2 id="map-title">The core subcontract invoice chain</h2></div><p>Solid arrows are enforced foreign-key relationships. Select any table to see its job and its keys.</p></div>
+        <div class="legend" aria-label="Diagram legend"><span><i class="line"></i> enforced relationship</span><span><i class="line derived"></i> runtime / business relationship</span><span><i class="line warning"></i> important modeling boundary</span></div>
+        <div class="model" aria-label="Core subcontract invoice relationship diagram">
+          <button class="table" type="button" data-focus="project" aria-pressed="false"><span class="cap"><span>Scope</span><span>1</span></span><span class="body"><span class="table-name">projects</span><span class="role">The project boundary shared by the commitment, billing period, and invoice.</span><span class="key"><span class="pk">PK</span> id · integer</span></span></button>
+          <div class="flow" aria-hidden="true"></div>
+          <button class="table" type="button" data-focus="subcontract" aria-pressed="false"><span class="cap"><span>Commitment</span><span>1</span></span><span class="body"><span class="table-name">subcontracts</span><span class="role">The vendor commitment. Both the SOV and each subcontract invoice attach here.</span><span class="key"><span class="pk">PK</span> id · uuid<br><span class="fk">FK</span> project_id → projects.id</span></span></button>
+          <div class="flow" aria-hidden="true"></div>
+          <div class="branches" aria-label="Subcontract child branches">
+            <div class="branch"><span class="branch-label">Committed scope branch</span><button class="table sov" type="button" data-focus="sov" aria-pressed="false"><span class="cap"><span>SOV rows</span><span>many</span></span><span class="body"><span class="table-name">subcontract_sov_items</span><span class="role">Contractual SOV: amount, description, budget code, billed-to-date.</span><span class="key"><span class="pk">PK</span> id · uuid<br><span class="fk">FK</span> subcontract_id → subcontracts.id</span></span></button></div>
+            <div class="branch"><span class="branch-label">Billing branch</span><div class="billing-chain"><button class="table invoice" type="button" data-focus="invoice" aria-pressed="true"><span class="cap"><span>Invoice header</span><span>many</span></span><span class="body"><span class="table-name">Subcontract invoice</span><span class="db-name">subcontractor_invoices</span><span class="role">One pay application for one subcontract in one billing period.</span><span class="key"><span class="pk">PK</span> id · bigint<br><span class="fk">FK</span> subcontract_id → subcontracts.id</span></span></button><div class="flow" aria-hidden="true"></div><button class="table line-item" type="button" data-focus="invoice-line" aria-pressed="false"><span class="cap"><span>Billing detail</span><span>many</span></span><span class="body"><span class="table-name">Invoice line items</span><span class="db-name">subcontractor_invoice_line_items</span><span class="role">This period’s work, stored materials, retainage, and calculated balances.</span><span class="key"><span class="pk">PK</span> id · bigint<br><span class="fk">FK</span> invoice_id → subcontractor_invoices.id</span></span></button></div></div>
+          </div>
+          <p class="spine-note"><strong>Do not read the top row as a strict row-by-row chain.</strong> Both the invoice header and SOV items belong to the subcontract. The app carries SOV-like values into invoice lines, but the database does not enforce a line-to-line relation.</p>
+        </div>
+
+        <div class="support" aria-label="Supporting relational tables">
+          <div class="support-group"><h3>Project context</h3><div class="support-cards">
+            <button class="mini-table" type="button" data-focus="billing"><code>billing_periods.id ← subcontractor_invoices.billing_period_id</code><span>Dates and open/closed billing window for the invoice.</span></button>
+            <button class="mini-table" type="button" data-focus="company"><code>companies.id ← subcontracts.contract_company_id</code><span>The subcontractor/vendor on the commitment.</span></button>
+            <button class="mini-table" type="button" data-focus="budget"><code>project_budget_codes.id ← subcontract_sov_items.project_budget_code_id</code><span>Optional budget-code normalization for an SOV row.</span></button>
+          </div></div>
+          <div class="support-group"><h3>Submission &amp; review path</h3><div class="support-cards">
+            <button class="mini-table" type="button" data-focus="submission"><code>subcontractor_sov_submissions.commitment_id → subcontracts.id</code><span>Subcontractor’s proposed/reviewed SOV submission; one per subcontract.</span></button>
+            <button class="mini-table" type="button" data-focus="submission-line"><code>subcontractor_sov_items.source_sov_item_id → subcontract_sov_items.id</code><span>Submission rows can trace to a source SOV item; this is separate from invoice lines.</span></button>
+            <button class="mini-table" type="button" data-focus="changes"><code>contract_change_orders.contract_id → subcontract id</code><span>Approved changes are added to the invoicing contract total at runtime.</span></button>
+          </div></div>
+          <div class="support-group"><h3>After submission</h3><div class="support-cards">
+            <button class="mini-table" type="button" data-focus="payment"><code>commitment_payments.subcontractor_invoice_id → invoice.id</code><span>Read-only payment projection from Acumatica checks.</span></button>
+            <button class="mini-table" type="button" data-focus="documents"><code>subcontractor_invoice_documents.subcontractor_invoice_id → invoice.id</code><span>Junction to document metadata; plus audit, email, and related-item children.</span></button>
+            <button class="mini-table" type="button" data-focus="erp"><code>subcontractor_invoices.acumatica_ap_bill_id → acumatica_ap_bills.id</code><span>ERP bill reconciliation/export pointer.</span></button>
+          </div></div>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="keys-title">
+        <div class="section-head"><div><div class="eyebrow">What joins to what</div><h2 id="keys-title">The keys Brandon needs to recognize</h2></div><p>These are the relational fields that make the subcontract billing model navigable. “Runtime” marks a relationship assembled in application logic rather than a single row-level FK.</p></div>
+        <div class="reading-pane">
+          <div class="relationship-list">
+            <div class="relation"><div><div class="badge fk">Enforced FK</div><code>subcontracts.project_id → projects.id</code></div><p>Scopes the commitment to its project.</p><p>One project has many subcontracts.</p></div>
+            <div class="relation"><div><div class="badge fk">Enforced FK</div><code>subcontract_sov_items.subcontract_id → subcontracts.id</code></div><p>Places each committed SOV line on one subcontract.</p><p>One subcontract has many SOV rows.</p></div>
+            <div class="relation"><div><div class="badge fk">Enforced FK</div><code>subcontractor_invoices.subcontract_id → subcontracts.id</code></div><p>Connects a subcontract pay app to its commitment.</p><p>One subcontract has many invoices across billing periods.</p></div>
+            <div class="relation"><div><div class="badge fk">Enforced FK</div><code>subcontractor_invoices.billing_period_id → billing_periods.id</code></div><p>Identifies the invoice’s project billing window.</p><p>The create route requires an open period if none is supplied.</p></div>
+            <div class="relation"><div><div class="badge fk">Enforced FK</div><code>subcontractor_invoice_line_items.invoice_id → subcontractor_invoices.id</code></div><p>Attaches billing detail to the invoice header.</p><p>Deleting the invoice cascades to its line items.</p></div>
+            <div class="relation"><div><div class="badge runtime">ERP-backed FK</div><code>commitment_payments.subcontractor_invoice_id → subcontractor_invoices.id</code></div><p>Brings payment applications from Acumatica into the invoice view.</p><p>It can also carry a subcontract, AP bill, and check reference.</p></div>
+          </div>
+          <aside class="focus-card" aria-live="polite" aria-atomic="true">
+            <h3>Selected table</h3><h2 id="focus-name">subcontractor_invoices</h2><p id="focus-role">The invoice header anchors one subcontract pay application to a project and billing period. It is the bridge between the commitment and the billable line-item snapshot.</p>
+            <div class="focus-keys" id="focus-keys"><div class="focus-key"><code>subcontract_id</code> → subcontracts.id</div><div class="focus-key"><code>billing_period_id</code> → billing_periods.id</div><div class="focus-key"><code>project_id</code> → projects.id</div></div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="process-title">
+        <div class="section-head"><div><div class="eyebrow">How data moves</div><h2 id="process-title">A practical billing pass</h2></div><p>This shows the application flow, not a new set of tables.</p></div>
+        <div class="flow-steps">
+          <div class="step"><div class="step-number">01</div><h3>Establish the commitment</h3><p>Create the <code>subcontracts</code> record for the project and vendor, then establish its SOV rows.</p></div>
+          <div class="step"><div class="step-number">02</div><h3>Open the billing window</h3><p><code>billing_periods</code> supplies the project dates; invoice creation resolves an open period if none is sent.</p></div>
+          <div class="step"><div class="step-number">03</div><h3>Create the pay application</h3><p>The invoice header receives its subcontract, period, status, and invoice number. Its line rows contain the billed amounts and retainage.</p></div>
+          <div class="step"><div class="step-number">04</div><h3>Approve, export, reconcile</h3><p>The invoice can point to an Acumatica AP bill; the system projects applied checks into <code>commitment_payments</code>.</p></div>
+        </div>
+        <details><summary>Important design boundaries and safeguards</summary><div class="details-body"><ul>
+          <li><strong>One commitment per invoice:</strong> the schema requires exactly one of <code>subcontract_id</code> or <code>purchase_order_id</code>. This guide follows the subcontract branch; purchase orders use the parallel commitment path.</li>
+          <li><strong>No direct SOV-line key on invoice lines:</strong> <code>subcontractor_invoice_line_items</code> has <code>invoice_id</code> only. It copies/uses financial fields such as description, budget code, scheduled value, work complete, materials stored, and retainage. Reconciliation is therefore by the invoice’s subcontract plus business fields/order—not by an enforced line FK.</li>
+          <li><strong>Calculated fields stay in the database:</strong> invoice line <code>total_completed_stored</code>, <code>balance_to_finish</code>, and <code>net_amount_this_period</code> are generated Postgres columns. The API updates inputs and lets the database calculate the derived totals.</li>
+          <li><strong>Payment truth is external:</strong> <code>commitment_payments</code> is a read-only projection from Acumatica AP checks. It is not the manual invoice-payment table; it is the payment record used by this subcontract invoice experience.</li>
+          <li><strong>Subcontractor SOV submissions are not invoice lines:</strong> submission tables handle the subcontractor’s SOV review workflow and can point back to a source SOV item. They do not create a foreign-key bridge from an invoice line to that item.</li>
+        </ul></div></details>
+      </section>
+
+      <footer class="source">Source basis: current generated Supabase types in <code>frontend/src/types/database.types.ts</code>; invoice create/runtime behavior in <code>frontend/src/app/api/projects/[projectId]/invoicing/subcontractor/invoices/route.ts</code>; payment projection migration <code>supabase/migrations/20260502090000_commitment_payments_acumatica_projection.sql</code>. Built as an internal visual explainer; no live project data is included.</footer>
+    </main>
+    <script>
+      (() => {
+        const focus = {
+          project: { name: "projects", role: "The shared scope anchor. The subcontract, billing period, invoice, and payment projection all carry the project boundary.", keys: ["id ← subcontracts.project_id", "id ← billing_periods.project_id", "id ← subcontractor_invoices.project_id"] },
+          subcontract: { name: "subcontracts", role: "The commitment to the subcontractor. Invoice headers and committed SOV rows attach here independently, making this the key financial parent.", keys: ["project_id → projects.id", "contract_company_id → companies.id", "id ← subcontract_sov_items.subcontract_id", "id ← subcontractor_invoices.subcontract_id"] },
+          sov: { name: "subcontract_sov_items", role: "The contractual schedule of values: each row describes committed scope/value. The invoice experience uses these values for contract totals and retainage-release seed data.", keys: ["subcontract_id → subcontracts.id", "project_budget_code_id → project_budget_codes.id", "No invoice-line foreign key exists"] },
+          invoice: { name: "subcontractor_invoices", role: "The pay-application header. It binds one commitment to one project billing period and has the lifecycle/ERP fields for that application.", keys: ["subcontract_id → subcontracts.id", "billing_period_id → billing_periods.id", "project_id → projects.id", "acumatica_ap_bill_id → acumatica_ap_bills.id"] },
+          "invoice-line": { name: "subcontractor_invoice_line_items", role: "The period-specific billing detail. It stores previous/current work, stored materials, retainage, release, and generated totals for its invoice—not a foreign key to an SOV row.", keys: ["invoice_id → subcontractor_invoices.id", "Generated: net_amount_this_period", "Generated: balance_to_finish", "No subcontract_sov_item_id column"] },
+          billing: { name: "billing_periods", role: "The project’s named, dated billing window. A subcontract invoice is assigned to a billing period and the creation flow finds an open one when the caller does not provide it.", keys: ["project_id → projects.id", "id ← subcontractor_invoices.billing_period_id", "is_closed guards the usable period"] },
+          company: { name: "companies", role: "The vendor/company record reached through the subcontract’s contract_company_id. It describes who the commitment and resulting invoice are for.", keys: ["id ← subcontracts.contract_company_id", "Invoice reads company through its subcontract"] },
+          budget: { name: "project_budget_codes", role: "Optional normalized budget-code context for the committed SOV item. Invoice lines preserve a budget_code value but do not have this foreign key.", keys: ["id ← subcontract_sov_items.project_budget_code_id", "Invoice-line budget_code is copied/business data"] },
+          submission: { name: "subcontractor_sov_submissions", role: "The subcontractor-facing SOV review record. It is a workflow table, with one submission per subcontract, and is not an invoice header.", keys: ["commitment_id → subcontracts.id", "project_id → projects.id", "id ← subcontractor_sov_items.submission_id"] },
+          "submission-line": { name: "subcontractor_sov_items", role: "A submitted SOV row. Unlike invoice lines, it may trace to a committed SOV row through source_sov_item_id—but it remains part of the review workflow.", keys: ["submission_id → subcontractor_sov_submissions.id", "source_sov_item_id → subcontract_sov_items.id", "No invoice_id column"] },
+          changes: { name: "contract_change_orders", role: "Approved commitment changes are not invoice-line parents. The invoice list runtime includes their approved amount when it calculates the current total contract amount.", keys: ["contract_id → subcontract id (business join)", "Approved amount added at runtime", "Not a line-item FK"] },
+          payment: { name: "commitment_payments", role: "The read-only payment projection used to show actual paid amounts on subcontract invoices. It originates from Acumatica checks and can link back to the invoice.", keys: ["subcontractor_invoice_id → subcontractor_invoices.id", "subcontract_id → subcontracts.id", "acumatica_ap_bill_id → acumatica_ap_bills.id", "acumatica_check_id → acumatica_checks.id"] },
+          documents: { name: "invoice children", role: "Invoices have supporting child records for documents, audit events, sent emails, and related items. They share the invoice identity but do not alter the billing calculation.", keys: ["subcontractor_invoice_documents.subcontractor_invoice_id → invoice.id", "subcontractor_invoice_audit_log.invoice_id → invoice.id", "subcontractor_invoice_emails.invoice_id → invoice.id", "subcontractor_invoice_related_items.invoice_id → invoice.id"] },
+          erp: { name: "acumatica_ap_bills", role: "The invoice header can reference its mirrored Acumatica AP bill. This is the ERP export/reconciliation connection; payment applications then arrive through commitment_payments.", keys: ["invoice.acumatica_ap_bill_id → acumatica_ap_bills.id", "payment.acumatica_ap_bill_id → acumatica_ap_bills.id", "Payment check is separate: acumatica_checks"] }
+        };
+        const name = document.querySelector("#focus-name");
+        const role = document.querySelector("#focus-role");
+        const keys = document.querySelector("#focus-keys");
+        const controls = [...document.querySelectorAll("[data-focus]")];
+        function select(key) {
+          const item = focus[key]; if (!item) return;
+          name.textContent = item.name; role.textContent = item.role;
+          keys.replaceChildren(...item.keys.map((text) => { const line = document.createElement("div"); line.className = "focus-key"; line.textContent = text; return line; }));
+          controls.forEach((control) => control.setAttribute("aria-pressed", String(control.dataset.focus === key)));
+        }
+        controls.forEach((control) => control.addEventListener("click", () => select(control.dataset.focus)));
+        const toggle = document.querySelector("#theme-toggle");
+        toggle.addEventListener("click", () => {
+          const dark = document.documentElement.dataset.theme !== "dark";
+          document.documentElement.dataset.theme = dark ? "dark" : "light";
+          toggle.textContent = dark ? "Light theme" : "Dark theme";
+          toggle.setAttribute("aria-pressed", String(dark));
+        });
+      })();
+    </script>
+  </body>
+</html>

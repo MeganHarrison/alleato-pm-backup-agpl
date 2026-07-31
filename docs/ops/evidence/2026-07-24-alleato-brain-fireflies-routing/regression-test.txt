@@ -1,0 +1,16 @@
+Command:
+pytest -q backend/tests/test_fireflies_business_area.py \
+  backend/tests/test_fireflies_action_items.py
+
+Result:
+64 passed, 10 unrelated deprecation warnings.
+
+Proved:
+- mapped existing project requests canonical Business Area migration
+- assignment failure aborts ingestion
+- document and chunks persist Business Area-only scope
+- Finance metadata is restricted
+- unchanged legacy scope is reprocessed once instead of skipped
+- the production sync wrapper always delegates unchanged-content decisions to
+  typed ingestion
+- existing Fireflies parsing/action-item/linking behavior remains compatible

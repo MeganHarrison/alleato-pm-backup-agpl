@@ -17,7 +17,6 @@ import {
   useTogglePinConversation,
 } from "@/hooks/use-rag-conversations";
 import { useChatSessionMessages } from "@/hooks/use-chat-session-messages";
-import { useAlleatoEveChat } from "@/hooks/use-alleato-eve-chat";
 import {
   DEFAULT_AI_ASSISTANT_MODEL,
   type AiAssistantModelId,
@@ -41,14 +40,14 @@ import {
   type AssistantSurface,
 } from "@/lib/ai/chat-surface";
 
-type AssistantLiveStatus = {
+type StrategistLiveStatus = {
   stage: string;
   message: string;
   status: "loading" | "success" | "warning" | "error";
   timestamp?: string;
 };
 
-function isAssistantLiveStatus(value: unknown): value is AssistantLiveStatus {
+function isStrategistLiveStatus(value: unknown): value is StrategistLiveStatus {
   if (!value || typeof value !== "object") return false;
   const record = value as Record<string, unknown>;
   return typeof record.message === "string" && typeof record.stage === "string";
@@ -61,183 +60,7 @@ function stripStatusParts(messages: UIMessage[]): UIMessage[] {
   }));
 }
 
-type ChatWithSessionProps = {
-  sessionId: string;
-  initialMessages: UIMessage[];
-  toolTracesByMessageId: Record<string, ToolTraceItem[]>;
-  sourcesByMessageId: Record<string, unknown[]>;
-  memoryUsageByMessageId: Record<string, MemoryUsage>;
-  skillUsageByMessageId: Record<string, SkillUsage>;
-  responseQualityByMessageId: Record<string, ResponseQuality>;
-  traceDiagnosticsByMessageId: Record<string, AssistantTraceDiagnostics>;
-  langfuseTraceIdByMessageId: Record<string, string>;
-  isLoadingMessages: boolean;
-  loadMessagesError: string | null;
-  pendingFirstMessage: string | null;
-  pendingFirstFiles?: FileUIPart[];
-  councilMode: boolean;
-  onCouncilModeChange: (val: boolean) => void;
-  selectedProjectId: number | null;
-  onProjectChange: (id: number | null) => void;
-  selectedModel: AiAssistantModelId;
-  onModelChange: (model: AiAssistantModelId) => void;
-  onFinishMessage: (sessionId: string) => void;
-  welcomeHideOrb?: boolean;
-  chatApi?: string;
-  assistantSurface: AssistantSurface;
-};
-
-function AsrsChatWithSession(props: ChatWithSessionProps) {
-  const {
-    sessionId,
-    initialMessages,
-    pendingFirstMessage,
-    pendingFirstFiles,
-    selectedProjectId,
-    selectedModel,
-    councilMode,
-    onFinishMessage,
-  } = props;
-  const [input, setInput] = useState("");
-  const [liveStatus, setLiveStatus] = useState<AssistantLiveStatus | null>(null);
-  const sessionIdRef = useRef(sessionId);
-  sessionIdRef.current = sessionId;
-  const contextRef = useRef({ selectedProjectId, selectedModel, councilMode });
-  contextRef.current = { selectedProjectId, selectedModel, councilMode };
-  const lastSubmittedMessageRef = useRef("");
-
-  const {
-    messages,
-    setMessages,
-    sendMessage,
-    status,
-    stop,
-    addToolApprovalResponse,
-    error,
-  } = useChat({
-    id: sessionId,
-    messages: initialMessages,
-    experimental_throttle: 50,
-    sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses,
-    transport: new DefaultChatTransport({
-      api: props.chatApi ?? "/api/asrs/chat",
-      prepareSendMessagesRequest(request) {
-        const cleanedMessages = stripStatusParts(request.messages);
-        return {
-          body: {
-            id: sessionIdRef.current,
-            message: cleanedMessages.at(-1),
-            messages: cleanedMessages,
-            councilMode: contextRef.current.councilMode,
-            selectedProjectId:
-              contextRef.current.selectedProjectId ?? undefined,
-            selectedModel: contextRef.current.selectedModel,
-          },
-        };
-      },
-    }),
-    onFinish: () => {
-      lastSubmittedMessageRef.current = "";
-      setLiveStatus(null);
-      onFinishMessage(sessionIdRef.current);
-    },
-    onError: (chatError) => {
-      setLiveStatus(null);
-      if (isChatTransportLoadFailure(chatError)) {
-        const lastSubmittedMessage = lastSubmittedMessageRef.current.trim();
-        if (lastSubmittedMessage) {
-          setInput((current) => current || lastSubmittedMessage);
-        }
-      }
-    },
-    onData: (part) => {
-      if (part.type === "data-status" && isAssistantLiveStatus(part.data)) {
-        setLiveStatus(part.data);
-      }
-    },
-  });
-
-  const hasSentFirstMessage = useRef(false);
-  useEffect(() => {
-    if (pendingFirstMessage && !hasSentFirstMessage.current) {
-      hasSentFirstMessage.current = true;
-      void sendMessage({ text: pendingFirstMessage, files: pendingFirstFiles });
-      setInput("");
-    }
-  }, [pendingFirstFiles, pendingFirstMessage, sendMessage]);
-
-  const messagesRef = useRef(messages);
-  messagesRef.current = messages;
-  const previousInitialMessagesRef = useRef(initialMessages);
-  useEffect(() => {
-    if (previousInitialMessagesRef.current === initialMessages) return;
-    previousInitialMessagesRef.current = initialMessages;
-    if (
-      shouldSyncInitialMessages({
-        skipPostFinishReload: false,
-        initialCount: initialMessages.length,
-        liveCount: messagesRef.current.length,
-      })
-    ) {
-      setMessages(initialMessages);
-    }
-  }, [initialMessages, setMessages]);
-
-  const isStreaming = status === "submitted" || status === "streaming";
-  const displayMessages = useMemo<UIMessage[]>(() => {
-    if (pendingFirstMessage && messages.length === 0) {
-      return [{
-        id: "pending-first-message",
-        role: "user",
-        parts: [{ type: "text", text: pendingFirstMessage }],
-      }];
-    }
-    return messages;
-  }, [pendingFirstMessage, messages]);
-
-  const handleSubmit = useCallback(
-    (message: string, files?: FileUIPart[]) => {
-      if (!message.trim() || isStreaming) return;
-      lastSubmittedMessageRef.current = message;
-      void sendMessage({ text: message, files });
-      setInput("");
-    },
-    [isStreaming, sendMessage],
-  );
-
-  return (
-    <ChatArea
-      messages={displayMessages}
-      toolTracesByMessageId={props.toolTracesByMessageId}
-      sourcesByMessageId={props.sourcesByMessageId}
-      memoryUsageByMessageId={props.memoryUsageByMessageId}
-      skillUsageByMessageId={props.skillUsageByMessageId}
-      responseQualityByMessageId={props.responseQualityByMessageId}
-      traceDiagnosticsByMessageId={props.traceDiagnosticsByMessageId}
-      langfuseTraceIdByMessageId={props.langfuseTraceIdByMessageId}
-      liveStatus={liveStatus}
-      chatError={error ? formatChatError(error) : props.loadMessagesError}
-      isLoadingMessages={props.isLoadingMessages}
-      isStreaming={isStreaming}
-      input={input}
-      sessionId={sessionId}
-      councilMode={councilMode}
-      onCouncilModeChange={props.onCouncilModeChange}
-      selectedProjectId={selectedProjectId}
-      onProjectChange={props.onProjectChange}
-      selectedModel={selectedModel}
-      onModelChange={props.onModelChange}
-      onInputChange={setInput}
-      onSubmit={handleSubmit}
-      onToolApprovalResponse={addToolApprovalResponse}
-      onStop={stop}
-      welcomeHideOrb={props.welcomeHideOrb}
-      assistantSurface={props.assistantSurface}
-    />
-  );
-}
-
-function EveChatWithSession({
+export function ChatWithSession({
   sessionId,
   initialMessages,
   toolTracesByMessageId,
@@ -259,66 +82,151 @@ function EveChatWithSession({
   onModelChange,
   onFinishMessage,
   welcomeHideOrb,
-  assistantSurface,
-}: ChatWithSessionProps) {
+  chatApi,
+  chatMode,
+}: {
+  sessionId: string;
+  initialMessages: UIMessage[];
+  toolTracesByMessageId: Record<string, ToolTraceItem[]>;
+  sourcesByMessageId: Record<string, unknown[]>;
+  memoryUsageByMessageId: Record<string, MemoryUsage>;
+  skillUsageByMessageId: Record<string, SkillUsage>;
+  responseQualityByMessageId: Record<string, ResponseQuality>;
+  traceDiagnosticsByMessageId: Record<string, AssistantTraceDiagnostics>;
+  langfuseTraceIdByMessageId: Record<string, string>;
+  isLoadingMessages: boolean;
+  loadMessagesError: string | null;
+  pendingFirstMessage: string | null;
+  pendingFirstFiles?: FileUIPart[];
+  councilMode: boolean;
+  onCouncilModeChange: (val: boolean) => void;
+  selectedProjectId: number | null;
+  onProjectChange: (id: number | null) => void;
+  selectedModel: AiAssistantModelId;
+  onModelChange: (model: AiAssistantModelId) => void;
+  onFinishMessage: (sessionId: string) => void;
+  welcomeHideOrb?: boolean;
+  chatApi: string;
+  chatMode: "general" | "training";
+}) {
   const [input, setInput] = useState("");
-  const [liveStatus, setLiveStatus] = useState<AssistantLiveStatus | null>(
+  const [liveStatus, setLiveStatus] = useState<StrategistLiveStatus | null>(
     null,
   );
-  const lastSubmittedMessageRef = useRef("");
+  const councilModeRef = useRef(councilMode);
+  councilModeRef.current = councilMode;
+
   const sessionIdRef = useRef(sessionId);
   sessionIdRef.current = sessionId;
 
+  const selectedProjectIdRef = useRef(selectedProjectId);
+  selectedProjectIdRef.current = selectedProjectId;
+  const selectedModelRef = useRef(selectedModel);
+  selectedModelRef.current = selectedModel;
+  const lastSubmittedMessageRef = useRef("");
+
+  // Tracks whether to skip the next initialMessages → setMessages sync.
+  // Set true in onFinish so that the post-stream DB reload doesn't replace
+  // the correct live useChat messages with the freshly-fetched DB copy.
+  const skipNextMessagesSync = useRef(false);
+
   const {
     messages,
+    setMessages,
     sendMessage,
     status,
     stop,
     addToolApprovalResponse,
     error,
-  } = useAlleatoEveChat({
-    sessionId,
-    initialMessages,
-    context: {
-      assistantSurface,
-      conversationId: sessionId,
-      councilMode,
-      selectedModel,
-      selectedProjectId,
-    },
+  } = useChat({
+    id: sessionId,
+    messages: initialMessages,
+    experimental_throttle: 50,
+    sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses,
+    transport: new DefaultChatTransport({
+      api: chatApi,
+      prepareSendMessagesRequest(request) {
+        const cleanedMessages = stripStatusParts(request.messages);
+        const lastMessage = cleanedMessages.at(-1);
+        return {
+          body: {
+            id: sessionIdRef.current,
+            message: lastMessage,
+            messages: cleanedMessages,
+            councilMode: councilModeRef.current,
+            selectedProjectId: selectedProjectIdRef.current ?? undefined,
+            selectedModel: selectedModelRef.current,
+          },
+        };
+      },
+    }),
     onFinish: () => {
+      // The general assistant keeps the historical live-message preservation
+      // behavior because its richer widget stream can differ from persistence.
+      skipNextMessagesSync.current = true;
       lastSubmittedMessageRef.current = "";
       setLiveStatus(null);
       onFinishMessage(sessionIdRef.current);
     },
     onError: (chatError) => {
-      const lastSubmittedMessage = lastSubmittedMessageRef.current.trim();
-      if (lastSubmittedMessage) {
-        setInput((current) => current || lastSubmittedMessage);
+      setLiveStatus(null);
+      if (isChatTransportLoadFailure(chatError)) {
+        const lastSubmittedMessage = lastSubmittedMessageRef.current.trim();
+        if (lastSubmittedMessage) {
+          setInput((current) => current || lastSubmittedMessage);
+        }
       }
-      setLiveStatus({
-        stage: "eve",
-        message: chatError.message,
-        status: "error",
-        timestamp: new Date().toISOString(),
-      });
+    },
+    onData: (part) => {
+      if (part.type !== "data-status") return;
+      if (isStrategistLiveStatus(part.data)) {
+        setLiveStatus(part.data);
+      }
     },
   });
 
+  // Auto-send the first message when mounting after conversation creation
   const hasSentFirstMessage = useRef(false);
   useEffect(() => {
     if (pendingFirstMessage && !hasSentFirstMessage.current) {
       hasSentFirstMessage.current = true;
-      lastSubmittedMessageRef.current = pendingFirstMessage;
-      void sendMessage({
-        text: pendingFirstMessage,
-        files: pendingFirstFiles,
-      });
+      sendMessage({ text: pendingFirstMessage, files: pendingFirstFiles });
       setInput("");
     }
   }, [pendingFirstFiles, pendingFirstMessage, sendMessage]);
 
+  // Track the live message list so the sync effect can tell whether it is about
+  // to clobber an in-flight conversation (see guard below). A ref avoids adding
+  // `messages` to the effect deps, which would re-run the sync on every token.
+  const messagesRef = useRef(messages);
+  messagesRef.current = messages;
+
+  // Sync initial messages when they change (conversation switch).
+  // Skip when skipNextMessagesSync is set — see ref declaration above.
+  const prevInitialRef = useRef(initialMessages);
+  useEffect(() => {
+    if (prevInitialRef.current === initialMessages) return;
+    prevInitialRef.current = initialMessages;
+
+    const wasPostFinishReload = skipNextMessagesSync.current;
+    skipNextMessagesSync.current = false;
+
+    if (
+      shouldSyncInitialMessages({
+        skipPostFinishReload: wasPostFinishReload,
+        initialCount: initialMessages.length,
+        liveCount: messagesRef.current.length,
+      })
+    ) {
+      setMessages(initialMessages);
+    }
+  }, [initialMessages, setMessages]);
+
   const isStreaming = status === "submitted" || status === "streaming";
+
+  // Show the pending first message as an optimistic bubble while useChat's
+  // messages array is still empty (before sendMessage fires in useEffect).
+  // Prevents the welcome screen from flashing during new-session creation.
   const displayMessages = useMemo<UIMessage[]>(() => {
     if (pendingFirstMessage && messages.length === 0) {
       return [
@@ -334,12 +242,12 @@ function EveChatWithSession({
 
   const handleSubmit = useCallback(
     (message: string, files?: FileUIPart[]) => {
-      if ((!message.trim() && !files?.length) || isStreaming) return;
+      if (!message.trim() || isStreaming) return;
       lastSubmittedMessageRef.current = message;
-      void sendMessage({ text: message, files });
+      sendMessage({ text: message, files });
       setInput("");
     },
-    [isStreaming, sendMessage],
+    [sendMessage, isStreaming],
   );
 
   return (
@@ -369,29 +277,26 @@ function EveChatWithSession({
       onToolApprovalResponse={addToolApprovalResponse}
       onStop={stop}
       welcomeHideOrb={welcomeHideOrb}
-      assistantSurface={assistantSurface}
+      chatMode={chatMode}
     />
   );
 }
 
-export function ChatWithSession(props: ChatWithSessionProps) {
-  if (props.assistantSurface === "asrs") {
-    return <AsrsChatWithSession {...props} />;
-  }
-  return <EveChatWithSession {...props} />;
-}
-
 export function RagChatPage({
   surface = DEFAULT_ASSISTANT_SURFACE,
+  basePath = "/ai",
+  chatApi = "/api/ai-assistant/chat",
+  chatMode = "general",
 }: {
   surface?: AssistantSurface;
+  basePath?: string;
+  chatApi?: string;
+  chatMode?: "general" | "training";
 }) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const searchParams = useSearchParams()!;
   const activeSessionId = searchParams?.get("session") ?? null;
-  const isAsrsSurface = surface === "asrs";
-  const basePath = isAsrsSurface ? "/asrs" : "/ai";
   const projectIdParam = searchParams?.get("projectId") ?? null;
   const initialProjectId = projectIdParam ? Number(projectIdParam) : null;
 
@@ -426,9 +331,7 @@ export function RagChatPage({
   const [councilMode, setCouncilMode] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(
-    !isAsrsSurface && Number.isFinite(initialProjectId)
-      ? initialProjectId
-      : null,
+    Number.isFinite(initialProjectId) ? initialProjectId : null,
   );
   const [selectedModel, setSelectedModel] = useState<AiAssistantModelId>(
     DEFAULT_AI_ASSISTANT_MODEL,
@@ -576,11 +479,7 @@ export function RagChatPage({
   );
 
   return (
-    <div
-      className={`relative flex h-full min-h-0 w-full min-w-0 flex-1 bg-background${
-        isAsrsSurface ? "" : " pb-14 md:pb-0"
-      }`}
-    >
+    <div className="relative flex h-full min-h-0 w-full min-w-0 flex-1 bg-background pb-14 md:pb-0">
       <ConversationSidebar
         conversations={conversations}
         activeSessionId={effectiveSessionId}
@@ -593,16 +492,10 @@ export function RagChatPage({
         onDelete={handleDelete}
         onTogglePin={handleTogglePin}
         isNewChatDisabled={createConversation.isPending}
-        desktopDocked={!isAsrsSurface}
+        desktopDocked={true}
       />
       {!historyOpen && (
-        <div
-          className={
-            isAsrsSurface
-              ? "z-30 flex justify-end px-4 pt-3"
-              : "absolute left-4 top-4 z-30"
-          }
-        >
+        <div className="absolute left-4 top-4 z-30">
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
@@ -644,8 +537,8 @@ export function RagChatPage({
             selectedModel={selectedModel}
             onModelChange={setSelectedModel}
             onFinishMessage={handleFinishMessage}
-            chatApi={isAsrsSurface ? "/api/asrs/chat" : undefined}
-            assistantSurface={surface}
+            chatApi={chatApi}
+            chatMode={chatMode}
           />
         ) : (
           <ChatArea
@@ -683,7 +576,7 @@ export function RagChatPage({
               handleFirstMessage(msg, files);
             }}
             onStop={() => {}}
-            assistantSurface={surface}
+            chatMode={chatMode}
           />
         )}
       </div>

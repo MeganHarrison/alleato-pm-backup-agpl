@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { providerCompatibleEmailSchema } from "./provider-compatible";
 
 export const getRecentEmailsDescription =
   "Get a list of Outlook emails received within a specific date range. " +
@@ -112,9 +113,7 @@ export const draftOutlookEmailDescription =
   "the adaptive-card mail widget, then write only after confirmation.";
 
 export const draftOutlookEmailInputSchema = z.object({
-  senderEmail: z
-    .string()
-    .email()
+  senderEmail: providerCompatibleEmailSchema
     .optional()
     .describe(
       "Sender mailbox. If omitted, the configured Outlook sender is used.",
@@ -122,7 +121,7 @@ export const draftOutlookEmailInputSchema = z.object({
   to: z
     .array(
       z.object({
-        email: z.string().email(),
+        email: providerCompatibleEmailSchema,
         name: z.string().optional(),
       }),
     )
@@ -131,7 +130,7 @@ export const draftOutlookEmailInputSchema = z.object({
   cc: z
     .array(
       z.object({
-        email: z.string().email(),
+        email: providerCompatibleEmailSchema,
         name: z.string().optional(),
       }),
     )
@@ -186,13 +185,13 @@ export const sendTeamsMessageInputSchema = z.object({
 });
 
 export const outlookInviteAttendeeSchema = z.object({
-  email: z.string().email(),
+  email: providerCompatibleEmailSchema,
   name: z.string().optional(),
   type: z.enum(["required", "optional"]).default("required"),
 });
 
 export const outlookMailRecipientSchema = z.object({
-  email: z.string().email(),
+  email: providerCompatibleEmailSchema,
   name: z.string().optional(),
 });
 
@@ -202,9 +201,7 @@ export const createOutlookCalendarInviteDescription =
   "first with the adaptive-card calendar widget, then write only after confirmation.";
 
 export const createOutlookCalendarInviteInputSchema = z.object({
-  organizerEmail: z
-    .string()
-    .email()
+  organizerEmail: providerCompatibleEmailSchema
     .optional()
     .describe("Organizer mailbox. If omitted, the configured Outlook calendar user is used."),
   subject: z.string().describe("Invite subject"),

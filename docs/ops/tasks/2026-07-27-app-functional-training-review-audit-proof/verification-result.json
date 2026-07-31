@@ -1,0 +1,75 @@
+{
+  "status": "PASS",
+  "taskId": "APP-TRAINING-REVIEW-AUDIT-20260727",
+  "evidence": {
+    "actionLog": [
+      "docs/ops/tasks/2026-07-27-app-functional-training-review-audit-proof/action-log.md"
+    ],
+    "summary": [
+      "docs/ops/tasks/2026-07-27-app-functional-training-review-audit-proof/summary.md"
+    ],
+    "databaseReadback": [
+      "docs/ops/tasks/2026-07-27-app-functional-training-review-audit-proof/database-readback.json"
+    ],
+    "negativePath": [
+      "docs/ops/tasks/2026-07-27-app-functional-training-review-audit-proof/negative-path.md"
+    ],
+    "visualReview": [
+      "docs/ops/tasks/2026-07-27-app-functional-training-review-audit-proof/visual-review.md"
+    ],
+    "regressionTest": [
+      "docs/ops/tasks/2026-07-27-app-functional-training-review-audit-proof/regression-tests.txt"
+    ]
+  },
+  "claims": {
+    "canonical-project-owner": {
+      "visualReview": [
+        "docs/ops/tasks/2026-07-27-app-functional-training-review-audit-proof/visual-review.md"
+      ],
+      "regressionTest": [
+        "docs/ops/tasks/2026-07-27-app-functional-training-review-audit-proof/regression-tests.txt"
+      ]
+    },
+    "accessible-bootstrap": {
+      "databaseReadback": [
+        "docs/ops/tasks/2026-07-27-app-functional-training-review-audit-proof/database-readback.json"
+      ],
+      "negativePath": [
+        "docs/ops/tasks/2026-07-27-app-functional-training-review-audit-proof/negative-path.md"
+      ],
+      "regressionTest": [
+        "docs/ops/tasks/2026-07-27-app-functional-training-review-audit-proof/regression-tests.txt"
+      ]
+    },
+    "reviewed-correction-loop": {
+      "visualReview": [
+        "docs/ops/tasks/2026-07-27-app-functional-training-review-audit-proof/visual-review.md"
+      ],
+      "regressionTest": [
+        "docs/ops/tasks/2026-07-27-app-functional-training-review-audit-proof/regression-tests.txt"
+      ]
+    },
+    "partial-outcomes-fail-loudly": {
+      "negativePath": [
+        "docs/ops/tasks/2026-07-27-app-functional-training-review-audit-proof/negative-path.md"
+      ],
+      "regressionTest": [
+        "docs/ops/tasks/2026-07-27-app-functional-training-review-audit-proof/regression-tests.txt"
+      ]
+    },
+    "training-automation-ownership": {
+      "actionLog": [
+        "docs/ops/tasks/2026-07-27-app-functional-training-review-audit-proof/action-log.md"
+      ],
+      "summary": [
+        "docs/ops/tasks/2026-07-27-app-functional-training-review-audit-proof/summary.md"
+      ]
+    }
+  },
+  "independentReview": {
+    "reviewer": "/root/independent_review",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-27T23:46:35Z",
+    "artifact": "docs/ops/tasks/2026-07-27-app-functional-training-review-audit-proof/independent-review.md"
+  }
+}

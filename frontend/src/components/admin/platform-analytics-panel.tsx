@@ -103,6 +103,11 @@ interface AnalyticsData {
   };
   sync: { statuses: SyncStatus[] };
   feedback: { recentCount7d: number; recent: unknown[] };
+  engagement: {
+    recentLogins: Array<{ authUserId: string; lastLoginAt: string | null; email: string | null; fullName: string | null; isAdmin: boolean }>;
+    recentAppUsage: Array<{ userId: string; fullName: string | null; email: string | null; lastSeenAt: string; entrySurface: string }>;
+    recentLearning: Array<{ userId: string; fullName: string | null; email: string | null; title: string; lastViewedAt: string; checkpoint: number; completedAt: string | null; watchSeconds: number }>;
+  };
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -243,7 +248,7 @@ export function PlatformAnalyticsPanel() {
     );
   }
 
-  const { errors, ai, sync } = data;
+  const { errors, ai, sync, engagement } = data;
 
   const aiSatisfaction =
     ai.thumbsUp + ai.thumbsDown > 0
@@ -263,6 +268,33 @@ export function PlatformAnalyticsPanel() {
           Refresh
         </Button>
       </div>
+
+      <section className="space-y-3">
+        <SectionRuleHeading label="People & learning activity" />
+        <p className="text-xs leading-5 text-muted-foreground">
+          Sign-ins are from Supabase Auth. App activity begins with this release and records session liveness, not page-level browsing. Direct documentation-site viewing is anonymous.
+        </p>
+        <div className="grid gap-8 xl:grid-cols-2">
+          <div className="overflow-x-auto">
+            <h3 className="mb-2 text-sm font-medium text-foreground">Recent sign-ins</h3>
+            <table className="w-full text-left text-xs"><thead className="border-b border-border/60 text-muted-foreground"><tr><th className="py-2 font-medium">Person</th><th className="py-2 text-right font-medium">Last sign-in</th></tr></thead>
+              <tbody className="divide-y divide-border/50">{engagement.recentLogins.length ? engagement.recentLogins.slice(0, 10).map((login) => <tr key={login.authUserId}><td className="py-2"><p className="font-medium text-foreground">{login.fullName ?? login.email ?? "Unknown user"}</p>{login.fullName && login.email ? <p className="text-muted-foreground">{login.email}</p> : null}</td><td className="py-2 text-right text-muted-foreground">{formatTime(login.lastLoginAt)}</td></tr>) : <tr><td colSpan={2} className="py-6 text-center text-muted-foreground">No Supabase Auth sign-ins were returned.</td></tr>}</tbody>
+            </table>
+          </div>
+          <div className="overflow-x-auto">
+            <h3 className="mb-2 text-sm font-medium text-foreground">Recent app activity</h3>
+            <table className="w-full text-left text-xs"><thead className="border-b border-border/60 text-muted-foreground"><tr><th className="py-2 font-medium">Person</th><th className="py-2 font-medium">Entry</th><th className="py-2 text-right font-medium">Last active</th></tr></thead>
+              <tbody className="divide-y divide-border/50">{engagement.recentAppUsage.length ? engagement.recentAppUsage.slice(0, 10).map((session) => <tr key={session.userId}><td className="py-2 font-medium text-foreground">{session.fullName ?? session.email ?? "Unknown user"}</td><td className="py-2 capitalize text-muted-foreground">{session.entrySurface}</td><td className="py-2 text-right text-muted-foreground">{formatTime(session.lastSeenAt)}</td></tr>) : <tr><td colSpan={3} className="py-6 text-center text-muted-foreground">No application sessions yet. Tracking starts after release.</td></tr>}</tbody>
+            </table>
+          </div>
+        </div>
+        <div className="overflow-x-auto">
+          <h3 className="mb-2 text-sm font-medium text-foreground">Training-video progress</h3>
+          <table className="w-full text-left text-xs"><thead className="border-b border-border/60 text-muted-foreground"><tr><th className="py-2 font-medium">Person</th><th className="py-2 font-medium">Lesson</th><th className="py-2 text-right font-medium">Progress</th><th className="py-2 text-right font-medium">Last viewed</th></tr></thead>
+            <tbody className="divide-y divide-border/50">{engagement.recentLearning.length ? engagement.recentLearning.slice(0, 20).map((progress) => <tr key={`${progress.userId}-${progress.title}`}><td className="py-2 font-medium text-foreground">{progress.fullName ?? progress.email ?? "Unknown user"}</td><td className="py-2 text-muted-foreground">{progress.title}</td><td className="py-2 text-right tabular-nums text-foreground">{progress.completedAt ? "Complete" : `${progress.checkpoint}%`}</td><td className="py-2 text-right text-muted-foreground">{formatTime(progress.lastViewedAt)}</td></tr>) : <tr><td colSpan={4} className="py-6 text-center text-muted-foreground">No tracked video progress yet.</td></tr>}</tbody>
+          </table>
+        </div>
+      </section>
 
       {/* ── Page Performance ─────────────────────────────────────────────── */}
       <section className="space-y-3">

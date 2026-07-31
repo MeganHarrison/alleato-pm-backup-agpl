@@ -1,0 +1,63 @@
+{
+  "contractVersion": 1,
+  "taskId": "S019FA6A7D-CRM-PRODUCTION",
+  "riskLevel": "high",
+  "feature": "Production CRM workspace and existing Tasks integration",
+  "route": "/crm",
+  "flows": [
+    {
+      "name": "Relationship to project workflow",
+      "steps": [
+        "Open the authenticated CRM relationship workspace",
+        "Review pipeline, deals, activity, matching, and settings",
+        "Create CRM-linked follow-ups in the existing Tasks system",
+        "Convert a won deal through the idempotent Projects boundary",
+        "Wait for verified Acumatica reconciliation"
+      ],
+      "expectedOutcome": "CRM work stays permission-bound, task-linked, reviewable, recoverable, and synchronized only after confirmed external state"
+    }
+  ],
+  "requiredEvidence": [
+    "actionLog",
+    "databaseReadback",
+    "negativePath",
+    "visualReview",
+    "regressionTest"
+  ],
+  "visual": {
+    "viewports": ["desktop", "mobile"],
+    "checks": [
+      "CRM work surfaces are not stacked or clipped",
+      "Production routes do not show disconnected-local wording",
+      "Pipeline remains readable at 390 pixels"
+    ]
+  },
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "live-crm-schema",
+      "description": "Production CRM tables, policies, tasks links, matching, and conversion guards are applied",
+      "evidence": [{ "key": "databaseReadback", "min": 1 }]
+    },
+    {
+      "id": "authenticated-workspace",
+      "description": "Primary CRM and Tasks routes load for Brandon with responsive visual evidence",
+      "evidence": [
+        { "key": "visualReview", "min": 2 },
+        { "key": "actionLog", "min": 1 }
+      ]
+    },
+    {
+      "id": "failure-boundary",
+      "description": "Unauthenticated CRM access fails closed and mutations surface server failures",
+      "evidence": [{ "key": "negativePath", "min": 1 }]
+    },
+    {
+      "id": "regression-safety",
+      "description": "Focused CRM tests, lint, and contract checks pass",
+      "evidence": [{ "key": "regressionTest", "min": 1 }]
+    }
+  ]
+}

@@ -1,8 +1,6 @@
 /**
  * Layout for the AI section.
- * Lets child AI tools use the application's scroll container. The `/ai` chat
- * page owns its fixed-height pane locally, so the section layout must not clip
- * non-chat descendants.
+ * Keeps chat immersive while allowing child AI tools to own their page layout.
  */
 export default function AiLayout({
   children,
@@ -10,7 +8,7 @@ export default function AiLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-0 flex-1 flex-col bg-background">
+    <div className="flex min-h-0 flex-1 overflow-hidden bg-background">
       {children}
     </div>
   );

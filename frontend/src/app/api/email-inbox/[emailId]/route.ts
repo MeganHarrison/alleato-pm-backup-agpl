@@ -6,6 +6,7 @@ import { withApiGuardrails, parseJsonBody } from "@/lib/guardrails/api";
 import { GuardrailError } from "@/lib/guardrails/errors";
 import { createClient, getApiRouteUser } from "@/lib/supabase/server";
 import { createOutlookIntakeServiceClient } from "@/lib/supabase/service";
+import type { Database, Json } from "@/types/database.types";
 
 const PatchSchema = z.object({
   project_id: z.number().int().positive().nullable().optional(),
@@ -75,7 +76,7 @@ export const PATCH = withApiGuardrails<{ emailId: string }>(
     }
 
     const parsed = await parseJsonBody(request, PatchSchema, "email-inbox/[emailId]#PATCH");
-    const update: Record<string, unknown> = {};
+    const update: Database["public"]["Tables"]["outlook_email_intake"]["Update"] = {};
 
     if (parsed.project_id !== undefined) {
       update.project_id = parsed.project_id;
@@ -87,10 +88,10 @@ export const PATCH = withApiGuardrails<{ emailId: string }>(
     // Merge inbox metadata (starred, tags) into source_metadata._inbox namespace
     if (parsed.starred !== undefined || parsed.tags !== undefined) {
       const existingMeta =
-        (existing.source_metadata as Record<string, unknown>) ?? {};
+        (existing.source_metadata as Record<string, Json>) ?? {};
       const existingInbox =
-        (existingMeta._inbox as Record<string, unknown>) ?? {};
-      const inboxUpdate: Record<string, unknown> = { ...existingInbox };
+        (existingMeta._inbox as Record<string, Json>) ?? {};
+      const inboxUpdate: Record<string, Json> = { ...existingInbox };
       if (parsed.starred !== undefined) inboxUpdate.starred = parsed.starred;
       if (parsed.tags !== undefined) inboxUpdate.tags = parsed.tags;
       update.source_metadata = { ...existingMeta, _inbox: inboxUpdate };

@@ -1,0 +1,120 @@
+{
+  "contractVersion": 1,
+  "taskId": "SCHED-TRANSACTIONAL-COMPLETE",
+  "feature": "Authoritative scheduling transactions, cost resources, and earned value",
+  "route": "/67/schedule",
+  "riskLevel": "high",
+  "flows": [
+    {
+      "name": "Authoritative task mutation",
+      "steps": [
+        "Open the authenticated production table workspace",
+        "Create a temporary task by pressing Enter in the quick-add row",
+        "Reload and verify the task persists at the requested anchor",
+        "Delete the temporary task and verify removal"
+      ],
+      "expectedOutcome": "The task mutation is durable, ordered, reload-safe, and leaves no temporary record after cleanup."
+    },
+    {
+      "name": "Cost resource and earned value",
+      "steps": [
+        "Create a temporary equipment resource with an explicit rate",
+        "Assign it to the temporary task with planned and actual cost facts",
+        "Verify the cost table and earned-value metrics",
+        "Reload and verify the facts persist",
+        "Remove the assignment and resource through confirmation boundaries"
+      ],
+      "expectedOutcome": "Rate and assignment facts persist and drive visible BAC, PV, EV, AC, CV, SV, CPI, and SPI output."
+    },
+    {
+      "name": "Stale cost writer",
+      "steps": [
+        "Open a resource edit draft",
+        "Advance the same resource cost version with a second authenticated request",
+        "Submit the stale draft"
+      ],
+      "expectedOutcome": "The stale mutation returns a conflict and the UI displays an actionable error without overwriting newer data."
+    }
+  ],
+  "requiredEvidence": [
+    "summary",
+    "screenshots",
+    "actionLog",
+    "databaseReadback",
+    "reloadProof",
+    "negativePath",
+    "visualReview",
+    "regressionTest"
+  ],
+  "visual": {
+    "viewports": [
+      "1536x791 desktop",
+      "430x932 mobile"
+    ]
+  },
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "atomic_schedule",
+      "description": "Task, dependency, cascade, and sibling-order writers use the authoritative lock and exact snapshots.",
+      "evidence": [
+        {
+          "key": "regressionTest",
+          "min": 1
+        },
+        {
+          "key": "databaseReadback",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "cost_evm",
+      "description": "Equipment and material cost facts persist and produce visible earned-value metrics.",
+      "evidence": [
+        {
+          "key": "screenshots",
+          "min": 1
+        },
+        {
+          "key": "reloadProof",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "stale_failure",
+      "description": "Stale scheduling and cost writes fail loudly without overwriting current state.",
+      "evidence": [
+        {
+          "key": "negativePath",
+          "min": 1
+        },
+        {
+          "key": "screenshots",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "production_ready",
+      "description": "The exact published commit is Ready, aliased, and authenticated on the production route.",
+      "evidence": [
+        {
+          "key": "summary",
+          "min": 1
+        },
+        {
+          "key": "actionLog",
+          "min": 1
+        },
+        {
+          "key": "visualReview",
+          "min": 1
+        }
+      ]
+    }
+  ]
+}

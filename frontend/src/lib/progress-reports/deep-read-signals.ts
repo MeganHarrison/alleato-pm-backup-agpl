@@ -63,7 +63,9 @@ export function mapDeepReadRecordToSignals(record: Record<string, unknown>): Int
         ["Financial read", record.financialRead],
       ] as const
     )
-      .map(([label, value]) => {
+      .map((
+        [label, value],
+      ): IntelligenceSignal["evidence"][number] | null => {
         const summary = trimForPrompt(String(value ?? ""), 320);
         return summary
           ? { sourceType: "daily_deep_read", sourceTitle: label, excerpt: null, summary }

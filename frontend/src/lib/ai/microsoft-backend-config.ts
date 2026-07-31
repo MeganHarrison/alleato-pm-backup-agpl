@@ -2,7 +2,8 @@
  * Shared helpers for connecting to the Python backend's
  * Microsoft Executive Assistant endpoint.
  *
- * This module is the single owner of backend URL and auth configuration.
+ * Extracted from handler-v2.ts and orchestrator.ts to eliminate
+ * duplication and ensure both callers use the same logic.
  */
 
 export function microsoftAssistantBackendUrl(): string {

@@ -24,6 +24,7 @@ No exceptions. Every table page in this repo uses `UnifiedTablePage`. If you bui
 
 | Never | Always |
 |-------|--------|
+| Stacking two lines in one cell (a subtitle/id/status under the primary value), incl. `<CellStackText secondary=…>` | One column, one value — give the secondary datum its own column (sortable/filterable/exportable), a hover `title` tooltip, or delete it. Enforced by ESLint `design-system/no-stacked-table-cell`. |
 | `<Table>` / `<TableBody>` / `<TableRow>` from ui/table | `UnifiedTablePage` |
 | Manual `useState` for search, sort, filter, pagination | `useUnifiedTableState` |
 | Filters or column toggles in `header.actions` | Toolbar only |

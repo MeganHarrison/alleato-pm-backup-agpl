@@ -58,9 +58,6 @@ describe("matchesPortfolioScope", () => {
   const developmentProject = { phase: "Development", type: "General" };
   const noPhaseProject = { phase: null, type: "General" };
   const internalCurrent = { phase: "Current", type: "Internal" };
-  const internalNoPhase = { phase: null, type: "Internal" };
-  const internalDevelopment = { phase: "Development", type: "Internal" };
-  const internalByCategory = { phase: "Current", type: null, category: "Internal" };
   const estimatingProject = { phase: "Estimating", type: "General" };
 
   it("all scope shows every project, including projects with no phase", () => {
@@ -89,22 +86,15 @@ describe("matchesPortfolioScope", () => {
     expect(matchesPortfolioScope(noPhaseProject, "estimating")).toBe(false);
   });
 
-  it("internal scope matches type OR category === internal, regardless of phase", () => {
+  it("internal scope shows only current internal projects", () => {
     expect(matchesPortfolioScope(internalCurrent, "internal")).toBe(true);
-    expect(matchesPortfolioScope(internalNoPhase, "internal")).toBe(true);
-    expect(matchesPortfolioScope(internalDevelopment, "internal")).toBe(true);
-    expect(matchesPortfolioScope(internalByCategory, "internal")).toBe(true);
     expect(matchesPortfolioScope(currentClient, "internal")).toBe(false);
     expect(matchesPortfolioScope(noPhaseProject, "internal")).toBe(false);
   });
 
-  it("a category-internal project is excluded from the client tab", () => {
-    expect(matchesPortfolioScope(internalByCategory, "client")).toBe(false);
-  });
-
   it("matches phase and type case-insensitively", () => {
     expect(matchesPortfolioScope({ phase: "current", type: "GENERAL" }, "client")).toBe(true);
-    expect(matchesPortfolioScope({ phase: "Development", type: "internal" }, "internal")).toBe(true);
+    expect(matchesPortfolioScope({ phase: "CURRENT", type: "internal" }, "internal")).toBe(true);
   });
 });
 

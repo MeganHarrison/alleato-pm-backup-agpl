@@ -1,0 +1,321 @@
+{
+  "status": "PASS",
+  "checkedAt": "2026-07-24T05:46:05.764Z",
+  "appProjectRef": "lgveqfnpkxvzbnnwuled",
+  "ragProjectRef": "fqcvmfqldlewvbsuxdvz",
+  "businessAreas": [
+    {
+      "id": 1,
+      "key": "leads",
+      "name": "Leads",
+      "is_restricted": false
+    },
+    {
+      "id": 2,
+      "key": "ai",
+      "name": "AI",
+      "is_restricted": false
+    },
+    {
+      "id": 3,
+      "key": "finance",
+      "name": "Finance",
+      "is_restricted": true
+    },
+    {
+      "id": 4,
+      "key": "internal-operations",
+      "name": "Internal Operations",
+      "is_restricted": false
+    },
+    {
+      "id": 5,
+      "key": "marketing",
+      "name": "Marketing",
+      "is_restricted": false
+    }
+  ],
+  "mappings": [
+    {
+      "project_id": 60,
+      "business_area_id": 3,
+      "key": "finance"
+    },
+    {
+      "project_id": 89,
+      "business_area_id": 5,
+      "key": "marketing"
+    },
+    {
+      "project_id": 90,
+      "business_area_id": 4,
+      "key": "internal-operations"
+    },
+    {
+      "project_id": 756,
+      "business_area_id": 1,
+      "key": "leads"
+    },
+    {
+      "project_id": 767,
+      "business_area_id": 2,
+      "key": "ai"
+    }
+  ],
+  "appParity": [
+    {
+      "project_id": 60,
+      "business_area_id": 3,
+      "key": "finance",
+      "scoped_document_count": 1304,
+      "legacy_count": 1304,
+      "exact_legacy_count": 1304,
+      "mismatched_legacy_count": 0,
+      "business_area_only_count": 0
+    },
+    {
+      "project_id": 89,
+      "business_area_id": 5,
+      "key": "marketing",
+      "scoped_document_count": 511,
+      "legacy_count": 511,
+      "exact_legacy_count": 511,
+      "mismatched_legacy_count": 0,
+      "business_area_only_count": 0
+    },
+    {
+      "project_id": 90,
+      "business_area_id": 4,
+      "key": "internal-operations",
+      "scoped_document_count": 247,
+      "legacy_count": 247,
+      "exact_legacy_count": 247,
+      "mismatched_legacy_count": 0,
+      "business_area_only_count": 0
+    },
+    {
+      "project_id": 756,
+      "business_area_id": 1,
+      "key": "leads",
+      "scoped_document_count": 46,
+      "legacy_count": 46,
+      "exact_legacy_count": 46,
+      "mismatched_legacy_count": 0,
+      "business_area_only_count": 0
+    },
+    {
+      "project_id": 767,
+      "business_area_id": 2,
+      "key": "ai",
+      "scoped_document_count": 14,
+      "legacy_count": 14,
+      "exact_legacy_count": 14,
+      "mismatched_legacy_count": 0,
+      "business_area_only_count": 0
+    }
+  ],
+  "crossDatabaseParity": {
+    "appScopedCount": 2122,
+    "ragScopedCount": 4026,
+    "sharedCount": 2113,
+    "sharedMismatchCount": 0,
+    "sharedMismatchSamples": [],
+    "sharedMismatchGroups": [],
+    "appBusinessAreaOnlyMissingRagCount": 0,
+    "appBusinessAreaOnlyMissingRagSamples": [],
+    "ragBusinessAreaOnlyMissingAppCount": 0,
+    "ragBusinessAreaOnlyMissingAppSamples": [],
+    "legacyAppMissingRagCount": 9,
+    "legacyRagMissingAppCount": 1913
+  },
+  "documentCounts": {
+    "branch_count": 2122,
+    "dual_scope_count": 2122,
+    "business_area_only_count": 0,
+    "invalid_dual_scope_count": 0,
+    "finance_count": 1304,
+    "restricted_finance_count": 1304
+  },
+  "membershipCounts": {
+    "total": 0,
+    "active_finance": 0
+  },
+  "financeBehavior": "deny-by-default: app admins only until Finance membership is approved",
+  "financeVisibility": {
+    "regularNonAdmin": {
+      "principalId": "17a7b163-0cda-45c4-8240-7a73fd389a0d",
+      "visibleFinanceDocuments": 0
+    },
+    "leadershipNonAdmin": {
+      "principalId": "3642da3b-7315-487b-bd27-fb5748abaf08",
+      "visibleFinanceDocuments": 0
+    },
+    "project60MemberNonAdmin": {
+      "principalId": "c5015de7-9257-4b6e-b84d-f29d693963e4",
+      "visibleFinanceDocuments": 0,
+      "membershipMode": "transactional_rollback_fixture"
+    },
+    "appAdmin": {
+      "principalId": "6ae4299f-6c21-4e99-b6a1-ccb1fe5aa7f6",
+      "visibleFinanceDocuments": 1304
+    }
+  },
+  "restrictivePolicy": {
+    "name": "document_metadata_restricted_business_area_guard",
+    "mode": "RESTRICTIVE",
+    "roles": "{authenticated}",
+    "command": "SELECT"
+  },
+  "integrityConstraints": [
+    {
+      "conname": "business_area_memberships_person_id_fkey",
+      "convalidated": true
+    },
+    {
+      "conname": "business_area_memberships_role_nonempty",
+      "convalidated": true
+    },
+    {
+      "conname": "business_area_memberships_status_check",
+      "convalidated": true
+    },
+    {
+      "conname": "business_areas_owner_person_id_fkey",
+      "convalidated": true
+    }
+  ],
+  "helperSecurity": {
+    "owner": "postgres",
+    "security_definer": true,
+    "proconfig": [
+      "search_path=public, pg_temp"
+    ],
+    "execute_grantees": "{authenticated,postgres,service_role}",
+    "anon_execute": false,
+    "authenticated_execute": true,
+    "service_role_execute": true
+  },
+  "excessiveAppGrants": [],
+  "containers": [
+    {
+      "id": 60,
+      "name": "Alleato Finance",
+      "archived": false
+    },
+    {
+      "id": 89,
+      "name": "Alleato Marketing",
+      "archived": false
+    },
+    {
+      "id": 90,
+      "name": "Alleato Internal Ops",
+      "archived": false
+    },
+    {
+      "id": 756,
+      "name": "Alleato - Leads",
+      "archived": false
+    },
+    {
+      "id": 767,
+      "name": "Alleato AI",
+      "archived": false
+    }
+  ],
+  "appLedger": [
+    "20260723180000",
+    "20260724043000",
+    "20260724052000"
+  ],
+  "ragParity": [
+    {
+      "project_id": 60,
+      "business_area_id": 3,
+      "key": "finance",
+      "document_count": 2358,
+      "exact_document_count": 2358,
+      "mismatched_document_count": 0,
+      "business_area_only_document_count": 0,
+      "chunk_count": 6623,
+      "exact_chunk_count": 6623,
+      "mismatched_chunk_count": 0
+    },
+    {
+      "project_id": 89,
+      "business_area_id": 5,
+      "key": "marketing",
+      "document_count": 571,
+      "exact_document_count": 571,
+      "mismatched_document_count": 0,
+      "business_area_only_document_count": 0,
+      "chunk_count": 1078,
+      "exact_chunk_count": 1078,
+      "mismatched_chunk_count": 0
+    },
+    {
+      "project_id": 90,
+      "business_area_id": 4,
+      "key": "internal-operations",
+      "document_count": 1040,
+      "exact_document_count": 1040,
+      "mismatched_document_count": 0,
+      "business_area_only_document_count": 0,
+      "chunk_count": 6744,
+      "exact_chunk_count": 6744,
+      "mismatched_chunk_count": 0
+    },
+    {
+      "project_id": 756,
+      "business_area_id": 1,
+      "key": "leads",
+      "document_count": 46,
+      "exact_document_count": 46,
+      "mismatched_document_count": 0,
+      "business_area_only_document_count": 0,
+      "chunk_count": 434,
+      "exact_chunk_count": 434,
+      "mismatched_chunk_count": 0
+    },
+    {
+      "project_id": 767,
+      "business_area_id": 2,
+      "key": "ai",
+      "document_count": 11,
+      "exact_document_count": 11,
+      "mismatched_document_count": 0,
+      "business_area_only_document_count": 0,
+      "chunk_count": 9,
+      "exact_chunk_count": 9,
+      "mismatched_chunk_count": 0
+    }
+  ],
+  "ragScopeIntegrity": {
+    "mapped_document_mismatch_count": 0,
+    "unknown_business_area_count": 0,
+    "invalid_dual_scope_count": 0,
+    "unscoped_non_brain_document_count": 44726
+  },
+  "ragChunkIntegrity": {
+    "unknown_business_area_count": 0,
+    "document_scope_mismatch_count": 0,
+    "invalid_document_orphan_count": 0,
+    "standalone_scoped_count": 2481,
+    "invalid_standalone_dual_scope_count": 0,
+    "standalone_mapped_scope_mismatch_count": 0
+  },
+  "ragExposure": [],
+  "ragEffectiveExposure": [],
+  "ragFunctionSecurity": {
+    "signature": "search_document_chunks(halfvec,text[],bigint,integer,double precision,text,text,boolean,text,text)",
+    "execute_grantees": "{postgres,service_role}",
+    "anon_execute": false,
+    "authenticated_execute": false,
+    "service_role_execute": true
+  },
+  "ragLedger": [
+    "20260724044500",
+    "20260724045000",
+    "20260724052500"
+  ]
+}

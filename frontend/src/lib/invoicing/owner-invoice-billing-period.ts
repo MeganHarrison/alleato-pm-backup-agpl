@@ -1,15 +1,8 @@
 import type { BillingPeriod } from "@/hooks/use-billing-periods";
+import { selectDefaultBillingPeriod } from "@/lib/invoicing/billing-period-selection";
 
-const newestFirst = (left: BillingPeriod, right: BillingPeriod) =>
-  right.start_date.localeCompare(left.start_date) ||
-  right.period_number - left.period_number;
-
-export function selectDefaultOwnerInvoiceBillingPeriod(
-  periods: BillingPeriod[],
-): BillingPeriod | null {
-  const sorted = [...periods].sort(newestFirst);
-  return sorted.find((period) => !period.is_closed) ?? sorted[0] ?? null;
-}
+export const selectDefaultOwnerInvoiceBillingPeriod =
+  selectDefaultBillingPeriod;
 
 export interface AppliedOwnerInvoiceDueDate {
   billingPeriodId: string;

@@ -57,7 +57,10 @@ const TABS: TabConfig[] = [
     icon: Sparkles,
     href: () => "/ai",
     isActive: (pathname) =>
-      pathname === "/ai" || pathname.startsWith("/ai/"),
+      pathname === "/ai" ||
+      pathname.startsWith("/ai/") ||
+      pathname === "/ai-assistant" ||
+      pathname.startsWith("/ai-assistant/"),
   },
   {
     key: "alerts",

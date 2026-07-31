@@ -3,6 +3,7 @@ import { GuardrailError } from "@/lib/guardrails/errors";
 import { serviceDb } from "@/lib/supabase/service-db";
 import { NextResponse } from "next/server";
 import { apiErrorResponse } from "@/lib/api-error";
+import type { Database, Json } from "@/types/database.types";
 
 type AgentationAnnotation = {
   id?: string;
@@ -292,10 +293,10 @@ export const PATCH = withApiGuardrails(
 
   const existingMetadata =
     typeof item.metadata === "object" && item.metadata !== null && !Array.isArray(item.metadata)
-      ? (item.metadata as Record<string, unknown>)
+      ? (item.metadata as Record<string, Json>)
       : {};
 
-  const updates: Record<string, unknown> = {
+  const updates: Database["public"]["Tables"]["dev_annotations"]["Update"] = {
     status: newStatus,
     metadata: {
       ...existingMetadata,

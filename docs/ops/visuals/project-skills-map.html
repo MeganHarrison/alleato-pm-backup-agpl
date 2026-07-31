@@ -1,0 +1,1978 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Alleato Project Skills Map</title>
+    <style>
+      :root {
+        --paper: #faf6ee;
+        --paper-raised: #fffdf8;
+        --ink: #2b2926;
+        --ink-soft: #6b6660;
+        --ink-faint: #989087;
+        --wash-yellow: #f5e6a8;
+        --wash-green: #d5e3c8;
+        --wash-purple: #dcd3ee;
+        --wash-pink: #f3d5d8;
+        --wash-blue: #cfe3f0;
+        --line: rgba(43, 41, 38, 0.22);
+        --line-strong: rgba(43, 41, 38, 0.72);
+        --shadow: 0 10px 28px rgba(43, 41, 38, 0.07);
+        --focus: #315f8a;
+        --max: 1180px;
+        --radius: 10px;
+      }
+
+      [data-theme="dark"] {
+        --paper: #1f1e1b;
+        --paper-raised: #282621;
+        --ink: #f5efe4;
+        --ink-soft: #bdb5aa;
+        --ink-faint: #8e877d;
+        --wash-yellow: #544b28;
+        --wash-green: #344333;
+        --wash-purple: #413852;
+        --wash-pink: #52353a;
+        --wash-blue: #304554;
+        --line: rgba(245, 239, 228, 0.16);
+        --line-strong: rgba(245, 239, 228, 0.58);
+        --shadow: 0 12px 34px rgba(0, 0, 0, 0.2);
+        --focus: #91bfe6;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+        background: var(--paper);
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background:
+          radial-gradient(
+            circle at 15% 14%,
+            color-mix(in srgb, var(--wash-yellow) 44%, transparent) 0 1px,
+            transparent 1.4px
+          ),
+          radial-gradient(
+            circle at 82% 22%,
+            color-mix(in srgb, var(--wash-blue) 40%, transparent) 0 1px,
+            transparent 1.3px
+          ),
+          var(--paper);
+        background-size:
+          26px 26px,
+          31px 31px,
+          auto;
+        font-family:
+          Inter,
+          ui-sans-serif,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        line-height: 1.5;
+      }
+
+      button,
+      input {
+        font: inherit;
+      }
+      button {
+        color: inherit;
+      }
+      a {
+        color: inherit;
+      }
+
+      .skip-link {
+        position: fixed;
+        z-index: 20;
+        left: 16px;
+        top: 12px;
+        transform: translateY(-180%);
+        padding: 8px 12px;
+        background: var(--ink);
+        color: var(--paper);
+        border-radius: 6px;
+      }
+
+      .skip-link:focus {
+        transform: translateY(0);
+      }
+
+      .page {
+        width: min(calc(100% - 40px), var(--max));
+        margin: 0 auto;
+        padding: 26px 0 80px;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding-bottom: 42px;
+      }
+
+      .wordmark {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.74rem;
+        font-weight: 760;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .wordmark-mark {
+        width: 24px;
+        height: 24px;
+        display: grid;
+        place-items: center;
+        border: 1.5px solid var(--ink);
+        border-radius: 50% 46% 48% 44%;
+        transform: rotate(-3deg);
+        font-size: 0.75rem;
+      }
+
+      .theme-toggle {
+        border: 0;
+        border-bottom: 1px solid var(--line);
+        padding: 5px 2px;
+        background: transparent;
+        color: var(--ink-soft);
+        cursor: pointer;
+        font-size: 0.78rem;
+      }
+
+      .theme-toggle:hover {
+        color: var(--ink);
+        border-color: var(--ink);
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.22fr) minmax(280px, 0.78fr);
+        gap: clamp(34px, 7vw, 90px);
+        align-items: end;
+        padding: 24px 0 68px;
+      }
+
+      .eyebrow,
+      .section-label {
+        margin: 0 0 12px;
+        color: var(--ink-soft);
+        font-size: 0.7rem;
+        font-weight: 780;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        max-width: 760px;
+        margin-bottom: 18px;
+        font-family: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+        font-size: clamp(3rem, 7vw, 6.3rem);
+        font-weight: 500;
+        letter-spacing: -0.055em;
+        line-height: 0.93;
+      }
+
+      .hero-lede {
+        max-width: 660px;
+        margin-bottom: 0;
+        color: var(--ink-soft);
+        font-size: clamp(1rem, 1.6vw, 1.2rem);
+        line-height: 1.65;
+      }
+
+      .field-note {
+        position: relative;
+        align-self: center;
+        padding: 24px 25px 22px;
+        background: color-mix(
+          in srgb,
+          var(--wash-yellow) 72%,
+          var(--paper-raised)
+        );
+        border: 1.5px solid var(--line-strong);
+        border-radius: 7px 10px 8px 6px;
+        box-shadow: var(--shadow);
+        transform: rotate(0.45deg);
+      }
+
+      .field-note::before {
+        content: "";
+        position: absolute;
+        top: -8px;
+        left: 50%;
+        width: 76px;
+        height: 17px;
+        transform: translateX(-50%) rotate(-1deg);
+        background: color-mix(in srgb, var(--wash-blue) 72%, transparent);
+        border-left: 1px solid var(--line);
+        border-right: 1px solid var(--line);
+      }
+
+      .field-note strong {
+        display: block;
+        margin-bottom: 8px;
+        font-family: "Iowan Old Style", Georgia, serif;
+        font-size: 1.35rem;
+        font-weight: 600;
+      }
+
+      .field-note p {
+        margin-bottom: 0;
+        color: var(--ink-soft);
+        font-size: 0.9rem;
+      }
+
+      .inventory-line {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 18px;
+        margin-top: 20px;
+        color: var(--ink-soft);
+        font-size: 0.78rem;
+      }
+
+      .inventory-line span {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+      }
+
+      .inventory-line span::before {
+        content: "";
+        width: 5px;
+        height: 5px;
+        background: var(--ink);
+        border-radius: 50%;
+        opacity: 0.42;
+      }
+
+      .section {
+        padding: 66px 0;
+        border-top: 1px solid var(--line);
+      }
+
+      .section-heading {
+        display: grid;
+        grid-template-columns: minmax(0, 0.7fr) minmax(300px, 1fr);
+        gap: 44px;
+        align-items: end;
+        margin-bottom: 34px;
+      }
+
+      h2 {
+        margin-bottom: 0;
+        font-family: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+        font-size: clamp(2rem, 4vw, 3.5rem);
+        font-weight: 520;
+        letter-spacing: -0.035em;
+        line-height: 1.04;
+      }
+
+      .section-intro {
+        margin: 0;
+        color: var(--ink-soft);
+        font-size: 0.96rem;
+        line-height: 1.7;
+      }
+
+      .workflow {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 28px;
+        position: relative;
+      }
+
+      .workflow::before {
+        content: "";
+        position: absolute;
+        top: 22px;
+        left: 10%;
+        right: 10%;
+        height: 1.5px;
+        background: var(--line-strong);
+        opacity: 0.45;
+      }
+
+      .workflow-step {
+        position: relative;
+        z-index: 1;
+        min-width: 0;
+      }
+
+      .step-number {
+        width: 44px;
+        height: 44px;
+        display: grid;
+        place-items: center;
+        margin-bottom: 17px;
+        background: var(--paper);
+        border: 1.5px solid var(--ink);
+        border-radius: 52% 46% 50% 44%;
+        font-family: Georgia, serif;
+        font-weight: 700;
+      }
+
+      .workflow-step:nth-child(2) .step-number {
+        background: var(--wash-blue);
+      }
+      .workflow-step:nth-child(3) .step-number {
+        background: var(--wash-green);
+      }
+      .workflow-step:nth-child(4) .step-number {
+        background: var(--wash-purple);
+      }
+
+      .workflow-step h3 {
+        margin-bottom: 6px;
+        font-size: 0.95rem;
+      }
+
+      .workflow-step p {
+        margin-bottom: 0;
+        color: var(--ink-soft);
+        font-size: 0.82rem;
+        line-height: 1.6;
+      }
+
+      .chooser-controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+      }
+
+      .search-wrap {
+        position: relative;
+        flex: 1 1 270px;
+        max-width: 400px;
+      }
+
+      .search-wrap svg {
+        position: absolute;
+        left: 13px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--ink-soft);
+        pointer-events: none;
+      }
+
+      #skill-search {
+        width: 100%;
+        min-height: 42px;
+        padding: 9px 14px 9px 40px;
+        color: var(--ink);
+        background: var(--paper-raised);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        outline: none;
+      }
+
+      #skill-search:focus {
+        border-color: var(--focus);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 18%, transparent);
+      }
+
+      .filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .filter {
+        padding: 7px 10px;
+        background: transparent;
+        border: 0;
+        border-bottom: 1px solid transparent;
+        color: var(--ink-soft);
+        cursor: pointer;
+        font-size: 0.78rem;
+      }
+
+      .filter:hover,
+      .filter[aria-pressed="true"] {
+        color: var(--ink);
+        border-color: var(--ink);
+      }
+
+      .chooser {
+        display: grid;
+        grid-template-columns: minmax(0, 1.05fr) minmax(300px, 0.75fr);
+        gap: 30px;
+        align-items: start;
+      }
+
+      .route-list {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .route-button {
+        min-height: 112px;
+        padding: 16px;
+        text-align: left;
+        background: color-mix(in srgb, var(--paper-raised) 86%, transparent);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        cursor: pointer;
+        transition:
+          transform 140ms ease,
+          border-color 140ms ease,
+          background 140ms ease;
+      }
+
+      .route-button:hover {
+        transform: translateY(-2px);
+        border-color: var(--line-strong);
+      }
+
+      .route-button[aria-pressed="true"] {
+        background: color-mix(
+          in srgb,
+          var(--wash-blue) 56%,
+          var(--paper-raised)
+        );
+        border-color: var(--ink);
+      }
+
+      .route-button .route-kind {
+        display: block;
+        margin-bottom: 8px;
+        color: var(--ink-faint);
+        font-size: 0.64rem;
+        font-weight: 780;
+        letter-spacing: 0.11em;
+        text-transform: uppercase;
+      }
+
+      .route-button .route-title {
+        display: block;
+        margin-bottom: 5px;
+        font-size: 0.9rem;
+        font-weight: 730;
+        line-height: 1.35;
+      }
+
+      .route-button .route-start {
+        display: block;
+        color: var(--ink-soft);
+        font-family:
+          ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 0.68rem;
+        line-height: 1.4;
+        overflow-wrap: anywhere;
+      }
+
+      .route-button[hidden] {
+        display: none;
+      }
+
+      .route-empty {
+        grid-column: 1 / -1;
+        padding: 28px 4px;
+        color: var(--ink-soft);
+        font-size: 0.9rem;
+      }
+
+      .route-detail {
+        position: sticky;
+        top: 22px;
+        min-height: 366px;
+        padding: 25px;
+        background: color-mix(
+          in srgb,
+          var(--wash-blue) 42%,
+          var(--paper-raised)
+        );
+        border: 1.5px solid var(--line-strong);
+        border-radius: 8px 11px 7px 10px;
+        box-shadow: var(--shadow);
+      }
+
+      .detail-index {
+        display: inline-grid;
+        place-items: center;
+        width: 29px;
+        height: 29px;
+        margin-bottom: 22px;
+        border: 1px solid var(--ink);
+        border-radius: 50%;
+        font-family: Georgia, serif;
+        font-size: 0.78rem;
+      }
+
+      .route-detail h3 {
+        margin-bottom: 12px;
+        font-family: "Iowan Old Style", Georgia, serif;
+        font-size: 1.65rem;
+        line-height: 1.15;
+      }
+
+      .route-detail > p {
+        margin-bottom: 22px;
+        color: var(--ink-soft);
+        font-size: 0.87rem;
+        line-height: 1.65;
+      }
+
+      .detail-block {
+        padding: 14px 0;
+        border-top: 1px solid var(--line);
+      }
+
+      .detail-block:last-child {
+        padding-bottom: 0;
+      }
+
+      .detail-label {
+        display: block;
+        margin-bottom: 7px;
+        color: var(--ink-faint);
+        font-size: 0.62rem;
+        font-weight: 780;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+      }
+
+      .skill-path {
+        display: inline;
+        padding: 2px 5px;
+        background: color-mix(in srgb, var(--paper) 70%, transparent);
+        border-radius: 4px;
+        font-family:
+          ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 0.75rem;
+        overflow-wrap: anywhere;
+      }
+
+      .support-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .support-list span {
+        padding: 4px 7px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        font-size: 0.68rem;
+      }
+
+      .no-results {
+        display: none;
+      }
+      .no-results[data-visible="true"] {
+        display: block;
+      }
+
+      .layers {
+        display: grid;
+        grid-template-columns: 1fr;
+        max-width: 860px;
+        margin: 0 auto;
+      }
+
+      .layer {
+        display: grid;
+        grid-template-columns: 46px 180px 1fr;
+        gap: 18px;
+        align-items: center;
+        margin-top: -1px;
+        padding: 17px 20px;
+        border: 1px solid var(--line-strong);
+      }
+
+      .layer:first-child {
+        border-radius: 10px 10px 0 0;
+        background: var(--wash-yellow);
+      }
+      .layer:nth-child(2) {
+        margin-inline: 14px;
+        background: var(--wash-green);
+      }
+      .layer:nth-child(3) {
+        margin-inline: 28px;
+        background: var(--wash-blue);
+      }
+      .layer:nth-child(4) {
+        margin-inline: 42px;
+        border-radius: 0 0 10px 10px;
+        background: var(--wash-purple);
+      }
+
+      .layer-number {
+        font-family: Georgia, serif;
+        font-size: 1rem;
+        font-weight: 700;
+      }
+
+      .layer strong {
+        font-size: 0.88rem;
+      }
+      .layer span:last-child {
+        color: var(--ink-soft);
+        font-size: 0.78rem;
+      }
+
+      .precedence-note {
+        max-width: 680px;
+        margin: 28px auto 0;
+        color: var(--ink-soft);
+        font-size: 0.82rem;
+        text-align: center;
+      }
+
+      .family-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      details.family {
+        background: color-mix(in srgb, var(--paper-raised) 88%, transparent);
+        border-top: 1px solid var(--line-strong);
+      }
+
+      details.family summary {
+        position: relative;
+        min-height: 116px;
+        padding: 20px 42px 18px 6px;
+        list-style: none;
+        cursor: pointer;
+      }
+
+      details.family summary::-webkit-details-marker {
+        display: none;
+      }
+
+      details.family summary::after {
+        content: "+";
+        position: absolute;
+        right: 7px;
+        top: 18px;
+        color: var(--ink-soft);
+        font-size: 1.25rem;
+      }
+
+      details.family[open] summary::after {
+        content: "−";
+      }
+
+      .family-kicker {
+        display: block;
+        margin-bottom: 8px;
+        color: var(--ink-faint);
+        font-size: 0.62rem;
+        font-weight: 780;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .family-title {
+        display: block;
+        margin-bottom: 5px;
+        font-family: "Iowan Old Style", Georgia, serif;
+        font-size: 1.25rem;
+        font-weight: 600;
+      }
+
+      .family-preview {
+        display: block;
+        color: var(--ink-soft);
+        font-size: 0.75rem;
+        line-height: 1.45;
+      }
+
+      .family-body {
+        padding: 0 10px 20px 6px;
+        color: var(--ink-soft);
+        font-size: 0.78rem;
+        line-height: 1.6;
+      }
+
+      .family-body code {
+        color: var(--ink);
+        font-family:
+          ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 0.72rem;
+      }
+
+      .inventory-map {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: 44px;
+        align-items: center;
+        margin-top: 42px;
+        padding-top: 34px;
+        border-top: 1px dashed var(--line-strong);
+      }
+
+      .inventory-graphic {
+        display: grid;
+        grid-template-columns: 70fr 76fr 53fr;
+        gap: 5px;
+        height: 62px;
+      }
+
+      .inventory-segment {
+        display: flex;
+        align-items: end;
+        padding: 8px;
+        border: 1px solid var(--line-strong);
+        border-radius: 7px;
+        font-size: 0.65rem;
+        font-weight: 760;
+        line-height: 1.2;
+      }
+
+      .inventory-segment:nth-child(1) {
+        background: var(--wash-green);
+      }
+      .inventory-segment:nth-child(2) {
+        background: var(--wash-purple);
+      }
+      .inventory-segment:nth-child(3) {
+        background: var(--wash-blue);
+      }
+
+      .inventory-copy p {
+        margin-bottom: 7px;
+        color: var(--ink-soft);
+        font-size: 0.82rem;
+      }
+
+      .inventory-copy strong {
+        color: var(--ink);
+      }
+
+      .decision-flow {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 10px;
+        align-items: stretch;
+      }
+
+      .decision {
+        position: relative;
+        padding: 18px 15px;
+        background: var(--paper-raised);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+      }
+
+      .decision:not(:last-child)::after {
+        content: "→";
+        position: absolute;
+        z-index: 2;
+        right: -10px;
+        top: 50%;
+        transform: translate(50%, -50%);
+        width: 22px;
+        height: 22px;
+        display: grid;
+        place-items: center;
+        background: var(--paper);
+        color: var(--ink-soft);
+        font-size: 0.8rem;
+      }
+
+      .decision strong {
+        display: block;
+        margin-bottom: 7px;
+        font-size: 0.78rem;
+      }
+
+      .decision span {
+        display: block;
+        color: var(--ink-soft);
+        font-size: 0.7rem;
+        line-height: 1.5;
+      }
+
+      .guardrails {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 36px;
+        align-items: start;
+      }
+
+      .guardrail-list {
+        display: grid;
+        gap: 18px;
+      }
+
+      .guardrail {
+        display: grid;
+        grid-template-columns: 28px 1fr;
+        gap: 12px;
+      }
+
+      .guardrail-mark {
+        width: 23px;
+        height: 23px;
+        display: grid;
+        place-items: center;
+        margin-top: 1px;
+        border: 1px solid var(--ink);
+        border-radius: 50% 48% 46% 51%;
+        font-size: 0.68rem;
+      }
+
+      .guardrail strong {
+        display: block;
+        margin-bottom: 3px;
+        font-size: 0.85rem;
+      }
+
+      .guardrail p {
+        margin-bottom: 0;
+        color: var(--ink-soft);
+        font-size: 0.77rem;
+        line-height: 1.55;
+      }
+
+      .command-note {
+        padding: 23px;
+        background: color-mix(
+          in srgb,
+          var(--wash-pink) 58%,
+          var(--paper-raised)
+        );
+        border: 1.5px solid var(--line-strong);
+        border-radius: 8px;
+        transform: rotate(-0.25deg);
+      }
+
+      .command-note h3 {
+        margin-bottom: 10px;
+        font-family: "Iowan Old Style", Georgia, serif;
+        font-size: 1.25rem;
+      }
+
+      .command-note p {
+        margin-bottom: 15px;
+        color: var(--ink-soft);
+        font-size: 0.78rem;
+      }
+
+      pre {
+        margin: 0;
+        padding: 14px;
+        overflow-x: auto;
+        color: var(--ink);
+        background: color-mix(in srgb, var(--paper) 76%, transparent);
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        font-family:
+          ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 0.68rem;
+        line-height: 1.55;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+      }
+
+      .footer {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+        padding-top: 30px;
+        border-top: 1px solid var(--line);
+        color: var(--ink-soft);
+        font-size: 0.72rem;
+      }
+
+      .footer a {
+        text-underline-offset: 3px;
+      }
+
+      .reveal {
+        opacity: 0;
+        transform: translateY(8px);
+        transition:
+          opacity 420ms ease,
+          transform 420ms ease;
+      }
+
+      .reveal.is-visible {
+        opacity: 1;
+        transform: none;
+      }
+
+      :focus-visible {
+        outline: 2px solid var(--focus);
+        outline-offset: 3px;
+      }
+
+      @media (max-width: 900px) {
+        .hero {
+          grid-template-columns: 1fr;
+          align-items: start;
+        }
+        .field-note {
+          max-width: 520px;
+        }
+        .section-heading {
+          grid-template-columns: 1fr;
+          gap: 14px;
+        }
+        .workflow {
+          grid-template-columns: repeat(2, 1fr);
+          row-gap: 34px;
+        }
+        .workflow::before {
+          display: none;
+        }
+        .chooser {
+          grid-template-columns: 1fr;
+        }
+        .route-detail {
+          position: relative;
+          top: 0;
+        }
+        .family-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .decision-flow {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .decision:not(:last-child)::after {
+          display: none;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .page {
+          width: min(calc(100% - 28px), var(--max));
+          padding-top: 18px;
+        }
+        .topbar {
+          padding-bottom: 22px;
+        }
+        .hero {
+          padding: 12px 0 50px;
+          gap: 30px;
+        }
+        h1 {
+          font-size: clamp(2.8rem, 15vw, 4.5rem);
+        }
+        .section {
+          padding: 50px 0;
+        }
+        .workflow,
+        .route-list,
+        .family-grid,
+        .decision-flow,
+        .guardrails,
+        .inventory-map {
+          grid-template-columns: 1fr;
+        }
+        .chooser-controls {
+          align-items: stretch;
+        }
+        .search-wrap {
+          max-width: none;
+        }
+        .filters {
+          flex-wrap: nowrap;
+          overflow-x: auto;
+          padding-bottom: 4px;
+        }
+        .filter {
+          white-space: nowrap;
+        }
+        .route-button {
+          min-height: 96px;
+        }
+        .layer {
+          grid-template-columns: 30px 1fr;
+          gap: 7px 12px;
+          padding: 15px;
+        }
+        .layer span:last-child {
+          grid-column: 2;
+        }
+        .layer:nth-child(2) {
+          margin-inline: 7px;
+        }
+        .layer:nth-child(3) {
+          margin-inline: 14px;
+        }
+        .layer:nth-child(4) {
+          margin-inline: 21px;
+        }
+        .inventory-map {
+          gap: 24px;
+        }
+        .inventory-graphic {
+          height: 74px;
+        }
+        .footer {
+          flex-direction: column;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+        .reveal {
+          opacity: 1;
+          transform: none;
+        }
+      }
+
+      @media print {
+        :root {
+          --paper: #fff;
+          --paper-raised: #fff;
+          --ink: #171717;
+          --ink-soft: #4b4b4b;
+          --line: rgba(0, 0, 0, 0.18);
+          --line-strong: rgba(0, 0, 0, 0.62);
+        }
+        body {
+          background: #fff;
+        }
+        .page {
+          width: 100%;
+          padding: 0;
+        }
+        .theme-toggle,
+        .chooser-controls {
+          display: none;
+        }
+        .section {
+          break-inside: avoid;
+          padding: 34px 0;
+        }
+        .route-list {
+          display: none;
+        }
+        .chooser {
+          grid-template-columns: 1fr;
+        }
+        .route-detail {
+          min-height: 0;
+          box-shadow: none;
+        }
+        details.family {
+          break-inside: avoid;
+        }
+        .reveal {
+          opacity: 1;
+          transform: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip-link" href="#chooser">Skip to skill chooser</a>
+
+    <main class="page">
+      <div class="topbar">
+        <div class="wordmark">
+          <span class="wordmark-mark" aria-hidden="true">A</span>
+          Alleato agent field guide
+        </div>
+        <button
+          class="theme-toggle"
+          id="theme-toggle"
+          type="button"
+          aria-label="Switch color theme"
+        >
+          Use dark paper
+        </button>
+      </div>
+
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Project skills map · 29 July 2026</p>
+          <h1>Pick the right skill before you touch the code.</h1>
+          <p class="hero-lede">
+            Start with the job to be done. Load one owner skill, add only the
+            supporting skills the boundary requires, then prove the outcome in
+            the running system.
+          </p>
+          <div class="inventory-line" aria-label="Project skill inventory">
+            <span>229 tracked skill files</span>
+            <span>199 unique names</span>
+            <span>15 canonical routes</span>
+            <span>3 agent surfaces</span>
+          </div>
+        </div>
+
+        <aside class="field-note" aria-label="Core principle">
+          <strong>The skill is a routing contract.</strong>
+          <p>
+            It does not replace judgment. It tells the agent which evidence,
+            owner boundary, and failure behavior must travel with the work.
+          </p>
+        </aside>
+      </header>
+
+      <section class="section reveal" aria-labelledby="workflow-title">
+        <div class="section-heading">
+          <div>
+            <p class="section-label">The operating loop</p>
+            <h2 id="workflow-title">Intent → owner → support → proof</h2>
+          </div>
+          <p class="section-intro">
+            Skills compose in a deliberate order. The owner skill frames the
+            work; supporting skills deepen one boundary; verification proves the
+            actual user or runtime outcome.
+          </p>
+        </div>
+
+        <div class="workflow" aria-label="Four-step skill workflow">
+          <article class="workflow-step">
+            <div class="step-number">1</div>
+            <h3>Name the real job</h3>
+            <p>
+              Build, verify, design, trace, compare, plan, document, or recover.
+            </p>
+          </article>
+          <article class="workflow-step">
+            <div class="step-number">2</div>
+            <h3>Load one owner</h3>
+            <p>Use the canonical starter skill for that work type.</p>
+          </article>
+          <article class="workflow-step">
+            <div class="step-number">3</div>
+            <h3>Add boundary depth</h3>
+            <p>
+              Bring in Procore, RAG, UI, browser, or test support only as
+              needed.
+            </p>
+          </article>
+          <article class="workflow-step">
+            <div class="step-number">4</div>
+            <h3>Close with evidence</h3>
+            <p>
+              Make the changed boundary fail loudly and prove the final state.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section
+        class="section reveal"
+        id="chooser"
+        aria-labelledby="chooser-title"
+      >
+        <div class="section-heading">
+          <div>
+            <p class="section-label">Interactive routing desk</p>
+            <h2 id="chooser-title">What are you trying to do?</h2>
+          </div>
+          <p class="section-intro">
+            Select the work—not the tool you happen to remember. Each route
+            names the first skill to load and the smallest useful supporting
+            set.
+          </p>
+        </div>
+
+        <div class="chooser-controls">
+          <label class="search-wrap">
+            <span
+              class="sr-only"
+              style="
+                position: absolute;
+                width: 1px;
+                height: 1px;
+                padding: 0;
+                margin: -1px;
+                overflow: hidden;
+                clip: rect(0, 0, 0, 0);
+                white-space: nowrap;
+                border: 0;
+              "
+              >Search work types and skills</span
+            >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              aria-hidden="true"
+            >
+              <circle
+                cx="7"
+                cy="7"
+                r="4.4"
+                stroke="currentColor"
+                stroke-width="1.4"
+              />
+              <path
+                d="m10.4 10.4 3.1 3.1"
+                stroke="currentColor"
+                stroke-width="1.4"
+                stroke-linecap="round"
+              />
+            </svg>
+            <input
+              id="skill-search"
+              type="search"
+              placeholder="Search “frontend”, “RAG”, “Procore”…"
+              autocomplete="off"
+            />
+          </label>
+
+          <div class="filters" role="group" aria-label="Filter routes">
+            <button
+              class="filter"
+              type="button"
+              data-filter="all"
+              aria-pressed="true"
+            >
+              All
+            </button>
+            <button
+              class="filter"
+              type="button"
+              data-filter="build"
+              aria-pressed="false"
+            >
+              Build
+            </button>
+            <button
+              class="filter"
+              type="button"
+              data-filter="verify"
+              aria-pressed="false"
+            >
+              Verify
+            </button>
+            <button
+              class="filter"
+              type="button"
+              data-filter="ai"
+              aria-pressed="false"
+            >
+              AI + RAG
+            </button>
+            <button
+              class="filter"
+              type="button"
+              data-filter="plan"
+              aria-pressed="false"
+            >
+              Plan
+            </button>
+            <button
+              class="filter"
+              type="button"
+              data-filter="docs"
+              aria-pressed="false"
+            >
+              Docs
+            </button>
+          </div>
+        </div>
+
+        <div class="chooser">
+          <div>
+            <div
+              class="route-list"
+              id="route-list"
+              aria-label="Canonical skill routes"
+            ></div>
+            <p class="route-empty no-results" id="route-empty">
+              No route matches that search. Try the boundary, such as “table”,
+              “browser”, or “evaluation”.
+            </p>
+          </div>
+
+          <aside class="route-detail" id="route-detail" aria-live="polite">
+            <span class="detail-index" id="detail-index">01</span>
+            <h3 id="detail-title">Implementation, bug fix, or audit finding</h3>
+            <p id="detail-why">
+              Start with the task contract, then localize and prove the changed
+              boundary.
+            </p>
+            <div class="detail-block">
+              <span class="detail-label">Start here</span>
+              <code class="skill-path" id="detail-start"
+                >.codex/skills/qa-task</code
+              >
+            </div>
+            <div class="detail-block">
+              <span class="detail-label">Support only when needed</span>
+              <div class="support-list" id="detail-support"></div>
+            </div>
+            <div class="detail-block">
+              <span class="detail-label">Done means</span>
+              <span id="detail-done" style="font-size: 0.8rem"
+                >Root cause localized; targeted proof passes; failure is
+                visible.</span
+              >
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="section reveal" aria-labelledby="precedence-title">
+        <div class="section-heading">
+          <div>
+            <p class="section-label">Authority stack</p>
+            <h2 id="precedence-title">Closer context wins</h2>
+          </div>
+          <p class="section-intro">
+            A plausible global skill never outranks the project’s actual
+            contract. Exact user intent is checked first; Alleato-specific local
+            guidance beats generic advice.
+          </p>
+        </div>
+
+        <div class="layers" aria-label="Skill precedence layers">
+          <div class="layer">
+            <span class="layer-number">01</span>
+            <strong>Instructions</strong>
+            <span>User request · AGENTS.md · task contract · repo docs</span>
+          </div>
+          <div class="layer">
+            <span class="layer-number">02</span>
+            <strong>Named skill</strong>
+            <span
+              >Verify the exact frontmatter name and readable SKILL.md
+              path</span
+            >
+          </div>
+          <div class="layer">
+            <span class="layer-number">03</span>
+            <strong>Project-local</strong>
+            <span
+              >.agents · .codex · .claude, with Alleato-specific authority
+              first</span
+            >
+          </div>
+          <div class="layer">
+            <span class="layer-number">04</span>
+            <strong>External support</strong>
+            <span
+              >User-global skills · plugin skills · apps and connectors</span
+            >
+          </div>
+        </div>
+        <p class="precedence-note">
+          Three folders do not mean three competing systems. They expose skills
+          to different agent runtimes; duplicate names are resolved by context
+          and project specificity.
+        </p>
+      </section>
+
+      <section class="section reveal" aria-labelledby="families-title">
+        <div class="section-heading">
+          <div>
+            <p class="section-label">Capability atlas</p>
+            <h2 id="families-title">The project’s skill families</h2>
+          </div>
+          <p class="section-intro">
+            The useful mental model is a small set of families—not 229 folders.
+            Open a family to see its recurring owners and boundaries.
+          </p>
+        </div>
+
+        <div class="family-grid">
+          <details class="family">
+            <summary>
+              <span class="family-kicker">Ship safely</span>
+              <span class="family-title">Delivery + QA</span>
+              <span class="family-preview"
+                >Task contracts, smoke checks, browser evidence, E2E
+                regression.</span
+              >
+            </summary>
+            <div class="family-body">
+              Owners include <code>qa-task</code>, <code>verify-feature</code>,
+              <code>agent-browser</code>, <code>e2e-test</code>,
+              <code>smoke-test</code>, and <code>feature-audit</code>.
+            </div>
+          </details>
+
+          <details class="family">
+            <summary>
+              <span class="family-kicker">Compose clearly</span>
+              <span class="family-title">Product + interface</span>
+              <span class="family-preview"
+                >Experience architecture, noise control, tables, details,
+                components.</span
+              >
+            </summary>
+            <div class="family-body">
+              Start with <code>alleato-experience-system</code> for composition,
+              then <code>impeccable</code> for mandatory noise control. Use
+              <code>alleato-table-page</code>, <code>alleato-detail-page</code>,
+              and <code>building-components</code> for owned patterns.
+            </div>
+          </details>
+
+          <details class="family">
+            <summary>
+              <span class="family-kicker">Match the source</span>
+              <span class="family-title">Procore + data integrity</span>
+              <span class="family-preview"
+                >Parity, crawl evidence, field contracts, foreign-key
+                checks.</span
+              >
+            </summary>
+            <div class="family-body">
+              Use <code>procore-verify</code>, <code>procore-test-matrix</code>,
+              <code>procore-audit</code>, <code>procore-docs-rag</code>,
+              <code>parity-audit</code>, and <code>fk-audit</code>.
+            </div>
+          </details>
+
+          <details class="family">
+            <summary>
+              <span class="family-kicker">Reason with evidence</span>
+              <span class="family-title">AI + RAG</span>
+              <span class="family-preview"
+                >AI SDK, retrieval design, deep agents, evaluation,
+                traces.</span
+              >
+            </summary>
+            <div class="family-body">
+              Use repo-local <code>ai-sdk</code> for AI SDK work,
+              <code>alleato-rag-implementation</code> for Alleato retrieval,
+              <code>deep-agents-*</code> for orchestration, and
+              <code>langsmith-*</code> for evaluation and tracing.
+            </div>
+          </details>
+
+          <details class="family">
+            <summary>
+              <span class="family-kicker">Shape the work</span>
+              <span class="family-title">BMAD lifecycle</span>
+              <span class="family-preview"
+                >Agents and workflows for analysis, product, architecture,
+                stories, QA.</span
+              >
+            </summary>
+            <div class="family-body">
+              The 76 unique <code>bmad-*</code> skills mirror named BMAD agents
+              and workflows. Load the exact skill that matches the user’s named
+              role or lifecycle step, then follow <code>_bmad/</code>.
+            </div>
+          </details>
+
+          <details class="family">
+            <summary>
+              <span class="family-kicker">Build the boundary</span>
+              <span class="family-title">API + identity</span>
+              <span class="family-preview"
+                >API contracts, Clerk setup, custom auth UI, webhooks,
+                organizations.</span
+              >
+            </summary>
+            <div class="family-body">
+              Use <code>api-design-principles</code> and the
+              <code>clerk-*</code> family. Database work still follows the
+              generated Supabase types and migration gates in AGENTS.md.
+            </div>
+          </details>
+
+          <details class="family">
+            <summary>
+              <span class="family-kicker">Make it reusable</span>
+              <span class="family-title">Docs + research</span>
+              <span class="family-preview"
+                >SOP capture, codebase research, diagrams, generated
+                references.</span
+              >
+            </summary>
+            <div class="family-body">
+              Use <code>visual-docs</code> for interactive explainers,
+              <code>repeatable-training-docs</code> for repeatable SOPs,
+              <code>web-research</code>, <code>excalidraw-diagram</code>,
+              <code>extract-design-system</code>, and the relevant research
+              command adapters.
+            </div>
+          </details>
+
+          <details class="family">
+            <summary>
+              <span class="family-kicker">Teach in motion</span>
+              <span class="family-title">Media + training</span>
+              <span class="family-preview"
+                >Training video, music, speech, voice, and sound
+                production.</span
+              >
+            </summary>
+            <div class="family-body">
+              The media family includes <code>training-video</code>,
+              <code>music</code>, <code>sound-effects</code>,
+              <code>speech-to-text</code>, <code>text-to-speech</code>,
+              <code>voice-changer</code>, and <code>voice-isolator</code>.
+            </div>
+          </details>
+
+          <details class="family">
+            <summary>
+              <span class="family-kicker">Bridge runtimes</span>
+              <span class="family-title">Command adapters</span>
+              <span class="family-preview"
+                >Thin compatibility entries for source commands and legacy
+                menus.</span
+              >
+            </summary>
+            <div class="family-body">
+              The 53 <code>source-command-*</code> entries expose existing
+              command workflows through skill discovery. Treat the underlying
+              command or project workflow as the behavior owner.
+            </div>
+          </details>
+        </div>
+
+        <div class="inventory-map">
+          <div>
+            <p class="section-label">Unique-name composition</p>
+            <div
+              class="inventory-graphic"
+              aria-label="70 core specialty skills, 76 BMAD skills, and 53 command adapters"
+            >
+              <div class="inventory-segment">70 core + specialty</div>
+              <div class="inventory-segment">76 BMAD</div>
+              <div class="inventory-segment">53 adapters</div>
+            </div>
+          </div>
+          <div class="inventory-copy">
+            <p>
+              <strong>199 unique names</strong> live across the three project
+              agent surfaces.
+            </p>
+            <p>
+              <strong>23 names repeat</strong> across surfaces, producing 229
+              tracked SKILL.md files.
+            </p>
+            <p>
+              Duplication is a discovery detail—not a reason to load every copy.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section reveal" aria-labelledby="decision-title">
+        <div class="section-heading">
+          <div>
+            <p class="section-label">Five-question check</p>
+            <h2 id="decision-title">Route before you read</h2>
+          </div>
+          <p class="section-intro">
+            This is the shortest reliable decision tree for an unfamiliar
+            request. Stop at the first definitive answer and load that owner.
+          </p>
+        </div>
+
+        <div class="decision-flow" aria-label="Skill selection decision tree">
+          <div class="decision">
+            <strong>Did the user name a skill?</strong>
+            <span>Yes → verify its exact name and path.</span>
+          </div>
+          <div class="decision">
+            <strong>Is there an Alleato owner?</strong>
+            <span>Yes → project-local guidance wins.</span>
+          </div>
+          <div class="decision">
+            <strong>Is AI SDK involved?</strong>
+            <span>Yes → load <code>ai-sdk</code>, always.</span>
+          </div>
+          <div class="decision">
+            <strong>Is the outcome visible?</strong>
+            <span>Yes → add browser and screenshot proof.</span>
+          </div>
+          <div class="decision">
+            <strong>Is the boundary high risk?</strong>
+            <span>Yes → add the required end-to-end and review evidence.</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section reveal" aria-labelledby="guardrails-title">
+        <div class="section-heading">
+          <div>
+            <p class="section-label">Failure-loudly guardrails</p>
+            <h2 id="guardrails-title">
+              A skill that cannot be found cannot govern work
+            </h2>
+          </div>
+          <p class="section-intro">
+            Discovery failures should be explicit. Verify paths before
+            invocation, surface broken links, and never silently substitute a
+            generic skill.
+          </p>
+        </div>
+
+        <div class="guardrails">
+          <div class="guardrail-list">
+            <div class="guardrail">
+              <span class="guardrail-mark">1</span>
+              <div>
+                <strong>Verify frontmatter</strong>
+                <p>
+                  The exact <code>name:</code> field is the invocation
+                  contract—not the folder label.
+                </p>
+              </div>
+            </div>
+            <div class="guardrail">
+              <span class="guardrail-mark">2</span>
+              <div>
+                <strong>Resolve the path</strong>
+                <p>
+                  Confirm SKILL.md is readable and distinguish a real directory
+                  from a symlink.
+                </p>
+              </div>
+            </div>
+            <div class="guardrail">
+              <span class="guardrail-mark">3</span>
+              <div>
+                <strong>Honor project specificity</strong>
+                <p>
+                  Do not let generic visual or testing advice override Alleato’s
+                  owner contracts.
+                </p>
+              </div>
+            </div>
+            <div class="guardrail">
+              <span class="guardrail-mark">4</span>
+              <div>
+                <strong>Prove the boundary</strong>
+                <p>
+                  A skill was used correctly only when its required evidence
+                  passes in the real workflow.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <aside class="command-note">
+            <h3>Broken-link check</h3>
+            <p>
+              Run when slash/menu discovery looks wrong. No output means no
+              broken skill symlinks were found.
+            </p>
+            <pre>
+find .codex/skills .agents/skills .claude/skills \
+  -type l ! -exec test -e {} \; -print</pre>
+          </aside>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <span
+          >Built from the tracked project inventory and
+          <code>docs/ops/skills-routing.md</code>.</span
+        >
+        <a href="#chooser">Return to the routing desk ↑</a>
+      </footer>
+    </main>
+
+    <script>
+      const routes = [
+        {
+          group: "verify",
+          title: "Implementation, bug fix, or audit finding",
+          start: ".codex/skills/qa-task",
+          support: ["verify-feature", "agent-browser", "domain skill"],
+          why: "Start with the task contract, then localize and prove the changed boundary.",
+          done: "Root cause localized; targeted proof passes; failure is visible.",
+        },
+        {
+          group: "build",
+          title: "New frontend experience or page redesign",
+          start: ".claude/skills/alleato-experience-system",
+          support: [
+            "impeccable",
+            "frontend feedback",
+            "responsive standards",
+            "building-components",
+          ],
+          why: "The Experience System owns composition; Impeccable removes product noise before release.",
+          done: "The real route works in its app shell, passes the noise gate, and has desktop/mobile proof.",
+        },
+        {
+          group: "build",
+          title: "Focused visual polish or noise review",
+          start: ".agents/skills/impeccable",
+          support: ["alleato-experience-system when architecture changes"],
+          why: "Begin with removal and refinement. Escalate only if the page’s experience model must change.",
+          done: "Noise is reduced, hierarchy is clearer, and the final route screenshot proves it.",
+        },
+        {
+          group: "build",
+          title: "Table or list page",
+          start: ".claude/skills/alleato-table-page",
+          support: ["verify-feature", "agent-browser"],
+          why: "Reuse the canonical table owner instead of rebuilding table behavior or configuration.",
+          done: "The table workflow, state, responsive behavior, and final route are visibly proven.",
+        },
+        {
+          group: "verify",
+          title: "User-visible feature verification",
+          start: ".claude/skills/verify-feature",
+          support: ["agent-browser", "e2e-test", "smoke-test"],
+          why: "Verify the user journey first; add deterministic regression depth after the flow is understood.",
+          done: "Artifacts show the changed user flow passing on the same revision.",
+        },
+        {
+          group: "verify",
+          title: "Procore behavior or parity",
+          start: ".claude/skills/procore-verify",
+          support: ["procore-test-matrix", "procore-docs-rag", "parity-audit"],
+          why: "Procore evidence owns the comparison; screenshots and behavior replace assumption.",
+          done: "The source behavior and Alleato behavior are compared with traceable evidence.",
+        },
+        {
+          group: "verify",
+          title: "Form dropdown or foreign-key mismatch",
+          start: ".claude/skills/fk-audit",
+          support: ["Supabase generated types", "route proof", "browser proof"],
+          why: "Match foreign-key and primary-key contracts before changing UI or query code.",
+          done: "Generated types agree, the correct values persist, and the form flow passes.",
+        },
+        {
+          group: "ai",
+          title: "RAG strategy or implementation",
+          start: ".codex/skills/alleato-rag-implementation",
+          support: [
+            "rag-implementation",
+            "rag-strategy-council",
+            "rag-stats",
+            "procore-docs-rag",
+          ],
+          why: "Alleato retrieval rules own the architecture; specialist skills deepen evaluation and source behavior.",
+          done: "Retrieval quality, attribution, scope, cost, and the real answer path are proven.",
+        },
+        {
+          group: "ai",
+          title: "Deep agent or backend orchestration",
+          start: ".agents/skills/deep-agents-core",
+          support: [
+            "deep-agents-orchestration",
+            "deep-agents-backend-module",
+            "deep-agents-memory",
+          ],
+          why: "Core owns the mental model; load orchestration, backend, or memory only for the boundary in scope.",
+          done: "State, tools, persistence, failure recovery, and observability behave as designed.",
+        },
+        {
+          group: "ai",
+          title: "AI SDK implementation",
+          start: ".agents/skills/ai-sdk",
+          support: ["Alleato AI/RAG skill when retrieval is involved"],
+          why: "AI SDK work must use the AI SDK skill. The repo-local copy outranks generic/global duplicates.",
+          done: "The AI SDK contract, runtime path, errors, and focused behavior checks pass.",
+        },
+        {
+          group: "ai",
+          title: "Evaluation or tracing",
+          start: ".agents/skills/langsmith-evaluator",
+          support: ["langsmith-dataset", "langsmith-trace"],
+          why: "Start from the evaluation question, then add datasets and traces that can answer it.",
+          done: "A reproducible dataset and trace evidence explain pass/fail behavior.",
+        },
+        {
+          group: "plan",
+          title: "BMAD planning, story, or review",
+          start: ".codex/skills/bmad-* matching the request",
+          support: ["_bmad/ agent or workflow file"],
+          why: "BMAD is exact-name routed: load the named role or lifecycle workflow, then execute its project file.",
+          done: "The requested BMAD workflow is completed with its own required artifacts and decisions.",
+        },
+        {
+          group: "plan",
+          title: "PRP execution or quality review",
+          start: ".codex/skills/prp-execute",
+          support: ["prp-quality"],
+          why: "Execution and quality are separate contracts; use the quality skill to challenge readiness.",
+          done: "The PRP is implemented or scored with explicit evidence and unresolved risk.",
+        },
+        {
+          group: "docs",
+          title: "Repeatable documentation or SOP capture",
+          start: ".codex/skills/repeatable-training-docs",
+          support: [
+            "web-research only when current external facts are required",
+          ],
+          why: "Capture a workflow someone else can repeat; research is support, not the information architecture.",
+          done: "The document is actionable, source-aware, maintainable, and verified in its final format.",
+        },
+        {
+          group: "docs",
+          title: "Interactive visual explainer or decision aid",
+          start: ".agents/skills/visual-docs",
+          support: [
+            "agent-browser",
+            "impeccable when the output represents product UI",
+          ],
+          why: "Turn the source mental model into the smallest useful interactive HTML or SVG artifact.",
+          done: "The self-contained visual works without network access and passes desktop and mobile browser proof.",
+        },
+      ];
+
+      const routeList = document.querySelector("#route-list");
+      const search = document.querySelector("#skill-search");
+      const empty = document.querySelector("#route-empty");
+      const filterButtons = [...document.querySelectorAll(".filter")];
+      let activeFilter = "all";
+      let selectedIndex = 0;
+
+      function routeSearchText(route) {
+        return [
+          route.title,
+          route.start,
+          route.group,
+          route.why,
+          route.support.join(" "),
+        ]
+          .join(" ")
+          .toLowerCase();
+      }
+
+      function renderRoutes() {
+        const query = search.value.trim().toLowerCase();
+        routeList.innerHTML = "";
+        let visibleCount = 0;
+
+        routes.forEach((route, index) => {
+          const matchesGroup =
+            activeFilter === "all" || route.group === activeFilter;
+          const matchesQuery = !query || routeSearchText(route).includes(query);
+          if (!matchesGroup || !matchesQuery) return;
+
+          visibleCount += 1;
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "route-button";
+          button.dataset.index = String(index);
+          button.setAttribute("aria-pressed", String(index === selectedIndex));
+          button.innerHTML = `
+          <span class="route-kind">${route.group}</span>
+          <span class="route-title">${route.title}</span>
+          <span class="route-start">${route.start}</span>
+        `;
+          button.addEventListener("click", () => selectRoute(index));
+          routeList.appendChild(button);
+        });
+
+        empty.dataset.visible = String(visibleCount === 0);
+        if (
+          visibleCount > 0 &&
+          !routeList.querySelector(`[data-index="${selectedIndex}"]`)
+        ) {
+          const first = routeList.querySelector(".route-button");
+          selectRoute(Number(first.dataset.index), false);
+        }
+      }
+
+      function selectRoute(index, focusDetail = true) {
+        selectedIndex = index;
+        const route = routes[index];
+        document.querySelector("#detail-index").textContent = String(
+          index + 1,
+        ).padStart(2, "0");
+        document.querySelector("#detail-title").textContent = route.title;
+        document.querySelector("#detail-why").textContent = route.why;
+        document.querySelector("#detail-start").textContent = route.start;
+        document.querySelector("#detail-done").textContent = route.done;
+        document.querySelector("#detail-support").innerHTML = route.support
+          .map((skill) => `<span>${skill}</span>`)
+          .join("");
+
+        routeList.querySelectorAll(".route-button").forEach((button) => {
+          button.setAttribute(
+            "aria-pressed",
+            String(Number(button.dataset.index) === index),
+          );
+        });
+
+        if (focusDetail && window.matchMedia("(max-width: 900px)").matches) {
+          document
+            .querySelector("#route-detail")
+            .scrollIntoView({ behavior: "smooth", block: "nearest" });
+        }
+      }
+
+      search.addEventListener("input", renderRoutes);
+
+      filterButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          activeFilter = button.dataset.filter;
+          filterButtons.forEach((candidate) => {
+            candidate.setAttribute(
+              "aria-pressed",
+              String(candidate === button),
+            );
+          });
+          renderRoutes();
+        });
+      });
+
+      const themeToggle = document.querySelector("#theme-toggle");
+      const storedTheme = localStorage.getItem("alleato-skills-theme");
+      if (storedTheme) document.documentElement.dataset.theme = storedTheme;
+
+      function updateThemeLabel() {
+        const dark = document.documentElement.dataset.theme === "dark";
+        themeToggle.textContent = dark ? "Use light paper" : "Use dark paper";
+      }
+
+      themeToggle.addEventListener("click", () => {
+        const next =
+          document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+        document.documentElement.dataset.theme = next;
+        localStorage.setItem("alleato-skills-theme", next);
+        updateThemeLabel();
+      });
+
+      const revealObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("is-visible");
+              revealObserver.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.08 },
+      );
+
+      document
+        .querySelectorAll(".reveal")
+        .forEach((element) => revealObserver.observe(element));
+      renderRoutes();
+      selectRoute(0, false);
+      updateThemeLabel();
+    </script>
+  </body>
+</html>

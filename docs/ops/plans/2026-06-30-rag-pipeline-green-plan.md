@@ -49,11 +49,16 @@ As of 2026-06-30 17:59 UTC:
   - AI Gateway credits below `AI_GATEWAY_MIN_CREDITS_USD`
 - AI Gateway credits below `AI_GATEWAY_WARN_CREDITS_USD` are a warning, not a
   hard pipeline failure.
-- `alleato-source-rag-health` must fail and alert on source lifecycle criticals.
+- `alleato-source-rag-health` must persist and alert on source lifecycle
+  criticals. A completed check returns success even when it finds a degraded
+  pipeline: the durable `system_alerts` ledger and throttled Teams digest are
+  the alerting contract. Only an execution failure (for example, an unavailable
+  ledger or an unhandled runtime exception) fails the scheduled run.
 - `alleato-pipeline-alert` must page when a watched source has repeated failed
   runs and no success in the dark window.
-- Dashboard warnings are not enough. Critical failures must produce a failed
-  scheduled run and a Teams/Slack notification.
+- Dashboard warnings are not enough. Critical lifecycle findings must produce a
+  durable alert and a throttled Teams/Slack notification; execution failures
+  must also produce a failed scheduled run.
 
 ## Remediation Sequence
 

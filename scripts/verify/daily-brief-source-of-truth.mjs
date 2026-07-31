@@ -19,7 +19,7 @@ const activeDailyBriefFiles = [
   "frontend/src/app/api/executive/daily-brief/send-teams/route.ts",
   "frontend/src/app/api/executive/intelligence-brief/route.ts",
   "frontend/src/app/api/executive/brandon-daily-update/route.ts",
-  "frontend/src/lib/ai/eve-runtime/production-tool-registry.ts",
+  "frontend/src/app/api/ai-assistant/chat/handler-v2.ts",
   "frontend/src/lib/ai/tools/executive-brief-tools.ts",
   "frontend/src/lib/ai/tool-registry.ts",
   "frontend/src/lib/ai-ops/executive-daily-brief-workflow.ts",

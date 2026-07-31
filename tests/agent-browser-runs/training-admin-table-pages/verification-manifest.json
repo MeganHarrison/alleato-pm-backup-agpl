@@ -1,0 +1,55 @@
+{
+  "contractVersion": 1,
+  "taskId": "training-admin-table-pages",
+  "riskLevel": "high",
+  "feature": "Editable owner-only training data tables",
+  "route": "/training-data/{tableKey}",
+  "flows": [
+    {
+      "name": "Training data administration boundary",
+      "steps": [
+        "Resolve an allowlisted training table",
+        "Load its data and reference options",
+        "Reject a non-owner request",
+        "Exercise mutation safety through focused tests"
+      ],
+      "expectedOutcome": "All training tables share one editable table contract, non-owners fail closed, and destructive file deletion is reversible until the database mutation succeeds"
+    }
+  ],
+  "requiredEvidence": [
+    "actionLog",
+    "databaseReadback",
+    "negativePath",
+    "visualReview",
+    "regressionTest"
+  ],
+  "visual": {
+    "viewports": ["desktop"],
+    "checks": ["Unauthorized access fails visibly instead of rendering protected data"]
+  },
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "live-table-coverage",
+      "description": "All ten training-owned tables are present and readable",
+      "evidence": [{ "key": "databaseReadback", "min": 1 }]
+    },
+    {
+      "id": "owner-access",
+      "description": "Non-owner access fails closed across navigation, page, and API",
+      "evidence": [{ "key": "negativePath", "min": 1 }, { "key": "visualReview", "min": 1 }]
+    },
+    {
+      "id": "mutation-safety",
+      "description": "Training mutations are validated and file deletion rolls back safely",
+      "evidence": [{ "key": "regressionTest", "min": 1 }]
+    },
+    {
+      "id": "implementation-review",
+      "description": "The changed boundary received independent approval",
+      "evidence": [{ "key": "actionLog", "min": 1 }]
+    }
+  ]
+}

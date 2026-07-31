@@ -50,26 +50,35 @@ function authCookieOptions(baseUrl: string) {
   };
 }
 
+type StoredSession = {
+  accessToken: string;
+  userId: string | null;
+};
+
 /**
- * Check if the existing user.json has a valid (non-expired) access token.
+ * Read a locally plausible session from user.json.
+ *
+ * This is only the local half of validation. A signed-looking, unexpired JWT
+ * may still have been revoked by Supabase, so callers must also verify it
+ * against Supabase Auth before reusing the storage state.
  */
-function hasValidExistingSession(baseUrl: string): boolean {
+function readValidExistingSession(baseUrl: string): StoredSession | null {
   try {
-    if (!fs.existsSync(authFile)) return false;
+    if (!fs.existsSync(authFile)) return null;
     const state = JSON.parse(fs.readFileSync(authFile, "utf-8"));
     const authCookie = (state.cookies ?? []).find((c: { name: string }) =>
       /^sb-.*-auth-token/.test(c.name),
     );
-    if (!authCookie) return false;
+    if (!authCookie) return null;
     const expectedCookie = authCookieOptions(baseUrl);
-    if (authCookie.domain !== expectedCookie.domain) return false;
-    if (Boolean(authCookie.secure) !== expectedCookie.secure) return false;
+    if (authCookie.domain !== expectedCookie.domain) return null;
+    if (Boolean(authCookie.secure) !== expectedCookie.secure) return null;
     if (
       typeof authCookie.expires === "number" &&
       authCookie.expires > 0 &&
       authCookie.expires * 1000 <= Date.now() + 5 * 60 * 1000
     ) {
-      return false;
+      return null;
     }
 
     let sessionJson = authCookie.value as string;
@@ -78,17 +87,43 @@ function hasValidExistingSession(baseUrl: string): boolean {
     }
     const sessionData = JSON.parse(sessionJson);
     const jwt = sessionData?.access_token;
-    if (!jwt) return false;
+    if (!jwt) return null;
 
     const parts = jwt.split(".");
-    if (parts.length !== 3) return false;
+    if (parts.length !== 3) return null;
     const payload = JSON.parse(Buffer.from(parts[1], "base64url").toString());
 
-    // Valid if token doesn't expire in next 5 minutes
-    return payload?.exp && payload.exp * 1000 > Date.now() + 5 * 60 * 1000;
+    if (!payload?.exp || payload.exp * 1000 <= Date.now() + 5 * 60 * 1000) {
+      return null;
+    }
+
+    return {
+      accessToken: jwt,
+      userId: typeof payload.sub === "string" ? payload.sub : null,
+    };
   } catch {
+    return null;
+  }
+}
+
+async function hasValidExistingSession(baseUrl: string): Promise<boolean> {
+  const storedSession = readValidExistingSession(baseUrl);
+  if (!storedSession) return false;
+
+  const supabaseClient = createSupabaseClient();
+  const { data, error } = await withAuthSetupTimeout(
+    "Supabase stored-session verification",
+    supabaseClient.auth.getUser(storedSession.accessToken),
+  );
+
+  if (error || !data.user || data.user.id !== storedSession.userId) {
+    console.warn(
+      "Existing auth storage state is locally unexpired but no longer valid in Supabase; signing in again.",
+    );
     return false;
   }
+
+  return true;
 }
 
 async function loadExistingSessionIntoContext(
@@ -170,7 +205,7 @@ setup("authenticate", async ({ page, baseURL }) => {
   const url = baseURL ?? process.env.AUTH_BASE_URL ?? process.env.BASE_URL ?? "http://localhost:3000";
 
   // Fast path: reuse existing valid session without any API calls
-  if (hasValidExistingSession(url)) {
+  if (await hasValidExistingSession(url)) {
     console.log("Existing auth session is still valid; verifying protected route access");
     await loadExistingSessionIntoContext(page);
     await verifySavedAuthState(page, url);

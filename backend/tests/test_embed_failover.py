@@ -87,7 +87,9 @@ def _patch_embed_noise(monkeypatch):
 
 
 def test_batch_embed_fails_over_on_auth_error(monkeypatch):
-    _patch_embed_noise(monkeypatch)
+    monkeypatch.setattr(embed, "assert_background_model_budget_available", lambda **_: None)
+    recorded = []
+    monkeypatch.setattr(embed, "record_model_usage", lambda *a, **k: recorded.append(k))
     monkeypatch.setattr(embed, "get_ai_provider_path", lambda: "vercel_gateway")
     monkeypatch.setattr(embed, "alternate_provider_path", lambda _p: "openai")
 
@@ -117,6 +119,7 @@ def test_batch_embed_fails_over_on_auth_error(monkeypatch):
     # Primary (gateway) tried then failed over to openai.
     assert calls[0] == "vercel_gateway"
     assert "openai" in calls
+    assert recorded[0]["provider"] == "openai"
 
 
 def test_batch_embed_propagates_non_auth_error(monkeypatch):

@@ -15,6 +15,15 @@ import {
 } from "@/lib/commitments/sov-budget-code-resolution.server";
 import { normalizeSubcontractStatus } from "@/lib/db/subcontracts";
 import { normalizeCommitmentContractNumber } from "@/lib/commitments/contract-number";
+import type { Database } from "@/types/database.types";
+
+// `commitments_unified` is a view spanning `subcontracts` and `purchase_orders`; the
+// resolved `tableName` at runtime is always exactly one of the two, but since it is
+// picked dynamically we type the update payload against the union of both tables'
+// Update shapes so RejectExcessProperties still catches genuinely unknown columns.
+type CommitmentTableUpdatePayload =
+  | Database["public"]["Tables"]["subcontracts"]["Update"]
+  | Database["public"]["Tables"]["purchase_orders"]["Update"];
 
 /**
  * Schema that matches what the commitment detail edit form actually sends.
@@ -564,7 +573,7 @@ export const PUT = withApiGuardrails<{ commitmentId: string }>(
     // via GET after a successful PUT, so a simple select(*) is sufficient here.
     const { data, error } = await supabase
       .from(tableName)
-      .update(updatePayload)
+      .update(updatePayload as CommitmentTableUpdatePayload)
       .eq("id", commitmentId)
       .select("*")
       .single();
@@ -602,11 +611,6 @@ export const PUT = withApiGuardrails<{ commitmentId: string }>(
           projectBudgetCodeId?: string | null;
           description: string | null;
           amount: number;
-          quantity?: number | null;
-          unit_cost?: number | null;
-          unitCost?: number | null;
-          unit_of_measure?: string | null;
-          unitOfMeasure?: string | null;
         }>)
       : null;
 
@@ -670,23 +674,6 @@ export const PUT = withApiGuardrails<{ commitmentId: string }>(
           .eq("line_number", line.line_number)
           .maybeSingle();
 
-        // Unit/quantity pricing is only written when the caller actually sent it,
-        // so an amount-only edit leaves existing unit cost / UOM untouched instead
-        // of nulling it.
-        const unitPricing: {
-          quantity?: number | null;
-          unit_cost?: number | null;
-          unit_of_measure?: string | null;
-        } = {};
-        const lineQuantity = line.quantity;
-        const lineUnitCost = line.unit_cost ?? line.unitCost;
-        const lineUnitOfMeasure = line.unit_of_measure ?? line.unitOfMeasure;
-        if (lineQuantity !== undefined) unitPricing.quantity = lineQuantity;
-        if (lineUnitCost !== undefined) unitPricing.unit_cost = lineUnitCost;
-        if (lineUnitOfMeasure !== undefined) {
-          unitPricing.unit_of_measure = lineUnitOfMeasure || null;
-        }
-
         if (existing) {
           await supabase
             .from(sovTable as "subcontract_sov_items")
@@ -695,7 +682,6 @@ export const PUT = withApiGuardrails<{ commitmentId: string }>(
               project_budget_code_id: resolvedBudgetCode.projectBudgetCodeId,
               description: line.description,
               amount: line.amount,
-              ...unitPricing,
             })
             .eq("id", existing.id);
         } else {
@@ -709,7 +695,6 @@ export const PUT = withApiGuardrails<{ commitmentId: string }>(
                 project_budget_code_id: resolvedBudgetCode.projectBudgetCodeId,
                 description: line.description,
                 amount: line.amount,
-                ...unitPricing,
               });
           } else {
             await supabase
@@ -721,7 +706,6 @@ export const PUT = withApiGuardrails<{ commitmentId: string }>(
                 project_budget_code_id: resolvedBudgetCode.projectBudgetCodeId,
                 description: line.description,
                 amount: line.amount,
-                ...unitPricing,
               });
           }
         }
@@ -907,7 +891,7 @@ export const PATCH = withApiGuardrails<{ commitmentId: string }>(
 
     const { data, error } = await supabase
       .from(tableName)
-      .update(updatePayload)
+      .update(updatePayload as CommitmentTableUpdatePayload)
       .eq("id", commitmentId)
       .select("id, contract_number, title, status, description, executed, updated_at")
       .single();

@@ -1,0 +1,22 @@
+{
+  "task": "AAI-1280-RAG-CANON",
+  "deliveryLane": "High-risk",
+  "requiredChecks": [
+    "workflow-ownership",
+    "caller-authentication",
+    "backend-stage-behavior",
+    "dual-database-source-freshness",
+    "workflow-server-credential-fallback",
+    "render-yaml-parse",
+    "canonical-publication",
+    "vercel-production-readback",
+    "render-stage-route-readback",
+    "source-to-citation"
+  ],
+  "acceptance": {
+    "durableOwner": "Vercel Workflow",
+    "stageOrder": ["load", "parse", "vision", "embed", "extract"],
+    "backendOwner": "FastAPI single-stage adapters",
+    "assistantOwner": "Eve retrieval consumer; no ingestion ownership"
+  }
+}

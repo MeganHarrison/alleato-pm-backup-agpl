@@ -20,6 +20,7 @@ import { apiErrorResponse } from "@/lib/api-error";
 import { logger } from "@/lib/logger";
 import { mapPrimePcoLineItemToPccoLineItem } from "@/lib/change-events/pco-promotion-line-items";
 import { resolvePromotedPccoTotalAmount } from "@/lib/prime-contract-pcos/promote-total";
+import type { Database } from "@/types/database.types";
 
 export const POST = withApiGuardrails<{ projectId: string; pcoId: string }>(
   "projects/[projectId]/prime-contract-pcos/[pcoId]/promote#POST",
@@ -169,12 +170,12 @@ export const POST = withApiGuardrails<{ projectId: string; pcoId: string }>(
           await supabase.from("pcco_line_items").delete().eq("pcco_id", pcco.id);
           await supabase.from("prime_contract_change_orders").delete().eq("id", pcco.id);
 
-          const rollbackPatch = {
+          const rollbackPatch: Database["public"]["Tables"]["prime_contract_pcos"]["Update"] = {
             promoted_to_co_id: null,
             promoted_at: null,
             updated_at: now,
             updated_by: user.id,
-          } as Record<string, unknown>;
+          };
 
           if (pco.status === "pending") {
             rollbackPatch.status = "pending";

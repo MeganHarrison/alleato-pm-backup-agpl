@@ -6,7 +6,7 @@ import { getBestSupabaseAuthToken } from "./auth-cookie";
 import { validateCallbackUrl } from "@/lib/validation/callback-url";
 
 // Company-wide paths that require developer role.
-// NOTE: "/ai" is intentionally NOT here — the AI assistant is
+// NOTE: "/ai-assistant" is intentionally NOT here — the AI assistant is
 // available to all authenticated users. Re-adding it must be paired with
 // re-adding `developerOnly: true` in navigation-config.ts (see guardrail tests).
 const DEVELOPER_ONLY_COMPANY_PREFIXES = [
@@ -33,6 +33,11 @@ const DEVELOPER_ONLY_PROJECT_SEGMENTS = new Set([
   "timeline",
   "progress-reports",
   "project-status-report",
+]);
+
+const LEGACY_LOGIN_PATHS = new Set([
+  "/auth/login-v2",
+  "/auth/login-v3",
 ]);
 
 function isDevOnlyPath(pathname: string): boolean {
@@ -64,6 +69,12 @@ export async function updateSession(request: NextRequest) {
     request: { headers: requestHeaders },
   });
   const pathname = request.nextUrl.pathname;
+
+  if (LEGACY_LOGIN_PATHS.has(pathname)) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/auth/login";
+    return NextResponse.redirect(url);
+  }
 
   if (isAdminApiPath(pathname) && !isAuthenticatedAdminApiException(pathname)) {
     const tokenData = getBestSupabaseAuthToken(request.cookies.getAll());
@@ -131,7 +142,6 @@ export function shouldBypassSessionMiddleware(pathname: string): boolean {
     pathname.startsWith("/_next/") ||
     pathname.startsWith("/webviewer/") ||
     pathname === "/favicon.ico" ||
-    pathname.startsWith("/fm-global/form") ||
     pathname.startsWith("/respond/") ||
     // Static/public assets never carry app auth. Keep this list in sync with the
     // matcher in `@/middleware`. xlsx/xls/csv cover downloadable public templates

@@ -485,9 +485,7 @@ export function createCommunicationWriteTools(internals: ActionToolInternals) {
         const replay = await getReplayResponse("sendTeamsMessage", idempotencyKey);
         if (replay) return replay;
 
-        const { sendProactiveMessage } = await import(
-          "@/lib/bot/teams-delivery"
-        );
+        const { sendProactiveMessage } = await import("@/lib/bot/teams-chat");
         await sendProactiveMessage(supabaseUserId, message);
 
         const response = {

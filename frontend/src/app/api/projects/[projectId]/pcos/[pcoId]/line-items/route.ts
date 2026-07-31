@@ -25,6 +25,7 @@ import { NextResponse } from "next/server";
 import { apiErrorResponse } from "@/lib/api-error";
 import { requirePermission } from "@/lib/permissions-guard";
 import { logger } from "@/lib/logger";
+import type { Database } from "@/types/database.types";
 
 interface RouteParams {
   params: Promise<{ projectId: string; pcoId: string }>;
@@ -237,7 +238,7 @@ export const PATCH = withApiGuardrails(
 
     const { data, error } = await supabase
       .from("potential_change_order_line_items")
-      .update(updates)
+      .update(updates as Database["public"]["Tables"]["potential_change_order_line_items"]["Update"])
       .eq("id", body.id)
       .eq("pco_id", numericPcoId)
       .select()

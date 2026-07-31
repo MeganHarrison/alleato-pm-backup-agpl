@@ -199,8 +199,6 @@ export function renderAssistantToolRoutingGuide(
 ): string {
   const priority = new Map(
     [
-      "searchFmds2026Evidence",
-      "evaluateFmds2026Configuration",
       "searchTeamsMessages",
       "getRecentEmails",
       "searchEmails",
@@ -961,7 +959,6 @@ const documentIntelligenceAssistantTools = factoryToolEntries({
     "getSubmittalLog",
     "getSpecRequirements",
     "detectMissingSubmittals",
-    "reviewSubmittalAgainstDrawings",
     "identifySubmittalPackages",
     "logFeedback",
     "reviewDocument",
@@ -1029,94 +1026,6 @@ const marketingAssistantTools = factoryToolEntries({
   writeToolNames: marketingWriteTools,
 });
 
-const ASRS_INTELLIGENCE_FACTORY = factory(
-  "frontend/src/lib/ai/tools/asrs-intelligence.ts",
-  "createAsrsIntelligenceTools",
-);
-
-const asrsIntelligenceAssistantTools: AssistantToolRegistryEntry[] = [
-  assistantChatTool({
-    name: "searchFmds2026Evidence",
-    description:
-      "Search one eligible revision of the dedicated FMDS0834 corpus and return cited clauses plus same-revision table and figure candidates with review status.",
-    owningAdapter: "asrs_fmds_revision_evidence",
-    inputSchemaName: "FmdsEvidenceSearchRequest",
-    outputSchemaName: "FmdsEvidenceSearchResult",
-    owner: "asrs_intelligence",
-    category: "document",
-    capabilities: ["read", "source"],
-    sourceFamilies: ["document", "rag"],
-    requiresProjectScope: false,
-    requiresWritePermission: false,
-    requiresDeliveryPermission: false,
-    evidencePolicy: {
-      sourceBearing: true,
-      requiresSourceRefs: true,
-      ledgerRequired: false,
-    },
-    routingPolicy: {
-      useWhen: [
-        "The user asks an FMDS 8-34 or ASRS sprinkler engineering question, or asks which FMDS clause, table, or figure applies.",
-      ],
-      doNotUseWhen: [
-        "The user asks for project status, meetings, emails, schedule, budget, or other non-engineering information about a project named ASRS.",
-        "The user asks for a calculation that the reviewed evaluator owns; call evaluateFmds2026Configuration after collecting its inputs.",
-      ],
-      preferredFreshness:
-        "Use the newest staging or active FMDS0834 revision explicitly returned by the dedicated ASRS project; never blend revisions.",
-      emptyResultBehavior:
-        "State that revision-scoped FMDS evidence is unavailable and stop the engineering conclusion. Never fall back to legacy FM tables, generic project RAG, or web search.",
-      citationRule:
-        "Cite document code, revision label, PDF page, and section/table/figure identifier. Preserve each table/figure review status.",
-      regressionPrompts: [
-        "Which FMDS 8-34 table applies to 12 standard-coverage design sprinklers?",
-        "For rack storage over 10 ft, are in-rack sprinklers and vertical barriers required?",
-      ],
-    },
-    factory: ASRS_INTELLIGENCE_FACTORY,
-  }),
-  assistantChatTool({
-    name: "evaluateFmds2026Configuration",
-    description:
-      "Evaluate typed ASRS inputs with the reviewed FMDS0834 Batch 1 deterministic rules and return cited Verified and Pending Review requirements.",
-    owningAdapter: "asrs_fmds_reviewed_evaluator",
-    inputSchemaName: "AsrsEstimatorRequest",
-    outputSchemaName: "AsrsEstimatorResponse",
-    owner: "asrs_intelligence",
-    category: "operational",
-    capabilities: ["read", "source"],
-    sourceFamilies: ["document", "rag"],
-    requiresProjectScope: false,
-    requiresWritePermission: false,
-    requiresDeliveryPermission: false,
-    evidencePolicy: {
-      sourceBearing: true,
-      requiresSourceRefs: true,
-      ledgerRequired: false,
-    },
-    routingPolicy: {
-      useWhen: [
-        "The user supplies or can supply the typed ceiling-sprinkler count/type or transverse-flue measurements required by the reviewed Batch 1 evaluator.",
-      ],
-      doNotUseWhen: [
-        "The user only wants source text or applicable table/figure identification.",
-        "The user asks for unsupported complete head count, configuration, or full-compliance output without a reviewed rule.",
-      ],
-      preferredFreshness:
-        "Use the evaluator-selected newest eligible FMDS0834 revision and report its exact revision status.",
-      emptyResultBehavior:
-        "Ask for missing typed inputs or report the named evaluator failure; never calculate from retrieved prose.",
-      citationRule:
-        "Preserve every evaluator citation and label unsupported outputs Pending Review.",
-      regressionPrompts: [
-        "For standard-coverage sprinklers and 12 design sprinklers, what hose demand applies?",
-        "Calculate the complete ASRS sprinkler head count for this building.",
-      ],
-    },
-    factory: ASRS_INTELLIGENCE_FACTORY,
-  }),
-];
-
 export const GLOBAL_ASSISTANT_TOOL_REGISTRY: AssistantToolRegistryEntry[] = [
   ...projectAssistantTools,
   ...actionAssistantTools,
@@ -1129,7 +1038,6 @@ export const GLOBAL_ASSISTANT_TOOL_REGISTRY: AssistantToolRegistryEntry[] = [
   ...intelligenceAssistantTools,
   ...executiveBriefAssistantTools,
   ...marketingAssistantTools,
-  ...asrsIntelligenceAssistantTools,
   executiveDailyBriefTool({
     name: "fetch-fireflies-meeting-sources",
     description:

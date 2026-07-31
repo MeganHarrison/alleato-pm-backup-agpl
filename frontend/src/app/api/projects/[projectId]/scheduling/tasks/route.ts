@@ -14,42 +14,12 @@
 import { withApiGuardrails } from "@/lib/guardrails/api";
 import { GuardrailError } from "@/lib/guardrails/errors";
 import { NextResponse } from "next/server";
-import { requirePermission } from "@/lib/permissions-guard";
-import { createClient } from "@/lib/supabase/server";
-import {
-  isAuthError,
-  verifyProjectAccess,
-} from "@/lib/supabase/auth-guard";
+import { createClient, getApiRouteUser } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import { SchedulingService } from "@/lib/services/scheduling-service";
 import { ScheduleTaskListParams, ScheduleTaskCreate } from "@/types/scheduling";
 import { apiErrorResponse } from "@/lib/api-error";
 import { validateScheduleTaskCreateInput } from "@/lib/scheduling/task-validation";
-
-const POSTGRES_INT4_MAX = 2_147_483_647;
-
-function parseSchedulingProjectId(projectId: string, where: string): number {
-  if (!/^[1-9]\d*$/.test(projectId)) {
-    throw new GuardrailError({
-      code: "VALIDATION_ERROR",
-      where,
-      message: "A valid project id is required.",
-    });
-  }
-
-  const numericProjectId = Number(projectId);
-  if (
-    !Number.isSafeInteger(numericProjectId) ||
-    numericProjectId > POSTGRES_INT4_MAX
-  ) {
-    throw new GuardrailError({
-      code: "VALIDATION_ERROR",
-      where,
-      message: "A valid project id is required.",
-    });
-  }
-
-  return numericProjectId;
-}
 
 // =============================================================================
 // GET - Fetch Schedule Tasks
@@ -60,24 +30,17 @@ export const GET = withApiGuardrails<{ projectId: string }>(
   async ({ request, params }) => {
   
     const { projectId } = await params;
-    const numericProjectId = Number(projectId);
-    if (!Number.isInteger(numericProjectId) || numericProjectId <= 0) {
-      throw new GuardrailError({
-        code: "VALIDATION_ERROR",
-        where: "projects/[projectId]/scheduling/tasks#GET",
-        message: "A valid project id is required.",
-      });
+    const supabase = await createClient();
+
+    // Check authentication
+    const user = await getApiRouteUser();
+
+    if (!user) {
+      throw new GuardrailError({ code: "AUTH_EXPIRED", where: "projects/[projectId]/scheduling/tasks#GET", message: "Authentication required." });
     }
 
-    // Schedule reads use the service client only after the canonical project
-    // membership guard authorizes the cookie identity. This avoids coupling
-    // production reads to PostgREST's ability to verify the browser JWT while
-    // preserving the project-access boundary before any RLS-bypassing query.
-    const access = await verifyProjectAccess(numericProjectId);
-    if (isAuthError(access)) return access;
-
     const { searchParams } = new URL(request.url);
-    const service = new SchedulingService(access.serviceClient);
+    const service = new SchedulingService(supabase);
 
     // Handle different view modes
     const view = searchParams.get("view");
@@ -141,16 +104,14 @@ export const POST = withApiGuardrails<{ projectId: string }>(
   async ({ request, params }) => {
   
     const { projectId } = await params;
-    const numericProjectId = parseSchedulingProjectId(
-      projectId,
-      "projects/[projectId]/scheduling/tasks#POST",
-    );
-    const permission = await requirePermission(
-      numericProjectId,
-      "schedule",
-      "write",
-    );
-    if (permission.denied) return permission.response;
+    const supabase = await createClient();
+
+    // Check authentication
+    const user = await getApiRouteUser();
+
+    if (!user) {
+      throw new GuardrailError({ code: "AUTH_EXPIRED", where: "projects/[projectId]/scheduling/tasks#POST", message: "Authentication required." });
+    }
 
     const body = await request.json();
 
@@ -166,8 +127,9 @@ export const POST = withApiGuardrails<{ projectId: string }>(
     }
 
     const taskData: ScheduleTaskCreate = {
-      project_id: numericProjectId,
+      project_id: Number(projectId),
       name: body.name.trim(),
+      after_task_id: body.after_task_id || null,
       parent_task_id: body.parent_task_id || null,
       start_date: body.start_date || null,
       finish_date: body.finish_date || null,
@@ -179,10 +141,17 @@ export const POST = withApiGuardrails<{ projectId: string }>(
       constraint_date: body.constraint_date || null,
       wbs_code: body.wbs_code || null,
       sort_order: body.sort_order,
+      assignee_person_id:
+        typeof body.assignee_person_id === "string"
+          ? body.assignee_person_id
+          : null,
+      schedule_mode: body.schedule_mode === "manual" ? "manual" : "auto",
     };
 
-    const supabase = await createClient();
-    const service = new SchedulingService(supabase);
+    const service = new SchedulingService(supabase, {
+      actorUserId: user.id,
+      mutationClient: createServiceClient(),
+    });
     const task = await service.createTask(projectId, taskData);
 
     return NextResponse.json(task, { status: 201 });

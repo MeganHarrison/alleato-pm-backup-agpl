@@ -1,0 +1,25 @@
+{
+  "status": "PASS",
+  "observedStatus": "PASS",
+  "taskId": "ALL-11-RAG-RPC-GRANT",
+  "evidence": {
+    "databaseReadback": ["docs/ops/evidence/2026-07-24-alleato-brain-rag-rpc-grant/verification.md"],
+    "regressionTest": ["docs/ops/evidence/2026-07-24-alleato-brain-rag-rpc-grant/verification.md"],
+    "summary": ["docs/ops/evidence/2026-07-24-alleato-brain-rag-rpc-grant/independent-review.md"]
+  },
+  "claims": {
+    "service-role-only": {
+      "databaseReadback": ["docs/ops/evidence/2026-07-24-alleato-brain-rag-rpc-grant/verification.md"],
+      "regressionTest": ["docs/ops/evidence/2026-07-24-alleato-brain-rag-rpc-grant/verification.md"]
+    },
+    "migration-applied": {
+      "databaseReadback": ["docs/ops/evidence/2026-07-24-alleato-brain-rag-rpc-grant/verification.md"]
+    }
+  },
+  "independentReview": {
+    "reviewer": "Independent Codex high-risk review",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-24T05:53:17Z",
+    "artifact": "docs/ops/evidence/2026-07-24-alleato-brain-rag-rpc-grant/independent-review.md"
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "contractVersion": 1,
+  "taskId": "ALL-11-PHASE3-SEARCH",
+  "riskLevel": "high",
+  "feature": "Alleato Brain server-side Business Area search scope",
+  "route": "database://ai/search_document_chunks",
+  "flows": [
+    {
+      "name": "Exact branch-scoped semantic search",
+      "steps": [
+        "Authorize the requested Business Area",
+        "Reject any simultaneous explicit or pinned project scope",
+        "Filter Business Area metadata before vector candidate limiting",
+        "Post-filter returned rows as defense in depth"
+      ],
+      "expectedOutcome": "Only exact authorized branch rows are returned and mixed scope fails before retrieval"
+    }
+  ],
+  "requiredEvidence": [
+    "summary",
+    "databaseReadback",
+    "negativePath",
+    "regressionTest"
+  ],
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "exact-server-side-scope",
+      "description": "The canonical RPC filters the exact Business Area before candidate limiting.",
+      "evidence": [
+        { "key": "databaseReadback", "min": 1 },
+        { "key": "negativePath", "min": 1 }
+      ]
+    },
+    {
+      "id": "typed-scope-xor",
+      "description": "Project and Business Area scope are mutually exclusive across SQL and frontend callers.",
+      "evidence": [
+        { "key": "negativePath", "min": 1 },
+        { "key": "regressionTest", "min": 1 }
+      ]
+    },
+    {
+      "id": "service-only-defense-in-depth",
+      "description": "RPC ACLs remain service-only and application authorization post-filtering remains active.",
+      "evidence": [
+        { "key": "databaseReadback", "min": 1 },
+        { "key": "summary", "min": 1 }
+      ]
+    }
+  ]
+}

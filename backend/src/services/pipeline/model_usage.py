@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Any, Mapping, Optional
@@ -20,6 +20,10 @@ class PipelineModelBudgetExceeded(RuntimeError):
     """Raised before an LLM/embedding call when the configured daily cap is spent."""
 
 
+class PipelineModelBudgetUnavailable(RuntimeError):
+    """Raised when spend cannot be proven below the configured cap."""
+
+
 @dataclass(frozen=True)
 class ModelUsageContext:
     stage: str
@@ -27,6 +31,9 @@ class ModelUsageContext:
     source_system: Optional[str] = None
     source_item_id: Optional[str] = None
     project_id: Optional[int] = None
+    # Optional workload class for a dedicated budget.  The global budget still
+    # applies; a bucket prevents optional work from consuming it unchecked.
+    budget_bucket: Optional[str] = None
     metadata: Optional[Mapping[str, Any]] = None
 
 
@@ -156,13 +163,87 @@ def estimate_cost_usd(
 def _daily_budget_usd() -> Optional[Decimal]:
     raw = os.getenv("PIPELINE_DAILY_MODEL_BUDGET_USD")
     if raw is None or raw.strip() == "":
+        if _budget_required():
+            raise PipelineModelBudgetUnavailable(
+                "PIPELINE_DAILY_MODEL_BUDGET_USD is required; refusing paid model work."
+            )
         return None
     try:
         value = Decimal(raw)
-    except Exception:
-        logger.warning("[ModelUsage] Invalid PIPELINE_DAILY_MODEL_BUDGET_USD=%r; budget disabled", raw)
+    except Exception as exc:
+        raise PipelineModelBudgetUnavailable(
+            "PIPELINE_DAILY_MODEL_BUDGET_USD is invalid; refusing paid model work."
+        ) from exc
+    if value <= 0:
+        raise PipelineModelBudgetUnavailable(
+            "PIPELINE_DAILY_MODEL_BUDGET_USD must be greater than zero; "
+            "refusing paid model work."
+        )
+    return value
+
+
+def _budget_fail_open() -> bool:
+    """Allow an explicit emergency override; production defaults to fail closed."""
+
+    return (os.getenv("PIPELINE_BUDGET_FAIL_OPEN") or "").strip().lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
+
+
+def _budget_required() -> bool:
+    return (os.getenv("PIPELINE_BUDGET_REQUIRED") or "").strip().lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
+
+
+def _daily_budget_for_bucket_usd(bucket: Optional[str]) -> Optional[Decimal]:
+    """Return the optional cap for a bounded background-workload class.
+
+    Signal extraction is optional enrichment, whereas embeddings are the
+    contract that makes a source retrievable.  Give signals a conservative
+    default cap so a burst of generic documents cannot exhaust the shared
+    budget before indexing runs. Other buckets remain opt-in until they have a
+    governed production budget.
+    """
+
+    normalized = (bucket or "").strip().lower()
+    if not normalized:
         return None
+    if normalized == "signal":
+        value = _env_decimal("PIPELINE_DAILY_SIGNAL_BUDGET_USD", "2.00")
+        return value if value > 0 else None
+    value = _env_decimal(
+        f"PIPELINE_DAILY_{normalized.upper()}_BUDGET_USD",
+        "0",
+    )
     return value if value > 0 else None
+
+
+def signal_completion_limit() -> int:
+    """Return a valid provider completion cap for optional signal work."""
+
+    raw = os.getenv("PIPELINE_SIGNAL_COMPLETION_MAX_TOKENS", "1200")
+    try:
+        value = int(raw)
+    except (TypeError, ValueError):
+        logger.warning(
+            "[ModelUsage] Invalid PIPELINE_SIGNAL_COMPLETION_MAX_TOKENS=%r; using 1200",
+            raw,
+        )
+        return 1200
+    if value <= 0:
+        logger.warning(
+            "[ModelUsage] Non-positive PIPELINE_SIGNAL_COMPLETION_MAX_TOKENS=%r; using 1200",
+            raw,
+        )
+        return 1200
+    return value
 
 
 def _utc_today() -> str:
@@ -193,26 +274,105 @@ def _today_estimated_spend_usd() -> Decimal:
     return total
 
 
+def _today_estimated_spend_for_bucket_usd(bucket: str) -> Decimal:
+    """Read the durable ledger for one explicitly tagged workload class."""
+
+    total = Decimal("0")
+    page_size = 1000
+    start = 0
+    client = get_rag_read_client()
+    while True:
+        response = (
+            client.table("pipeline_model_usage")
+            .select("estimated_cost_usd,metadata")
+            .eq("usage_date", _utc_today())
+            .range(start, start + page_size - 1)
+            .execute()
+        )
+        rows = response.data or []
+        for row in rows:
+            metadata = row.get("metadata") or {}
+            if metadata.get("budget_bucket") != bucket:
+                continue
+            value = row.get("estimated_cost_usd")
+            if value is not None:
+                total += Decimal(str(value))
+        if len(rows) < page_size:
+            break
+        start += page_size
+    return total
+
+
 def assert_background_model_budget_available(
     *,
     stage: str,
     operation: str,
     model: str,
+    budget_bucket: Optional[str] = None,
+    usage_context: Optional[ModelUsageContext] = None,
 ) -> None:
-    """Fail before provider spend when the configured daily background cap is hit."""
+    """Fail before provider spend when a background budget is exhausted."""
 
     budget = _daily_budget_usd()
+    if budget is not None and _normalize_model(model) not in _MODEL_PRICING_USD_PER_1M:
+        raise PipelineModelBudgetUnavailable(
+            f"Model {model!r} has no governed price; refusing paid model work."
+        )
+    bucket = (budget_bucket or "").strip().lower() or None
+    blocked_context = (
+        replace(
+            usage_context,
+            stage=stage,
+            operation=operation,
+            budget_bucket=bucket,
+        )
+        if usage_context
+        else ModelUsageContext(
+            stage=stage,
+            operation=operation,
+            budget_bucket=bucket,
+        )
+    )
+    bucket_budget = _daily_budget_for_bucket_usd(bucket)
+    if bucket and bucket_budget is not None:
+        try:
+            bucket_spent = _today_estimated_spend_for_bucket_usd(bucket)
+        except Exception as exc:
+            message = f"Could not read {bucket} budget ledger: {exc}"
+            if not _budget_fail_open():
+                raise PipelineModelBudgetUnavailable(message) from exc
+            logger.critical("[ModelUsage] %s; explicit fail-open override is active", message)
+        else:
+            if bucket_spent >= bucket_budget:
+                record_model_usage(
+                    blocked_context,
+                    model=model,
+                    status="budget_blocked",
+                    error_code=f"daily_{bucket}_budget_exceeded",
+                    error_message=(
+                        f"Daily {bucket} budget reached: spent ${bucket_spent} "
+                        f"of ${bucket_budget}."
+                    ),
+                )
+                raise PipelineModelBudgetExceeded(
+                    f"PIPELINE_DAILY_{bucket.upper()}_BUDGET_USD reached for "
+                    f"{stage}/{operation}: spent ${bucket_spent} of ${bucket_budget}."
+                )
+
     if budget is None:
         return
     try:
         spent = _today_estimated_spend_usd()
     except Exception as exc:
-        logger.warning("[ModelUsage] Could not read usage ledger for budget check: %s", exc)
+        message = f"Could not read usage ledger for budget check: {exc}"
+        if not _budget_fail_open():
+            raise PipelineModelBudgetUnavailable(message) from exc
+        logger.critical("[ModelUsage] %s; explicit fail-open override is active", message)
         return
     if spent < budget:
         return
     record_model_usage(
-        ModelUsageContext(stage=stage, operation=operation),
+        blocked_context,
         model=model,
         status="budget_blocked",
         error_code="daily_budget_exceeded",
@@ -228,7 +388,7 @@ def record_model_usage(
     context: ModelUsageContext,
     *,
     model: str,
-    provider: str = "openai",
+    provider: Optional[str] = None,
     response: Any = None,
     status: str = "succeeded",
     input_items: int = 0,
@@ -247,8 +407,24 @@ def record_model_usage(
         cached_prompt_tokens=usage_counts["cached_prompt_tokens"],
         completion_tokens=usage_counts["completion_tokens"],
     )
+    if provider is None:
+        from ..ai_transport import get_ai_provider_path
+
+        provider = get_ai_provider_path()
     merged_metadata: dict[str, Any] = dict(context.metadata or {})
+    if context.budget_bucket:
+        merged_metadata["budget_bucket"] = context.budget_bucket
     merged_metadata.update(metadata or {})
+    runtime_metadata = {
+        "render_service_name": os.getenv("RENDER_SERVICE_NAME"),
+        "render_service_id": os.getenv("RENDER_SERVICE_ID"),
+        "render_instance_id": os.getenv("RENDER_INSTANCE_ID"),
+        "render_git_commit": os.getenv("RENDER_GIT_COMMIT"),
+        "configured_provider_path": os.getenv("AI_PROVIDER_PATH"),
+    }
+    for key, value in runtime_metadata.items():
+        if value:
+            merged_metadata.setdefault(key, value)
     payload: dict[str, Any] = {
         "provider": provider,
         "model": _normalize_model(model),

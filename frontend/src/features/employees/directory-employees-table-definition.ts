@@ -16,6 +16,13 @@ export interface EmployeeRow {
   status: string;
   person_type: string;
   created_at: string | null;
+  /**
+   * App-login state, derived from Supabase Auth:
+   *   "active"  = the person has signed in at least once
+   *   "invited" = an account exists but they have never signed in
+   *   null       = no auth account / status unknown
+   */
+  access_status?: "active" | "invited" | null;
 }
 
 export type EmployeeFilterState = {
@@ -37,6 +44,7 @@ export const employeeColumns: ColumnConfig[] = [
   { id: "status", label: "Status", defaultVisible: true },
   { id: "person_type", label: "Type", defaultVisible: false },
   { id: "created_at", label: "Added", defaultVisible: false },
+  { id: "access_status", label: "Access", defaultVisible: true },
 ];
 
 export const employeeDefaultVisibleColumns = employeeColumns

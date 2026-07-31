@@ -50,7 +50,7 @@ migrating readers:
 
 | Thing | Status | Evidence |
 |---|---|---|
-| `project_emails` table + writer | **LIVE** — ~25 readers | `/api/emails`, email-thread, assignment-inbox, progress-reports, Eve email tools |
+| `project_emails` table + writer | **LIVE** — ~25 readers | `/api/emails`, email-thread, advisor-synthesis, assignment-inbox, progress-reports |
 | `email_attachments` table | **LIVE** — 6 read routes + `embed.py` | `/api/email-attachments/*`, `/api/projects/*/email-attachments/*` |
 | webhook/subscription code | **WIRED** | `scheduler.py`, `api/main.py`, `run_graph_subscription_reconcile` cron |
 | `/api/cron/graph-sync`, `/graph-embed` | **ACTIVE Vercel crons** | `frontend/vercel.json` (daily 6am / 7am) — redundant w/ Render every-2h, but live |

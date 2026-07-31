@@ -1,0 +1,39 @@
+{
+  "status": "PASS",
+  "taskId": "LOCAL-2026-07-29-PRIME-CONTRACT-AMOUNT",
+  "verifiedAt": "2026-07-30T01:30:00Z",
+  "evidence": {
+    "databaseReadback": [
+      "docs/ops/tasks/2026-07-29-prime-contract-sov-total-sync.md"
+    ],
+    "regressionTest": [
+      "supabase/tests/prime_contract_sov_totals.sql"
+    ],
+    "negativePath": [
+      "docs/ops/tasks/2026-07-29-prime-contract-sov-total-sync.md"
+    ],
+    "summary": [
+      "docs/ops/tasks/2026-07-29-prime-contract-sov-total-sync.md"
+    ]
+  },
+  "claims": {
+    "nexcom-amount-reconciled": {
+      "status": "PASS",
+      "note": "Production readback shows stored original 346124, stored revised 346124, and 11 SOV rows totaling 346124."
+    },
+    "mutation-invariant": {
+      "status": "PASS",
+      "note": "The post-deploy pgTAP contract completed all 24 transactional mutation assertions."
+    },
+    "financial-view-access-boundary": {
+      "status": "PASS",
+      "note": "The view is security_invoker and an authenticated principal without project access read zero rows."
+    }
+  },
+  "independentReview": {
+    "reviewer": "/root/code_review_prime_contract_amount + /root/db_review_prime_contract_amount",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-30T01:20:00Z",
+    "artifact": "docs/ops/tasks/2026-07-29-prime-contract-sov-total-sync.md"
+  }
+}

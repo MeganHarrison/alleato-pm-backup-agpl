@@ -22,32 +22,26 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY,
 );
 
-const APP_URL = (
-  process.env.ALLEATO_APP_URL ||
-  process.env.NEXT_PUBLIC_APP_URL ||
-  "https://projects.alleatogroup.com"
-).replace(/\/+$/, "");
-const WORKFLOW_SECRET =
-  process.env.RAG_PIPELINE_WORKFLOW_SECRET?.trim();
+const BACKEND_URL = process.env.BACKEND_URL || process.env.PYTHON_BACKEND_URL;
+const ADMIN_API_KEY = process.env.ADMIN_API_KEY?.trim();
 const projectId = parseInt(process.argv[2] || "876");
 
-if (!WORKFLOW_SECRET) {
-  throw new Error("RAG_PIPELINE_WORKFLOW_SECRET is required.");
-}
+if (!BACKEND_URL) throw new Error("BACKEND_URL or PYTHON_BACKEND_URL is required.");
+if (!ADMIN_API_KEY) throw new Error("ADMIN_API_KEY is required.");
 
 const DELAY_MS = 500; // stagger requests to avoid overwhelming the pipeline queue
 
 async function queueDoc(metadataId, label) {
-  const res = await fetch(`${APP_URL}/api/rag-pipeline/process`, {
+  const res = await fetch(`${BACKEND_URL}/api/pipeline/process`, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${WORKFLOW_SECRET}`,
       "Content-Type": "application/json",
+      "x-admin-api-key": ADMIN_API_KEY,
     },
-    body: JSON.stringify({ documentId: metadataId }),
+    body: JSON.stringify({ metadataId }),
   });
   const body = await res.json().catch(() => ({}));
-  const ok = res.status === 202;
+  const ok = res.ok && body.status === "queued";
   console.log(`  ${ok ? "✓" : "✗"} ${label} (${metadataId})`);
   return ok;
 }
@@ -56,7 +50,7 @@ function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
-console.log(`\nRe-queuing PDFs for project ${projectId} → ${APP_URL}\n`);
+console.log(`\nRe-queuing PDFs for project ${projectId} → ${BACKEND_URL}\n`);
 
 // 1. Submittal attachments — docs linked via submittal_doc_links
 const { data: links } = await supabase

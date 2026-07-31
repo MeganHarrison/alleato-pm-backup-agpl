@@ -169,7 +169,7 @@ type SourceResult<T> = {
 
 type LifecycleRecord = {
   id: string;
-  source: "project" | "prospect";
+  source: "project";
   projectId: number | null;
   name: string;
   stage: LifecycleStageKey | null;
@@ -262,24 +262,8 @@ function projectStage(row: ProjectRow): { stage: LifecycleStageKey | null; state
   return { stage: null, state: "incomplete" };
 }
 
-function prospectStage(row: ProspectRow): LifecycleStageKey | null {
-  const status = normalized(row.status);
-  if (["lead", "new", "contacted"].includes(status)) return "lead";
-  if (["qualification", "qualified", "discovery"].includes(status)) return "qualification";
-  if (["estimating", "estimate", "bidding"].includes(status)) return "estimating";
-  if (["proposal", "proposal submitted", "submitted"].includes(status)) return "proposal";
-  if (["negotiation", "contract negotiation"].includes(status)) return "negotiation";
-  if (["won", "awarded", "preconstruction"].includes(status)) return "preconstruction";
-  return null;
-}
-
-function probability(value: number | null) {
-  if (value === null) return null;
-  return Math.max(0, Math.min(1, value > 1 ? value / 100 : value));
-}
-
-function lifecycleRecords(projects: ProjectRow[], prospects: ProspectRow[]): LifecycleRecord[] {
-  const projectRecords = projects.map((row): LifecycleRecord => {
+function lifecycleRecords(projects: ProjectRow[]): LifecycleRecord[] {
+  return projects.map((row): LifecycleRecord => {
     const mapped = projectStage(row);
     return {
       id: `project-${row.id}`,
@@ -297,29 +281,6 @@ function lifecycleRecords(projects: ProjectRow[], prospects: ProspectRow[]): Lif
       dataState: mapped.state,
     };
   });
-  const prospectRecords = prospects.map((row): LifecycleRecord => {
-    const mappedStage = prospectStage(row);
-    const chance = probability(row.probability);
-    return {
-      id: `prospect-${row.id}`,
-      source: "prospect",
-      projectId: row.project_id,
-      name: row.company_name,
-      stage: mappedStage,
-      value: row.estimated_project_value,
-      weightedValue:
-        row.estimated_project_value !== null && chance !== null
-          ? row.estimated_project_value * chance
-          : null,
-      health: null,
-      owner: row.assigned_to,
-      status: row.status || "Lifecycle stage missing",
-      createdAt: row.updated_at || row.created_at,
-      nextAction: row.next_follow_up,
-      dataState: mappedStage ? "estimated" : "incomplete",
-    };
-  });
-  return [...prospectRecords, ...projectRecords];
 }
 
 function severityFromHealth(value: string | null): VisualizationDetailItem["severity"] {
@@ -332,7 +293,6 @@ function severityFromHealth(value: string | null): VisualizationDetailItem["seve
 
 function buildLifecycle(
   projects: SourceResult<ProjectRow>,
-  prospects: SourceResult<ProspectRow>,
 ): ExecutiveDashboardVisualizations["lifecycle"] {
   if (projects.error) {
     return {
@@ -350,7 +310,7 @@ function buildLifecycle(
       insight: "Lifecycle analysis is unavailable until the project source recovers.",
     };
   }
-  const records = lifecycleRecords(projects.rows, prospects.rows);
+  const records = lifecycleRecords(projects.rows);
   const mapped = records.filter((record) => record.stage !== null);
   const valueCoverageCount = records.filter((record) => record.value !== null).length;
   const stages = LIFECYCLE_STAGE_ORDER.map((key): LifecycleStage => {
@@ -413,7 +373,6 @@ function buildLifecycle(
     .filter((stage) => !["completed", "lead"].includes(stage.key) && stage.projectCount > 0)
     .sort((a, b) => b.projectCount - a.projectCount)[0];
   const incompleteReasons = [
-    prospects.error ? "Prospect data is unavailable" : prospects.rows.length === 0 ? "No prospect lifecycle records are present" : null,
     records.length > valueCoverageCount ? `${records.length - valueCoverageCount} records have no value` : null,
     "Stage-transition history is not recorded",
   ].filter(Boolean);
@@ -799,7 +758,7 @@ function buildOpportunities(
         status: "error",
         label: "AI opportunities",
         detail: `Curated intelligence could not be loaded. ${insights.error.message}`,
-        recoveryHref: "/pipeline",
+        recoveryHref: "/ai-dashboard/rag-pipeline",
       },
       categories: [],
       activeOpportunityCount: 0,
@@ -843,7 +802,7 @@ function buildOpportunities(
       detail: rows.length
         ? "Categories are AI inferences from curated insight cards. Validated opportunity impact values are not stored, so dollar totals and impact-weighted ranking are unavailable."
         : "No active curated insight cards can support an opportunity view.",
-      recoveryHref: "/pipeline",
+      recoveryHref: "/ai-dashboard/rag-pipeline",
     },
     categories,
     activeOpportunityCount: rows.length,
@@ -980,9 +939,6 @@ async function buildSummary(range: ActivityRange, projectId: number | null): Pro
   const lifecycleProjects = projectId === null
     ? raw.projects
     : { ...raw.projects, rows: raw.projects.rows.filter((project) => matchesProjectFilter(project.id, projectId)) };
-  const lifecycleProspects = projectId === null
-    ? raw.prospects
-    : { ...raw.prospects, rows: raw.prospects.rows.filter((prospect) => matchesProjectFilter(prospect.project_id, projectId)) };
   const events = buildActivityEvents({
     documents: raw.documents.rows,
     tasks: raw.tasks.rows,
@@ -1046,7 +1002,7 @@ async function buildSummary(range: ActivityRange, projectId: number | null): Pro
   return {
     generatedAt: raw.now.toISOString(),
     filters: { range, projectId, projects },
-    lifecycle: buildLifecycle(lifecycleProjects, lifecycleProspects),
+    lifecycle: buildLifecycle(lifecycleProjects),
     activity: {
       source: {
         status: sourceErrors.length ? (events.length ? "incomplete" : "error") : events.length ? "ready" : "empty",
@@ -1056,7 +1012,7 @@ async function buildSummary(range: ActivityRange, projectId: number | null): Pro
           : sampled
             ? `The river aggregates ${events.length.toLocaleString()} returned records from ${sourceRecordCount.toLocaleString()} matching source records. Detail is sampled at source limits.`
             : "The river aggregates current source records before rendering.",
-        recoveryHref: "/pipeline",
+        recoveryHref: "/ai-dashboard/rag-pipeline",
       },
       range,
       buckets: buildBuckets(events, range, raw.now),
@@ -1094,9 +1050,9 @@ function lifecycleDetailItem(record: LifecycleRecord): VisualizationDetailItem {
     title: record.name,
     projectId: record.projectId,
     projectName: record.name,
-    href: record.source === "prospect" ? "/directory/prospects" : projectHref(record.projectId),
+    href: projectHref(record.projectId),
     sourceHref: null,
-    sourceLabel: record.source === "prospect" ? "Prospects" : "Projects",
+    sourceLabel: "Projects",
     timestamp: record.createdAt,
     value: record.value,
     weightedValue: record.weightedValue,
@@ -1154,7 +1110,7 @@ export async function loadVisualizationDetail(args: {
 
   if (args.kind === "lifecycle") {
     const stage = args.key as LifecycleStageKey;
-    const items = lifecycleRecords(raw.projects.rows, raw.prospects.rows)
+    const items = lifecycleRecords(raw.projects.rows)
       .filter(
         (record) =>
           record.stage === stage &&
@@ -1196,7 +1152,7 @@ export async function loadVisualizationDetail(args: {
       kind: args.kind,
       key: args.key,
       label: ACTIVITY_CATEGORY_LABELS[category] || "Activity",
-      source: detailSource(items.length ? "ready" : "empty", items.length ? "Latest source-linked activity records." : "No activity records match this stream and range.", "/pipeline"),
+      source: detailSource(items.length ? "ready" : "empty", items.length ? "Latest source-linked activity records." : "No activity records match this stream and range.", "/ai-dashboard/rag-pipeline"),
       items,
     };
   }
@@ -1264,7 +1220,7 @@ export async function loadVisualizationDetail(args: {
         : items.length
           ? "Categories and priorities are AI inferences. Validated impact values are unavailable."
           : "No active curated intelligence matches this category.",
-      "/pipeline",
+      "/ai-dashboard/rag-pipeline",
     ),
     items,
   };
@@ -1272,7 +1228,6 @@ export async function loadVisualizationDetail(args: {
 
 export const __testables = {
   projectStage,
-  prospectStage,
   lifecycleRecords,
   opportunityCategory,
   confidenceValue,

@@ -9,7 +9,10 @@ const VALID_RELATED_TYPES = ["rfi", "submittal", "change_order", "observation", 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** Map related_type to the Supabase table name used for existence check. */
-const RELATED_TYPE_TABLE: Record<string, string> = {
+const RELATED_TYPE_TABLE: Record<
+  string,
+  "rfis" | "submittals" | "observations" | "punch_items" | "tasks"
+> = {
   rfi: "rfis",
   submittal: "submittals",
   observation: "observations",
@@ -107,7 +110,7 @@ export const POST = withApiGuardrails(
     const entityTable = RELATED_TYPE_TABLE[related_type];
     if (entityTable) {
       const { data: entityRow, error: entityError } = await supabase
-        .from(entityTable as Parameters<typeof supabase.from>[0])
+        .from(entityTable)
         .select("id")
         .eq("id", related_id)
         .maybeSingle();

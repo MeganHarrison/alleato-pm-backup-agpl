@@ -19,7 +19,7 @@ export type DailyBriefFanoutReadback = {
   packet: CanonicalDailyBriefPacket;
   sources: DailyBriefSourceContent[];
   sourceReadError: string | null;
-  tasks: Array<{ id: string; title: string; project_id: number | null; status: string | null; due_date: string | null }>;
+  tasks: Array<{ id: string; title: string | null; project_id: number | null; status: string; due_date: string | null }>;
   insightCards: Array<{
     id: string;
     title: string;
@@ -53,6 +53,9 @@ function textContent(row: { content: string | null; raw_text: string | null; sum
 
 export async function loadDailyBriefFanoutReadback(packetId: string): Promise<DailyBriefFanoutReadback> {
   const packet = await loadDailyExecutiveBriefPacketById(packetId);
+  if (!packet) {
+    throw new Error(`Daily Brief packet ${packetId} was not found.`);
+  }
   const sourceIds = packet.sources.map((source) => source.id);
   const rag = createRagServiceClient();
 
@@ -93,7 +96,19 @@ export async function loadDailyBriefFanoutReadback(packetId: string): Promise<Da
       url: source.url,
     };
   });
-  const projectIds = [...new Set([...sources, ...(taskResult.data ?? []), ...(candidateResult.data ?? []), ...(reportResult.data ?? [])].map((row) => row.projectId ?? row.project_id).filter((id): id is number => typeof id === "number"))];
+  const rowsWithProjectId: Array<{ projectId?: number | null; project_id?: number | null }> = [
+    ...sources,
+    ...(taskResult.data ?? []),
+    ...(candidateResult.data ?? []),
+    ...(reportResult.data ?? []),
+  ];
+  const projectIds = [
+    ...new Set(
+      rowsWithProjectId
+        .map((row) => row.projectId ?? row.project_id)
+        .filter((id): id is number => typeof id === "number"),
+    ),
+  ];
   const [projectsResult, allProjectsResult] = await Promise.all([
     projectIds.length ? serviceDb.from("projects").select("id,name").in("id", projectIds).order("name") : Promise.resolve({ data: [], error: null }),
     serviceDb.from("projects").select("id,name").eq("archived", false).order("name"),

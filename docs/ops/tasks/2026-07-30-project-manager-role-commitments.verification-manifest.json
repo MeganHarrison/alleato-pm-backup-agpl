@@ -1,0 +1,72 @@
+{
+  "contractVersion": 1,
+  "taskId": "PM-ROLE-COMMITMENTS-20260730",
+  "feature": "Project Manager project-role Commitments access",
+  "route": "/1149/commitments",
+  "riskLevel": "high",
+  "flows": [
+    {
+      "name": "Grant active Project Manager role members Commitments access",
+      "steps": [
+        "Resolve the authenticated active person",
+        "Resolve the exact normalized Project Manager role on the requested project",
+        "Grant Commitments read and write through the shared module-permission helper"
+      ],
+      "expectedOutcome": "The role member can see non-private commitments and create a new commitment"
+    },
+    {
+      "name": "Preserve least privilege and explicit overrides",
+      "steps": [
+        "Evaluate explicit module overrides before role-derived access",
+        "Limit the role grant to Commitments read and write",
+        "Deny other modules, other projects, private visibility, and inactive principals"
+      ],
+      "expectedOutcome": "The role grant cannot broaden into admin, private records, or unrelated modules"
+    },
+    {
+      "name": "Verify the affected production principal",
+      "steps": [
+        "Authenticate a temporary Andrew Cannon verification session",
+        "Read Commitments permissions for project 1149",
+        "Read SC-001 through production RLS",
+        "Locally revoke the temporary verification session"
+      ],
+      "expectedOutcome": "Andrew has read and write, lacks admin, and can see SC-001"
+    }
+  ],
+  "requiredEvidence": [
+    "databaseReadback",
+    "regressionTest",
+    "negativePath",
+    "summary"
+  ],
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "role-commitment-access",
+      "description": "An active Project Manager role member receives project-scoped Commitments read and write",
+      "evidence": [
+        {
+          "key": "databaseReadback",
+          "min": 1
+        },
+        {
+          "key": "regressionTest",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "least-privilege",
+      "description": "Explicit overrides retain precedence and the role does not grant admin, private visibility, other projects, or other modules",
+      "evidence": [
+        {
+          "key": "negativePath",
+          "min": 1
+        }
+      ]
+    }
+  ]
+}

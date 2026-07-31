@@ -1,0 +1,43 @@
+{
+  "contractVersion": 1,
+  "taskId": "local-training-growth-shell-accessibility",
+  "riskLevel": "high",
+  "feature": "Training growth shell accessibility",
+  "route": "/training/growth",
+  "flows": [
+    {
+      "name": "Shared shell semantic and contrast contract",
+      "steps": [
+        "Render route content inside SidebarInset",
+        "Count primary main landmarks",
+        "Compute muted text contrast on white and paper surfaces"
+      ],
+      "expectedOutcome": "The layout wrapper creates no duplicate main landmark and muted text exceeds WCAG AA contrast"
+    }
+  ],
+  "requiredEvidence": [
+    "regressionTest",
+    "contrastAudit",
+    "independentReview"
+  ],
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "single-main-owner",
+      "description": "SidebarInset is layout-only and does not create a nested main landmark",
+      "evidence": [{ "key": "regressionTest", "min": 1 }]
+    },
+    {
+      "id": "aa-muted-text",
+      "description": "Training muted text meets WCAG AA contrast on its production surfaces",
+      "evidence": [{ "key": "contrastAudit", "min": 1 }]
+    },
+    {
+      "id": "independent-review",
+      "description": "An independent reviewer approves the shared ownership correction",
+      "evidence": [{ "key": "independentReview", "min": 1 }]
+    }
+  ]
+}

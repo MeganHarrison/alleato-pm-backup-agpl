@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Image from "next/image"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import {
@@ -52,7 +53,6 @@ import {
 import { useProjectPermissions } from "@/hooks/use-project-permissions"
 import { useCurrentUserProfile } from "@/hooks/use-current-user-profile"
 import { ProjectSelector } from "@/components/header/project-selector"
-import { MkhLogo } from "@/components/brand/mkh-logo"
 import { useHeaderNav } from "@/components/header/use-header-nav"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -364,16 +364,17 @@ function ExpandedCompanyWideTools({
         <Button
           type="button"
           variant="ghost"
+          size="icon-sm"
           onClick={onBack}
-            className={cn(
-              "mb-3 h-8 justify-start gap-2 rounded-md px-2 text-xs font-medium",
-              isMobile
-                ? "text-muted-foreground hover:bg-muted hover:text-foreground"
-                : "text-sidebar-foreground/65 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground"
-            )}
-          >
+          aria-label="Back to project tools"
+          className={cn(
+            "mb-3 rounded-md",
+            isMobile
+              ? "text-muted-foreground hover:bg-muted hover:text-foreground"
+              : "text-sidebar-foreground/65 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground"
+          )}
+        >
           <ChevronsLeft className="h-3.5 w-3.5" strokeWidth={1.6} />
-          Project tools
         </Button>
       ) : (
         <div className="mb-4 space-y-2 px-2">
@@ -747,7 +748,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           // Collapsed: logo icon only
           <div className="flex flex-col items-center gap-4">
             <Link href="/" className="flex items-center justify-center">
-              <MkhLogo alt="MKH" className="h-8 w-auto" />
+              <Image
+                src="/alleato-favicon.png"
+                alt="Alleato"
+                width={28}
+                height={28}
+                className="rounded"
+              />
             </Link>
           </div>
         ) : (
@@ -760,7 +767,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   if (isMobile) setOpenMobile(false)
                 }}
               >
-                <MkhLogo alt="MKH" className="h-7 w-auto shrink-0" />
+                <Image
+                  src="/alleato-favicon.png"
+                  alt="Alleato"
+                  width={28}
+                  height={28}
+                  className="shrink-0 rounded"
+                />
               </Link>
               {isMobile && (
                 <Button

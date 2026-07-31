@@ -45,10 +45,21 @@ function toBoardStatus(status: string | null): TaskBoardStatus {
   return "open";
 }
 
+function parseTaskDate(value: string): Date {
+  const dateOnlyMatch = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  return dateOnlyMatch
+    ? new Date(
+        Number(dateOnlyMatch[1]),
+        Number(dateOnlyMatch[2]) - 1,
+        Number(dateOnlyMatch[3]),
+      )
+    : new Date(value);
+}
+
 function formatShortDate(value: string | null): string | null {
   if (!value) return null;
 
-  const date = new Date(value);
+  const date = parseTaskDate(value);
   if (Number.isNaN(date.getTime())) return null;
 
   return new Intl.DateTimeFormat("en-US", {
@@ -59,9 +70,11 @@ function formatShortDate(value: string | null): string | null {
 
 function isOverdue(value: string | null): boolean {
   if (!value) return false;
-  const date = new Date(value);
+  const date = parseTaskDate(value);
   if (Number.isNaN(date.getTime())) return false;
-  return date.getTime() < Date.now();
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return date.getTime() < today.getTime();
 }
 
 function getTaskProjectLabel(item: TasksRow): string | null {
@@ -156,10 +169,10 @@ export function TasksBoardView({ items, onOpen }: TasksBoardViewProps) {
       sortItems={(columnItems) =>
         [...columnItems].sort((left, right) => {
           const leftDue = left.due_date
-            ? new Date(left.due_date).getTime()
+            ? parseTaskDate(left.due_date).getTime()
             : Number.POSITIVE_INFINITY;
           const rightDue = right.due_date
-            ? new Date(right.due_date).getTime()
+            ? parseTaskDate(right.due_date).getTime()
             : Number.POSITIVE_INFINITY;
           if (leftDue !== rightDue) return leftDue - rightDue;
 

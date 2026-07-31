@@ -4,6 +4,7 @@ import { withApiGuardrails, parseJsonBody } from "@/lib/guardrails/api";
 import { GuardrailError } from "@/lib/guardrails/errors";
 import { createClient, getApiRouteUser } from "@/lib/supabase/server";
 import { createOutlookIntakeServiceClient } from "@/lib/supabase/service";
+import type { Database, Json } from "@/types/database.types";
 
 const PatchSchema = z.union([
   // Project assignment
@@ -83,7 +84,7 @@ export const PATCH = withApiGuardrails(
 
     const parsed = await parseJsonBody(request, PatchSchema, "outlook-intake/[intakeId]#PATCH");
 
-    let update: Record<string, unknown>;
+    let update: Database["public"]["Tables"]["outlook_email_intake"]["Update"];
 
     if ("user_tags" in parsed && parsed.user_tags !== undefined) {
       const { data: current, error: readError } = await intakeService
@@ -105,7 +106,7 @@ export const PATCH = withApiGuardrails(
         current?.source_metadata &&
         typeof current.source_metadata === "object" &&
         !Array.isArray(current.source_metadata)
-          ? (current.source_metadata as Record<string, unknown>)
+          ? (current.source_metadata as Record<string, Json>)
           : {};
       const userTags = [...new Set(parsed.user_tags.map((tag) => tag.trim()))]
         .filter(Boolean)

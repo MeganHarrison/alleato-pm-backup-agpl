@@ -1,0 +1,48 @@
+{
+  "contractVersion": 1,
+  "taskId": "ALL-29",
+  "riskLevel": "high",
+  "feature": "Grounded in-app Ask the Training Library implementation",
+  "route": "/training/ask",
+  "flows": [
+    {
+      "name": "Isolate the training conversation surface",
+      "steps": ["Render the training page", "Create a training_library conversation", "Evaluate general and Ask Alleato surface matching"],
+      "expectedOutcome": "The page reuses the canonical chat while training conversations remain isolated from every other assistant surface."
+    },
+    {
+      "name": "Retrieve and cite only reviewed training content",
+      "steps": ["Submit an authenticated training question", "Retrieve exact training source types", "Normalize sources and append links"],
+      "expectedOutcome": "The route retrieves only training_guide and training_resource chunks and every synthesized answer ends with clickable source links."
+    },
+    {
+      "name": "Keep the training index current",
+      "steps": ["Reconcile the generated guides and published resources", "Repeat without source changes", "Change a resource status and run the periodic refresh"],
+      "expectedOutcome": "Unchanged documents are skipped, stale documents are removed, status drift is reconciled, and provider failures are explicit and retried."
+    }
+  ],
+  "requiredEvidence": ["actionLog", "summary", "regressionTest"],
+  "independentReview": {"required": true},
+  "claims": [
+    {
+      "id": "isolated-shared-surface",
+      "description": "The training page reuses the shared chat and isolates its conversations.",
+      "evidence": [{"key": "regressionTest", "min": 2}]
+    },
+    {
+      "id": "grounded-training-only-response",
+      "description": "Retrieval is limited to training source types with deterministic clickable citations and explicit recovery.",
+      "evidence": [{"key": "regressionTest", "min": 2}]
+    },
+    {
+      "id": "durable-index-lifecycle",
+      "description": "Indexing is idempotent, serialized, periodically refreshed, status-aware, and count-observable.",
+      "evidence": [{"key": "regressionTest", "min": 1}, {"key": "actionLog", "min": 1}]
+    },
+    {
+      "id": "independent-review",
+      "description": "An independent reviewer approved the implementation after its three findings were corrected.",
+      "evidence": [{"key": "summary", "min": 1}]
+    }
+  ]
+}

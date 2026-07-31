@@ -6,7 +6,7 @@ import { NextRequest } from "next/server";
 import { ScheduleResourceService, ScheduleResourceServiceError } from "@/lib/services/schedule-resource-service";
 import { previewScheduleResourceLeveling } from "@/lib/scheduling/schedule-resource-leveling-preview";
 import { createClient, getApiRouteUser } from "@/lib/supabase/server";
-import { GET, POST, PUT } from "../route";
+import { DELETE, GET, POST, PUT } from "../route";
 
 jest.mock("@/lib/supabase/server", () => ({ createClient: jest.fn(), getApiRouteUser: jest.fn() }));
 jest.mock("@/lib/services/schedule-resource-service", () => ({
@@ -23,6 +23,9 @@ const getCapacityRange = jest.fn();
 const getCapacityProfile = jest.fn();
 const replaceCapacityProfile = jest.fn();
 const loadLevelingContext = jest.fn();
+const getCostModel = jest.fn();
+const upsertCostResource = jest.fn();
+const deleteCostResource = jest.fn();
 const resourceId = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
 const context = { params: Promise.resolve({ projectId: "67" }) };
 
@@ -37,6 +40,9 @@ describe("consolidated schedule resources API", () => {
       getCapacityProfile,
       replaceCapacityProfile,
       loadLevelingContext,
+      getCostModel,
+      upsertCostResource,
+      deleteCostResource,
     }));
   });
 
@@ -61,6 +67,25 @@ describe("consolidated schedule resources API", () => {
     expect(response.status).toBe(200);
     expect(getProjectRoster).toHaveBeenCalledWith(67);
     await expect(response.json()).resolves.toMatchObject({ can_manage: true, legacy_assignment_count: 0 });
+  });
+
+  it("returns the persisted cost model", async () => {
+    getCostModel.mockResolvedValue({
+      project_id: 67,
+      can_manage: true,
+      resources: [],
+      assignments: [],
+    });
+    const response = await GET(
+      new NextRequest("http://localhost/api/projects/67/scheduling/resources?view=cost"),
+      context,
+    );
+    expect(response.status).toBe(200);
+    expect(getCostModel).toHaveBeenCalledWith(67);
+    await expect(response.json()).resolves.toMatchObject({
+      project_id: 67,
+      can_manage: true,
+    });
   });
 
   it.each([
@@ -167,6 +192,101 @@ describe("consolidated schedule resources API", () => {
     expect(loadLevelingContext).toHaveBeenCalledWith(67, 365);
     expect(previewMock).toHaveBeenCalledWith(levelingContext);
     await expect(response.json()).resolves.toEqual({ data: result });
+  });
+
+  it("creates an equipment resource with its validated day rate", async () => {
+    const body = {
+      resource_kind: "equipment",
+      display_name: "Tower crane",
+      standard_rate: 1250,
+      cost_per_use: 300,
+      rate_unit: "day",
+      expected_cost_version: null,
+    };
+    upsertCostResource.mockResolvedValue({ id: resourceId, ...body, cost_version: 1 });
+    const response = await POST(new NextRequest(
+      "http://localhost/api/projects/67/scheduling/resources?operation=cost-resource",
+      { method: "POST", body: JSON.stringify(body) },
+    ), context);
+    expect(response.status).toBe(201);
+    expect(upsertCostResource).toHaveBeenCalledWith(67, body);
+  });
+
+  it.each([
+    [{ resource_kind: "person", display_name: "Person", standard_rate: 75, cost_per_use: null, rate_unit: "hour" }, /equipment or material/i],
+    [{ resource_kind: "equipment", display_name: "Crane", standard_rate: 75, cost_per_use: null, rate_unit: "hour" }, /day rate/i],
+  ])("rejects invalid new cost-resource input", async (body, message) => {
+    const response = await POST(new NextRequest(
+      "http://localhost/api/projects/67/scheduling/resources?operation=cost-resource",
+      { method: "POST", body: JSON.stringify(body) },
+    ), context);
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toMatchObject({
+      error_message: expect.stringMatching(message),
+    });
+    expect(upsertCostResource).not.toHaveBeenCalled();
+  });
+
+  it("updates a cost resource with an exact version", async () => {
+    const body = {
+      id: resourceId,
+      resource_kind: "equipment",
+      display_name: "Tower crane",
+      standard_rate: 1400,
+      cost_per_use: 300,
+      rate_unit: "day",
+      expected_cost_version: 4,
+    };
+    upsertCostResource.mockResolvedValue({ ...body, cost_version: 5 });
+    const response = await PUT(new NextRequest(
+      "http://localhost/api/projects/67/scheduling/resources?view=cost-resource",
+      { method: "PUT", body: JSON.stringify(body) },
+    ), context);
+    expect(response.status).toBe(200);
+    expect(upsertCostResource).toHaveBeenCalledWith(67, body);
+  });
+
+  it("maps a stale cost resource PT409 to a conflict response", async () => {
+    const body = {
+      id: resourceId,
+      resource_kind: "equipment",
+      display_name: "Tower crane",
+      standard_rate: 1400,
+      cost_per_use: 300,
+      rate_unit: "day",
+      expected_cost_version: 4,
+    };
+    upsertCostResource.mockRejectedValue(new ScheduleResourceServiceError(
+      "Cost resource changed since it was loaded.",
+      "rpc",
+      {
+        code: "PT409",
+        message: "Cost resource changed since it was loaded.",
+      },
+    ));
+    const response = await PUT(new NextRequest(
+      "http://localhost/api/projects/67/scheduling/resources?view=cost-resource",
+      { method: "PUT", body: JSON.stringify(body) },
+    ), context);
+    expect(response.status).toBe(409);
+    await expect(response.json()).resolves.toMatchObject({
+      error_code: "PRECONDITION_FAILED",
+    });
+  });
+
+  it("deletes a cost resource with an exact version", async () => {
+    const response = await DELETE(new NextRequest(
+      "http://localhost/api/projects/67/scheduling/resources",
+      {
+        method: "DELETE",
+        body: JSON.stringify({
+          resource_id: resourceId,
+          expected_cost_version: 4,
+        }),
+      },
+    ), context);
+    expect(response.status).toBe(200);
+    expect(deleteCostResource).toHaveBeenCalledWith(67, resourceId, 4);
   });
 
   it("rejects unsupported views and operations instead of silently defaulting", async () => {

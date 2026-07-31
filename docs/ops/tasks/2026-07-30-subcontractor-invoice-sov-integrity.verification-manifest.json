@@ -1,0 +1,81 @@
+{
+  "contractVersion": 1,
+  "taskId": "ALL-56",
+  "feature": "Permanent subcontractor invoice SOV integrity",
+  "route": "/1149/commitments/1ab839e9-a3bc-4b81-a72f-197aa6cd66b5/invoices/8268",
+  "riskLevel": "high",
+  "flows": [
+    {
+      "name": "Canonical invoice source valuation",
+      "steps": [
+        "Create or edit a normal subcontractor invoice line with a stable SOV or approved change-order source",
+        "Canonicalize schedule, commitment, and change values from the database source",
+        "Reject submission when the invoice source set is incomplete, duplicated, stale, or overbilled"
+      ],
+      "expectedOutcome": "Every submitted invoice contains each current source exactly once with authoritative values"
+    },
+    {
+      "name": "Editable invoice synchronization and reopen",
+      "steps": [
+        "Change a commitment SOV or approved change order",
+        "Synchronize editable unsynced invoices",
+        "Reconcile missed source changes when an invoice returns from review to Draft"
+      ],
+      "expectedOutcome": "Editable invoices follow current sources without rewriting submitted or accounting history"
+    },
+    {
+      "name": "Fail closed on destructive or signed edge cases",
+      "steps": [
+        "Reject direct authenticated invoice-line deletion",
+        "Support deductive approved change orders with signed billing",
+        "Block reopen when removing a source would erase billed or retained financial activity"
+      ],
+      "expectedOutcome": "Races, deductible COs, and billed source removal remain financially consistent and explicit"
+    }
+  ],
+  "requiredEvidence": [
+    "databaseReadback",
+    "regressionTest",
+    "negativePath",
+    "independentReview"
+  ],
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "canonical-source-set",
+      "description": "Invoice sources and values are canonical and complete before review",
+      "evidence": [
+        {
+          "key": "databaseReadback",
+          "min": 1
+        },
+        {
+          "key": "regressionTest",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "fail-closed",
+      "description": "Invalid schedules, deletion races, and billed source removal fail loudly",
+      "evidence": [
+        {
+          "key": "negativePath",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "reviewed",
+      "description": "Correctness, React, and security reviewers approve the final implementation",
+      "evidence": [
+        {
+          "key": "independentReview",
+          "min": 1
+        }
+      ]
+    }
+  ]
+}

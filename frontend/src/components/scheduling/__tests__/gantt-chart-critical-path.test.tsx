@@ -33,9 +33,10 @@ describe("GanttChart critical path", () => {
     );
 
     expect(screen.getByText("Critical")).toBeVisible();
-    expect(screen.getByRole("img", { name: "Foundation, critical task" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "Foundation, critical task" })).toBeVisible();
 
     rerender(<GanttChart data={[criticalTask]} showCriticalPath={false} />);
     expect(screen.queryByText("Critical")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Foundation, critical task" })).not.toBeInTheDocument();
   });
 });

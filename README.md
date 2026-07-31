@@ -41,8 +41,7 @@ npm run dev:backend
 # repo root
 npm run db:types
 npm run check:routes
-# With the app running locally, authenticate, run the browser flow, and save evidence.
-npm run e2e:browser -- --route /tasks
+npm run verify:browser -- --route /tasks --name task-proof
 npm run test
 
 # frontend/
@@ -102,7 +101,14 @@ Start here:
 
 - Supabase types are generated into `frontend/src/types/database.types.ts` via `npm run db:types`.
 - Route conflicts are guarded by `npm run check:routes`.
-- Browser-style verification artifacts are written under `tests/agent-browser-runs/` and should not be committed as active work products unless intentionally documenting a result.
+- `npm run verify:browser -- --route <protected-route> --name <task>` is the
+  canonical screenshot path. It starts or reuses an isolated localhost:3100
+  runtime, reuses origin-scoped auth, captures 1440px desktop and 390px mobile
+  in one headless browser, closes that browser, and writes evidence under
+  `tests/agent-browser-runs/`.
+- The local proof runtime stays warm for fast follow-up captures. Stop only that
+  harness-owned runtime with `npm run verify:browser:stop`. Use `--headed` only
+  when a visible debugging window is deliberately required.
 
 ## Commands
 

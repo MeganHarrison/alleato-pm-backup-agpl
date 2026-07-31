@@ -25,7 +25,7 @@ const baseMessage: OperatorMessage = {
       id: "revise",
       label: "Revise",
       kind: "openUrl",
-      url: "https://projects.alleatogroup.com/ai",
+      url: "https://projects.alleatogroup.com/ai-assistant",
       style: "secondary",
       affordance: "url",
       priority: 10,

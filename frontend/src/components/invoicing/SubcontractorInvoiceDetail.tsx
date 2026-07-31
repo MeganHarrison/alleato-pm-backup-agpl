@@ -11,6 +11,7 @@ import {
   FilePlus2,
   Mail,
   Pencil,
+  RotateCcw,
   Send,
   Trash2,
   UserPlus,
@@ -69,8 +70,10 @@ import {
 } from "@/hooks/use-subcontractor-invoices";
 import { apiFetch } from "@/lib/api-client";
 import { usePdfExport } from "@/hooks/use-pdf-export";
+import { useProjectPermissions } from "@/hooks/use-project-permissions";
 import { handleFormError } from "@/lib/handle-form-error";
 import { appToast as toast } from "@/lib/toast/app-toast";
+import { getSubcontractorInvoiceEditability } from "@/lib/invoicing/subcontractor-invoice-editability";
 
 async function patchStatus(
   projectId: string,
@@ -128,6 +131,11 @@ export function SubcontractorInvoiceDetail({
   } = useSubcontractorInvoiceDetail(projectId, invoiceId);
 
   const deleteInvoice = useDeleteSubcontractorInvoice(projectId);
+  const {
+    permissions,
+    isAppAdmin,
+    isLoading: permissionsLoading,
+  } = useProjectPermissions(Number(projectId));
 
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -158,6 +166,32 @@ export function SubcontractorInvoiceDetail({
       await refetch();
     } catch (err) {
       handleFormError(err, { entity: "subcontractor invoice", action: "update status" });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleReturnToDraft() {
+    setBusy(true);
+    try {
+      await patchStatus(projectId, invoiceId, "draft");
+      try {
+        await refetch({ throwOnError: true });
+      } catch {
+        toast.warning(
+          "Invoice returned to Draft, but the page could not refresh",
+          { description: "Refresh the page before editing." },
+        );
+        return;
+      }
+      setActiveTab("summary");
+      setEditing(true);
+      toast.success("Invoice returned to Draft and is ready to edit");
+    } catch (err) {
+      handleFormError(err, {
+        entity: "subcontractor invoice",
+        action: "return to Draft",
+      });
     } finally {
       setBusy(false);
     }
@@ -394,7 +428,14 @@ export function SubcontractorInvoiceDetail({
   const isUnderReview = status === "under_review";
   const isPendingOwnerApproval = status === "pending_owner_approval";
   const isReviseAndResubmit = status === "revise_and_resubmit";
-  const canEdit = isDraft || isInvited || isReviseAndResubmit;
+  const { canEdit, canReturnToDraft } =
+    getSubcontractorInvoiceEditability(invoice);
+  const canManageInvoices =
+    !permissionsLoading &&
+    (isAppAdmin ||
+      permissions.commitments?.some((level) =>
+        level === "write" || level === "admin",
+      ) === true);
   const canInviteSubcontractor = isNotInvited || isInvited || isDraft || isReviseAndResubmit;
   const canDelete = !["approved", "paid"].includes(status);
   const canResendErp = ["approved", "approved_as_noted", "paid"].includes(
@@ -478,6 +519,15 @@ export function SubcontractorInvoiceDetail({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
+              {canReturnToDraft && canManageInvoices && (
+                <DropdownMenuItem
+                  disabled={busy}
+                  onClick={handleReturnToDraft}
+                >
+                  <RotateCcw className="h-4 w-4 mr-2" />
+                  Return to Draft &amp; Edit
+                </DropdownMenuItem>
+              )}
               {canEdit && !editing && (
                 <DropdownMenuItem
                   onClick={() => {

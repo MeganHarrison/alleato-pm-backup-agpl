@@ -39,8 +39,8 @@ function usage() {
   node scripts/ops/checkout-session-gate.mjs quarantine --session <id> --task <id> --reason <why> --paths <path[,path...]> --stale-minutes <n>
   node scripts/ops/checkout-session-gate.mjs release --session <id> [--handoff --reason <why>]
 
-Writers may hold non-overlapping path-scoped leases. Research, review, and long-running verification may run concurrently.
-Each writer must use the registered canonical checkout, be on main, and may not claim a path that is already dirty.
+Research, review, and long-running verification may run concurrently. The canonical checkout permits one writer at a time.
+Each writer must use the registered canonical checkout, be on main, and start from a wholly clean checkout. Use a registered isolated workspace for concurrent mutation.
 Leases expire after ${leaseTtlMinutes()} minutes without a heartbeat; expiry clears only the reservation, never files.`;
 }
 
@@ -374,7 +374,7 @@ function printStatus(ctx, leases) {
   console.log(`Expired leases:     ${stale.length ? stale.map((lease) => `${lease.session} (${lease.task})`).join(", ") : "none"}`);
   for (const lease of active) console.log(`Lease paths [${lease.session}]: ${lease.paths.join(", ")}`);
   for (const lease of stale) console.log(`Expired paths [${lease.session}]: ${lease.paths.join(", ")}`);
-  console.log("Next: claim exact task-owned paths. Unrelated dirty paths and non-overlapping active leases do not block a claim.");
+  console.log("Next: publish or explicitly hand off any active task, then claim a clean canonical checkout.");
 }
 
 function dirtyPathFromStatus(line) {
@@ -506,13 +506,21 @@ function mainWithLock(options, ctx) {
       baselineDirty: ctx.dirty.map(dirtyPathFromStatus).filter(Boolean),
     };
     if (!record.paths.length) fail("--paths must name at least one owned path.");
+    if (activeLeases.length) {
+      const owners = activeLeases.map((lease) => `${lease.session} (${lease.task})`).join(", ");
+      fail(`Canonical checkout already has an active writer: ${owners}. Publish or explicitly hand off that task before starting another writer; use a registered isolated workspace for true concurrent work.`);
+    }
     const conflictingLease = activeLeases.find((lease) => record.paths.some((owned) => lease.paths.some((active) => pathsOverlap(owned, active))));
     if (conflictingLease) fail(`Requested paths overlaps active lease ${conflictingLease.session} (${conflictingLease.task}).`);
-    const alreadyDirty = record.paths.filter((owned) => record.baselineDirty.some((dirty) => pathsOverlap(owned, dirty)));
-    if (alreadyDirty.length && !(options.resume && mayResumeOwnScope(ctx, record))) {
-      fail(`Requested path is already dirty and unowned: ${alreadyDirty.join(", ")}.`);
+    const unrelatedDirty = record.baselineDirty.filter((dirty) => !record.paths.some((owned) => pathsOverlap(owned, dirty)));
+    const mayResume = options.resume && mayResumeOwnScope(ctx, record);
+    if (record.baselineDirty.length && (!mayResume || unrelatedDirty.length)) {
+      fail(
+        `Canonical checkout is dirty: ${record.baselineDirty.join(", ")}. ` +
+        "Do not start beside unfinished work. Publish it, or use --resume only for this task's explicitly handed-off scope in an otherwise clean checkout."
+      );
     }
-    if (options.resume && !alreadyDirty.length) {
+    if (options.resume && !record.baselineDirty.length) {
       fail("--resume is only for recovering this session's previously leased dirty scope; use a normal claim for clean paths.");
     }
     if (options.resume) record.resumedAt = new Date().toISOString();
@@ -529,6 +537,16 @@ function mainWithLock(options, ctx) {
     fail(owners ? `Lease belongs to ${owners}; recover or release the owning session.` : "No active write lease exists for this session.");
   }
   const ownedDirty = ownedDirtyPaths(ctx, lease);
+  const unownedDirty = ctx.dirty
+    .map(dirtyPathFromStatus)
+    .filter(Boolean)
+    .filter((candidate) => !leaseOwnsPath(lease, candidate));
+  if (unownedDirty.length) {
+    fail(
+      `Release refused: the canonical checkout contains dirty path(s) outside ${lease.session}'s scope:\n${unownedDirty.join("\n")}\n` +
+      "Do not absorb or park another task's work. Recover its owner or move future concurrent work into a registered isolated workspace."
+    );
+  }
   if (ownedDirty.length && !options.handoff) {
     fail(
       `Release refused: ${lease.session} still owns ${ownedDirty.length} dirty path(s):\n${ownedDirty.join("\n")}\n` +

@@ -114,15 +114,35 @@ Rules:
 - For state-only checks, use `npm run codex:finish -- --check`.
 - Do not claim work is pushed until `codex:finish` or an equivalent explicit `git push origin main` plus `HEAD == origin/main` verification succeeds.
 
+### Commit-closure invariant (mandatory)
+
+Every task has exactly one normal terminal state: its task-owned changes are committed and published. A task is not done, paused, or ready for the next task while it leaves a dirty working tree, a local-only commit, an unpushed branch, or an unregistered worktree.
+
+- Before starting a task, the canonical checkout must be wholly clean and have no active writer lease.
+- Before starting another task, run `npm run codex:finish -- --message "..." --files <task-owned paths>` and verify `HEAD == origin/main`.
+- Do not use `git stash` as normal task closure. A stash is recovery-only after an incident and must be named, attributed to a task, and treated as blocked until it is published or explicitly retired.
+- If work cannot be published, record an explicit blocked handoff with owner, reason, exact paths, and next action; do not begin unrelated work in that checkout.
+- Concurrent writers must use registered isolated workspaces. The canonical checkout permits one writer, one task, and one clean closeout at a time.
+
 ## Parallel Session Orchestration
 
 ### Canonical Checkout Writer Lease (MANDATORY)
 
 Concurrent sessions may research, review, inspect, and run verification in
 parallel. They must not concurrently make product edits in the same checkout.
-All product mutations use an isolated workspace with exact path ownership; the
-canonical checkout is read/integration-only. Do not create a board row, handoff,
-or Linear sub-issue for a single-session Fast/Standard change.
+Concurrent product mutations use an isolated workspace with exact path
+ownership; the canonical checkout is read/integration-only while concurrent
+writers exist. A single-session Fast change may edit the canonical checkout
+directly when its exact files are clean and unclaimed. Do not create a board
+row, handoff, Linear sub-issue, or worktree for that case.
+
+Resource budget: default to at most three active agent sessions on one machine,
+including the leader. Do not maximize agent count mechanically. Browser, MCP,
+build, and dev-server processes are machine-wide resources; only the session
+that owns that boundary may start them. Before adding another agent, confirm
+that the existing work cannot proceed independently in the current session.
+Run `npm run ops:process-budget` before adding a session or starting an
+expensive verifier. If it fails, reuse or retire existing processes first.
 
 Register the intended clean `main` checkout once:
 
@@ -130,7 +150,7 @@ Register the intended clean `main` checkout once:
 node scripts/ops/checkout-session-gate.mjs bootstrap
 ```
 
-Before a session writes code, create an isolated workspace:
+Before a concurrent session writes code, create an isolated workspace:
 
 ```bash
 node scripts/ops/isolated-session-workspace.mjs create \
@@ -189,12 +209,17 @@ the changed boundary is broader than expected.
 
 When an expensive check is justified:
 
-1. Delegate the long-running verification to a cheaper capable sub-agent when sub-agents are available.
-2. Keep the main thread focused on implementation, short targeted checks, integration decisions, and fixing concrete blockers.
-3. Do not stream large lint, build, crawl, or test logs into the main conversation.
-4. Use the smallest check that can falsify the change first. Full or project-wide checks belong in a cheap verification sub-agent.
-5. Prefer the cheapest capable model available for routine verification. Do not use a frontier model for lint, typecheck, build, predeploy, or log-watching unless the user explicitly requests it.
-6. The verification sub-agent must return a compact report with:
+1. Run at most one build, typecheck, crawl, or browser-verification process for
+   this repository on the machine at a time. Reuse its result for the fixed
+   commit instead of rebuilding in another session.
+2. Use a verification sub-agent only when implementation can continue in
+   parallel and the machine resource budget permits it. A verifier must not
+   launch unrelated MCP servers, browsers, or dev servers.
+3. Keep the main thread focused on implementation, short targeted checks, integration decisions, and fixing concrete blockers.
+4. Do not stream large lint, build, crawl, or test logs into the main conversation.
+5. Use the smallest check that can falsify the change first. Run full or
+   project-wide checks once at a release checkpoint, not once per agent or file.
+6. A verification sub-agent must return a compact report with:
    - pass/fail status
    - exact failing command
    - concise error lines only
@@ -205,7 +230,8 @@ When an expensive check is justified:
 Default pattern:
 
 - Main thread: implementation, short checks, decisions.
-- Cheap sub-agent: full typecheck, full build, full predeploy, full test suite, long-running verification.
+- Current session or one connector-light verifier: the single justified
+  typecheck, build, predeploy, full test suite, or long-running verification.
 - Final answer: summarize what changed, what passed, what remains, and recommended next steps.
 
 ## Linear and Handoffs
@@ -220,7 +246,9 @@ several files. Process reference: `docs/ops/orchestration/linear-codex-process.m
 
 ## Frontend-First Validation Workflow (MANDATORY FOR "MAKE IT WORK")
 
-When the objective is "make tools work cleanly on frontend," prioritize end-user flows and visible outcomes over backend-only activity.
+When the objective is the complete construction-management workflow below,
+prioritize these end-user flows over backend-only activity. Do not impose this
+entire chain on an isolated page, styling, copy, helper, or route change.
 
 ### Canonical User Journey Test Chain
 
@@ -306,15 +334,20 @@ Full agent + workflow list: `_bmad/_config/agent-manifest.csv`, `_bmad/_config/w
 
 ## Browser Automation
 
-Use `agent-browser` for web automation. Run `agent-browser --help` for all commands.
+Use the Codex in-app browser for interactive verification when it is available.
+Reuse one authenticated browser session and one local frontend server.
+`agent-browser` is the fallback for environments without the in-app browser.
 
 **Default policy (mandatory):**
 
-- For frontend user-journey and manual-style E2E verification, use `agent-browser` first.
-- Use Playwright code-based suites when deterministic CI coverage or deep crawl/extraction workflows are required.
+- For frontend user-journey and manual-style E2E verification, use the existing
+  Codex in-app browser first; do not launch a second Chrome/profile/session.
+- Use `agent-browser` only as a fallback and always reuse a named persistent session.
+- Use one Playwright code-based suite only when deterministic CI coverage or
+  deep crawl/extraction is required. Do not start a Playwright MCP server per agent.
 - Never claim "verified" without evidence artifacts (screenshots, video, markdown summary).
 
-Core workflow:
+Fallback `agent-browser` workflow:
 
 1. `agent-browser open <url>` - Navigate to page
 2. `agent-browser snapshot -i` - Get interactive elements with refs (@e1, @e2)

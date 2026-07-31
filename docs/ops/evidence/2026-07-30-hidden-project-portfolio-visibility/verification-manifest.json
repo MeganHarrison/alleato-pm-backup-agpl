@@ -1,0 +1,54 @@
+{
+  "contractVersion": 1,
+  "taskId": "hidden-project-portfolio-visibility",
+  "riskLevel": "high",
+  "feature": "Owner-only visibility for retained Hidden projects",
+  "route": "/",
+  "flows": [
+    {
+      "name": "Retain project data while hiding the portfolio row",
+      "steps": [
+        "Publish the portfolio visibility guard",
+        "Set the eight approved records to active Hidden",
+        "Read back the target and excluded records",
+        "Request the portfolio as Megan and as a non-Megan identity"
+      ],
+      "expectedOutcome": "Only Megan's portfolio includes Hidden projects; linked project data stays active and the three exclusions are unchanged"
+    }
+  ],
+  "requiredEvidence": [
+    "databaseReadback",
+    "negativePath",
+    "visualReview",
+    "regressionTest"
+  ],
+  "visual": {
+    "viewports": ["desktop"],
+    "checks": ["Megan can see Hidden projects in the portfolio", "employee and Brandon portfolio results exclude Hidden projects"]
+  },
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "database-retention",
+      "description": "The eight approved projects are active Hidden records with archive metadata cleared and linked documents retained",
+      "evidence": [{ "key": "databaseReadback", "min": 1 }]
+    },
+    {
+      "id": "excluded-records",
+      "description": "The three explicitly excluded records are unchanged",
+      "evidence": [{ "key": "databaseReadback", "min": 1 }]
+    },
+    {
+      "id": "employee-exclusion",
+      "description": "A non-Megan portfolio query excludes Hidden projects",
+      "evidence": [{ "key": "negativePath", "min": 1 }, { "key": "regressionTest", "min": 1 }]
+    },
+    {
+      "id": "owner-visibility",
+      "description": "Megan's rendered production portfolio includes the retained Hidden projects",
+      "evidence": [{ "key": "visualReview", "min": 1 }]
+    }
+  ]
+}

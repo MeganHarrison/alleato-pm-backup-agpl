@@ -1,0 +1,25 @@
+{
+  "observedAt": "2026-07-27T01:38:50.536108Z",
+  "endpoint": "https://alleato-backend-rbnj.onrender.com/health/training-library",
+  "httpStatus": 503,
+  "response": {
+    "status": "degraded",
+    "desired": 70,
+    "catalogued": 0,
+    "indexed": 0,
+    "searchable": 0,
+    "missing": 70,
+    "stale": 0,
+    "unsearchable": 0,
+    "reconciliation": {
+      "lastAttemptAt": "2026-07-27T01:37:45.177363+00:00",
+      "lastSuccessAt": null,
+      "lastFailureAt": "2026-07-27T01:37:46.276920+00:00",
+      "lastStage": "upsert-training_guide",
+      "lastErrorType": "APIError",
+      "lastErrorFingerprint": "3e4a0c2452c3",
+      "lastResult": null
+    }
+  },
+  "localization": "The first failing operation is the app/RAG metadata upsert for a generated training guide. Source loading, stale cleanup, and embedding were not the first failure."
+}

@@ -79,7 +79,7 @@ export const POST = withApiGuardrails(
     const sourceRoute =
       source?.route ??
       (surface === "assistant_answer_memory_trace"
-        ? "/ai"
+        ? "/ai-assistant"
         : "/settings/memory");
 
     const event = await recordAiFeedbackEvent({

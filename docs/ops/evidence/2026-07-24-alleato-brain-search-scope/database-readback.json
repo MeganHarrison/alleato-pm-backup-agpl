@@ -1,0 +1,28 @@
+{
+  "status": "PASS",
+  "checkedAt": "2026-07-24T07:10:06.486385+00:00",
+  "projectRef": "fqcvmfqldlewvbsuxdvz",
+  "migration": {
+    "version": "20260724065000",
+    "name": "add_business_area_filter_to_search_document_chunks"
+  },
+  "function": {
+    "signature": "search_document_chunks(halfvec,text[],bigint,integer,double precision,text,text,boolean,text,text,bigint)",
+    "signatureCount": 1,
+    "businessAreaArgumentPosition": 11,
+    "returnsBusinessAreaId": true,
+    "filtersBeforeCandidateLimit": true,
+    "telemetryIncludesBusinessAreaId": true
+  },
+  "executePrivileges": {
+    "PUBLIC": false,
+    "anon": false,
+    "authenticated": false,
+    "service_role": true
+  },
+  "labels": {
+    "numericBusinessAreaChunks": 17379,
+    "invalidBusinessAreaLabels": 0,
+    "legacyNullKeysNormalized": 133
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "status": "PASS",
+  "taskId": "AAI-1297",
+  "evidence": {
+    "summary": ["docs/ops/verification/2026-07-31-procurement-build-graph.md"],
+    "negativePath": ["docs/ops/verification/2026-07-31-procurement-build-graph.md"],
+    "regressionTest": ["docs/ops/verification/2026-07-31-procurement-build-graph.md"]
+  },
+  "claims": {
+    "no-per-function-chromium-archive": {
+      "summary": ["docs/ops/verification/2026-07-31-procurement-build-graph.md"],
+      "negativePath": ["docs/ops/verification/2026-07-31-procurement-build-graph.md"]
+    },
+    "failure-loud-pdf-recovery": {
+      "regressionTest": ["docs/ops/verification/2026-07-31-procurement-build-graph.md"]
+    }
+  },
+  "independentReview": {
+    "reviewer": "/root/build_trace_review",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-31T22:55:00Z",
+    "artifact": "docs/ops/verification/2026-07-31-procurement-build-graph-independent-review.md"
+  }
+}

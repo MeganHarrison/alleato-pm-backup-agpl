@@ -137,6 +137,14 @@ function SiteCommentsLink({ onNavigate }: { onNavigate?: () => void }) {
 }
 
 export function CommentsSidebarButton() {
+  if (!process.env.NEXT_PUBLIC_VELT_API_KEY?.trim()) {
+    return null;
+  }
+
+  return <ConfiguredCommentsSidebarButton />;
+}
+
+function ConfiguredCommentsSidebarButton() {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();

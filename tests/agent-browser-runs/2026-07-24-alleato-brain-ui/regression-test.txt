@@ -1,0 +1,28 @@
+Alleato Brain UI focused regression: PASS
+
+- Jest: 5 suites passed, 50 tests passed
+- Signed-source Jest: 1 suite passed, 6 tests passed
+- Changed-file quality: PASS
+- Route conflict gate: PASS
+- Impeccable surface-complexity audit: PASS
+- Five responsive widths: PASS, no horizontal overflow
+- Live Business Area list: PASS, five canonical rows
+- Live Internal Operations tabs: PASS
+- Search and source opening: PASS
+- Server page, sort, and page-size URL controls: PASS
+- Branch-aware upload dialog: PASS
+- Finance project-member and mismatched-scope RLS negative paths: PASS
+- Active internal employee route guard: PASS
+- Authenticated external-contact redirect: PASS
+- Internal Finance-nonmember denied route: PASS
+
+Full repository typecheck: UNRELATED DEBT
+Command: npm --prefix frontend run typecheck
+Representative owners:
+- frontend/src/app/(admin)/admin/daily-briefs/[briefId]/fanout-client.tsx
+- frontend/src/app/(admin)/feedback-inbox/page.tsx
+- frontend/src/app/api/ai-assistant/chat/handler-v2.ts
+- frontend/src/lib/daily-briefs/fanout-readback.ts
+
+No task-owned Alleato Brain file appeared in the compiler errors, and the
+changed-file gate passed.

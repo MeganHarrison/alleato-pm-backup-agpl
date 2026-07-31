@@ -9,7 +9,6 @@ const listPages = [
   "contacts/page.tsx",
   "employees/page.tsx",
   "groups/page.tsx",
-  "prospects/page.tsx",
   "vendors/page.tsx",
 ];
 
@@ -60,19 +59,6 @@ describe("directory list table pages", () => {
       );
     },
   );
-
-  it("keeps prospects off browser Supabase select-star access", () => {
-    const source = fs.readFileSync(
-      path.join(directoryRoot, "prospects/page.tsx"),
-      "utf8",
-    );
-
-    expect(source).not.toContain('from "@/lib/supabase/client"');
-    expect(source).not.toContain('select("*")');
-    expect(source).toContain(
-      'apiFetch<ProspectsResponse>("/api/directory/prospects")',
-    );
-  });
 
   it("keeps contacts row data editable inline instead of opening the preview drawer", () => {
     const source = fs.readFileSync(

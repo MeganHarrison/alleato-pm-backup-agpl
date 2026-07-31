@@ -1,0 +1,86 @@
+{
+  "contractVersion": 1,
+  "riskLevel": "high",
+  "taskId": "ALL-11-PHASE1B",
+  "feature": "Alleato Brain operational scope",
+  "route": "database://pm-app/alleato-brain-operational-scope",
+  "flows": [
+    {
+      "name": "Verify operational Business Area scope",
+      "steps": [
+        "Run verifier fixtures",
+        "Apply and verify migration ledger",
+        "Run live schema and policy readback",
+        "Run rolled-back typed-target negative path"
+      ],
+      "expectedOutcome": "Operational scope, Finance guards, typed targets, and migration ledger are present and invalid active targets fail closed."
+    }
+  ],
+  "requiredEvidence": [
+    "regressionTest",
+    "databaseReadback",
+    "negativePath",
+    "summary"
+  ],
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "operational-scope-schema",
+      "description": "Meetings, tasks, files, and attribution rules have validated Business Area scope.",
+      "evidence": [
+        {
+          "key": "databaseReadback",
+          "min": 1
+        },
+        {
+          "key": "regressionTest",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "typed-targets-fail-closed",
+      "description": "Active routing rules require exactly one target and invalid states roll back.",
+      "evidence": [
+        {
+          "key": "negativePath",
+          "min": 1
+        },
+        {
+          "key": "summary",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "finance-and-ledger-fail-closed",
+      "description": "Anonymous file reads are revoked, synthetic non-members cannot read Finance records, and non-admins cannot read migration ledgers.",
+      "evidence": [
+        {
+          "key": "negativePath",
+          "min": 1
+        },
+        {
+          "key": "databaseReadback",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "phase1b-rollback-is-atomic",
+      "description": "Phase 1B DDL is transactional and authorization/constraint fixtures leave no persistent records.",
+      "evidence": [
+        {
+          "key": "summary",
+          "min": 1
+        },
+        {
+          "key": "negativePath",
+          "min": 1
+        }
+      ]
+    }
+  ]
+}

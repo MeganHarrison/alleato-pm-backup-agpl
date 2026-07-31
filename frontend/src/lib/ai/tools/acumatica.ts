@@ -44,6 +44,16 @@ type CreateAcumaticaToolsOptions = {
   onTrace?: (trace: ToolTracePayload) => void;
 };
 
+export function normalizeAcumaticaText(value: unknown): string | null {
+  if (typeof value === "string" && value.trim()) return value;
+  if (value && typeof value === "object" && "value" in value) {
+    return normalizeAcumaticaText((value as { value?: unknown }).value);
+  }
+  return null;
+}
+
+export const normalizeAcumaticaDate = normalizeAcumaticaText;
+
 function withTrace<TInput extends Record<string, unknown>, TResult>(
   name: string,
   options: CreateAcumaticaToolsOptions,
@@ -248,12 +258,12 @@ export function createAcumaticaTools(
             bills: bills.map((b) => ({
               referenceNbr: b.ReferenceNbr,
               vendor: b.Vendor,
-              date: b.Date,
-              dueDate: b.DueDate,
+              date: normalizeAcumaticaDate(b.Date),
+              dueDate: normalizeAcumaticaDate(b.DueDate),
               amount: b.Amount,
               balance: b.Balance,
               status: b.Status,
-              description: b.Description,
+              description: normalizeAcumaticaText(b.Description),
             })),
           };
         },
@@ -301,12 +311,12 @@ export function createAcumaticaTools(
               referenceNbr: inv.ReferenceNbr,
               customer: inv.Customer,
               customerName: inv.CustomerName,
-              date: inv.Date,
-              dueDate: inv.DueDate,
+              date: normalizeAcumaticaDate(inv.Date),
+              dueDate: normalizeAcumaticaDate(inv.DueDate),
               amount: inv.Amount,
               balance: inv.Balance,
               status: inv.Status,
-              description: inv.Description,
+              description: normalizeAcumaticaText(inv.Description),
             })),
           };
         },
@@ -322,10 +332,11 @@ export function createAcumaticaTools(
       execute: withTrace(
         "getAcumaticaProjectBudget",
         options,
-        async ({ projectId, typeFilter }) => {
+        async ({ acumaticaProjectId, typeFilter }) => {
           const client = createAcumaticaClient();
           await client.login();
-          const summary = await client.getProjectBudgetSummary(projectId);
+          const summary =
+            await client.getProjectBudgetSummary(acumaticaProjectId);
 
           // Filter lines if requested
           let lines = [
@@ -349,7 +360,7 @@ export function createAcumaticaTools(
             )
             .map((l) => ({
               costCode: l.CostCode,
-              description: l.Description,
+              description: normalizeAcumaticaText(l.Description),
               type: l.Type,
               originalBudget: l.OriginalBudgetedAmount ?? 0,
               revisedBudget: l.RevisedBudgetedAmount ?? 0,
@@ -367,7 +378,7 @@ export function createAcumaticaTools(
 
           return {
             source: "Acumatica ERP (live)",
-            sourceRef: `[Source: Acumatica Project Budget - ${summary.projectDescription} (${projectId})]`,
+            sourceRef: `[Source: Acumatica Project Budget - ${summary.projectDescription} (${acumaticaProjectId})]`,
             project: {
               id: summary.projectId,
               description: summary.projectDescription,
@@ -468,12 +479,12 @@ export function createAcumaticaTools(
             unbilledAmount: totalOrderValue - totalBilled,
             purchaseOrders: pos.map((po) => ({
               orderNbr: po.OrderNbr,
-              vendor: po.Vendor,
-              date: po.Date,
+              vendor: normalizeAcumaticaText(po.Vendor),
+              date: normalizeAcumaticaDate(po.Date),
               status: po.Status,
               orderTotal: po.OrderTotal,
               billedAmount: po.BilledAmount,
-              description: po.Description,
+              description: normalizeAcumaticaText(po.Description),
             })),
           };
         },

@@ -39,7 +39,7 @@ export function FeatureRequestList({ requests }: { requests: FeatureRequestRow[]
           return (
             <Link
               key={request.id}
-              href={`/ai/feature-requests/${request.id}`}
+              href={`/ai-assistant/feature-requests/${request.id}`}
               className="grid grid-cols-1 gap-3 px-4 py-3 hover:bg-muted/40 md:grid-cols-[1.6fr_0.7fr_0.7fr_0.7fr_0.7fr_auto] md:items-center md:gap-4"
             >
               <div className="min-w-0">

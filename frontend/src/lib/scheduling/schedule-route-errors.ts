@@ -49,7 +49,7 @@ export function throwScheduleRpcError(where: string, error: ScheduleRpcError): n
   if (error.code === "23505") {
     throwScheduleRequestError(where, error.message, { code: "PRECONDITION_FAILED", status: 409, cause: error });
   }
-  if (error.code === "40001") {
+  if (error.code === "40001" || error.code === "PT409") {
     throwScheduleRequestError(where, error.message, { code: "PRECONDITION_FAILED", status: 409, cause: error });
   }
   if (error.code && EXPECTED_VALIDATION_SQLSTATES.has(error.code)) {

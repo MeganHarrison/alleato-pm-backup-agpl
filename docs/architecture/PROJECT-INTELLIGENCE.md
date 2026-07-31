@@ -173,6 +173,8 @@ project-management/
 │       │   │   └── tool-registry.ts
 │       │   ├── ai/intelligence/
 │       │   │   ├── packet-service.ts                  # project packet read/write service
+│       │   │   ├── packet-fast-path.ts
+│       │   │   ├── advisor-synthesis.ts
 │       │   │   ├── project-control-recommendations.ts
 │       │   │   ├── page-state.ts
 │       │   │   ├── db-fallback.ts

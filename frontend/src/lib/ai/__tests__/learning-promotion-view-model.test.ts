@@ -45,14 +45,14 @@ describe("learning promotion view model", () => {
       reasonCategory: "incorrect",
       reason: "This is no longer true.",
       sourceSurface: "assistant_answer_memory_trace",
-      sourceRoute: "/ai",
+      sourceRoute: "/ai-assistant",
       recommendedResolution: "Edit or expire the memory.",
     });
 
     expect(learning.action).toBe("review_memory");
     expect(learning.content).toBe("Old memory text");
     expect(learning.reason).toBe("This is no longer true.");
-    expect(learning.sourceRoute).toBe("/ai");
+    expect(learning.sourceRoute).toBe("/ai-assistant");
   });
 
   it("routes review_memory workflow candidates into the Memory tab", () => {
@@ -89,7 +89,7 @@ describe("learning promotion view model", () => {
       action: "review_teach_alleato_intake",
       title: "Use this closeout checklist",
       sourceSurface: "teach_alleato",
-      sourceRoute: "/ai/teach",
+      sourceRoute: "/ai-assistant/teach",
       sourceUserId: "11111111-1111-4111-8111-111111111111",
       perceivedRiskLevel: "medium",
       proposedDestination: "skill_library",
@@ -127,7 +127,7 @@ describe("learning promotion view model", () => {
       promotion_type: "workflow_rule",
       proposed_learning: {
         action: "teach_alleato_submission",
-        sourceRoute: "/ai/teach",
+        sourceRoute: "/ai-assistant/teach",
         workflowCategory: "cost control",
       },
     });

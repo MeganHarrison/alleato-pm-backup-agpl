@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { withApiGuardrails } from "@/lib/guardrails/api";
 import { GuardrailError } from "@/lib/guardrails/errors";
 import { createClient, getApiRouteUser } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import { SchedulingService } from "@/lib/services/scheduling-service";
 import type { DependencyType } from "@/types/scheduling";
 
@@ -14,6 +15,15 @@ function isInvalidLeadOrLag(value: unknown) {
 
 function validationErrorResponse(error: unknown) {
   const message = error instanceof Error ? error.message : "Unable to save this dependency.";
+  if (message.includes("conflicts with") && message.includes("constraint")) {
+    throw new GuardrailError({
+      code: "PRECONDITION_FAILED",
+      where: "projects/[projectId]/scheduling/tasks/[taskId]/dependencies",
+      message,
+      status: 409,
+      cause: error,
+    });
+  }
   if (
     message.includes("belong to this project") ||
     message.includes("cannot depend on itself") ||
@@ -25,11 +35,19 @@ function validationErrorResponse(error: unknown) {
   throw error;
 }
 
+async function createMutationService(actorUserId: string) {
+  return new SchedulingService(await createClient(), {
+    actorUserId,
+    mutationClient: createServiceClient(),
+  });
+}
+
 export const POST = withApiGuardrails<{ projectId: string; taskId: string }>(
   "projects/[projectId]/scheduling/tasks/[taskId]/dependencies#POST",
   async ({ request, params }) => {
     const { projectId, taskId } = await params;
-    if (!(await getApiRouteUser())) throw new GuardrailError({ code: "AUTH_EXPIRED", where: "schedule dependency create", message: "Authentication required." });
+    const user = await getApiRouteUser();
+    if (!user) throw new GuardrailError({ code: "AUTH_EXPIRED", where: "schedule dependency create", message: "Authentication required." });
     const body = await request.json();
     if (typeof body.predecessor_task_id !== "string" || !body.predecessor_task_id) {
       return NextResponse.json({ error: "Select a predecessor task before saving this dependency." }, { status: 400 });
@@ -47,7 +65,7 @@ export const POST = withApiGuardrails<{ projectId: string; taskId: string }>(
         message: leadLagError,
       });
     }
-    const service = new SchedulingService(await createClient());
+    const service = await createMutationService(user.id);
     try {
       const dependency = await service.createDependency(projectId, {
         task_id: taskId,
@@ -66,10 +84,11 @@ export const DELETE = withApiGuardrails<{ projectId: string; taskId: string }>(
   "projects/[projectId]/scheduling/tasks/[taskId]/dependencies#DELETE",
   async ({ request, params }) => {
     const { projectId, taskId } = await params;
-    if (!(await getApiRouteUser())) throw new GuardrailError({ code: "AUTH_EXPIRED", where: "schedule dependency delete", message: "Authentication required." });
+    const user = await getApiRouteUser();
+    if (!user) throw new GuardrailError({ code: "AUTH_EXPIRED", where: "schedule dependency delete", message: "Authentication required." });
     const dependencyId = new URL(request.url).searchParams.get("dependencyId");
     if (!dependencyId) return NextResponse.json({ error: "A dependency ID is required." }, { status: 400 });
-    const service = new SchedulingService(await createClient());
+    const service = await createMutationService(user.id);
     const dependency = (await service.getDependencies(projectId)).find((item) => item.id === dependencyId && item.task_id === taskId);
     if (!dependency) return NextResponse.json({ error: "Dependency not found for this schedule task." }, { status: 404 });
     await service.deleteDependency(projectId, taskId, dependencyId);
@@ -81,7 +100,8 @@ export const PATCH = withApiGuardrails<{ projectId: string; taskId: string }>(
   "projects/[projectId]/scheduling/tasks/[taskId]/dependencies#PATCH",
   async ({ request, params }) => {
     const { projectId, taskId } = await params;
-    if (!(await getApiRouteUser())) throw new GuardrailError({ code: "AUTH_EXPIRED", where: "schedule dependency update", message: "Authentication required." });
+    const user = await getApiRouteUser();
+    if (!user) throw new GuardrailError({ code: "AUTH_EXPIRED", where: "schedule dependency update", message: "Authentication required." });
     const dependencyId = new URL(request.url).searchParams.get("dependencyId");
     if (!dependencyId) return NextResponse.json({ error: "A dependency ID is required." }, { status: 400 });
     const body = await request.json();
@@ -104,7 +124,7 @@ export const PATCH = withApiGuardrails<{ projectId: string; taskId: string }>(
         message: leadLagError,
       });
     }
-    const service = new SchedulingService(await createClient());
+    const service = await createMutationService(user.id);
     try {
       const dependency = await service.updateDependency(projectId, taskId, dependencyId, body);
       return NextResponse.json({ data: dependency });

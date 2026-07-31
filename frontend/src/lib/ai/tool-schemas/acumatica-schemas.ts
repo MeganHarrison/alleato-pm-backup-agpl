@@ -91,15 +91,15 @@ export const getAcumaticaProjectBudgetDescription =
   "budget, accounting budget, project financials from ERP, cost codes " +
   "from Acumatica, or when the user wants the 'real' budget numbers " +
   "from the accounting system. " +
-  "The projectId is the Acumatica project code (e.g., '25108'), NOT " +
-  "the Supabase project ID (which is a number like 67).";
+  "The acumaticaProjectId is the Acumatica project code (e.g., '25108'), " +
+  "not the numeric Alleato project ID.";
 
 export const getAcumaticaProjectBudgetInputSchema = z.object({
-  projectId: z
+  acumaticaProjectId: z
     .string()
     .describe(
       "Acumatica project code (e.g., '25108' for Goodwill Tremont). " +
-        "This is the code shown in Acumatica, not the Supabase ID.",
+        "This is the code shown in Acumatica, not the numeric Alleato project ID.",
     ),
   typeFilter: z
     .enum(["Expense", "Income", "all"])

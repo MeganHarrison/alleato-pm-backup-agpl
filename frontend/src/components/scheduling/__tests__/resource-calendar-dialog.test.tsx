@@ -77,7 +77,7 @@ describe("ResourceCalendarDialog", () => {
       weekday_overrides: [{ weekday: 1, capacity_percent: 80 }],
       exceptions: [{ date: "2026-08-05", capacity_percent: 0, reason: "Project training" }],
     }));
-    expect(screen.getByText(/Cross-project availability and time-of-day shifts are not included/i)).toBeInTheDocument();
+    expect(screen.getByText(/Reusable time-of-day shifts and cross-project demand are managed in Enterprise capacity/i)).toBeInTheDocument();
   });
 
   it("locks editing and dismissal while a capacity save is in flight", async () => {

@@ -61,6 +61,33 @@ const replaceSchema = z.object({
 const levelingRequestSchema = z.object({
   horizon_days: z.number().int().min(1).max(730).default(365),
 }).strict();
+const nullableNonnegativeNumber = z.number().finite().nonnegative().nullable();
+const costResourceSchema = z.object({
+  id: z.string().uuid().nullable().optional(),
+  resource_kind: z.enum(["person", "equipment", "material"]),
+  display_name: z.string().trim().min(1).max(240),
+  standard_rate: nullableNonnegativeNumber,
+  cost_per_use: nullableNonnegativeNumber,
+  rate_unit: z.enum(["hour", "day", "unit"]).nullable(),
+  expected_cost_version: z.number().int().positive().nullable().optional(),
+}).strict().superRefine((value, context) => {
+  const expectedUnit = value.resource_kind === "person"
+    ? "hour"
+    : value.resource_kind === "equipment"
+      ? "day"
+      : "unit";
+  if (value.rate_unit !== null && value.rate_unit !== expectedUnit) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: `Use a ${expectedUnit} rate for this resource.`,
+      path: ["rate_unit"],
+    });
+  }
+});
+const deleteCostResourceSchema = z.object({
+  resource_id: z.string().uuid(),
+  expected_cost_version: z.number().int().positive(),
+}).strict();
 
 function requireAuthenticatedProject(projectId: string, where: string): Promise<number> {
   return getApiRouteUser().then((user) => {
@@ -117,6 +144,9 @@ export const GET = withApiGuardrails<{ projectId: string }>(
       if (view === "roster") {
         return NextResponse.json(await service.getProjectRoster(projectId));
       }
+      if (view === "cost") {
+        return NextResponse.json(await service.getCostModel(projectId));
+      }
       if (view === "capacity") {
         const range = parseDateRange(url, where);
         return NextResponse.json(await service.getCapacityRange(projectId, range.start, range.finish));
@@ -128,7 +158,7 @@ export const GET = withApiGuardrails<{ projectId: string }>(
         }
         return NextResponse.json({ data: await service.getCapacityProfile(projectId, resourceId.data) });
       }
-      throwScheduleRequestError(where, "Choose a supported schedule-resource view: roster, capacity, or capacity-profile.");
+      throwScheduleRequestError(where, "Choose a supported schedule-resource view: roster, cost, capacity, or capacity-profile.");
     } catch (error) {
       if (error instanceof ScheduleResourceServiceError) rethrowServiceError(where, error);
       throw error;
@@ -140,9 +170,30 @@ export const PUT = withApiGuardrails<{ projectId: string }>(
   `${ROUTE_WHERE}#PUT`,
   async ({ request, params }) => {
     const url = new URL(request.url);
-    const where = `${ROUTE_WHERE}#PUT:capacity-profile`;
+    const view = url.searchParams.get("view");
+    const where = `${ROUTE_WHERE}#PUT:${view ?? "unknown"}`;
     const projectId = await requireAuthenticatedProject((await params).projectId, where);
-    if (url.searchParams.get("view") !== "capacity-profile") {
+    if (view === "cost-resource") {
+      const parsedBody = costResourceSchema.safeParse(
+        await request.json().catch(() => null),
+      );
+      if (!parsedBody.success || !parsedBody.data.id || !parsedBody.data.expected_cost_version) {
+        throwScheduleRequestError(
+          where,
+          parsedBody.error?.issues[0]?.message
+            ?? "Choose a current cost resource before saving changes.",
+        );
+      }
+      try {
+        const service = new ScheduleResourceService(await createClient());
+        const data = await service.upsertCostResource(projectId, parsedBody.data);
+        return NextResponse.json({ data });
+      } catch (error) {
+        if (error instanceof ScheduleResourceServiceError) rethrowServiceError(where, error);
+        throw error;
+      }
+    }
+    if (view !== "capacity-profile") {
       throwScheduleRequestError(where, "Choose the capacity-profile view before changing project capacity.");
     }
     const resourceId = resourceIdSchema.safeParse(url.searchParams.get("resourceId"));
@@ -181,9 +232,35 @@ export const POST = withApiGuardrails<{ projectId: string }>(
   `${ROUTE_WHERE}#POST`,
   async ({ request, params }) => {
     const url = new URL(request.url);
-    const where = `${ROUTE_WHERE}#POST:leveling-preview`;
+    const operation = url.searchParams.get("operation");
+    const where = `${ROUTE_WHERE}#POST:${operation ?? "unknown"}`;
     const projectId = await requireAuthenticatedProject((await params).projectId, where);
-    if (url.searchParams.get("operation") !== "leveling-preview") {
+    if (operation === "cost-resource") {
+      const parsedBody = costResourceSchema.safeParse(
+        await request.json().catch(() => null),
+      );
+      if (
+        !parsedBody.success ||
+        parsedBody.data.id ||
+        parsedBody.data.expected_cost_version ||
+        parsedBody.data.resource_kind === "person"
+      ) {
+        throwScheduleRequestError(
+          where,
+          parsedBody.error?.issues[0]?.message
+            ?? "Provide a new equipment or material resource without an existing identifier.",
+        );
+      }
+      try {
+        const service = new ScheduleResourceService(await createClient());
+        const data = await service.upsertCostResource(projectId, parsedBody.data);
+        return NextResponse.json({ data }, { status: 201 });
+      } catch (error) {
+        if (error instanceof ScheduleResourceServiceError) rethrowServiceError(where, error);
+        throw error;
+      }
+    }
+    if (operation !== "leveling-preview") {
       throwScheduleRequestError(where, "Choose the leveling-preview operation before previewing resource leveling.");
     }
     const parsedBody = levelingRequestSchema.safeParse(await request.json().catch(() => ({})));
@@ -195,6 +272,35 @@ export const POST = withApiGuardrails<{ projectId: string }>(
       const service = new ScheduleResourceService(await createClient());
       const context = await service.loadLevelingContext(projectId, parsedBody.data.horizon_days);
       return NextResponse.json({ data: previewScheduleResourceLeveling(context) });
+    } catch (error) {
+      if (error instanceof ScheduleResourceServiceError) rethrowServiceError(where, error);
+      throw error;
+    }
+  },
+);
+
+export const DELETE = withApiGuardrails<{ projectId: string }>(
+  `${ROUTE_WHERE}#DELETE:cost-resource`,
+  async ({ request, params }) => {
+    const where = `${ROUTE_WHERE}#DELETE:cost-resource`;
+    const projectId = await requireAuthenticatedProject((await params).projectId, where);
+    const parsedBody = deleteCostResourceSchema.safeParse(
+      await request.json().catch(() => null),
+    );
+    if (!parsedBody.success) {
+      throwScheduleRequestError(
+        where,
+        "Choose a current cost resource before deleting it.",
+      );
+    }
+    try {
+      const service = new ScheduleResourceService(await createClient());
+      await service.deleteCostResource(
+        projectId,
+        parsedBody.data.resource_id,
+        parsedBody.data.expected_cost_version,
+      );
+      return NextResponse.json({ deleted: true });
     } catch (error) {
       if (error instanceof ScheduleResourceServiceError) rethrowServiceError(where, error);
       throw error;

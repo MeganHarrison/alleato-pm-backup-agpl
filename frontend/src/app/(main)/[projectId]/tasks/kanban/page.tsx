@@ -1,9 +1,11 @@
 export const dynamic = "force-dynamic";
 
-import { notFound, redirect } from "next/navigation";
+import Link from "next/link";
+import { notFound } from "next/navigation";
 
-import { buildPlaneWorkItemsHref } from "@/features/plane-work-items-contracts/work-items-query";
-import { parsePlaneProjectId } from "@/features/plane-work-items/plane-surface-access";
+import { Button } from "@/components/ui/button";
+import { PageShell } from "@/components/layout";
+import { TasksKanbanPage } from "@/features/tasks/tasks-kanban-page";
 
 export default async function ProjectTasksKanbanPage({
   params,
@@ -11,11 +13,25 @@ export default async function ProjectTasksKanbanPage({
   params: Promise<{ projectId: string }>;
 }) {
   const { projectId } = await params;
-  const numericProjectId = parsePlaneProjectId(projectId);
+  const numericProjectId = Number.parseInt(projectId, 10);
 
-  if (numericProjectId === null) {
+  if (Number.isNaN(numericProjectId)) {
     notFound();
   }
 
-  redirect(buildPlaneWorkItemsHref(projectId, { view: "board" }));
+  return (
+    <PageShell
+      variant="dashboard"
+      title="Task Kanban"
+      description="Drag cards between statuses. Moves save immediately."
+      actions={
+        <Button asChild variant="outline" size="sm">
+          <Link href={`/${projectId}/tasks`}>Task inbox</Link>
+        </Button>
+      }
+      contentClassName="space-y-4"
+    >
+      <TasksKanbanPage projectId={projectId} />
+    </PageShell>
+  );
 }

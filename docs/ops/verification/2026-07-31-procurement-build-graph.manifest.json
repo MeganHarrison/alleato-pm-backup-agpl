@@ -1,0 +1,33 @@
+{
+  "contractVersion": 1,
+  "taskId": "AAI-1297",
+  "riskLevel": "high",
+  "feature": "Procurement release build-graph reduction",
+  "route": "Vercel production build / PDF and email server functions",
+  "flows": [
+    {
+      "name": "Chromium-free route tracing with PDF fallback",
+      "steps": [
+        "Inspect the production trace configuration",
+        "Run the PDF remote-pack fallback regression test",
+        "Independently review the configuration diff"
+      ],
+      "expectedOutcome": "No PDF or email route force-traces the Chromium archive, while the shared launcher retains a version-pinned remote-pack recovery path."
+    }
+  ],
+  "requiredEvidence": ["summary", "negativePath", "regressionTest"],
+  "visual": { "viewports": [], "checks": [] },
+  "independentReview": { "required": true },
+  "claims": [
+    {
+      "id": "no-per-function-chromium-archive",
+      "description": "The build config no longer injects Chromium bin assets into each PDF or email route.",
+      "evidence": [{ "key": "summary", "min": 1 }, { "key": "negativePath", "min": 1 }]
+    },
+    {
+      "id": "failure-loud-pdf-recovery",
+      "description": "The shared PDF launcher retains a tested, version-pinned remote Chromium fallback.",
+      "evidence": [{ "key": "regressionTest", "min": 1 }]
+    }
+  ]
+}

@@ -69,6 +69,8 @@ export function buildPacketJson({
       sources: sources.map((source) => ({
         id: source.id,
         alias: source.alias,
+        sourceRecordId: source.sourceRecordId ?? null,
+        appDocumentId: source.appDocumentId ?? null,
         title: source.title,
         lane: source.lane,
         projectId: source.projectId,

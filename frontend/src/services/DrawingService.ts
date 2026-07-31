@@ -93,6 +93,32 @@ export class DrawingService {
     const logView = include_unpublished ? "drawing_log_review" : "drawing_log";
 
     try {
+      // The drawing_log(_review) views denormalize the drawing set as
+      // `set_name`, not `drawing_set_id` — resolve the id to its name first
+      // so the view filter targets a column that actually exists there.
+      let setName: string | null = null;
+      if (set_id) {
+        const { data: setRow } = await this.supabase
+          .from("drawing_sets")
+          .select("name")
+          .eq("id", set_id)
+          .maybeSingle();
+        setName = setRow?.name ?? null;
+        if (!setName) {
+          return {
+            data: {
+              drawings: [],
+              total_count: 0,
+              page,
+              page_size,
+              has_next_page: false,
+              has_previous_page: page > 1,
+            },
+            error: null,
+          };
+        }
+      }
+
       let query = this.supabase
         .from(logView)
         .select("*", { count: "exact" })
@@ -111,7 +137,7 @@ export class DrawingService {
       if (area_id) query = query.eq("area_id", area_id);
       if (discipline) query = query.eq("discipline", discipline);
       if (status) query = query.eq("status", status);
-      if (set_id) query = query.eq("drawing_set_id", set_id);
+      if (setName) query = query.eq("set_name", setName);
 
       if (search) {
         query = query.or(
@@ -362,7 +388,7 @@ export class DrawingService {
         .update({
           deleted_at: new Date().toISOString(),
           deleted_by: userId ?? null,
-        } as Record<string, unknown>)
+        })
         .eq("id", drawingId)
         .eq("project_id", projectIdNum);
 
@@ -404,7 +430,7 @@ export class DrawingService {
         .update({
           deleted_at: null,
           deleted_by: null,
-        } as Record<string, unknown>)
+        })
         .eq("id", drawingId)
         .eq("project_id", projectIdNum);
 
@@ -635,7 +661,7 @@ export class DrawingService {
     try {
       const { data, error } = await this.supabase
         .from("drawings")
-        .update({ [field]: value, updated_at: new Date().toISOString() })
+        .update({ [field]: value, updated_at: new Date().toISOString() } as Database["public"]["Tables"]["drawings"]["Update"])
         .eq("id", drawingId)
         .eq("project_id", projectIdNum)
         .select()

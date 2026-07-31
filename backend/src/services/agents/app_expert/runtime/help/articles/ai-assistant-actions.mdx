@@ -1,77 +1,88 @@
 ---
-title: AI Assistant Actions and Current Limits
-description: Understand what Eve can read, the governed RFI action available in AI Assistant, and which mutations remain unavailable.
+title: What the AI Assistant Can Do (Actions)
+description: The AI assistant can create and update records directly from chat — learn which actions are available and how the confirmation flow works.
 audience: client
 visibility: published
 module: ai-assistant
 category: AI & Intelligence
-tags: [ai-assistant, eve, actions, approvals, safety]
+tags: [ai-assistant, actions, create, rfi, change-order, tasks, confirmation]
 featured: true
 client_visible: true
 ai_visible: true
 order: 605
 related_routes:
-  - /ai
-related_actions:
-  - create_rfi
+  - /ai-assistant
+related_actions: []
 ---
 
-# AI Assistant Actions and Current Limits
+# What the AI Assistant Can Do (Actions)
 
-Eve is source-backed and read-capable across approved project and company data.
-In the main AI Assistant, Eve can also create an RFI through a governed action.
-Ask Alleato remains read-only.
+Ask Alleato can create and update records directly from chat. For any action that writes to the database, the assistant shows you a preview and waits for your confirmation before making any changes.
 
-## What Eve Can Read
+## How the Confirmation Flow Works
 
-- Project, portfolio, budget, cost, commitment, change, schedule, RFI, and
-  submittal data available to your account.
-- Authorized meetings, emails, Teams messages, documents, company knowledge,
-  past conversations, and user memories.
-- Project-intelligence packets and the current executive brief.
-- Application help and the correct page for workflows that are not available
-  as chat actions.
+1. You ask the assistant to create or update something (e.g., "Create an RFI about the electrical panel clearance issue").
+2. The assistant shows a **preview card** with the exact fields it will write — no changes have been made yet.
+3. Reply **confirm** (or click the Confirm button) to execute the write.
+4. The assistant confirms the record was created and links to it.
 
-## Governed RFI Creation
+If the preview looks wrong, describe the correction before confirming. You can also reply **cancel** to abort.
 
-When you ask Eve to create an RFI in the AI Assistant:
+## Available Write Actions
 
-1. Eve collects the project, subject, question, due date, responsible party,
-   and cost and schedule impacts.
-2. The chat shows the exact action payload and asks for approval.
-3. Denying or cancelling performs no write.
-4. Approval resumes the same durable Eve call.
-5. The app rechecks your current project and RFI write permission.
-6. The app creates the RFI once and returns an idempotent execution receipt.
+### Requires Confirmation
 
-The approved business payload cannot set its own confirmation flag,
-idempotency key, user, project permission, session, or tool-call identity.
-Those controls are owned by Eve and the application boundary.
+These actions write financial or sensitive records and always show a preview first.
 
-## Actions That Remain Unavailable
+| Action | What It Creates |
+|--------|----------------|
+| Create Change Order | A prime contract change order linked to a project |
+| Create Change Event | A potential change event with cost and schedule impact |
+| Update Project Status | Changes the status field on a project |
+| Create RFI | A new Request for Information with subject, question, ball-in-court, and due date |
+| Flag Project Risk | An AI insight record flagging a risk with type, severity, and description |
+| Create Commitment | A subcontract or purchase order for a vendor |
 
-Other typed implementations in the codebase, including change events, change
-orders, commitments, contacts, tasks, submittals, daily reports, messages,
-calendar delivery, and payments, are not exposed through Eve yet. Their
-presence in source code or in reusable UI does not mean they are live.
+### No Confirmation Required
 
-For those workflows, ask Eve to find or explain the correct page, then complete
-the action in the normal authenticated application form.
+These actions create lower-impact records that can be reversed or edited easily.
 
-## Safety and Failure Behavior
+| Action | What It Creates |
+|--------|----------------|
+| Create Task | A schedule task with title, assignee, start/end dates |
+| Update RFI Status | Changes the status of an existing RFI |
+| Create Meeting Note | A meeting document entry |
+| Create Submittal | A submittal log entry |
+| Log Daily Report | A daily log entry |
+| Save to Knowledge Base | Saves a fact, lesson, or process note to the company knowledge base |
+| Save Insight | Saves a structured insight (risk, decision, cost impact) linked to a project |
 
-- Writes are never available in Ask Alleato.
-- Eve does not advertise RFI creation without current RFI write permission.
-- Unsigned, expired, tampered, cross-project, and cross-surface requests fail
-  before execution.
-- A retry or reconnect reuses the same action receipt instead of creating a
-  second RFI.
-- If the governed boundary is unavailable, Eve reports the failure rather than
-  claiming the record was created.
+## Example Prompts
+
+```
+"Create an RFI for the fire suppression head clearance issue. Ball in court is the MEP engineer. Due in 5 days."
+
+"Log a risk on Vermillion Rise — delayed steel delivery is threatening the Phase 2 schedule."
+
+"Create a subcontract with Apex Electric for the panel upgrades, $85,000."
+
+"Mark RFI #42 as closed."
+
+"Create a task for Sarah to submit the submittal log update by Friday."
+
+"Save this to the knowledge base: always include a 10% contingency on tilt-up panel pours."
+```
+
+## Safety Rules
+
+- The assistant never executes a financial write without showing a preview first.
+- The assistant never approves, signs, or pays on your behalf.
+- Write access is scoped to projects you have permission to edit. If a project is outside your access, the action is blocked.
+- All write actions are logged with your user ID and a timestamp.
 
 ## Related Articles
 
 - [AI Assistant Overview](/help/articles/ai-assistant-overview)
-- [AI Capabilities Index](/help/articles/ai-capabilities-index)
 - [RFIs](/help/articles/rfis)
-- [Manage User Access](/help/articles/manage-permissions)
+- [Change Events](/help/articles/change-events)
+- [Knowledge Base](/help/articles/ai-memory)

@@ -76,8 +76,12 @@
   margin: 26px 0 0;
   color: var(--brief-ink);
   font-size: clamp(2.5rem, 6vw, 4.35rem);
-  font-weight: 760;
-  letter-spacing: -0.055em;
+  /* Oswald Book — was 760/-0.055em, tuned for Inter and rendered as a heavy
+     black on a condensed display face. The global h1 rule in globals.css also
+     forces Book + 0 tracking; these values keep the source honest about what
+     actually paints. */
+  font-weight: 400;
+  letter-spacing: 0;
   line-height: 0.98;
 }
 

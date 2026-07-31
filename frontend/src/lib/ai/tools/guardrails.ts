@@ -20,13 +20,19 @@ export type ToolScope = {
 
 export type ToolGuardrails = {
   getScope: () => Promise<ToolScope>;
-  getScopedProjectIds: (requestedProjectId?: number | null) => Promise<number[]>;
+  getScopedProjectIds: (
+    requestedProjectId?: number | null,
+  ) => Promise<number[]>;
   getScopedBusinessAreaIds: () => Promise<number[]>;
-  enforceProjectAccess: (projectId: number) => Promise<{ ok: true } | { ok: false; error: string }>;
+  enforceProjectAccess: (
+    projectId: number,
+  ) => Promise<{ ok: true } | { ok: false; error: string }>;
   enforceBusinessAreaAccess: (
     businessAreaId: number,
   ) => Promise<{ ok: true } | { ok: false; error: string }>;
-  applyPinnedProject: (requestedProjectId?: number | null) => Promise<number | null>;
+  applyPinnedProject: (
+    requestedProjectId?: number | null,
+  ) => Promise<number | null>;
 };
 
 export type DocumentBusinessAreaScope =
@@ -51,11 +57,7 @@ export function readDocumentBusinessAreaScope(
   }
 
   const value = record.business_area_id;
-  if (
-    typeof value !== "number" ||
-    !Number.isSafeInteger(value) ||
-    value <= 0
-  ) {
+  if (typeof value !== "number" || !Number.isSafeInteger(value) || value <= 0) {
     return { kind: "invalid", rawValue: value };
   }
 
@@ -67,12 +69,21 @@ export function isDocumentScopeAllowed({
   projectId,
   metadata,
   requestedProjectId,
+  requestedBusinessAreaId,
 }: {
   scope: ToolScope;
   projectId: unknown;
   metadata: unknown;
   requestedProjectId?: number | null;
+  requestedBusinessAreaId?: number | null;
 }): boolean {
+  if (
+    typeof requestedProjectId === "number" &&
+    typeof requestedBusinessAreaId === "number"
+  ) {
+    return false;
+  }
+
   const businessAreaScope = readDocumentBusinessAreaScope(metadata);
   if (businessAreaScope.kind === "invalid") {
     return false;
@@ -82,9 +93,15 @@ export function isDocumentScopeAllowed({
     if (typeof requestedProjectId === "number") {
       return false;
     }
-    return scope.allowedBusinessAreaIds.includes(
-      businessAreaScope.businessAreaId,
+    return (
+      (typeof requestedBusinessAreaId !== "number" ||
+        businessAreaScope.businessAreaId === requestedBusinessAreaId) &&
+      scope.allowedBusinessAreaIds.includes(businessAreaScope.businessAreaId)
     );
+  }
+
+  if (typeof requestedBusinessAreaId === "number") {
+    return false;
   }
 
   if (typeof requestedProjectId === "number") {
@@ -96,8 +113,7 @@ export function isDocumentScopeAllowed({
   }
 
   return (
-    typeof projectId === "number" &&
-    scope.allowedProjectIds.includes(projectId)
+    typeof projectId === "number" && scope.allowedProjectIds.includes(projectId)
   );
 }
 
@@ -155,7 +171,10 @@ export function resolveCommunicationSourceType({
   sourceType: unknown;
 }): unknown {
   const normalizedCategory = String(category ?? "");
-  if (normalizedCategory === "email" || normalizedCategory === "teams_message") {
+  if (
+    normalizedCategory === "email" ||
+    normalizedCategory === "teams_message"
+  ) {
     return normalizedCategory;
   }
   return sourceType;
@@ -327,7 +346,10 @@ export function createToolGuardrails(
     }
 
     let pinnedProjectId: number | null = null;
-    if (typeof options.pinnedProjectId === "number" && Number.isFinite(options.pinnedProjectId)) {
+    if (
+      typeof options.pinnedProjectId === "number" &&
+      Number.isFinite(options.pinnedProjectId)
+    ) {
       if (isAdmin || allowedProjectIds.includes(options.pinnedProjectId)) {
         pinnedProjectId = options.pinnedProjectId;
       }
@@ -352,7 +374,9 @@ export function createToolGuardrails(
     return scopePromise;
   }
 
-  async function getScopedProjectIds(requestedProjectId?: number | null): Promise<number[]> {
+  async function getScopedProjectIds(
+    requestedProjectId?: number | null,
+  ): Promise<number[]> {
     const scope = await getScope();
 
     if (scope.allowedProjectIds.length === 0 && !scope.isAdmin) {
@@ -364,12 +388,16 @@ export function createToolGuardrails(
     }
 
     const effectiveProjectId =
-      typeof requestedProjectId === "number" && Number.isFinite(requestedProjectId)
+      typeof requestedProjectId === "number" &&
+      Number.isFinite(requestedProjectId)
         ? requestedProjectId
         : null;
 
     if (typeof effectiveProjectId === "number") {
-      if (!scope.isAdmin && !scope.allowedProjectIds.includes(effectiveProjectId)) {
+      if (
+        !scope.isAdmin &&
+        !scope.allowedProjectIds.includes(effectiveProjectId)
+      ) {
         return [];
       }
       return [effectiveProjectId];
@@ -387,7 +415,10 @@ export function createToolGuardrails(
       return { ok: false, error: "Invalid project ID." };
     }
 
-    if (typeof scope.pinnedProjectId === "number" && projectId !== scope.pinnedProjectId) {
+    if (
+      typeof scope.pinnedProjectId === "number" &&
+      projectId !== scope.pinnedProjectId
+    ) {
       return {
         ok: false,
         error:
@@ -438,7 +469,10 @@ export function createToolGuardrails(
     if (typeof scope.pinnedProjectId === "number") {
       return scope.pinnedProjectId;
     }
-    if (typeof requestedProjectId === "number" && Number.isFinite(requestedProjectId)) {
+    if (
+      typeof requestedProjectId === "number" &&
+      Number.isFinite(requestedProjectId)
+    ) {
       return requestedProjectId;
     }
     return scope.pinnedProjectId;

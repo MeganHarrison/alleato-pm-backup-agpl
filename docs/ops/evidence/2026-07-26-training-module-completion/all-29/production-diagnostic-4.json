@@ -1,0 +1,34 @@
+{
+  "capturedAt": "2026-07-27T01:52:23.236654",
+  "endpoint": "https://alleato-backend-rbnj.onrender.com/health/training-library",
+  "httpStatus": 503,
+  "response": {
+    "status": "degraded",
+    "desired": 70,
+    "catalogued": 1,
+    "indexed": 1,
+    "searchable": 0,
+    "missing": 69,
+    "stale": 0,
+    "unsearchable": 1,
+    "reconciliation": {
+      "lastAttemptAt": "2026-07-27T01:48:03.323642+00:00",
+      "lastSuccessAt": null,
+      "lastFailureAt": "2026-07-27T01:48:07.481461+00:00",
+      "lastStage": "embed-training_guide",
+      "lastErrorType": "APIStatusError",
+      "lastErrorCode": null,
+      "lastErrorStatus": 402,
+      "lastErrorFingerprint": "6614a30bfbb2",
+      "lastResult": null
+    }
+  },
+  "classification": {
+    "cause": "The required Vercel AI Gateway rejected the first training embedding request with HTTP 402.",
+    "detectionGap": "Provider configuration health did not prove that the account had credit for a live embedding request.",
+    "prevention": "Retain safe upstream status diagnostics and require searchable to equal desired with zero missing or unsearchable documents before release closeout.",
+    "owner": "Alleato AI provider administrator",
+    "nextAction": "Restore the AI Gateway credit or budget, or authorize a securely configured direct OpenAI fallback on Render; then verify the existing reconciliation health reaches 70 searchable documents."
+  },
+  "secretsIncluded": false
+}

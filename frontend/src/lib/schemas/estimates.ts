@@ -17,27 +17,23 @@ export const EstimateStatuses = [
 ] as const;
 export type EstimateStatus = (typeof EstimateStatuses)[number];
 
-export const EstimateTypes = ["asrs", "design_build"] as const;
+export const EstimateTypes = ["design_build"] as const;
 export type EstimateType = (typeof EstimateTypes)[number];
 
 export const EstimateTypeLabels: Record<EstimateType, string> = {
-  asrs: "ASRS",
   design_build: "Construction Design Build",
 };
 
 export const EstimateTypeDescriptions: Record<EstimateType, string> = {
-  asrs: "Automated Storage & Retrieval Systems — Sprinkler Design",
   design_build: "Construction Design Build Projects",
 };
 
 // Slug ↔ DB value mapping (URL slugs use hyphens, DB uses underscores)
 export const EstimateTypeSlugMap: Record<string, EstimateType> = {
-  asrs: "asrs",
   "design-build": "design_build",
 };
 
 export const EstimateTypeToSlug: Record<EstimateType, string> = {
-  asrs: "asrs",
   design_build: "design-build",
 };
 

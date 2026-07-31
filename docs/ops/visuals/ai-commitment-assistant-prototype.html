@@ -1,0 +1,1124 @@
+<title>Prototype — AI Assistant creates a commitment from a conversation</title>
+
+<style>
+  :root {
+    --paper:      #F7F3EA;
+    --paper-2:    #F1EBDE;
+    --paper-3:    #EAE3D4;
+    --ink:        #23211D;
+    --ink-soft:   #6A645A;
+    --ink-faint:  #938C7F;
+    --rule:       #D9D2C4;
+    --rule-soft:  #E6E0D3;
+    --accent:     #2F4A6D;
+    --accent-bg:  #E3E9F1;
+    --pass:       #4A6B3F;
+    --pass-bg:    #E4EADD;
+    --hold:       #9A6F22;
+    --hold-bg:    #F2E8D2;
+    --fail:       #9B3B2F;
+    --fail-bg:    #F3DFDB;
+
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+    --sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, "JetBrains Mono", Menlo, Consolas, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper:     #171512;
+      --paper-2:   #1F1C18;
+      --paper-3:   #272320;
+      --ink:       #EBE4D6;
+      --ink-soft:  #A9A193;
+      --ink-faint: #7C7466;
+      --rule:      #3A352D;
+      --rule-soft: #2C2822;
+      --accent:    #93B7DC;
+      --accent-bg: #1E2833;
+      --pass:      #9CBE8C;
+      --pass-bg:   #1F2A1C;
+      --hold:      #D8AE60;
+      --hold-bg:   #2C2417;
+      --fail:      #DE9083;
+      --fail-bg:   #2E1D1A;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper:#171512; --paper-2:#1F1C18; --paper-3:#272320;
+    --ink:#EBE4D6; --ink-soft:#A9A193; --ink-faint:#7C7466;
+    --rule:#3A352D; --rule-soft:#2C2822;
+    --accent:#93B7DC; --accent-bg:#1E2833;
+    --pass:#9CBE8C; --pass-bg:#1F2A1C;
+    --hold:#D8AE60; --hold-bg:#2C2417;
+    --fail:#DE9083; --fail-bg:#2E1D1A;
+  }
+  :root[data-theme="light"] {
+    --paper:#F7F3EA; --paper-2:#F1EBDE; --paper-3:#EAE3D4;
+    --ink:#23211D; --ink-soft:#6A645A; --ink-faint:#938C7F;
+    --rule:#D9D2C4; --rule-soft:#E6E0D3;
+    --accent:#2F4A6D; --accent-bg:#E3E9F1;
+    --pass:#4A6B3F; --pass-bg:#E4EADD;
+    --hold:#9A6F22; --hold-bg:#F2E8D2;
+    --fail:#9B3B2F; --fail-bg:#F3DFDB;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 1260px; margin: 0 auto; padding: 30px 22px 70px; }
+
+  /* ---------- header ---------- */
+  .topbar {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 16px; flex-wrap: wrap;
+    border-bottom: 1px solid var(--rule); padding-bottom: 12px; margin-bottom: 22px;
+  }
+  .eyebrow {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: .13em;
+    text-transform: uppercase; color: var(--ink-faint);
+  }
+  h1 { font-family: var(--serif); font-size: 30px; line-height: 1.2; margin: 6px 0 8px; font-weight: 600; letter-spacing: -.01em; }
+  .lede { color: var(--ink-soft); max-width: 74ch; margin: 0; font-size: 14.5px; }
+  .topbar-actions { display: flex; gap: 8px; }
+
+  button {
+    font-family: inherit; font-size: 12.5px; color: var(--ink);
+    background: var(--paper-2); border: 1px solid var(--rule);
+    border-radius: 6px; padding: 7px 12px; cursor: pointer;
+    transition: background .13s ease, border-color .13s ease, color .13s ease;
+  }
+  button:hover:not(:disabled) { background: var(--paper-3); border-color: var(--ink-faint); }
+  button:disabled { opacity: .42; cursor: not-allowed; }
+  button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* ---------- scenario tabs ---------- */
+  .scenarios { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+  .scn {
+    text-align: left; padding: 9px 13px; border-radius: 7px; line-height: 1.35;
+    min-width: 190px; flex: 1 1 190px;
+  }
+  .scn strong { display: block; font-size: 12.5px; font-weight: 600; }
+  .scn span { display: block; font-size: 11px; color: var(--ink-faint); margin-top: 2px; }
+  .scn[aria-pressed="true"] {
+    background: var(--accent-bg); border-color: var(--accent); color: var(--ink);
+  }
+  .scn[aria-pressed="true"] span { color: var(--ink-soft); }
+  .hint {
+    font-size: 11.5px; color: var(--ink-faint); font-family: var(--mono);
+    margin: 0 0 20px;
+  }
+
+  /* ---------- stage ---------- */
+  .stage { display: grid; grid-template-columns: 1.02fr .98fr; gap: 20px; align-items: start; }
+  @media (max-width: 940px) { .stage { grid-template-columns: 1fr; } }
+
+  .rail { display: flex; flex-direction: column; gap: 20px; }
+
+  .panel {
+    background: var(--paper-2); border: 1px solid var(--rule-soft);
+    border-radius: 10px; overflow: hidden;
+  }
+  .panel-head {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 10px 14px; border-bottom: 1px solid var(--rule-soft);
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: .11em;
+    text-transform: uppercase; color: var(--ink-faint);
+  }
+  .panel-body { padding: 14px; }
+
+  /* ---------- chat ---------- */
+  .chat { min-height: 430px; display: flex; flex-direction: column; gap: 11px; }
+  .msg { display: flex; gap: 10px; align-items: flex-start; animation: rise .26s ease both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .avatar {
+    flex: 0 0 24px; height: 24px; width: 24px; border-radius: 5px;
+    display: grid; place-items: center; font-family: var(--mono);
+    font-size: 11px; font-weight: 600; margin-top: 1px;
+  }
+  .msg.user .avatar { background: var(--paper-3); color: var(--ink-soft); border: 1px solid var(--rule); }
+  .msg.ai .avatar { background: var(--accent); color: var(--paper); }
+  .bubble { font-size: 14px; max-width: 52ch; }
+  .msg.user .bubble {
+    background: var(--accent-bg); border: 1px solid var(--rule-soft);
+    border-radius: 8px; padding: 8px 11px;
+  }
+  .bubble strong { font-weight: 600; }
+  .bubble em { font-style: normal; color: var(--ink-soft); }
+
+  .toolstack { display: flex; flex-direction: column; gap: 4px; margin: 2px 0 2px 34px; }
+  .tool {
+    display: flex; align-items: center; gap: 8px;
+    font-family: var(--mono); font-size: 11px; color: var(--ink-soft);
+    animation: rise .2s ease both;
+  }
+  .tool .dot { height: 6px; width: 6px; border-radius: 50%; flex: none; }
+  .tool.read .dot { background: var(--accent); }
+  .tool.write .dot { background: var(--hold); }
+  .tool .tag {
+    font-size: 9.5px; letter-spacing: .09em; text-transform: uppercase;
+    padding: 1px 5px; border-radius: 3px; margin-left: auto;
+  }
+  .tool.read .tag { background: var(--accent-bg); color: var(--accent); }
+  .tool.write .tag { background: var(--hold-bg); color: var(--hold); }
+
+  .typing { display: inline-flex; gap: 3px; align-items: center; padding: 4px 0; }
+  .typing i { height: 5px; width: 5px; border-radius: 50%; background: var(--ink-faint); animation: blink 1.05s infinite; }
+  .typing i:nth-child(2) { animation-delay: .18s; }
+  .typing i:nth-child(3) { animation-delay: .36s; }
+  @keyframes blink { 0%,60%,100% { opacity: .25; } 30% { opacity: 1; } }
+
+  /* composer */
+  .composer { border-top: 1px solid var(--rule-soft); padding: 11px 14px; }
+  .prompt-row { display: flex; gap: 8px; align-items: center; }
+  .prompt-row input {
+    flex: 1; font-family: inherit; font-size: 13.5px; color: var(--ink);
+    background: var(--paper); border: 1px solid var(--rule); border-radius: 7px;
+    padding: 8px 11px;
+  }
+  .prompt-row input:focus { outline: none; border-color: var(--accent); }
+  .replies { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
+  .reply { font-size: 11.5px; padding: 5px 9px; border-radius: 20px; }
+
+  /* ---------- evidence ---------- */
+  .ev { border-bottom: 1px solid var(--rule-soft); padding: 11px 0; animation: rise .25s ease both; }
+  .ev:first-child { padding-top: 0; }
+  .ev:last-child { border-bottom: 0; padding-bottom: 0; }
+  .ev-top { display: flex; align-items: baseline; gap: 8px; justify-content: space-between; }
+  .ev-src { font-family: var(--mono); font-size: 10.5px; letter-spacing: .07em; text-transform: uppercase; color: var(--accent); }
+  .ev-date { font-family: var(--mono); font-size: 10.5px; color: var(--ink-faint); }
+  .ev-quote {
+    font-family: var(--serif); font-size: 14px; margin: 5px 0 6px;
+    padding-left: 10px; border-left: 2px solid var(--rule); color: var(--ink);
+  }
+  .ev-foot { display: flex; align-items: center; gap: 9px; }
+  .conf { display: flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 10px; color: var(--ink-faint); }
+  .conf .bar { width: 46px; height: 3px; border-radius: 2px; background: var(--rule); overflow: hidden; }
+  .conf .bar i { display: block; height: 100%; border-radius: 2px; }
+  .conf.high .bar i { background: var(--pass); }
+  .conf.med .bar i { background: var(--hold); }
+  .conf.low .bar i { background: var(--fail); }
+
+  /* ---------- draft card ---------- */
+  .badge {
+    font-family: var(--mono); font-size: 9.5px; letter-spacing: .1em;
+    text-transform: uppercase; padding: 3px 7px; border-radius: 4px; white-space: nowrap;
+  }
+  .badge.draft { background: var(--hold-bg); color: var(--hold); }
+  .badge.created { background: var(--pass-bg); color: var(--pass); }
+  .badge.void { background: var(--fail-bg); color: var(--fail); }
+
+  .fields { display: grid; grid-template-columns: 132px 1fr; gap: 0 14px; }
+  .fields dt {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em;
+    text-transform: uppercase; color: var(--ink-faint);
+    padding: 7px 0; border-top: 1px solid var(--rule-soft);
+  }
+  .fields dd {
+    margin: 0; padding: 7px 0; font-size: 13.5px;
+    border-top: 1px solid var(--rule-soft); min-width: 0;
+  }
+  .fields dt:first-of-type, .fields dt:first-of-type + dd { border-top: 0; }
+  .resolved { color: var(--pass); font-family: var(--mono); font-size: 10.5px; margin-left: 6px; }
+  .unresolved { color: var(--fail); font-family: var(--mono); font-size: 10.5px; display: block; margin-top: 2px; }
+
+  .field-input {
+    font-family: var(--mono); font-size: 13px; color: var(--ink);
+    background: var(--paper); border: 1px solid var(--rule);
+    border-radius: 5px; padding: 4px 8px; width: 150px;
+  }
+  .field-input:focus { outline: none; border-color: var(--accent); }
+  .field-input.needed { border-color: var(--hold); background: var(--hold-bg); }
+  .needs-note { font-size: 11.5px; color: var(--hold); margin-left: 8px; }
+
+  .lineitems { width: 100%; border-collapse: collapse; margin-top: 4px; }
+  .lineitems th {
+    font-family: var(--mono); font-size: 9.5px; letter-spacing: .07em; text-transform: uppercase;
+    color: var(--ink-faint); text-align: left; font-weight: 400;
+    padding: 0 8px 5px 0; border-bottom: 1px solid var(--rule-soft); white-space: nowrap;
+  }
+  .lineitems td { padding: 7px 8px 7px 0; font-size: 13px; border-bottom: 1px solid var(--rule-soft); }
+  .lineitems .num { text-align: right; font-family: var(--mono); }
+  .lineitems tr:last-child td { border-bottom: 0; }
+
+  .hashline {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--rule);
+    font-family: var(--mono); font-size: 10.5px; color: var(--ink-faint);
+  }
+  .hashline b { color: var(--ink-soft); font-weight: 400; }
+
+  .approval {
+    border-top: 1px solid var(--rule-soft); background: var(--paper-3);
+    padding: 12px 14px;
+  }
+  .approval-why { font-size: 12px; color: var(--ink-soft); margin: 0 0 10px; }
+  .approval-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn-approve {
+    background: var(--accent); border-color: var(--accent);
+    color: var(--paper); font-weight: 600;
+  }
+  :root[data-theme="dark"] .btn-approve, :root:not([data-theme]) .btn-approve { color: var(--paper); }
+  @media (prefers-color-scheme: dark) { .btn-approve { color: #171512; } }
+  :root[data-theme="dark"] .btn-approve { color: #171512; }
+  :root[data-theme="light"] .btn-approve { color: #F7F3EA; }
+  .btn-approve:hover:not(:disabled) { background: var(--ink); border-color: var(--ink); }
+
+  .blocked {
+    display: flex; gap: 8px; align-items: flex-start;
+    background: var(--fail-bg); border-radius: 6px; padding: 9px 11px;
+    font-size: 12.5px; color: var(--ink); margin-bottom: 10px;
+  }
+  .blocked b { color: var(--fail); font-family: var(--mono); font-size: 10px;
+    letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; padding-top: 2px; }
+
+  /* ---------- vendor choice ---------- */
+  .choice { display: flex; flex-direction: column; gap: 8px; }
+  .cand { text-align: left; padding: 10px 12px; border-radius: 7px; }
+  .cand strong { display: block; font-size: 13.5px; }
+  .cand span { display: block; font-size: 11.5px; color: var(--ink-faint); margin-top: 2px; }
+
+  /* ---------- ledger ---------- */
+  .ledger-top {
+    display: flex; align-items: center; gap: 14px;
+    padding-bottom: 11px; margin-bottom: 11px; border-bottom: 1px solid var(--rule-soft);
+  }
+  .counter { display: flex; flex-direction: column; }
+  .counter b { font-family: var(--mono); font-size: 21px; line-height: 1; font-weight: 500; }
+  .counter span { font-family: var(--mono); font-size: 9.5px; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--ink-faint); margin-top: 4px; }
+  .counter.zero b { color: var(--pass); }
+  .counter.wrote b { color: var(--accent); }
+
+  .log { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+  .log li {
+    display: flex; gap: 8px; align-items: baseline;
+    font-family: var(--mono); font-size: 11px; color: var(--ink-soft);
+    animation: rise .2s ease both;
+  }
+  .log .t { color: var(--ink-faint); flex: none; }
+  .log .k { flex: none; font-size: 9.5px; letter-spacing: .07em; text-transform: uppercase;
+    padding: 1px 5px; border-radius: 3px; }
+  .log .k.read { background: var(--accent-bg); color: var(--accent); }
+  .log .k.write { background: var(--pass-bg); color: var(--pass); }
+  .log .k.gate { background: var(--hold-bg); color: var(--hold); }
+  .log .k.stop { background: var(--fail-bg); color: var(--fail); }
+
+  .empty { font-size: 12.5px; color: var(--ink-faint); font-style: italic; }
+
+  /* ---------- created record ---------- */
+  .record { animation: rise .3s ease both; }
+  .record-num { font-family: var(--mono); font-size: 19px; color: var(--ink); }
+  .record-link {
+    display: inline-flex; align-items: center; gap: 6px; margin-top: 9px;
+    font-family: var(--mono); font-size: 11.5px; color: var(--accent);
+    text-decoration: none; border-bottom: 1px solid var(--rule);
+  }
+  .record-link:hover { border-color: var(--accent); }
+
+  footer {
+    margin-top: 34px; padding-top: 13px; border-top: 1px solid var(--rule);
+    font-family: var(--mono); font-size: 10.5px; color: var(--ink-faint);
+    display: flex; gap: 16px; flex-wrap: wrap; justify-content: space-between;
+  }
+</style>
+
+<div class="wrap">
+
+  <div class="topbar">
+    <div>
+      <div class="eyebrow">Alleato · interactive prototype · simulated data</div>
+      <h1>Create a commitment by talking to the Assistant.</h1>
+      <p class="lede">
+        The Assistant reads Project Intelligence to recommend the right contractor from what
+        actually happened on the job, drafts the subcontract or PO, and stops. Nothing is written
+        to the database until a person approves the exact payload they reviewed.
+      </p>
+    </div>
+    <div class="topbar-actions">
+      <button id="themeToggle" aria-pressed="false">Dark</button>
+      <button id="resetBtn">Reset</button>
+    </div>
+  </div>
+
+  <div class="scenarios" role="group" aria-label="Choose a scenario">
+    <button class="scn" data-scn="A" aria-pressed="true">
+      <strong>1 · Intelligence recommends</strong>
+      <span>Assistant names the contractor from a recent meeting</span>
+    </button>
+    <button class="scn" data-scn="B" aria-pressed="false">
+      <strong>2 · Evidence conflicts</strong>
+      <span>Two candidates — Assistant refuses to pick</span>
+    </button>
+    <button class="scn" data-scn="C" aria-pressed="false">
+      <strong>3 · Vendor not in directory</strong>
+      <span>Draft builds, approval is blocked</span>
+    </button>
+  </div>
+  <p class="hint">Pick a scenario, then use the suggested replies under the chat. The write ledger on the right proves when the database is actually touched.</p>
+
+  <div class="stage">
+
+    <!-- LEFT: chat -->
+    <div class="panel">
+      <div class="panel-head">
+        <span>AI Assistant · Morrisville Logistics Center</span>
+        <span id="phaseLabel">ready</span>
+      </div>
+      <div class="panel-body chat" id="chat"></div>
+      <div class="composer">
+        <div class="prompt-row">
+          <input id="promptInput" placeholder="Ask the Assistant…" autocomplete="off" />
+          <button id="sendBtn">Send</button>
+        </div>
+        <div class="replies" id="replies"></div>
+      </div>
+    </div>
+
+    <!-- RIGHT: evidence, draft, ledger -->
+    <div class="rail">
+
+      <div class="panel">
+        <div class="panel-head"><span>Project Intelligence · evidence considered</span><span id="evCount">0 sources</span></div>
+        <div class="panel-body" id="evidence"><p class="empty">No sources read yet.</p></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><span id="draftHead">Commitment draft</span><span id="draftBadge"></span></div>
+        <div class="panel-body" id="draft"><p class="empty">The Assistant has not prepared a draft.</p></div>
+        <div id="approval"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><span>Write ledger</span><span>createCommitment</span></div>
+        <div class="panel-body">
+          <div class="ledger-top">
+            <div class="counter zero" id="writeCounter">
+              <b id="writeCount">0</b>
+              <span>DB writes</span>
+            </div>
+            <div class="counter" id="readCounter">
+              <b id="readCount">0</b>
+              <span>reads</span>
+            </div>
+            <div class="counter">
+              <b id="gateCount">0</b>
+              <span>human decisions</span>
+            </div>
+          </div>
+          <ul class="log" id="log"><li class="empty" style="font-family:var(--sans)">Nothing has run yet.</li></ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>
+    <span>Mirrors the real contract: tool <b>createCommitment</b> → <b>action:"preview"</b> until <b>confirmed:true</b></span>
+    <span>Prototype · illustrative data · not connected to production</span>
+  </footer>
+</div>
+
+<script>
+(() => {
+  "use strict";
+
+  /* ============================ scenario data ============================ */
+
+  const SCENARIOS = {
+    A: {
+      prompt: "Set up a subcontract for the lobby millwork package. Use whoever's been handling it.",
+      tools: [
+        { name: "findProject", args: "Morrisville Logistics Center", kind: "read" },
+        { name: "searchMeetingsByTopic", args: '"lobby millwork"', kind: "read" },
+        { name: "searchTeamsMessages", args: '"millwork" · 30d', kind: "read" },
+        { name: "getVendorPerformance", args: "Apex Millwork Inc.", kind: "read" },
+        { name: "createCommitment", args: "confirmed: false", kind: "write" }
+      ],
+      evidence: [
+        {
+          src: "Meeting · Weekly Coordination",
+          date: "Jul 28, 2026",
+          quote: "Apex Millwork owns the lobby millwork package. Shop drawings are due back to them Aug 14, install starts the week of the 24th.",
+          who: "Brandon Clymer",
+          conf: "high", confPct: 92, confLabel: "high"
+        },
+        {
+          src: "Teams · #morrisville-field",
+          date: "Jul 24, 2026",
+          quote: "Talked to Ray at Apex — they'll hold the $84,000 number from the bid if we release by the first week of August.",
+          who: "Field superintendent",
+          conf: "med", confPct: 61, confLabel: "medium · value unverified"
+        },
+        {
+          src: "Directory · companies",
+          date: "current",
+          quote: "Apex Millwork Inc. — active vendor, 3 prior commitments on 2 projects, no open compliance flags.",
+          who: "Vendor record resolved",
+          conf: "high", confPct: 100, confLabel: "exact match"
+        }
+      ],
+      say: "<strong>Apex Millwork Inc.</strong> is the contractor I'd use. The July 28 coordination meeting assigns them the lobby millwork package, and they're an active vendor in your directory with 3 prior commitments.<br><br>I've prepared the subcontract draft on the right. <em>I left the contract value empty on purpose</em> — Teams mentions $84,000, but that's a hallway conversation, not a bid you've accepted.",
+      draft: {
+        type: "Subcontract", table: "subcontracts",
+        number: "SC-004", numberNote: "auto · next in sequence",
+        title: "Lobby Millwork Package",
+        vendor: "Apex Millwork Inc.", vendorResolved: true,
+        vendorId: "c8f2…9b41",
+        status: "Draft",
+        description: "Supply and install of lobby millwork package per bid documents, including shop drawings, finish carpentry, and field measurement.",
+        start: "2026-08-11", end: "2026-10-30", retainage: "10",
+        lineItems: [{ code: "06-4000", desc: "Lobby millwork — supply & install", qty: "1 LS" }],
+        amountRequired: true, amountSuggestion: "84000",
+        amountNote: "The Assistant found <strong>$84,000</strong> in a Teams message, but a hallway number is not a bid you've accepted."
+      }
+    },
+
+    B: {
+      prompt: "Create a PO for the temporary site fencing.",
+      tools: [
+        { name: "findProject", args: "Morrisville Logistics Center", kind: "read" },
+        { name: "searchMeetingsByTopic", args: '"temporary fencing"', kind: "read" },
+        { name: "searchEmails", args: '"fencing" · 60d', kind: "read" },
+        { name: "getVendorPerformance", args: "2 candidates", kind: "read" }
+      ],
+      evidence: [
+        {
+          src: "Email · from SiteSafe Rentals",
+          date: "Jul 22, 2026",
+          quote: "Confirming the revised fence line for the north lay-down area — 1,240 LF, monthly rental as quoted.",
+          who: "SiteSafe Rentals → PM",
+          conf: "med", confPct: 68, confLabel: "recent, but no award on record"
+        },
+        {
+          src: "Meeting · Preconstruction",
+          date: "Jun 30, 2026",
+          quote: "Barricade Co is carrying temp fencing in their sitework scope for now; we'll confirm once the logistics plan is final.",
+          who: "Preconstruction review",
+          conf: "low", confPct: 34, confLabel: "stale · 30 days, explicitly provisional"
+        }
+      ],
+      say: "I found <strong>two contractors</strong> tied to temporary fencing and the evidence disagrees, so I'm not going to pick one for you.<br><br>SiteSafe Rentals is the more recent signal, but there's no award on record. Barricade Co was named a month ago and the note called it provisional. Choose the vendor and I'll build the draft.",
+      candidates: [
+        { id: "sitesafe", name: "SiteSafe Rentals", note: "Email Jul 22 · 1,240 LF quoted · active vendor", number: "PO-012" },
+        { id: "barricade", name: "Barricade Co", note: "Meeting Jun 30 · provisional, superseded · active vendor", number: "PO-012" }
+      ],
+      draft: {
+        type: "Purchase Order", table: "purchase_orders",
+        number: "PO-012", numberNote: "auto · next in sequence",
+        title: "Temporary Site Fencing",
+        vendor: null, vendorResolved: true, vendorId: "a41d…77c2",
+        status: "Draft",
+        description: "Temporary site fencing for north lay-down area and perimeter, monthly rental including delivery, install, and removal.",
+        start: "2026-08-03", end: "2027-02-28", retainage: "0",
+        lineItems: [{ code: "01-5600", desc: "Temporary fencing — 1,240 LF, monthly rental", qty: "7 MO" }],
+        amountRequired: true, amountSuggestion: "",
+        amountNote: "No source carries a price you've awarded — the July 22 email confirms scope and quantity, not a value."
+      }
+    },
+
+    C: {
+      prompt: "Subcontract the exterior signage package to Lumen Sign Works.",
+      tools: [
+        { name: "findProject", args: "Morrisville Logistics Center", kind: "read" },
+        { name: "searchMeetingsByTopic", args: '"exterior signage"', kind: "read" },
+        { name: "getPeopleAndRoles", args: "companies · is_vendor", kind: "read" },
+        { name: "createCommitment", args: "confirmed: false", kind: "write" }
+      ],
+      evidence: [
+        {
+          src: "Meeting · Owner Progress",
+          date: "Jul 26, 2026",
+          quote: "Owner wants Lumen Sign Works for the exterior signage — they did the Cary building and the owner rep asked for them by name.",
+          who: "Owner progress meeting",
+          conf: "high", confPct: 88, confLabel: "high · direction is clear"
+        },
+        {
+          src: "Directory · companies",
+          date: "current",
+          quote: "No company matching \"Lumen Sign Works\" exists in the vendor directory. Closest match: \"Lumina Signs LLC\" (44% similarity) — not treated as a match.",
+          who: "Vendor resolution failed",
+          conf: "low", confPct: 0, confLabel: "no vendor record"
+        }
+      ],
+      say: "I drafted the subcontract, but <strong>I can't create it</strong>. Lumen Sign Works isn't in the vendor directory, so there's no company record to attach the commitment to.<br><br>I won't guess: the nearest name is \"Lumina Signs LLC\" at 44% similarity, and treating that as a match is exactly how the wrong company ends up on a contract. Add the vendor first, then approve this draft unchanged.",
+      draft: {
+        type: "Subcontract", table: "subcontracts",
+        number: "SC-005", numberNote: "auto · next in sequence",
+        title: "Exterior Signage Package",
+        vendor: "Lumen Sign Works", vendorResolved: false, vendorId: null,
+        status: "Draft",
+        description: "Exterior building signage package including monument sign, wayfinding, and illuminated building letters.",
+        start: "2026-09-15", end: "2026-11-20", retainage: "10",
+        lineItems: [{ code: "10-1400", desc: "Exterior signage — supply & install", qty: "1 LS" }],
+        amountRequired: true, amountSuggestion: "",
+        amountNote: "No value appears in any source for this package."
+      }
+    }
+  };
+
+  /* ============================ state ============================ */
+
+  const state = {
+    scn: "A",
+    phase: "ready",
+    draft: null,
+    amount: "",
+    reads: 0,
+    writes: 0,
+    gates: 0,
+    approvedHash: null,
+    log: [],
+    evidence: [],
+    created: null
+  };
+
+  let timers = [];
+  const later = (fn, ms) => timers.push(setTimeout(fn, ms));
+  const clearTimers = () => { timers.forEach(clearTimeout); timers = []; };
+
+  /* ============================ helpers ============================ */
+
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
+
+  function hash(obj) {
+    const s = JSON.stringify(obj);
+    let h1 = 5381, h2 = 52711;
+    for (let i = 0; i < s.length; i++) {
+      const c = s.charCodeAt(i);
+      h1 = ((h1 * 33) ^ c) >>> 0;
+      h2 = ((h2 * 31) ^ (c + i)) >>> 0;
+    }
+    return (h1.toString(16).padStart(8, "0") + h2.toString(16).padStart(8, "0")).slice(0, 12);
+  }
+
+  function money(v) {
+    const n = Number(String(v).replace(/[^0-9.]/g, ""));
+    if (!v || Number.isNaN(n) || n <= 0) return null;
+    return "$" + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function clock() {
+    const d = new Date(2026, 6, 30, 9, 14, 0);
+    d.setSeconds(d.getSeconds() + state.log.length * 3);
+    return d.toTimeString().slice(0, 8);
+  }
+
+  function addLog(kind, text) {
+    state.log.push({ t: clock(), kind, text });
+    if (kind === "read") state.reads++;
+    if (kind === "write") state.writes++;
+    if (kind === "gate") state.gates++;
+    renderLedger();
+  }
+
+  /* the payload that would be sent — recomputed live so the hash tracks edits */
+  function payload() {
+    const d = state.draft;
+    if (!d) return null;
+    return {
+      tool: "createCommitment",
+      table: d.table,
+      project_id: 876,
+      type: d.table === "subcontracts" ? "subcontract" : "purchase_order",
+      contract_number: d.number,
+      title: d.title,
+      status: d.status,
+      contract_company_id: d.vendorId,
+      vendor_name_resolved: d.vendorResolved ? d.vendor : `${d.vendor} (not found in project directory)`,
+      description: d.description,
+      start_date: d.start,
+      estimated_completion_date: d.end,
+      default_retainage_percent: Number(d.retainage),
+      line_items: d.lineItems.map(li => ({ ...li, amount: state.amount || null }))
+    };
+  }
+
+  /* ============================ chat rendering ============================ */
+
+  function pushUser(text) {
+    const el = document.createElement("div");
+    el.className = "msg user";
+    el.innerHTML = `<div class="avatar">MH</div><div class="bubble">${esc(text)}</div>`;
+    $("chat").appendChild(el);
+    scrollChat();
+  }
+
+  function pushAI(html) {
+    const el = document.createElement("div");
+    el.className = "msg ai";
+    el.innerHTML = `<div class="avatar">A</div><div class="bubble">${html}</div>`;
+    $("chat").appendChild(el);
+    scrollChat();
+    return el;
+  }
+
+  function pushTyping() {
+    const el = document.createElement("div");
+    el.className = "msg ai";
+    el.id = "typing";
+    el.innerHTML = `<div class="avatar">A</div><div class="bubble"><span class="typing"><i></i><i></i><i></i></span></div>`;
+    $("chat").appendChild(el);
+    scrollChat();
+  }
+  const dropTyping = () => { const t = $("typing"); if (t) t.remove(); };
+
+  function pushToolStack() {
+    const el = document.createElement("div");
+    el.className = "toolstack";
+    el.id = "toolstack";
+    $("chat").appendChild(el);
+    return el;
+  }
+
+  function pushTool(tool) {
+    const stack = $("toolstack");
+    if (!stack) return;
+    const li = document.createElement("div");
+    li.className = `tool ${tool.kind}`;
+    li.innerHTML = `<span class="dot"></span><span>${esc(tool.name)}(${esc(tool.args)})</span>
+      <span class="tag">${tool.kind === "read" ? "read" : "prepare only"}</span>`;
+    stack.appendChild(li);
+    scrollChat();
+  }
+
+  function scrollChat() {
+    const c = $("chat");
+    c.scrollTop = c.scrollHeight;
+  }
+
+  function setReplies(items) {
+    const r = $("replies");
+    r.innerHTML = "";
+    items.forEach(it => {
+      const b = document.createElement("button");
+      b.className = "reply";
+      b.textContent = it.label;
+      b.addEventListener("click", it.onClick);
+      r.appendChild(b);
+    });
+  }
+
+  function setPhase(p) {
+    state.phase = p;
+    $("phaseLabel").textContent = p;
+  }
+
+  /* ============================ panels ============================ */
+
+  function renderEvidence() {
+    const box = $("evidence");
+    $("evCount").textContent = `${state.evidence.length} source${state.evidence.length === 1 ? "" : "s"}`;
+    if (!state.evidence.length) {
+      box.innerHTML = `<p class="empty">No sources read yet.</p>`;
+      return;
+    }
+    box.innerHTML = state.evidence.map(e => `
+      <div class="ev">
+        <div class="ev-top">
+          <span class="ev-src">${esc(e.src)}</span>
+          <span class="ev-date">${esc(e.date)}</span>
+        </div>
+        <p class="ev-quote">${esc(e.quote)}</p>
+        <div class="ev-foot">
+          <span class="conf ${e.conf}">
+            <span class="bar"><i style="width:${e.confPct}%"></i></span>
+            ${esc(e.confLabel)}
+          </span>
+          <span class="ev-date">· ${esc(e.who)}</span>
+        </div>
+      </div>`).join("");
+  }
+
+  function renderLedger() {
+    $("writeCount").textContent = state.writes;
+    $("readCount").textContent = state.reads;
+    $("gateCount").textContent = state.gates;
+    const wc = $("writeCounter");
+    wc.className = "counter " + (state.writes === 0 ? "zero" : "wrote");
+
+    const log = $("log");
+    if (!state.log.length) {
+      log.innerHTML = `<li class="empty" style="font-family:var(--sans)">Nothing has run yet.</li>`;
+      return;
+    }
+    log.innerHTML = state.log.map(l => `
+      <li><span class="t">${l.t}</span><span class="k ${l.kind}">${l.kind}</span><span>${esc(l.text)}</span></li>
+    `).join("");
+  }
+
+  function renderChoice(scn) {
+    $("draftHead").textContent = "Vendor decision required";
+    $("draftBadge").innerHTML = `<span class="badge draft">no draft yet</span>`;
+    $("draft").innerHTML = `
+      <p class="approval-why" style="margin-top:0">The Assistant will not choose between conflicting sources. Pick the vendor to continue.</p>
+      <div class="choice">
+        ${scn.candidates.map(c => `
+          <button class="cand" data-cand="${c.id}">
+            <strong>${esc(c.name)}</strong>
+            <span>${esc(c.note)}</span>
+          </button>`).join("")}
+      </div>`;
+    $("approval").innerHTML = "";
+    $("draft").querySelectorAll("[data-cand]").forEach(btn => {
+      btn.addEventListener("click", () => chooseVendor(btn.dataset.cand));
+    });
+  }
+
+  function renderDraft() {
+    const d = state.draft;
+    if (!d) {
+      $("draftHead").textContent = "Commitment draft";
+      $("draftBadge").innerHTML = "";
+      $("draft").innerHTML = `<p class="empty">The Assistant has not prepared a draft.</p>`;
+      $("approval").innerHTML = "";
+      return;
+    }
+
+    if (state.created) return renderCreated();
+
+    $("draftHead").textContent = `${d.type} draft`;
+    $("draftBadge").innerHTML = `<span class="badge draft">draft · not created</span>`;
+
+    const amt = money(state.amount);
+    const p = payload();
+
+    $("draft").innerHTML = `
+      <dl class="fields">
+        <dt>Type</dt><dd>${esc(d.type)} <span class="ev-date">→ ${esc(d.table)}</span></dd>
+        <dt>Number</dt><dd><span style="font-family:var(--mono)">${esc(d.number)}</span> <span class="ev-date">${esc(d.numberNote)}</span></dd>
+        <dt>Title</dt><dd>${esc(d.title)}</dd>
+        <dt>Vendor</dt><dd>
+          ${esc(d.vendor)}
+          ${d.vendorResolved
+            ? `<span class="resolved">✓ resolved · ${esc(d.vendorId)}</span>`
+            : `<span class="unresolved">✕ not found in vendor directory — no company record to link</span>`}
+        </dd>
+        <dt>Status</dt><dd>${esc(d.status)}</dd>
+        <dt>Scope</dt><dd>${esc(d.description)}</dd>
+        <dt>Start</dt><dd style="font-family:var(--mono);font-size:13px">${esc(d.start)}</dd>
+        <dt>Est. completion</dt><dd style="font-family:var(--mono);font-size:13px">${esc(d.end)}</dd>
+        <dt>Retainage</dt><dd style="font-family:var(--mono);font-size:13px">${esc(d.retainage)}%</dd>
+        <dt>Contract value</dt><dd>
+          <input class="field-input ${amt ? "" : "needed"}" id="amountInput"
+                 value="${esc(state.amount)}" placeholder="0.00" inputmode="decimal"
+                 aria-label="Contract value" />
+          ${amt ? `<span class="ev-date"> ${esc(amt)}</span>` : `<span class="needs-note">required — you enter this</span>`}
+        </dd>
+      </dl>
+
+      <table class="lineitems">
+        <thead><tr><th>Budget code</th><th>Description</th><th>Qty</th><th class="num">Amount</th></tr></thead>
+        <tbody>
+          ${d.lineItems.map(li => `
+            <tr>
+              <td style="font-family:var(--mono);font-size:12px">${esc(li.code)}</td>
+              <td>${esc(li.desc)}</td>
+              <td style="font-family:var(--mono);font-size:12px">${esc(li.qty)}</td>
+              <td class="num">${amt ? esc(amt) : '<span style="color:var(--hold)">—</span>'}</td>
+            </tr>`).join("")}
+        </tbody>
+      </table>
+
+      <div class="hashline">
+        <span>payload hash <b>${hash(p)}</b></span>
+        <span>${Object.keys(p).length} fields · recomputed on every edit</span>
+      </div>`;
+
+    const input = $("amountInput");
+    input.addEventListener("input", (e) => {
+      state.amount = e.target.value.replace(/[^0-9.]/g, "");
+      renderApproval();
+      const pos = e.target.selectionStart;
+      $("draft").querySelector(".hashline b").textContent = hash(payload());
+      e.target.setSelectionRange(pos, pos);
+    });
+    input.addEventListener("blur", () => renderDraft());
+
+    renderApproval();
+  }
+
+  function renderApproval() {
+    const d = state.draft;
+    const amt = money(state.amount);
+    const vendorBlocked = !d.vendorResolved;
+    const amountBlocked = d.amountRequired && !amt;
+    const blocked = vendorBlocked || amountBlocked;
+
+    let notice = "";
+    if (vendorBlocked) {
+      notice = `<div class="blocked"><b>blocked</b><span>
+        <strong>${esc(d.vendor)}</strong> has no company record. The write would have to invent
+        <code>contract_company_id</code>, so approval is disabled. Add the vendor to the directory
+        and this same draft becomes approvable — unchanged.</span></div>`;
+    } else if (amountBlocked) {
+      notice = `<div class="blocked" style="background:var(--hold-bg)"><b style="color:var(--hold)">needs you</b><span>
+        Enter the contract value. ${d.amountNote}
+        ${d.amountSuggestion ? `<button id="useSuggestion" style="margin-left:6px;padding:2px 8px;font-size:11px">Use ${esc(money(d.amountSuggestion))}</button>` : ""}
+      </span></div>`;
+    }
+
+    $("approval").className = "approval";
+    $("approval").innerHTML = `
+      ${notice}
+      <p class="approval-why">
+        Approval submits <em>exactly</em> the payload above — hash
+        <span style="font-family:var(--mono)">${hash(payload())}</span> — once.
+        Editing any field changes the hash and re-arms this decision.
+      </p>
+      <div class="approval-actions">
+        <button class="btn-approve" id="approveBtn" ${blocked ? "disabled" : ""}>
+          Approve &amp; create ${esc(d.type.toLowerCase())}
+        </button>
+        <button id="editBtn">Ask for a change</button>
+        <button id="cancelBtn">Discard draft</button>
+      </div>`;
+
+    const sug = $("useSuggestion");
+    if (sug) sug.addEventListener("click", () => {
+      state.amount = d.amountSuggestion;
+      addLog("gate", `user accepted suggested value ${money(d.amountSuggestion)} — source: Teams, unverified`);
+      renderDraft();
+    });
+
+    $("approveBtn").addEventListener("click", approve);
+    $("cancelBtn").addEventListener("click", discard);
+    $("editBtn").addEventListener("click", () => {
+      pushUser("Change the start date to Aug 18 and drop retainage to 5%.");
+      later(() => {
+        state.draft.start = "2026-08-18";
+        state.draft.retainage = "5";
+        addLog("gate", "draft revised — payload hash changed, approval re-armed");
+        pushAI("Updated: start <strong>2026-08-18</strong>, retainage <strong>5%</strong>. The payload hash changed, so the earlier review no longer applies — take another look before approving.");
+        renderDraft();
+        setReplies(defaultReplies());
+      }, 620);
+    });
+  }
+
+  function renderCreated() {
+    const c = state.created;
+    $("draftHead").textContent = `${c.type} created`;
+    $("draftBadge").innerHTML = `<span class="badge created">created</span>`;
+    $("draft").innerHTML = `
+      <div class="record">
+        <div class="record-num">${esc(c.number)}</div>
+        <div style="font-size:14px;margin-top:3px">${esc(c.title)} — ${esc(c.vendor)}</div>
+        <div style="font-family:var(--mono);font-size:13px;color:var(--pass);margin-top:6px">${esc(c.amount)}</div>
+        <a class="record-link" href="#" onclick="return false">/876/commitments/${esc(c.number.toLowerCase())} ↗</a>
+
+        <dl class="fields" style="margin-top:16px">
+          <dt>Written to</dt><dd style="font-family:var(--mono);font-size:12.5px">${esc(c.table)}</dd>
+          <dt>Approved by</dt><dd>Megan Harrison · Jul 30, 2026 09:14</dd>
+          <dt>Payload hash</dt><dd style="font-family:var(--mono);font-size:12.5px">${esc(c.hash)} <span class="resolved">✓ matches reviewed</span></dd>
+          <dt>Idempotency key</dt><dd style="font-family:var(--mono);font-size:12.5px">${esc(c.idem)}</dd>
+          <dt>Evidence kept</dt><dd>${c.sources} cited sources retained as decision support — not copied into contract terms</dd>
+        </dl>
+      </div>`;
+    $("approval").className = "approval";
+    $("approval").innerHTML = `
+      <p class="approval-why" style="margin:0 0 10px">
+        A second approval with this same key replays the audit record instead of creating a duplicate.
+      </p>
+      <div class="approval-actions">
+        <button id="dupeBtn">Try to approve again</button>
+        <button id="resetBtn2">Run another scenario</button>
+      </div>`;
+    $("dupeBtn").addEventListener("click", () => {
+      addLog("gate", `replayed idempotency key ${c.idem} — no second row written`);
+      pushAI("That approval key was already used. I returned the existing record <strong>" + esc(c.number) + "</strong> instead of creating a duplicate.");
+    });
+    $("resetBtn2").addEventListener("click", reset);
+  }
+
+  /* ============================ actions ============================ */
+
+  function approve() {
+    const d = state.draft;
+    const p = payload();
+    const h = hash(p);
+    state.approvedHash = h;
+
+    addLog("gate", `approval signed by Megan Harrison for hash ${h}`);
+    setPhase("writing");
+    $("approveBtn").disabled = true;
+    $("approveBtn").textContent = "Creating…";
+
+    later(() => {
+      const idem = "idem_" + hash({ h, u: "megan" }).slice(0, 10);
+      addLog("write", `INSERT ${d.table} → ${d.number} · idempotency ${idem}`);
+      addLog("write", `audit recorded: actor, hash, outcome=success`);
+
+      state.created = {
+        type: d.type, table: d.table, number: d.number, title: d.title,
+        vendor: d.vendor, amount: money(state.amount) || "$0.00",
+        hash: h, idem, sources: state.evidence.length
+      };
+      setPhase("created");
+      renderDraft();
+      pushAI(`Created <strong>${esc(d.number)} — ${esc(d.title)}</strong> for ${esc(d.vendor)} at ${esc(money(state.amount))}. It's on the commitments list now, and the approval is in the audit log with the payload hash you reviewed.`);
+      setReplies([{ label: "Start over", onClick: reset }]);
+    }, 900);
+  }
+
+  function discard() {
+    addLog("stop", "draft discarded by user — zero writes");
+    state.draft = null;
+    setPhase("cancelled");
+    $("draftHead").textContent = "Commitment draft";
+    $("draftBadge").innerHTML = `<span class="badge void">discarded</span>`;
+    $("draft").innerHTML = `<p class="empty">Draft discarded. Nothing was written — the database is exactly as it was before the conversation started.</p>`;
+    $("approval").innerHTML = "";
+    $("approval").className = "";
+    pushAI("Discarded. Nothing was created — that draft only ever existed in this conversation.");
+    setReplies([{ label: "Start over", onClick: reset }]);
+  }
+
+  function chooseVendor(id) {
+    const scn = SCENARIOS.B;
+    const cand = scn.candidates.find(c => c.id === id);
+    pushUser(`Use ${cand.name}.`);
+    addLog("gate", `vendor chosen by user: ${cand.name} (assistant declined to infer)`);
+
+    later(() => {
+      pushTyping();
+      later(() => {
+        dropTyping();
+        pushToolStack();
+        pushTool({ name: "createCommitment", args: "confirmed: false", kind: "write" });
+        addLog("read", "createCommitment → action:\"preview\" · no row written");
+        later(() => {
+          state.draft = { ...scn.draft, vendor: cand.name, number: cand.number };
+          state.amount = "";
+          pushAI(`Draft ready for <strong>${esc(cand.name)}</strong>. I pulled the fence line and term from the July 22 email, but the value is yours to enter — nothing in the sources is a price you've accepted.`);
+          setPhase("awaiting approval");
+          renderDraft();
+          setReplies(defaultReplies());
+        }, 520);
+      }, 700);
+    }, 450);
+  }
+
+  function defaultReplies() {
+    return [
+      { label: "Approve it", onClick: () => { const b = $("approveBtn"); if (b && !b.disabled) b.click(); else pushAI("I can't submit yet — the blocker above has to clear first."); } },
+      { label: "Change the dates", onClick: () => { const b = $("editBtn"); if (b) b.click(); } },
+      { label: "Discard", onClick: () => { const b = $("cancelBtn"); if (b) b.click(); } }
+    ];
+  }
+
+  /* ============================ scenario runner ============================ */
+
+  function run(key) {
+    clearTimers();
+    resetState();
+    state.scn = key;
+    const scn = SCENARIOS[key];
+
+    document.querySelectorAll(".scn").forEach(b =>
+      b.setAttribute("aria-pressed", String(b.dataset.scn === key)));
+
+    $("chat").innerHTML = "";
+    $("promptInput").value = scn.prompt;
+    setReplies([]);
+    setPhase("ready");
+    renderEvidence(); renderLedger(); renderDraft();
+
+    pushAI("Ask me to set up a subcontract or purchase order and I'll look at what's actually happened on this project before I draft anything. Hit <strong>Send</strong>.");
+    setReplies([{ label: "Send this request", onClick: () => send() }]);
+  }
+
+  function send() {
+    const scn = SCENARIOS[state.scn];
+    const text = $("promptInput").value.trim() || scn.prompt;
+    if (state.phase === "thinking") return;
+
+    pushUser(text);
+    $("promptInput").value = "";
+    setReplies([]);
+    setPhase("thinking");
+    pushTyping();
+
+    later(() => {
+      dropTyping();
+      pushToolStack();
+
+      scn.tools.forEach((t, i) => {
+        later(() => {
+          pushTool(t);
+          if (t.kind === "read") {
+            addLog("read", `${t.name}(${t.args})`);
+          } else {
+            addLog("read", `${t.name} → action:"preview" · no row written`);
+          }
+        }, i * 380);
+      });
+
+      const after = scn.tools.length * 380 + 260;
+
+      later(() => {
+        state.evidence = scn.evidence;
+        renderEvidence();
+      }, after - 500);
+
+      later(() => {
+        pushAI(scn.say);
+
+        if (state.scn === "B") {
+          setPhase("awaiting vendor choice");
+          renderChoice(scn);
+          setReplies([]);
+        } else {
+          state.draft = { ...scn.draft };
+          state.amount = "";
+          setPhase("awaiting approval");
+          renderDraft();
+          setReplies(defaultReplies());
+        }
+      }, after);
+    }, 640);
+  }
+
+  function resetState() {
+    Object.assign(state, {
+      phase: "ready", draft: null, amount: "",
+      reads: 0, writes: 0, gates: 0,
+      approvedHash: null, log: [], evidence: [], created: null
+    });
+    $("approval").className = "";
+    $("approval").innerHTML = "";
+  }
+
+  function reset() { run(state.scn); }
+
+  /* ============================ wiring ============================ */
+
+  document.querySelectorAll(".scn").forEach(b =>
+    b.addEventListener("click", () => run(b.dataset.scn)));
+
+  $("sendBtn").addEventListener("click", send);
+  $("promptInput").addEventListener("keydown", e => { if (e.key === "Enter") send(); });
+  $("resetBtn").addEventListener("click", reset);
+
+  const root = document.documentElement;
+  const themeBtn = $("themeToggle");
+  themeBtn.addEventListener("click", () => {
+    const dark = root.dataset.theme !== "dark";
+    root.dataset.theme = dark ? "dark" : "light";
+    themeBtn.setAttribute("aria-pressed", String(dark));
+    themeBtn.textContent = dark ? "Light" : "Dark";
+  });
+
+  run("A");
+})();
+</script>

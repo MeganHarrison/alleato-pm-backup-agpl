@@ -36,6 +36,7 @@ import {
   PanelRight,
   Search,
   SlidersHorizontal,
+  SquarePen,
   Table2,
   Trash2,
   X,
@@ -140,6 +141,7 @@ export interface TableToolbarFeatures {
   columnToggle?: boolean;
   export?: boolean;
   bulkDelete?: boolean;
+  bulkEdit?: boolean;
 }
 
 export interface TableToolbarProps {
@@ -179,6 +181,8 @@ export interface TableToolbarProps {
   onGroupByChange?: (value: string) => void;
   onExport?: () => void;
   onBulkDelete?: () => void;
+  /** Opens the shared bulk-edit dialog. Rendered as a pencil icon next to bulk delete. */
+  onBulkEdit?: () => void;
   mobilePanelActions?: ReactNode;
   /** Extra action buttons rendered in the toolbar icon row (e.g. ERP sync) */
   customActions?: ReactNode;
@@ -363,7 +367,10 @@ function FilterFields({
               })
             }
           >
-            <SelectTrigger className={cn(controlClassName, "bg-background")}>
+            <SelectTrigger
+              aria-label={`${filter.label} filter`}
+              className={cn(controlClassName, "bg-background")}
+            >
               <SelectValue placeholder="All" />
             </SelectTrigger>
             <SelectContent>
@@ -1316,6 +1323,7 @@ export function TableToolbar({
   onGroupByChange,
   onExport,
   onBulkDelete,
+  onBulkEdit,
   mobilePanelActions,
   customActions,
   leftContent,
@@ -1402,6 +1410,7 @@ export function TableToolbar({
     columnToggle: features?.columnToggle ?? enableColumnToggle ?? true,
     export: features?.export ?? enableExport ?? true,
     bulkDelete: features?.bulkDelete ?? enableBulkDelete ?? true,
+    bulkEdit: features?.bulkEdit ?? true,
   };
 
   const [isMobile, setIsMobile] = useState(false);
@@ -1605,6 +1614,7 @@ export function TableToolbar({
 
                   {(feat.export && onExport) ||
                   mobilePanelActions ||
+                  (feat.bulkEdit && onBulkEdit) ||
                   (feat.bulkDelete && onBulkDelete) ? (
                     <div className="overflow-hidden rounded-2xl bg-background">
                       {mobilePanelActions}
@@ -1613,6 +1623,22 @@ export function TableToolbar({
                           icon={<Download className="h-5 w-5" />}
                           label="Export"
                           onClick={onExport}
+                        />
+                      ) : null}
+                      {feat.bulkEdit && onBulkEdit ? (
+                        <MobileSettingsRow
+                          icon={<SquarePen className="h-5 w-5" />}
+                          label="Edit selected"
+                          value={selectedCount > 0 ? selectedCount : undefined}
+                          onClick={
+                            selectedCount > 0
+                              ? () => {
+                                  setMobilePanelOpen(false);
+                                  onBulkEdit();
+                                }
+                              : undefined
+                          }
+                          disabled={selectedCount === 0}
                         />
                       ) : null}
                       {feat.bulkDelete && onBulkDelete ? (
@@ -1908,6 +1934,35 @@ export function TableToolbar({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Export</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+
+          {feat.bulkEdit && onBulkEdit && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 shrink-0"
+                    disabled={selectedCount === 0}
+                    onClick={onBulkEdit}
+                    aria-label="Edit selected"
+                  >
+                    <SquarePen
+                      className={cn(
+                        "h-4 w-4",
+                        selectedCount > 0 && "text-primary",
+                      )}
+                    />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {selectedCount > 0
+                    ? `Edit ${selectedCount} selected`
+                    : "Edit selected"}
+                </TooltipContent>
               </Tooltip>
             </TooltipProvider>
           )}

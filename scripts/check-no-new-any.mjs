@@ -11,6 +11,16 @@ const mode = args.has("--staged") ? "staged" : "changed";
 const baseRef = baseRefFromFlag || process.env.GUARDRAIL_BASE_REF || "origin/main";
 
 const scanPathPrefixes = ["frontend/src/", "backend/src/"];
+// Vendored third-party drop: Supabase UI "Platform Kit". Kept verbatim from the
+// registry and already exempt from the ESLint design-system gates; its stock
+// shadcn/ui code intentionally uses `any`, so it is exempt from the ratchet too.
+const excludedPathPrefixes = [
+  "frontend/src/components/platform-kit/",
+  // Platform Kit AI-SQL route: vendored Supabase management endpoint that maps
+  // arbitrary SQL results / OpenAI output; `any` is intentional and already has
+  // an ESLint `no-explicit-any: off` override for this exact path.
+  "frontend/src/app/api/ai/sql/",
+];
 const codeExtensions = /\.(ts|tsx|js|jsx)$/;
 
 const typeAnyMatchers = [
@@ -42,6 +52,7 @@ function escapePath(value) {
 
 // Restrict scanning to source files where explicit any debt matters.
 function shouldScanPath(path) {
+  if (excludedPathPrefixes.some((prefix) => path.startsWith(prefix))) return false;
   return scanPathPrefixes.some((prefix) => path.startsWith(prefix)) && codeExtensions.test(path);
 }
 

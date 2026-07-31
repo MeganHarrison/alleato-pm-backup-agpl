@@ -1,0 +1,116 @@
+{
+  "contractVersion": 1,
+  "taskId": "ALL-23",
+  "riskLevel": "high",
+  "feature": "Admin-only in-app training resource finder trigger",
+  "route": "/training/review",
+  "flows": [
+    {
+      "name": "Gate resource discovery at both authorization boundaries",
+      "steps": [
+        "Invoke the review-page finder action without app-admin access",
+        "Invoke the backend endpoint without the backend admin API key",
+        "Invoke both boundaries with valid admin authorization"
+      ],
+      "expectedOutcome": "The frontend rejects non-admin users before the backend call, the backend rejects missing or invalid admin keys, and only the doubly authorized request reaches the canonical finder."
+    },
+    {
+      "name": "Create review-only candidates for a selected role and topic",
+      "steps": [
+        "Open /training/review as an active app admin",
+        "Choose an active training role and topic",
+        "Run Find resources and refresh the review queue"
+      ],
+      "expectedOutcome": "The canonical finder runs once with dryRun=false and bounded limits; eligible unique resources enter the existing review queue and nothing is auto-published."
+    },
+    {
+      "name": "Surface completed, zero-result, partial, and failed runs",
+      "steps": [
+        "Exercise the typed response variants and invalid backend responses",
+        "Observe the result status on /training/review",
+        "Use the request ID and named backend failure for recovery"
+      ],
+      "expectedOutcome": "Every outcome is explicit and actionable; partial or failed writes are never presented as success."
+    }
+  ],
+  "requiredEvidence": [
+    "actionLog",
+    "databaseReadback",
+    "regressionTest",
+    "visualReview"
+  ],
+  "visual": {
+    "viewports": [
+      "desktop",
+      "mobile"
+    ],
+    "checks": [
+      "The finder is one open section on the existing review page with no card wrapper, KPI, badge, icon, or duplicate CTA.",
+      "Role, topic, and the primary action remain usable without horizontal overflow.",
+      "The status message is adjacent to the existing review queue and failures use an alert role."
+    ]
+  },
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "dual-admin-boundary",
+      "description": "Only an active app admin with the server-held backend admin key can run discovery.",
+      "evidence": [
+        {
+          "key": "regressionTest",
+          "min": 2
+        }
+      ]
+    },
+    {
+      "id": "review-only-bounded-write",
+      "description": "The in-app action calls the canonical finder once with dryRun=false and bounded limits, creating only review candidates.",
+      "evidence": [
+        {
+          "key": "databaseReadback",
+          "min": 1
+        },
+        {
+          "key": "regressionTest",
+          "min": 2
+        }
+      ]
+    },
+    {
+      "id": "failure-loud-response-contract",
+      "description": "Configuration, provider, invalid contract, timeout, partial-write, and failed-write outcomes remain explicit and actionable.",
+      "evidence": [
+        {
+          "key": "regressionTest",
+          "min": 2
+        },
+        {
+          "key": "actionLog",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "quiet-responsive-review-surface",
+      "description": "The finder reuses the existing review page and shared controls without visual noise or mobile overflow.",
+      "evidence": [
+        {
+          "key": "visualReview",
+          "min": 2
+        }
+      ]
+    },
+    {
+      "id": "independent-review",
+      "description": "An independent reviewer approves the authorization, mutation, response, and UI boundaries.",
+      "evidence": [
+        {
+          "key": "visualReview",
+          "min": 1
+        }
+      ]
+    }
+  ]
+}

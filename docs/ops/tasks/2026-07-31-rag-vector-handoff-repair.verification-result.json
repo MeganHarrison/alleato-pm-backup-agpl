@@ -1,0 +1,12 @@
+{
+  "task": "LOCAL-20260731-RAG-VECTOR-HANDOFF",
+  "status": "pass",
+  "checks": {
+    "focused-regressions": "pass_91_passed_1_skipped",
+    "independent-review": "pass_no_findings",
+    "rag-env-readback": "pass",
+    "migration-ledger": "pass_20260731183000",
+    "staged-python-compile": "pass_run_graph_sync",
+    "release-candidate": "pass_scoped_code_boundary"
+  }
+}

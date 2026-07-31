@@ -1,0 +1,31 @@
+{
+  "contractVersion": 1,
+  "riskLevel": "high",
+  "taskId": "ALL-11-RAG-RPC-GRANT",
+  "feature": "Service-role-only AI Database search RPC",
+  "route": "database://ai-database/search_document_chunks",
+  "flows": [
+    {
+      "name": "Verify effective RAG RPC roles",
+      "steps": ["Apply exact migration", "Read AI Database ledger", "Read exact function ACL", "Invoke RPC as service_role in rolled-back transaction"],
+      "expectedOutcome": "PUBLIC, anon, and authenticated are denied; service_role executes the exact ten-argument RPC."
+    }
+  ],
+  "requiredEvidence": ["databaseReadback", "regressionTest", "summary"],
+  "independentReview": { "required": true },
+  "claims": [
+    {
+      "id": "service-role-only",
+      "description": "The exact search RPC is executable only by its owner and service_role.",
+      "evidence": [
+        { "key": "databaseReadback", "min": 1 },
+        { "key": "regressionTest", "min": 1 }
+      ]
+    },
+    {
+      "id": "migration-applied",
+      "description": "The exact RAG ACL migration is present in the AI Database ledger.",
+      "evidence": [{ "key": "databaseReadback", "min": 1 }]
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+PASS  Migration compiled against linked database and rolled back.
+PASS  Remote migration ledger contains 20260724090000.
+PASS  Live rolled-back authorization fixture.
+PASS  Signed-URL focused Jest suite: 6 tests.
+PASS  Changed-file quality gate.
+PASS  Generated live function signatures match checked-in database types.

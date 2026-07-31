@@ -86,7 +86,7 @@ const fixture: ExecutiveDashboardVisualizations = {
     insight: "Preconstruction contains the largest current concentration.",
   },
   activity: {
-    source: { status: "ready", label: "Activity river", detail: "Current source records are aggregated before rendering.", recoveryHref: "/pipeline" },
+    source: { status: "ready", label: "Activity river", detail: "Current source records are aggregated before rendering.", recoveryHref: "/ai-dashboard/rag-pipeline" },
     range: "7d",
     buckets: [{ key: "1", label: "Jul 16", startAt: "2026-07-16T00:00:00Z", communication: 12, financial: 3, project_delivery: 19, intelligence: 7 }],
     categories: [
@@ -105,7 +105,7 @@ const fixture: ExecutiveDashboardVisualizations = {
     insight: "Project delivery accelerated this week.",
   },
   opportunities: {
-    source: { status: "incomplete", label: "AI opportunities", detail: "Validated impact values are unavailable.", recoveryHref: "/pipeline" },
+    source: { status: "incomplete", label: "AI opportunities", detail: "Validated impact values are unavailable.", recoveryHref: "/ai-dashboard/rag-pipeline" },
     categories: [
       { key: "cost_savings", label: "Cost savings", count: 2, averageConfidence: 0.9, urgency: 0.8, executiveActionCount: 1, totalImpact: null, priorPeriodChange: null, highestPriorityTitle: "Resolve duplicate exposure", dataState: "ai_inference" },
       { key: "revenue_growth", label: "Revenue growth", count: 0, averageConfidence: 0, urgency: 0, executiveActionCount: 0, totalImpact: null, priorPeriodChange: null, highestPriorityTitle: null, dataState: "ai_inference" },
@@ -183,7 +183,7 @@ describe("ExecutiveDashboardVisualizations", () => {
     expect(screen.getByText(/Project source timed out/)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /Review source pipeline/ })).toHaveAttribute(
       "href",
-      "/pipeline",
+      "/ai-dashboard/rag-pipeline",
     );
   });
 

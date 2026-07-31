@@ -9,8 +9,10 @@ class _Result:
 
 
 class _TableQuery:
-    def __init__(self, tables, table_name):
+    def __init__(self, tables, table_name, query_counts=None):
         self.rows = list(tables.get(table_name, []))
+        self.table_name = table_name
+        self.query_counts = query_counts
 
     def select(self, *_args):
         return self
@@ -20,15 +22,20 @@ class _TableQuery:
         return self
 
     def execute(self):
+        if self.query_counts is not None:
+            self.query_counts[self.table_name] = (
+                self.query_counts.get(self.table_name, 0) + 1
+            )
         return _Result([dict(row) for row in self.rows])
 
 
 class _FakeSupabase:
     def __init__(self, tables):
         self.tables = tables
+        self.query_counts = {}
 
     def table(self, table_name):
-        return _TableQuery(self.tables, table_name)
+        return _TableQuery(self.tables, table_name, self.query_counts)
 
 
 def _build_assigner(projects):
@@ -115,6 +122,63 @@ def test_assign_project_does_not_correct_existing_project_on_client_only_title_m
     assert project_id == 47
     assert method == "existing"
     assert confidence == 1.0
+
+
+def test_assign_project_refuses_deleted_existing_project():
+    assigner = _build_assigner(
+        [
+            {
+                "id": 876,
+                "name": "Exol Morrisville",
+                "client": "Exol",
+                "aliases": ["Morrisville"],
+            }
+        ]
+    )
+
+    project_id, method, confidence = assigner.assign_project(
+        meeting_title="General coordination",
+        participants=[],
+        content="No active project signal.",
+        existing_project_id=1029,
+    )
+
+    assert project_id is None
+    assert method == "unassigned"
+    assert confidence == 0.0
+
+
+def test_project_eligibility_reuses_bounded_snapshot_until_explicit_refresh():
+    supabase = _FakeSupabase(
+        {
+            "projects": [
+                {
+                    "id": 876,
+                    "name": "Exol Morrisville",
+                    "project_number": "26-103",
+                    "aliases": [],
+                    "team_members": [],
+                    "stakeholders": [],
+                    "archived": False,
+                }
+            ]
+        }
+    )
+    assigner = ProjectAssigner(supabase)
+
+    assigner.begin_batch_snapshot()
+    assert assigner.is_project_eligible(876) is True
+    assert assigner.is_project_eligible(876) is True
+    assigner.assign_project(
+        meeting_title="Exol Morrisville coordination",
+        participants=[],
+        content="",
+    )
+    assert supabase.query_counts["projects"] == 1
+
+    assigner.end_batch_snapshot()
+    assigner.is_project_eligible(876)
+    assert supabase.query_counts["projects"] == 2
 
 
 def test_assign_project_uses_email_domain_when_available():
@@ -884,3 +948,42 @@ def test_assign_scope_fails_loudly_when_mapping_cannot_be_loaded():
             participants=[],
             content="",
         )
+
+
+def test_assign_scope_consumes_active_business_area_attribution_rule():
+    supabase = _FakeSupabase(
+        {
+            "business_area_project_map": [
+                {"project_id": 60, "business_area_id": 3}
+            ],
+            "project_attribution_rules": [
+                {
+                    "id": "finance-rule",
+                    "project_id": None,
+                    "business_area_id": 3,
+                    "rule_type": "title_keyword",
+                    "pattern": "finance",
+                    "confidence": 0.98,
+                    "priority": 10,
+                    "status": "active",
+                }
+            ],
+        }
+    )
+    assigner = ProjectAssigner(supabase)
+    assigner._project_cache = []
+    assigner._contact_signal_cache = {}
+
+    target = assigner.assign_scope(
+        meeting_title="Finance monthly close",
+        participants=[],
+        content="",
+    )
+
+    assert target == AssignmentTarget(
+        project_id=None,
+        business_area_id=3,
+        legacy_project_id=60,
+        method="attribution_rule:title_keyword",
+        confidence=0.98,
+    )

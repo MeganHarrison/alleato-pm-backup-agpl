@@ -1,0 +1,66 @@
+{
+  "status": "PASS",
+  "taskId": "local-training-growth-contract-final",
+  "verifiedAt": "2026-07-29T14:20:00Z",
+  "evidence": {
+    "screenshots": [
+      "docs/ops/evidence/2026-07-29-training-growth-contract-final/desktop.png",
+      "docs/ops/evidence/2026-07-29-training-growth-contract-final/mobile.png"
+    ],
+    "actionLog": [
+      "docs/ops/evidence/2026-07-29-training-growth-contract-final/action-log.md"
+    ],
+    "databaseReadback": [
+      "docs/ops/evidence/2026-07-29-training-growth-contract-final/database-readback.md"
+    ],
+    "reloadProof": [
+      "docs/ops/evidence/2026-07-29-training-growth-contract-final/reload-proof.md"
+    ],
+    "negativePath": [
+      "docs/ops/evidence/2026-07-29-training-growth-contract-final/negative-path.md"
+    ],
+    "visualReview": [
+      "docs/ops/evidence/2026-07-29-training-growth-contract-final/visual-review.md"
+    ],
+    "regressionTest": [
+      "docs/ops/evidence/2026-07-29-training-growth-contract-final/regression-test.md",
+      "frontend/tests/e2e/training-growth.spec.ts"
+    ]
+  },
+  "claims": {
+    "completed-assessment": {
+      "screenshots": [
+        "docs/ops/evidence/2026-07-29-training-growth-contract-final/desktop.png",
+        "docs/ops/evidence/2026-07-29-training-growth-contract-final/mobile.png"
+      ],
+      "actionLog": [
+        "docs/ops/evidence/2026-07-29-training-growth-contract-final/action-log.md"
+      ],
+      "visualReview": [
+        "docs/ops/evidence/2026-07-29-training-growth-contract-final/visual-review.md"
+      ]
+    },
+    "persistence-and-reload": {
+      "databaseReadback": [
+        "docs/ops/evidence/2026-07-29-training-growth-contract-final/database-readback.md"
+      ],
+      "reloadProof": [
+        "docs/ops/evidence/2026-07-29-training-growth-contract-final/reload-proof.md"
+      ]
+    },
+    "fail-closed-regression": {
+      "negativePath": [
+        "docs/ops/evidence/2026-07-29-training-growth-contract-final/negative-path.md"
+      ],
+      "regressionTest": [
+        "docs/ops/evidence/2026-07-29-training-growth-contract-final/regression-test.md"
+      ]
+    }
+  },
+  "independentReview": {
+    "reviewer": "/root/machine_capability_review/assessment_review + /root/growth_accessibility_review + /root/growth_types_verify2",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-29T14:20:00Z",
+    "artifact": "docs/ops/evidence/2026-07-29-training-growth-contract-final/independent-review.md"
+  }
+}

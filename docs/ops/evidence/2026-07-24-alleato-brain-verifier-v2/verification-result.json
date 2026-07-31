@@ -1,0 +1,29 @@
+{
+  "status": "PASS",
+  "observedStatus": "PASS",
+  "taskId": "ALL-11-VERIFIER-V2",
+  "evidence": {
+    "regressionTest": ["docs/ops/evidence/2026-07-24-alleato-brain-verifier-v2/live-verifier.json"],
+    "databaseReadback": ["docs/ops/evidence/2026-07-24-alleato-brain-verifier-v2/live-verifier.json"],
+    "negativePath": ["docs/ops/evidence/2026-07-24-alleato-brain-verifier-v2/repair-guard-negative-path.json"],
+    "snapshots": ["docs/ops/evidence/2026-07-24-alleato-brain-verifier-v2/rag-scope-pre-repair-snapshot.json"],
+    "summary": ["docs/ops/evidence/2026-07-24-alleato-brain-verifier-v2/rag-scope-reconciliation.md"]
+  },
+  "claims": {
+    "cross-database-parity": {
+      "regressionTest": ["docs/ops/evidence/2026-07-24-alleato-brain-verifier-v2/live-verifier.json"],
+      "databaseReadback": ["docs/ops/evidence/2026-07-24-alleato-brain-verifier-v2/live-verifier.json"]
+    },
+    "repair-fails-closed": {
+      "negativePath": ["docs/ops/evidence/2026-07-24-alleato-brain-verifier-v2/repair-guard-negative-path.json"],
+      "snapshots": ["docs/ops/evidence/2026-07-24-alleato-brain-verifier-v2/rag-scope-pre-repair-snapshot.json"],
+      "summary": ["docs/ops/evidence/2026-07-24-alleato-brain-verifier-v2/rag-scope-reconciliation.md"]
+    }
+  },
+  "independentReview": {
+    "reviewer": "Independent Codex high-risk review",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-24T05:53:17Z",
+    "artifact": "docs/ops/evidence/2026-07-24-alleato-brain-verifier-v2/independent-review.md"
+  }
+}

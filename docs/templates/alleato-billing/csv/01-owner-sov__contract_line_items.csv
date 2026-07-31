@@ -1,0 +1,4 @@
+contract_id,line_number,description,budget_code_id,cost_code_id,quantity,unit_cost,unit_of_measure,total_cost,markup_type
+00000000-0000-0000-0000-0000000000pc,1,General Conditions,,,1,100000.0,LS,100000.0,
+00000000-0000-0000-0000-0000000000pc,2,Cast-in-Place Concrete,,,1,400000.0,LS,400000.0,
+00000000-0000-0000-0000-0000000000pc,3,Structural Steel,,,1,500000.0,LS,500000.0,

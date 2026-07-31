@@ -60,31 +60,28 @@ function makeStale(cwd, relative, minutes = 120) {
   fs.utimesSync(path.join(cwd, relative), when, when);
 }
 
-test("allows non-overlapping main-checkout writers and rejects an overlapping scope", () => {
+test("refuses a second canonical-checkout writer until the first writer releases", () => {
   const cwd = makeRepo();
   assert.equal(run(cwd, ["bootstrap"]).status, 0);
   assert.equal(run(cwd, ["claim", "--session", "S1", "--task", "TASK-1", "--paths", "src/a.ts"]).status, 0);
   const second = run(cwd, ["claim", "--session", "S2", "--task", "TASK-2", "--paths", "src/b.ts"]);
-  assert.equal(second.status, 0, second.stderr);
-  const overlap = run(cwd, ["claim", "--session", "S3", "--task", "TASK-3", "--paths", "src/a.ts"]);
-  assert.equal(overlap.status, 1);
-  assert.match(overlap.stderr, /overlaps active lease S1/);
+  assert.equal(second.status, 1);
+  assert.match(second.stderr, /already has an active writer: S1 \(TASK-1\)/);
   assert.equal(run(cwd, ["release", "--session", "S1"]).status, 0);
+  assert.equal(run(cwd, ["claim", "--session", "S2", "--task", "TASK-2", "--paths", "src/b.ts"]).status, 0);
   assert.equal(run(cwd, ["release", "--session", "S2"]).status, 0);
 });
 
-test("permits a scoped writer beside unrelated dirty work but protects owned dirt", () => {
+test("refuses to start beside unrelated dirty work", () => {
   const cwd = makeRepo();
   assert.equal(run(cwd, ["bootstrap"]).status, 0);
   fs.writeFileSync(path.join(cwd, "unowned.txt"), "uncommitted\n");
-  const allowed = run(cwd, ["claim", "--session", "S1", "--task", "TASK-1", "--paths", "src/a.ts"]);
-  assert.equal(allowed.status, 0, allowed.stderr);
-  const result = run(cwd, ["claim", "--session", "S2", "--task", "TASK-2", "--paths", "unowned.txt"]);
+  const result = run(cwd, ["claim", "--session", "S1", "--task", "TASK-1", "--paths", "src/a.ts"]);
   assert.equal(result.status, 1);
-  assert.match(result.stderr, /already dirty/);
+  assert.match(result.stderr, /Canonical checkout is dirty: unowned.txt/);
 });
 
-test("reports scoped work as claimable instead of treating all dirt and leases as a global failure", () => {
+test("status tells writers to finish or hand off before another claim", () => {
   const cwd = makeRepo();
   assert.equal(run(cwd, ["bootstrap"]).status, 0);
   assert.equal(run(cwd, ["claim", "--session", "S1", "--task", "TASK-1", "--paths", "src/a.ts"]).status, 0);
@@ -92,11 +89,13 @@ test("reports scoped work as claimable instead of treating all dirt and leases a
   const status = run(cwd, ["status"]);
   assert.equal(status.status, 0, status.stderr);
   assert.match(status.stdout, /Active leases:\s+S1 \(TASK-1\)/);
-  assert.match(status.stdout, /Unrelated dirty paths and non-overlapping active leases do not block a claim/);
-  assert.equal(run(cwd, ["claim", "--session", "S2", "--task", "TASK-2", "--paths", "src/b.ts"]).status, 0);
+  assert.match(status.stdout, /publish or explicitly hand off any active task/);
+  const second = run(cwd, ["claim", "--session", "S2", "--task", "TASK-2", "--paths", "src/b.ts"]);
+  assert.equal(second.status, 1);
+  assert.match(second.stderr, /already has an active writer/);
 });
 
-test("expires an unrenewed reservation without touching its dirty files", () => {
+test("expires an unrenewed reservation without letting another writer absorb dirty files", () => {
   const cwd = makeRepo();
   assert.equal(run(cwd, ["bootstrap"]).status, 0);
   assert.equal(run(cwd, ["claim", "--session", "S1", "--task", "TASK-1", "--paths", "owned"]).status, 0);
@@ -108,8 +107,9 @@ test("expires an unrenewed reservation without touching its dirty files", () => 
   fs.writeFileSync(leasePath, `${JSON.stringify(lease)}\n`);
 
   const claim = run(cwd, ["claim", "--session", "S2", "--task", "TASK-2", "--paths", "src/b.ts"], { CODEX_CHECKOUT_GATE_LEASE_TTL_MINUTES: "30" });
-  assert.equal(claim.status, 0, claim.stderr);
+  assert.equal(claim.status, 1);
   assert.match(claim.stdout, /Expired 1 stale lease reservation/);
+  assert.match(claim.stderr, /Canonical checkout is dirty: owned\//);
   assert.equal(fs.readFileSync(path.join(cwd, "owned/work.txt"), "utf8"), "preserve me\n");
   const history = fs.readFileSync(path.join(cwd, ".git/codex-session-write-lease-history.jsonl"), "utf8");
   assert.match(history, /"event":"expire"/);
@@ -126,7 +126,7 @@ test("permits a session to resume only its own previously leased dirty scope", (
   assert.equal(resumed.status, 0, resumed.stderr);
   const other = run(cwd, ["claim", "--session", "S2", "--task", "TASK-2", "--paths", "owned", "--resume"]);
   assert.equal(other.status, 1);
-  assert.match(other.stderr, /overlaps active lease S1/);
+  assert.match(other.stderr, /already has an active writer: S1/);
 });
 
 test("permits the original session to resume its dirty scope after lease expiry", () => {
@@ -255,7 +255,10 @@ test("refuses quarantine during an active lease or when a path has an open handl
   const leased = run(cwd, ["quarantine", "--session", "S2", "--task", "TASK-2", "--reason", "test", "--paths", "orphan.txt", "--stale-minutes", "60"]);
   assert.equal(leased.status, 1);
   assert.match(leased.stderr, /forbidden while active writer lease/);
+  fs.rmSync(path.join(cwd, "orphan.txt"));
   assert.equal(run(cwd, ["release", "--session", "S1"]).status, 0);
+  fs.writeFileSync(path.join(cwd, "orphan.txt"), "evidence\n");
+  makeStale(cwd, "orphan.txt");
   const open = run(cwd, ["quarantine", "--session", "S2", "--task", "TASK-2", "--reason", "test", "--paths", "orphan.txt", "--stale-minutes", "60"], { FAKE_LSOF_OPEN: "1" });
   assert.equal(open.status, 1);
   assert.match(open.stderr, /open file handle/);

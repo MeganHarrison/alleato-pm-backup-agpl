@@ -107,8 +107,6 @@ import {
   VolumeXIcon,
   SparklesIcon,
   ArrowUpIcon,
-  CircleSlash2Icon,
-  ShieldCheckIcon,
 } from "lucide-react";
 import type { DynamicToolUIPart, FileUIPart } from "ai";
 import {
@@ -127,10 +125,6 @@ import {
   MAX_CHAT_INLINE_FILE_BYTES,
 } from "@/lib/ai/chat-attachment-limits";
 import { copyTextWithFallback } from "@/lib/browser/clipboard";
-import {
-  DEFAULT_ASSISTANT_SURFACE,
-  type AssistantSurface,
-} from "@/lib/ai/chat-surface";
 import { WelcomeScreen } from "./welcome-screen";
 import {
   type AssistantTraceDiagnostics,
@@ -564,12 +558,7 @@ function getToolPreview(part: ToolPart): Record<string, unknown> | null {
 
 function getToolOutputRecord(part: ToolPart): Record<string, unknown> | null {
   const output = asObject(part.output);
-  const result = asObject(output.result);
-  const directRecord = asObject(output.record);
-  const record =
-    Object.keys(directRecord).length > 0
-      ? directRecord
-      : asObject(result.record);
+  const record = asObject(output.record);
   return Object.keys(record).length > 0 ? record : null;
 }
 
@@ -747,7 +736,7 @@ async function readTextFromFileUIPart(
       const formData = new FormData();
       formData.append(
         "file",
-        new File([bytes], file.filename ?? "estimate.xlsx", {
+        new File([bytes as BlobPart], file.filename ?? "estimate.xlsx", {
           type:
             file.mediaType ??
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -941,9 +930,6 @@ function ToolCallItem({
   const approvalId = part.approval?.id;
 
   const toolName = getToolNameFromType(part.type);
-  const isCreateRFI = toolName === "createRFI";
-  const approvalObjectLabel = isCreateRFI ? "RFI" : "action";
-  const approvalActionLabel = isCreateRFI ? "Create RFI" : "Run action";
   const isCreateTask =
     toolName === "createTask" || toolName === "createGeneratedTask";
   const previewTable = toStringValue(preview?.table);
@@ -983,7 +969,7 @@ function ToolCallItem({
     toStringValue(confirmedRecord.due_date);
 
   return (
-    <ToolDisplay className="mb-1.5 w-full sm:min-w-xl">
+    <ToolDisplay className="mb-1.5">
       <ToolHeader
         type={part.type as DynamicToolUIPart["type"]}
         state={part.state as DynamicToolUIPart["state"]}
@@ -991,31 +977,15 @@ function ToolCallItem({
         title={formatToolName(getToolNameFromType(part.type))}
       />
       <ToolContent>
-        {part.input != null && !part.approval && <ToolInput input={part.input} />}
+        {part.input != null && <ToolInput input={part.input} />}
         <Confirmation
           approval={part.approval as ConfirmationProps["approval"]}
           state={part.state as DynamicToolUIPart["state"]}
         >
           <ConfirmationRequest>
-            <div className="space-y-1">
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                Review before creating
-              </p>
-              <p className="text-base font-semibold text-foreground">
-                Create this {approvalObjectLabel}?
-              </p>
-              <p className="text-sm leading-6 text-muted-foreground">
-                Eve will create one project record using the exact details
-                below. Nothing is written until you approve.
-              </p>
-            </div>
-            {part.input != null && (
-              <ToolInput
-                input={part.input}
-                toolName={toolName}
-                variant="approval"
-              />
-            )}
+            <ConfirmationTitle>
+              This action requires approval before it can run.
+            </ConfirmationTitle>
             <ConfirmationActions>
               <ConfirmationAction
                 variant="outline"
@@ -1029,7 +999,7 @@ function ToolCallItem({
                   });
                 }}
               >
-                Don&apos;t create
+                Deny
               </ConfirmationAction>
               <ConfirmationAction
                 disabled={!approvalId}
@@ -1042,42 +1012,17 @@ function ToolCallItem({
                   });
                 }}
               >
-                {approvalActionLabel}
+                Approve
               </ConfirmationAction>
             </ConfirmationActions>
           </ConfirmationRequest>
           <ConfirmationAccepted>
-            <div className="flex items-start gap-3">
-              <ShieldCheckIcon
-                aria-hidden="true"
-                className="mt-0.5 size-5 shrink-0 text-success"
-              />
-              <div className="space-y-1">
-                <ConfirmationTitle className="font-medium">
-                  Approval recorded
-                </ConfirmationTitle>
-                <p className="text-sm leading-6 text-muted-foreground">
-                  Eve is creating the {approvalObjectLabel} now.
-                </p>
-              </div>
-            </div>
+            <ConfirmationTitle>Approved. Running the action.</ConfirmationTitle>
           </ConfirmationAccepted>
           <ConfirmationRejected>
-            <div className="flex items-start gap-3">
-              <CircleSlash2Icon
-                aria-hidden="true"
-                className="mt-0.5 size-5 shrink-0 text-muted-foreground"
-              />
-              <div className="space-y-1">
-                <ConfirmationTitle className="font-medium">
-                  {isCreateRFI ? "RFI" : "Action"} not created
-                </ConfirmationTitle>
-                <p className="text-sm leading-6 text-muted-foreground">
-                  You declined this proposal. No project data changed. Tell Eve
-                  what to revise when you are ready.
-                </p>
-              </div>
-            </div>
+            <ConfirmationTitle>
+              Denied. The action was not run.
+            </ConfirmationTitle>
           </ConfirmationRejected>
         </Confirmation>
         {preview && toolName === "createChangeEvent" ? (
@@ -1116,11 +1061,7 @@ function ToolCallItem({
           )}
         {(part.state === "output-available" ||
           part.state === "output-error") && (
-          <ToolOutput
-            output={part.output}
-            errorText={part.errorText}
-            toolName={toolName}
-          />
+          <ToolOutput output={part.output} errorText={part.errorText} />
         )}
         {isConfirmedTask && taskProjectId != null && (
           <div className="mt-2 flex items-center justify-end">
@@ -1141,18 +1082,15 @@ function ToolCallItem({
         )}
         {links.length > 0 && (
           <div className="flex flex-wrap gap-2 pt-1">
-            {links.map((link, index) => (
-              <Button
-                asChild
+            {links.map((link) => (
+              <Link
                 key={`${link.label}-${link.href}`}
-                size="sm"
-                variant={index === 0 ? "default" : "outline"}
+                href={link.href}
+                className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-xs font-medium text-foreground transition-colors hover:bg-muted/70"
               >
-                <Link href={link.href}>
-                  <LinkIcon className="size-3.5 shrink-0" />
-                  {link.label}
-                </Link>
-              </Button>
+                <LinkIcon className="h-3 w-3 shrink-0" />
+                {link.label}
+              </Link>
             ))}
           </div>
         )}
@@ -1326,7 +1264,7 @@ interface ChatAreaProps {
   welcomeHideOrb?: boolean;
   showWidgetWelcomePrompt?: boolean;
   onWidgetWelcomeDismiss?: () => void;
-  assistantSurface?: AssistantSurface;
+  chatMode?: "general" | "training";
 }
 
 export function ChatArea({
@@ -1355,9 +1293,8 @@ export function ChatArea({
   onToolApprovalResponse,
   onStop,
   welcomeHideOrb = false,
-  assistantSurface = DEFAULT_ASSISTANT_SURFACE,
+  chatMode = "general",
 }: ChatAreaProps) {
-  const isAsrsSurface = assistantSurface === "asrs";
   // Council mode can be controlled externally (via prop) or internally
   const [councilModeInternal, setCouncilModeInternal] = useState(false);
 
@@ -1383,8 +1320,8 @@ export function ChatArea({
   // over the first 50 alphabetical projects, so most projects (e.g. "Union
   // Collective") returned "No projects found".
   const { projects, isLoading: projectsLoading } = useProjects({
+    enabled: chatMode !== "training",
     limit: 500,
-    enabled: !isAsrsSurface,
   });
   const selectedProject =
     projects.find((p) => p.id === selectedProjectIdProp) ?? null;
@@ -1421,8 +1358,7 @@ export function ChatArea({
   }, [latestMessageChangeEventDraft]);
 
   const loadChangeEventDraftArtifact = useCallback(async () => {
-    if (isAsrsSurface) return null;
-    if (!sessionId) {
+    if (chatMode === "training" || !sessionId) {
       return null;
     }
 
@@ -1437,7 +1373,7 @@ export function ChatArea({
       `/api/ai-assistant/workspace?${params.toString()}`,
     );
     return changeEventDraftFromArtifactContent(data.artifacts?.[0]?.content);
-  }, [isAsrsSurface, sessionId]);
+  }, [chatMode, sessionId]);
 
   useEffect(() => {
     let cancelled = false;
@@ -1462,7 +1398,7 @@ export function ChatArea({
 
   const saveChangeEventDraftArtifact = useCallback(
     async (edits: ChangeEventWorkflowDraftEdits) => {
-      if (!sessionId) {
+      if (chatMode === "training" || !sessionId) {
         throw new Error("No active AI session is available for this draft.");
       }
 
@@ -1480,7 +1416,7 @@ export function ChatArea({
       );
       setPersistedChangeEventDraft(data.draft);
     },
-    [sessionId],
+    [chatMode, sessionId],
   );
 
   useEffect(() => {
@@ -1909,8 +1845,8 @@ export function ChatArea({
         placeholder={
           isRecording
             ? "Listening..."
-            : isAsrsSurface
-              ? "Ask about FMDS 8-34 requirements…"
+            : chatMode === "training"
+              ? "Ask about a role, workflow, or skill…"
               : councilMode
                 ? "Ask the council…"
                 : "Ask anything…"
@@ -1931,26 +1867,30 @@ export function ChatArea({
       />
       <PromptInputFooter className="flex items-center justify-between gap-2 px-0 pb-0">
         <div className="flex min-w-0 items-center gap-1 overflow-x-auto pr-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          <PromptInputActionMenu>
-            <PromptInputActionMenuTrigger
-              tooltip="Attach files or take screenshot"
-              className={composerIconButtonClass}
-            >
-              <PaperclipIcon className="h-3.5 w-3.5" />
-            </PromptInputActionMenuTrigger>
-            <PromptInputActionMenuContent side="top">
-              <PromptInputActionAddAttachments label="Attach files" />
-              <PromptInputActionAddScreenshot label="Take screenshot" />
-            </PromptInputActionMenuContent>
-          </PromptInputActionMenu>
-          <PromptInputAction
-            tooltip="Paste from clipboard"
-            className={composerIconButtonClass}
-            onClick={handlePasteFromClipboard}
-            aria-label="Paste from clipboard"
-          >
-            <ClipboardPasteIcon className="h-3.5 w-3.5" />
-          </PromptInputAction>
+          {chatMode !== "training" ? (
+            <>
+              <PromptInputActionMenu>
+                <PromptInputActionMenuTrigger
+                  tooltip="Attach files or take screenshot"
+                  className={composerIconButtonClass}
+                >
+                  <PaperclipIcon className="h-3.5 w-3.5" />
+                </PromptInputActionMenuTrigger>
+                <PromptInputActionMenuContent side="top">
+                  <PromptInputActionAddAttachments label="Attach files" />
+                  <PromptInputActionAddScreenshot label="Take screenshot" />
+                </PromptInputActionMenuContent>
+              </PromptInputActionMenu>
+              <PromptInputAction
+                tooltip="Paste from clipboard"
+                className={composerIconButtonClass}
+                onClick={handlePasteFromClipboard}
+                aria-label="Paste from clipboard"
+              >
+                <ClipboardPasteIcon className="h-3.5 w-3.5" />
+              </PromptInputAction>
+            </>
+          ) : null}
           <PromptInputAction
             tooltip={isRecording ? "Stop voice input" : "Voice input"}
             className={cn(
@@ -1977,7 +1917,7 @@ export function ChatArea({
               <span>Enable mic access in site settings.</span>
             </div>
           )}
-          {!isAsrsSurface ? (
+          {chatMode !== "training" ? (
             <>
               <TooltipProvider delayDuration={150}>
                 <Tooltip>
@@ -2166,9 +2106,11 @@ export function ChatArea({
           )}
         >
           <WelcomeScreen
-            hideOrb={welcomeHideOrb || isAsrsSurface}
+            hideOrb={welcomeHideOrb}
+            title={
+              chatMode === "training" ? "Ask the Training Library" : undefined
+            }
             variant={welcomeHideOrb ? "widget" : "full"}
-            assistantSurface={assistantSurface}
             composer={promptInputEl}
             error={
               chatError ? (

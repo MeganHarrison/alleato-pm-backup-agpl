@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import {
   ArrowUpRight,
+  Bot,
   Briefcase,
   DollarSign,
   GitBranch,
@@ -22,7 +23,7 @@ import { loadAgents, loadTotalToolCount } from "./_lib/ai-stats";
 export const metadata: Metadata = {
   title: "How the AI works",
   description:
-    "A guided tour of Eve: one runtime, six executive skills, authenticated tools, memory, and feedback loops.",
+    "A guided tour of the Alleato AI assistant: its agents, tools, models, memory, and feedback loops.",
 };
 
 export const dynamic = "force-dynamic";
@@ -34,7 +35,7 @@ const EXAMPLE_QUESTIONS: {
 }[] = [
   {
     question: "How are we tracking on margin for the Westfield job?",
-    routedTo: "Financial analysis skill + financial tools",
+    routedTo: "CFO",
     icon: LineChart,
   },
   {
@@ -44,12 +45,12 @@ const EXAMPLE_QUESTIONS: {
   },
   {
     question: "Draft a reply to the email from Sarah about the change order.",
-    routedTo: "Authenticated Outlook tools",
+    routedTo: "Microsoft EA",
     icon: Inbox,
   },
   {
     question: "Which projects are most at risk this quarter?",
-    routedTo: "Risk review skill + portfolio tools",
+    routedTo: "Strategist + CFO",
     icon: ShieldCheck,
   },
   {
@@ -72,10 +73,10 @@ const PAGE_CARDS: {
 }[] = [
   {
     href: "/docs/ai-overview/team",
-    title: "Eve and executive skills",
+    title: "The team of agents",
     teaser:
-      "How one Eve runtime applies six executive skills and chooses authenticated tools.",
-    icon: Sparkles,
+      "Two live specialists today, with a five-agent C-suite roadmap behind them. Who owns what, which model they use.",
+    icon: Bot,
   },
   {
     href: "/docs/ai-overview/tools",
@@ -108,13 +109,14 @@ const PAGE_CARDS: {
 ];
 
 export default async function AiOverviewPage() {
-  const [skills, totalTools] = await Promise.all([loadAgents(), loadTotalToolCount()]);
+  const [agents, totalTools] = await Promise.all([loadAgents(), loadTotalToolCount()]);
+  const liveAgents = agents.filter((a) => a.status === "live").length;
 
   return (
     <PageShell
       variant="content"
       title="How the AI works"
-      titleContent={<SectionTitleContent title="How the AI works" subtitle="A tour of Eve, its executive skills, authenticated tools, memory, and feedback loops. Skim the headlines here, then dive into any section." />}
+      titleContent={<SectionTitleContent title="How the AI works" subtitle="A tour of the agents, tools, models, memory, and feedback loops behind the Alleato assistant. Skim the headlines here, then dive into any section." />}
     >
       <SectionNav />
       <div className="space-y-14">
@@ -124,16 +126,16 @@ export default async function AiOverviewPage() {
         description="Pulled live from the codebase, not hand-edited."
       >
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-          <StatBlock label="Eve runtime" value="1" suffix="sole assistant runtime" />
-          <StatBlock label="Executive skills" value={skills.length} suffix="selected by Eve" />
+          <StatBlock label="Live agents" value={liveAgents} suffix={`of ${agents.length} designed`} />
           <StatBlock label="Tools available" value={totalTools} suffix="across all domains" />
+          <StatBlock label="Vector chunks indexed" value="109K+" suffix="emails, meetings, docs" />
         </div>
       </Section>
 
       <Section
         eyebrow="What it can do"
         title="Example questions"
-        description="Eve interprets each question, applies the relevant skills, and selects authenticated tools automatically."
+        description="Each question routes to a different specialist based on its content. The assistant decides automatically."
       >
         <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {EXAMPLE_QUESTIONS.map((item) => (
@@ -150,7 +152,7 @@ export default async function AiOverviewPage() {
                     &ldquo;{item.question}&rdquo;
                   </p>
                   <p className="mt-2 text-xs text-muted-foreground">
-                    Uses{" "}
+                    Routed to{" "}
                     <span className="font-medium text-foreground">{item.routedTo}</span>
                   </p>
                 </div>
@@ -163,7 +165,7 @@ export default async function AiOverviewPage() {
       <Section
         eyebrow="Architecture"
         title="How a question flows through the system"
-        description="Every request goes to Eve, which applies the relevant skills and calls authenticated production tools for evidence."
+        description="Every request walks the same path. The Strategist decides whether to answer directly or hand off to a specialist."
       >
         <FlowDiagram />
       </Section>
@@ -245,36 +247,36 @@ function FlowDiagram() {
         </div>
         <ArrowDown />
 
-        {/* Eve transport */}
+        {/* Chat handler */}
         <div className="flex justify-center">
           <div className={`${nodeBase} text-center`}>
-            Authenticated Eve proxy receives the message
+            Chat API receives the message
             <p className={`${labelBase} mt-1.5 normal-case tracking-normal text-muted-foreground`}>
-              Verifies the user, surface, project scope, and durable turn
+              Streams the response back via the Vercel AI SDK
             </p>
           </div>
         </div>
         <ArrowDown />
 
-        {/* Eve */}
+        {/* Strategist */}
         <div className="flex justify-center">
           <div
             className={`${nodeBase} text-center`}
             style={{ borderColor: "var(--primary)" }}
           >
-            Eve applies the relevant executive skills
+            Strategist reads the question
             <p className={`${labelBase} mt-1.5 normal-case tracking-normal text-muted-foreground`}>
-              One runtime owns reasoning, tool selection, and the final answer
+              Decides: answer directly, or hand off to a specialist
             </p>
           </div>
         </div>
         <ArrowDown variant="branch" />
 
-        {/* Tool families */}
+        {/* Three branches */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <BranchBox title="Project tools" detail="Budgets, schedule, risk, people, and project records" />
-          <BranchBox title="Knowledge tools" detail="Meetings, documents, email, Teams, and memory" />
-          <BranchBox title="Business tools" detail="Financial, marketing, reporting, and workspace data" />
+          <BranchBox title="CFO sub-agent" detail="Financial questions: margin, cash flow, variance" />
+          <BranchBox title="Microsoft EA" detail="Outlook, Teams, calendar operator work" />
+          <BranchBox title="Project tools" detail="Reads from Supabase, RAG, Acumatica" />
         </div>
         <ArrowDown />
 

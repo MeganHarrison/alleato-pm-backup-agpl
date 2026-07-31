@@ -1,0 +1,24 @@
+{
+  "task": "AAI-1280-RAG-CANON",
+  "status": "pass",
+  "sourceVerification": {
+    "workflowOwnership": "pass",
+    "callerAuthentication": "pass",
+    "backendFocusedTests": "pass",
+    "renderYaml": "pass",
+    "legacyOwnerSearch": "pass",
+    "dualDatabaseSourceFreshness": "pass",
+    "ragChunkCoverage": "pass",
+    "sourceHealthRecompute": "degraded_with_explicit_upstream_repairs",
+    "workflowServerCredentialAndUrlFallback": "pass",
+    "graphCommunicationVisionClassification": "pass",
+    "vercelColdBuildCacheGuard": "pass",
+    "dualMetadataLoadSchema": "pass"
+  },
+  "deploymentVerification": {
+    "canonicalPublication": "pass",
+    "vercel": "ready_exact_commit_17c7b78e",
+    "render": "authenticated_single_stage_routes_live",
+    "sourceToCitation": "pass_controlled_url_similarity_1"
+  }
+}

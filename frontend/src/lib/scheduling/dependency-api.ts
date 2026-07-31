@@ -8,9 +8,24 @@ type DependencyInput = {
 
 type DependencyUpdateInput = Partial<DependencyInput>;
 
+export function scheduleApiErrorMessage(body: unknown, fallback: string): string {
+  if (!body || typeof body !== "object") return fallback;
+  const errorBody = body as {
+    error?: unknown;
+    error_message?: unknown;
+    message?: unknown;
+  };
+  if (typeof errorBody.error === "string" && errorBody.error) return errorBody.error;
+  if (typeof errorBody.error_message === "string" && errorBody.error_message) {
+    return errorBody.error_message;
+  }
+  if (typeof errorBody.message === "string" && errorBody.message) return errorBody.message;
+  return fallback;
+}
+
 async function readApiError(response: Response, fallback: string): Promise<never> {
-  const body = await response.json().catch(() => null) as { error?: string; error_message?: string } | null;
-  throw new Error(body?.error ?? body?.error_message ?? fallback);
+  const body = await response.json().catch(() => null);
+  throw new Error(scheduleApiErrorMessage(body, fallback));
 }
 
 export async function createScheduleDependency(

@@ -11,7 +11,7 @@ client_visible: true
 ai_visible: true
 order: 100
 related_routes:
-  - /ai
+  - /ai-assistant
 related_actions: []
 ---
 
@@ -25,11 +25,11 @@ This article is the **overview**: where to find it, what it looks like, what you
 
 ## Where to find it
 
-Open the AI Assistant at **`/ai`** from the main navigation.
+Open the AI Assistant at **`/ai-assistant`** — there's a permanent link in the main sidebar, and a global widget button you can click from anywhere in the app to pop the chat open without leaving the page you're on.
 
 There are two entry surfaces:
 
-- **Full chat page** (`/ai`) — the dedicated Eve workspace with conversation history and assistant controls.
+- **Full chat page** (`/ai-assistant`) — the dedicated workspace with conversation history, side panels, voice input, and the trace panel.
 - **Global widget** — a compact floating chat that opens on top of any page. Conversations from the widget appear in your history just like full-page chats.
 
 ---
@@ -55,16 +55,13 @@ The main thread. You type at the bottom, the assistant streams its response abov
 - **Source citations** — clickable references to the underlying meeting, email, document, or record. Click a citation to open the source.
 - **Tool calls** — when the assistant pulls live data (e.g. queries the budget, looks up a commitment), the tool calls render inline so you can see exactly what data the answer is based on.
 - **Widgets** — for some questions the assistant returns a richer card (a daily-update widget, a project status panel, an insight card) instead of plain text.
-- **Artifacts** — workspace records can open in a side panel so you can read or
-  copy them without losing the chat. Eve can read available artifacts but cannot
-  create or edit them through the current read-only bridge.
+- **Artifacts** — documents the assistant creates or edits open in a side panel so you can read or copy them without losing the chat.
 
 ### Side panels (right)
 
 Opened from the toolbar at the top of the chat:
 
-- **Turn evidence** — durable turn events and source receipts show which
-  request-scoped tools and evidence contributed to an answer.
+- **Trace panel** — shows the live model trace: which agent handled the question, which tools fired, how long each step took, retrieval results. Use this when an answer looks off and you want to understand *why* the assistant said what it said.
 - **Workspace** — pinned context for the current conversation (a project you want every answer scoped to, a document you've attached for follow-up Q&A).
 - **Artifact panel** — opens when the assistant generates a document. Lets you read, copy, or download without leaving the chat.
 
@@ -82,9 +79,7 @@ The assistant is built for whole-business questions across multiple data sources
 - "How is the Smith Group invoice tracking against the commitment?"
 - "What's our cash position across all active projects?"
 
-It's also fine to ask it about itself — “what tools do you have?”, “what data
-sources can you see?”, or “which skill applies?” — and it can use these help
-articles to answer.
+It's also fine to ask it about itself — "what tools do you have?", "what data sources can you see?", "how do you decide which agent answers?" — and it'll pull from the docs (these articles) to answer.
 
 For questions it doesn't currently support well, see [AI Capabilities Index](/help/articles/ai-capabilities-index).
 
@@ -130,23 +125,17 @@ See [AI Feedback & Learning](/help/articles/ai-memory) for what each signal actu
 Two layers of memory:
 
 - **Within a conversation** — the assistant sees the whole thread. Reference earlier messages freely ("expand on that", "and what about the second project?").
-- **Across conversations** — the assistant can retain approved facts about you
-  and your projects. Review the available controls under **`/ai`**, or ask Eve
-  what it remembers.
+- **Across conversations** — the assistant keeps a long-term memory of facts about you and your projects (preferences, named people, ongoing situations). You can review and edit what's stored at **`/ai-assistant`** → memory settings, or ask the assistant directly: "what do you remember about me?"
 
 Full reference: [AI Conversation Memory](/help/articles/ai-memory).
 
 ---
 
-## Which skill is active
+## Which agent is answering
 
-The assistant is one Eve identity with six skills: financial analysis,
-operations review, risk review, people capacity, business development, and
-marketing strategy. Eve can load one or several skills without handing the
-conversation to a separate frontend agent.
+Under the hood the assistant is a team of specialized agents — Strategist (router), CFO (financial), COO (operational), CHRO (people), CMO (marketing), CRO (revenue), VPBD (business development). The Strategist looks at your question and either answers directly or hands off to the specialist.
 
-You can ask Eve to use a specific lens, such as “review this through the
-financial analysis skill.”
+You'll usually see this in the trace panel: "Routed to CFO — financial query". For most users it's invisible — you just get the right answer. When you want to force a specific lens (e.g. "answer as the CFO"), you can say so directly.
 
 Full reference: [AI Architecture](/architecture/ai-rag).
 
@@ -175,13 +164,10 @@ Yes. Pin a project in the Workspace panel and every follow-up question is automa
 Ask for it. "Give me the full breakdown", "show me every line", "explain the reasoning step by step". The assistant defaults to concise; verbose is on request.
 
 **Can I export a conversation?**
-Not yet from the UI. If you need a thread captured, copy the messages directly
-or ask Eve for a text summary, then save it through the normal workspace UI.
-Eve cannot create the artifact through the current read-only bridge.
+Not yet from the UI. If you need a thread captured, copy the messages directly or ask the assistant to summarize the thread into a document — that creates an artifact you can download.
 
 **What model is the assistant using?**
-Model selection belongs to the Eve deployment and provider configuration, not
-to separate frontend agents. See [AI Models & Providers](/architecture/ai-rag).
+Depends on which agent answers. Strategist runs on `openai/gpt-5.4`; the CFO and most specialists run on `openai/gpt-5.4-mini`. Synthesis steps use `openai/gpt-4.1`. All routed through the Vercel AI Gateway. See [AI Models & Providers](/architecture/ai-rag).
 
 **Why is the assistant suddenly slower?**
 The most common cause is a question that triggers many tool calls (e.g. a cross-project rollup that hits 20 data sources). Watch the trace panel — you'll see which step is taking the time. If a single tool is hanging, source health may be degraded.
@@ -193,7 +179,7 @@ Conversations are soft-deleted for 30 days. Contact an Admin to restore.
 
 ## Related Articles
 
-- [AI Architecture](/architecture/ai-rag) — Eve, skills, retrieval, and ingestion ownership
+- [AI Architecture](/architecture/ai-rag) — the multi-agent design
 - [How AI Retrieval Works](/architecture/ai-rag) — RAG, embeddings, hybrid search
 - [AI Data Sources](/architecture/rag-pipeline-project-intelligence) — every source the assistant can read
 - [AI Conversation Memory](/help/articles/ai-memory) — short-term and long-term memory

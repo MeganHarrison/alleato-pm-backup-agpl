@@ -1,167 +1,90 @@
-/** @jest-environment jsdom */
+/**
+ * @jest-environment jsdom
+ */
+import { act, renderHook } from "@testing-library/react";
 
-import { act, renderHook, waitFor } from "@testing-library/react";
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
-import type { HandleMessageStreamEvent, SessionState } from "eve/client";
-import { useEveAgent } from "eve/react";
-import { apiFetch } from "@/lib/api-client";
-import {
-  useAskAlleatoChat,
-  useAskAlleatoIdentity,
-} from "../useAskAlleatoChat";
+import { ASK_ALLEATO_CHAT_ID, useAskAlleatoChat } from "../useAskAlleatoChat";
+
+const apiFetchMock = jest.fn();
+const sendMessageMock = jest.fn();
+const useChatMock = jest.fn();
+const transportConfigurations: Array<{
+  api?: string;
+  prepareSendMessagesRequest: (request: { messages: unknown[] }) => {
+    body: Record<string, unknown>;
+  };
+}> = [];
 
 jest.mock("@/lib/api-client", () => ({
-  apiFetch: jest.fn(),
+  apiFetch: (...args: unknown[]) => apiFetchMock(...args),
 }));
 
-const getSessionMock = jest.fn();
-jest.mock("@/lib/supabase/client", () => ({
-  createClient: jest.fn(() => ({
-    auth: { getSession: (...args: unknown[]) => getSessionMock(...args) },
-  })),
+jest.mock("@ai-sdk/react", () => ({
+  useChat: (options: unknown) => useChatMock(options),
 }));
 
-jest.mock("eve/react", () => ({
-  useEveAgent: jest.fn(),
+jest.mock("ai", () => ({
+  DefaultChatTransport: class DefaultChatTransport {
+    constructor(configuration: (typeof transportConfigurations)[number]) {
+      transportConfigurations.push(configuration);
+    }
+  },
+  lastAssistantMessageIsCompleteWithApprovalResponses: jest.fn(),
 }));
 
-const mockedApiFetch = jest.mocked(apiFetch);
-const mockedUseEveAgent = jest.mocked(useEveAgent);
-
-describe("Ask Alleato identity gate", () => {
+describe("useAskAlleatoChat", () => {
   beforeEach(() => {
-    mockedApiFetch.mockReset();
-    mockedUseEveAgent.mockReset();
-    getSessionMock.mockReset();
-    window.localStorage.clear();
+    apiFetchMock.mockReset();
+    sendMessageMock.mockReset();
+    useChatMock.mockReset();
+    transportConfigurations.length = 0;
+
+    apiFetchMock.mockResolvedValue({
+      conversation: { session_id: "session-123" },
+    });
+    useChatMock.mockImplementation(() => ({
+      messages: [],
+      sendMessage: sendMessageMock,
+      status: "ready",
+    }));
   });
 
-  it("resolves the authenticated user without consulting a runtime selector", async () => {
-    getSessionMock.mockResolvedValue({
-      data: { session: { user: { id: "user-a" } } },
-      error: null,
-    });
-
-    const { result } = renderHook(() => useAskAlleatoIdentity());
-
-    expect(result.current).toEqual({
-      error: null,
-      userId: null,
-      isLoading: true,
-    });
-
-    await waitFor(() => expect(result.current.userId).toBe("user-a"));
-    expect(mockedApiFetch).not.toHaveBeenCalled();
-    expect(result.current.error).toBeNull();
-  });
-
-  it("fails visibly when authentication is unavailable", async () => {
-    getSessionMock.mockResolvedValue({
-      data: { session: null },
-      error: null,
-    });
-    const { result } = renderHook(() => useAskAlleatoIdentity());
-    await waitFor(() => expect(result.current.error).toContain("session expired"));
-    expect(result.current.userId).toBeNull();
-    expect(result.current.isLoading).toBe(false);
-  });
-
-  it("routes Eve through the durable app-owned proxy", () => {
-    const source = readFileSync(
-      join(__dirname, "..", "useAskAlleatoChat.ts"),
-      "utf8",
-    );
-    expect(source).toContain(
-      'host: "/api/ai-assistant/eve/proxy"',
-    );
-  });
-});
-
-describe("Ask Alleato Eve reconnect", () => {
-  beforeEach(() => {
-    mockedApiFetch.mockReset();
-    mockedUseEveAgent.mockReset();
-    window.localStorage.clear();
-  });
-
-  it("restores the conversation, event log, and stream session after remount", async () => {
-    const agentOptions: Parameters<typeof useEveAgent>[0][] = [];
-    const send = jest.fn().mockResolvedValue(undefined);
-    mockedUseEveAgent.mockImplementation((options) => {
-      agentOptions.push(options);
-      return {
-        data: { messages: [] },
-        send,
-        status: "ready",
-      } as unknown as ReturnType<typeof useEveAgent>;
-    });
-    mockedApiFetch.mockResolvedValue({
-      conversation: { session_id: "conversation-1265" },
-    });
-
-    const firstMount = renderHook(() => useAskAlleatoChat("user-a"));
+  it("keeps the UI chat identity stable while creating the backend session", async () => {
+    const { result } = renderHook(() => useAskAlleatoChat());
 
     await act(async () => {
-      await firstMount.result.current.send("Keep working");
+      await result.current.send("Show the latest daily brief");
     });
 
-    const event = {
-      type: "data",
-      data: { type: "text-delta", delta: "In progress" },
-    } as unknown as HandleMessageStreamEvent;
-    const session = { streamIndex: 7 } as SessionState;
-
-    act(() => {
-      agentOptions[0]?.onEvent?.(event);
-      agentOptions[0]?.onSessionChange?.(session);
-    });
-    firstMount.unmount();
-
-    const secondMount = renderHook(() => useAskAlleatoChat("user-a"));
-    const remountedOptions = agentOptions.at(-1);
-
-    expect(secondMount.result.current.sessionId).toBe("conversation-1265");
-    expect(remountedOptions?.initialEvents).toEqual([event]);
-    expect(remountedOptions?.initialSession).toEqual(session);
-    expect(mockedApiFetch).toHaveBeenCalledTimes(1);
-  });
-
-  it("never restores another authenticated user's local conversation", async () => {
-    const agentOptions: Parameters<typeof useEveAgent>[0][] = [];
-    mockedUseEveAgent.mockImplementation((options) => {
-      agentOptions.push(options);
-      return {
-        data: { messages: [] },
-        send: jest.fn().mockResolvedValue(undefined),
-        status: "ready",
-      } as unknown as ReturnType<typeof useEveAgent>;
-    });
-    mockedApiFetch.mockResolvedValue({
-      conversation: { session_id: "conversation-user-a" },
+    const chatIds = useChatMock.mock.calls.map(
+      ([options]) => (options as { id: string }).id,
+    );
+    expect(new Set(chatIds)).toEqual(new Set([ASK_ALLEATO_CHAT_ID]));
+    expect(sendMessageMock).toHaveBeenCalledWith({
+      text: "Show the latest daily brief",
     });
 
-    const userAMount = renderHook(() => useAskAlleatoChat("user-a"));
-    await act(async () => {
-      await userAMount.result.current.send("Private user A question");
+    const latestTransport = transportConfigurations.at(-1);
+    const request = latestTransport?.prepareSendMessagesRequest({
+      messages: [
+        {
+          id: "message-1",
+          role: "user",
+          parts: [{ type: "text", text: "Show the latest daily brief" }],
+        },
+      ],
     });
 
-    const userAEvent = {
-      type: "data",
-      data: { type: "text-delta", delta: "Private user A answer" },
-    } as unknown as HandleMessageStreamEvent;
-    const userASession = { streamIndex: 3 } as SessionState;
-    act(() => {
-      agentOptions[0]?.onEvent?.(userAEvent);
-      agentOptions[0]?.onSessionChange?.(userASession);
+    expect(request?.body).toMatchObject({
+      id: "session-123",
     });
-    userAMount.unmount();
-
-    const userBMount = renderHook(() => useAskAlleatoChat("user-b"));
-    const userBOptions = agentOptions.at(-1);
-
-    expect(userBMount.result.current.sessionId).toBeNull();
-    expect(userBOptions?.initialEvents).toBeUndefined();
-    expect(userBOptions?.initialSession).toBeUndefined();
+    expect(request?.body).not.toHaveProperty("assistantSurface");
+    expect(transportConfigurations.at(-1)?.api).toBe(
+      "/api/ask-alleato/chat",
+    );
+    expect(apiFetchMock).toHaveBeenCalledWith(
+      "/api/ai-assistant/conversations?surface=ask_alleato",
+      expect.objectContaining({ method: "POST" }),
+    );
   });
 });

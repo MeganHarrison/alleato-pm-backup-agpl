@@ -1153,6 +1153,7 @@ const MODULE_LABELS: Record<PermissionModule, string> = {
   change_orders: "Change Orders",
   change_events: "Change Events",
   emails: "Emails",
+  crm: "CRM",
 };
 
 const LEVEL_LABELS: Record<PermissionLevel, string> = {

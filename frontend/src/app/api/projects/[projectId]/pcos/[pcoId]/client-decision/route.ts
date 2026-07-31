@@ -16,6 +16,7 @@ import { NextResponse } from "next/server";
 import { apiErrorResponse } from "@/lib/api-error";
 import { requirePermission } from "@/lib/permissions-guard";
 import { logger } from "@/lib/logger";
+import type { Database } from "@/types/database.types";
 
 interface RouteParams {
   params: Promise<{ projectId: string; pcoId: string }>;
@@ -114,7 +115,7 @@ export const POST = withApiGuardrails(
       logger.error({ msg: "Failed to update version decision:", data: versionUpdateError });
     }
 
-    const updates: Record<string, unknown> = {
+    const updates: Database["public"]["Tables"]["potential_change_orders"]["Update"] = {
       updated_at: now,
     };
 

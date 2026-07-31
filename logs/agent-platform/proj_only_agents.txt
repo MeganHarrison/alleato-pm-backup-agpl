@@ -1,0 +1,16 @@
+skills/.system/skill-creator/LICENSE.txt
+skills/.system/skill-creator/SKILL.md
+skills/.system/skill-creator/agents/openai.yaml
+skills/.system/skill-creator/references/openai_yaml.md
+skills/.system/skill-creator/scripts/generate_openai_yaml.py
+skills/.system/skill-creator/scripts/init_skill.py
+skills/.system/skill-creator/scripts/quick_validate.py
+skills/.system/skill-installer/LICENSE.txt
+skills/.system/skill-installer/SKILL.md
+skills/.system/skill-installer/agents/openai.yaml
+skills/.system/skill-installer/assets/skill-installer-small.svg
+skills/.system/skill-installer/assets/skill-installer.png
+skills/.system/skill-installer/scripts/github_utils.py
+skills/.system/skill-installer/scripts/install-skill-from-github.py
+skills/.system/skill-installer/scripts/list-skills.py
+skills/README.md

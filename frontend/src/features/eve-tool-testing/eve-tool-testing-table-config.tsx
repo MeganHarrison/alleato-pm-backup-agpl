@@ -44,6 +44,7 @@ export const eveToolTestingColumnConfig: ColumnConfig[] = [
     label: "Screenshot verification",
     defaultVisible: true,
   },
+  { id: "testedAt", label: "Tested date", defaultVisible: true },
   { id: "family", label: "Family", defaultVisible: true },
   { id: "effect", label: "Effect", defaultVisible: true },
   { id: "scope", label: "Scope", defaultVisible: true },
@@ -150,6 +151,19 @@ export function buildEveToolTestingColumns(): TableColumn<EveToolTestRow>[] {
       render: (row) => (
         <span className="block min-w-64 max-w-96 truncate text-sm text-muted-foreground">
           {row.description}
+        </span>
+      ),
+    },
+    {
+      id: "testedAt",
+      label: "Tested date",
+      defaultVisible: true,
+      sortable: true,
+      sortValue: (row) => row.testedAt ?? "9999-12-31",
+      csvValue: (row) => row.testedAt ?? "Not tested",
+      render: (row) => (
+        <span className="whitespace-nowrap text-sm text-muted-foreground">
+          {row.testedAt ?? "Not tested"}
         </span>
       ),
     },

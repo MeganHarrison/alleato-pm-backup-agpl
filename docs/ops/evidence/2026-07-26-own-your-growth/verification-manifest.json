@@ -1,0 +1,84 @@
+{
+  "contractVersion": 1,
+  "taskId": "LOCAL-2026-07-26-OWN-YOUR-GROWTH-T14",
+  "riskLevel": "high",
+  "feature": "Own Your Growth assessment in the Alleato PM Training module",
+  "route": "/training/growth",
+  "flows": [
+    {
+      "name": "Authenticated assessment and action plan",
+      "steps": [
+        "Open My Growth from the authenticated Training module",
+        "Review the profile-suggested role and canonical skill library",
+        "Score every skill and supply recent evidence",
+        "Complete the top-four focus plan and 30/60/90-day cadence",
+        "Save the check-in"
+      ],
+      "expectedOutcome": "The exact canonical assessment and private action plan are persisted for the authenticated employee"
+    },
+    {
+      "name": "Reload persistence",
+      "steps": [
+        "Observe the returned persisted check-in in history",
+        "Reload the guarded route",
+        "Reinspect history and cadence"
+      ],
+      "expectedOutcome": "The saved check-in remains visible after reload and no transient success state is fabricated"
+    },
+    {
+      "name": "Privacy and tamper resistance",
+      "steps": [
+        "Exercise invalid API payloads",
+        "Attempt a non-canonical focus ranking",
+        "Read the row as a different authenticated user"
+      ],
+      "expectedOutcome": "Validation and database policy fail closed while the owner retains access"
+    }
+  ],
+  "requiredEvidence": [
+    "screenshots",
+    "actionLog",
+    "summary",
+    "databaseReadback",
+    "reloadProof",
+    "negativePath",
+    "visualReview",
+    "regressionTest"
+  ],
+  "visual": {
+    "viewports": [
+      "desktop",
+      "mobile-390x844"
+    ]
+  },
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "complete-port",
+      "description": "The standalone assessment, Skill Wheel, focus plan, and cadence are integrated into the authenticated Training module",
+      "evidence": [
+        { "key": "screenshots", "min": 3 },
+        { "key": "actionLog", "min": 1 },
+        { "key": "visualReview", "min": 1 }
+      ]
+    },
+    {
+      "id": "private-persistence",
+      "description": "A check-in persists for the authenticated employee and remains visible after reload",
+      "evidence": [
+        { "key": "databaseReadback", "min": 1 },
+        { "key": "reloadProof", "min": 1 }
+      ]
+    },
+    {
+      "id": "fail-closed",
+      "description": "Invalid, tampered, unauthenticated, and cross-user operations fail closed",
+      "evidence": [
+        { "key": "negativePath", "min": 1 },
+        { "key": "regressionTest", "min": 1 }
+      ]
+    }
+  ]
+}

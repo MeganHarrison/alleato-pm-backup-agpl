@@ -1,0 +1,1152 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e6]:
+      - generic [ref=e8]:
+        - link "Alleato" [ref=e9] [cursor=pointer]:
+          - /url: /
+          - img "Alleato" [ref=e10]
+        - button "Expand sidebar" [ref=e11] [cursor=pointer]:
+          - img [ref=e12]
+      - generic [ref=e16]:
+        - generic [ref=e17]:
+          - button "Company" [ref=e18] [cursor=pointer]:
+            - img [ref=e19]
+          - generic:
+            - generic:
+              - generic: Company
+              - generic:
+                - link "Company Directory":
+                  - /url: /directory/companies
+                  - generic: Company Directory
+                - link "Meetings":
+                  - /url: /meetings
+                  - generic: Meetings
+                - link "Tasks":
+                  - /url: /tasks
+                  - generic: Tasks
+                - link "Estimates":
+                  - /url: /projects
+                  - generic: Estimates
+                - link "Prospects":
+                  - /url: /directory/prospects
+                  - generic: Prospects
+                - link "AI Strategist":
+                  - /url: /ai-assistant
+                  - generic: AI Strategist
+                - link "Docs Chat":
+                  - /url: /docs
+                  - generic: Docs Chat
+        - generic [ref=e21]:
+          - button "Admin" [ref=e22] [cursor=pointer]:
+            - img [ref=e23]
+          - generic:
+            - generic:
+              - generic: Admin
+              - generic:
+                - link "Settings":
+                  - /url: /settings
+                  - generic: Settings
+                - link "Docs Chat":
+                  - /url: /docs
+                  - generic: Docs Chat
+      - list [ref=e25]:
+        - listitem [ref=e26]:
+          - button "test1 test1 test1@mail.com" [ref=e27] [cursor=pointer]:
+            - img "test1" [ref=e29]
+            - generic:
+              - generic: test1
+              - generic: test1@mail.com
+            - img [ref=e30]
+      - button "Toggle Sidebar" [ref=e33]
+    - main [ref=e34]:
+      - generic [ref=e36]:
+        - generic [ref=e38]:
+          - link "Projects" [ref=e40] [cursor=pointer]:
+            - /url: /
+          - generic [ref=e41]:
+            - img [ref=e42]
+            - generic [ref=e44]: Meetings
+        - generic [ref=e45]:
+          - button "Meetings" [ref=e46] [cursor=pointer]:
+            - generic [ref=e47]: Meetings
+            - img
+          - button "Notifications" [ref=e48] [cursor=pointer]:
+            - img
+          - combobox [ref=e49] [cursor=pointer]:
+            - generic [ref=e50]: Select Project
+            - img
+      - main [ref=e51]:
+        - generic [ref=e52]:
+          - generic [ref=e54]:
+            - heading "Meetings" [level=1] [ref=e55]
+            - generic [ref=e58]:
+              - tablist [ref=e61]:
+                - tab "Table" [selected] [ref=e62] [cursor=pointer]:
+                  - img
+                  - generic [ref=e63]: Table
+                - tab "Grid" [ref=e64] [cursor=pointer]:
+                  - img
+                  - generic [ref=e65]: Grid
+                - tab "List" [ref=e66] [cursor=pointer]:
+                  - img
+                  - generic [ref=e67]: List
+              - generic [ref=e68]:
+                - button [ref=e70] [cursor=pointer]:
+                  - img
+                - button [ref=e71] [cursor=pointer]:
+                  - img
+                - button [ref=e72] [cursor=pointer]:
+                  - img
+                - button [ref=e73] [cursor=pointer]:
+                  - img
+                - button [disabled]:
+                  - img
+              - generic [ref=e75]: 1000 items
+          - generic [ref=e76]:
+            - generic [ref=e77]:
+              - table [ref=e81]:
+                - rowgroup [ref=e82]:
+                  - row "Title Date Project Description Participants Links" [ref=e83]:
+                    - columnheader [ref=e84]:
+                      - checkbox [ref=e85] [cursor=pointer]
+                    - columnheader "Title" [ref=e86] [cursor=pointer]:
+                      - button "Title" [ref=e87]:
+                        - generic [ref=e88]: Title
+                        - img [ref=e89]
+                    - columnheader "Date" [ref=e92] [cursor=pointer]:
+                      - button "Date" [ref=e93]:
+                        - generic [ref=e94]: Date
+                        - img [ref=e95]
+                    - columnheader "Project" [ref=e98] [cursor=pointer]:
+                      - button "Project" [ref=e99]:
+                        - generic [ref=e100]: Project
+                        - img [ref=e101]
+                    - columnheader "Description" [ref=e104] [cursor=pointer]:
+                      - button "Description" [ref=e105]:
+                        - generic [ref=e106]: Description
+                        - img [ref=e107]
+                    - columnheader "Participants" [ref=e110] [cursor=pointer]:
+                      - button "Participants" [ref=e111]:
+                        - generic [ref=e112]: Participants
+                        - img [ref=e113]
+                    - columnheader "Links" [ref=e116] [cursor=pointer]:
+                      - button "Links" [ref=e117]:
+                        - generic [ref=e118]: Links
+                        - img [ref=e119]
+                    - columnheader [ref=e122]
+                - rowgroup [ref=e123]:
+                  - row "Alleato Group Team Intro Edit meeting title Mar 13, 2026 • 2:00 PM Alleato Finance The meeting aimed to define roles and improve accounting processes for Alito Aliado, enhancing collaboration and support. FN BC JD TS +3 Open transcript / source file View Fireflies recording Open actions menu" [ref=e124] [cursor=pointer]:
+                    - cell [ref=e125]:
+                      - checkbox [ref=e126]
+                    - cell "Alleato Group Team Intro Edit meeting title" [ref=e127]:
+                      - generic [ref=e128]:
+                        - link "Alleato Group Team Intro" [ref=e130]:
+                          - /url: /meetings/01KKKW0NXER1QKC09VZ1S40P0X
+                        - button "Edit meeting title" [ref=e131]:
+                          - img
+                    - cell "Mar 13, 2026 • 2:00 PM" [ref=e132]:
+                      - generic [ref=e134]:
+                        - generic [ref=e135]: Mar 13, 2026
+                        - generic [ref=e136]: •
+                        - generic [ref=e137]: 2:00 PM
+                    - cell "Alleato Finance" [ref=e138]:
+                      - generic [ref=e140]: Alleato Finance
+                    - cell "The meeting aimed to define roles and improve accounting processes for Alito Aliado, enhancing collaboration and support." [ref=e141]:
+                      - generic [ref=e142]: The meeting aimed to define roles and improve accounting processes for Alito Aliado, enhancing collaboration and support.
+                    - cell "FN BC JD TS +3" [ref=e143]:
+                      - generic [ref=e145]:
+                        - generic [ref=e147]: FN
+                        - generic [ref=e149]: BC
+                        - generic [ref=e151]: JD
+                        - generic [ref=e153]: TS
+                        - generic [ref=e154]: "+3"
+                    - cell "Open transcript / source file View Fireflies recording" [ref=e155]:
+                      - generic [ref=e156]:
+                        - link "Open transcript / source file" [ref=e157]:
+                          - /url: fireflies
+                          - img [ref=e158]
+                        - link "View Fireflies recording" [ref=e161]:
+                          - /url: https://app.fireflies.ai/view/01KKKW0NXER1QKC09VZ1S40P0X
+                          - img [ref=e162]
+                    - cell "Open actions menu" [ref=e164]:
+                      - button "Open actions menu" [ref=e165]:
+                        - img
+                        - generic [ref=e166]: Open actions menu
+                  - row "Sprinkler Pricing Review Edit meeting title Mar 13, 2026 • 12:30 PM Superior Beverae Exotec The meeting aimed to analyze the cost drivers for Varsity Brands' fire suppression system due to design constraints and to discuss pricing challenges. SP KM BC JD +5 Open transcript / source file View Fireflies recording Open actions menu" [ref=e167] [cursor=pointer]:
+                    - cell [ref=e168]:
+                      - checkbox [ref=e169]
+                    - cell "Sprinkler Pricing Review Edit meeting title" [ref=e170]:
+                      - generic [ref=e171]:
+                        - link "Sprinkler Pricing Review" [ref=e173]:
+                          - /url: /meetings/01KKJ07KBNR38KA6018DCCNZMT
+                        - button "Edit meeting title" [ref=e174]:
+                          - img
+                    - cell "Mar 13, 2026 • 12:30 PM" [ref=e175]:
+                      - generic [ref=e177]:
+                        - generic [ref=e178]: Mar 13, 2026
+                        - generic [ref=e179]: •
+                        - generic [ref=e180]: 12:30 PM
+                    - cell "Superior Beverae Exotec" [ref=e181]:
+                      - generic [ref=e183]: Superior Beverae Exotec
+                    - cell "The meeting aimed to analyze the cost drivers for Varsity Brands' fire suppression system due to design constraints and to discuss pricing challenges." [ref=e184]:
+                      - generic [ref=e185]: The meeting aimed to analyze the cost drivers for Varsity Brands' fire suppression system due to design constraints and to discuss pricing challenges.
+                    - cell "SP KM BC JD +5" [ref=e186]:
+                      - generic [ref=e188]:
+                        - generic [ref=e190]: SP
+                        - generic [ref=e192]: KM
+                        - generic [ref=e194]: BC
+                        - generic [ref=e196]: JD
+                        - generic [ref=e197]: "+5"
+                    - cell "Open transcript / source file View Fireflies recording" [ref=e198]:
+                      - generic [ref=e199]:
+                        - link "Open transcript / source file" [ref=e200]:
+                          - /url: fireflies
+                          - img [ref=e201]
+                        - link "View Fireflies recording" [ref=e204]:
+                          - /url: https://app.fireflies.ai/view/01KKJ07KBNR38KA6018DCCNZMT
+                          - img [ref=e205]
+                    - cell "Open actions menu" [ref=e207]:
+                      - button "Open actions menu" [ref=e208]:
+                        - img
+                        - generic [ref=e209]: Open actions menu
+                  - row "Breck Mastermind Edit meeting title Mar 13, 2026 • 11:00 AM No project The meeting focused on shifting business strategies away from tech clients to non-tech sectors due to AI advancements and cost concerns. BC BR TI AP +2 Open transcript / source file View Fireflies recording Open actions menu" [ref=e210] [cursor=pointer]:
+                    - cell [ref=e211]:
+                      - checkbox [ref=e212]
+                    - cell "Breck Mastermind Edit meeting title" [ref=e213]:
+                      - generic [ref=e214]:
+                        - link "Breck Mastermind" [ref=e216]:
+                          - /url: /meetings/01KKCJ7RP2PC73ASKWPMPDRD30
+                        - button "Edit meeting title" [ref=e217]:
+                          - img
+                    - cell "Mar 13, 2026 • 11:00 AM" [ref=e218]:
+                      - generic [ref=e220]:
+                        - generic [ref=e221]: Mar 13, 2026
+                        - generic [ref=e222]: •
+                        - generic [ref=e223]: 11:00 AM
+                    - cell "No project" [ref=e224]:
+                      - generic [ref=e226]: No project
+                    - cell "The meeting focused on shifting business strategies away from tech clients to non-tech sectors due to AI advancements and cost concerns." [ref=e227]:
+                      - generic [ref=e228]: The meeting focused on shifting business strategies away from tech clients to non-tech sectors due to AI advancements and cost concerns.
+                    - cell "BC BR TI AP +2" [ref=e229]:
+                      - generic [ref=e231]:
+                        - generic [ref=e233]: BC
+                        - generic [ref=e235]: BR
+                        - generic [ref=e237]: TI
+                        - generic [ref=e239]: AP
+                        - generic [ref=e240]: "+2"
+                    - cell "Open transcript / source file View Fireflies recording" [ref=e241]:
+                      - generic [ref=e242]:
+                        - link "Open transcript / source file" [ref=e243]:
+                          - /url: fireflies
+                          - img [ref=e244]
+                        - link "View Fireflies recording" [ref=e247]:
+                          - /url: https://app.fireflies.ai/view/01KKCJ7RP2PC73ASKWPMPDRD30
+                          - img [ref=e248]
+                    - cell "Open actions menu" [ref=e250]:
+                      - button "Open actions menu" [ref=e251]:
+                        - img
+                        - generic [ref=e252]: Open actions menu
+                  - row "Alleato Group Team Intro Edit meeting title Mar 13, 2026 • 11:00 AM Alleato Internal Ops The meeting focused on rescheduling a key meeting and addressing communication challenges to ensure team collaboration. FN BC JD TS +2 Open transcript / source file View Fireflies recording Open actions menu" [ref=e253] [cursor=pointer]:
+                    - cell [ref=e254]:
+                      - checkbox [ref=e255]
+                    - cell "Alleato Group Team Intro Edit meeting title" [ref=e256]:
+                      - generic [ref=e257]:
+                        - link "Alleato Group Team Intro" [ref=e259]:
+                          - /url: /meetings/01KKF04TWB5ZRVRK8X03ED7MTG
+                        - button "Edit meeting title" [ref=e260]:
+                          - img
+                    - cell "Mar 13, 2026 • 11:00 AM" [ref=e261]:
+                      - generic [ref=e263]:
+                        - generic [ref=e264]: Mar 13, 2026
+                        - generic [ref=e265]: •
+                        - generic [ref=e266]: 11:00 AM
+                    - cell "Alleato Internal Ops" [ref=e267]:
+                      - generic [ref=e269]: Alleato Internal Ops
+                    - cell "The meeting focused on rescheduling a key meeting and addressing communication challenges to ensure team collaboration." [ref=e270]:
+                      - generic [ref=e271]: The meeting focused on rescheduling a key meeting and addressing communication challenges to ensure team collaboration.
+                    - cell "FN BC JD TS +2" [ref=e272]:
+                      - generic [ref=e274]:
+                        - generic [ref=e276]: FN
+                        - generic [ref=e278]: BC
+                        - generic [ref=e280]: JD
+                        - generic [ref=e282]: TS
+                        - generic [ref=e283]: "+2"
+                    - cell "Open transcript / source file View Fireflies recording" [ref=e284]:
+                      - generic [ref=e285]:
+                        - link "Open transcript / source file" [ref=e286]:
+                          - /url: fireflies
+                          - img [ref=e287]
+                        - link "View Fireflies recording" [ref=e290]:
+                          - /url: https://app.fireflies.ai/view/01KKF04TWB5ZRVRK8X03ED7MTG
+                          - img [ref=e291]
+                    - cell "Open actions menu" [ref=e293]:
+                      - button "Open actions menu" [ref=e294]:
+                        - img
+                        - generic [ref=e295]: Open actions menu
+                  - row "Weekly Touchbase - HVAC upgrade Edit meeting title Mar 12, 2026 • 11:00 AM Ulta Beauty Fresno DL AW CR BC +7 Open transcript / source file View Fireflies recording Open actions menu" [ref=e296] [cursor=pointer]:
+                    - cell [ref=e297]:
+                      - checkbox [ref=e298]
+                    - cell "Weekly Touchbase - HVAC upgrade Edit meeting title" [ref=e299]:
+                      - generic [ref=e300]:
+                        - link "Weekly Touchbase - HVAC upgrade" [ref=e302]:
+                          - /url: /meetings/01KK9W23BFKRBH8YT696NZFBE1
+                        - button "Edit meeting title" [ref=e303]:
+                          - img
+                    - cell "Mar 12, 2026 • 11:00 AM" [ref=e304]:
+                      - generic [ref=e306]:
+                        - generic [ref=e307]: Mar 12, 2026
+                        - generic [ref=e308]: •
+                        - generic [ref=e309]: 11:00 AM
+                    - cell "Ulta Beauty Fresno" [ref=e310]:
+                      - generic [ref=e312]: Ulta Beauty Fresno
+                    - cell [ref=e313]
+                    - cell "DL AW CR BC +7" [ref=e314]:
+                      - generic [ref=e316]:
+                        - generic [ref=e318]: DL
+                        - generic [ref=e320]: AW
+                        - generic [ref=e322]: CR
+                        - generic [ref=e324]: BC
+                        - generic [ref=e325]: "+7"
+                    - cell "Open transcript / source file View Fireflies recording" [ref=e326]:
+                      - generic [ref=e327]:
+                        - link "Open transcript / source file" [ref=e328]:
+                          - /url: fireflies
+                          - img [ref=e329]
+                        - link "View Fireflies recording" [ref=e332]:
+                          - /url: https://app.fireflies.ai/view/01KK9W23BFKRBH8YT696NZFBE1
+                          - img [ref=e333]
+                    - cell "Open actions menu" [ref=e335]:
+                      - button "Open actions menu" [ref=e336]:
+                        - img
+                        - generic [ref=e337]: Open actions menu
+                  - 'row "Westfield Collective: Outstanding Items and Timeline Discussion Edit meeting title Mar 12, 2026 • 9:00 AM Westfield Collective The meeting focused on delays for the soft opening due to unresolved gas and electrical issues, aiming for a new opening date early next week. AC ME RO DA +3 Open transcript / source file View Fireflies recording Open actions menu" [ref=e338] [cursor=pointer]':
+                    - cell [ref=e339]:
+                      - checkbox [ref=e340]
+                    - 'cell "Westfield Collective: Outstanding Items and Timeline Discussion Edit meeting title" [ref=e341]':
+                      - generic [ref=e342]:
+                        - 'link "Westfield Collective: Outstanding Items and Timeline Discussion" [ref=e344]':
+                          - /url: /meetings/01KKEQTAMD9V9WZ84ZQG0S77A3
+                        - button "Edit meeting title" [ref=e345]:
+                          - img
+                    - cell "Mar 12, 2026 • 9:00 AM" [ref=e346]:
+                      - generic [ref=e348]:
+                        - generic [ref=e349]: Mar 12, 2026
+                        - generic [ref=e350]: •
+                        - generic [ref=e351]: 9:00 AM
+                    - cell "Westfield Collective" [ref=e352]:
+                      - generic [ref=e354]: Westfield Collective
+                    - cell "The meeting focused on delays for the soft opening due to unresolved gas and electrical issues, aiming for a new opening date early next week." [ref=e355]:
+                      - generic [ref=e356]: The meeting focused on delays for the soft opening due to unresolved gas and electrical issues, aiming for a new opening date early next week.
+                    - cell "AC ME RO DA +3" [ref=e357]:
+                      - generic [ref=e359]:
+                        - generic [ref=e361]: AC
+                        - generic [ref=e363]: ME
+                        - generic [ref=e365]: RO
+                        - generic [ref=e367]: DA
+                        - generic [ref=e368]: "+3"
+                    - cell "Open transcript / source file View Fireflies recording" [ref=e369]:
+                      - generic [ref=e370]:
+                        - link "Open transcript / source file" [ref=e371]:
+                          - /url: fireflies
+                          - img [ref=e372]
+                        - link "View Fireflies recording" [ref=e375]:
+                          - /url: https://app.fireflies.ai/view/01KKEQTAMD9V9WZ84ZQG0S77A3
+                          - img [ref=e376]
+                    - cell "Open actions menu" [ref=e378]:
+                      - button "Open actions menu" [ref=e379]:
+                        - img
+                        - generic [ref=e380]: Open actions menu
+                  - row "Update Call ArcEdge/Roofit.Solar Edit meeting title Mar 12, 2026 • 8:00 AM ArcEdge The meeting focused on finalizing the exclusivity agreement with revised payment terms, production timelines, and strategies for US manufacturing and marketing. GG PH ME MP +5 Open transcript / source file View Fireflies recording Open actions menu" [ref=e381] [cursor=pointer]:
+                    - cell [ref=e382]:
+                      - checkbox [ref=e383]
+                    - cell "Update Call ArcEdge/Roofit.Solar Edit meeting title" [ref=e384]:
+                      - generic [ref=e385]:
+                        - link "Update Call ArcEdge/Roofit.Solar" [ref=e387]:
+                          - /url: /meetings/01KK9W2491YXXMSC0SP3156R9J
+                        - button "Edit meeting title" [ref=e388]:
+                          - img
+                    - cell "Mar 12, 2026 • 8:00 AM" [ref=e389]:
+                      - generic [ref=e391]:
+                        - generic [ref=e392]: Mar 12, 2026
+                        - generic [ref=e393]: •
+                        - generic [ref=e394]: 8:00 AM
+                    - cell "ArcEdge" [ref=e395]:
+                      - generic [ref=e397]: ArcEdge
+                    - cell "The meeting focused on finalizing the exclusivity agreement with revised payment terms, production timelines, and strategies for US manufacturing and marketing." [ref=e398]:
+                      - generic [ref=e399]: The meeting focused on finalizing the exclusivity agreement with revised payment terms, production timelines, and strategies for US manufacturing and marketing.
+                    - cell "GG PH ME MP +5" [ref=e400]:
+                      - generic [ref=e402]:
+                        - generic [ref=e404]: GG
+                        - generic [ref=e406]: PH
+                        - generic [ref=e408]: ME
+                        - generic [ref=e410]: MP
+                        - generic [ref=e411]: "+5"
+                    - cell "Open transcript / source file View Fireflies recording" [ref=e412]:
+                      - generic [ref=e413]:
+                        - link "Open transcript / source file" [ref=e414]:
+                          - /url: fireflies
+                          - img [ref=e415]
+                        - link "View Fireflies recording" [ref=e418]:
+                          - /url: https://app.fireflies.ai/view/01KK9W2491YXXMSC0SP3156R9J
+                          - img [ref=e419]
+                    - cell "Open actions menu" [ref=e421]:
+                      - button "Open actions menu" [ref=e422]:
+                        - img
+                        - generic [ref=e423]: Open actions menu
+                  - row "Uniqlo+Alleato Group Edit meeting title Mar 11, 2026 • 5:30 PM Uniqlo Phillipsburg NJ The meeting focused on the progress of site construction and installations, highlighting key infrastructure nearing completion. MC AE BC JD +23 Open transcript / source file View Fireflies recording Open actions menu" [ref=e424] [cursor=pointer]:
+                    - cell [ref=e425]:
+                      - checkbox [ref=e426]
+                    - cell "Uniqlo+Alleato Group Edit meeting title" [ref=e427]:
+                      - generic [ref=e428]:
+                        - link "Uniqlo+Alleato Group" [ref=e430]:
+                          - /url: /meetings/01KK9W23S6CTH3J7FT0BNPXHRY
+                        - button "Edit meeting title" [ref=e431]:
+                          - img
+                    - cell "Mar 11, 2026 • 5:30 PM" [ref=e432]:
+                      - generic [ref=e434]:
+                        - generic [ref=e435]: Mar 11, 2026
+                        - generic [ref=e436]: •
+                        - generic [ref=e437]: 5:30 PM
+                    - cell "Uniqlo Phillipsburg NJ" [ref=e438]:
+                      - generic [ref=e440]: Uniqlo Phillipsburg NJ
+                    - cell "The meeting focused on the progress of site construction and installations, highlighting key infrastructure nearing completion." [ref=e441]:
+                      - generic [ref=e442]: The meeting focused on the progress of site construction and installations, highlighting key infrastructure nearing completion.
+                    - cell "MC AE BC JD +23" [ref=e443]:
+                      - generic [ref=e445]:
+                        - generic [ref=e447]: MC
+                        - generic [ref=e449]: AE
+                        - generic [ref=e451]: BC
+                        - generic [ref=e453]: JD
+                        - generic [ref=e454]: "+23"
+                    - cell "Open transcript / source file View Fireflies recording" [ref=e455]:
+                      - generic [ref=e456]:
+                        - link "Open transcript / source file" [ref=e457]:
+                          - /url: fireflies
+                          - img [ref=e458]
+                        - link "View Fireflies recording" [ref=e461]:
+                          - /url: https://app.fireflies.ai/view/01KK9W23S6CTH3J7FT0BNPXHRY
+                          - img [ref=e462]
+                    - cell "Open actions menu" [ref=e464]:
+                      - button "Open actions menu" [ref=e465]:
+                        - img
+                        - generic [ref=e466]: Open actions menu
+                  - row "Alleato/ Vensure - Timekeeping Edit meeting title Mar 11, 2026 • 11:00 AM Alleato Internal Ops The meeting aimed to discuss the implementation of Venture’s Workforce Management system to automate timekeeping and streamline payroll. NS BC JD MC Open transcript / source file View Fireflies recording Open actions menu" [ref=e467] [cursor=pointer]:
+                    - cell [ref=e468]:
+                      - checkbox [ref=e469]
+                    - cell "Alleato/ Vensure - Timekeeping Edit meeting title" [ref=e470]:
+                      - generic [ref=e471]:
+                        - link "Alleato/ Vensure - Timekeeping" [ref=e473]:
+                          - /url: /meetings/01KK9VBCASCZWSNN2C4XVNA4ZX
+                        - button "Edit meeting title" [ref=e474]:
+                          - img
+                    - cell "Mar 11, 2026 • 11:00 AM" [ref=e475]:
+                      - generic [ref=e477]:
+                        - generic [ref=e478]: Mar 11, 2026
+                        - generic [ref=e479]: •
+                        - generic [ref=e480]: 11:00 AM
+                    - cell "Alleato Internal Ops" [ref=e481]:
+                      - generic [ref=e483]: Alleato Internal Ops
+                    - cell "The meeting aimed to discuss the implementation of Venture’s Workforce Management system to automate timekeeping and streamline payroll." [ref=e484]:
+                      - generic [ref=e485]: The meeting aimed to discuss the implementation of Venture’s Workforce Management system to automate timekeeping and streamline payroll.
+                    - cell "NS BC JD MC" [ref=e486]:
+                      - generic [ref=e488]:
+                        - generic [ref=e490]: NS
+                        - generic [ref=e492]: BC
+                        - generic [ref=e494]: JD
+                        - generic [ref=e496]: MC
+                    - cell "Open transcript / source file View Fireflies recording" [ref=e497]:
+                      - generic [ref=e498]:
+                        - link "Open transcript / source file" [ref=e499]:
+                          - /url: fireflies
+                          - img [ref=e500]
+                        - link "View Fireflies recording" [ref=e503]:
+                          - /url: https://app.fireflies.ai/view/01KK9VBCASCZWSNN2C4XVNA4ZX
+                          - img [ref=e504]
+                    - cell "Open actions menu" [ref=e506]:
+                      - button "Open actions menu" [ref=e507]:
+                        - img
+                        - generic [ref=e508]: Open actions menu
+                  - row "Weekly Accounting Meeting Edit meeting title Mar 10, 2026 • 2:00 PM Alleato Finance The meeting focused on staffing adjustments and project management to enhance operational efficiency and address outstanding financial issues. MC JM AC BC +5 Open transcript / source file View Fireflies recording Open actions menu" [ref=e509] [cursor=pointer]:
+                    - cell [ref=e510]:
+                      - checkbox [ref=e511]
+                    - cell "Weekly Accounting Meeting Edit meeting title" [ref=e512]:
+                      - generic [ref=e513]:
+                        - link "Weekly Accounting Meeting" [ref=e515]:
+                          - /url: /meetings/01KK7DZJGJ6ZF6E4MXD3Q0M3J6
+                        - button "Edit meeting title" [ref=e516]:
+                          - img
+                    - cell "Mar 10, 2026 • 2:00 PM" [ref=e517]:
+                      - generic [ref=e519]:
+                        - generic [ref=e520]: Mar 10, 2026
+                        - generic [ref=e521]: •
+                        - generic [ref=e522]: 2:00 PM
+                    - cell "Alleato Finance" [ref=e523]:
+                      - generic [ref=e525]: Alleato Finance
+                    - cell "The meeting focused on staffing adjustments and project management to enhance operational efficiency and address outstanding financial issues." [ref=e526]:
+                      - generic [ref=e527]: The meeting focused on staffing adjustments and project management to enhance operational efficiency and address outstanding financial issues.
+                    - cell "MC JM AC BC +5" [ref=e528]:
+                      - generic [ref=e530]:
+                        - generic [ref=e532]: MC
+                        - generic [ref=e534]: JM
+                        - generic [ref=e536]: AC
+                        - generic [ref=e538]: BC
+                        - generic [ref=e539]: "+5"
+                    - cell "Open transcript / source file View Fireflies recording" [ref=e540]:
+                      - generic [ref=e541]:
+                        - link "Open transcript / source file" [ref=e542]:
+                          - /url: fireflies
+                          - img [ref=e543]
+                        - link "View Fireflies recording" [ref=e546]:
+                          - /url: https://app.fireflies.ai/view/01KK7DZJGJ6ZF6E4MXD3Q0M3J6
+                          - img [ref=e547]
+                    - cell "Open actions menu" [ref=e549]:
+                      - button "Open actions menu" [ref=e550]:
+                        - img
+                        - generic [ref=e551]: Open actions menu
+                  - row "Goodwill Noblesville Weekly Schedule Meeting Edit meeting title Mar 10, 2026 • 1:30 PM Goodwill Noblesville The meeting focused on construction progress, specifically roofing, interior framing, and power dependencies, addressing team adjustments after a recent incident. NJ IN BR TO +17 Open transcript / source file View Fireflies recording Open actions menu" [ref=e552] [cursor=pointer]:
+                    - cell [ref=e553]:
+                      - checkbox [ref=e554]
+                    - cell "Goodwill Noblesville Weekly Schedule Meeting Edit meeting title" [ref=e555]:
+                      - generic [ref=e556]:
+                        - link "Goodwill Noblesville Weekly Schedule Meeting" [ref=e558]:
+                          - /url: /meetings/01KJSTXGXF1ZRCTX63DMSBAYSH
+                        - button "Edit meeting title" [ref=e559]:
+                          - img
+                    - cell "Mar 10, 2026 • 1:30 PM" [ref=e560]:
+                      - generic [ref=e562]:
+                        - generic [ref=e563]: Mar 10, 2026
+                        - generic [ref=e564]: •
+                        - generic [ref=e565]: 1:30 PM
+                    - cell "Goodwill Noblesville" [ref=e566]:
+                      - generic [ref=e568]: Goodwill Noblesville
+                    - cell "The meeting focused on construction progress, specifically roofing, interior framing, and power dependencies, addressing team adjustments after a recent incident." [ref=e569]:
+                      - generic [ref=e570]: The meeting focused on construction progress, specifically roofing, interior framing, and power dependencies, addressing team adjustments after a recent incident.
+                    - cell "NJ IN BR TO +17" [ref=e571]:
+                      - generic [ref=e573]:
+                        - generic [ref=e575]: NJ
+                        - generic [ref=e577]: IN
+                        - generic [ref=e579]: BR
+                        - generic [ref=e581]: TO
+                        - generic [ref=e582]: "+17"
+                    - cell "Open transcript / source file View Fireflies recording" [ref=e583]:
+                      - generic [ref=e584]:
+                        - link "Open transcript / source file" [ref=e585]:
+                          - /url: fireflies
+                          - img [ref=e586]
+                        - link "View Fireflies recording" [ref=e589]:
+                          - /url: https://app.fireflies.ai/view/01KJSTXGXF1ZRCTX63DMSBAYSH
+                          - img [ref=e590]
+                    - cell "Open actions menu" [ref=e592]:
+                      - button "Open actions menu" [ref=e593]:
+                        - img
+                        - generic [ref=e594]: Open actions menu
+                  - row "Uniqlo & GPC Huddle Edit meeting title Mar 10, 2026 • 11:30 AM Uniqlo Phillipsburg NJ The meeting aimed to confirm installation scheduling, optimize project logistics, and improve reporting and documentation standards. MP JD BC FI +2 Open transcript / source file View Fireflies recording Open actions menu" [ref=e595] [cursor=pointer]:
+                    - cell [ref=e596]:
+                      - checkbox [ref=e597]
+                    - cell "Uniqlo & GPC Huddle Edit meeting title" [ref=e598]:
+                      - generic [ref=e599]:
+                        - link "Uniqlo & GPC Huddle" [ref=e601]:
+                          - /url: /meetings/01KJSTXGXR326ZJ9WCCARJ4VD3
+                        - button "Edit meeting title" [ref=e602]:
+                          - img
+                    - cell "Mar 10, 2026 • 11:30 AM" [ref=e603]:
+                      - generic [ref=e605]:
+                        - generic [ref=e606]: Mar 10, 2026
+                        - generic [ref=e607]: •
+                        - generic [ref=e608]: 11:30 AM
+                    - cell "Uniqlo Phillipsburg NJ" [ref=e609]:
+                      - generic [ref=e611]: Uniqlo Phillipsburg NJ
+                    - cell "The meeting aimed to confirm installation scheduling, optimize project logistics, and improve reporting and documentation standards." [ref=e612]:
+                      - generic [ref=e613]: The meeting aimed to confirm installation scheduling, optimize project logistics, and improve reporting and documentation standards.
+                    - cell "MP JD BC FI +2" [ref=e614]:
+                      - generic [ref=e616]:
+                        - generic [ref=e618]: MP
+                        - generic [ref=e620]: JD
+                        - generic [ref=e622]: BC
+                        - generic [ref=e624]: FI
+                        - generic [ref=e625]: "+2"
+                    - cell "Open transcript / source file View Fireflies recording" [ref=e626]:
+                      - generic [ref=e627]:
+                        - link "Open transcript / source file" [ref=e628]:
+                          - /url: fireflies
+                          - img [ref=e629]
+                        - link "View Fireflies recording" [ref=e632]:
+                          - /url: https://app.fireflies.ai/view/01KJSTXGXR326ZJ9WCCARJ4VD3
+                          - img [ref=e633]
+                    - cell "Open actions menu" [ref=e635]:
+                      - button "Open actions menu" [ref=e636]:
+                        - img
+                        - generic [ref=e637]: Open actions menu
+                  - row "OAC- Westfield Collective Edit meeting title Mar 10, 2026 • 11:00 AM Westfield Collective The meeting focused on project completion updates, interior finishes, and health inspections as the team prepares for landscaping and pending inspections. AC JD ME E +13 Open transcript / source file View Fireflies recording Open actions menu" [ref=e638] [cursor=pointer]:
+                    - cell [ref=e639]:
+                      - checkbox [ref=e640]
+                    - cell "OAC- Westfield Collective Edit meeting title" [ref=e641]:
+                      - generic [ref=e642]:
+                        - link "OAC- Westfield Collective" [ref=e644]:
+                          - /url: /meetings/01KK9DR2XXTA5Q6BQCDC6Y7HX1
+                        - button "Edit meeting title" [ref=e645]:
+                          - img
+                    - cell "Mar 10, 2026 • 11:00 AM" [ref=e646]:
+                      - generic [ref=e648]:
+                        - generic [ref=e649]: Mar 10, 2026
+                        - generic [ref=e650]: •
+                        - generic [ref=e651]: 11:00 AM
+                    - cell "Westfield Collective" [ref=e652]:
+                      - generic [ref=e654]: Westfield Collective
+                    - cell "The meeting focused on project completion updates, interior finishes, and health inspections as the team prepares for landscaping and pending inspections." [ref=e655]:
+                      - generic [ref=e656]: The meeting focused on project completion updates, interior finishes, and health inspections as the team prepares for landscaping and pending inspections.
+                    - cell "AC JD ME E +13" [ref=e657]:
+                      - generic [ref=e659]:
+                        - generic [ref=e661]: AC
+                        - generic [ref=e663]: JD
+                        - generic [ref=e665]: ME
+                        - generic [ref=e667]: E
+                        - generic [ref=e668]: "+13"
+                    - cell "Open transcript / source file View Fireflies recording" [ref=e669]:
+                      - generic [ref=e670]:
+                        - link "Open transcript / source file" [ref=e671]:
+                          - /url: fireflies
+                          - img [ref=e672]
+                        - link "View Fireflies recording" [ref=e675]:
+                          - /url: https://app.fireflies.ai/view/01KK9DR2XXTA5Q6BQCDC6Y7HX1
+                          - img [ref=e676]
+                    - cell "Open actions menu" [ref=e678]:
+                      - button "Open actions menu" [ref=e679]:
+                        - img
+                        - generic [ref=e680]: Open actions menu
+                  - row "Vermillion Rise - Weekly Design Meeting Edit meeting title Mar 10, 2026 • 10:00 AM Vermillion Rise Warehouse The meeting focused on the paused project status pending an ownership decision regarding its direction. AT JD BC KF +18 Open transcript / source file View Fireflies recording Open actions menu" [ref=e681] [cursor=pointer]:
+                    - cell [ref=e682]:
+                      - checkbox [ref=e683]
+                    - cell "Vermillion Rise - Weekly Design Meeting Edit meeting title" [ref=e684]:
+                      - generic [ref=e685]:
+                        - link "Vermillion Rise - Weekly Design Meeting" [ref=e687]:
+                          - /url: /meetings/01KJSTXGY4J6Q9VXG1W83N3QMF
+                        - button "Edit meeting title" [ref=e688]:
+                          - img
+                    - cell "Mar 10, 2026 • 10:00 AM" [ref=e689]:
+                      - generic [ref=e691]:
+                        - generic [ref=e692]: Mar 10, 2026
+                        - generic [ref=e693]: •
+                        - generic [ref=e694]: 10:00 AM
+                    - cell "Vermillion Rise Warehouse" [ref=e695]:
+                      - generic [ref=e697]: Vermillion Rise Warehouse
+                    - cell "The meeting focused on the paused project status pending an ownership decision regarding its direction." [ref=e698]:
+                      - generic [ref=e699]: The meeting focused on the paused project status pending an ownership decision regarding its direction.
+                    - cell "AT JD BC KF +18" [ref=e700]:
+                      - generic [ref=e702]:
+                        - generic [ref=e704]: AT
+                        - generic [ref=e706]: JD
+                        - generic [ref=e708]: BC
+                        - generic [ref=e710]: KF
+                        - generic [ref=e711]: "+18"
+                    - cell "Open transcript / source file View Fireflies recording" [ref=e712]:
+                      - generic [ref=e713]:
+                        - link "Open transcript / source file" [ref=e714]:
+                          - /url: fireflies
+                          - img [ref=e715]
+                        - link "View Fireflies recording" [ref=e718]:
+                          - /url: https://app.fireflies.ai/view/01KJSTXGY4J6Q9VXG1W83N3QMF
+                          - img [ref=e719]
+                    - cell "Open actions menu" [ref=e721]:
+                      - button "Open actions menu" [ref=e722]:
+                        - img
+                        - generic [ref=e723]: Open actions menu
+                  - row "Goodwill IL // Alleato Weekly Huddle Edit meeting title Mar 10, 2026 • 9:30 AM Goodwill Bloomington The meeting focused on project updates and scheduling to streamline multiple ongoing projects across various sites. AT AM BC NB +4 Open transcript / source file View Fireflies recording Open actions menu" [ref=e724] [cursor=pointer]:
+                    - cell [ref=e725]:
+                      - checkbox [ref=e726]
+                    - cell "Goodwill IL // Alleato Weekly Huddle Edit meeting title" [ref=e727]:
+                      - generic [ref=e728]:
+                        - link "Goodwill IL // Alleato Weekly Huddle" [ref=e730]:
+                          - /url: /meetings/01KK78YJ98V56ATF5JVEVRZD3M
+                        - button "Edit meeting title" [ref=e731]:
+                          - img
+                    - cell "Mar 10, 2026 • 9:30 AM" [ref=e732]:
+                      - generic [ref=e734]:
+                        - generic [ref=e735]: Mar 10, 2026
+                        - generic [ref=e736]: •
+                        - generic [ref=e737]: 9:30 AM
+                    - cell "Goodwill Bloomington" [ref=e738]:
+                      - generic [ref=e740]: Goodwill Bloomington
+                    - cell "The meeting focused on project updates and scheduling to streamline multiple ongoing projects across various sites." [ref=e741]:
+                      - generic [ref=e742]: The meeting focused on project updates and scheduling to streamline multiple ongoing projects across various sites.
+                    - cell "AT AM BC NB +4" [ref=e743]:
+                      - generic [ref=e745]:
+                        - generic [ref=e747]: AT
+                        - generic [ref=e749]: AM
+                        - generic [ref=e751]: BC
+                        - generic [ref=e753]: NB
+                        - generic [ref=e754]: "+4"
+                    - cell "Open transcript / source file View Fireflies recording" [ref=e755]:
+                      - generic [ref=e756]:
+                        - link "Open transcript / source file" [ref=e757]:
+                          - /url: fireflies
+                          - img [ref=e758]
+                        - link "View Fireflies recording" [ref=e761]:
+                          - /url: https://app.fireflies.ai/view/01KK78YJ98V56ATF5JVEVRZD3M
+                          - img [ref=e762]
+                    - cell "Open actions menu" [ref=e764]:
+                      - button "Open actions menu" [ref=e765]:
+                        - img
+                        - generic [ref=e766]: Open actions menu
+                  - row "Goodwill Weekly OAC Meeting Edit meeting title Mar 10, 2026 • 9:00 AM Goodwill Allisonville The meeting discusses project progress, site updates, and procurement actions to ensure timely material delivery and efficient project execution. NJ AM BC JD +7 Open transcript / source file View Fireflies recording Open actions menu" [ref=e767] [cursor=pointer]:
+                    - cell [ref=e768]:
+                      - checkbox [ref=e769]
+                    - cell "Goodwill Weekly OAC Meeting Edit meeting title" [ref=e770]:
+                      - generic [ref=e771]:
+                        - link "Goodwill Weekly OAC Meeting" [ref=e773]:
+                          - /url: /meetings/01KJSTXGXPFPH5H7ABQKHTPK9S
+                        - button "Edit meeting title" [ref=e774]:
+                          - img
+                    - cell "Mar 10, 2026 • 9:00 AM" [ref=e775]:
+                      - generic [ref=e777]:
+                        - generic [ref=e778]: Mar 10, 2026
+                        - generic [ref=e779]: •
+                        - generic [ref=e780]: 9:00 AM
+                    - cell "Goodwill Allisonville" [ref=e781]:
+                      - generic [ref=e783]: Goodwill Allisonville
+                    - cell "The meeting discusses project progress, site updates, and procurement actions to ensure timely material delivery and efficient project execution." [ref=e784]:
+                      - generic [ref=e785]: The meeting discusses project progress, site updates, and procurement actions to ensure timely material delivery and efficient project execution.
+                    - cell "NJ AM BC JD +7" [ref=e786]:
+                      - generic [ref=e788]:
+                        - generic [ref=e790]: NJ
+                        - generic [ref=e792]: AM
+                        - generic [ref=e794]: BC
+                        - generic [ref=e796]: JD
+                        - generic [ref=e797]: "+7"
+                    - cell "Open transcript / source file View Fireflies recording" [ref=e798]:
+                      - generic [ref=e799]:
+                        - link "Open transcript / source file" [ref=e800]:
+                          - /url: fireflies
+                          - img [ref=e801]
+                        - link "View Fireflies recording" [ref=e804]:
+                          - /url: https://app.fireflies.ai/view/01KJSTXGXPFPH5H7ABQKHTPK9S
+                          - img [ref=e805]
+                    - cell "Open actions menu" [ref=e807]:
+                      - button "Open actions menu" [ref=e808]:
+                        - img
+                        - generic [ref=e809]: Open actions menu
+                  - row "Job Planner - Setting Up Insurance & Fee new Contracts Edit meeting title Mar 9, 2026 • 3:30 PM Alleato Internal Ops The meeting clarified the updated financial markup process in Job Planner to enhance project setup efficiency and reduce manual errors. JD KM AT AW +4 Open transcript / source file View Fireflies recording Open actions menu" [ref=e810] [cursor=pointer]:
+                    - cell [ref=e811]:
+                      - checkbox [ref=e812]
+                    - cell "Job Planner - Setting Up Insurance & Fee new Contracts Edit meeting title" [ref=e813]:
+                      - generic [ref=e814]:
+                        - link "Job Planner - Setting Up Insurance & Fee new Contracts" [ref=e816]:
+                          - /url: /meetings/01KK4ZH7TECN757784AW4E056W
+                        - button "Edit meeting title" [ref=e817]:
+                          - img
+                    - cell "Mar 9, 2026 • 3:30 PM" [ref=e818]:
+                      - generic [ref=e820]:
+                        - generic [ref=e821]: Mar 9, 2026
+                        - generic [ref=e822]: •
+                        - generic [ref=e823]: 3:30 PM
+                    - cell "Alleato Internal Ops" [ref=e824]:
+                      - generic [ref=e826]: Alleato Internal Ops
+                    - cell "The meeting clarified the updated financial markup process in Job Planner to enhance project setup efficiency and reduce manual errors." [ref=e827]:
+                      - generic [ref=e828]: The meeting clarified the updated financial markup process in Job Planner to enhance project setup efficiency and reduce manual errors.
+                    - cell "JD KM AT AW +4" [ref=e829]:
+                      - generic [ref=e831]:
+                        - generic [ref=e833]: JD
+                        - generic [ref=e835]: KM
+                        - generic [ref=e837]: AT
+                        - generic [ref=e839]: AW
+                        - generic [ref=e840]: "+4"
+                    - cell "Open transcript / source file View Fireflies recording" [ref=e841]:
+                      - generic [ref=e842]:
+                        - link "Open transcript / source file" [ref=e843]:
+                          - /url: fireflies
+                          - img [ref=e844]
+                        - link "View Fireflies recording" [ref=e847]:
+                          - /url: https://app.fireflies.ai/view/01KK4ZH7TECN757784AW4E056W
+                          - img [ref=e848]
+                    - cell "Open actions menu" [ref=e850]:
+                      - button "Open actions menu" [ref=e851]:
+                        - img
+                        - generic [ref=e852]: Open actions menu
+                  - row "Weekly OPS (Nick & Andrew) Edit meeting title Mar 9, 2026 • 3:00 PM Alleato Internal Ops JD AT NJ AC +3 Open transcript / source file View Fireflies recording Open actions menu" [ref=e853] [cursor=pointer]:
+                    - cell [ref=e854]:
+                      - checkbox [ref=e855]
+                    - cell "Weekly OPS (Nick & Andrew) Edit meeting title" [ref=e856]:
+                      - generic [ref=e857]:
+                        - link "Weekly OPS (Nick & Andrew)" [ref=e859]:
+                          - /url: /meetings/01KJSTXGXNGZ2319QXTA81KQAW
+                        - button "Edit meeting title" [ref=e860]:
+                          - img
+                    - cell "Mar 9, 2026 • 3:00 PM" [ref=e861]:
+                      - generic [ref=e863]:
+                        - generic [ref=e864]: Mar 9, 2026
+                        - generic [ref=e865]: •
+                        - generic [ref=e866]: 3:00 PM
+                    - cell "Alleato Internal Ops" [ref=e867]:
+                      - generic [ref=e869]: Alleato Internal Ops
+                    - cell [ref=e870]
+                    - cell "JD AT NJ AC +3" [ref=e871]:
+                      - generic [ref=e873]:
+                        - generic [ref=e875]: JD
+                        - generic [ref=e877]: AT
+                        - generic [ref=e879]: NJ
+                        - generic [ref=e881]: AC
+                        - generic [ref=e882]: "+3"
+                    - cell "Open transcript / source file View Fireflies recording" [ref=e883]:
+                      - generic [ref=e884]:
+                        - link "Open transcript / source file" [ref=e885]:
+                          - /url: fireflies
+                          - img [ref=e886]
+                        - link "View Fireflies recording" [ref=e889]:
+                          - /url: https://app.fireflies.ai/view/01KJSTXGXNGZ2319QXTA81KQAW
+                          - img [ref=e890]
+                    - cell "Open actions menu" [ref=e892]:
+                      - button "Open actions menu" [ref=e893]:
+                        - img
+                        - generic [ref=e894]: Open actions menu
+                  - row "Collective - Never Say Die Introduction Edit meeting title Mar 6, 2026 • 2:30 PM Paradise Isle Geotech The meeting outlined the growth strategy for the Never Say Die bourbon brand, focusing on its unique heritage, product quality, and expansion plans. ME DO BC PH +2 Open transcript / source file View Fireflies recording Open actions menu" [ref=e895] [cursor=pointer]:
+                    - cell [ref=e896]:
+                      - checkbox [ref=e897]
+                    - cell "Collective - Never Say Die Introduction Edit meeting title" [ref=e898]:
+                      - generic [ref=e899]:
+                        - link "Collective - Never Say Die Introduction" [ref=e901]:
+                          - /url: /meetings/01KK06V1E9T7FJ5Z7HSFN2FYVY
+                        - button "Edit meeting title" [ref=e902]:
+                          - img
+                    - cell "Mar 6, 2026 • 2:30 PM" [ref=e903]:
+                      - generic [ref=e905]:
+                        - generic [ref=e906]: Mar 6, 2026
+                        - generic [ref=e907]: •
+                        - generic [ref=e908]: 2:30 PM
+                    - cell "Paradise Isle Geotech" [ref=e909]:
+                      - generic [ref=e911]: Paradise Isle Geotech
+                    - cell "The meeting outlined the growth strategy for the Never Say Die bourbon brand, focusing on its unique heritage, product quality, and expansion plans." [ref=e912]:
+                      - generic [ref=e913]: The meeting outlined the growth strategy for the Never Say Die bourbon brand, focusing on its unique heritage, product quality, and expansion plans.
+                    - cell "ME DO BC PH +2" [ref=e914]:
+                      - generic [ref=e916]:
+                        - generic [ref=e918]: ME
+                        - generic [ref=e920]: DO
+                        - generic [ref=e922]: BC
+                        - generic [ref=e924]: PH
+                        - generic [ref=e925]: "+2"
+                    - cell "Open transcript / source file View Fireflies recording" [ref=e926]:
+                      - generic [ref=e927]:
+                        - link "Open transcript / source file" [ref=e928]:
+                          - /url: fireflies
+                          - img [ref=e929]
+                        - link "View Fireflies recording" [ref=e932]:
+                          - /url: https://app.fireflies.ai/view/01KK06V1E9T7FJ5Z7HSFN2FYVY
+                          - img [ref=e933]
+                    - cell "Open actions menu" [ref=e935]:
+                      - button "Open actions menu" [ref=e936]:
+                        - img
+                        - generic [ref=e937]: Open actions menu
+                  - row "Uniqlo & GPC Huddle Edit meeting title Mar 6, 2026 • 11:30 AM Uniqlo Phillipsburg NJ The meeting aimed to discuss construction progress, scheduling, and coordination challenges as the project nears completion. KM MP JD BC +2 Open transcript / source file View Fireflies recording Open actions menu" [ref=e938] [cursor=pointer]:
+                    - cell [ref=e939]:
+                      - checkbox [ref=e940]
+                    - cell "Uniqlo & GPC Huddle Edit meeting title" [ref=e941]:
+                      - generic [ref=e942]:
+                        - link "Uniqlo & GPC Huddle" [ref=e944]:
+                          - /url: /meetings/01KJFQSQJFSRYV055MGTYQXKZ4
+                        - button "Edit meeting title" [ref=e945]:
+                          - img
+                    - cell "Mar 6, 2026 • 11:30 AM" [ref=e946]:
+                      - generic [ref=e948]:
+                        - generic [ref=e949]: Mar 6, 2026
+                        - generic [ref=e950]: •
+                        - generic [ref=e951]: 11:30 AM
+                    - cell "Uniqlo Phillipsburg NJ" [ref=e952]:
+                      - generic [ref=e954]: Uniqlo Phillipsburg NJ
+                    - cell "The meeting aimed to discuss construction progress, scheduling, and coordination challenges as the project nears completion." [ref=e955]:
+                      - generic [ref=e956]: The meeting aimed to discuss construction progress, scheduling, and coordination challenges as the project nears completion.
+                    - cell "KM MP JD BC +2" [ref=e957]:
+                      - generic [ref=e959]:
+                        - generic [ref=e961]: KM
+                        - generic [ref=e963]: MP
+                        - generic [ref=e965]: JD
+                        - generic [ref=e967]: BC
+                        - generic [ref=e968]: "+2"
+                    - cell "Open transcript / source file View Fireflies recording" [ref=e969]:
+                      - generic [ref=e970]:
+                        - link "Open transcript / source file" [ref=e971]:
+                          - /url: fireflies
+                          - img [ref=e972]
+                        - link "View Fireflies recording" [ref=e975]:
+                          - /url: https://app.fireflies.ai/view/01KJFQSQJFSRYV055MGTYQXKZ4
+                          - img [ref=e976]
+                    - cell "Open actions menu" [ref=e978]:
+                      - button "Open actions menu" [ref=e979]:
+                        - img
+                        - generic [ref=e980]: Open actions menu
+                  - row "ArcEdge thoughts on draft agreement Edit meeting title Mar 6, 2026 • 8:00 AM ArcEdge The meeting focused on exploring domestic manufacturing opportunities and addressing order timeline and cash flow challenges. GG PH ME MP +5 Open transcript / source file View Fireflies recording Open actions menu" [ref=e981] [cursor=pointer]:
+                    - cell [ref=e982]:
+                      - checkbox [ref=e983]
+                    - cell "ArcEdge thoughts on draft agreement Edit meeting title" [ref=e984]:
+                      - generic [ref=e985]:
+                        - link "ArcEdge thoughts on draft agreement" [ref=e987]:
+                          - /url: /meetings/01KK02VWET3QBKMBEJHNAKQ5XV
+                        - button "Edit meeting title" [ref=e988]:
+                          - img
+                    - cell "Mar 6, 2026 • 8:00 AM" [ref=e989]:
+                      - generic [ref=e991]:
+                        - generic [ref=e992]: Mar 6, 2026
+                        - generic [ref=e993]: •
+                        - generic [ref=e994]: 8:00 AM
+                    - cell "ArcEdge" [ref=e995]:
+                      - generic [ref=e997]: ArcEdge
+                    - cell "The meeting focused on exploring domestic manufacturing opportunities and addressing order timeline and cash flow challenges." [ref=e998]:
+                      - generic [ref=e999]: The meeting focused on exploring domestic manufacturing opportunities and addressing order timeline and cash flow challenges.
+                    - cell "GG PH ME MP +5" [ref=e1000]:
+                      - generic [ref=e1002]:
+                        - generic [ref=e1004]: GG
+                        - generic [ref=e1006]: PH
+                        - generic [ref=e1008]: ME
+                        - generic [ref=e1010]: MP
+                        - generic [ref=e1011]: "+5"
+                    - cell "Open transcript / source file View Fireflies recording" [ref=e1012]:
+                      - generic [ref=e1013]:
+                        - link "Open transcript / source file" [ref=e1014]:
+                          - /url: fireflies
+                          - img [ref=e1015]
+                        - link "View Fireflies recording" [ref=e1018]:
+                          - /url: https://app.fireflies.ai/view/01KK02VWET3QBKMBEJHNAKQ5XV
+                          - img [ref=e1019]
+                    - cell "Open actions menu" [ref=e1021]:
+                      - button "Open actions menu" [ref=e1022]:
+                        - img
+                        - generic [ref=e1023]: Open actions menu
+                  - 'row "Westfield Collective: Change Order Discussion Edit meeting title Mar 5, 2026 • 2:00 PM Westfield Collective The meeting clarified plumbing change orders and contractual elements to ensure alignment on payments and completed work. AC CT JA FI Open transcript / source file View Fireflies recording Open actions menu" [ref=e1024] [cursor=pointer]':
+                    - cell [ref=e1025]:
+                      - checkbox [ref=e1026]
+                    - 'cell "Westfield Collective: Change Order Discussion Edit meeting title" [ref=e1027]':
+                      - generic [ref=e1028]:
+                        - 'link "Westfield Collective: Change Order Discussion" [ref=e1030]':
+                          - /url: /meetings/01KJZ89JETPZJZ8WCBF0VZNCNK
+                        - button "Edit meeting title" [ref=e1031]:
+                          - img
+                    - cell "Mar 5, 2026 • 2:00 PM" [ref=e1032]:
+                      - generic [ref=e1034]:
+                        - generic [ref=e1035]: Mar 5, 2026
+                        - generic [ref=e1036]: •
+                        - generic [ref=e1037]: 2:00 PM
+                    - cell "Westfield Collective" [ref=e1038]:
+                      - generic [ref=e1040]: Westfield Collective
+                    - cell "The meeting clarified plumbing change orders and contractual elements to ensure alignment on payments and completed work." [ref=e1041]:
+                      - generic [ref=e1042]: The meeting clarified plumbing change orders and contractual elements to ensure alignment on payments and completed work.
+                    - cell "AC CT JA FI" [ref=e1043]:
+                      - generic [ref=e1045]:
+                        - generic [ref=e1047]: AC
+                        - generic [ref=e1049]: CT
+                        - generic [ref=e1051]: JA
+                        - generic [ref=e1053]: FI
+                    - cell "Open transcript / source file View Fireflies recording" [ref=e1054]:
+                      - generic [ref=e1055]:
+                        - link "Open transcript / source file" [ref=e1056]:
+                          - /url: fireflies
+                          - img [ref=e1057]
+                        - link "View Fireflies recording" [ref=e1060]:
+                          - /url: https://app.fireflies.ai/view/01KJZ89JETPZJZ8WCBF0VZNCNK
+                          - img [ref=e1061]
+                    - cell "Open actions menu" [ref=e1063]:
+                      - button "Open actions menu" [ref=e1064]:
+                        - img
+                        - generic [ref=e1065]: Open actions menu
+                  - row "Nevada Financials Revision Edit meeting title Mar 5, 2026 • 1:00 PM No project The meeting aimed to discuss the strategy for securing a Nevada license and enhancing financial systems for better accuracy and operational efficiency. MC BC CH JI +2 Open transcript / source file View Fireflies recording Open actions menu" [ref=e1066] [cursor=pointer]:
+                    - cell [ref=e1067]:
+                      - checkbox [ref=e1068]
+                    - cell "Nevada Financials Revision Edit meeting title" [ref=e1069]:
+                      - generic [ref=e1070]:
+                        - link "Nevada Financials Revision" [ref=e1072]:
+                          - /url: /meetings/01KJZEJQQB83CS2MXTQY3Q3XV5
+                        - button "Edit meeting title" [ref=e1073]:
+                          - img
+                    - cell "Mar 5, 2026 • 1:00 PM" [ref=e1074]:
+                      - generic [ref=e1076]:
+                        - generic [ref=e1077]: Mar 5, 2026
+                        - generic [ref=e1078]: •
+                        - generic [ref=e1079]: 1:00 PM
+                    - cell "No project" [ref=e1080]:
+                      - generic [ref=e1082]: No project
+                    - cell "The meeting aimed to discuss the strategy for securing a Nevada license and enhancing financial systems for better accuracy and operational efficiency." [ref=e1083]:
+                      - generic [ref=e1084]: The meeting aimed to discuss the strategy for securing a Nevada license and enhancing financial systems for better accuracy and operational efficiency.
+                    - cell "MC BC CH JI +2" [ref=e1085]:
+                      - generic [ref=e1087]:
+                        - generic [ref=e1089]: MC
+                        - generic [ref=e1091]: BC
+                        - generic [ref=e1093]: CH
+                        - generic [ref=e1095]: JI
+                        - generic [ref=e1096]: "+2"
+                    - cell "Open transcript / source file View Fireflies recording" [ref=e1097]:
+                      - generic [ref=e1098]:
+                        - link "Open transcript / source file" [ref=e1099]:
+                          - /url: fireflies
+                          - img [ref=e1100]
+                        - link "View Fireflies recording" [ref=e1103]:
+                          - /url: https://app.fireflies.ai/view/01KJZEJQQB83CS2MXTQY3Q3XV5
+                          - img [ref=e1104]
+                    - cell "Open actions menu" [ref=e1106]:
+                      - button "Open actions menu" [ref=e1107]:
+                        - img
+                        - generic [ref=e1108]: Open actions menu
+                  - row "Uniqlo & GPC Huddle Edit meeting title Mar 5, 2026 • 11:30 AM Uniqlo Phillipsburg NJ The meeting focused on coordinating material delivery and installation processes to keep the project on track. KM MP JD BC +2 Open transcript / source file View Fireflies recording Open actions menu" [ref=e1109] [cursor=pointer]:
+                    - cell [ref=e1110]:
+                      - checkbox [ref=e1111]
+                    - cell "Uniqlo & GPC Huddle Edit meeting title" [ref=e1112]:
+                      - generic [ref=e1113]:
+                        - link "Uniqlo & GPC Huddle" [ref=e1115]:
+                          - /url: /meetings/01KJD8QTGVRNZNGZ2M9TW3FZ0R
+                        - button "Edit meeting title" [ref=e1116]:
+                          - img
+                    - cell "Mar 5, 2026 • 11:30 AM" [ref=e1117]:
+                      - generic [ref=e1119]:
+                        - generic [ref=e1120]: Mar 5, 2026
+                        - generic [ref=e1121]: •
+                        - generic [ref=e1122]: 11:30 AM
+                    - cell "Uniqlo Phillipsburg NJ" [ref=e1123]:
+                      - generic [ref=e1125]: Uniqlo Phillipsburg NJ
+                    - cell "The meeting focused on coordinating material delivery and installation processes to keep the project on track." [ref=e1126]:
+                      - generic [ref=e1127]: The meeting focused on coordinating material delivery and installation processes to keep the project on track.
+                    - cell "KM MP JD BC +2" [ref=e1128]:
+                      - generic [ref=e1130]:
+                        - generic [ref=e1132]: KM
+                        - generic [ref=e1134]: MP
+                        - generic [ref=e1136]: JD
+                        - generic [ref=e1138]: BC
+                        - generic [ref=e1139]: "+2"
+                    - cell "Open transcript / source file View Fireflies recording" [ref=e1140]:
+                      - generic [ref=e1141]:
+                        - link "Open transcript / source file" [ref=e1142]:
+                          - /url: fireflies
+                          - img [ref=e1143]
+                        - link "View Fireflies recording" [ref=e1146]:
+                          - /url: https://app.fireflies.ai/view/01KJD8QTGVRNZNGZ2M9TW3FZ0R
+                          - img [ref=e1147]
+                    - cell "Open actions menu" [ref=e1149]:
+                      - button "Open actions menu" [ref=e1150]:
+                        - img
+                        - generic [ref=e1151]: Open actions menu
+                  - row "Weekly Touchbase - HVAC upgrade Edit meeting title Mar 5, 2026 • 11:00 AM Ulta Dallas The meeting focused on optimizing the weekly work schedule and resource allocation for HVLS and mod fan installations to enhance efficiency. DL CR BC JD +6 Open transcript / source file View Fireflies recording Open actions menu" [ref=e1152] [cursor=pointer]:
+                    - cell [ref=e1153]:
+                      - checkbox [ref=e1154]
+                    - cell "Weekly Touchbase - HVAC upgrade Edit meeting title" [ref=e1155]:
+                      - generic [ref=e1156]:
+                        - link "Weekly Touchbase - HVAC upgrade" [ref=e1158]:
+                          - /url: /meetings/01KJN73D4FP1ZTPZF208GCWQ55
+                        - button "Edit meeting title" [ref=e1159]:
+                          - img
+                    - cell "Mar 5, 2026 • 11:00 AM" [ref=e1160]:
+                      - generic [ref=e1162]:
+                        - generic [ref=e1163]: Mar 5, 2026
+                        - generic [ref=e1164]: •
+                        - generic [ref=e1165]: 11:00 AM
+                    - cell "Ulta Dallas" [ref=e1166]:
+                      - generic [ref=e1168]: Ulta Dallas
+                    - cell "The meeting focused on optimizing the weekly work schedule and resource allocation for HVLS and mod fan installations to enhance efficiency." [ref=e1169]:
+                      - generic [ref=e1170]: The meeting focused on optimizing the weekly work schedule and resource allocation for HVLS and mod fan installations to enhance efficiency.
+                    - cell "DL CR BC JD +6" [ref=e1171]:
+                      - generic [ref=e1173]:
+                        - generic [ref=e1175]: DL
+                        - generic [ref=e1177]: CR
+                        - generic [ref=e1179]: BC
+                        - generic [ref=e1181]: JD
+                        - generic [ref=e1182]: "+6"
+                    - cell "Open transcript / source file View Fireflies recording" [ref=e1183]:
+                      - generic [ref=e1184]:
+                        - link "Open transcript / source file" [ref=e1185]:
+                          - /url: fireflies
+                          - img [ref=e1186]
+                        - link "View Fireflies recording" [ref=e1189]:
+                          - /url: https://app.fireflies.ai/view/01KJN73D4FP1ZTPZF208GCWQ55
+                          - img [ref=e1190]
+                    - cell "Open actions menu" [ref=e1192]:
+                      - button "Open actions menu" [ref=e1193]:
+                        - img
+                        - generic [ref=e1194]: Open actions menu
+              - generic [ref=e1195]:
+                - generic [ref=e1196]:
+                  - generic [ref=e1197]: Rows per page
+                  - combobox [ref=e1198] [cursor=pointer]:
+                    - generic: "25"
+                    - img
+                - navigation "Pagination" [ref=e1199]:
+                  - list [ref=e1200]:
+                    - listitem [ref=e1201]:
+                      - button "Previous page" [disabled]: Previous
+                    - listitem [ref=e1202]:
+                      - button "Go to page 1" [ref=e1203] [cursor=pointer]: "1"
+                    - listitem [ref=e1204]:
+                      - button "Go to page 2" [ref=e1205] [cursor=pointer]: "2"
+                    - listitem [ref=e1206]:
+                      - button "Go to page 3" [ref=e1207] [cursor=pointer]: "3"
+                    - listitem [ref=e1208]:
+                      - button "..." [ref=e1209]
+                    - listitem [ref=e1210]:
+                      - button "Go to page 39" [ref=e1211] [cursor=pointer]: "39"
+                    - listitem [ref=e1212]:
+                      - button "Go to page 40" [ref=e1213] [cursor=pointer]: "40"
+                    - listitem [ref=e1214]:
+                      - button "Next page" [ref=e1215] [cursor=pointer]: Next
+            - complementary [ref=e1216]:
+              - generic [ref=e1217]:
+                - generic [ref=e1219]:
+                  - generic [ref=e1220]:
+                    - paragraph [ref=e1221]: Alleato Group Team Intro
+                    - paragraph [ref=e1222]:
+                      - generic [ref=e1223]: Mar 13, 2026, 2:00 PM
+                      - generic [ref=e1224]: ·
+                      - generic [ref=e1225]: Alleato Finance
+                  - generic [ref=e1226]:
+                    - button "Keyboard tips" [ref=e1227] [cursor=pointer]:
+                      - img
+                    - button "View" [ref=e1228] [cursor=pointer]:
+                      - text: View
+                      - img
+                - generic [ref=e1229]:
+                  - paragraph [ref=e1230]: Description
+                  - paragraph [ref=e1231]: The meeting aimed to define roles and improve accounting processes for Alito Aliado, enhancing collaboration and support.
+                - generic [ref=e1232]:
+                  - paragraph [ref=e1233]: Summary
+                  - paragraph [ref=e1234]: "👥 Team Introductions: Tim Stone joins as CFO with construction experience, ensuring reliable financials for Alito Aliado and WIP understanding. ⚙️ Accounting Improvements: Standardized systems and automation prioritized to enhance accuracy and speed in WIP reporting and invoicing. 🔍 Billing Transparency: Issues with unexplained bills addressed; approval limits adjusted to enforce clarity and accountability on charges. 📜 Licensing Support: Tim to assist with contractor licensing across 22 states, aiming to streamline processes and reduce administrative delays. 📈 Financial Reporting Goals: Emphasis on timely financials and cash flow statements to support strategic planning discussions for 2026. 🔄 Transition Planning: Fatima ensures seamless handoff by maintaining access and coordinating setup for new accounting leads."
+                - generic [ref=e1235]:
+                  - paragraph [ref=e1236]: Links
+                  - generic [ref=e1237]:
+                    - link "Open transcript" [ref=e1238] [cursor=pointer]:
+                      - /url: fireflies
+                      - img [ref=e1239]
+                    - link "Open recording" [ref=e1242] [cursor=pointer]:
+                      - /url: https://app.fireflies.ai/view/01KKKW0NXER1QKC09VZ1S40P0X
+                      - img [ref=e1243]
+                    - link "Open source URL" [ref=e1245] [cursor=pointer]:
+                      - /url: https://lgveqfnpkxvzbnnwuled.supabase.co/storage/v1/object/public/meetings/2026-03-13%20-%20Alleato%20Group%20Team%20Intro.md
+                      - img [ref=e1246]
+                - generic [ref=e1249]:
+                  - paragraph [ref=e1250]:
+                    - img [ref=e1251]
+                    - text: Participants (7)
+                  - generic [ref=e1256]:
+                    - generic [ref=e1257]: Fnjie
+                    - generic [ref=e1258]: Bclymer
+                    - generic [ref=e1259]: Jdawson
+                    - generic [ref=e1260]: Tstone
+                    - generic [ref=e1261]: Zzita
+                    - generic [ref=e1262]: Ymontesano
+                    - generic [ref=e1263]: Mcalcetero
+      - generic [ref=e1266]:
+        - list [ref=e1267]:
+          - listitem [ref=e1268]:
+            - link "Docs" [ref=e1269] [cursor=pointer]:
+              - /url: https://docs-ai-nine.vercel.app
+          - listitem [ref=e1270]:
+            - link "Tables" [ref=e1271] [cursor=pointer]:
+              - /url: /tables-directory
+          - listitem [ref=e1272]:
+            - link "Playwright Crawl" [ref=e1273] [cursor=pointer]:
+              - /url: /crawled-pages
+          - listitem [ref=e1274]:
+            - link "Careers" [ref=e1275] [cursor=pointer]:
+              - /url: "#"
+          - listitem [ref=e1276]:
+            - link "Help" [ref=e1277] [cursor=pointer]:
+              - /url: "#"
+          - listitem [ref=e1278]:
+            - link "Privacy" [ref=e1279] [cursor=pointer]:
+              - /url: "#"
+        - generic [ref=e1280]: © 2026 Alleato Group. All rights reserved.
+      - button "Open chat" [ref=e1281] [cursor=pointer]:
+        - img [ref=e1282]
+  - region "Notifications alt+T"
+  - alert [ref=e1]

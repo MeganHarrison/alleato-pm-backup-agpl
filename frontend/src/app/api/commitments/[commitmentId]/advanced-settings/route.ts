@@ -4,6 +4,15 @@ import { createClient, getApiRouteUser } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import { apiErrorResponse } from "@/lib/api-error";
 import { logger } from "@/lib/logger";
+import type { Database } from "@/types/database.types";
+
+// `advanced_settings` is not yet a real column on either commitment table —
+// this write is deliberately best-effort (see the "column doesn't exist"
+// fallback below) until the migration lands, so the payload is asserted
+// through `unknown` rather than typed against a column that doesn't exist yet.
+type CommitmentAdvancedSettingsUpdate =
+  | Database["public"]["Tables"]["subcontracts"]["Update"]
+  | Database["public"]["Tables"]["purchase_orders"]["Update"];
 
 // Default settings to return when no custom settings are saved
 const DEFAULT_SETTINGS = {
@@ -187,10 +196,12 @@ export const PUT = withApiGuardrails<{ commitmentId: string }>(
     // Try to update the advanced_settings JSONB column
     const { error } = await supabase
       .from(tableName)
-      .update({
-        advanced_settings: settingsToSave,
-        updated_at: new Date().toISOString(),
-      })
+      .update(
+        {
+          advanced_settings: settingsToSave,
+          updated_at: new Date().toISOString(),
+        } as unknown as CommitmentAdvancedSettingsUpdate,
+      )
       .eq("id", commitmentId);
 
     if (error) {

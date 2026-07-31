@@ -28,6 +28,7 @@ export function UnifiedFeedbackWidget() {
   const isImmersiveChatRoute =
     pathname === "/ai" ||
     pathname?.startsWith("/ai/") ||
+    pathname?.startsWith("/ai-assistant") ||
     pathname?.startsWith("/ai-avatar");
 
   const webhookUrl = useMemo(() => {

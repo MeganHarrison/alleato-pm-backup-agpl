@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 
 import { runRepoCommand } from "./commands.js";
@@ -17,7 +18,7 @@ import {
  * This agent orchestrates and verifies the EXISTING doc-generation gates. It does
  * not author docs itself and it does not replace the generators. It proves drift
  * by re-running the canonical generator and diffing, then (under approval) leaves
- * the regenerated output staged for a human PR.
+ * the regenerated output modified for human review.
  *
  * Canonical generators (root package.json scripts):
  *   - npm run map:project   -> docs/architecture/PROJECT-MAP.md   (generate-project-map.mjs)
@@ -81,8 +82,18 @@ async function isPathDirty(file: string): Promise<boolean> {
   return result.stdout.trim().length > 0;
 }
 
-async function numstat(file: string): Promise<{ added: number; removed: number }> {
-  const result = await runRepoCommand("git", ["diff", "--numstat", "--", file]);
+async function numstatBetween(
+  currentFile: string,
+  generatedFile: string,
+): Promise<{ added: number; removed: number }> {
+  const result = await runRepoCommand("git", [
+    "diff",
+    "--no-index",
+    "--numstat",
+    "--",
+    currentFile,
+    generatedFile,
+  ]);
   const line = result.stdout.split(/\r?\n/).find((entry) => entry.trim().length > 0);
   if (!line) return { added: 0, removed: 0 };
   const [added, removed] = line.split("\t");
@@ -90,6 +101,77 @@ async function numstat(file: string): Promise<{ added: number; removed: number }
     added: Number.parseInt(added, 10) || 0,
     removed: Number.parseInt(removed, 10) || 0,
   };
+}
+
+async function runGeneratorInScratch(
+  target: GeneratedTarget,
+): Promise<{
+  generated: Awaited<ReturnType<typeof runRepoCommand>>;
+  drift: { added: number; removed: number };
+  cleanupError: string | null;
+}> {
+  const root = repoRoot();
+  const scratch = fs.mkdtempSync(
+    path.join(os.tmpdir(), "alleato-docs-freshness-"),
+  );
+  let worktreeAdded = false;
+  let cleanupError: string | null = null;
+
+  try {
+    const added = await runRepoCommand(
+      "git",
+      ["worktree", "add", "--detach", scratch, "HEAD"],
+      120000,
+      root,
+    );
+    if (!added.ok) {
+      return {
+        generated: added,
+        drift: { added: 0, removed: 0 },
+        cleanupError: null,
+      };
+    }
+    worktreeAdded = true;
+
+    for (const name of ["node_modules", ".env", ".env.local"]) {
+      const source = path.join(root, name);
+      const destination = path.join(scratch, name);
+      if (fs.existsSync(source) && !fs.existsSync(destination)) {
+        fs.symlinkSync(
+          source,
+          destination,
+          name === "node_modules" ? "junction" : "file",
+        );
+      }
+    }
+
+    const { command, args } = parseGenerator(target.generator);
+    const generated = await runRepoCommand(command, args, 240000, scratch);
+    const generatedFile = path.join(scratch, target.file);
+    const drift =
+      generated.ok && fs.existsSync(generatedFile)
+        ? await numstatBetween(absPath(target.file), generatedFile)
+        : { added: 0, removed: 0 };
+    return { generated, drift, cleanupError: null };
+  } finally {
+    if (worktreeAdded) {
+      const removed = await runRepoCommand(
+        "git",
+        ["worktree", "remove", "--force", scratch],
+        120000,
+        root,
+      );
+      if (!removed.ok) cleanupError = removed.stderr || removed.stdout;
+    }
+    if (fs.existsSync(scratch)) {
+      fs.rmSync(scratch, { recursive: true, force: true });
+    }
+    if (cleanupError) {
+      console.error(
+        `Docs freshness scratch cleanup failed: ${cleanupError}`,
+      );
+    }
+  }
 }
 
 // The array fields carry zod `.default([])`, so they are required in the inferred
@@ -109,8 +191,8 @@ function finding(partial: FindingInput): DocFinding {
 
 /**
  * Re-run a generator and report whether it changes the committed artifact.
- * Side-effect-free by default: restores the file with `git checkout` unless
- * `keepChanges` is set (the approval-gated regenerate path keeps them staged).
+ * Side-effect-free by default: the read-only path runs in a scratch worktree.
+ * The approval-gated `keepChanges` path runs in the caller's checkout.
  */
 async function checkGeneratedTarget(
   target: GeneratedTarget,
@@ -146,10 +228,13 @@ async function checkGeneratedTarget(
   }
 
   const { command, args } = parseGenerator(target.generator);
-  const generated = await runRepoCommand(command, args, 240000);
+  const scratchResult = options.keepChanges
+    ? null
+    : await runGeneratorInScratch(target);
+  const generated =
+    scratchResult?.generated ??
+    (await runRepoCommand(command, args, 240000));
   if (!generated.ok) {
-    // Restore in case the generator wrote a partial file before failing.
-    await runRepoCommand("git", ["checkout", "--", target.file]);
     return finding({
       artifact: target.artifact,
       status: "blocked",
@@ -164,12 +249,29 @@ async function checkGeneratedTarget(
     });
   }
 
-  const drift = await numstat(target.file);
-  const hasDrift = drift.added > 0 || drift.removed > 0;
-
-  if (!options.keepChanges) {
-    await runRepoCommand("git", ["checkout", "--", target.file]);
+  const drift =
+    scratchResult?.drift ??
+    (await numstatBetween(
+      absPath(target.file),
+      absPath(target.file),
+    ));
+  if (options.keepChanges) {
+    const result = await runRepoCommand("git", [
+      "diff",
+      "--numstat",
+      "--",
+      target.file,
+    ]);
+    const line = result.stdout
+      .split(/\r?\n/)
+      .find((entry) => entry.trim().length > 0);
+    if (line) {
+      const [added, removed] = line.split("\t");
+      drift.added = Number.parseInt(added, 10) || 0;
+      drift.removed = Number.parseInt(removed, 10) || 0;
+    }
   }
+  const hasDrift = drift.added > 0 || drift.removed > 0;
 
   if (!hasDrift) {
     return finding({
@@ -200,7 +302,7 @@ async function checkGeneratedTarget(
     ownerFiles: target.ownerFiles,
     nextActions: [
       options.keepChanges
-        ? `Regenerated output is staged in the working tree; review \`git diff ${target.file}\` and open a PR.`
+        ? `Regenerated output is modified in the working tree; review \`git diff ${target.file}\` and open a PR.`
         : `Run \`${target.generator}\` and commit, or run regenerate_generated_docs with dryRun=false.`,
     ],
   });
@@ -371,7 +473,7 @@ export async function regenerateGeneratedDocs(input: { dryRun: boolean }): Promi
   const changed = findings.filter((entry) => entry.status === "warn");
   const summary = input.dryRun
     ? `Dry run: ${changed.length} of ${findings.length} generated docs would change. No files left modified.`
-    : `Regenerated ${findings.length} docs; ${changed.length} now differ and are left staged in the working tree for review + PR.`;
+    : `Regenerated ${findings.length} docs; ${changed.length} now differ and are left modified in the working tree for review + PR.`;
 
   return {
     status,

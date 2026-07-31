@@ -11,12 +11,17 @@ export type CommandResult = {
   stderr: string;
 };
 
-export async function runRepoCommand(command: string, args: string[], timeoutMs = 120000): Promise<CommandResult> {
+export async function runRepoCommand(
+  command: string,
+  args: string[],
+  timeoutMs = 120000,
+  cwd = repoRoot(),
+): Promise<CommandResult> {
   const display = [command, ...args].join(" ");
 
   return await new Promise<CommandResult>((resolve) => {
     const child = spawn(command, args, {
-      cwd: repoRoot(),
+      cwd,
       env: process.env,
       stdio: ["ignore", "pipe", "pipe"],
     });

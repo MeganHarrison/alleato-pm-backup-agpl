@@ -1,0 +1,752 @@
+import type {
+  TrainingAdminReferenceOption,
+  TrainingAdminTableDefinition,
+  TrainingAdminTableKey,
+} from "./types";
+import { TRAINING_ADMIN_TABLE_KEYS } from "./types";
+
+const STATUS_OPTIONS: TrainingAdminReferenceOption[] = [
+  { value: "review", label: "Review" },
+  { value: "published", label: "Published" },
+  { value: "archived", label: "Archived" },
+];
+
+const DOC_STATUS_OPTIONS: TrainingAdminReferenceOption[] = [
+  { value: "planned", label: "Planned" },
+  { value: "draft", label: "Draft" },
+  { value: "in_review", label: "In review" },
+  { value: "approved", label: "Approved" },
+  { value: "published", label: "Published" },
+  { value: "archived", label: "Archived" },
+];
+
+const QA_STATUS_OPTIONS: TrainingAdminReferenceOption[] = [
+  { value: "not_tested", label: "Not tested" },
+  { value: "passing", label: "Passing" },
+  { value: "failing", label: "Failing" },
+  { value: "needs_update", label: "Needs update" },
+];
+
+const BOOLEAN_OPTIONS: TrainingAdminReferenceOption[] = [
+  { value: "true", label: "Active" },
+  { value: "false", label: "Inactive" },
+];
+
+export const TRAINING_ADMIN_TABLES: Record<
+  TrainingAdminTableKey,
+  TrainingAdminTableDefinition
+> = {
+  training_resource: {
+    key: "training_resource",
+    label: "Training Resources",
+    singularLabel: "Training Resource",
+    description:
+      "Vetted learner resources and their publication lifecycle.",
+    columns: [
+      { key: "title", label: "Title", alwaysVisible: true },
+      {
+        key: "topic_id",
+        label: "Topic",
+        kind: "reference",
+        referenceKey: "topics",
+        defaultVisible: true,
+      },
+      {
+        key: "status",
+        label: "Status",
+        kind: "status",
+        defaultVisible: true,
+      },
+      {
+        key: "resource_type",
+        label: "Type",
+        kind: "status",
+        defaultVisible: true,
+      },
+      {
+        key: "level",
+        label: "Level",
+        kind: "status",
+        defaultVisible: true,
+      },
+      { key: "track", label: "Track", defaultVisible: true },
+      { key: "provider", label: "Provider", defaultVisible: true },
+      { key: "url", label: "URL" },
+      { key: "duration_minutes", label: "Minutes", kind: "number" },
+      { key: "updated_at", label: "Updated", kind: "date" },
+    ],
+    fields: [
+      {
+        key: "topic_id",
+        label: "Topic",
+        type: "reference",
+        referenceKey: "topics",
+        required: true,
+      },
+      { key: "title", label: "Title", type: "text", required: true },
+      { key: "description", label: "Description", type: "textarea", nullable: true },
+      { key: "url", label: "Source URL", type: "text", required: true },
+      { key: "embed_url", label: "Embed URL", type: "text", nullable: true },
+      {
+        key: "thumbnail_url",
+        label: "Thumbnail URL",
+        type: "text",
+        nullable: true,
+      },
+      { key: "provider", label: "Provider", type: "text", nullable: true },
+      {
+        key: "resource_type",
+        label: "Type",
+        type: "select",
+        required: true,
+        options: [
+          { value: "video", label: "Video" },
+          { value: "course", label: "Course" },
+          { value: "doc", label: "Document" },
+        ],
+      },
+      {
+        key: "level",
+        label: "Level",
+        type: "select",
+        required: true,
+        options: [
+          { value: "intro", label: "Intro" },
+          { value: "deep-dive", label: "Deep dive" },
+        ],
+      },
+      { key: "track", label: "Track", type: "text", required: true },
+      {
+        key: "status",
+        label: "Status",
+        type: "select",
+        required: true,
+        options: STATUS_OPTIONS,
+      },
+      {
+        key: "duration_minutes",
+        label: "Duration in minutes",
+        type: "number",
+        nullable: true,
+      },
+      {
+        key: "source_attribution",
+        label: "Source attribution",
+        type: "text",
+        nullable: true,
+      },
+      { key: "metadata", label: "Metadata", type: "json" },
+    ],
+    filters: [
+      { key: "status", label: "Status", options: STATUS_OPTIONS },
+      {
+        key: "resource_type",
+        label: "Type",
+        options: [
+          { value: "video", label: "Video" },
+          { value: "course", label: "Course" },
+          { value: "doc", label: "Document" },
+        ],
+      },
+      {
+        key: "level",
+        label: "Level",
+        options: [
+          { value: "intro", label: "Intro" },
+          { value: "deep-dive", label: "Deep dive" },
+        ],
+      },
+      { key: "topic_id", label: "Topic", referenceKey: "topics" },
+    ],
+    defaults: {
+      status: "review",
+      resource_type: "video",
+      level: "intro",
+      cost: "free",
+      metadata: {},
+    },
+  },
+  training_role: {
+    key: "training_role",
+    label: "Training Roles",
+    singularLabel: "Training Role",
+    description: "Role taxonomy used for recommendations and Skill Wheels.",
+    columns: [
+      { key: "name", label: "Name", alwaysVisible: true },
+      { key: "slug", label: "Slug", defaultVisible: true },
+      { key: "active", label: "Active", kind: "boolean", defaultVisible: true },
+      { key: "sort_order", label: "Order", kind: "number", defaultVisible: true },
+      { key: "aliases", label: "Aliases" },
+      { key: "description", label: "Description" },
+      { key: "updated_at", label: "Updated", kind: "date" },
+    ],
+    fields: [
+      { key: "name", label: "Name", type: "text", required: true },
+      { key: "slug", label: "Slug", type: "text", required: true },
+      { key: "description", label: "Description", type: "textarea", nullable: true },
+      { key: "aliases", label: "Aliases", type: "string-array" },
+      { key: "sort_order", label: "Sort order", type: "number", required: true },
+      { key: "active", label: "Active", type: "boolean", required: true },
+    ],
+    filters: [{ key: "active", label: "State", options: BOOLEAN_OPTIONS }],
+    defaults: { aliases: [], sort_order: 0, active: true },
+  },
+  training_topic: {
+    key: "training_topic",
+    label: "Training Topics",
+    singularLabel: "Training Topic",
+    description: "Topic taxonomy for learner-facing resources.",
+    columns: [
+      { key: "name", label: "Name", alwaysVisible: true },
+      { key: "slug", label: "Slug", defaultVisible: true },
+      { key: "active", label: "Active", kind: "boolean", defaultVisible: true },
+      { key: "sort_order", label: "Order", kind: "number", defaultVisible: true },
+      { key: "description", label: "Description" },
+      { key: "updated_at", label: "Updated", kind: "date" },
+    ],
+    fields: [
+      { key: "name", label: "Name", type: "text", required: true },
+      { key: "slug", label: "Slug", type: "text", required: true },
+      { key: "description", label: "Description", type: "textarea", nullable: true },
+      { key: "sort_order", label: "Sort order", type: "number", required: true },
+      { key: "active", label: "Active", type: "boolean", required: true },
+    ],
+    filters: [{ key: "active", label: "State", options: BOOLEAN_OPTIONS }],
+    defaults: { sort_order: 0, active: true },
+  },
+  training_resource_role: {
+    key: "training_resource_role",
+    label: "Resource Role Links",
+    singularLabel: "Resource Role Link",
+    description: "Role assignments connecting resources to learner audiences.",
+    columns: [
+      {
+        key: "resource_id",
+        label: "Resource",
+        kind: "reference",
+        referenceKey: "resources",
+        alwaysVisible: true,
+      },
+      {
+        key: "role_id",
+        label: "Role",
+        kind: "reference",
+        referenceKey: "roles",
+        defaultVisible: true,
+      },
+      { key: "created_at", label: "Created", kind: "date", defaultVisible: true },
+    ],
+    fields: [
+      {
+        key: "resource_id",
+        label: "Resource",
+        type: "reference",
+        referenceKey: "resources",
+        required: true,
+      },
+      {
+        key: "role_id",
+        label: "Role",
+        type: "reference",
+        referenceKey: "roles",
+        required: true,
+      },
+    ],
+    filters: [
+      { key: "resource_id", label: "Resource", referenceKey: "resources" },
+      { key: "role_id", label: "Role", referenceKey: "roles" },
+    ],
+    defaults: {},
+  },
+  training_role_skill: {
+    key: "training_role_skill",
+    label: "Role Skills",
+    singularLabel: "Role Skill",
+    description: "Governed skills used by role and Alleato Core Skill Wheels.",
+    columns: [
+      { key: "name", label: "Name", alwaysVisible: true },
+      {
+        key: "role_id",
+        label: "Role",
+        kind: "reference",
+        referenceKey: "roles",
+        defaultVisible: true,
+      },
+      { key: "is_core", label: "Core", kind: "boolean", defaultVisible: true },
+      { key: "importance", label: "Importance", kind: "number", defaultVisible: true },
+      { key: "active", label: "Active", kind: "boolean", defaultVisible: true },
+      { key: "sort_order", label: "Order", kind: "number" },
+      { key: "slug", label: "Slug" },
+      { key: "description", label: "Description" },
+    ],
+    fields: [
+      {
+        key: "role_id",
+        label: "Role",
+        type: "reference",
+        referenceKey: "roles",
+        nullable: true,
+        help: "Leave blank only for an Alleato Core skill.",
+      },
+      { key: "is_core", label: "Alleato Core", type: "boolean", required: true },
+      { key: "name", label: "Name", type: "text", required: true },
+      { key: "slug", label: "Slug", type: "text", required: true },
+      { key: "description", label: "Description", type: "textarea", required: true },
+      {
+        key: "importance",
+        label: "Importance",
+        type: "number",
+        required: true,
+      },
+      { key: "sort_order", label: "Sort order", type: "number", required: true },
+      { key: "active", label: "Active", type: "boolean", required: true },
+    ],
+    filters: [
+      { key: "role_id", label: "Role", referenceKey: "roles" },
+      {
+        key: "is_core",
+        label: "Scope",
+        options: [
+          { value: "true", label: "Alleato Core" },
+          { value: "false", label: "Role-specific" },
+        ],
+      },
+      { key: "active", label: "State", options: BOOLEAN_OPTIONS },
+    ],
+    defaults: {
+      role_id: null,
+      is_core: true,
+      importance: 3,
+      sort_order: 0,
+      active: true,
+    },
+  },
+  training_skill_checkin: {
+    key: "training_skill_checkin",
+    label: "Skill Check-ins",
+    singularLabel: "Skill Check-in",
+    description: "User-owned Skill Wheel snapshots and growth plans.",
+    columns: [
+      {
+        key: "user_id",
+        label: "User",
+        kind: "reference",
+        referenceKey: "users",
+        alwaysVisible: true,
+      },
+      { key: "role_name", label: "Role", defaultVisible: true },
+      { key: "checkin_date", label: "Check-in", kind: "date", defaultVisible: true },
+      {
+        key: "next_checkin_date",
+        label: "Next check-in",
+        kind: "date",
+        defaultVisible: true,
+      },
+      { key: "rescore_days", label: "Cadence", kind: "number", defaultVisible: true },
+      { key: "quarter_label", label: "Quarter" },
+      { key: "updated_at", label: "Updated", kind: "date" },
+    ],
+    fields: [
+      {
+        key: "user_id",
+        label: "User",
+        type: "reference",
+        referenceKey: "users",
+        required: true,
+        createOnly: true,
+      },
+      {
+        key: "role_id",
+        label: "Role",
+        type: "reference",
+        referenceKey: "roles",
+        nullable: true,
+      },
+      { key: "role_name", label: "Role name", type: "text", required: true },
+      { key: "checkin_date", label: "Check-in date", type: "date", required: true },
+      { key: "scores", label: "Score snapshots", type: "json", required: true },
+      {
+        key: "quarter_label",
+        label: "Quarter label",
+        type: "text",
+        nullable: true,
+      },
+      {
+        key: "feedback_person",
+        label: "Feedback person",
+        type: "text",
+        nullable: true,
+      },
+      {
+        key: "feedback_frequency",
+        label: "Feedback frequency",
+        type: "text",
+        nullable: true,
+      },
+      {
+        key: "rescore_days",
+        label: "Rescore cadence",
+        type: "select",
+        required: true,
+        options: [
+          { value: "30", label: "30 days" },
+          { value: "60", label: "60 days" },
+          { value: "90", label: "90 days" },
+        ],
+      },
+      {
+        key: "next_checkin_date",
+        label: "Next check-in date",
+        type: "date",
+        required: true,
+      },
+      {
+        key: "make_time_by",
+        label: "Make time by",
+        type: "text",
+        nullable: true,
+      },
+      { key: "skill_plans", label: "Skill plans", type: "json", required: true },
+    ],
+    filters: [
+      { key: "role_id", label: "Role", referenceKey: "roles" },
+      {
+        key: "rescore_days",
+        label: "Cadence",
+        options: [
+          { value: "30", label: "30 days" },
+          { value: "60", label: "60 days" },
+          { value: "90", label: "90 days" },
+        ],
+      },
+    ],
+    defaults: {
+      role_id: null,
+      role_name: "Alleato Core",
+      rescore_days: 30,
+      scores: [],
+      skill_plans: [],
+    },
+  },
+  training_docs: {
+    key: "training_docs",
+    label: "Training Docs Records",
+    singularLabel: "Training Doc",
+    description: "Authoring, QA, and publication records for app training docs.",
+    columns: [
+      { key: "title", label: "Title", alwaysVisible: true },
+      { key: "status", label: "Status", kind: "status", defaultVisible: true },
+      { key: "qa_status", label: "QA", kind: "status", defaultVisible: true },
+      { key: "audience", label: "Audience", defaultVisible: true },
+      { key: "tool_category", label: "Tool", defaultVisible: true },
+      { key: "source_route", label: "Source route", defaultVisible: true },
+      { key: "slug", label: "Slug" },
+      { key: "last_published_at", label: "Published", kind: "date" },
+      { key: "updated_at", label: "Updated", kind: "date" },
+    ],
+    fields: [
+      { key: "title", label: "Title", type: "text", required: true },
+      { key: "slug", label: "Slug", type: "text", required: true },
+      { key: "summary", label: "Summary", type: "textarea", nullable: true },
+      {
+        key: "body_markdown",
+        label: "Article markdown",
+        type: "textarea",
+        required: true,
+      },
+      {
+        key: "audience",
+        label: "Audience",
+        type: "select",
+        required: true,
+        options: [
+          { value: "internal", label: "Internal" },
+          { value: "client", label: "Client" },
+          { value: "subcontractor", label: "Subcontractor" },
+          { value: "admin", label: "Admin" },
+        ],
+      },
+      {
+        key: "status",
+        label: "Status",
+        type: "select",
+        required: true,
+        options: DOC_STATUS_OPTIONS,
+      },
+      { key: "source_route", label: "Source route", type: "text", nullable: true },
+      { key: "tool_category", label: "Tool category", type: "text", nullable: true },
+      { key: "tool_module", label: "Tool module", type: "text", nullable: true },
+      { key: "task_key", label: "Task key", type: "text", nullable: true },
+      {
+        key: "qa_status",
+        label: "QA status",
+        type: "select",
+        required: true,
+        options: QA_STATUS_OPTIONS,
+      },
+      { key: "qa_notes", label: "QA notes", type: "textarea", nullable: true },
+      {
+        key: "review_notes",
+        label: "Review notes",
+        type: "textarea",
+        nullable: true,
+      },
+      {
+        key: "target_collection",
+        label: "Target collection",
+        type: "text",
+        required: true,
+      },
+      { key: "metadata", label: "Metadata", type: "json" },
+    ],
+    filters: [
+      { key: "status", label: "Status", options: DOC_STATUS_OPTIONS },
+      { key: "qa_status", label: "QA", options: QA_STATUS_OPTIONS },
+      {
+        key: "audience",
+        label: "Audience",
+        options: [
+          { value: "internal", label: "Internal" },
+          { value: "client", label: "Client" },
+          { value: "subcontractor", label: "Subcontractor" },
+          { value: "admin", label: "Admin" },
+        ],
+      },
+    ],
+    defaults: {
+      body_markdown: "",
+      audience: "internal",
+      status: "draft",
+      qa_status: "not_tested",
+      target_collection: "project-management-tools/training-docs",
+      metadata: {},
+    },
+  },
+  training_doc_assets: {
+    key: "training_doc_assets",
+    label: "Training Doc Assets",
+    singularLabel: "Training Doc Asset",
+    description: "Storage-backed screenshots and media attached to training docs.",
+    columns: [
+      { key: "file_name", label: "File", alwaysVisible: true },
+      {
+        key: "training_doc_id",
+        label: "Training doc",
+        kind: "reference",
+        referenceKey: "docs",
+        defaultVisible: true,
+      },
+      { key: "asset_type", label: "Type", kind: "status", defaultVisible: true },
+      { key: "step_order", label: "Order", kind: "number", defaultVisible: true },
+      { key: "caption", label: "Caption", defaultVisible: true },
+      { key: "mime_type", label: "MIME type" },
+      { key: "storage_bucket", label: "Bucket" },
+      { key: "storage_path", label: "Storage path" },
+      { key: "updated_at", label: "Updated", kind: "date" },
+    ],
+    fields: [
+      {
+        key: "training_doc_id",
+        label: "Training doc",
+        type: "reference",
+        referenceKey: "docs",
+        required: true,
+      },
+      { key: "file_name", label: "File name", type: "text", required: true },
+      { key: "mime_type", label: "MIME type", type: "text", required: true },
+      {
+        key: "asset_type",
+        label: "Asset type",
+        type: "select",
+        required: true,
+        options: [
+          { value: "screenshot", label: "Screenshot" },
+          { value: "image", label: "Image" },
+          { value: "video", label: "Video" },
+        ],
+      },
+      { key: "storage_bucket", label: "Storage bucket", type: "text", required: true },
+      { key: "storage_path", label: "Storage path", type: "text", required: true },
+      { key: "caption", label: "Caption", type: "text", nullable: true },
+      { key: "alt_text", label: "Alt text", type: "text", nullable: true },
+      { key: "step_order", label: "Step order", type: "number", required: true },
+      { key: "metadata", label: "Metadata", type: "json" },
+    ],
+    filters: [
+      {
+        key: "training_doc_id",
+        label: "Training doc",
+        referenceKey: "docs",
+      },
+      {
+        key: "asset_type",
+        label: "Type",
+        options: [
+          { value: "screenshot", label: "Screenshot" },
+          { value: "image", label: "Image" },
+          { value: "video", label: "Video" },
+        ],
+      },
+    ],
+    defaults: {
+      asset_type: "screenshot",
+      storage_bucket: "documents",
+      step_order: 0,
+      metadata: {},
+    },
+  },
+  training_doc_steps: {
+    key: "training_doc_steps",
+    label: "Training Doc Steps",
+    singularLabel: "Training Doc Step",
+    description: "Ordered instructions and expected results for training docs.",
+    columns: [
+      { key: "title", label: "Title", alwaysVisible: true },
+      {
+        key: "training_doc_id",
+        label: "Training doc",
+        kind: "reference",
+        referenceKey: "docs",
+        defaultVisible: true,
+      },
+      { key: "step_order", label: "Order", kind: "number", defaultVisible: true },
+      { key: "expected_result", label: "Expected result", defaultVisible: true },
+      { key: "source_url", label: "Source URL" },
+      {
+        key: "screenshot_asset_id",
+        label: "Screenshot",
+        kind: "reference",
+        referenceKey: "assets",
+      },
+      { key: "updated_at", label: "Updated", kind: "date" },
+    ],
+    fields: [
+      {
+        key: "training_doc_id",
+        label: "Training doc",
+        type: "reference",
+        referenceKey: "docs",
+        required: true,
+      },
+      { key: "title", label: "Title", type: "text", required: true },
+      {
+        key: "instruction_markdown",
+        label: "Instruction markdown",
+        type: "textarea",
+        required: true,
+      },
+      {
+        key: "expected_result",
+        label: "Expected result",
+        type: "textarea",
+        nullable: true,
+      },
+      { key: "source_url", label: "Source URL", type: "text", nullable: true },
+      {
+        key: "screenshot_asset_id",
+        label: "Screenshot asset",
+        type: "reference",
+        referenceKey: "assets",
+        nullable: true,
+      },
+      { key: "step_order", label: "Step order", type: "number", required: true },
+      { key: "action_metadata", label: "Action metadata", type: "json" },
+    ],
+    filters: [
+      {
+        key: "training_doc_id",
+        label: "Training doc",
+        referenceKey: "docs",
+      },
+    ],
+    defaults: { instruction_markdown: "", step_order: 0, action_metadata: {} },
+  },
+  training_doc_relations: {
+    key: "training_doc_relations",
+    label: "Training Doc Relations",
+    singularLabel: "Training Doc Relation",
+    description: "Prerequisite, next, and related links between training docs.",
+    columns: [
+      {
+        key: "source_doc_id",
+        label: "Source",
+        kind: "reference",
+        referenceKey: "docs",
+        alwaysVisible: true,
+      },
+      {
+        key: "target_doc_id",
+        label: "Target",
+        kind: "reference",
+        referenceKey: "docs",
+        defaultVisible: true,
+      },
+      {
+        key: "relation_type",
+        label: "Relationship",
+        kind: "status",
+        defaultVisible: true,
+      },
+      { key: "sort_order", label: "Order", kind: "number", defaultVisible: true },
+      { key: "created_at", label: "Created", kind: "date" },
+    ],
+    fields: [
+      {
+        key: "source_doc_id",
+        label: "Source doc",
+        type: "reference",
+        referenceKey: "docs",
+        required: true,
+      },
+      {
+        key: "target_doc_id",
+        label: "Target doc",
+        type: "reference",
+        referenceKey: "docs",
+        required: true,
+      },
+      {
+        key: "relation_type",
+        label: "Relationship",
+        type: "select",
+        required: true,
+        options: [
+          { value: "related", label: "Related" },
+          { value: "prerequisite", label: "Prerequisite" },
+          { value: "next", label: "Next" },
+        ],
+      },
+      { key: "sort_order", label: "Sort order", type: "number", required: true },
+    ],
+    filters: [
+      {
+        key: "relation_type",
+        label: "Relationship",
+        options: [
+          { value: "related", label: "Related" },
+          { value: "prerequisite", label: "Prerequisite" },
+          { value: "next", label: "Next" },
+        ],
+      },
+    ],
+    defaults: { relation_type: "related", sort_order: 0 },
+  },
+};
+
+export function isTrainingAdminTableKey(
+  value: string,
+): value is TrainingAdminTableKey {
+  return (TRAINING_ADMIN_TABLE_KEYS as readonly string[]).includes(value);
+}
+
+export function getTrainingAdminTable(value: string) {
+  return isTrainingAdminTableKey(value)
+    ? TRAINING_ADMIN_TABLES[value]
+    : null;
+}
+
+export const TRAINING_ADMIN_TABS = TRAINING_ADMIN_TABLE_KEYS.map((key) => ({
+  key,
+  label: TRAINING_ADMIN_TABLES[key].label,
+  href: `/training-data/${key}`,
+}));

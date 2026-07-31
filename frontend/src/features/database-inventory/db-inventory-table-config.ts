@@ -1,126 +1,81 @@
-import type { TableColumn, FilterConfig } from "@/components/tables/unified";
-import type { DbInventoryTable } from "@/components/dev-tools/db-inventory.generated";
+import { createElement } from "react";
 
-export type DbInventoryColumnId =
-  | "name"
-  | "db"
-  | "domain"
-  | "status"
-  | "approxRows"
-  | "totalSize"
-  | "writes"
-  | "reads"
-  | "owner"
-  | "gotchas";
+import type { FilterConfig, TableColumn } from "@/components/tables/unified";
+import type { SchemaExplorerTable } from "./schema-explorer.types";
+import { SchemaExplorerDescriptionCell } from "./schema-explorer-description-cell";
+import {
+  SchemaExplorerOwnerCell,
+  SchemaExplorerReviewCell,
+} from "./schema-explorer-stewardship-cells";
 
-export const dbInventoryDefaultVisibleColumns: string[] = [
+export const dbInventoryDefaultVisibleColumns = [
   "name",
-  "db",
-  "domain",
-  "status",
-  "approxRows",
-  "writes",
-  "reads",
+  "database",
   "owner",
-  "gotchas",
+  "description",
+  "lastReviewed",
+  "primaryKey",
+  "foreignKeys",
+  "columns",
+  "codeReferences",
 ];
 
 export const dbInventoryFilters: FilterConfig[] = [
   {
-    id: "db",
+    id: "database",
     label: "Database",
     type: "select",
     options: [
-      { value: "MAIN", label: "MAIN" },
-      { value: "RAG", label: "RAG" },
+      { value: "PM_APP", label: "PM App" },
+      { value: "RAG", label: "AI / RAG" },
     ],
   },
   {
-    id: "domain",
-    label: "Domain",
-    type: "select",
-    options: [
-      { value: "projects", label: "Projects" },
-      { value: "people", label: "People" },
-      { value: "permissions", label: "Permissions" },
-      { value: "financial", label: "Financial" },
-      { value: "acumatica-erp", label: "Acumatica ERP" },
-      { value: "change-management", label: "Change Management" },
-      { value: "commitments", label: "Commitments" },
-      { value: "documents", label: "Documents" },
-      { value: "communications", label: "Communications" },
-      { value: "chat-bot", label: "Chat Bot" },
-      { value: "intelligence", label: "Intelligence" },
-      { value: "ai-feedback-memory", label: "AI Feedback & Memory" },
-      { value: "sync-infrastructure", label: "Sync Infrastructure" },
-      { value: "workflow", label: "Workflow" },
-      { value: "marketing", label: "Marketing" },
-      { value: "admin-feedback", label: "Admin Feedback" },
-      { value: "media", label: "Media" },
-      { value: "fm-asrs", label: "FM / ASRS" },
-      { value: "procore-parity", label: "Procore Parity" },
-      { value: "support-knowledge", label: "Support Knowledge" },
-      { value: "infra-meta", label: "Infra / Meta" },
-    ],
-  },
-  {
-    id: "status",
-    label: "Status",
-    type: "select",
-    options: [
-      { value: "live", label: "Live" },
-      { value: "live-empty", label: "Live (Empty)" },
-      { value: "dormant", label: "Dormant" },
-      { value: "dead", label: "Dead" },
-      { value: "deleted", label: "Deleted" },
-      { value: "legacy", label: "Legacy" },
-      { value: "orphan-mirror", label: "Orphan Mirror" },
-    ],
-  },
-  {
-    id: "owner",
+    id: "ownership",
     label: "Owner",
     type: "select",
     options: [
-      { value: "core-app", label: "Core App" },
-      { value: "financial-erp", label: "Financial / ERP" },
-      { value: "ai-intelligence", label: "AI Intelligence" },
-      { value: "ai-assistant", label: "AI Assistant" },
-      { value: "comms-pipeline", label: "Comms Pipeline" },
-      { value: "executive-briefing", label: "Executive Briefing" },
-      { value: "admin-tools", label: "Admin Tools" },
-      { value: "fm-vertical", label: "FM Vertical" },
-      { value: "legacy", label: "Legacy" },
-      { value: "unknown", label: "Unknown" },
+      { value: "assigned", label: "Assigned" },
+      { value: "unassigned", label: "Unassigned" },
     ],
   },
   {
-    id: "hasGotchas",
-    label: "Has Gotchas",
-    type: "boolean",
+    id: "review",
+    label: "Review",
+    type: "select",
+    options: [
+      { value: "current", label: "Current (90 days)" },
+      { value: "needs-review", label: "Needs review" },
+    ],
   },
 ];
 
-export const STATUS_VARIANT: Record<
-  string,
-  "default" | "success" | "warning" | "destructive" | "secondary" | "outline"
-> = {
-  live: "success",
-  "live-empty": "secondary",
-  dormant: "warning",
-  dead: "destructive",
-  deleted: "outline",
-  legacy: "warning",
-  "orphan-mirror": "warning",
-};
-
-export function buildDbInventoryTableColumns(
-  onRowClick: (item: DbInventoryTable) => void,
-): TableColumn<DbInventoryTable>[] {
+export function buildDbInventoryTableColumns({
+  onDescriptionSave,
+  onDescriptionEditingChange,
+  onOwnerSave,
+  onOwnerEditingChange,
+  onReview,
+}: {
+  onDescriptionSave: (
+    table: SchemaExplorerTable,
+    description: string,
+  ) => Promise<string>;
+  onDescriptionEditingChange: (
+    table: SchemaExplorerTable,
+    isEditing: boolean,
+  ) => void;
+  onOwnerSave: (table: SchemaExplorerTable, ownerName: string) => Promise<void>;
+  onOwnerEditingChange: (
+    table: SchemaExplorerTable,
+    isEditing: boolean,
+  ) => void;
+  onReview: (table: SchemaExplorerTable) => Promise<void>;
+}): TableColumn<SchemaExplorerTable>[] {
   return [
     {
       id: "name",
-      label: "Table Name",
+      label: "Table",
       alwaysVisible: true,
       sortable: true,
       sortValue: (item) => item.name,
@@ -128,85 +83,100 @@ export function buildDbInventoryTableColumns(
       render: (item) => item.name,
     },
     {
-      id: "db",
-      label: "DB",
+      id: "database",
+      label: "Database",
       defaultVisible: true,
       sortable: true,
-      sortValue: (item) => item.db,
-      csvValue: (item) => item.db,
-      render: (item) => item.db,
-    },
-    {
-      id: "domain",
-      label: "Domain",
-      defaultVisible: true,
-      sortable: true,
-      sortValue: (item) => item.domain,
-      csvValue: (item) => item.domain,
-      render: (item) => item.domain,
-    },
-    {
-      id: "status",
-      label: "Status",
-      defaultVisible: true,
-      sortable: true,
-      sortValue: (item) => item.status,
-      csvValue: (item) => item.status,
-      render: (item) => item.status,
-    },
-    {
-      id: "approxRows",
-      label: "Rows",
-      defaultVisible: true,
-      sortable: true,
-      sortValue: (item) => item.liveStats.approxRows,
-      csvValue: (item) => String(item.liveStats.approxRows),
-      render: (item) => item.liveStats.approxRows.toLocaleString(),
-    },
-    {
-      id: "totalSize",
-      label: "Size",
-      defaultVisible: false,
-      sortable: true,
-      sortValue: (item) => item.liveStats.approxRows,
-      csvValue: (item) => item.liveStats.totalSize,
-      render: (item) => item.liveStats.totalSize,
-    },
-    {
-      id: "writes",
-      label: "Writers",
-      defaultVisible: true,
-      sortable: true,
-      sortValue: (item) => item.references.writes.length,
-      csvValue: (item) => String(item.references.writes.length),
-      render: (item) => item.references.writes.length,
-    },
-    {
-      id: "reads",
-      label: "Readers",
-      defaultVisible: true,
-      sortable: true,
-      sortValue: (item) => item.references.reads.length,
-      csvValue: (item) => String(item.references.reads.length),
-      render: (item) => item.references.reads.length,
+      sortValue: (item) => item.database,
+      csvValue: (item) => item.database,
+      render: (item) => (item.database === "PM_APP" ? "PM App" : "AI / RAG"),
     },
     {
       id: "owner",
       label: "Owner",
       defaultVisible: true,
       sortable: true,
-      sortValue: (item) => item.owner,
-      csvValue: (item) => item.owner,
-      render: (item) => item.owner,
+      width: 180,
+      sortValue: (item) => item.ownerName ?? "",
+      csvValue: (item) => item.ownerName ?? "Unassigned",
+      render: (item) =>
+        createElement(SchemaExplorerOwnerCell, {
+          ownerName: item.ownerName,
+          tableName: item.name,
+          onSave: (ownerName) => onOwnerSave(item, ownerName),
+          onEditingChange: (isEditing) => onOwnerEditingChange(item, isEditing),
+        }),
     },
     {
-      id: "gotchas",
-      label: "⚠",
+      id: "description",
+      label: "Description",
       defaultVisible: true,
       sortable: true,
-      sortValue: (item) => (item.gotchas ? 1 : 0),
-      csvValue: (item) => (item.gotchas ? "yes" : ""),
-      render: (item) => (item.gotchas ? "⚠" : ""),
+      width: 420,
+      sortValue: (item) => item.description,
+      csvValue: (item) => item.description,
+      render: (item) =>
+        createElement(SchemaExplorerDescriptionCell, {
+          description: item.description,
+          tableName: item.name,
+          onSave: (description) => onDescriptionSave(item, description),
+          onEditingChange: (isEditing) =>
+            onDescriptionEditingChange(item, isEditing),
+        }),
+    },
+    {
+      id: "lastReviewed",
+      label: "Reviewed",
+      defaultVisible: true,
+      sortable: true,
+      width: 150,
+      sortValue: (item) => item.lastReviewedAt,
+      csvValue: (item) => item.lastReviewedAt ?? "Not reviewed",
+      render: (item) =>
+        createElement(SchemaExplorerReviewCell, {
+          lastReviewedAt: item.lastReviewedAt,
+          tableName: item.name,
+          onReview: () => onReview(item),
+        }),
+    },
+    {
+      id: "primaryKey",
+      label: "Primary key",
+      defaultVisible: true,
+      sortable: true,
+      sortValue: (item) => item.primaryKeyColumns.join(","),
+      csvValue: (item) => item.primaryKeyColumns.join(", "),
+      render: (item) => item.primaryKeyColumns.join(", ") || "—",
+    },
+    {
+      id: "foreignKeys",
+      label: "Relations",
+      defaultVisible: true,
+      sortable: true,
+      sortValue: (item) => item.foreignKeys.length,
+      csvValue: (item) => String(item.foreignKeys.length),
+      render: (item) => item.foreignKeys.length,
+    },
+    {
+      id: "columns",
+      label: "Columns",
+      defaultVisible: true,
+      sortable: true,
+      sortValue: (item) => item.columns.length,
+      csvValue: (item) => String(item.columns.length),
+      render: (item) => item.columns.length,
+    },
+    {
+      id: "codeReferences",
+      label: "Code refs",
+      defaultVisible: true,
+      sortable: true,
+      sortValue: (item) =>
+        item.references.reads.length + item.references.writes.length,
+      csvValue: (item) =>
+        String(item.references.reads.length + item.references.writes.length),
+      render: (item) =>
+        item.references.reads.length + item.references.writes.length,
     },
   ];
 }

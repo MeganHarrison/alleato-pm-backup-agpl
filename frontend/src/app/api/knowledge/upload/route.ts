@@ -8,6 +8,8 @@ import { GuardrailError } from "@/lib/guardrails/errors";
 import { logger } from "@/lib/logger";
 import { createClient, getApiRouteUser } from "@/lib/supabase/server";
 
+const KNOWLEDGE_STORAGE_BUCKET = "documents";
+
 async function requireKnowledgeAdmin() {
   const supabase = await createClient();
   const user = await getApiRouteUser();
@@ -46,108 +48,165 @@ async function requireKnowledgeAdmin() {
   return { supabase, user };
 }
 
-export const POST = withApiGuardrails("knowledge/upload#POST", async ({ request }) => {
-  const { supabase } = await requireKnowledgeAdmin();
-  const formData = await request.formData();
-  const file = formData.get("file") as File | null;
+export const POST = withApiGuardrails(
+  "knowledge/upload#POST",
+  async ({ request }) => {
+    const { supabase } = await requireKnowledgeAdmin();
+    const formData = await request.formData();
+    const file = formData.get("file") as File | null;
 
-  if (!file) {
-    throw new GuardrailError({
-      code: "INVALID_PAYLOAD",
-      where: "knowledge/upload#POST",
-      message: "Choose a file before uploading.",
-    });
-  }
-
-  const allowedExtensions = [".pdf", ".docx", ".doc", ".txt", ".md", ".markdown"];
-  const lowerName = file.name.toLowerCase();
-  const extension = lowerName.includes(".")
-    ? lowerName.slice(lowerName.lastIndexOf("."))
-    : "";
-
-  if (!allowedExtensions.includes(extension)) {
-    throw new GuardrailError({
-      code: "INVALID_PAYLOAD",
-      where: "knowledge/upload#POST",
-      message: `Unsupported file type: ${extension || "unknown"}. Allowed: ${allowedExtensions.join(", ")}`,
-    });
-  }
-
-  const maxSize = 50 * 1024 * 1024;
-  if (file.size > maxSize) {
-    throw new GuardrailError({
-      code: "INVALID_PAYLOAD",
-      where: "knowledge/upload#POST",
-      message: "File too large. Maximum size is 50MB.",
-    });
-  }
-
-  const title =
-    (formData.get("title") as string | null)?.trim() ||
-    file.name.replace(/\.[^/.]+$/, "");
-  const tags = ((formData.get("tags") as string | null) ?? "")
-    .split(",")
-    .map((tag) => tag.trim())
-    .filter(Boolean);
-
-  const metadataId = uuidv4();
-  const storagePath = `knowledge/${metadataId}/${file.name}`;
-  const fileBuffer = Buffer.from(await file.arrayBuffer());
-
-  const { error: uploadError } = await supabase.storage
-    .from("documents")
-    .upload(storagePath, fileBuffer, {
-      contentType: file.type || "application/octet-stream",
-      upsert: false,
-    });
-
-  if (uploadError) {
-    logger.error({ msg: "Knowledge storage upload failed", data: uploadError });
-    throw new GuardrailError({
-      code: "UPSTREAM_FAILURE",
-      where: "knowledge/upload#POST",
-      message: "File upload failed. Please try again.",
-      cause: uploadError.message,
-    });
-  }
-
-  const { data, error: metadataError } = await supabase
-    .from("document_metadata")
-    .insert({
-      id: metadataId,
-      title,
-      category: "knowledge",
-      type: "document",
-      source: "knowledge_upload",
-      status: "uploaded",
-      file_name: file.name,
-      file_path: storagePath,
-      storage_bucket: "documents",
-      date: new Date().toISOString().split("T")[0],
-      tags: tags.join(","),
-    })
-    .select()
-    .single();
-
-  if (metadataError) {
-    // Clean up orphaned storage file
-    const { error: cleanupError } = await supabase.storage
-      .from("documents")
-      .remove([storagePath]);
-    if (cleanupError) {
-      logger.error({
-        msg: "Knowledge storage cleanup failed after metadata insert error — orphaned file",
-        data: { path: storagePath, error: cleanupError.message },
+    if (!file) {
+      throw new GuardrailError({
+        code: "INVALID_PAYLOAD",
+        where: "knowledge/upload#POST",
+        message: "Choose a file before uploading.",
       });
     }
-    logger.error({ msg: "Knowledge metadata insert failed", data: metadataError });
-    throw new GuardrailError({
-      code: "UPSTREAM_FAILURE",
-      where: "knowledge/upload#POST",
-      message: "Failed to register document. Please try again.",
-      cause: metadataError.message,
-    });
-  }
 
-  return NextResponse.json({ data }, { status: 201 });
-});
+    const allowedExtensions = [
+      ".pdf",
+      ".docx",
+      ".doc",
+      ".txt",
+      ".md",
+      ".markdown",
+    ];
+    const lowerName = file.name.toLowerCase();
+    const extension = lowerName.includes(".")
+      ? lowerName.slice(lowerName.lastIndexOf("."))
+      : "";
+
+    if (!allowedExtensions.includes(extension)) {
+      throw new GuardrailError({
+        code: "INVALID_PAYLOAD",
+        where: "knowledge/upload#POST",
+        message: `Unsupported file type: ${extension || "unknown"}. Allowed: ${allowedExtensions.join(", ")}`,
+      });
+    }
+
+    const maxSize = 50 * 1024 * 1024;
+    if (file.size > maxSize) {
+      throw new GuardrailError({
+        code: "INVALID_PAYLOAD",
+        where: "knowledge/upload#POST",
+        message: "File too large. Maximum size is 50MB.",
+      });
+    }
+
+    const title =
+      (formData.get("title") as string | null)?.trim() ||
+      file.name.replace(/\.[^/.]+$/, "");
+    const tags = ((formData.get("tags") as string | null) ?? "")
+      .split(",")
+      .map((tag) => tag.trim())
+      .filter(Boolean);
+    const rawBusinessAreaId = (
+      (formData.get("business_area_id") as string | null) ?? ""
+    ).trim();
+    const businessAreaId = rawBusinessAreaId ? Number(rawBusinessAreaId) : null;
+
+    if (
+      businessAreaId !== null &&
+      (!Number.isInteger(businessAreaId) || businessAreaId <= 0)
+    ) {
+      throw new GuardrailError({
+        code: "INVALID_PAYLOAD",
+        where: "knowledge/upload#POST",
+        message: "Business Area must be a positive numeric identifier.",
+      });
+    }
+
+    if (businessAreaId !== null) {
+      const { data: businessArea, error: businessAreaError } = await supabase
+        .from("business_areas")
+        .select("id")
+        .eq("id", businessAreaId)
+        .maybeSingle();
+
+      if (businessAreaError) {
+        throw new GuardrailError({
+          code: "UPSTREAM_FAILURE",
+          where: "knowledge/upload#POST",
+          message: "Unable to verify the selected Business Area.",
+          cause: businessAreaError.message,
+        });
+      }
+
+      if (!businessArea) {
+        throw new GuardrailError({
+          code: "INVALID_PAYLOAD",
+          where: "knowledge/upload#POST",
+          message: "The selected Business Area does not exist.",
+        });
+      }
+    }
+
+    const metadataId = uuidv4();
+    const storagePath = `knowledge/${metadataId}/${file.name}`;
+    const fileBuffer = Buffer.from(await file.arrayBuffer());
+
+    const { error: uploadError } = await supabase.storage
+      .from(KNOWLEDGE_STORAGE_BUCKET)
+      .upload(storagePath, fileBuffer, {
+        contentType: file.type || "application/octet-stream",
+        upsert: false,
+      });
+
+    if (uploadError) {
+      logger.error({
+        msg: "Knowledge storage upload failed",
+        data: uploadError,
+      });
+      throw new GuardrailError({
+        code: "UPSTREAM_FAILURE",
+        where: "knowledge/upload#POST",
+        message: "File upload failed. Please try again.",
+        cause: uploadError.message,
+      });
+    }
+
+    const { data, error: metadataError } = await supabase
+      .from("document_metadata")
+      .insert({
+        id: metadataId,
+        title,
+        category: "knowledge",
+        type: "document",
+        source: "knowledge_upload",
+        status: "uploaded",
+        file_name: file.name,
+        file_path: storagePath,
+        storage_bucket: KNOWLEDGE_STORAGE_BUCKET,
+        date: new Date().toISOString().split("T")[0],
+        tags: tags.join(","),
+        business_area_id: businessAreaId,
+      })
+      .select()
+      .single();
+
+    if (metadataError) {
+      // Clean up orphaned storage file
+      const { error: cleanupError } = await supabase.storage
+        .from(KNOWLEDGE_STORAGE_BUCKET)
+        .remove([storagePath]);
+      if (cleanupError) {
+        logger.error({
+          msg: "Knowledge storage cleanup failed after metadata insert error — orphaned file",
+          data: { path: storagePath, error: cleanupError.message },
+        });
+      }
+      logger.error({
+        msg: "Knowledge metadata insert failed",
+        data: metadataError,
+      });
+      throw new GuardrailError({
+        code: "UPSTREAM_FAILURE",
+        where: "knowledge/upload#POST",
+        message: "Failed to register document. Please try again.",
+        cause: metadataError.message,
+      });
+    }
+
+    return NextResponse.json({ data }, { status: 201 });
+  },
+);

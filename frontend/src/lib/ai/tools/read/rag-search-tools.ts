@@ -20,7 +20,10 @@ import {
   retrievalWeightMultiplierForItem,
   type RetrievalWeightScoringRow,
 } from "@/lib/ai/retrieval/retrieval-weight-scoring";
-import type { OperationalToolInternals, CreateOperationalToolsOptions } from "./operational-internals";
+import type {
+  OperationalToolInternals,
+  CreateOperationalToolsOptions,
+} from "./operational-internals";
 import { type AnyRow } from "../types";
 import { createServiceClient } from "@/lib/supabase/service";
 import { isLeadershipRestrictedChunkMetadata } from "@/lib/ai/leadership-restriction";
@@ -98,19 +101,23 @@ export function createRagSearchReadTools(internals: OperationalToolInternals) {
       execute: withTrace(
         "semanticSearch",
         options,
-        async ({
-          query,
-          projectId,
-          projectName,
-          matchCount,
-          threshold,
-          skipRerank,
-        }) => {
+        async ({ query, projectId, projectName, businessAreaId, limit }) => {
           const scope = await guardrails.getScope();
           const allowedProjectIds = scope.allowedProjectIds;
           const allowedProjectIdSet = new Set<number>(allowedProjectIds);
           // Resolve project name to ID if provided
           let resolvedProjectId = projectId;
+          if (
+            typeof businessAreaId === "number" &&
+            (typeof projectId === "number" ||
+              Boolean(projectName) ||
+              typeof scope.pinnedProjectId === "number")
+          ) {
+            return {
+              error:
+                "Choose either a project or an Alleato Brain branch for semantic search, not both.",
+            };
+          }
           if (!resolvedProjectId && projectName) {
             const resolved = await resolveProject(
               supabase,
@@ -122,6 +129,14 @@ export function createRagSearchReadTools(internals: OperationalToolInternals) {
               resolvedProjectId = resolved.id;
             }
             // If project name doesn't resolve, still search across all projects
+          }
+
+          if (typeof businessAreaId === "number") {
+            const access =
+              await guardrails.enforceBusinessAreaAccess(businessAreaId);
+            if (!access.ok) {
+              return { error: access.error };
+            }
           }
 
           if (!scope.isAdmin) {
@@ -155,8 +170,8 @@ export function createRagSearchReadTools(internals: OperationalToolInternals) {
             const briefing = isBriefingQuery(query);
             // Briefing queries cast a wider net (more candidates, lower threshold) so the
             // LLM reranker has recent comms to surface. Non-briefing queries use tighter defaults.
-            const targetCount = matchCount ?? (briefing ? 15 : 10);
-            const targetThreshold = threshold ?? (briefing ? 0.2 : 0.3);
+            const targetCount = limit;
+            const targetThreshold = briefing ? 0.2 : 0.3;
             // Chunks use even broader recall — reranker filters out noise
             const chunkCount = targetCount * 2;
             const chunkThreshold = Math.min(
@@ -174,11 +189,12 @@ export function createRagSearchReadTools(internals: OperationalToolInternals) {
                 query_embedding: embeddingArg3072,
                 filter_source_types: undefined,
                 filter_project_id: resolvedProjectId ?? undefined,
+                ...(typeof businessAreaId === "number" && {
+                  filter_business_area_id: businessAreaId,
+                }),
                 match_count: chunkCount,
                 match_threshold: chunkThreshold,
-                ranking_mode: HYBRID_RAG_RANKING_ENABLED
-                  ? "hybrid"
-                  : "vector",
+                ranking_mode: HYBRID_RAG_RANKING_ENABLED ? "hybrid" : "vector",
                 query_text: HYBRID_RAG_RANKING_ENABLED ? query : undefined,
                 telemetry_enabled: RAG_RETRIEVAL_TELEMETRY_ENABLED,
                 query_signature: querySignature || undefined,
@@ -206,6 +222,9 @@ export function createRagSearchReadTools(internals: OperationalToolInternals) {
 
             const rawKnowledgeRows = (knowledgeRes.data ?? []) as AnyRow[];
             const knowledgeRows = rawKnowledgeRows.filter((row) => {
+              if (typeof businessAreaId === "number") {
+                return false;
+              }
               const projectIds = Array.isArray(row.project_ids)
                 ? (row.project_ids as unknown[]).filter(
                     (v): v is number => typeof v === "number",
@@ -244,6 +263,7 @@ export function createRagSearchReadTools(internals: OperationalToolInternals) {
                   projectId: row.doc_project_id,
                   metadata: row.doc_metadata,
                   requestedProjectId: resolvedProjectId,
+                  requestedBusinessAreaId: businessAreaId,
                 });
               })
               .filter((row) =>
@@ -330,7 +350,8 @@ export function createRagSearchReadTools(internals: OperationalToolInternals) {
                   typeof row.score_components === "object" &&
                   typeof (row.score_components as AnyRow).lastRecalledAt ===
                     "string"
-                    ? ((row.score_components as AnyRow).lastRecalledAt as string)
+                    ? ((row.score_components as AnyRow)
+                        .lastRecalledAt as string)
                     : null,
                 sourceTimestamp:
                   typeof row.doc_date === "string"
@@ -544,7 +565,7 @@ export function createRagSearchReadTools(internals: OperationalToolInternals) {
 
             // LLM reranker: always re-score candidates by actual relevance to the query
             let results: typeof candidates;
-            if (candidates.length > 0 && !skipRerank) {
+            if (candidates.length > 0) {
               const rerankedIndices = await rerankWithLLM(
                 openai,
                 query,

@@ -1,0 +1,75 @@
+{
+  "route": "http://localhost:3015/content?area=training",
+  "capturedAt": "2026-07-31T20:54:51.446Z",
+  "results": {
+    "desktop": {
+      "status": 200,
+      "finalUrl": "http://localhost:3015/content?area=training",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "screenshot": "docs\\ops\\evidence\\2026-07-31-content-creator-operations\\desktop.png",
+      "tabLabels": [
+        "Training8",
+        "Resources95",
+        "SOPs4",
+        "Documentation95"
+      ],
+      "headers": [
+        "",
+        "Title",
+        "Owner",
+        "Review",
+        "Engagement",
+        "Displayed in",
+        "Type",
+        "Status",
+        "Updated"
+      ],
+      "engagementExamples": [
+        "1 viewer | 1m watched",
+        "No activity",
+        "Not tracked",
+        "Not tracked",
+        "No activity"
+      ],
+      "bulkEdit": {
+        "screenshot": "docs\\ops\\evidence\\2026-07-31-content-creator-operations\\desktop-bulk-edit.png",
+        "containsDisplayArea": true,
+        "fieldOptions": [
+          "Display area",
+          "Owner",
+          "Reviewer",
+          "Next review date"
+        ],
+        "containsOwner": true,
+        "containsReviewer": true,
+        "containsNextReviewDate": true
+      }
+    },
+    "mobile-390": {
+      "status": 200,
+      "finalUrl": "http://localhost:3015/content?area=training",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "screenshot": "docs\\ops\\evidence\\2026-07-31-content-creator-operations\\mobile-390.png",
+      "tabLabels": [
+        "Training8",
+        "Resources95",
+        "SOPs4",
+        "Documentation95"
+      ],
+      "headers": [],
+      "engagementExamples": [],
+      "bulkEdit": null
+    }
+  },
+  "consoleErrors": [
+    "[desktop] Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  ],
+  "pageErrors": [],
+  "pass": true
+}

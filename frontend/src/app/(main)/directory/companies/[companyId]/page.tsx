@@ -59,7 +59,6 @@ import { apiFetch } from "@/lib/api-client";
 import { acumaticaVendorUrl } from "@/lib/acumatica/vendor-url";
 import { StatusBadge } from "@/components/ds";
 import { CompanyCrmSections } from "@/components/domain/crm/company-crm-sections";
-import { CompanyQualificationPanel } from "@/components/domain/crm/company-qualification-panel";
 
 type Company = Database["public"]["Tables"]["companies"]["Row"];
 type Contact = Database["public"]["Tables"]["people"]["Row"];
@@ -660,7 +659,7 @@ export default function CompanyDetailsPage() {
 
               <CompanyCrmSections
                 companyId={companyId}
-                lifecycleStage={company.lifecycle_stage}
+                companyName={company.name}
               />
 
               <section className="space-y-4">
@@ -931,12 +930,6 @@ export default function CompanyDetailsPage() {
                   </div>
                 </div>
               </section>
-
-              <CompanyQualificationPanel
-                companyId={companyId}
-                lifecycleStage={company.lifecycle_stage}
-                onVerified={loadDetails}
-              />
 
               <EntityAttachments
                 entityType="company"

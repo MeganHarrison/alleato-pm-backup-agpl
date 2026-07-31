@@ -13,9 +13,38 @@ _cached_assigner: Optional[ProjectAssigner] = None
 
 def _get_assigner(supabase_client) -> ProjectAssigner:
     global _cached_assigner
-    if _cached_assigner is None:
+    if (
+        _cached_assigner is None
+        or (
+            hasattr(_cached_assigner, "client")
+            and _cached_assigner.client is not supabase_client
+        )
+    ):
         _cached_assigner = ProjectAssigner(supabase_client)
     return _cached_assigner
+
+
+def begin_project_assignment_batch(supabase_client) -> None:
+    """Pin one active-project snapshot for a bounded Graph source batch."""
+    _get_assigner(supabase_client).begin_batch_snapshot()
+
+
+def end_project_assignment_batch(supabase_client) -> None:
+    """Release the active-project snapshot after a Graph source batch."""
+    _get_assigner(supabase_client).end_batch_snapshot()
+
+
+def is_assignable_project_id(supabase_client, project_id: object) -> bool:
+    """Return whether a project remains a valid target for new source writes."""
+    try:
+        return _get_assigner(supabase_client).is_project_eligible(project_id)
+    except Exception as exc:
+        logger.warning(
+            "[GraphProjectInference] project eligibility check failed for %s: %s",
+            project_id,
+            exc,
+        )
+        return False
 
 
 def infer_project_id(

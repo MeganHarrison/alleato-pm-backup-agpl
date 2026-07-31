@@ -135,11 +135,27 @@ export const sections: AdminMenuSection[] = [
             icon: LineChart,
           },
           {
+            label: "Content Studio",
+            href: "/content?area=training",
+            route: "/content",
+            description:
+              "Create, review, and publish training, resources, SOPs, and documentation.",
+            icon: BookOpen,
+          },
+          {
             label: "Training Docs",
             href: "/training-docs",
             route: "/training-docs",
             description: "Draft and publish reviewed workflow manuals.",
             icon: BookOpen,
+          },
+          {
+            label: "Training Resources",
+            href: "/training-data/training_resource",
+            route: "/training-data/training_resource",
+            description: "Manage the owner-only training resource catalog.",
+            icon: BookOpen,
+            badge: "Owner only",
           },
           {
             label: "Meeting Templates",

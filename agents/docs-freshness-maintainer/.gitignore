@@ -3,4 +3,5 @@ node_modules/
 .workflow-data/
 .vercel/
 .output/
+.weekday-dist/
 *.log

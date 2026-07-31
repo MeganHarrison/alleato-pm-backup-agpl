@@ -1,0 +1,82 @@
+{
+  "contractVersion": 1,
+  "taskId": "PM-EMPLOYEE-PROJECT-ACCESS-20260730",
+  "feature": "Active employee project access",
+  "route": "/1149/invoices?tab=billing-periods",
+  "riskLevel": "high",
+  "flows": [
+    {
+      "name": "Authorize an active employee through an active project membership",
+      "steps": [
+        "Resolve the authenticated person as an active internal employee",
+        "Resolve an active project directory membership with an access-bearing project or global template",
+        "Read the project billing period through the existing RLS policy and API"
+      ],
+      "expectedOutcome": "Andrew can see BP-001 on project 1149 through the shared project-access helper"
+    },
+    {
+      "name": "Preserve least-privilege boundaries",
+      "steps": [
+        "Retain legacy active user access",
+        "Deny contacts, inactive people, inactive memberships, other projects, and access-empty templates",
+        "Keep company templates company-scoped and project memberships project-scoped"
+      ],
+      "expectedOutcome": "Only active internal identities with an existing access-bearing assignment receive project access"
+    },
+    {
+      "name": "Verify Andrew's production view",
+      "steps": [
+        "Read back the helper decision in Andrew's authenticated session",
+        "Read the billing-period API response",
+        "Render and capture the Billing Periods tab, then log out the temporary session"
+      ],
+      "expectedOutcome": "The API and rendered page both contain the July 2026 BP-001 row"
+    }
+  ],
+  "requiredEvidence": [
+    "databaseReadback",
+    "browserScreenshot",
+    "regressionTest",
+    "negativePath",
+    "summary"
+  ],
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "employee-access",
+      "description": "An active employee with an active access-bearing project membership can read project-scoped rows protected by current_has_project_access",
+      "evidence": [
+        {
+          "key": "databaseReadback",
+          "min": 1
+        },
+        {
+          "key": "browserScreenshot",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "least-privilege",
+      "description": "Legacy users remain supported while contacts, inactive principals, inactive memberships, other projects, and access-empty templates remain denied",
+      "evidence": [
+        {
+          "key": "negativePath",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "regression-guard",
+      "description": "The shared helper definition, database grants, and billing-period RLS behavior are covered by repeatable tests",
+      "evidence": [
+        {
+          "key": "regressionTest",
+          "min": 1
+        }
+      ]
+    }
+  ]
+}

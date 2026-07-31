@@ -1,0 +1,103 @@
+{
+  "contractVersion": 1,
+  "taskId": "ALL-51",
+  "feature": "Automatic billing first-period release candidate",
+  "route": "/1144/invoices?tab=billing-periods",
+  "flows": [
+    {
+      "name": "Persist the automatic-generation database owner",
+      "steps": [
+        "Apply the reviewed migration",
+        "Record the migration ledger version",
+        "Read back function signature, ACL, cron command, and removed prerequisite"
+      ],
+      "expectedOutcome": "The database can create a first automatic period through a project-scoped service-role call while preserving the global cron"
+    },
+    {
+      "name": "Protect calendar-month boundaries",
+      "steps": [
+        "Run focused first-day and last-day recurrence tests",
+        "Cover ordinary and leap February plus 30-day and 31-day months"
+      ],
+      "expectedOutcome": "Monthly anchors do not drift across calendar-month lengths"
+    },
+    {
+      "name": "Fail conflicting schedules loudly",
+      "steps": [
+        "Exercise the settings API conflict response",
+        "Review exact and partial-overlap rollback contracts"
+      ],
+      "expectedOutcome": "Conflicts preserve the prior schedule and return an actionable error"
+    },
+    {
+      "name": "Save and reload the production schedule",
+      "steps": [
+        "Save the monthly schedule from an authenticated Nexcom route",
+        "Reload the route and confirm Monthly plus exactly one BP-001",
+        "Capture the final desktop and mobile dialogs"
+      ],
+      "expectedOutcome": "The first period is created idempotently and the month-boundary controls remain usable at both breakpoints"
+    }
+  ],
+  "requiredEvidence": [
+    "databaseReadback",
+    "regressionTest",
+    "independentReview",
+    "authenticatedRouteProof",
+    "finalScreenshot",
+    "deployment"
+  ],
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "database-owner",
+      "description": "The reviewed migration is applied and the function, ACL, cron, and removed prerequisite were read back",
+      "evidence": [
+        {
+          "key": "databaseReadback",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "calendar-boundaries",
+      "description": "Focused regression tests cover first/last calendar-day behavior without month-length drift",
+      "evidence": [
+        {
+          "key": "regressionTest",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "independent-approval",
+      "description": "Independent code and database reviews approve the release candidate",
+      "evidence": [
+        {
+          "key": "independentReview",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "production-save-reload",
+      "description": "The authenticated production save succeeds, reload persists one period, and final desktop/mobile screenshots pass",
+      "evidence": [
+        {
+          "key": "authenticatedRouteProof",
+          "min": 1
+        },
+        {
+          "key": "finalScreenshot",
+          "min": 2
+        },
+        {
+          "key": "deployment",
+          "min": 1
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "contractVersion": 1,
+  "taskId": "LOCAL-2026-07-29-PRIME-CONTRACT-AMOUNT",
+  "riskLevel": "high",
+  "feature": "Prime Contract SOV and header-total synchronization",
+  "route": "/1144/prime-contracts",
+  "flows": [
+    {
+      "name": "Repair the Nexcom Prime Contract amount",
+      "steps": [
+        "Read PC-001 stored original and revised values",
+        "Sum every PC-001 contract_line_items.total_cost value",
+        "Apply and ledger the reviewed synchronization migration",
+        "Read the stored and derived values back"
+      ],
+      "expectedOutcome": "PC-001 stored original, stored revised, and its 11-row SOV total all equal 346124"
+    },
+    {
+      "name": "Prevent future representation drift",
+      "steps": [
+        "Exercise SOV insert, amount update, re-parent, and delete",
+        "Exercise approved PCCO status, amount, re-parent, and delete",
+        "Exercise a competing direct parent write",
+        "Verify header-only preservation and canonical PCCO ownership"
+      ],
+      "expectedOutcome": "All mutation paths preserve original and revised total invariants"
+    },
+    {
+      "name": "Preserve the access boundary",
+      "steps": [
+        "Verify the shared financial view is security_invoker",
+        "Query it as an authenticated principal without project access"
+      ],
+      "expectedOutcome": "The view returns no rows and cannot bypass underlying RLS"
+    }
+  ],
+  "requiredEvidence": [
+    "databaseReadback",
+    "regressionTest",
+    "negativePath",
+    "summary"
+  ],
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "nexcom-amount-reconciled",
+      "description": "Nexcom PC-001 stored amount equals its complete Schedule of Values",
+      "evidence": [
+        { "key": "databaseReadback", "min": 1 },
+        { "key": "regressionTest", "min": 1 }
+      ]
+    },
+    {
+      "id": "mutation-invariant",
+      "description": "SOV and Prime Contract change-order mutations keep header totals synchronized",
+      "evidence": [
+        { "key": "regressionTest", "min": 1 },
+        { "key": "negativePath", "min": 1 }
+      ]
+    },
+    {
+      "id": "financial-view-access-boundary",
+      "description": "The corrected financial summary honors caller RLS",
+      "evidence": [
+        { "key": "regressionTest", "min": 1 },
+        { "key": "negativePath", "min": 1 }
+      ]
+    }
+  ]
+}

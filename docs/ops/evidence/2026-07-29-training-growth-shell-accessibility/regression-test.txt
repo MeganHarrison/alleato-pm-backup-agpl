@@ -1,0 +1,4 @@
+PASS
+Command: pnpm exec jest --runInBand src/components/ui/__tests__/sidebar-inset.test.tsx
+Result: 1 suite passed, 1 test passed.
+Contract: SidebarInset renders a div and route content exposes exactly one main landmark.

@@ -12,6 +12,12 @@ import {
   type EveMessage,
   type EveMessagePart,
 } from "eve/react";
+import {
+  compactPersistedEveEvents,
+  resolvePersistedEveSession,
+  type PersistedEveChat,
+  writePersistedEveChat,
+} from "@/hooks/eve-session-persistence";
 import { apiFetch } from "@/lib/api-client";
 import { createClient } from "@/lib/supabase/client";
 
@@ -23,27 +29,25 @@ type EveChatContext = {
   selectedProjectId: number | null;
 };
 
-type SavedEveChat = {
-  events?: readonly HandleMessageStreamEvent[];
-  session?: SessionState;
-};
-
 function storageKey(sessionId: string): string {
   return `alleato:eve-chat:${sessionId}`;
 }
 
-function readSavedChat(sessionId: string): SavedEveChat {
+function readSavedChat(sessionId: string): PersistedEveChat {
   if (typeof window === "undefined") return {};
   try {
     const value = window.localStorage.getItem(storageKey(sessionId));
     if (!value) return {};
-    const parsed = JSON.parse(value) as SavedEveChat;
+    const parsed = JSON.parse(value) as PersistedEveChat;
+    const parsedSession =
+      parsed.session && typeof parsed.session.streamIndex === "number"
+        ? parsed.session
+        : undefined;
     return {
       events: Array.isArray(parsed.events) ? parsed.events : undefined,
-      session:
-        parsed.session && typeof parsed.session.streamIndex === "number"
-          ? parsed.session
-          : undefined,
+      session: parsedSession
+        ? resolvePersistedEveSession(undefined, parsedSession)
+        : undefined,
     };
   } catch {
     return {};
@@ -56,10 +60,12 @@ function persistChat(
   session: SessionState,
 ): void {
   if (typeof window === "undefined") return;
-  window.localStorage.setItem(
-    storageKey(sessionId),
-    JSON.stringify({ events, session } satisfies SavedEveChat),
-  );
+  const previous = readSavedChat(sessionId).session;
+  const persistedSession = resolvePersistedEveSession(previous, session);
+  writePersistedEveChat(window.localStorage, storageKey(sessionId), {
+    events: compactPersistedEveEvents(events),
+    ...(persistedSession ? { session: persistedSession } : {}),
+  });
 }
 
 function authorizationText(

@@ -4,6 +4,22 @@ import { fireEvent, render, screen, waitFor, within } from "@testing-library/rea
 import { TaskEditModal } from "../task-edit-modal";
 import type { ScheduleTask } from "@/types/scheduling";
 
+jest.mock("@/lib/api-client", () => ({
+  apiFetch: jest.fn((url: string) =>
+    Promise.resolve(
+      url.endsWith("/contacts")
+        ? []
+        : {
+            data: {
+              task_id: "task-1",
+              task_version: 1,
+              state: { task: {}, segments: [] },
+            },
+          },
+    ),
+  ),
+}));
+
 const task: ScheduleTask = {
   id: "framing",
   project_id: 43,
@@ -32,7 +48,7 @@ const task: ScheduleTask = {
 };
 
 describe("TaskEditModal dependency integration", () => {
-  it("exposes the shared predecessor editor for an existing task", () => {
+  it("exposes the shared predecessor editor for an existing task", async () => {
     const onUpdate = jest.fn().mockResolvedValue(undefined);
     render(
       <TaskEditModal
@@ -50,6 +66,7 @@ describe("TaskEditModal dependency integration", () => {
       />,
     );
 
+    await screen.findByText("No hourly segments. The task currently uses its date range.");
     expect(screen.getByLabelText("Predecessors")).toBeInTheDocument();
     expect(within(screen.getByLabelText("Current predecessors")).getByText("Foundation")).toBeInTheDocument();
   });
@@ -72,6 +89,7 @@ describe("TaskEditModal dependency integration", () => {
       />,
     );
 
+    await screen.findByText("No hourly segments. The task currently uses its date range.");
     fireEvent.click(screen.getByRole("button", { name: "Edit Foundation predecessor" }));
     fireEvent.click(screen.getByRole("button", { name: "Update" }));
 

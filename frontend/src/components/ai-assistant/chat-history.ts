@@ -33,8 +33,6 @@ export interface ChatHistoryMessage {
     provider_decision?: Record<string, unknown> | null;
     loop_diagnostic?: Record<string, unknown> | null;
     data_parts?: PersistedDataPart[];
-    eve_message_id?: unknown;
-    eve_parts?: unknown[];
     // memory_usage / skill_usage are read by their dedicated extractors
     memory_usage?: MemoryUsage;
     skill_usage?: SkillUsage;
@@ -57,37 +55,14 @@ function normalizePersistedDataParts(
   });
 }
 
-function effectiveMessageId(message: ChatHistoryMessage): string {
-  const eveMessageId = message.metadata?.eve_message_id;
-  return typeof eveMessageId === "string" && eveMessageId
-    ? eveMessageId
-    : message.id;
-}
-
 export function dbMessageToUIMessage(msg: ChatHistoryMessage): UIMessage {
-  const eveParts = Array.isArray(msg.metadata?.eve_parts)
-    ? msg.metadata.eve_parts.filter(
-        (part): part is UIMessage["parts"][number] =>
-          Boolean(
-            part &&
-              typeof part === "object" &&
-              typeof (part as Record<string, unknown>).type === "string",
-          ),
-      )
-    : [];
-
   return {
-    id: effectiveMessageId(msg),
+    id: msg.id,
     role: msg.role as "user" | "assistant",
-    parts:
-      eveParts.length > 0
-        ? eveParts
-        : [
-            ...normalizePersistedDataParts(msg),
-            ...(msg.content
-              ? [{ type: "text" as const, text: msg.content }]
-              : []),
-          ],
+    parts: [
+      ...normalizePersistedDataParts(msg),
+      ...(msg.content ? [{ type: "text" as const, text: msg.content }] : []),
+    ],
   };
 }
 
@@ -98,7 +73,7 @@ export function extractToolTraces(
   messages.forEach((msg) => {
     const traces = msg.metadata?.tool_trace;
     if (Array.isArray(traces) && traces.length > 0) {
-      tracesByMessageId[effectiveMessageId(msg)] = traces;
+      tracesByMessageId[msg.id] = traces;
     }
   });
   return tracesByMessageId;
@@ -110,7 +85,7 @@ export function extractSources(
   const sourcesByMessageId: Record<string, unknown[]> = {};
   messages.forEach((msg) => {
     if (Array.isArray(msg.sources) && msg.sources.length > 0) {
-      sourcesByMessageId[effectiveMessageId(msg)] = msg.sources;
+      sourcesByMessageId[msg.id] = msg.sources;
     }
   });
   return sourcesByMessageId;
@@ -123,7 +98,7 @@ export function extractResponseQuality(
   messages.forEach((msg) => {
     const quality = msg.metadata?.response_quality;
     if (quality) {
-      byMessageId[effectiveMessageId(msg)] = quality;
+      byMessageId[msg.id] = quality;
     }
   });
   return byMessageId;
@@ -150,7 +125,7 @@ export function extractTraceDiagnostics(
       diagnostics.providerDecision ||
       diagnostics.loopDiagnostic
     ) {
-      byMessageId[effectiveMessageId(msg)] = diagnostics;
+      byMessageId[msg.id] = diagnostics;
     }
   });
   return byMessageId;

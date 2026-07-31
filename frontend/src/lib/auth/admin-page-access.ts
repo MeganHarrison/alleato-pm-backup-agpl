@@ -4,6 +4,7 @@
  */
 export const APP_ADMIN_PAGE_PREFIXES = [
   "/company-settings",
+  "/ai/learning-promotions",
   "/meeting-templates",
   "/observability",
 ] as const;
@@ -14,6 +15,7 @@ export const APP_ADMIN_PAGE_PREFIXES = [
  */
 export const APP_ADMIN_API_PREFIXES = [
   "/api/admin/meeting-templates",
+  "/api/admin/ai-learning-promotions",
   "/api/admin/project-creation-log",
 ] as const;
 

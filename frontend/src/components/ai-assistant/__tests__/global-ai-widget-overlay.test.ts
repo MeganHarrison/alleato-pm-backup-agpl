@@ -83,13 +83,4 @@ describe("global AI widget overlay ownership", () => {
     expect(chatAreaSource).toContain("Project context: ${selectedProject.name");
     expect(chatAreaSource).toContain("aria-pressed={Boolean(selectedProject)}");
   });
-
-  it("uses the shared MKH identity and rejects legacy widget branding", () => {
-    expect(widgetSource).toContain('import { MkhLogo } from "@/components/brand/mkh-logo"');
-    expect(widgetSource).toContain('aria-label="MKH AI"');
-    expect(widgetSource).toContain("<MkhLogo");
-    expect(widgetSource).toContain('"MKH AI"');
-    expect(widgetSource).not.toContain('src="/alleato-favicon.png"');
-    expect(widgetSource).not.toContain('"Alleato AI"');
-  });
 });

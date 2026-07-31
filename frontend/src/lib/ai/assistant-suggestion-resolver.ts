@@ -99,7 +99,6 @@ const ROUTE_RULES: RouteRule[] = [
   {
     pattern: /\/submittals(?:\/|$)/,
     actionIds: [
-      "reviewSubmittalAgainstDrawings",
       "getProjectBriefingSnapshot",
       "searchEmails",
       "createGeneratedTask",

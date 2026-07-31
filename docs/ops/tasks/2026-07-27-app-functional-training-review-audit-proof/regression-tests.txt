@@ -1,0 +1,29 @@
+PASS: 11 focused Jest suites, 59 tests
+
+Covered boundaries:
+- canonical /projects redirect
+- learning page app-admin authorization
+- Generate endpoint app-admin authorization
+- corrective rejection dialog and payload
+- blank rejection validation
+- rejection-to-active-learning writer
+- activation failure recovery
+- null writer result
+- retry teaching
+- audit-event failure after successful reject/retry
+- warning-toast behavior
+- Teach Alleato candidate payload contracts
+- source-user personal memory ownership
+- request-scoped bootstrap identity
+- shared project creator access
+- canonical projects POST regression suite
+
+Additional passing gates:
+- pnpm --dir frontend quality:changed
+- npm run check:routes
+- node scripts/verify/verify_project_bootstrap_role_trigger.mjs
+- npm run db:migrations:verify-applied -- supabase/migrations/20260728001500_harden_default_project_roles_trigger.sql
+- git diff --check
+
+Repository-wide typecheck remains red with pre-existing debt; changed-code
+no-new-debt gates pass.

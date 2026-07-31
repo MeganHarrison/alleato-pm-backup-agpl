@@ -1,6 +1,9 @@
 import { PageShell } from "@/components/layout";
+import {
+  CompanyBrainPageContent,
+  type CompanyBrainSearchParams,
+} from "@/features/company-brain/company-brain-page";
 import { aiDashboardPageShellProps } from "./page-shell-config";
-import { AiOsDashboard } from "./ai-os/ai-os-preview";
 import { AiDashboardWorkspaceShell } from "./workspace-shell";
 
 export const metadata = {
@@ -9,11 +12,17 @@ export const metadata = {
     "Executive operating view for AI health, active work, knowledge flow, and company intelligence.",
 };
 
-export default function AiDashboardPage() {
+export const dynamic = "force-dynamic";
+
+export default function AiDashboardPage({
+  searchParams,
+}: {
+  searchParams: CompanyBrainSearchParams;
+}) {
   return (
     <PageShell {...aiDashboardPageShellProps}>
       <AiDashboardWorkspaceShell>
-        <AiOsDashboard />
+        <CompanyBrainPageContent searchParams={searchParams} />
       </AiDashboardWorkspaceShell>
     </PageShell>
   );

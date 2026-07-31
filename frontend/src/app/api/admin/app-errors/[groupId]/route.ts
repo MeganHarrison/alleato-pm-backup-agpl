@@ -264,7 +264,7 @@ export const PATCH = withApiGuardrails<{ groupId: string }>(
       "/api/admin/app-errors/[groupId]#PATCH",
     );
 
-    const updates: Record<string, string | null> = {};
+    const updates: Database["public"]["Tables"]["app_error_groups"]["Update"] = {};
     if (body.status) updates.status = body.status;
     if (typeof body.linearIssueId !== "undefined") updates.linear_issue_id = body.linearIssueId;
     if (typeof body.linearIssueUrl !== "undefined") updates.linear_issue_url = body.linearIssueUrl;

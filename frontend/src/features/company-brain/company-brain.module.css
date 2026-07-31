@@ -1,117 +1,1196 @@
-/*
- * Company Brain — scoped visual tokens + custom-visual styles.
- * The /ai-dashboard route is forced `dark` at the layout, so these are the dark
- * values. Category colors live here (not in Tailwind classNames) so the page
- * stays free of hardcoded color classes; the canvas reads them via getComputedStyle.
- */
-
 .root {
-  --cb-accent: hsl(var(--ai-dashboard-accent));
-  --cb-good: hsl(152 55% 55%);
-  --cb-meeting: hsl(211 82% 66%);
-  --cb-email: hsl(258 78% 74%);
-  --cb-teams: hsl(232 74% 72%);
-  --cb-document: hsl(190 78% 60%);
-  --cb-drawing: hsl(202 82% 70%);
-  --cb-task: hsl(172 64% 52%);
-  --cb-rfi: hsl(276 66% 72%);
-  --cb-submittal: hsl(38 92% 62%);
-  --cb-change: hsl(22 92% 62%);
-  --cb-decision: hsl(150 62% 56%);
-  --cb-risk: hsl(0 78% 66%);
-  --cb-opportunity: hsl(45 92% 62%);
-  --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  width: 100%;
+  max-width: 100rem;
+  min-width: 0;
+  margin-inline: auto;
+  padding: 1.35rem 1.4rem 3rem;
+  color: var(--foreground);
+  /* Compatibility aliases bind this visualization to the app's canonical
+     semantic tokens; the AI OS series colors are not surface colors. */
+  --aios-n-2: hsl(var(--border));
+  --aios-n-3: hsl(var(--muted-foreground) / 0.45);
+  --aios-n-4: hsl(var(--muted-foreground));
+  --aios-n-5: hsl(var(--muted-foreground));
+  --aios-n-6: hsl(var(--foreground) / 0.86);
+  --aios-n-7: hsl(var(--foreground));
+  --brain-panel: hsl(var(--card));
+  --brain-border: hsl(var(--border) / 0.48);
 }
 
-.stage {
-  position: relative;
-  width: 100%;
-  height: min(58vh, 640px);
-  min-height: 440px;
+.root > div:first-child h1 {
+  font-size: 1.55rem;
+  line-height: 1.12;
+}
+
+.root > div:first-child h1 + div {
+  margin-top: 0.42rem;
+}
+
+.headerActions,
+.range,
+.liveStatus,
+.healthStatus {
+  display: flex;
+  align-items: center;
+}
+
+.headerActions {
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.liveStatus,
+.healthStatus {
+  gap: 0.45rem;
+  color: var(--aios-n-6);
+  font-size: 0.73rem;
+}
+
+.liveStatus {
+  color: var(--aios-good);
+}
+
+.healthStatus svg {
+  width: 0.9rem;
+  color: var(--aios-good);
+}
+
+.range {
+  margin-left: 0.4rem;
+  border: 1px solid var(--brain-border);
+  border-radius: 0.65rem;
   overflow: hidden;
+}
+
+.range button {
+  height: 2.25rem;
+  min-width: 3.15rem;
+  border-right: 1px solid var(--brain-border);
+  color: var(--aios-n-5);
+  font-size: 0.7rem;
+  transition:
+    color 160ms ease,
+    background 160ms ease;
+}
+
+.range button:last-child {
+  border-right: 0;
+}
+
+.range button[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--aios-accent) 20%, transparent);
+  color: var(--aios-n-7);
+  box-shadow: inset 0 0 0 1px
+    color-mix(in srgb, var(--aios-accent) 65%, transparent);
+}
+
+.permissionNotice {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-top: 1.1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--brain-border);
+  color: var(--aios-n-5);
+  font-size: 0.78rem;
+}
+
+.permissionNotice svg {
+  width: 1rem;
+  color: var(--aios-warn);
+}
+
+.insights {
+  border: 1px solid var(--brain-border);
+  background: var(--brain-panel);
+}
+
+.flowPanel {
+  min-width: 0;
+  margin-top: 1.15rem;
+  overflow: hidden;
+}
+
+.panelHeading,
+.moduleHeading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.panelHeading {
+  padding: 1rem 1.2rem 0;
+}
+
+/* Section titles are off-white, never accent-tinted — a blue heading reads as a
+   link and loses against the visualization behind it. */
+.panelHeading h2,
+.moduleHeading h2,
+.insights h2 {
+  color: var(--aios-n-6);
+  font-size: 0.68rem;
+  font-weight: 650;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
+}
+
+.panelHeading p,
+.moduleHeading p {
+  margin-top: 0.25rem;
+  color: var(--aios-n-4);
+  font-size: 0.68rem;
+}
+
+.mapTools {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.mapSearch {
+  width: 9rem;
+  height: 1.9rem;
+  border: 1px solid var(--brain-border);
+  border-radius: 0.45rem;
+  background: hsl(var(--background) / 0.72);
+  overflow: hidden;
+}
+
+.mapTools label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: 9rem;
+  height: 1.9rem;
+  border: 1px solid var(--brain-border);
+  border-radius: 0.45rem;
+  padding: 0 0.55rem;
+  background: hsl(var(--background) / 0.72);
+}
+
+.mapTools label svg,
+.mapTools button svg {
+  width: 0.85rem;
+  color: var(--aios-n-4);
+}
+
+.mapTools input {
+  min-width: 0;
+  width: 100%;
+  background: transparent;
+  outline: none;
+  color: var(--aios-n-7);
+  font-size: 0.7rem;
+}
+
+.mapTools .searchInput {
+  height: 1.9rem;
+  border: 0;
+  box-shadow: none;
+}
+
+.mapTools .searchInput::placeholder {
+  color: var(--aios-n-4);
+  opacity: 1;
+}
+
+.mapTools button {
+  display: grid;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 0.45rem;
+}
+
+.mapTools button:hover,
+.mapTools button[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--aios-accent) 16%, transparent);
+}
+
+.knowledgeMap {
+  display: grid;
+  grid-template-columns: minmax(10.2rem, 0.95fr) minmax(18rem, 1.62fr) minmax(
+      11rem,
+      1.05fr
+    );
+  align-items: center;
+  min-width: 47rem;
+  min-height: 20.5rem;
+  padding: 0.45rem 1rem 0.75rem;
+}
+
+.mapColumn {
+  position: relative;
+  z-index: 3;
+}
+
+.columnLabel {
+  margin: 0 0 0.6rem 0.7rem;
+  color: var(--aios-n-4);
+  font-size: 0.61rem;
+  font-weight: 650;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.entityStack {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.entityButton {
+  display: grid;
+  grid-template-columns: 1.75rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  min-height: 3.15rem;
+  border: 1px solid color-mix(in srgb, var(--aios-n-2) 52%, transparent);
+  border-radius: 0.7rem;
+  padding: 0.4rem 0.55rem;
+  background: linear-gradient(
+    110deg,
+    hsl(var(--card) / 0.62),
+    hsl(var(--background) / 0.48)
+  );
+  color: var(--aios-n-7);
+  text-align: left;
+  transition:
+    border-color 160ms ease,
+    transform 160ms ease,
+    opacity 160ms ease;
+}
+
+.entityButton:hover,
+.entityButton:focus-visible,
+.entitySelected {
+  border-color: color-mix(in srgb, var(--aios-accent) 72%, transparent);
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.entityButton:focus-visible {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--aios-accent) 30%, transparent);
+}
+
+.entityDimmed {
+  opacity: 0.25;
+}
+
+.entityIcon,
+.activityIcon {
+  display: grid;
+  place-items: center;
+  border-radius: 0.45rem;
+  background: color-mix(in srgb, var(--aios-accent) 14%, transparent);
+  color: color-mix(in srgb, var(--aios-accent) 72%, white);
+}
+
+.entityIcon {
+  width: 1.75rem;
+  height: 1.75rem;
+}
+
+.brandIcon {
   background: transparent;
 }
-.emptyStage { display: grid; place-content: center; gap: 8px; padding: 24px; text-align: center; }
-.emptyStageTitle { margin: 0; font-size: 15px; font-weight: 600; color: hsl(var(--foreground)); }
-.emptyStageDetail { margin: 0; max-width: 36ch; font-size: 13px; line-height: 1.5; color: hsl(var(--muted-foreground)); }
-@media (max-width: 900px) { .stage { height: min(58vh, 580px); } }
-@media (max-width: 640px) { .stage { height: min(72vh, 600px); min-height: 460px; } }
 
-.canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.brandIcon img {
+  width: 1.72rem;
+  height: 1.72rem;
+  object-fit: contain;
+}
 
-.controls { display: flex; align-items: center; gap: 8px; }
+.iconViolet {
+  background: rgb(154 83 255 / 16%);
+  color: #bc88ff;
+}
 
-.seg { background: hsl(0 0% 15% / 0.85); backdrop-filter: blur(8px);
-  border: 1px solid hsl(var(--border)); padding: 3px; border-radius: 999px; }
+.iconBlue {
+  background: rgb(56 157 255 / 16%);
+  color: #5ab2ff;
+}
 
-/* cluster labels */
-.label { position: absolute; transform: translate(-50%, -50%); z-index: 4; cursor: pointer;
-  display: inline-flex; align-items: center; gap: 7px; padding: 5px 9px; border-radius: 999px; white-space: nowrap;
-  background: hsl(0 0% 13% / 0.6); border: 1px solid hsl(0 0% 24% / 0.7); backdrop-filter: blur(3px);
-  font-size: 11px; color: hsl(var(--muted-foreground)); opacity: 0.62; transition: opacity 0.2s, border-color 0.2s;
-  font-family: inherit; }
-.label:hover, .labelOn { opacity: 1; border-color: hsl(0 0% 30%); }
-.label:focus-visible { outline: 2px solid var(--cb-accent); outline-offset: 2px; opacity: 1; }
-.labelDot { width: 8px; height: 8px; border-radius: 50%; flex: none; box-shadow: 0 0 8px 0 currentColor; }
-.labelName { font-weight: 600; color: hsl(var(--foreground)); letter-spacing: -0.01em; }
-.labelCount { font-family: var(--font-mono); font-size: 10px; color: hsl(var(--muted-foreground) / 0.7); }
-.labelAdd { font-family: var(--font-mono); font-size: 9.5px; color: var(--cb-good); }
+.iconOrange {
+  background: rgb(255 144 52 / 16%);
+  color: #ff9b43;
+}
 
-/* tooltip */
-.tip { position: absolute; z-index: 8; pointer-events: none; opacity: 0; transform: translateY(4px);
-  transition: opacity 0.12s, transform 0.12s; min-width: 210px; max-width: 260px;
-  background: hsl(0 0% 14% / 0.98); border: 1px solid hsl(0 0% 22%); border-radius: 12px; padding: 12px 13px;
-  box-shadow: 0 20px 50px -18px hsl(0 0% 0% / 0.8); }
-.tipShow { opacity: 1; transform: translateY(0); }
-.tipType { font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
-.tipTitle { font-size: 13.5px; font-weight: 600; letter-spacing: -0.01em; margin: 5px 0 8px; line-height: 1.3; color: hsl(var(--foreground)); }
-.tipRow { display: flex; gap: 8px; font-size: 11.5px; color: hsl(var(--muted-foreground)); padding: 1.5px 0; }
-.tipRow span:first-child { color: hsl(var(--muted-foreground) / 0.7); width: 58px; flex: none; }
-.tipConn { margin-top: 8px; padding-top: 8px; border-top: 1px solid hsl(var(--border)); font-size: 11.5px; color: hsl(var(--foreground)); }
+.iconRed {
+  background: rgb(255 83 112 / 16%);
+  color: #ff718a;
+}
 
-/* detail drawer */
-.drawer { position: absolute; top: 0; right: 0; bottom: 0; width: min(380px, 92%); z-index: 9;
-  background: hsl(0 0% 12% / 0.98); backdrop-filter: blur(14px); border-left: 1px solid hsl(0 0% 22%);
-  transform: translateX(100%); transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1); overflow-y: auto;
-  box-shadow: -30px 0 60px -30px hsl(0 0% 0% / 0.7); }
-.drawerOpen { transform: translateX(0); }
-.drawerPad { padding: 22px 22px 40px; }
-.drawerType { font-size: 10.5px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; display: inline-flex; align-items: center; gap: 7px; }
-.drawerType .labelDot { box-shadow: 0 0 10px 0 currentColor; }
-.drawerTitle { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; margin: 12px 0 4px; line-height: 1.2; color: hsl(var(--foreground)); }
-.meta { display: grid; grid-template-columns: auto 1fr; gap: 5px 12px; margin: 16px 0; font-size: 12.5px; }
-.metaLabel { color: hsl(var(--muted-foreground) / 0.7); }
-.metaVal { color: hsl(var(--foreground)); }
-.sec { margin-top: 22px; }
-.secLabel { font-size: 11px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; color: hsl(var(--muted-foreground) / 0.7); margin: 0 0 10px; }
-.sec p { font-size: 13px; line-height: 1.6; color: hsl(var(--muted-foreground)); margin: 0; }
-.rel { display: flex; flex-direction: column; gap: 7px; }
-.relItem { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 9px; background: hsl(0 0% 15%);
-  text-align: left; width: 100%; border: 0; color: hsl(var(--foreground)); font: inherit; font-size: 12.5px; cursor: pointer; transition: background 0.15s; }
-.relItem:hover { background: hsl(0 0% 18%); }
-.relItem:focus-visible { outline: 2px solid var(--cb-accent); outline-offset: 1px; }
-.relDot { width: 7px; height: 7px; border-radius: 50%; flex: none; }
-.relKind { color: hsl(var(--muted-foreground) / 0.7); font-size: 11px; margin-left: auto; text-transform: capitalize; }
-.ai { background: linear-gradient(155deg, hsl(31 90% 60% / 0.14), transparent); border: 1px solid hsl(31 60% 30% / 0.4);
-  border-radius: 12px; padding: 13px 14px; }
-.ai p { color: hsl(var(--foreground)); opacity: 0.92; }
-.aiHead { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
-  text-transform: uppercase; color: var(--cb-accent); margin-bottom: 8px; }
-.openPending { margin-top: 22px; display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 600;
-  color: hsl(var(--muted-foreground)); cursor: default; }
-.pendingNote { font-weight: 500; font-size: 11px; color: hsl(var(--muted-foreground) / 0.55); }
+.iconPurple {
+  background: rgb(175 95 255 / 16%);
+  color: #bd7cff;
+}
 
-.contextLine { display: flex; flex-wrap: wrap; gap: 6px 20px; margin-top: 12px; }
-.hint { margin: 0; font-size: 11px; color: hsl(var(--muted-foreground) / 0.7); }
-.searchRecovery { margin: 12px 0 0; font-size: 12px; color: hsl(var(--warning)); }
+.iconGreen {
+  background: rgb(91 210 126 / 16%);
+  color: #72dc92;
+}
 
-/* a11y record list (visually hidden but available to screen readers) */
-.srList { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.entityCopy {
+  display: grid;
+  min-width: 0;
+}
 
-.close { position: absolute; top: 16px; right: 16px; width: 30px; height: 30px; display: grid; place-items: center;
-  border-radius: 8px; background: none; border: 0; color: hsl(var(--muted-foreground)); cursor: pointer; }
-.close:hover { background: hsl(0 0% 17%); color: hsl(var(--foreground)); }
+.entityCopy strong {
+  overflow: hidden;
+  font-size: 0.73rem;
+  font-weight: 550;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
-@media (max-width: 640px) {
-  .contextLine { display: grid; gap: 4px; }
+.entityCopy small,
+.entityMeasure,
+.pipeline small {
+  color: var(--aios-n-4);
+  font-size: 0.58rem;
+}
+
+.entityCopy small {
+  overflow: hidden;
+  margin-top: 0.15rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.entityMeasure {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.statusDot {
+  display: inline-block;
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 999px;
+  background: var(--aios-n-3);
+}
+
+.status_healthy {
+  background: var(--aios-good);
+  box-shadow: 0 0 0.6rem color-mix(in srgb, var(--aios-good) 72%, transparent);
+}
+
+.status_warning,
+.status_syncing {
+  background: var(--aios-warn);
+}
+
+.status_error {
+  background: var(--aios-bad);
+}
+
+.status_paused,
+.status_unknown {
+  background: var(--aios-n-3);
+}
+
+.brainStage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  align-self: stretch;
+  min-height: 19.5rem;
+}
+
+.flowLines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  opacity: 0.9;
+}
+
+.flowLines path {
+  fill: none;
+  stroke: var(--lane-color);
+  stroke-width: 1.25;
+  stroke-dasharray: 3 6;
+  filter: url("#company-brain-glow");
+  vector-effect: non-scaling-stroke;
+  animation: dataFlow 3.1s linear infinite;
+}
+
+.brainButton {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  justify-items: center;
+  width: 19.5rem;
+  height: 14.5rem;
+  min-height: 0;
+  border: 0;
+  padding: 0;
+  color: white;
+  overflow: visible;
+}
+
+.brainButton::before {
+  position: absolute;
+  z-index: -2;
+  inset: -2rem -3.4rem;
+  content: "";
+  border-radius: 50%;
+  background:
+    radial-gradient(
+      ellipse,
+      color-mix(in srgb, var(--aios-accent) 22%, transparent),
+      transparent 64%
+    ),
+    repeating-radial-gradient(
+      ellipse,
+      transparent 0 2.25rem,
+      color-mix(in srgb, #5087ff 11%, transparent) 2.31rem 2.34rem
+    );
+}
+
+.brainVisual {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 56%;
+  animation: brainBreathe 4.8s ease-in-out infinite;
+}
+
+.brainImage {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: saturate(1.08) contrast(1.04)
+    drop-shadow(0 0 0.9rem rgb(89 78 255 / 34%));
+}
+
+.brainMark {
+  position: absolute;
+  top: 43%;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: 3.65rem;
+  height: 3.65rem;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgb(112 85 255 / 78%),
+    rgb(54 45 151 / 34%) 58%,
+    transparent 72%
+  );
+  filter: drop-shadow(0 0 0.85rem rgb(164 122 255 / 72%));
+  transform: translate(-50%, -50%);
+}
+
+.brainMark img {
+  width: 2.9rem;
+  height: auto;
+  object-fit: contain;
+}
+
+.brainSelected .brainVisual,
+.brainButton:focus-visible .brainVisual {
+  border-radius: 48%;
+  outline: 2px solid color-mix(in srgb, var(--aios-accent) 78%, white);
+  outline-offset: 0.18rem;
+}
+
+.motionPaused *,
+.motionPaused .flowLines path {
+  animation-play-state: paused !important;
+}
+
+.pipeline {
+  margin: 0 1rem 1rem;
+  border: 1px solid var(--brain-border);
+  border-radius: 0.65rem;
+  padding: 0.8rem 1rem 0.95rem;
+}
+
+.pipelineTitle {
+  display: block;
+  margin-bottom: 0.85rem;
+  color: var(--aios-n-4);
+  font-size: 0.63rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.pipeline ol {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pipeline li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.25rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 0;
+}
+
+.pipeline li:not(:last-child)::after {
+  position: absolute;
+  z-index: 0;
+  top: 0.625rem;
+  left: calc(0.625rem + 1.8rem);
+  width: calc(100% - 2.3rem);
+  border-top: 1px dashed var(--brain-border);
+  content: "";
+}
+
+.pipeline li > span {
+  position: relative;
+  z-index: 1;
+}
+
+.pipeline li > span:nth-child(2) {
+  display: grid;
+  width: fit-content;
+  padding-right: 0.5rem;
+  background: hsl(var(--background));
+}
+
+.pipeline strong {
+  color: var(--aios-n-6);
+  font-size: 0.63rem;
+  font-weight: 550;
+}
+
+.pipelineMarker {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 1px solid var(--aios-accent);
+  border-radius: 50%;
+  color: var(--aios-n-7);
+  background: color-mix(in srgb, var(--aios-accent) 24%, transparent);
+}
+
+.pipelineMarker[data-complete="false"] {
+  border-color: var(--aios-n-3);
+  background: hsl(var(--background));
+}
+
+.activityPanel {
+  margin-top: 1.6rem;
+  border-top: 1px solid var(--brain-border);
+  padding-top: 1.1rem;
+}
+
+.moduleHeading > svg {
+  color: var(--aios-n-4);
+}
+
+.activityFeed {
+  display: grid;
+  gap: 0.15rem;
+  margin-top: 0.6rem;
+}
+
+.activityFeed li {
+  display: grid;
+  grid-template-columns: 4.5rem 1.6rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.7rem;
+  min-height: 2.7rem;
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--brain-border) 55%, transparent);
+}
+
+.activityFeed time,
+.activityFeed small,
+.activityFeed em {
+  color: var(--aios-n-4);
+  font-size: 0.6rem;
+}
+
+.activityFeed time {
+  font-variant-numeric: tabular-nums;
+}
+
+.activityFeed strong {
+  display: block;
+  color: var(--aios-n-6);
+  font-size: 0.7rem;
+  font-weight: 550;
+}
+
+.activityFeed small {
+  display: block;
+  overflow: hidden;
+  margin-top: 0.1rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.activityFeed em {
+  padding: 0.25rem 0.45rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--aios-accent) 13%, transparent);
+  color: color-mix(in srgb, var(--aios-accent) 55%, white);
+  font-style: normal;
+}
+
+.activityIcon {
+  width: 1.55rem;
+  height: 1.55rem;
+}
+
+.activityIcon svg {
+  width: 0.8rem;
+}
+
+.moduleEmpty,
+.noResults {
+  color: var(--aios-n-4);
+  font-size: 0.7rem;
+}
+
+.moduleEmpty {
+  padding: 2rem 0;
+}
+
+.noResults {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 1rem 1.2rem 0;
+}
+
+.noResults svg {
+  width: 0.9rem;
+}
+
+/* Metric strip, not metric cards: no boxes, no fills — hairline dividers and
+   spacing carry the separation so the numbers are the only thing with weight. */
+.metricRail {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  margin-top: 1.6rem;
+  border-top: 1px solid var(--brain-border);
+  padding-top: 1.1rem;
+}
+
+.metricModule {
+  display: grid;
+  align-content: start;
+  min-width: 0;
+  border-left: 1px solid var(--brain-border);
+  padding: 0.1rem 1.15rem;
+}
+
+.metricModule:first-child {
+  border-left: 0;
+  padding-left: 0;
+}
+
+/* Body face, not the display face — the display face at this size is
+   unreadable in uppercase micro-type. */
+.metricLabel {
+  color: var(--aios-n-6);
+  font-family: var(--font-sans);
+  font-size: 0.63rem;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  line-height: 1.35;
+  text-transform: uppercase;
+}
+
+.metricValue {
+  margin-top: 0.6rem;
+  color: var(--aios-n-7);
+  font-size: clamp(1.35rem, 2vw, 1.85rem);
+  font-variant-numeric: tabular-nums;
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 1.05;
+}
+
+.metricContext,
+.metricUnmeasured {
+  color: var(--aios-n-4);
+  font-size: 0.62rem;
+  line-height: 1.45;
+}
+
+.metricContext {
+  margin-top: 0.4rem;
+}
+
+.metricUnmeasured {
+  margin-top: 0.75rem;
+}
+
+.metricContextPositive {
+  color: var(--aios-good);
+}
+
+.insights {
+  display: grid;
+  grid-template-columns: 5rem minmax(12rem, 1fr) minmax(18rem, 1.25fr);
+  align-items: center;
+  gap: 1.25rem;
+  margin-top: 0.8rem;
+  min-height: 7.8rem;
+  border-radius: 0.8rem;
+  padding: 1rem 1.4rem;
+}
+
+.insights p {
+  max-width: 36rem;
+  margin-top: 0.5rem;
+  color: var(--aios-n-4);
+  font-size: 0.68rem;
+  line-height: 1.7;
+}
+
+.insightOrb {
+  display: grid;
+  place-items: center;
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  color: var(--aios-n-7);
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--aios-accent) 48%, transparent),
+    transparent 68%
+  );
+}
+
+.coverage {
+  padding-left: 1.4rem;
+  border-left: 1px solid var(--brain-border);
+}
+
+.coverage > span,
+.coverage small {
+  display: block;
+  color: var(--aios-n-4);
+  font-size: 0.6rem;
+  text-transform: uppercase;
+}
+
+.coverage strong {
+  display: block;
+  margin: 0.25rem 0;
+  color: var(--aios-n-7);
+  font-size: 1.5rem;
+  font-weight: 450;
+}
+
+.coverage > div {
+  height: 0.3rem;
+  border-radius: 99px;
+  background: hsl(var(--muted));
+  overflow: hidden;
+}
+
+.coverage i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--aios-accent), #b65cff);
+}
+
+.coverage small {
+  margin-top: 0.45rem;
+  text-transform: none;
+}
+
+.coverageUnmeasured {
+  margin-top: 0.55rem;
+  color: var(--aios-n-4);
+  font-size: 0.68rem;
+  line-height: 1.5;
+}
+
+.desktopExperience {
+  overflow-x: auto;
+}
+
+.mobileExperience {
+  display: none;
+}
+
+.textMap {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  min-height: 20.5rem;
+  padding: 1rem;
+}
+
+.textMap h3 {
+  margin-bottom: 0.6rem;
+  color: var(--aios-n-4);
+  font-size: 0.67rem;
+  text-transform: uppercase;
+}
+
+.textMap ul {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.textMap button {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  border-bottom: 1px solid var(--brain-border);
+  padding: 0.6rem 0.25rem;
+  color: var(--aios-n-6);
+  font-size: 0.7rem;
+  text-align: left;
+}
+
+.textMap button span:last-child {
+  color: var(--aios-n-4);
+}
+
+/* The desktop map rotated a quarter turn: sources on top, brain in the middle,
+   outputs below, with the same animated lanes running vertically. */
+.mobileMap {
+  padding: 0.4rem 0.15rem 0.5rem;
+}
+
+.mobileMap .columnLabel {
+  margin-left: 0.15rem;
+}
+
+.mobileFlowLines {
+  display: block;
+  width: 100%;
+  height: 3rem;
+  margin: 0.35rem 0;
+  overflow: visible;
+  opacity: 0.9;
+}
+
+.mobileFlowLines path {
+  fill: none;
+  stroke: var(--lane-color);
+  stroke-width: 1.25;
+  stroke-dasharray: 3 6;
+  filter: url("#company-brain-glow-mobile");
+  vector-effect: non-scaling-stroke;
+  animation: dataFlow 3.1s linear infinite;
+}
+
+.mobileBrainStage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 12.5rem;
+  /* Close the seam so the lanes read as entering the brain, not stopping short
+     of it. */
+  margin-block: -0.6rem;
+}
+
+.mobileBrainStage .brainButton {
+  width: 100%;
+  max-width: 18rem;
+  height: 12.5rem;
+}
+
+.mobileBrainStage .brainButton::before {
+  inset: -1rem -1.5rem;
+}
+
+.mobileBrainStage .brainMark {
+  width: 2.9rem;
+  height: 2.9rem;
+}
+
+.mobileBrainStage .brainMark img {
+  width: 2.25rem;
+}
+
+.emptyState {
+  display: grid;
+  justify-items: center;
+  gap: 0.75rem;
+  margin-top: 2rem;
+  padding: 5rem 1rem;
+  color: var(--aios-n-4);
+  text-align: center;
+}
+
+.emptyState > svg,
+.emptyState > img {
+  width: 3rem;
+  height: 3rem;
+  color: var(--aios-accent);
+  object-fit: contain;
+}
+
+.emptyState h2 {
+  color: var(--aios-n-7);
+  font-size: 1.15rem;
+}
+
+.inspector {
+  position: fixed;
+  z-index: 50;
+  top: 4.5rem;
+  right: 1rem;
+  width: 20rem;
+  border: 1px solid var(--brain-border);
+  border-radius: 0.8rem;
+  padding: 1rem;
+  background: hsl(var(--card));
+  box-shadow: 0 1rem 3rem rgb(0 0 0 / 28%);
+}
+
+.inspectorSheet {
+  background: hsl(var(--card));
+  color: var(--aios-n-7);
+}
+
+.inspectorContent {
+  display: grid;
+  gap: 1.1rem;
+}
+
+.inspectorToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.inspectorToolbar > span {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--aios-n-4);
+  font-size: 0.65rem;
+}
+
+.inspectorKind {
+  color: var(--aios-accent);
+  font-size: 0.62rem;
+  text-transform: uppercase;
+}
+
+.inspectorTitle {
+  margin-top: 0.25rem;
+}
+
+.inspectorDescription,
+.inspectorUnavailable {
+  margin-top: 0.45rem;
+  color: var(--aios-n-4);
+  font-size: 0.72rem;
+  line-height: 1.55;
+}
+
+.inspectorFacts {
+  display: grid;
+  gap: 0.7rem;
+  padding: 0.9rem 0;
+  border-block: 1px solid var(--brain-border);
+}
+
+@keyframes dataFlow {
+  to {
+    stroke-dashoffset: -18;
+  }
+}
+
+@keyframes brainBreathe {
+  50% {
+    transform: scale(1.025) translateY(-0.2rem);
+    opacity: 0.93;
+  }
+}
+
+@media (max-width: 1180px) {
+  .metricRail {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    row-gap: 1.4rem;
+  }
+
+  /* Only the first tile of each row loses its leading divider. */
+  .metricModule:nth-child(3n + 1) {
+    border-left: 0;
+    padding-left: 0;
+  }
+}
+
+@media (max-width: 1024px) {
+  .root {
+    padding-inline: 1rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .headerActions {
+    width: 100%;
+  }
+
+  .range {
+    margin-left: 0;
+  }
+
+  .knowledgeMap {
+    min-width: 45rem;
+  }
+
+  .insights {
+    grid-template-columns: 4rem 1fr;
+  }
+
+  .coverage {
+    grid-column: 1 / -1;
+    padding: 1rem 0 0;
+    border-top: 1px solid var(--brain-border);
+    border-left: 0;
+  }
+}
+
+@media (min-width: 48rem) {
+  .desktopExperience {
+    display: block;
+  }
+
+  .mobileExperience {
+    display: none;
+  }
+}
+
+@media (max-width: 47.999rem) {
+  .root {
+    padding: 1rem 0.85rem 2.5rem;
+  }
+
+  .flowPanel {
+    margin-top: 1rem;
+  }
+
+  .panelHeading {
+    display: grid;
+  }
+
+  .mapTools {
+    width: 100%;
+  }
+
+  .mapTools label {
+    width: auto;
+    flex: 1;
+  }
+
+  .desktopExperience {
+    display: none;
+  }
+
+  .mobileExperience {
+    display: block;
+  }
+
+  .pipeline {
+    padding-bottom: 0.85rem;
+  }
+
+  .pipeline ol {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
+
+  .pipeline li:not(:last-child)::after {
+    top: 1.25rem;
+    bottom: -0.85rem;
+    left: 0.625rem;
+    width: 0;
+    border-top: 0;
+    border-left: 1px dashed var(--brain-border);
+  }
+
+  .metricRail {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: 1.3rem;
+  }
+
+  /* Re-arm the divider the 3-column rule above dropped, then clear it for the
+     first tile of each 2-column row. Order is the override — both selectors
+     have the same specificity. */
+  .metricModule:nth-child(3n + 1) {
+    border-left: 1px solid var(--brain-border);
+    padding-left: 1.15rem;
+  }
+
+  .metricModule:nth-child(2n + 1) {
+    border-left: 0;
+    padding-left: 0;
+  }
+
+  .insights {
+    grid-template-columns: 1fr;
+  }
+
+  .insightOrb {
+    width: 3rem;
+    height: 3rem;
+  }
+}
+
+@media (max-width: 430px) {
+  .range {
+    width: 100%;
+  }
+
+  .range button {
+    flex: 1;
+  }
+
+  .activityFeed li {
+    grid-template-columns: 3.4rem 1.5rem minmax(0, 1fr);
+  }
+
+  .activityFeed em {
+    display: none;
+  }
+}
+
+/* Two columns hold down to ~375px; only the narrowest phones drop to one, so
+   the strip does not turn into six full-height rows of scroll. */
+@media (max-width: 22.5rem) {
+  .metricRail {
+    grid-template-columns: 1fr;
+    row-gap: 1.2rem;
+  }
+
+  .metricModule,
+  .metricModule:nth-child(2n + 1),
+  .metricModule:nth-child(3n + 1) {
+    border-left: 0;
+    padding-left: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flowLines path,
+  .mobileFlowLines path,
+  .brainVisual,
+  .entityButton {
+    animation: none !important;
+    transition: none !important;
+  }
 }

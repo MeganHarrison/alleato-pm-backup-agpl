@@ -27,6 +27,9 @@ import {
   endOfWeek,
   isToday,
   parseISO,
+  addDays,
+  addWeeks,
+  differenceInCalendarDays,
 } from "date-fns";
 import { cn } from "@/lib/utils";
 import {
@@ -111,6 +114,7 @@ interface BaseViewProps {
   onAddTask: (parentId?: string | null) => void;
   onQuickAddTask: (input: {
     name: string;
+    afterTaskId?: string | null;
     parentId?: string | null;
     status?: TaskStatus;
     startDate?: string | null;
@@ -1326,7 +1330,10 @@ export function ScheduleBoardView({
               onTaskClick={onTaskClick}
               onAddTask={() => onAddTask(null)}
               onQuickAddTask={(name, status) =>
-                onQuickAddTask({ name, status })
+                onQuickAddTask({
+                  name,
+                  status,
+                })
               }
               onUpdateTask={onUpdateTask}
               visibleFields={visibleCardFields}
@@ -1548,15 +1555,18 @@ export function ScheduleTimelineView({
     const result: Date[] = [];
     const start = startOfWeek(subMonths(currentDate, 1));
     for (let i = 0; i < 16; i++) {
-      result.push(new Date(start.getTime() + i * 7 * 24 * 60 * 60 * 1000));
+      result.push(addWeeks(start, i));
     }
     return result;
   }, [currentDate]);
 
   const timelineStart = weeks[0];
-  const timelineEnd = weeks[weeks.length - 1];
-  const totalDays = Math.ceil(
-    (timelineEnd.getTime() - timelineStart.getTime()) / (24 * 60 * 60 * 1000),
+  // Each header label owns a full week. Use an exclusive boundary after the
+  // final labeled week so clipping and percentage math share one interval.
+  const timelineEndExclusive = addDays(weeks[weeks.length - 1], 7);
+  const totalDays = differenceInCalendarDays(
+    timelineEndExclusive,
+    timelineStart,
   );
 
   // Calculate bar position and width for each task
@@ -1564,21 +1574,35 @@ export function ScheduleTimelineView({
     if (!task.start_date || !task.finish_date) return null;
 
     const startDate = parseISO(task.start_date);
-    const finishDate = parseISO(task.finish_date);
+    // Schedule finish dates are inclusive. Convert them to an exclusive
+    // boundary before intersecting with the visible Timeline interval.
+    const finishExclusive = addDays(parseISO(task.finish_date), 1);
+    if (
+      finishExclusive <= timelineStart ||
+      startDate >= timelineEndExclusive
+    ) {
+      return null;
+    }
 
-    const startOffset = Math.max(
-      0,
-      (startDate.getTime() - timelineStart.getTime()) / (24 * 60 * 60 * 1000),
+    const visibleStart =
+      startDate < timelineStart ? timelineStart : startDate;
+    const visibleFinishExclusive =
+      finishExclusive > timelineEndExclusive
+        ? timelineEndExclusive
+        : finishExclusive;
+    const startOffset = differenceInCalendarDays(
+      visibleStart,
+      timelineStart,
     );
-    const duration = Math.max(
+    const visibleDuration = Math.max(
       1,
-      (finishDate.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000),
+      differenceInCalendarDays(visibleFinishExclusive, visibleStart),
     );
 
     const left = (startOffset / totalDays) * 100;
-    const width = (duration / totalDays) * 100;
+    const width = (visibleDuration / totalDays) * 100;
 
-    return { left: `${left}%`, width: `${Math.min(width, 100 - left)}%` };
+    return { left: `${left}%`, width: `${width}%` };
   };
 
   return (
@@ -1707,7 +1731,7 @@ export function ScheduleTimelineView({
               <div
                 className="absolute top-0 bottom-0 w-0.5 bg-destructive opacity-70 z-10"
                 style={{
-                  left: `${((new Date().getTime() - timelineStart.getTime()) / (totalDays * 24 * 60 * 60 * 1000)) * 100}%`,
+                  left: `${(differenceInCalendarDays(new Date(), timelineStart) / totalDays) * 100}%`,
                 }}
               >
                 <div className="w-2 h-2 rounded-full bg-destructive -translate-x-[3px] -translate-y-1" />

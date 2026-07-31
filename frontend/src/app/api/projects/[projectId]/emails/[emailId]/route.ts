@@ -6,6 +6,7 @@ import { z, ZodError } from "zod";
 import { apiErrorResponse } from "@/lib/api-error";
 import { buildOwnEmailsFilter } from "@/lib/emails/access";
 import { createClient, getApiRouteUser } from "@/lib/supabase/server";
+import type { Database } from "@/types/database.types";
 
 interface RouteParams {
   params: Promise<{ projectId: string; emailId: string }>;
@@ -161,7 +162,7 @@ export const PUT = withApiGuardrails(
     const body = await request.json();
     const validated = updateEmailSchema.parse(body);
 
-    const updateData: Record<string, unknown> = {
+    const updateData: Database["public"]["Tables"]["project_emails"]["Update"] = {
       ...validated,
       updated_at: new Date().toISOString(),
     };

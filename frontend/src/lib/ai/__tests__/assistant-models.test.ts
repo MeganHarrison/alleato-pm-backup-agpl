@@ -20,7 +20,7 @@ describe("AI assistant model registry", () => {
   });
 
   it("keeps the default model on the AI SDK provider path", () => {
-    expect(DEFAULT_AI_ASSISTANT_MODEL).toBe("openai/gpt-5.4");
+    expect(DEFAULT_AI_ASSISTANT_MODEL).toBe("openai/gpt-5.5");
     expect(isDeepAgentsStrategistModelId(DEFAULT_AI_ASSISTANT_MODEL)).toBe(
       false,
     );

@@ -1,0 +1,58 @@
+{
+  "contractVersion": 1,
+  "taskId": "AAI-1303",
+  "riskLevel": "high",
+  "feature": "Content Studio creator operations and engagement",
+  "route": "/content?area=training",
+  "flows": [
+    {
+      "name": "Creator catalog governance",
+      "steps": [
+        "Open the authenticated Content Studio catalog",
+        "Review destination counts and creator-focused columns",
+        "Select a catalog row and open shared bulk editing",
+        "Confirm display area, owner, reviewer, and review-date fields"
+      ],
+      "expectedOutcome": "Creators can understand and govern one catalog while engagement remains truthful about tracked and untracked content"
+    }
+  ],
+  "requiredEvidence": [
+    "actionLog",
+    "databaseReadback",
+    "negativePath",
+    "visualReview",
+    "regressionTest"
+  ],
+  "visual": {
+    "viewports": ["desktop", "mobile"],
+    "checks": [
+      "Four destination tabs show counts",
+      "Creator columns and bulk governance controls remain usable",
+      "The 390px layout separates title, controls, and catalog cards"
+    ]
+  },
+  "independentReview": { "required": true },
+  "claims": [
+    {
+      "id": "creator-workspace",
+      "description": "One catalog exposes destination, governance, and engagement operations",
+      "evidence": [
+        { "key": "actionLog", "min": 1 },
+        { "key": "visualReview", "min": 2 }
+      ]
+    },
+    {
+      "id": "database-contract",
+      "description": "Aggregate reads and bounded bulk writes are app-admin-only and fail loudly",
+      "evidence": [
+        { "key": "databaseReadback", "min": 1 },
+        { "key": "negativePath", "min": 1 }
+      ]
+    },
+    {
+      "id": "regression-safety",
+      "description": "Dates, engagement labels, manager choices, and shared table behavior have focused regression coverage",
+      "evidence": [{ "key": "regressionTest", "min": 1 }]
+    }
+  ]
+}

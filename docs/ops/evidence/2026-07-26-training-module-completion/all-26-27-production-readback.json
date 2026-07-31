@@ -1,0 +1,90 @@
+{
+  "captured_at": "2026-07-26T23:11:00Z",
+  "production_origin": "https://projects.alleatogroup.com",
+  "deployment": {
+    "id": "dpl_Axr3ErDXpUJqvUUNfSj9oYfEgSpM",
+    "status": "Ready",
+    "commit_sha": "6e8ee635d5bca4019360648b69312b23b24b84be"
+  },
+  "session": {
+    "name": "training-completion2",
+    "authentication": "existing Alleato app-admin session"
+  },
+  "routes": {
+    "/training": {
+      "heading": "Own Your Growth",
+      "section_label": "CHOOSE A PATH",
+      "shared_navigation": [
+        "Home",
+        "Training Library",
+        "The Method",
+        "AI Prompts"
+      ],
+      "coming_soon_modules": 2,
+      "desktop": {
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "document_scroll_width": 1440,
+        "document_client_width": 1440,
+        "horizontal_overflow": false,
+        "screenshot": "all-26-hub-desktop.png"
+      },
+      "mobile": {
+        "viewport": {
+          "width": 375,
+          "height": 812
+        },
+        "document_scroll_width": 375,
+        "document_client_width": 375,
+        "horizontal_overflow": false,
+        "screenshot": "all-26-hub-mobile.png"
+      }
+    },
+    "/training/library": {
+      "heading": "Training Library",
+      "written_guides": true,
+      "filters": [
+        "Role",
+        "Track",
+        "Type",
+        "Depth"
+      ],
+      "search": true,
+      "review_queue": true,
+      "resource_links": true,
+      "screenshot": "all-26-library-desktop.png"
+    },
+    "/training/method": {
+      "heading": "The Method, at a Glance",
+      "principles": true,
+      "six_step_loop": true,
+      "scoring_rubric": true,
+      "quick_toolkit": true,
+      "readiness_checklist": true,
+      "horizontal_overflow": false,
+      "screenshot": "all-27-method-desktop.png"
+    },
+    "/training/prompts": {
+      "heading": "AI Prompt Starters",
+      "prompt_count": 6,
+      "copy_interaction": {
+        "automation_clipboard_permission": "denied",
+        "failure_reported": true,
+        "manual_fallback_reported": true,
+        "recovery_message": "Could not copy this prompt. Select the text and copy it manually."
+      },
+      "screenshot": "all-27-prompts-desktop.png"
+    }
+  },
+  "browser_diagnostics": {
+    "uncaught_page_errors": [],
+    "console": {
+      "training_related_errors": [],
+      "unrelated_errors": [
+        "Google One Tap FedCM token retrieval reported NetworkError in the authenticated automation context."
+      ]
+    }
+  }
+}

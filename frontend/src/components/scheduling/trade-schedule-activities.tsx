@@ -14,6 +14,11 @@ type TradeScheduleActivity = {
 
 type TradeActivitiesResponse = {
   revisionId: string;
+  visibility: {
+    type: "company" | "person";
+    companyId: string | null;
+    label: string;
+  };
   data: TradeScheduleActivity[];
 };
 
@@ -22,7 +27,8 @@ type Props = { projectId: string; revisionId?: string | null };
 /**
  * The canonical Schedule page's narrow read surface for a trade member. The API
  * is the authorization boundary and returns only published snapshots assigned
- * to the current membership; this component never fetches broad live tasks.
+ * to the caller or active project members in the caller's company. This
+ * component never fetches broad live tasks.
  */
 export function TradeScheduleActivities({ projectId, revisionId }: Props) {
   const [data, setData] = useState<TradeActivitiesResponse | null>(null);
@@ -41,25 +47,55 @@ export function TradeScheduleActivities({ projectId, revisionId }: Props) {
   }, [projectId, revisionId]);
 
   if (error) return <InfoAlert variant="error" role="alert">Assigned activities unavailable: {error}</InfoAlert>;
-  if (!data || data.data.length === 0) return null;
+  if (!data) {
+    return (
+      <p className="text-sm text-muted-foreground" role="status">
+        Loading assigned schedule activities…
+      </p>
+    );
+  }
+
+  const isCompanyScope = data.visibility.type === "company";
+  const heading = isCompanyScope
+    ? "Company assigned activities"
+    : "My assigned activities";
 
   return (
-    <section aria-label="My assigned schedule activities" className="space-y-2 border-y py-4">
+    <section
+      aria-label={
+        isCompanyScope
+          ? "Company assigned schedule activities"
+          : "My assigned schedule activities"
+      }
+      className="space-y-2 border-y py-4"
+    >
       <div className="flex items-baseline justify-between gap-3">
-        <SectionRuleHeading label="My assigned activities" className="mb-0 pb-0" />
-        <p className="text-xs text-muted-foreground">Published schedule</p>
+        <SectionRuleHeading
+          label={heading}
+          className="mb-0 pb-0"
+        />
+        <p className="text-xs text-muted-foreground">
+          {data.visibility.label} · Published schedule
+        </p>
       </div>
-      <div className="divide-y">
-        {data.data.map((activity) => (
-          <Link
-            key={activity.sourceTaskId}
-            href={`/${projectId}/schedule?task_id=${encodeURIComponent(activity.sourceTaskId)}`}
-            className="block py-2 text-sm underline-offset-4 hover:underline"
-          >
-            {activity.name}
-          </Link>
-        ))}
-      </div>
+      {data.data.length === 0 ? (
+        <p className="text-sm text-muted-foreground" role="status">
+          No published schedule activities are assigned to{" "}
+          {isCompanyScope ? data.visibility.label : "you"}.
+        </p>
+      ) : (
+        <div className="divide-y">
+          {data.data.map((activity) => (
+            <Link
+              key={activity.sourceTaskId}
+              href={`/${projectId}/schedule?task_id=${encodeURIComponent(activity.sourceTaskId)}`}
+              className="block py-2 text-sm underline-offset-4 hover:underline"
+            >
+              {activity.name}
+            </Link>
+          ))}
+        </div>
+      )}
     </section>
   );
 }

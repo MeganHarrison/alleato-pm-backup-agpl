@@ -11,6 +11,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { InfoAlert } from "./InfoAlert";
 
 interface ConfirmDeleteDialogProps {
   open: boolean;
@@ -25,6 +26,7 @@ interface ConfirmDeleteDialogProps {
   confirmLabel?: string;
   onConfirm: () => void | Promise<void>;
   isDeleting?: boolean;
+  error?: string | null;
 }
 
 export function ConfirmDeleteDialog({
@@ -36,6 +38,7 @@ export function ConfirmDeleteDialog({
   confirmLabel = "Delete",
   onConfirm,
   isDeleting = false,
+  error,
 }: ConfirmDeleteDialogProps) {
   const resolvedTitle = title ?? (itemName ? `Delete ${itemName}?` : "Delete this item?");
   const resolvedDescription =
@@ -53,6 +56,11 @@ export function ConfirmDeleteDialog({
           <AlertDialogTitle>{resolvedTitle}</AlertDialogTitle>
           <AlertDialogDescription>{resolvedDescription}</AlertDialogDescription>
         </AlertDialogHeader>
+        {error ? (
+          <InfoAlert variant="error" role="alert">
+            {error}
+          </InfoAlert>
+        ) : null}
         <AlertDialogFooter>
           <Button
             type="button"

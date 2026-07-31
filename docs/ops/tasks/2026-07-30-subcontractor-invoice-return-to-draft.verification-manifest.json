@@ -1,0 +1,90 @@
+{
+  "contractVersion": 1,
+  "taskId": "ALL-55",
+  "feature": "Return unsynced subcontractor invoices to Draft for editing",
+  "route": "/1149/commitments/1ab839e9-a3bc-4b81-a72f-197aa6cd66b5/invoices/8268",
+  "riskLevel": "high",
+  "flows": [
+    {
+      "name": "Return an unsynced invoice under review to Draft",
+      "steps": [
+        "Open APP-01 while its status is Under Review and all accounting sync markers are empty",
+        "Choose Return to Draft & Edit from the Actions menu",
+        "Refresh the canonical invoice and open the Summary editor"
+      ],
+      "expectedOutcome": "APP-01 becomes Draft and its existing Summary and SOV editors are available"
+    },
+    {
+      "name": "Protect accounting-owned and terminal invoices",
+      "steps": [
+        "Attempt the reverse transition with an accounting sync marker",
+        "Attempt an arbitrary workflow transition or mixed field edit",
+        "Attempt a stale write after the invoice status or sync state changes"
+      ],
+      "expectedOutcome": "Every protected or stale mutation is rejected with a specific conflict"
+    },
+    {
+      "name": "Preserve authenticated editing and audit attribution",
+      "steps": [
+        "Exercise an existing Draft invoice edit as an authorized invoice contact",
+        "Exercise the manager-only return-to-Draft transition",
+        "Read back the status audit actor and guarded line-item behavior"
+      ],
+      "expectedOutcome": "Existing Draft editing remains valid while manager workflow actions and audit attribution are enforced at the database boundary"
+    }
+  ],
+  "requiredEvidence": [
+    "databaseReadback",
+    "regressionTest",
+    "negativePath",
+    "browserProof",
+    "summary"
+  ],
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "draft-reopen",
+      "description": "An authorized manager can return an unsynced under-review invoice to Draft and enter its existing editor",
+      "evidence": [
+        {
+          "key": "browserProof",
+          "min": 1
+        },
+        {
+          "key": "regressionTest",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "accounting-boundary",
+      "description": "Accounting-linked, stale, and invalid workflow mutations fail closed",
+      "evidence": [
+        {
+          "key": "negativePath",
+          "min": 1
+        },
+        {
+          "key": "databaseReadback",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "audit-and-editing",
+      "description": "Existing Draft editing remains supported and workflow audit attribution is transactional",
+      "evidence": [
+        {
+          "key": "databaseReadback",
+          "min": 1
+        },
+        {
+          "key": "regressionTest",
+          "min": 1
+        }
+      ]
+    }
+  ]
+}

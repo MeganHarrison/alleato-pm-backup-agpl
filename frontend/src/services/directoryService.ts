@@ -702,4 +702,87 @@ export class DirectoryService {
       throw error;
     }
   }
+
+  /**
+   * Project-scoped permission read for a single person: their assigned
+   * template's rules, any granular per-flag overrides on top of it, and the
+   * merged "effective" result the app should actually enforce.
+   */
+  async getUserPermissions(
+    projectId: string,
+    personId: string,
+  ): Promise<{
+    override_permissions: Array<{ flag: string; effect: string }>;
+    template_permissions: Record<string, unknown>;
+    effective_permissions: Record<string, unknown>;
+  }> {
+    const projectIdNum = Number.parseInt(projectId, 10);
+
+    const { data: membership } = await this.supabase
+      .from("project_directory_memberships")
+      .select("permission_template:permission_templates(rules_json)")
+      .eq("project_id", projectIdNum)
+      .eq("person_id", personId)
+      .maybeSingle();
+
+    const templatePermissions =
+      (membership?.permission_template?.rules_json as Record<string, unknown> | null) ?? {};
+
+    const { data: overrides, error } = await this.supabase
+      .from("user_granular_permission_overrides")
+      .select("flag, effect")
+      .eq("person_id", personId)
+      .eq("project_id", projectIdNum);
+
+    if (error) throw error;
+
+    const effectivePermissions: Record<string, unknown> = { ...templatePermissions };
+    for (const override of overrides ?? []) {
+      effectivePermissions[override.flag] = override.effect === "allow";
+    }
+
+    return {
+      override_permissions: overrides ?? [],
+      template_permissions: templatePermissions,
+      effective_permissions: effectivePermissions,
+    };
+  }
+
+  /**
+   * Replaces a person's granular permission overrides for a project with the
+   * given set. Template assignment is unaffected — this only manages the
+   * per-flag exceptions layered on top of it.
+   */
+  async updateUserPermissions(
+    projectId: string,
+    personId: string,
+    permissions: Array<{ flag: string; effect: string }>,
+    updatedBy: string,
+  ): Promise<void> {
+    const projectIdNum = Number.parseInt(projectId, 10);
+
+    const { error: deleteError } = await this.supabase
+      .from("user_granular_permission_overrides")
+      .delete()
+      .eq("project_id", projectIdNum)
+      .eq("person_id", personId);
+
+    if (deleteError) throw deleteError;
+
+    if (permissions.length === 0) return;
+
+    const { error: insertError } = await this.supabase
+      .from("user_granular_permission_overrides")
+      .insert(
+        permissions.map((permission) => ({
+          project_id: projectIdNum,
+          person_id: personId,
+          flag: permission.flag,
+          effect: permission.effect,
+          updated_by: updatedBy,
+        })),
+      );
+
+    if (insertError) throw insertError;
+  }
 }

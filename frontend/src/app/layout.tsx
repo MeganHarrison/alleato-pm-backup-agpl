@@ -1,25 +1,28 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
-import { Suspense } from "react";
+import { Inter, Oswald } from "next/font/google";
 import { ThemeProvider } from "@/components/providers/theme-provider";
-import { QueryProvider } from "@/components/providers/query-provider";
-import { PostHogProvider } from "@/components/providers/posthog-provider";
-import { HeaderProvider } from "@/components/layout/header-context";
-import { ProjectProvider } from "@/contexts/project-context";
-import { FavoritesProvider } from "@/contexts/favorites-context";
 import { Toaster } from "@/components/ui/sonner";
-import { Providers } from "./Providers";
-import { RootClientWidgets } from "./root-client-widgets";
 import { ChunkLoadErrorRecovery } from "@/components/providers/chunk-error-recovery";
-import { VeltAuthProvider } from "@/components/velt/VeltAuthProvider";
-import { SpeedInsights } from "@vercel/speed-insights/next";
-import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { DEFAULT_APP_METADATA_TITLE } from "@/lib/app-metadata";
 import "./globals.css";
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
+  display: "swap",
+});
+
+/**
+ * Oswald — primary heading typeface (tall condensed grotesque), app-wide.
+ * House style is Book (400) + UPPERCASE; the shared token in globals.css keeps
+ * every title on the same weight and spacing contract. The heavier cuts are
+ * loaded for the small heading-label classes (eyebrows, badges), which keep
+ * their own weight at ~11px rather than dropping to Book.
+ */
+const oswald = Oswald({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-oswald",
   display: "swap",
 });
 
@@ -57,7 +60,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${inter.variable} font-sans`}
+      className={`${inter.variable} ${oswald.variable} font-sans`}
       data-scroll-behavior="smooth"
     >
       <body
@@ -65,35 +68,15 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <ChunkLoadErrorRecovery>
-        <NuqsAdapter>
-        <QueryProvider>
           <ThemeProvider
             attribute="class"
             defaultTheme="system"
             enableSystem
             disableTransitionOnChange
           >
-            <Suspense fallback={null}>
-              <Providers>
-                <PostHogProvider>
-                  <ProjectProvider>
-                    <FavoritesProvider>
-                      <HeaderProvider>
-                        <VeltAuthProvider>
-                          {children}
-                          <RootClientWidgets />
-                        </VeltAuthProvider>
-                      </HeaderProvider>
-                    </FavoritesProvider>
-                  </ProjectProvider>
-                </PostHogProvider>
-              </Providers>
-            </Suspense>
+            {children}
             <Toaster />
-            <SpeedInsights />
           </ThemeProvider>
-        </QueryProvider>
-        </NuqsAdapter>
         </ChunkLoadErrorRecovery>
       </body>
     </html>

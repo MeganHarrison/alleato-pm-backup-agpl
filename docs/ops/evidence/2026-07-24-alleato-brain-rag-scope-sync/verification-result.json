@@ -1,0 +1,26 @@
+{
+  "status": "PASS",
+  "observedStatus": "PASS",
+  "taskId": "ALL-11-RAG-SCOPE-SYNC",
+  "evidence": {
+    "regressionTest": ["docs/ops/evidence/2026-07-24-alleato-brain-rag-scope-sync/verification.md"],
+    "databaseReadback": ["docs/ops/evidence/2026-07-24-alleato-brain-rag-scope-sync/verification.md"],
+    "summary": ["docs/ops/evidence/2026-07-24-alleato-brain-rag-scope-sync/independent-review.md"]
+  },
+  "claims": {
+    "stable-scope-sync": {
+      "regressionTest": ["docs/ops/evidence/2026-07-24-alleato-brain-rag-scope-sync/verification.md"],
+      "databaseReadback": ["docs/ops/evidence/2026-07-24-alleato-brain-rag-scope-sync/verification.md"]
+    },
+    "fail-loudly": {
+      "regressionTest": ["docs/ops/evidence/2026-07-24-alleato-brain-rag-scope-sync/verification.md"],
+      "summary": ["docs/ops/evidence/2026-07-24-alleato-brain-rag-scope-sync/independent-review.md"]
+    }
+  },
+  "independentReview": {
+    "reviewer": "Independent Codex high-risk review",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-07-24T05:53:17Z",
+    "artifact": "docs/ops/evidence/2026-07-24-alleato-brain-rag-scope-sync/independent-review.md"
+  }
+}

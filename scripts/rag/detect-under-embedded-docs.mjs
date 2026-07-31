@@ -39,8 +39,7 @@ const CATEGORY = flag("category", null);
 const SINCE = flag("since", null); // ISO date (YYYY-MM-DD); only scan docs created on/after this
 const DO_FIX = has("fix");
 const CONCURRENCY = 8;
-const WORKFLOW_SECRET =
-  process.env.RAG_PIPELINE_WORKFLOW_SECRET?.trim();
+const ADMIN_API_KEY = process.env.ADMIN_API_KEY?.trim();
 
 // Statuses that mean "deliberately not embedded" — NOT under-embedding bugs.
 // `intentionally_excluded` covers interview titles (see embedder `_is_interview_title`);
@@ -58,11 +57,7 @@ const PM_KEY =
   process.env.SUPABASE_SECRET_KEY;
 const RAG_URL = process.env.RAG_SUPABASE_URL;
 const RAG_KEY = process.env.RAG_SUPABASE_SERVICE_ROLE_KEY;
-const APP_URL = (
-  process.env.ALLEATO_APP_URL ||
-  process.env.NEXT_PUBLIC_APP_URL ||
-  "https://projects.alleatogroup.com"
-).replace(/\/+$/, "");
+const BACKEND_URL = process.env.BACKEND_URL || process.env.PYTHON_BACKEND_URL;
 
 if (!PM_URL || !PM_KEY || !RAG_URL || !RAG_KEY) {
   console.error(
@@ -106,18 +101,15 @@ async function ragContentLen(documentId) {
 }
 
 async function reembed(documentId) {
-  if (!WORKFLOW_SECRET) {
-    throw new Error(
-      "RAG_PIPELINE_WORKFLOW_SECRET not set — cannot --fix",
-    );
-  }
-  const res = await fetch(`${APP_URL}/api/rag-pipeline/process`, {
+  if (!BACKEND_URL) throw new Error("BACKEND_URL not set — cannot --fix");
+  if (!ADMIN_API_KEY) throw new Error("ADMIN_API_KEY not set ? cannot --fix");
+  const res = await fetch(`${BACKEND_URL.replace(/\/$/, "")}/api/pipeline/process`, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${WORKFLOW_SECRET}`,
       "Content-Type": "application/json",
+      "x-admin-api-key": ADMIN_API_KEY,
     },
-    body: JSON.stringify({ documentId }),
+    body: JSON.stringify({ metadataId: documentId }),
   });
   if (!res.ok) throw new Error(`reembed ${res.status}: ${(await res.text()).slice(0, 200)}`);
   return res.json();
@@ -200,7 +192,7 @@ async function main() {
   }
 
   if (DO_FIX) {
-    console.log(`\nRe-embedding ${flagged.length} doc(s) via ${APP_URL}/api/rag-pipeline/process ...`);
+    console.log(`\nRe-embedding ${flagged.length} doc(s) via ${BACKEND_URL}/api/pipeline/process ...`);
     for (const f of flagged) {
       try {
         await reembed(f.id);

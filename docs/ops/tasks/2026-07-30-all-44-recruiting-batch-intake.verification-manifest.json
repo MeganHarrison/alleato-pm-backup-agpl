@@ -1,0 +1,142 @@
+{
+  "contractVersion": 1,
+  "taskId": "ALL-44",
+  "riskLevel": "high",
+  "feature": "Recruiting batch resume intake and guarded human review",
+  "route": "/recruiting",
+  "flows": [
+    {
+      "name": "Batch intake, replay, assignment, and disposition",
+      "steps": [
+        "Authenticate as an authorized recruiting user",
+        "Upload two approved synthetic resumes as one batch",
+        "Replay the same batch key after simulated response loss",
+        "Open an original resume through the inline signed viewer",
+        "Assign an unassigned candidate to an open UAT requisition",
+        "Mark the application Not Qualified with a required reason",
+        "Clean up all synthetic candidates and storage objects"
+      ],
+      "expectedOutcome": "Each file has a visible result, replay is exact and repairs missing storage without consuming more rate attempts, the resume opens inline, assignment occurs once, Not Qualified is audited through the guarded RPC, and cleanup leaves no final-run records."
+    }
+  ],
+  "requiredEvidence": [
+    "screenshots",
+    "videos",
+    "actionLog",
+    "databaseReadback",
+    "reloadProof",
+    "negativePath",
+    "visualReview",
+    "regressionTest",
+    "summary"
+  ],
+  "visual": {
+    "viewports": [
+      "desktop",
+      "mobile"
+    ],
+    "checks": [
+      "Per-file batch results and the unassigned inbox are readable",
+      "Assignment and original-resume controls are usable",
+      "The Not Qualified outcome is visibly confirmed",
+      "The mobile route has no document-level horizontal overflow"
+    ]
+  },
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "batch-intake-results",
+      "description": "Two approved resumes upload together with visible per-file results and unassigned candidates.",
+      "evidence": [
+        {
+          "key": "screenshots",
+          "min": 1
+        },
+        {
+          "key": "actionLog",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "exact-replay-and-recovery",
+      "description": "A response-loss replay returns the same records, consumes no additional rate attempts, and restores a missing storage object.",
+      "evidence": [
+        {
+          "key": "reloadProof",
+          "min": 1
+        },
+        {
+          "key": "databaseReadback",
+          "min": 1
+        },
+        {
+          "key": "regressionTest",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "inline-view-and-assignment",
+      "description": "An authorized recruiter opens the original resume inline and assigns the unassigned candidate once.",
+      "evidence": [
+        {
+          "key": "videos",
+          "min": 1
+        },
+        {
+          "key": "actionLog",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "audited-not-qualified",
+      "description": "Direct outcome writes fail and the guarded disposition RPC records a human Not Qualified decision with a reason.",
+      "evidence": [
+        {
+          "key": "negativePath",
+          "min": 1
+        },
+        {
+          "key": "databaseReadback",
+          "min": 1
+        },
+        {
+          "key": "regressionTest",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "responsive-visual-state",
+      "description": "Desktop and mobile evidence shows a usable recruiting workflow without document overflow.",
+      "evidence": [
+        {
+          "key": "screenshots",
+          "min": 3
+        },
+        {
+          "key": "visualReview",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "cleanup-and-role-readback",
+      "description": "Synthetic records are cleaned and no stale app-admin recruiting-role snapshots remain.",
+      "evidence": [
+        {
+          "key": "databaseReadback",
+          "min": 1
+        },
+        {
+          "key": "summary",
+          "min": 1
+        }
+      ]
+    }
+  ]
+}

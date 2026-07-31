@@ -99,7 +99,6 @@ export const staticRoutes: SitemapRoute[] = [
   { url: "/directory/vendors", title: "Vendors", category: "Directory", type: "list", dynamic: false },
   { url: "/directory/employees", title: "Employees", category: "Directory", type: "list", dynamic: false },
   { url: "/directory/users", title: "Users", category: "Directory", type: "list", dynamic: false },
-  { url: "/directory/prospects", title: "Prospects", category: "Directory", type: "list", dynamic: false },
   { url: "/directory/groups", title: "Distribution Groups", category: "Directory", type: "list", dynamic: false },
 
   // Settings

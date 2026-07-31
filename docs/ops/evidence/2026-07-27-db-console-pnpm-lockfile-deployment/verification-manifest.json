@@ -1,0 +1,54 @@
+{
+  "contractVersion": 1,
+  "taskId": "LOCAL-2026-07-27-db-console-pnpm-lockfile-deployment",
+  "riskLevel": "high",
+  "feature": "DB Console preview dependency installation",
+  "route": "Vercel preview for claude/focused-sutherland-a4eb55",
+  "flows": [
+    {
+      "name": "Frozen frontend dependency install",
+      "steps": [
+        "Install from frontend with pnpm 10.13.1",
+        "Require the committed pnpm lockfile without mutation",
+        "Inspect the branch preview deployment"
+      ],
+      "expectedOutcome": "The frozen install succeeds and the Vercel preview reaches Ready without ERR_PNPM_OUTDATED_LOCKFILE"
+    }
+  ],
+  "requiredEvidence": [
+    "actionLog",
+    "summary",
+    "providerReadback",
+    "negativePath",
+    "regressionTest"
+  ],
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "lockfile-synchronized",
+      "description": "The pnpm lockfile contains the exact frontend dependency specifiers",
+      "evidence": [
+        {
+          "key": "regressionTest",
+          "min": 1
+        },
+        {
+          "key": "negativePath",
+          "min": 1
+        }
+      ]
+    },
+    {
+      "id": "preview-install-restored",
+      "description": "Vercel accepts the frozen pnpm install and completes the branch preview",
+      "evidence": [
+        {
+          "key": "providerReadback",
+          "min": 1
+        }
+      ]
+    }
+  ]
+}

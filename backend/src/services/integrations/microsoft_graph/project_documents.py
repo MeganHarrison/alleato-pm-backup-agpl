@@ -58,6 +58,16 @@ def source_path(folder_path: str, name: str) -> str:
     return str(PurePosixPath(clean_folder) / name)
 
 
+def graph_item_source_path(folder_path: str, item: dict, name: str) -> str:
+    """Prefer Graph's actual parent path over the configured discovery root."""
+    parent_path = str((item.get("parentReference") or {}).get("path") or "")
+    if "root:/" in parent_path:
+        parent_path = parent_path.split("root:/", 1)[1]
+    else:
+        parent_path = parent_path.lstrip("/")
+    return source_path(parent_path or folder_path, name)
+
+
 def graph_id_safe(value: Any) -> Optional[str]:
     if value is None:
         return None
@@ -89,7 +99,8 @@ def project_document_payload_from_graph_item(
     modified = item.get("lastModifiedDateTime") or item.get("source_last_modified_at") or item.get("date")
     content_type = mimetypes.guess_type(name)[0] or "application/octet-stream"
     parent_ref = item.get("parentReference") or {}
-    item_source_path = source_path(folder_path, name)
+    item_source_path = graph_item_source_path(folder_path, item, name)
+    item_parent_path = str(PurePosixPath(item_source_path).parent)
     source_label = source_system_label(source_system)
     source_metadata = {
         "graph_source": source_label.lower(),
@@ -101,7 +112,11 @@ def project_document_payload_from_graph_item(
 
     return {
         "project_id": project_id,
-        "folder": folder_path.strip("/") or source_label,
+        "folder": (
+            item_parent_path
+            if item_parent_path not in {"", "."}
+            else folder_path.strip("/") or source_label
+        ),
         "title": name,
         "description": f"Synced from {source_label}: {item_source_path}",
         "file_name": name,

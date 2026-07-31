@@ -21,7 +21,7 @@ jest.mock("chat", () => ({
   }),
 }));
 
-jest.mock("@/lib/bot/teams-delivery", () => ({
+jest.mock("@/lib/bot/teams-chat", () => ({
   sendProactiveCard: (...args: unknown[]) => mockSendProactiveCard(...args),
 }));
 

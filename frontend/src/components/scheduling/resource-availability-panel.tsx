@@ -14,6 +14,7 @@ import { DateField } from "@/components/forms/DateField";
 import { SectionRuleHeading } from "@/components/layout/spacing";
 import { ResourceCalendarDialog } from "@/components/scheduling/resource-calendar-dialog";
 import { EnterpriseSchedulingPanel } from "@/components/scheduling/enterprise-scheduling-panel";
+import { ScheduleResourceCostPanel } from "@/components/scheduling/schedule-resource-cost-panel";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { calculateScheduleResourceAllocation } from "@/lib/scheduling/schedule-resource-allocation";
@@ -43,6 +44,7 @@ interface ResourceAvailabilityPanelProps {
   error?: string | null;
   onRetry?: () => void;
   today?: string;
+  defaultOpen?: boolean;
   calendarReady?: boolean;
   capacityRange?: ScheduleResourceCapacityRangeResponse | null;
   isCapacityRangeLoading?: boolean;
@@ -133,6 +135,7 @@ export function ResourceAvailabilityPanel({
   error = null,
   onRetry,
   today = formatLocalScheduleDate(),
+  defaultOpen = false,
   calendarReady = true,
   capacityRange = null,
   isCapacityRangeLoading = false,
@@ -157,7 +160,7 @@ export function ResourceAvailabilityPanel({
     () => addWorkingDays(initialStart, 9, calendar),
     [calendar, initialStart],
   );
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
   const [start, setStart] = useState(initialStart);
   const [finish, setFinish] = useState(initialFinish);
   const [rangeTouched, setRangeTouched] = useState(false);
@@ -646,12 +649,15 @@ export function ResourceAvailabilityPanel({
           )}
 
           {projectId && roster && (
-            <EnterpriseSchedulingPanel
-              projectId={projectId}
-              roster={roster}
-              calendar={calendar}
-              onScheduleChanged={onScheduleChanged}
-            />
+            <>
+              <ScheduleResourceCostPanel projectId={projectId} tasks={tasks} />
+              <EnterpriseSchedulingPanel
+                projectId={projectId}
+                roster={roster}
+                calendar={calendar}
+                onScheduleChanged={onScheduleChanged}
+              />
+            </>
           )}
         </div>
       )}

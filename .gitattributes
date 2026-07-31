@@ -1,6 +1,10 @@
 # Vendor-distributed PDF.js Express assets preserve upstream whitespace.
-*.sh text eol=lf
 frontend/public/webviewer/** -whitespace
+
+# Shell entrypoints must remain executable by Git Bash on Windows. Without an
+# explicit EOL contract, core.autocrlf produces `set: pipefail\r` failures.
+*.sh text eol=lf
+.husky/* text eol=lf
 .agents/skills/design/design-md.md/SKILL.md -whitespace
 .agents/skills/design/design-md.md/examples/DESIGN.md -whitespace
 .agents/skills/parity-audit/SKILL.md -whitespace

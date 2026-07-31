@@ -438,9 +438,7 @@ Assistant rules:
 
 AI SDK MCP tool contract:
 
-- `agents/alleato-assistant/**` is the only AI Assistant generation runtime;
-  browser streaming enters through
-  `frontend/src/app/api/ai-assistant/eve/proxy/**`.
+- `frontend/src/app/api/ai-assistant/chat/handler-v2.ts` is the live AI assistant stream path.
 - `frontend/src/lib/ai/tools/mcp-tools.ts` is the only production MCP discovery helper for the assistant.
 - `@ai-sdk/mcp` is used through `createMCPClient`; MCP tools are discovered per request, policy-filtered, prefixed by server, and merged into the `streamText` Strategist toolset.
 - Discovery success and failure records are appended to `chat_history.metadata.tool_trace` so MCP availability is visible to health, eval, and debugging workflows.

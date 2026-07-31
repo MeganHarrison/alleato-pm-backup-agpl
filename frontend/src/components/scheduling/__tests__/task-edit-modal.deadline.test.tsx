@@ -4,6 +4,22 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { TaskEditModal } from "../task-edit-modal";
 import type { ScheduleTask } from "@/types/scheduling";
 
+jest.mock("@/lib/api-client", () => ({
+  apiFetch: jest.fn((url: string) =>
+    Promise.resolve(
+      url.endsWith("/contacts")
+        ? []
+        : {
+            data: {
+              task_id: "task-1",
+              task_version: 1,
+              state: { task: {}, segments: [] },
+            },
+          },
+    ),
+  ),
+}));
+
 const task: ScheduleTask = {
   id: "framing",
   project_id: 43,
@@ -30,7 +46,7 @@ const task: ScheduleTask = {
 };
 
 describe("TaskEditModal deadline integration", () => {
-  it("shows the persisted deadline in the canonical task modal", () => {
+  it("shows the persisted deadline in the canonical task modal", async () => {
     render(
       <TaskEditModal
         open
@@ -46,6 +62,7 @@ describe("TaskEditModal deadline integration", () => {
       />,
     );
 
+    await screen.findByText("No hourly segments. The task currently uses its date range.");
     expect(screen.getByLabelText("Deadline")).toHaveValue("2026-07-12");
   });
 
@@ -64,6 +81,7 @@ describe("TaskEditModal deadline integration", () => {
       />,
     );
 
+    await screen.findByText("No hourly segments. The task currently uses its date range.");
     fireEvent.change(screen.getByLabelText("Deadline"), { target: { value: "2026-07-19" } });
     fireEvent.click(screen.getByRole("button", { name: "Save deadline" }));
 
@@ -85,6 +103,7 @@ describe("TaskEditModal deadline integration", () => {
       />,
     );
 
+    await screen.findByText("No hourly segments. The task currently uses its date range.");
     fireEvent.change(screen.getByLabelText("Deadline"), { target: { value: "" } });
     fireEvent.click(screen.getByRole("button", { name: "Save deadline" }));
 

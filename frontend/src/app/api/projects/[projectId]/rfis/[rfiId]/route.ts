@@ -18,6 +18,7 @@ import { rfiEditSchema } from "@/lib/schemas/rfi-schema";
 import { RFI_RECIPIENT_UUID_PATTERN as UUID_PATTERN } from "@/lib/rfi/rfi-recipients";
 import { ZodError } from "zod";
 import { logger } from "@/lib/logger";
+import type { Database } from "@/types/database.types";
 
 type RouteParams = {
   params: Promise<{ projectId: string; rfiId: string }>;
@@ -108,7 +109,7 @@ export const PATCH = withApiGuardrails(
     }
 
     // Build update object from validated fields
-    const updateData: Record<string, unknown> = {
+    const updateData: Database["public"]["Tables"]["rfis"]["Update"] = {
       updated_at: new Date().toISOString(),
     };
 

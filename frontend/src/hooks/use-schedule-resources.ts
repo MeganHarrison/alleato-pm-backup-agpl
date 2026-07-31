@@ -9,6 +9,7 @@ import type {
   ScheduleResourceLevelingPreviewResult,
   ScheduleResourceRosterResponse,
   ScheduleTaskAssignment,
+  ScheduleTaskAssignmentExpectation,
   ScheduleTaskAssignmentInput,
 } from "@/types/scheduling";
 
@@ -43,6 +44,7 @@ interface UseScheduleResourcesReturn {
   replaceTaskAssignments: (
     taskId: string,
     assignments: ScheduleTaskAssignmentInput[],
+    expectedAssignments: ScheduleTaskAssignmentExpectation[],
   ) => Promise<ScheduleTaskAssignment[]>;
 }
 
@@ -312,13 +314,17 @@ export function useScheduleResources({
   const replaceTaskAssignments = useCallback(async (
     taskId: string,
     assignments: ScheduleTaskAssignmentInput[],
+    expectedAssignments: ScheduleTaskAssignmentExpectation[],
   ) => {
     const response = await apiFetch<{ data?: ScheduleTaskAssignment[] }>(
       `/api/projects/${projectId}/scheduling/tasks/${taskId}/assignments`,
       {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ assignments }),
+        body: JSON.stringify({
+          assignments,
+          expected_assignments: expectedAssignments,
+        }),
       },
     );
     await refetch();

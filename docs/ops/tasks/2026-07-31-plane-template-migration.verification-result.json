@@ -1,0 +1,15 @@
+{
+  "task": "AAI-PLANE-MIGRATION",
+  "status": "pass",
+  "checks": {
+    "focused-plane-contracts": "pass_30_tests",
+    "workspace-shell-navigation": "pass_3_tests",
+    "home-link-regression": "pass",
+    "stickies-focused": "pass_6_tests",
+    "route-gate": "pass",
+    "task-scoped-diff-check": "pass",
+    "production-schema-readback": "pass_lgveqfnpkxvzbnnwuled",
+    "migration-ledger": "pass_20260731231000_through_20260731231500",
+    "independent-source-review": "pass_no_unresolved_p0_p2_in_final_cutover_source"
+  }
+}

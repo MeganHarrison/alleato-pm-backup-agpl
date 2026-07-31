@@ -293,7 +293,7 @@ export interface RawPayment {
   Customer?: AcuField<string>;
   CustomerName?: AcuField<string>;
   ApplicationDate?: AcuField<string>;
-  Date: AcuField<string>;
+  Date?: AcuField<string>;
   FinancialPeriod?: AcuField<string>;
   Status: AcuField<string>;
   PaymentAmount: AcuField<number>;
@@ -314,7 +314,7 @@ export interface FlatPayment {
   Customer?: string;
   CustomerName?: string;
   ApplicationDate?: string;
-  Date: string;
+  Date?: string;
   FinancialPeriod?: string;
   Status: string;
   PaymentAmount: number;
@@ -337,7 +337,8 @@ export interface RawCheck {
   Type?: AcuField<string>;
   Vendor?: AcuField<string>;
   VendorName?: AcuField<string>;
-  Date: AcuField<string>;
+  ApplicationDate?: AcuField<string>;
+  Date?: AcuField<string>;
   FinancialPeriod?: AcuField<string>;
   Status: AcuField<string>;
   PaymentAmount: AcuField<number>;
@@ -355,7 +356,8 @@ export interface FlatCheck {
   Type?: string;
   Vendor?: string;
   VendorName?: string;
-  Date: string;
+  ApplicationDate?: string;
+  Date?: string;
   FinancialPeriod?: string;
   Status: string;
   PaymentAmount: number;

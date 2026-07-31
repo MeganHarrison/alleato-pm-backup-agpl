@@ -64,7 +64,7 @@ import {
 import {
   isPatternCEntityType,
   type PatternCEntityType,
-} from "@/lib/documents/pattern-c-attachment-types";
+} from "@/lib/documents/pattern-c-entity-types";
 import { apiFetch } from "@/lib/api-client";
 import { useUsers } from "@/hooks/use-users";
 import {

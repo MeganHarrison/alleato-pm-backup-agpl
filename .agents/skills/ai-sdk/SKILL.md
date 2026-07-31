@@ -10,33 +10,20 @@ The AI SDK by Vercel (the `ai` package on npm) is a TypeScript toolkit for build
 - Repository: https://github.com/vercel/ai
 - Documentation: https://ai-sdk.dev/docs
 
-## When This Skill Applies
-
-Use this skill when the task actually involves the Vercel AI SDK package or its
-official framework integrations. It is one option among the project's
-available skills and plugins; choose the capability that best matches the
-active implementation and the user's goal. Do not force an AI SDK
-investigation when another provider, SDK, or integration owns the behavior.
-
 ## Critical: Do Not Trust Your Own Memory
 
 Whatever you remember about the AI SDK is likely outdated. The SDK changes frequently across versions - APIs are renamed, removed, and added. Your training data almost certainly contains obsolete APIs, deprecated patterns, and model IDs that no longer exist. UI hooks like `useChat` are among the most frequently changed APIs, so be especially careful with client code.
 
-**Never write AI SDK code from memory.** When this skill is the appropriate fit
-and the task depends on AI SDK behavior, verify APIs, options, and patterns
-against the documentation and source code for the version actually used by the
-project.
+**Never write AI SDK code from memory.** Always verify every API, option, and pattern against the documentation and source code for the version that is actually installed in the project.
 
 ## Use the Bundled, Version-Matched Docs
 
-When the project uses the AI SDK package, its bundled documentation and source
-are useful version-matched references. Prefer them over memory, while following
-the documentation for the provider or SDK that actually owns the behavior when
-the project uses something else.
+The `ai` package ships its full documentation and source code inside `node_modules`. These always match the installed version, so trust them over anything you remember.
 
-1. If the project uses the AI SDK package, inspect the installed package and its bundled docs at `node_modules/ai/docs/` and source at `node_modules/ai/src/`.
-2. Provider and framework packages bundle their own docs at `node_modules/@ai-sdk/<name>/docs/`.
-3. If something isn't in the bundled docs, search https://ai-sdk.dev/docs. You can append `.md` to any docs page URL to get its markdown, and search via `https://ai-sdk.dev/api/search-docs?q=your_query`.
+1. Ensure `ai` is installed. If `node_modules/ai/` does not exist, install **only** the `ai` package using the project's package manager (e.g. `pnpm add ai`). Install provider packages (e.g. `@ai-sdk/openai`) and framework packages (e.g. `@ai-sdk/react`) later, when the task requires them.
+2. Read and grep the bundled docs at `node_modules/ai/docs/` and the source at `node_modules/ai/src/`.
+3. Provider and framework packages bundle their own docs at `node_modules/@ai-sdk/<name>/docs/`.
+4. If something isn't in the bundled docs, search https://ai-sdk.dev/docs. You can append `.md` to any docs page URL to get its markdown, and search via `https://ai-sdk.dev/api/search-docs?q=your_query`.
 5. If you cannot find support for an answer in the docs or source, say so explicitly — do not guess.
 
 ## AI Gateway: The Fastest Way to Start
@@ -77,9 +64,9 @@ AI SDK DevTools captures your AI SDK calls - requests, responses, tool calls, to
 
 For setup instructions, read the bundled DevTools documentation.
 
-## Check Version Currency When Relevant
+## Keep the SDK Current
 
-When the task depends on AI SDK version behavior, compare the installed version against the latest:
+Outdated installs are the most common source of errors. Compare the installed version against the latest:
 
 - **Installed:** the `version` field in `node_modules/ai/package.json`.
 - **Latest:** run `npm view ai version`.

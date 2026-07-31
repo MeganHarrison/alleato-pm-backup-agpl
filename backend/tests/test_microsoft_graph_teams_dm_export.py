@@ -1,3 +1,4 @@
+from src.services.ingestion.project_assignment import AssignmentTarget
 from src.services.integrations.microsoft_graph import teams
 from src.services.supabase_helpers import SupabaseRagStore as _RealSupabaseRagStore
 
@@ -158,7 +159,16 @@ def test_sync_user_chat_messages_uses_user_export_endpoint(monkeypatch):
             }
         ],
     )
-    monkeypatch.setattr(teams, "infer_project_id", lambda *_args, **_kwargs: (None, "none", 0.0))
+    monkeypatch.setattr(
+        teams,
+        "infer_assignment_target",
+        lambda *_args, **_kwargs: AssignmentTarget(
+            project_id=None,
+            business_area_id=None,
+            method="none",
+            confidence=0.0,
+        ),
+    )
     monkeypatch.setattr(teams, "SupabaseRagStore", _FakeRagStore)
     monkeypatch.setattr(teams, "get_rag_write_client", lambda: supabase)
 
@@ -191,6 +201,58 @@ def test_sync_user_chat_messages_uses_user_export_endpoint(monkeypatch):
     assert "Westfield owner billing" in rag_row["content"]
 
 
+def test_process_chat_message_preserves_existing_business_area(monkeypatch):
+    supabase = _FakeSupabase()
+    doc_id = teams._conversation_doc_id("teamsdm", "chat-1", "2026-05-06")
+    supabase.tables["document_metadata"] = [
+        {
+            "id": doc_id,
+            "participants": "Andrew Cannon",
+            "project_id": None,
+            "business_area_id": 3,
+            "source_metadata": {"existing": "metadata"},
+        }
+    ]
+    monkeypatch.setattr(
+        teams,
+        "_fetch_rag_document_text",
+        lambda _doc_id: (
+            "[Teams Direct Message Conversation: Andrew Cannon]\n"
+            "[message:prior] [2026-05-06 12:00:00] Andrew Cannon: "
+            "Existing finance conversation context."
+        ),
+    )
+    monkeypatch.setattr(
+        teams,
+        "infer_assignment_target",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(
+            AssertionError("existing Business Area must not be re-inferred")
+        ),
+    )
+    monkeypatch.setattr(teams, "SupabaseRagStore", _FakeRagStore)
+    monkeypatch.setattr(teams, "get_rag_write_client", lambda: supabase)
+
+    teams._process_chat_message(
+        supabase,
+        {
+            "id": "msg-new",
+            "messageType": "message",
+            "createdDateTime": "2026-05-06T13:00:00Z",
+            "from": {"user": {"displayName": "Andrew Cannon"}},
+            "body": {"content": "Please send the updated report to the team today."},
+        },
+        "chat-1",
+        "Andrew Cannon",
+        ["Andrew Cannon"],
+    )
+
+    row = supabase.tables["document_metadata"][0]
+    assert row["project_id"] is None
+    assert row["business_area_id"] == 3
+    assert "business_area_auto:existing_business_area" in row["tags"]
+    assert row["source_metadata"]["existing"] == "metadata"
+
+
 def test_process_teams_channel_thread_persists_replay_metadata(monkeypatch):
     supabase = _FakeSupabase()
 
@@ -207,7 +269,16 @@ def test_process_teams_channel_thread_persists_replay_metadata(monkeypatch):
                 }
             ]
 
-    monkeypatch.setattr(teams, "infer_project_id", lambda *_args, **_kwargs: (None, "none", 0.0))
+    monkeypatch.setattr(
+        teams,
+        "infer_assignment_target",
+        lambda *_args, **_kwargs: AssignmentTarget(
+            project_id=None,
+            business_area_id=None,
+            method="none",
+            confidence=0.0,
+        ),
+    )
     monkeypatch.setattr(teams, "SupabaseRagStore", _FakeRagStore)
     monkeypatch.setattr(teams, "get_rag_write_client", lambda: supabase)
 

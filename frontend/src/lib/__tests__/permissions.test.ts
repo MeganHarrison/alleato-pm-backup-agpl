@@ -300,6 +300,7 @@ describe("explicit module overrides", () => {
       "change_orders",
       "change_events",
       "emails",
+      "crm",
     ];
     const permissions: UserPermissions = {
       userId: "auth-user",

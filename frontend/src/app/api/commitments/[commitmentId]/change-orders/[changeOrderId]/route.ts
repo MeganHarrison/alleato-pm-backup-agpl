@@ -4,6 +4,7 @@ import { createClient, getApiRouteUser } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { apiErrorResponse } from "@/lib/api-error";
+import type { Database } from "@/types/database.types";
 
 // Zod schema for change order update
 const updateChangeOrderSchema = z.object({
@@ -170,13 +171,16 @@ export const PUT = withApiGuardrails<{ commitmentId: string; changeOrderId: stri
     }
 
     // Prepare update data
-    const updateData: Record<string, unknown> = {
+    const updateData: Database["public"]["Tables"]["contract_change_orders"]["Update"] = {
       ...validated,
+      // `description` and `requested_date` are NOT NULL on
+      // contract_change_orders — the schema allows null through so the
+      // client can send "unchanged", but the DB can't accept it.
+      description:
+        "description" in validated ? (validated.description ?? "") : undefined,
+      requested_date: validated.requested_date ?? undefined,
       updated_at: new Date().toISOString(),
     };
-    if ("description" in updateData) {
-      updateData.description = updateData.description ?? "";
-    }
 
     // If status is changing to approved, set approved_date and approved_by
     if (

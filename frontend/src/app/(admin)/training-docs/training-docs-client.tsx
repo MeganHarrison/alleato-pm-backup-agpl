@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Plus } from "lucide-react";
+import { Plus, ShieldCheck } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import type { TrainingDocWithAssets } from "@/lib/training-docs/types";
 import {
   useCreateTrainingDoc,
   useDeleteTrainingDoc,
+  useRunTrainingDocsQaBatch,
   useTrainingDocs,
   useUpdateTrainingDoc,
 } from "@/hooks/use-training-docs";
@@ -28,6 +29,7 @@ import {
 const EMPTY_FILTERS: Record<string, FilterValue> = {
   status: undefined,
   audience: undefined,
+  qa_status: undefined,
 };
 
 const DEFAULT_BODY = [
@@ -56,11 +58,13 @@ export function TrainingDocsClient() {
   const createDoc = useCreateTrainingDoc();
   const updateDoc = useUpdateTrainingDoc();
   const deleteDoc = useDeleteTrainingDoc();
+  const runQaBatch = useRunTrainingDocsQaBatch();
 
   const activeFilters = React.useMemo<Record<string, FilterValue>>(
     () => ({
-      status: searchParams.get("status") || undefined,
-      audience: searchParams.get("audience") || undefined,
+      status: searchParams?.get("status") || undefined,
+      audience: searchParams?.get("audience") || undefined,
+      qa_status: searchParams?.get("qa_status") || undefined,
     }),
     [searchParams],
   );
@@ -91,9 +95,17 @@ export function TrainingDocsClient() {
       if (activeFilters.audience && doc.audience !== activeFilters.audience) {
         return false;
       }
+      if (activeFilters.qa_status && doc.qa_status !== activeFilters.qa_status) {
+        return false;
+      }
       return true;
     });
-  }, [activeFilters.audience, activeFilters.status, docs]);
+  }, [
+    activeFilters.audience,
+    activeFilters.qa_status,
+    activeFilters.status,
+    docs,
+  ]);
 
   const handleFilterChange = React.useCallback(
     (nextFilters: Record<string, FilterValue>) => {
@@ -102,6 +114,7 @@ export function TrainingDocsClient() {
       tableState.setSearchParams({
         status: stringFilterValue(nextFilters.status),
         audience: stringFilterValue(nextFilters.audience),
+        qa_status: stringFilterValue(nextFilters.qa_status),
         page: null,
       });
     },
@@ -178,7 +191,13 @@ export function TrainingDocsClient() {
   const hasActiveFilters = Boolean(
     tableState.searchInput.trim() ||
     activeFilters.status ||
-    activeFilters.audience,
+    activeFilters.audience ||
+    activeFilters.qa_status,
+  );
+
+  const publishedCount = React.useMemo(
+    () => docs.filter((doc) => doc.status === "published").length,
+    [docs],
   );
 
   return (
@@ -188,14 +207,27 @@ export function TrainingDocsClient() {
         description:
           "Draft, review, edit, and publish internal SOPs to the docs site.",
         actions: (
-          <Button
-            size="sm"
-            onClick={handleCreateDoc}
-            disabled={createDoc.isPending}
-          >
-            <Plus className="h-4 w-4" />
-            New
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => runQaBatch.mutate({ scope: "published" })}
+              disabled={runQaBatch.isPending || publishedCount === 0}
+            >
+              <ShieldCheck className="h-4 w-4" />
+              {runQaBatch.isPending
+                ? "Running QA…"
+                : `Run QA (${publishedCount} published)`}
+            </Button>
+            <Button
+              size="sm"
+              onClick={handleCreateDoc}
+              disabled={createDoc.isPending}
+            >
+              <Plus className="h-4 w-4" />
+              New
+            </Button>
+          </div>
         ),
       }}
       toolbar={{

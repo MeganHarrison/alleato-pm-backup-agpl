@@ -175,6 +175,63 @@ export function usePublishTrainingDoc() {
   });
 }
 
+export function useRunTrainingDocQa() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ docId }: { docId: string }) =>
+      apiFetch<{
+        doc: TrainingDocWithAssets;
+        qa: {
+          status: string;
+          notes: string;
+          checkedRoute: string | null;
+          usedLlm: boolean;
+        };
+      }>(`/api/admin/training-docs/${docId}/qa`, {
+        method: "POST",
+        body: JSON.stringify({}),
+      }),
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({ queryKey: trainingDocKeys.all });
+      toast.success(`QA: ${result.qa.status.replace("_", " ")}`);
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+}
+
+export function useRunTrainingDocsQaBatch() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (body: {
+      scope?: "published" | "all";
+      ids?: string[];
+      useLlm?: boolean;
+    }) =>
+      apiFetch<{
+        checked: number;
+        summary: Record<string, number>;
+        results: Array<{
+          id: string;
+          slug: string;
+          title: string;
+          qa_status: string;
+          checkedRoute: string | null;
+        }>;
+      }>("/api/admin/training-docs/qa", {
+        method: "POST",
+        body: JSON.stringify(body),
+      }),
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({ queryKey: trainingDocKeys.all });
+      const parts = Object.entries(result.summary)
+        .map(([status, count]) => `${count} ${status.replace("_", " ")}`)
+        .join(", ");
+      toast.success(`QA checked ${result.checked} docs — ${parts || "no docs"}`);
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+}
+
 export function useGenerateTrainingDoc() {
   const queryClient = useQueryClient();
   return useMutation({

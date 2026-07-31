@@ -32,11 +32,14 @@ import {
   InlineTableRow,
 } from "@/components/ds";
 import { apiFetch } from "@/lib/api-client";
+import { useBillingPeriodsList } from "@/hooks/use-billing-periods";
 import {
   calculateCompletionPercentFromCurrentAmount,
   calculateCurrentAmountFromCompletionPercent,
+  validateBillingComponentSigns,
   validateCurrentAmount,
 } from "@/lib/invoicing/subcontractor-percent-autofill";
+import { selectDefaultBillingPeriod } from "@/lib/invoicing/billing-period-selection";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -44,6 +47,7 @@ import {
 
 interface SovItem {
   id: string;
+  source_sov_item_id: string;
   budget_code: string | null;
   description: string;
   scheduled_value: number;
@@ -58,6 +62,7 @@ interface ApprovedCO {
   title: string | null;
   amount: number;
   description: string | null;
+  from_previous: number;
 }
 
 interface SovEdit {
@@ -148,6 +153,15 @@ export default function NewSubcontractorInvoicePage() {
       invoiceNumber: "",
     },
   });
+  const {
+    data: billingPeriods = [],
+    error: billingPeriodsError,
+    isLoading: billingPeriodsLoading,
+  } = useBillingPeriodsList(projectId, { is_closed: false });
+  const currentBillingPeriod = useMemo(
+    () => selectDefaultBillingPeriod(billingPeriods),
+    [billingPeriods],
+  );
 
   // Picklist options (used when no URL commitment)
   const [subcontracts, setSubcontracts] = useState<CommitmentOption[]>([]);
@@ -183,6 +197,44 @@ export default function NewSubcontractorInvoicePage() {
     previousPickerType.current = pickerType;
     form.setValue("pickerCommitmentId", "");
   }, [pickerType, form]);
+
+  useEffect(() => {
+    if (!currentBillingPeriod) return;
+
+    const defaults: Array<
+      [keyof Pick<SubInvoiceFormValues, "periodStart" | "periodEnd" | "billingDate">, string]
+    > = [
+      ["periodStart", currentBillingPeriod.start_date],
+      ["periodEnd", currentBillingPeriod.end_date],
+      // The subcontractor-invoice API uses the period end as Billing Date.
+      ["billingDate", currentBillingPeriod.end_date],
+    ];
+
+    for (const [field, value] of defaults) {
+      if (form.getFieldState(field).isDirty) continue;
+      form.resetField(field, { defaultValue: value });
+    }
+  }, [currentBillingPeriod, form]);
+
+  useEffect(() => {
+    if (billingPeriodsError) {
+      const cause =
+        billingPeriodsError instanceof Error &&
+        billingPeriodsError.message.trim().length > 0
+          ? billingPeriodsError.message
+          : "The billing period request failed.";
+      toast.error("Billing period dates could not be loaded", {
+        description: `${cause} Refresh the page or enter the invoice dates manually.`,
+      });
+      return;
+    }
+    if (!billingPeriodsLoading && billingPeriods.length === 0) {
+      toast.error("No billing period is open for this project", {
+        description:
+          "Open or create a billing period before creating this invoice.",
+      });
+    }
+  }, [billingPeriods.length, billingPeriodsError, billingPeriodsLoading]);
 
   // ---------------------------------------------------------------------------
   // Load picklist options when no URL commitment provided
@@ -258,15 +310,17 @@ export default function NewSubcontractorInvoicePage() {
         // SOV items (with previous billing amounts)
         const invoiceData = invoicesJson as { line_items?: Array<{
           id: string;
+          source_sov_item_id?: string;
           budget_code?: string | null;
           description?: string;
           scheduled_value?: number;
           gross_billed_to_date?: number;
           retainage_percentage?: number;
           line_number?: number | null;
-        }> };
+        }>; change_order_billed_to_date?: Record<string, number> };
         const items: SovItem[] = (invoiceData.line_items ?? []).map((li) => ({
           id: li.id,
+          source_sov_item_id: li.source_sov_item_id ?? li.id,
           budget_code: li.budget_code ?? null,
           description: li.description ?? "",
           scheduled_value: Number(li.scheduled_value ?? 0),
@@ -310,6 +364,9 @@ export default function NewSubcontractorInvoicePage() {
             title: co.title ?? null,
             amount: Number(co.amount ?? 0),
             description: co.description ?? null,
+            from_previous: Number(
+              invoiceData.change_order_billed_to_date?.[co.id] ?? 0,
+            ),
           }));
         setApprovedCOs(approved);
         setCoEdits(
@@ -366,6 +423,7 @@ export default function NewSubcontractorInvoicePage() {
           materials_stored: "",
         };
         acc.scheduled += co.amount;
+        acc.fromPrevious += co.from_previous;
         acc.thisPeriod += parseNum(e.work_completed_period);
         acc.materialsStored += parseNum(e.materials_stored);
         return acc;
@@ -387,7 +445,9 @@ export default function NewSubcontractorInvoicePage() {
           const validation = validateCurrentAmount({
             scheduledValue: item.scheduled_value,
             previouslyBilled: item.from_previous,
-            currentAmount: parseNum(edit.work_completed_period),
+            currentAmount:
+              parseNum(edit.work_completed_period) +
+              parseNum(edit.materials_stored),
           });
 
           return [item.id, validation.error];
@@ -408,11 +468,20 @@ export default function NewSubcontractorInvoicePage() {
 
           const validation = validateCurrentAmount({
             scheduledValue: co.amount,
-            previouslyBilled: 0,
-            currentAmount: parseNum(edit.work_completed_period),
+            previouslyBilled: co.from_previous,
+            currentAmount:
+              parseNum(edit.work_completed_period) +
+              parseNum(edit.materials_stored),
           });
+          const componentValidation = validateBillingComponentSigns(
+            co.amount,
+            [
+              parseNum(edit.work_completed_period),
+              parseNum(edit.materials_stored),
+            ],
+          );
 
-          return [co.id, validation.error];
+          return [co.id, componentValidation.error ?? validation.error];
         }),
       ) as Record<string, string | null>,
     [approvedCOs, coEdits],
@@ -446,6 +515,7 @@ export default function NewSubcontractorInvoicePage() {
           materials_stored: "",
         };
         return {
+          source_sov_item_id: item.source_sov_item_id,
           description: item.description,
           budget_code: item.budget_code,
           scheduled_value: item.scheduled_value,
@@ -469,10 +539,11 @@ export default function NewSubcontractorInvoicePage() {
             .filter(Boolean)
             .join(" - ");
           return {
+            source_change_order_id: co.id,
             description: label || "Approved Commitment Change Order",
             budget_code: co.change_order_number || null,
             scheduled_value: co.amount,
-            work_completed_previous: 0,
+            work_completed_previous: co.from_previous,
             work_completed_period: parseNum(e.work_completed_period),
             materials_stored: parseNum(e.materials_stored),
             retainage_pct: 0,
@@ -482,12 +553,7 @@ export default function NewSubcontractorInvoicePage() {
             commitment_value: 0,
             change_value: co.amount,
           };
-        })
-        .filter(
-          (item) =>
-            item.work_completed_period > 0 ||
-            item.materials_stored > 0,
-        );
+        });
 
       const contractKey =
         commitmentType === "subcontract" ? "subcontract_id" : "purchase_order_id";
@@ -498,7 +564,7 @@ export default function NewSubcontractorInvoicePage() {
         period_end: values.periodEnd || null,
         billing_date: values.billingDate || null,
         invoice_number: values.invoiceNumber || null,
-        status,
+        status: "draft",
         line_items: [...lineItems, ...coLineItems],
       };
 
@@ -509,6 +575,27 @@ export default function NewSubcontractorInvoicePage() {
           body: JSON.stringify(body),
         },
       );
+
+      if (status === "under_review") {
+        try {
+          await apiFetch(
+            `/api/projects/${projectId}/invoicing/subcontractor/invoices/${result.data.id}/submit`,
+            { method: "POST" },
+          );
+        } catch (submitError) {
+          const submitMessage =
+            submitError instanceof Error && submitError.message
+              ? submitError.message
+              : "Submission did not complete.";
+          toast.warning(
+            `Invoice ${result.data.id} was created. ${submitMessage} Open it to confirm its status and retry submission if needed.`,
+          );
+          router.push(
+            `/${projectId}/invoicing/subcontractor/${result.data.id}`,
+          );
+          return;
+        }
+      }
 
       toast.success(
         status === "under_review"
@@ -729,10 +816,18 @@ export default function NewSubcontractorInvoicePage() {
                                         return next;
                                       }
 
+                                      const currentMaterials = parseNum(
+                                        (prev[item.id] ?? e).materials_stored,
+                                      );
                                       next[item.id] = {
                                         ...next[item.id],
                                         work_completed_period:
-                                          calculated.amount == null ? "" : String(calculated.amount),
+                                          calculated.amount == null
+                                            ? ""
+                                            : String(
+                                                calculated.amount -
+                                                  currentMaterials,
+                                              ),
                                       };
                                       return next;
                                     });
@@ -753,21 +848,26 @@ export default function NewSubcontractorInvoicePage() {
                                   }
                                   placeholder=""
                                   onChange={(value) =>
-                                    setSovEdits((prev) => ({
-                                      ...prev,
-                                      [item.id]: {
-                                        ...prev[item.id],
-                                        completion_percent: formatPercentInput(
-                                          calculateCompletionPercentFromCurrentAmount({
-                                            scheduledValue: item.scheduled_value,
-                                            previouslyBilled: item.from_previous,
-                                            currentAmount: value ?? 0,
-                                          }),
-                                        ),
-                                        work_completed_period:
-                                          value == null ? "" : String(value),
-                                      },
-                                    }))
+                                    setSovEdits((prev) => {
+                                      const currentEdit = prev[item.id] ?? e;
+                                      return {
+                                        ...prev,
+                                        [item.id]: {
+                                          ...currentEdit,
+                                          completion_percent: formatPercentInput(
+                                            calculateCompletionPercentFromCurrentAmount({
+                                              scheduledValue: item.scheduled_value,
+                                              previouslyBilled: item.from_previous,
+                                              currentAmount:
+                                                (value ?? 0) +
+                                                parseNum(currentEdit.materials_stored),
+                                            }),
+                                          ),
+                                          work_completed_period:
+                                            value == null ? "" : String(value),
+                                        },
+                                      };
+                                    })
                                   }
                                 />
                                 {sovRowErrors[item.id] ? (
@@ -790,14 +890,27 @@ export default function NewSubcontractorInvoicePage() {
                                   }
                                   placeholder=""
                                   onChange={(value) =>
-                                    setSovEdits((prev) => ({
-                                      ...prev,
-                                      [item.id]: {
-                                        ...prev[item.id],
-                                        materials_stored:
-                                          value == null ? "" : String(value),
-                                      },
-                                    }))
+                                    setSovEdits((prev) => {
+                                      const currentEdit = prev[item.id] ?? e;
+                                      return {
+                                        ...prev,
+                                        [item.id]: {
+                                          ...currentEdit,
+                                          completion_percent: formatPercentInput(
+                                            calculateCompletionPercentFromCurrentAmount({
+                                              scheduledValue: item.scheduled_value,
+                                              previouslyBilled: item.from_previous,
+                                              currentAmount:
+                                                parseNum(
+                                                  currentEdit.work_completed_period,
+                                                ) + (value ?? 0),
+                                            }),
+                                          ),
+                                          materials_stored:
+                                            value == null ? "" : String(value),
+                                        },
+                                      };
+                                    })
                                   }
                                 />
                               </InlineTableCell>
@@ -887,7 +1000,7 @@ export default function NewSubcontractorInvoicePage() {
                                 {formatCurrency(co.amount)}
                               </InlineTableCell>
                               <InlineTableCell align="right" numeric className="text-sm">
-                                {formatCurrency(0)}
+                                {formatCurrency(co.from_previous)}
                               </InlineTableCell>
                               <InlineTableCell align="right" className="text-muted-foreground">
                                 <NumberInput
@@ -918,7 +1031,7 @@ export default function NewSubcontractorInvoicePage() {
 
                                       const calculated = calculateCurrentAmountFromCompletionPercent({
                                         scheduledValue: co.amount,
-                                        previouslyBilled: 0,
+                                        previouslyBilled: co.from_previous,
                                         completionPercent: parseNum(nextPercent),
                                       });
 
@@ -926,10 +1039,18 @@ export default function NewSubcontractorInvoicePage() {
                                         return next;
                                       }
 
+                                      const currentMaterials = parseNum(
+                                        (prev[co.id] ?? e).materials_stored,
+                                      );
                                       next[co.id] = {
                                         ...next[co.id],
                                         work_completed_period:
-                                          calculated.amount == null ? "" : String(calculated.amount),
+                                          calculated.amount == null
+                                            ? ""
+                                            : String(
+                                                calculated.amount -
+                                                  currentMaterials,
+                                              ),
                                       };
                                       return next;
                                     });
@@ -941,6 +1062,8 @@ export default function NewSubcontractorInvoicePage() {
                                   label={`Change order ${co.change_order_number} work completed this period`}
                                   inline
                                   showCurrency={false}
+                                  allowNegative={co.amount < 0}
+                                  max={co.amount < 0 ? 0 : undefined}
                                   clearZeroOnFocus
                                   className="h-8 w-28 text-sm"
                                   value={
@@ -950,21 +1073,26 @@ export default function NewSubcontractorInvoicePage() {
                                   }
                                   placeholder=""
                                   onChange={(value) =>
-                                    setCoEdits((prev) => ({
-                                      ...prev,
-                                      [co.id]: {
-                                        ...prev[co.id],
-                                        completion_percent: formatPercentInput(
-                                          calculateCompletionPercentFromCurrentAmount({
-                                            scheduledValue: co.amount,
-                                            previouslyBilled: 0,
-                                            currentAmount: value ?? 0,
-                                          }),
-                                        ),
-                                        work_completed_period:
-                                          value == null ? "" : String(value),
-                                      },
-                                    }))
+                                    setCoEdits((prev) => {
+                                      const currentEdit = prev[co.id] ?? e;
+                                      return {
+                                        ...prev,
+                                        [co.id]: {
+                                          ...currentEdit,
+                                          completion_percent: formatPercentInput(
+                                            calculateCompletionPercentFromCurrentAmount({
+                                              scheduledValue: co.amount,
+                                              previouslyBilled: co.from_previous,
+                                              currentAmount:
+                                                (value ?? 0) +
+                                                parseNum(currentEdit.materials_stored),
+                                            }),
+                                          ),
+                                          work_completed_period:
+                                            value == null ? "" : String(value),
+                                        },
+                                      };
+                                    })
                                   }
                                 />
                                 {coRowErrors[co.id] ? (
@@ -978,6 +1106,8 @@ export default function NewSubcontractorInvoicePage() {
                                   label={`Change order ${co.change_order_number} materials stored`}
                                   inline
                                   showCurrency={false}
+                                  allowNegative={co.amount < 0}
+                                  max={co.amount < 0 ? 0 : undefined}
                                   clearZeroOnFocus
                                   className="h-8 w-28 text-sm"
                                   value={
@@ -987,14 +1117,27 @@ export default function NewSubcontractorInvoicePage() {
                                   }
                                   placeholder=""
                                   onChange={(value) =>
-                                    setCoEdits((prev) => ({
-                                      ...prev,
-                                      [co.id]: {
-                                        ...prev[co.id],
-                                        materials_stored:
-                                          value == null ? "" : String(value),
-                                      },
-                                    }))
+                                    setCoEdits((prev) => {
+                                      const currentEdit = prev[co.id] ?? e;
+                                      return {
+                                        ...prev,
+                                        [co.id]: {
+                                          ...currentEdit,
+                                          completion_percent: formatPercentInput(
+                                            calculateCompletionPercentFromCurrentAmount({
+                                              scheduledValue: co.amount,
+                                              previouslyBilled: co.from_previous,
+                                              currentAmount:
+                                                parseNum(
+                                                  currentEdit.work_completed_period,
+                                                ) + (value ?? 0),
+                                            }),
+                                          ),
+                                          materials_stored:
+                                            value == null ? "" : String(value),
+                                        },
+                                      };
+                                    })
                                   }
                                 />
                               </InlineTableCell>
