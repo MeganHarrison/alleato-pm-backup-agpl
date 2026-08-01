@@ -11,9 +11,9 @@
 > `docs/architecture/TABLE-LIST.md`. The in-app assistant searches the same
 > production subset via the `findAppPage` tool (`frontend/src/lib/app-surface/`).
 
-## UI Routes (368)
+## UI Routes (369)
 
-_285/368 have a description (from the page's `PageShell` or the curated `frontend/src/lib/app-surface/page-descriptions.json` sidecar). Pages without one are invisible to find-a-page search — add an entry to the sidecar (index-only) or a `PageShell` description (also renders in the UI)._
+_285/369 have a description (from the page's `PageShell` or the curated `frontend/src/lib/app-surface/page-descriptions.json` sidecar). Pages without one are invisible to find-a-page search — add an entry to the sidecar (index-only) or a `PageShell` description (also renders in the UI)._
 
 | URL | What it does | File |
 |-----|--------------|------|
@@ -203,6 +203,7 @@ _285/368 have a description (from the page's `PageShell` or the curated `fronten
 | `/ai/teach` | Submissions become review candidates before they change assistant behavior. | frontend/src/app/(main)/ai/teach/page.tsx |
 | `/ai/testing` | Eve Tool Testing | frontend/src/app/(main)/ai/testing/page.tsx |
 | `/analytics` | Platform Analytics | frontend/src/app/(admin)/analytics/page.tsx |
+| `/analytics/user-adoption-prototype` | User analytics | frontend/src/app/(admin)/analytics/user-adoption-prototype/page.tsx |
 | `/annotation-inbox` | Manage issue annotations and feedback with priority scoring, dispatch to agents, and duplicate clustering | frontend/src/app/(admin)/annotation-inbox/page.tsx |
 | `/assignment-inbox` | View and manage assigned tasks and action items across projects | frontend/src/app/(tables)/assignment-inbox/page.tsx |
 | `/auth/confirm` | — | frontend/src/app/auth/confirm/page.tsx |

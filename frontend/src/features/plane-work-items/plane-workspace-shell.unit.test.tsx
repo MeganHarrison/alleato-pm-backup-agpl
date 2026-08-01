@@ -18,6 +18,13 @@ jest.mock("next/navigation", () => ({
   useRouter: () => ({ push: jest.fn() }),
 }));
 
+jest.mock(
+  "@/features/plane-workspace-shell/plane-workspace-items-navigation",
+  () => ({
+    PlaneWorkspaceItemsNavigation: () => null,
+  }),
+);
+
 jest.mock("@/hooks/use-project-permissions", () => ({
   useProjectPermissions: () => ({
     permissions: {
@@ -56,6 +63,8 @@ describe("PlaneWorkspaceShell", () => {
     expect(html).toContain('href="/auth/source"');
     expect(html).toContain('placeholder="Search commands..."');
     expect(html).toContain('data-plane-sidebar-collapsed="false"');
+    expect(html).toContain('data-plane-workspace-brand-icon="alleato"');
+    expect(html).toContain("alleato-favicon.png");
     expect(html).toContain(
       `--plane-sidebar-width:${PLANE_SIDEBAR_DEFAULT_WIDTH}px`,
     );

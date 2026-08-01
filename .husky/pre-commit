@@ -52,6 +52,15 @@ fi
 # of what this guard required. Do not reinstate the guard without first deleting
 # that test — they cannot both be satisfied.
 
+# Build-memory boundary: next.config.ts declares source maps off, but
+# @sentry/nextjs overrides `webpack.devtool` unless `sourcemaps.disable` is set.
+# The declared value and the resolved value disagree, so only a probe that runs
+# the real webpack hook can tell them apart. This guard has already caught one
+# silent removal of that line by a concurrent session (2026-07-31).
+if has_staged '^frontend/next\.config\.(js|mjs|ts)$'; then
+  (cd frontend && npx tsx scripts/build/probe-webpack-devtool.mts)
+fi
+
 if has_staged '^(frontend/vercel\.json|frontend/src/app/api/.+/route\.(ts|tsx))$'; then
   node scripts/audits/check-cron-route-methods.mjs
 fi

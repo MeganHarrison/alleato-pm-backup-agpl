@@ -3,7 +3,7 @@
 import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { gsap } from "gsap";
 
-import { DetailField } from "@/components/ds";
+import { DetailField, KpiRow } from "@/components/ds";
 import { SectionRuleHeading } from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,29 +22,29 @@ interface TrendPoint {
 }
 
 interface AdoptionSnapshot {
-  activeUsers: number;
-  provisionedUsers: number;
+  activeEmployees: number;
+  employeeAccounts: number;
   activeDelta: string;
-  activatedUsers: number;
-  activationDelta: string;
+  workflowUsers: number;
+  workflowDelta: string;
   trend: TrendPoint[];
 }
 
-interface AttentionUser {
+interface RecentActivityItem {
   name: string;
   role: string;
-  lastMeaningfulAction: string;
-  reason: string;
-  nextAction: string;
+  latestActivity: string;
+  activityContext: string;
+  recordedAt: string;
 }
 
 const snapshots: Record<Range, AdoptionSnapshot> = {
   "30": {
-    activeUsers: 63,
-    provisionedUsers: 89,
+    activeEmployees: 63,
+    employeeAccounts: 74,
     activeDelta: "+7 from the prior 30 days",
-    activatedUsers: 44,
-    activationDelta: "+5 from the prior 30 days",
+    workflowUsers: 44,
+    workflowDelta: "+5 from the prior 30 days",
     trend: [
       { label: "Jul 1", value: 41 },
       { label: "Jul 8", value: 47 },
@@ -54,11 +54,11 @@ const snapshots: Record<Range, AdoptionSnapshot> = {
     ],
   },
   "90": {
-    activeUsers: 63,
-    provisionedUsers: 89,
+    activeEmployees: 63,
+    employeeAccounts: 74,
     activeDelta: "+18 from the prior 90 days",
-    activatedUsers: 44,
-    activationDelta: "+16 from the prior 90 days",
+    workflowUsers: 44,
+    workflowDelta: "+16 from the prior 90 days",
     trend: [
       { label: "May 6", value: 24 },
       { label: "May 20", value: 28 },
@@ -72,7 +72,7 @@ const snapshots: Record<Range, AdoptionSnapshot> = {
 };
 
 const workflow = [
-  { label: "Invited", users: 89, detail: "Has access to the organization" },
+  { label: "Employee account", users: 74, detail: "Has access to the organization" },
   { label: "Opened a project", users: 68, detail: "Reached a project workspace" },
   { label: "Added a budget", users: 52, detail: "Completed the first financial setup step" },
   { label: "Created a commitment", users: 44, detail: "Used a core execution workflow" },
@@ -85,27 +85,27 @@ const roleAdoption = [
   { role: "Accounting", project: "71%", budget: "76%", commitment: "62%", change: "69%" },
 ];
 
-const attentionUsers: AttentionUser[] = [
+const recentActivity: RecentActivityItem[] = [
   {
     name: "Carmen Holt",
     role: "Project manager · Northline Builders",
-    lastMeaningfulAction: "Budget updated 16 days ago",
-    reason: "No commitment or change workflow after budget setup",
-    nextAction: "Review the Northline project setup",
+    latestActivity: "Updated the Northline budget",
+    activityContext: "Budget · Northline civic center",
+    recordedAt: "16 minutes ago",
   },
   {
     name: "David Ellis",
     role: "Operations · Riverstone Construction",
-    lastMeaningfulAction: "Last session 21 days ago",
-    reason: "Returned once after invitation, then stopped",
-    nextAction: "Confirm onboarding owner and next workflow",
+    latestActivity: "Added three project documents",
+    activityContext: "Documents · Riverstone medical office",
+    recordedAt: "42 minutes ago",
   },
   {
     name: "Maya Simmons",
     role: "Accounting · Summit Civil",
-    lastMeaningfulAction: "Commitment created 19 days ago",
-    reason: "Invoice workflow has not been started",
-    nextAction: "Open the invoice readiness checklist",
+    latestActivity: "Reviewed commitment invoice values",
+    activityContext: "Commitment · Summit transit station",
+    recordedAt: "1 hour ago",
   },
 ];
 
@@ -124,7 +124,7 @@ function TrendLine({ trend }: { trend: TrendPoint[] }) {
   return (
     <div className="mt-5" data-analytics-reveal>
       <svg
-        aria-label="Weekly active users trend"
+        aria-label="Weekly active employee accounts trend"
         className="h-auto w-full overflow-visible text-primary"
         role="img"
         viewBox={`0 0 ${dimensions.width} ${dimensions.height}`}
@@ -158,20 +158,20 @@ export function UserAdoptionAnalyticsPrototype() {
   const root = useRef<HTMLDivElement>(null);
   const [range, setRange] = useState<Range>("30");
   const [trackingNotesOpen, setTrackingNotesOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<AttentionUser | null>(null);
-  const [displayedValues, setDisplayedValues] = useState({ active: 0, activated: 0 });
+  const [selectedUser, setSelectedUser] = useState<RecentActivityItem | null>(null);
+  const [displayedValues, setDisplayedValues] = useState({ active: 0, workflow: 0 });
   const snapshot = snapshots[range];
-  const activationRate = Math.round((snapshot.activatedUsers / snapshot.provisionedUsers) * 100);
-  const activeRate = Math.round((snapshot.activeUsers / snapshot.provisionedUsers) * 100);
+  const workflowRate = Math.round((snapshot.workflowUsers / snapshot.employeeAccounts) * 100);
+  const activeRate = Math.round((snapshot.activeEmployees / snapshot.employeeAccounts) * 100);
 
   useLayoutEffect(() => {
     if (!root.current) return undefined;
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const counters = { active: 0, activated: 0 };
+    const counters = { active: 0, workflow: 0 };
     const context = gsap.context(() => {
       if (prefersReducedMotion) {
         gsap.set("[data-analytics-reveal]", { opacity: 1, y: 0 });
-        setDisplayedValues({ active: snapshot.activeUsers, activated: snapshot.activatedUsers });
+        setDisplayedValues({ active: snapshot.activeEmployees, workflow: snapshot.workflowUsers });
         return;
       }
 
@@ -181,12 +181,12 @@ export function UserAdoptionAnalyticsPrototype() {
         { opacity: 1, y: 0, duration: 0.42, ease: "power2.out", stagger: 0.06 },
       );
       gsap.to(counters, {
-        active: snapshot.activeUsers,
-        activated: snapshot.activatedUsers,
+        active: snapshot.activeEmployees,
+        workflow: snapshot.workflowUsers,
         duration: 0.8,
         ease: "power2.out",
-        snap: { active: 1, activated: 1 },
-        onUpdate: () => setDisplayedValues({ active: counters.active, activated: counters.activated }),
+        snap: { active: 1, workflow: 1 },
+        onUpdate: () => setDisplayedValues({ active: counters.active, workflow: counters.workflow }),
       });
     }, root);
 
@@ -204,7 +204,7 @@ export function UserAdoptionAnalyticsPrototype() {
         <div className="max-w-2xl space-y-1">
           <p className="text-sm text-muted-foreground">Prototype, illustrative data</p>
           <p className="text-sm leading-6 text-muted-foreground">
-            Find the people and workflow steps that need attention before usage becomes churn.
+            Review employee account coverage, recent activity, and usage of the operating workflows they own.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -234,35 +234,47 @@ export function UserAdoptionAnalyticsPrototype() {
           <p className="mt-2 max-w-3xl leading-6 text-muted-foreground">
             This prototype does not claim these measurements are live. Production should record the user, organization, role,
             workflow event, and timestamp for each milestone. Events without an organization or user identity should be shown as
-            unassigned, not included in adoption or at-risk conclusions.
+            unassigned, not included in employee-accountability reporting.
           </p>
           <p className="mt-2 text-xs text-muted-foreground">{coverageText}.</p>
         </section>
       ) : null}
 
+      <section data-analytics-reveal>
+        <SectionRuleHeading as="h2" className="mb-3 pb-0" label="Account reference" />
+        <KpiRow
+          metrics={[
+            { label: "Employee accounts", value: "74", context: "Internal app accounts" },
+            { label: "Subcontractor accounts", value: "15", context: "External collaborator accounts" },
+            { label: "Admins", value: "8", context: "Platform-level access" },
+          ]}
+          size="medium"
+        />
+      </section>
+
       <section className="grid gap-10 xl:grid-cols-[minmax(0,1.45fr)_minmax(21rem,0.8fr)]" data-analytics-reveal>
         <div>
           <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
             <div>
-              <SectionRuleHeading as="h2" className="mb-1 pb-0" label="Weekly active usage" />
-              <p className="mt-1 text-sm text-muted-foreground">People with a meaningful project action in the selected period</p>
+              <SectionRuleHeading as="h2" className="mb-1 pb-0" label="Weekly employee activity" />
+              <p className="mt-1 text-sm text-muted-foreground">Employees with a meaningful project action in the selected period</p>
             </div>
             <p className="text-sm text-muted-foreground">{snapshot.activeDelta}</p>
           </div>
           <div className="mt-5 flex items-end gap-3">
             <p className="font-mono text-4xl font-medium tabular-nums tracking-tight text-foreground">{displayedValues.active}</p>
-            <p className="pb-1 text-sm text-muted-foreground">of {snapshot.provisionedUsers} provisioned users, {activeRate}% active</p>
+            <p className="pb-1 text-sm text-muted-foreground">of {snapshot.employeeAccounts} employee accounts, {activeRate}% active</p>
           </div>
           <TrendLine trend={snapshot.trend} />
         </div>
 
         <div className="border-t border-border pt-6 xl:border-l xl:border-t-0 xl:pl-8 xl:pt-0">
-          <p className="text-sm font-medium text-foreground">Needs attention now</p>
+          <p className="text-sm font-medium text-foreground">Recent activity</p>
           <p className="mt-1 text-sm leading-6 text-muted-foreground">
-            Three people are close to stalling after a meaningful first step.
+            Latest meaningful work recorded across employee accounts.
           </p>
           <div className="mt-5 divide-y divide-border">
-            {attentionUsers.map((user) => (
+            {recentActivity.map((user) => (
               <Button
                 className="h-auto w-full justify-start whitespace-normal px-0 py-3 text-left hover:text-primary focus-visible:text-primary"
                 key={user.name}
@@ -271,12 +283,12 @@ export function UserAdoptionAnalyticsPrototype() {
                 variant="ghost"
               >
                 <span className="block text-sm font-medium text-foreground">{user.name}</span>
-                <span className="mt-0.5 block text-xs leading-5 text-muted-foreground">{user.reason}</span>
+                <span className="mt-0.5 block text-xs leading-5 text-muted-foreground">{user.latestActivity} · {user.recordedAt}</span>
               </Button>
             ))}
           </div>
-          <Button className="mt-5 px-0" onClick={() => setSelectedUser(attentionUsers[0])} size="sm" variant="link">
-            Review attention list
+          <Button className="mt-5 px-0" onClick={() => setSelectedUser(recentActivity[0])} size="sm" variant="link">
+            Open activity feed
           </Button>
         </div>
       </section>
@@ -284,10 +296,10 @@ export function UserAdoptionAnalyticsPrototype() {
       <section className="border-t border-border pt-8" data-analytics-reveal>
         <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
           <div>
-            <SectionRuleHeading as="h2" className="mb-1 pb-0" label="Core workflow activation" />
-            <p className="mt-1 text-sm text-muted-foreground">The first flow that proves a user reached operational value</p>
+            <SectionRuleHeading as="h2" className="mb-1 pb-0" label="Employee workflow usage" />
+            <p className="mt-1 text-sm text-muted-foreground">An accountability view of the operating workflows employees complete</p>
           </div>
-          <p className="text-sm text-muted-foreground">{displayedValues.activated} activated, {activationRate}% of provisioned</p>
+          <p className="text-sm text-muted-foreground">{displayedValues.workflow} used a core workflow, {workflowRate}% of employees</p>
         </div>
         <ol className="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-5">
           {workflow.map((step, index) => {
@@ -312,7 +324,7 @@ export function UserAdoptionAnalyticsPrototype() {
       <section className="border-t border-border pt-8" data-analytics-reveal>
         <div>
           <SectionRuleHeading as="h2" className="mb-1 pb-0" label="Adoption by role" />
-          <p className="mt-1 text-sm text-muted-foreground">Use this to find whether a workflow is blocked by job function, not just by volume</p>
+          <p className="mt-1 text-sm text-muted-foreground">Compare expected workflow use across employee roles</p>
         </div>
         <div className="mt-5 overflow-x-auto">
           <table className="w-full text-left text-sm">
@@ -350,17 +362,17 @@ export function UserAdoptionAnalyticsPrototype() {
               <SidePanelBody className="space-y-6 text-sm">
                 <div>
                   <p className="text-muted-foreground">{selectedUser.role}</p>
-                  <p className="mt-3 font-medium text-foreground">{selectedUser.reason}</p>
+                  <p className="mt-3 font-medium text-foreground">{selectedUser.latestActivity}</p>
                 </div>
                 <div className="space-y-4 border-y border-border py-5">
-                  <DetailField label="Last action">{selectedUser.lastMeaningfulAction}</DetailField>
-                  <DetailField label="Recommended next step">{selectedUser.nextAction}</DetailField>
+                  <DetailField label="Recorded">{selectedUser.recordedAt}</DetailField>
+                  <DetailField label="Context">{selectedUser.activityContext}</DetailField>
                 </div>
                 <Button className="w-full" onClick={() => setSelectedUser(null)} variant="outline">
                   Close preview
                 </Button>
                 <p className="text-xs leading-5 text-muted-foreground">
-                  Prototype behavior: production should open the canonical user or organization record with the filtered workflow history.
+                  Prototype behavior: production should open the canonical user or organization record with the filtered activity history.
                 </p>
               </SidePanelBody>
             </>

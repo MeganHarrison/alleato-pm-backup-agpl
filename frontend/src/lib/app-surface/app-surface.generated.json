@@ -932,6 +932,11 @@
       "description": null
     },
     {
+      "url": "/analytics/user-adoption-prototype",
+      "title": "User analytics",
+      "description": null
+    },
+    {
       "url": "/annotation-inbox",
       "title": null,
       "description": "Manage issue annotations and feedback with priority scoring, dispatch to agents, and duplicate clustering"

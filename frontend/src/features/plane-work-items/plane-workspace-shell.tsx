@@ -33,6 +33,7 @@ import {
   UserRound,
   X,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -349,9 +350,15 @@ function PlaneSidebar({
           )}
         >
           <div className="flex min-w-0 items-center gap-2">
-            <span className="grid size-6 shrink-0 place-items-center rounded bg-[#075985] text-xs font-semibold text-white">
-              A
-            </span>
+            <Image
+              src="/alleato-favicon.png"
+              alt=""
+              aria-hidden="true"
+              width={24}
+              height={24}
+              data-plane-workspace-brand-icon="alleato"
+              className="size-6 shrink-0 rounded object-contain"
+            />
             <span
               className={cn(
                 "truncate text-sm font-medium text-[#202124]",

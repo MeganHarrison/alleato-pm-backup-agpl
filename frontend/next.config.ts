@@ -314,6 +314,25 @@ const sentryWrappedConfig = withSentryConfig(nextConfig, {
   org: sentryConfig.org,
   project: sentryConfig.project,
   authToken: sentryConfig.authToken,
+  // Only generate source maps when we can actually upload them.
+  //
+  // @sentry/nextjs sets `webpack.devtool` to "source-map" (server) and
+  // "hidden-source-map" (client) whenever its webpack plugin is installed —
+  // see @sentry/nextjs/build/cjs/config/webpack.js. That branch is gated ONLY
+  // on `sourcemaps.disable`, never on whether credentials exist. Declaring
+  // `productionBrowserSourceMaps: false` / `experimental.serverSourceMaps: false`
+  // above is precisely what leaves `devtool` falsy, which is the condition
+  // Sentry fills in — so those two settings do not prevent this.
+  //
+  // Vercel production currently has NO SENTRY_* env vars, so without this the
+  // maps are emitted for the whole route graph and then thrown away: full
+  // source-map cost, zero benefit. This composes with — it does not replace —
+  // the `config.cache = false` and heap boundary in the webpack hook above.
+  //
+  // Enforced by scripts/build/probe-webpack-devtool.mts, which the pre-commit
+  // hook runs whenever this file changes. Do not remove without deleting that
+  // probe; a bare removal will fail the hook.
+  sourcemaps: { disable: !hasSentrySourceMapConfig },
   widenClientFileUpload: true,
   tunnelRoute: "/monitoring",
   silent: !process.env.CI,

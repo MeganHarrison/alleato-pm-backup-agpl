@@ -11,7 +11,7 @@ import { AdminTableView } from "./admin-table-view";
 
 export default function AdminDashboardPage() {
   const [activeTab, setActiveTab] = React.useState<"directory" | "table" | "kanban">(
-    "directory",
+    "table",
   );
 
   return (
@@ -24,19 +24,19 @@ export default function AdminDashboardPage() {
         <PageTabs
           tabs={[
             {
-              label: "List",
-              href: "directory",
-              isActive: activeTab === "directory",
-            },
-            {
               label: "Table",
               href: "table",
               isActive: activeTab === "table",
             },
             {
-              label: "Kanban",
+              label: "Boards",
               href: "kanban",
               isActive: activeTab === "kanban",
+            },
+            {
+              label: "List",
+              href: "directory",
+              isActive: activeTab === "directory",
             },
           ]}
           variant="inline"
