@@ -7,7 +7,7 @@
  * IMPORTANT: Run `npm run db:types` after applying migration to generate base types
  */
 
-import { Database } from '@/types/database.types';
+import type { Database } from '@/types/database.types';
 
 // =============================================================================
 // GENERATED SUPABASE TYPES (will be available after migration applied)

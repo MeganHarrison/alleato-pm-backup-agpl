@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { GenericTableConfig } from "@/components/tables/generic-table-factory";
 import { GenericConfigUnifiedTable } from "@/components/tables/generic-config-unified-table";
 import { TablePageWrapper } from "@/components/tables/table-page-wrapper";
-import { Database } from "@/types/database.types";
+import type { Database } from "@/types/database.types";
 
 type DailyRecap = Database["public"]["Tables"]["daily_recaps"]["Row"];
 

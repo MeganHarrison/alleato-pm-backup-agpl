@@ -386,7 +386,7 @@ _285/368 have a description (from the page's `PageShell` or the curated `fronten
 | `/user-management/users/[userSlug]` | User Management rejected this request. Admin permission is required before this profile can load. | frontend/src/app/(admin)/user-management/users/[userSlug]/page.tsx |
 | `/weekly-operating-review` | Weekly Operating Review is limited to users with executive briefing access. | frontend/src/app/weekly-operating-review/page.tsx |
 
-## API Endpoints (758)
+## API Endpoints (764)
 
 | Endpoint | Methods | File |
 |----------|---------|------|
@@ -705,6 +705,14 @@ _285/368 have a description (from the page's `PageShell` or the curated `fronten
 | `/api/permissions/users/[personId]/granular-overrides` | PUT, DELETE | frontend/src/app/api/permissions/users/[personId]/granular-overrides/route.ts |
 | `/api/permissions/users/[personId]/project-access` | POST, DELETE | frontend/src/app/api/permissions/users/[personId]/project-access/route.ts |
 | `/api/permissions/users/reconcile-links` | POST | frontend/src/app/api/permissions/users/reconcile-links/route.ts |
+| `/api/plane-cycles` | GET, POST, PATCH, DELETE | frontend/src/app/api/plane-cycles/route.ts |
+| `/api/plane-cycles/memberships` | GET, POST, DELETE | frontend/src/app/api/plane-cycles/memberships/route.ts |
+| `/api/plane-drafts` | GET, POST, PATCH, DELETE | frontend/src/app/api/plane-drafts/route.ts |
+| `/api/plane-intake-actions` | POST | frontend/src/app/api/plane-intake-actions/route.ts |
+| `/api/plane-modules` | GET, POST, PATCH | frontend/src/app/api/plane-modules/route.ts |
+| `/api/plane-modules/tasks` | PUT | frontend/src/app/api/plane-modules/tasks/route.ts |
+| `/api/plane-stickies` | GET, POST, PATCH, DELETE | frontend/src/app/api/plane-stickies/route.ts |
+| `/api/plane-workspace-items` | GET, POST, PATCH, DELETE | frontend/src/app/api/plane-workspace-items/route.ts |
 | `/api/procore-docs/ask` | POST | frontend/src/app/api/procore-docs/ask/route.ts |
 | `/api/procore-docs/chat` | POST | frontend/src/app/api/procore-docs/chat/route.ts |
 | `/api/procore-screenshots/[feature]` | GET | frontend/src/app/api/procore-screenshots/[feature]/route.ts |
@@ -1138,8 +1146,6 @@ _285/368 have a description (from the page's `PageShell` or the curated `fronten
 | `/api/teams-live` | GET | frontend/src/app/api/teams-live/route.ts |
 | `/api/teams-live/[chatId]` | GET | frontend/src/app/api/teams-live/[chatId]/route.ts |
 | `/api/training/coaching` | GET, POST | frontend/src/app/api/training/coaching/route.ts |
-| `/api/training/coaching/[sessionId]` | GET, PUT | frontend/src/app/api/training/coaching/[sessionId]/route.ts |
-| `/api/training/coaching/[sessionId]/[action]` | POST | frontend/src/app/api/training/coaching/[sessionId]/[action]/route.ts |
 | `/api/training/growth` | POST | frontend/src/app/api/training/growth/route.ts |
 | `/api/training/library/chat` | POST | frontend/src/app/api/training/library/chat/route.ts |
 | `/api/users` | GET | frontend/src/app/api/users/route.ts |

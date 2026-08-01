@@ -43,7 +43,11 @@ const buildEngine = (process.env.NEXT_PRODUCTION_BUILD_ENGINE ?? "turbopack")
   .toLowerCase();
 const nextBuildNodeOptions =
   process.env.NEXT_PRODUCTION_BUILD_NODE_OPTIONS?.trim() ||
-  (isVercel ? "--max-old-space-size=11264" : "--max-old-space-size=16384");
+  // Vercel's enhanced builder has 16 GB for the entire build container, not
+  // only the Next.js parent process. Keep enough headroom for SWC, webpack
+  // workers, page-data collection, and output tracing. The 11 GB heap merely
+  // moved the failure from V8's limit to a container-level OOM SIGKILL.
+  (isVercel ? "--max-old-space-size=7168" : "--max-old-space-size=16384");
 const turbopackSilenceTimeoutMs = Math.max(
   1,
   Number.parseInt(process.env.NEXT_TURBOPACK_SILENCE_TIMEOUT_MS ?? "", 10) || 8 * 60 * 1000,

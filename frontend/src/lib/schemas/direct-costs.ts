@@ -12,7 +12,7 @@
  */
 
 import { z } from 'zod';
-import { Database } from '@/types/database.types';
+import type { Database } from '@/types/database.types';
 
 // =============================================================================
 // CONSTANTS & ENUMS

@@ -167,6 +167,12 @@ const nextConfig: NextConfig = {
     "langfuse",
   ],
   webpack: (config) => {
+    // Vercel's build container must not retain Webpack's filesystem cache.
+    // Removing this guard has repeatedly pushed production compilation into an OOM SIGKILL.
+    if (process.env.VERCEL) {
+      config.cache = false;
+    }
+
     // react-pdf imports bare `pdfjs-dist`, whose non-minified 5.x ESM entry redeclares
     // webpack's internal export variable and crashes the drawing viewer in dev.
     // Production builds use Turbopack (--turbopack flag); this alias applies to local
