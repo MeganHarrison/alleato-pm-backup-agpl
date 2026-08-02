@@ -18,7 +18,12 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Modal, ModalContent, ModalTitle } from "@/components/ui/unified-modal";
+import {
+  Modal,
+  ModalContent,
+  ModalDescription,
+  ModalTitle,
+} from "@/components/ui/unified-modal";
 import {
   Command,
   CommandInput,
@@ -29,7 +34,6 @@ import {
   CommandSeparator,
   CommandShortcut,
 } from "@/components/ui/command";
-import { cn } from "@/lib/utils";
 import { useOptionalProject } from "@/contexts/project-context";
 import { useGlobalSearch } from "@/hooks/use-global-search";
 import type {
@@ -210,19 +214,13 @@ export function GlobalSearch() {
     <>
       <Button
         type="button"
-        variant="outline"
+        variant="ghost"
+        size="icon-sm"
         onClick={() => setOpen(true)}
         aria-label="Search"
-        className={cn(
-          "h-8 justify-start gap-2 border-border/60 bg-background px-2.5 font-normal text-muted-foreground hover:text-foreground",
-          "w-8 md:w-44 md:px-2.5 lg:w-56",
-        )}
+        className="h-8 w-8 shrink-0 text-muted-foreground hover:bg-accent hover:text-foreground"
       >
         <Search className="h-4 w-4 shrink-0" strokeWidth={1.6} />
-        <span className="hidden truncate text-xs md:inline">Search…</span>
-        <CommandShortcut className="ml-auto hidden text-[10px] md:inline">
-          ⌘K
-        </CommandShortcut>
       </Button>
 
       <Modal open={open} onOpenChange={setOpen}>
@@ -232,6 +230,9 @@ export function GlobalSearch() {
           className="gap-0 overflow-hidden p-0"
         >
           <ModalTitle className="sr-only">Site-wide search</ModalTitle>
+          <ModalDescription className="sr-only">
+            Search across projects, companies, and project records.
+          </ModalDescription>
           <Command shouldFilter={false} className="rounded-lg">
             <CommandInput
               value={term}

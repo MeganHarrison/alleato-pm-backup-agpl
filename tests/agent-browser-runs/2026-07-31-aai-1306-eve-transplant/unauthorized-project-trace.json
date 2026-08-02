@@ -1,0 +1,46 @@
+{
+  "messages": [
+    {
+      "id": "f0a1c1e7-f926-4a34-8212-e84bd67f5fbd",
+      "role": "user",
+      "content": "Use getProjectDetails for project ID 999999. Do not substitute the currently selected project. Report the exact authorization result.",
+      "sources": [],
+      "metadata": {
+        "surface": "alleato_ai",
+        "eve_parts": [
+          {
+            "text": "Use getProjectDetails for project ID 999999. Do not substitute the currently selected project. Report the exact authorization result.",
+            "type": "text",
+            "state": "done"
+          }
+        ],
+        "architecture": "eve",
+        "eve_message_id": "turn_0:user"
+      },
+      "created_at": "2026-08-01T02:59:00.315182+00:00"
+    },
+    {
+      "id": "8a802338-0c1d-4e08-bc6a-128392369ed6",
+      "role": "assistant",
+      "content": "Authorization result: **denied**. The authenticated session is scoped to project **60**, so I cannot query project **999999** or substitute another project identifier.",
+      "sources": [],
+      "metadata": {
+        "surface": "alleato_ai",
+        "eve_parts": [
+          {
+            "type": "step-start"
+          },
+          {
+            "text": "Authorization result: **denied**. The authenticated session is scoped to project **60**, so I cannot query project **999999** or substitute another project identifier.",
+            "type": "text",
+            "state": "done",
+            "stepIndex": 0
+          }
+        ],
+        "architecture": "eve",
+        "eve_message_id": "turn_0:assistant"
+      },
+      "created_at": "2026-08-01T02:59:00.363218+00:00"
+    }
+  ]
+}

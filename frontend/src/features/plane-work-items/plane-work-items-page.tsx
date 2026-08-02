@@ -844,7 +844,7 @@ export function PlaneWorkItemsPage({
             </button>
             <button
               type="button"
-              className="h-7 rounded bg-[#075985] px-3 text-xs font-medium text-white hover:bg-[#064e6e]"
+              className="h-7 rounded bg-primary px-3 text-xs font-medium text-primary-foreground hover:bg-primary/90"
               onClick={() => openQuickAdd()}
             >
               <span className="sm:hidden">Add</span>

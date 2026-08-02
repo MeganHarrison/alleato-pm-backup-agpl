@@ -27,7 +27,7 @@ export type WidgetAiChatView = "chat" | "history";
 
 /**
  * Full-featured AI assistant chat for the global floating widget. Reuses the
- * same `/api/ai-assistant/chat` transport, composer (project picker, file
+ * same Eve runtime, composer (project picker, file
  * attachments, model/council controls) and persisted conversations as the `/ai`
  * page — only difference is sessions live in local state instead of the URL so
  * the widget never navigates the user away from their current page.
@@ -267,7 +267,6 @@ export function WidgetAiChat({
         selectedModel={selectedModel}
         onModelChange={setSelectedModel}
         onFinishMessage={handleFinishMessage}
-        chatApi="/api/ai-assistant/chat"
         assistantSurface="alleato_ai"
         welcomeHideOrb
       />

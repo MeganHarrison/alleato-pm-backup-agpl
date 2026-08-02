@@ -8,10 +8,16 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database.types";
 
 type Insert = { table: string; row: Record<string, unknown> };
+type Update = {
+  table: string;
+  row: Record<string, unknown>;
+  filters: Array<[string, unknown]>;
+};
 
 function fakeSupabase(
   inserts: Insert[],
   error: { message: string } | null = null,
+  updates: Update[] = [],
 ): SupabaseClient<Database> {
   return {
     from(table: string) {
@@ -19,6 +25,20 @@ function fakeSupabase(
         insert(row: Record<string, unknown>) {
           inserts.push({ table, row });
           return Promise.resolve({ error });
+        },
+        update(row: Record<string, unknown>) {
+          const operation: Update = { table, row, filters: [] };
+          updates.push(operation);
+          const chain = {
+            eq(column: string, value: unknown) {
+              operation.filters.push([column, value]);
+              return chain;
+            },
+            then(resolve: (value: { error: { message: string } | null }) => unknown) {
+              return Promise.resolve({ error }).then(resolve);
+            },
+          };
+          return chain;
         },
       };
     },
@@ -57,6 +77,54 @@ describe("ChatHistoryWriter.persist", () => {
   test("returns the error message instead of throwing", async () => {
     const writer = createChatHistoryWriter(fakeSupabase([], { message: "db down" }), CTX);
     await expect(writer.persist("user", "x")).resolves.toEqual({ error: "db down" });
+  });
+});
+
+describe("ChatHistoryWriter.replaceRecordOrThrow", () => {
+  test("replaces only the bound session and user row", async () => {
+    const updates: Update[] = [];
+    const writer = createChatHistoryWriter(fakeSupabase([], null, updates), CTX);
+
+    await writer.replaceRecordOrThrow(
+      "row-1",
+      {
+        role: "assistant",
+        content: "completed",
+        metadata: { eve_message_id: "turn-1", eve_parts: [] },
+      },
+      "assistant Eve message",
+    );
+
+    expect(updates).toEqual([
+      {
+        table: "chat_history",
+        row: {
+          role: "assistant",
+          content: "completed",
+          metadata: { eve_message_id: "turn-1", eve_parts: [] },
+        },
+        filters: [
+          ["id", "row-1"],
+          ["session_id", "sess-1"],
+          ["user_id", "user-1"],
+        ],
+      },
+    ]);
+  });
+
+  test("fails loudly when an Eve snapshot replacement fails", async () => {
+    const writer = createChatHistoryWriter(
+      fakeSupabase([], { message: "db down" }),
+      CTX,
+    );
+
+    await expect(
+      writer.replaceRecordOrThrow(
+        "row-1",
+        { role: "assistant", content: "completed" },
+        "assistant Eve message",
+      ),
+    ).rejects.toThrow("Replacing the assistant Eve message failed: db down");
   });
 });
 

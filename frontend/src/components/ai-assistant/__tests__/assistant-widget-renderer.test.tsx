@@ -31,17 +31,17 @@ jest.mock("sonner", () => ({
 const apiFetchMock = apiFetch as jest.MockedFunction<typeof apiFetch>;
 
 describe("AssistantSourceEvidenceWidget", () => {
-  it("links governed evidence to its canonical in-app detail route", () => {
+  it("links revision-scoped FMDS evidence to its canonical in-app detail route", () => {
     render(
       <AssistantSourceEvidenceWidget
         sources={[
           {
             document_id: "chunk-1",
-            snippet: "Executive report Q2 2026 summary",
+            snippet: "FMDS 8-34 April 2026 Table 2.1.4.5.4",
             metadata: {
-              title: "Executive Report (2026 Q2)",
-              type: "executive_report",
-              url: "/executive-reports/report-1",
+              title: "FMDS0834 (2026-04), Table 2.1.4.5.4, PDF page 12",
+              type: "fmds_table",
+              url: "/fm-global/fm_global_tables/table-1",
             },
           },
         ]}
@@ -50,9 +50,9 @@ describe("AssistantSourceEvidenceWidget", () => {
 
     expect(
       screen.getByRole("link", {
-        name: /Executive Report \(2026 Q2\)/i,
+        name: /FMDS0834 \(2026-04\), Table 2\.1\.4\.5\.4, PDF page 12/i,
       }),
-    ).toHaveAttribute("href", "/executive-reports/report-1");
+    ).toHaveAttribute("href", "/fm-global/fm_global_tables/table-1");
   });
 
   it("does not treat protocol-relative source metadata as an in-app route", () => {
@@ -63,7 +63,7 @@ describe("AssistantSourceEvidenceWidget", () => {
             snippet: "Untrusted source",
             metadata: {
               title: "Untrusted source",
-              type: "executive_report",
+              type: "fmds_table",
               url: "//example.com/unsafe",
             },
           },
@@ -71,8 +71,32 @@ describe("AssistantSourceEvidenceWidget", () => {
       />,
     );
 
-    expect(screen.queryByRole("link", { name: /untrusted source/i })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: /untrusted source/i }),
+    ).not.toBeInTheDocument();
     expect(screen.getByText("Untrusted source")).toBeInTheDocument();
+  });
+
+  it("does not render unsafe governed-report citation schemes", () => {
+    render(
+      <AssistantSourceEvidenceWidget
+        sources={[
+          {
+            snippet: "Unsafe governed report",
+            metadata: {
+              title: "Unsafe governed report",
+              type: "project_intelligence",
+              url: "data:text/html,unsafe",
+            },
+          },
+        ]}
+      />,
+    );
+
+    expect(
+      screen.queryByRole("link", { name: /unsafe governed report/i }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByText("Unsafe governed report")).toBeInTheDocument();
   });
 });
 
@@ -116,7 +140,8 @@ function createdOutlookDraftWidget(
     bccRecipients: [],
     replyToGraphMessageId: "source-message-id",
     outlookDraftId: "draft-message-id",
-    outlookWebLink: "https://outlook.office.com/mail/deeplink/compose/draft-message-id",
+    outlookWebLink:
+      "https://outlook.office.com/mail/deeplink/compose/draft-message-id",
     voiceProfile: {
       path: "docs/architecture/memory/brandon-brand-voice/brandon-email-voice-profile.md",
       version: "2026-05-13",
@@ -164,7 +189,8 @@ describe("AssistantWidgetRenderer Outlook draft feedback", () => {
       subject: "RE: Brookville Road Goodwill",
       signal: "good",
       reasonCategory: "good_tone",
-      voiceProfilePath: "docs/architecture/memory/brandon-brand-voice/brandon-email-voice-profile.md",
+      voiceProfilePath:
+        "docs/architecture/memory/brandon-brand-voice/brandon-email-voice-profile.md",
       voiceProfileVersion: "2026-05-13",
     });
     expect(screen.getByText("Draft feedback recorded")).toBeInTheDocument();
@@ -184,7 +210,9 @@ describe("AssistantWidgetRenderer Outlook draft feedback", () => {
       />,
     );
 
-    expect(screen.queryByRole("button", { name: /good tone/i })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /good tone/i }),
+    ).not.toBeInTheDocument();
   });
 });
 
@@ -204,7 +232,12 @@ describe("AssistantWidgetRenderer commitment draft", () => {
       fields: [
         { label: "Title", value: "Electrical rough-in", editable: true },
         { label: "Vendor", value: "Acme Electric", editable: true },
-        { label: "Scope", value: "Electrical rough-in scope", editable: true, multiline: true },
+        {
+          label: "Scope",
+          value: "Electrical rough-in scope",
+          editable: true,
+          multiline: true,
+        },
       ],
       validation: [
         {
@@ -240,9 +273,15 @@ describe("AssistantWidgetRenderer commitment draft", () => {
     expect(screen.getByText("SC-001")).toBeInTheDocument();
     expect(screen.getAllByText("$12,500.00")).toHaveLength(2);
     expect(screen.getByText("Electrical rough-in")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: /build final preview/i }));
-    expect(onSubmit).toHaveBeenCalledWith(expect.stringContaining("createCommitment"));
-    expect(onSubmit).toHaveBeenCalledWith(expect.stringContaining("Acme Electric"));
+    fireEvent.click(
+      screen.getByRole("button", { name: /build final preview/i }),
+    );
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.stringContaining("createCommitment"),
+    );
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.stringContaining("Acme Electric"),
+    );
   });
 
   it("blocks final preview submission when vendor validation fails", () => {
@@ -263,7 +302,9 @@ describe("AssistantWidgetRenderer commitment draft", () => {
       />,
     );
 
-    expect(screen.getByRole("button", { name: /build final preview/i })).toBeDisabled();
+    expect(
+      screen.getByRole("button", { name: /build final preview/i }),
+    ).toBeDisabled();
     expect(screen.getByText(/resolve the vendor/i)).toBeInTheDocument();
   });
 });
@@ -283,8 +324,16 @@ describe("AssistantWidgetRenderer Prime Contract draft", () => {
       ownerCompanyName: "Westfield Owner LLC",
       sovSource: "manual",
       fields: [
-        { label: "Title", value: "Westfield Construction Agreement", editable: true },
-        { label: "Owner / client", value: "Westfield Owner LLC", editable: true },
+        {
+          label: "Title",
+          value: "Westfield Construction Agreement",
+          editable: true,
+        },
+        {
+          label: "Owner / client",
+          value: "Westfield Owner LLC",
+          editable: true,
+        },
         { label: "Status", value: "draft", editable: true },
       ],
       validation: [
@@ -322,7 +371,9 @@ describe("AssistantWidgetRenderer Prime Contract draft", () => {
 
     expect(screen.getByText("PC-0004")).toBeInTheDocument();
     expect(screen.getByText("$125,000.00")).toBeInTheDocument();
-    expect(screen.getByLabelText("SOV line 1 amount")).toHaveValue("125,000.00");
+    expect(screen.getByLabelText("SOV line 1 amount")).toHaveValue(
+      "125,000.00",
+    );
     expect(screen.getByText("1 contract + 1 SOV")).toBeInTheDocument();
     fireEvent.change(screen.getByLabelText("SOV line 1 description"), {
       target: { value: "Updated general conditions" },
@@ -332,9 +383,15 @@ describe("AssistantWidgetRenderer Prime Contract draft", () => {
     });
     expect(screen.getByText("$130,000.00")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /request approval/i }));
-    expect(onSubmit).toHaveBeenCalledWith(expect.stringContaining("createPrimeContract"));
-    expect(onSubmit).toHaveBeenCalledWith(expect.stringContaining('"confirmed": true'));
-    expect(onSubmit).toHaveBeenCalledWith(expect.stringContaining("Updated general conditions"));
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.stringContaining("createPrimeContract"),
+    );
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.stringContaining('"confirmed": true'),
+    );
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.stringContaining("Updated general conditions"),
+    );
     expect(onSubmit).toHaveBeenCalledWith(expect.stringContaining("130000"));
   });
 
@@ -366,12 +423,20 @@ describe("AssistantWidgetRenderer Prime Contract draft", () => {
       />,
     );
 
-    expect(screen.queryByLabelText("SOV line 1 description")).not.toBeInTheDocument();
+    expect(
+      screen.queryByLabelText("SOV line 1 description"),
+    ).not.toBeInTheDocument();
     expect(screen.getByText("General conditions")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /request approval/i }));
-    expect(onSubmit).toHaveBeenCalledWith(expect.stringContaining('"workbookRows"'));
-    expect(onSubmit).toHaveBeenCalledWith(expect.stringContaining('"workbookOmittedRows": 2'));
-    expect(onSubmit).toHaveBeenCalledWith(expect.stringContaining('"sourceSheet": "General Conditions"'));
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.stringContaining('"workbookRows"'),
+    );
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.stringContaining('"workbookOmittedRows": 2'),
+    );
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.stringContaining('"sourceSheet": "General Conditions"'),
+    );
   });
 
   it("renders a canonical record link for a created receipt", () => {
@@ -388,11 +453,12 @@ describe("AssistantWidgetRenderer Prime Contract draft", () => {
       />,
     );
 
-    expect(screen.getByRole("link", { name: /open prime contract/i })).toHaveAttribute(
-      "href",
-      "/43/prime-contracts/contract-1",
-    );
-    expect(screen.queryByRole("button", { name: /request approval/i })).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: /open prime contract/i }),
+    ).toHaveAttribute("href", "/43/prime-contracts/contract-1");
+    expect(
+      screen.queryByRole("button", { name: /request approval/i }),
+    ).not.toBeInTheDocument();
   });
 
   it("keeps budget-backed SOV rows read-only and preserves source IDs", () => {
@@ -419,11 +485,15 @@ describe("AssistantWidgetRenderer Prime Contract draft", () => {
     expect(
       screen.queryByLabelText("SOV line 1 description"),
     ).not.toBeInTheDocument();
-    expect(screen.queryByLabelText("SOV line 1 amount")).not.toBeInTheDocument();
+    expect(
+      screen.queryByLabelText("SOV line 1 amount"),
+    ).not.toBeInTheDocument();
     expect(screen.getByText("Saved markups (not applied)")).toBeInTheDocument();
     expect(screen.getByText("5%")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /request approval/i }));
-    expect(onSubmit).toHaveBeenCalledWith(expect.stringContaining('"sovSource": "budget"'));
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.stringContaining('"sovSource": "budget"'),
+    );
     expect(onSubmit).toHaveBeenCalledWith(
       expect.stringContaining('"00000000-0000-0000-0000-000000000005"'),
     );
@@ -436,7 +506,8 @@ describe("AssistantWidgetRenderer Outlook inbox summary", () => {
       type: "outlook_inbox_summary",
       id: "recent-email-inbox",
       title: "Important Outlook emails",
-      subtitle: "Ranked by likely action needed, with the actual message text shown in readable cards.",
+      subtitle:
+        "Ranked by likely action needed, with the actual message text shown in readable cards.",
       dateLabel: "Today",
       summary: "Found 46 emails in 26 threads received today.",
       dataCutoffNote: "Outlook email sync last completed May 14, 1:12 PM ET.",
@@ -496,16 +567,23 @@ describe("AssistantWidgetRenderer Outlook inbox summary", () => {
       />,
     );
 
-    expect(screen.getByLabelText("Important Outlook emails")).toBeInTheDocument();
+    expect(
+      screen.getByLabelText("Important Outlook emails"),
+    ).toBeInTheDocument();
     expect(screen.getByText("RE: Closeout MTV 2 Project")).toBeInTheDocument();
-    expect(screen.getByText("Ok yes please get me final bill today.")).toBeInTheDocument();
+    expect(
+      screen.getByText("Ok yes please get me final bill today."),
+    ).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /^reply$/i }));
-    expect(onSubmit).toHaveBeenCalledWith(expect.stringContaining("OUTLOOK_INBOX_CARD_ACTION"));
-    expect(onSubmit).toHaveBeenCalledWith(expect.stringContaining("Graph message ID: message-1"));
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.stringContaining("OUTLOOK_INBOX_CARD_ACTION"),
+    );
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.stringContaining("Graph message ID: message-1"),
+    );
     expect(screen.getByRole("link", { name: /outlook/i })).toHaveAttribute(
       "href",
       "https://outlook.office.com/mail/inbox/id/thread-1",
     );
   });
-
 });

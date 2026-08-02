@@ -271,7 +271,7 @@ export function PlaneSubmittalsPage({
             <button
               type="button"
               onClick={() => setCreateOpen(true)}
-              className="inline-flex h-8 items-center gap-1.5 rounded bg-[#075985] px-3 text-xs font-medium text-white hover:bg-[#0c4a6e]"
+              className="inline-flex h-8 items-center gap-1.5 rounded bg-primary px-3 text-xs font-medium text-primary-foreground hover:bg-primary/90"
             >
               <Plus className="size-3.5" />
               <span className="hidden sm:inline">Add submittal</span>
@@ -571,7 +571,7 @@ export function PlaneSubmittalsPage({
                 disabled={
                   createSubmittal.isPending || !number.trim() || !title.trim()
                 }
-                className="h-8 rounded bg-[#075985] px-3 text-xs font-medium text-white hover:bg-[#0c4a6e] disabled:opacity-50"
+                className="h-8 rounded bg-primary px-3 text-xs font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
               >
                 {createSubmittal.isPending ? "Creating..." : "Create submittal"}
               </button>

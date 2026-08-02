@@ -307,12 +307,7 @@ export function GlobalAiWidget() {
 
               <div className="flex min-w-0 items-center gap-2">
                 {view === "chat" && (
-                  <img
-                    src="/alleato-favicon.png"
-                    alt=""
-                    aria-hidden="true"
-                    className="h-6 w-6 shrink-0 rounded-sm"
-                  />
+                  <Sparkles className="h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
                 )}
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold text-foreground">

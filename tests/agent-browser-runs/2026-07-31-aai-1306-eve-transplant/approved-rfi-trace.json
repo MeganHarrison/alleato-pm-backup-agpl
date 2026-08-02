@@ -1,0 +1,140 @@
+{
+  "messages": [
+    {
+      "id": "db0b7a41-918e-4959-a0eb-7d97d92f6924",
+      "role": "user",
+      "content": "Create an RFI in the currently selected project with subject 'AAI-1306 FINAL3 APPROVED VERIFICATION 2026-08-01', question 'Verification only: prove the approved Eve action executes exactly once and remains durable.', cost impact no, schedule impact no. Use createRFI and wait for my approval.",
+      "sources": [],
+      "metadata": {
+        "surface": "alleato_ai",
+        "eve_parts": [
+          {
+            "text": "Create an RFI in the currently selected project with subject 'AAI-1306 FINAL3 APPROVED VERIFICATION 2026-08-01', question 'Verification only: prove the approved Eve action executes exactly once and remains durable.', cost impact no, schedule impact no. Use createRFI and wait for my approval.",
+            "type": "text",
+            "state": "done"
+          }
+        ],
+        "architecture": "eve",
+        "eve_message_id": "turn_0:user"
+      },
+      "created_at": "2026-08-01T02:46:25.197342+00:00"
+    },
+    {
+      "id": "05b923ca-36ed-458f-ace7-98b4f86e23b2",
+      "role": "assistant",
+      "content": "",
+      "sources": [],
+      "metadata": {
+        "surface": "alleato_ai",
+        "eve_parts": [
+          {
+            "type": "step-start"
+          },
+          {
+            "type": "dynamic-tool",
+            "input": {
+              "subject": "AAI-1306 FINAL3 APPROVED VERIFICATION 2026-08-01",
+              "question": "Verification only: prove the approved Eve action executes exactly once and remains durable.",
+              "projectId": 60,
+              "costImpact": "no",
+              "scheduleImpact": "no"
+            },
+            "state": "output-available",
+            "output": {
+              "record": {
+                "id": "64e1f5d2-d074-4525-ad79-ff3d0b8806ea",
+                "number": 3,
+                "status": "open",
+                "subject": "AAI-1306 FINAL3 APPROVED VERIFICATION 2026-08-01"
+              },
+              "message": "RFI #3 — **\"AAI-1306 FINAL3 APPROVED VERIFICATION 2026-08-01\"** created.",
+              "success": true,
+              "executionReceipt": {
+                "eveTurnId": "turn_1",
+                "toolCallId": "call_C4JmAuYK3LT2dmbCGir5xwg2",
+                "payloadHash": "16ed186fc03ab9b9f0e855577c04dcf94c4f8ae4285e207818e6b75a20ce64a4",
+                "eveSessionId": "wrun_01KYXKC7WP056CCVJQDA9V513R",
+                "idempotencyKey": "cca24174696bb4b7660f9403f4db6500b0e2385963b3bb8994a79c229d213b8e",
+                "assistantTurnId": "ed79b7c3-cc00-4624-8a45-cde2dc465899"
+              },
+              "governedApproval": {
+                "status": "approved",
+                "message": "The user approved this exact tool call before execution. Describe the write as completed after approval, never as created before approval."
+              }
+            },
+            "approval": {
+              "id": "aitxt-X0K6SdHt5AKIkfWjOMZ23FC2",
+              "reason": "User approved tool execution",
+              "approved": true
+            },
+            "toolName": "createRFI",
+            "stepIndex": 0,
+            "toolCallId": "call_C4JmAuYK3LT2dmbCGir5xwg2",
+            "toolMetadata": {
+              "eve": {
+                "kind": "tool-call",
+                "name": "createRFI",
+                "inputRequest": {
+                  "prompt": "Approve tool call: createRFI",
+                  "display": "confirmation",
+                  "options": [
+                    {
+                      "id": "approve",
+                      "label": "Yes"
+                    },
+                    {
+                      "id": "deny",
+                      "label": "No"
+                    }
+                  ],
+                  "requestId": "aitxt-X0K6SdHt5AKIkfWjOMZ23FC2",
+                  "allowFreeform": false
+                },
+                "inputResponse": {
+                  "text": "User approved tool execution",
+                  "optionId": "approve",
+                  "requestId": "aitxt-X0K6SdHt5AKIkfWjOMZ23FC2"
+                }
+              }
+            }
+          }
+        ],
+        "architecture": "eve",
+        "eve_message_id": "turn_0:assistant"
+      },
+      "created_at": "2026-08-01T02:46:25.253619+00:00"
+    },
+    {
+      "id": "fd30b28c-ba1e-461d-8558-fe51ac0bbcaa",
+      "role": "assistant",
+      "content": "RFI **#3** was created successfully in the selected project after approval.\n\n- **Subject:** AAI-1306 FINAL3 APPROVED VERIFICATION 2026-08-01\n- **Status:** Open\n- **Cost impact:** No\n- **Schedule impact:** No\n- **Record ID:** `64e1f5d2-d074-4525-ad79-ff3d0b8806ea`I’m ready for your next request.",
+      "sources": [],
+      "metadata": {
+        "surface": "alleato_ai",
+        "eve_parts": [
+          {
+            "type": "step-start"
+          },
+          {
+            "text": "RFI **#3** was created successfully in the selected project after approval.\n\n- **Subject:** AAI-1306 FINAL3 APPROVED VERIFICATION 2026-08-01\n- **Status:** Open\n- **Cost impact:** No\n- **Schedule impact:** No\n- **Record ID:** `64e1f5d2-d074-4525-ad79-ff3d0b8806ea`",
+            "type": "text",
+            "state": "done",
+            "stepIndex": 0
+          },
+          {
+            "type": "step-start"
+          },
+          {
+            "text": "I’m ready for your next request.",
+            "type": "text",
+            "state": "done",
+            "stepIndex": 1
+          }
+        ],
+        "architecture": "eve",
+        "eve_message_id": "turn_1:assistant"
+      },
+      "created_at": "2026-08-01T02:46:43.099074+00:00"
+    }
+  ]
+}

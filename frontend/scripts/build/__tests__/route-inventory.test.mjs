@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 
-import { generateRouteInventory, writeRouteInventory } from "../route-inventory.mjs";
+import { assertRouteInventoryFresh, generateRouteInventory, writeRouteInventory } from "../route-inventory.mjs";
 import { prepareRouteInventory } from "../prepare-route-inventory.mjs";
 
 function fixture() {
@@ -39,6 +39,20 @@ test("writes a non-empty generated inventory before Next.js compiles static impo
     const written = JSON.parse(readFileSync(result.generatedInventoryPath, "utf8"));
     assert.equal(written.length, 2);
     assert.equal(written[0].route, "/api/health");
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("fails loudly when the committed route snapshot is stale", () => {
+  const root = fixture();
+  try {
+    assert.throws(
+      () => assertRouteInventoryFresh({ frontendRoot: root }),
+      /\[route-inventory\] Committed inventory is stale \(0 snapshot rows, 2 current source rows\).*route-audit\.mjs/,
+    );
+    writeRouteInventory({ frontendRoot: root });
+    assert.equal(assertRouteInventoryFresh({ frontendRoot: root }), 2);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

@@ -12,7 +12,9 @@ const toolName = option("tool");
 const prompt = option("prompt");
 const existingSessionId = option("session-id");
 const authState = option("auth-state");
+const projectName = option("project");
 const completionTimeoutMs = Number(option("completion-timeout-ms", "180000"));
+const approvalAction = option("approval-action", "none");
 const evidenceDir = option(
   "evidence-dir",
   path.join(process.cwd(), "output", "eve-tool-verification"),
@@ -25,6 +27,11 @@ if (!toolName || (!prompt && !existingSessionId)) {
 }
 if (!Number.isFinite(completionTimeoutMs) || completionTimeoutMs < 10_000) {
   throw new Error("--completion-timeout-ms must be a number of at least 10000.");
+}
+if (!["none", "approve", "deny"].includes(approvalAction)) {
+  throw new Error(
+    "--approval-action must be one of: none, approve, deny",
+  );
 }
 
 await fs.mkdir(evidenceDir, { recursive: true });
@@ -113,6 +120,7 @@ const browser = await chromium.launch({
 });
 
 let activePage = null;
+let selectedProjectName = null;
 try {
   const contextOptions = {
     viewport: { width: 1440, height: 1000 },
@@ -166,6 +174,33 @@ try {
     });
   }
 
+  if (projectName) {
+    const project = await page.evaluate(async (requestedProject) => {
+      const response = await fetch(
+        "/api/projects?fields=id,name,job_number,phase&includeClient=false&limit=100&page=1&archived=false&phase=Current",
+        { credentials: "include" },
+      );
+      if (!response.ok) {
+        throw new Error(`Project list failed with HTTP ${response.status}.`);
+      }
+      const payload = await response.json();
+      const projects = Array.isArray(payload?.data) ? payload.data : [];
+      return requestedProject === "first"
+        ? projects[0] ?? null
+        : projects.find((candidate) => candidate?.name === requestedProject) ?? null;
+    }, projectName);
+    if (!project?.id) {
+      throw new Error(`No authorized project matched ${projectName}.`);
+    }
+    selectedProjectName = String(project.name ?? `Project ${project.id}`);
+    const projectUrl = new URL(page.url());
+    projectUrl.searchParams.set("projectId", String(project.id));
+    await page.goto(projectUrl.toString(), {
+      waitUntil: "domcontentloaded",
+      timeout: 90_000,
+    });
+  }
+
   const submit = page.getByRole("button", { name: /^Submit$/i });
   let sessionId = existingSessionId;
   if (!sessionId) {
@@ -175,7 +210,7 @@ try {
     // The AI shell re-renders once profile/project queries settle. Verify the
     // controlled textarea retains the prompt before clicking its submit button.
     let composerReady = false;
-    for (let attempt = 0; attempt < 5; attempt += 1) {
+    for (let attempt = 0; attempt < 20; attempt += 1) {
       await input.fill(prompt);
       await page.waitForTimeout(750);
       composerReady =
@@ -188,7 +223,11 @@ try {
     }
     await submit.click();
 
-    await page.waitForURL(/session=/, { timeout: 60_000 });
+    await page.waitForFunction(
+      () => new URL(location.href).searchParams.has("session"),
+      null,
+      { timeout: 90_000 },
+    );
     sessionId = new URL(page.url()).searchParams.get("session");
   }
   if (!sessionId) throw new Error("Eve did not create a session URL.");
@@ -198,6 +237,11 @@ try {
   let toolMatches = [];
   let visibleFailure = false;
   let uiCompletedAt = null;
+  let approvalRequested = false;
+  let approvalResponded = false;
+  let approvalScreenshotPath = null;
+  const expectedTerminalState =
+    approvalAction === "deny" ? "output-denied" : "output-available";
   const deadline = Date.now() + completionTimeoutMs;
   while (Date.now() < deadline) {
     await page.waitForTimeout(2_000);
@@ -232,17 +276,97 @@ try {
       }
     }
     toolMatches = collectToolEvidence(payload);
-    const hasAssistant = JSON.stringify(payload).includes('"role":"assistant"');
-    const hasTerminalTool = toolMatches.some(
-      ({ value }) => value.state === "output-available",
+    const targetApprovalRequest = toolMatches.find(
+      ({ value }) => value.state === "approval-requested",
     );
+    const liveApproval = page.getByText("Awaiting Approval", { exact: true }).last();
+    if (
+      !approvalResponded &&
+      approvalAction !== "none" &&
+      (await liveApproval.isVisible().catch(() => false))
+    ) {
+      approvalRequested = true;
+      await liveApproval.click();
+      const actionButton =
+        approvalAction === "approve"
+          ? page
+              .getByRole("button", { name: /^(Run action|Create RFI)$/i })
+              .last()
+          : page.getByRole("button", { name: /^Don't create$/i }).last();
+      await actionButton.waitFor({ state: "visible", timeout: 30_000 });
+      approvalScreenshotPath = path.join(
+        evidenceDir,
+        `${toolName}-approval-requested.png`,
+      );
+      await page.screenshot({
+        path: approvalScreenshotPath,
+        fullPage: true,
+        timeout: 10_000,
+      });
+      await actionButton.click();
+      approvalResponded = true;
+      uiCompletedAt = null;
+      continue;
+    }
+    if (targetApprovalRequest && !approvalResponded) {
+      approvalRequested = true;
+      approvalScreenshotPath = path.join(
+        evidenceDir,
+        `${toolName}-approval-requested.png`,
+      );
+      await page.screenshot({
+        path: approvalScreenshotPath,
+        fullPage: true,
+        timeout: 10_000,
+      });
+
+      if (approvalAction !== "none") {
+        if (!(await liveApproval.isVisible().catch(() => false))) {
+          await liveApproval.waitFor({ state: "visible", timeout: 30_000 });
+        }
+        await liveApproval.click();
+        const actionButton =
+          approvalAction === "approve"
+            ? page
+                .getByRole("button", { name: /^(Run action|Create RFI)$/i })
+                .last()
+            : page.getByRole("button", { name: /^Don't create$/i }).last();
+        await actionButton.waitFor({ state: "visible", timeout: 30_000 });
+        await actionButton.click();
+        approvalResponded = true;
+        uiCompletedAt = null;
+        continue;
+      }
+    }
+    const hasAssistant = JSON.stringify(payload).includes('"role":"assistant"');
     const currentBody = await page.locator("body").innerText();
+    const persistedDenial = Array.isArray(payload?.messages)
+      ? payload.messages.some(
+          (message) =>
+            message?.role === "assistant" &&
+            /not approved/i.test(String(message.content ?? "")) &&
+            /no project data changed/i.test(String(message.content ?? "")),
+        )
+      : false;
+    const hasTerminalTool =
+      toolMatches.some(({ value }) => value.state === expectedTerminalState) ||
+      (approvalAction === "deny" &&
+        approvalResponded &&
+        toolMatches.some(({ value }) => value.state === "approval-requested") &&
+        /denied/i.test(currentBody) &&
+        /no project data changed/i.test(currentBody));
     visibleFailure =
       /request failed|internal_error|precondition_failed|error_message/i.test(
         currentBody,
       );
     if (visibleFailure) break;
-    if (hasAssistant && hasTerminalTool) break;
+    if (
+      hasAssistant &&
+      (toolMatches.some(({ value }) => value.state === expectedTerminalState) ||
+        persistedDenial)
+    ) {
+      break;
+    }
     const submitEnabled = await submit
       .isEnabled({ timeout: 1_000 })
       .catch(() => false);
@@ -264,7 +388,11 @@ try {
     : null;
   const assistantVisibleNeedle =
     typeof assistantContent === "string"
-      ? normalizeVisibleText(assistantContent).slice(0, 60)
+      ? normalizeVisibleText(
+          assistantContent.split(/\r?\n/).find((line) => line.trim()) ?? "",
+        )
+          .toLowerCase()
+          .slice(0, 60)
       : "";
   if (assistantVisibleNeedle) {
     await page
@@ -274,6 +402,7 @@ try {
             .replace(/[#*_`>|]/g, " ")
             .replace(/\s+/g, " ")
             .trim()
+            .toLowerCase()
             .includes(needle),
         assistantVisibleNeedle,
         { timeout: 30_000 },
@@ -281,19 +410,26 @@ try {
       .catch(() => {});
   }
   const bodyText = await page.locator("body").innerText();
-  const normalizedBodyText = normalizeVisibleText(bodyText);
+  const normalizedBodyText = normalizeVisibleText(bodyText).toLowerCase();
   const visibleAssistantContent =
-    assistantVisibleNeedle.length > 0 &&
-    normalizedBodyText.includes(assistantVisibleNeedle);
+    (assistantVisibleNeedle.length > 0 &&
+      normalizedBodyText.includes(assistantVisibleNeedle)) ||
+    (approvalAction === "deny" &&
+      toolMatches.some(({ value }) => value.state === "output-denied") &&
+      /denied|not run|not executed/i.test(bodyText));
   visibleFailure =
     visibleFailure ||
     /request failed|internal_error|precondition_failed|error_message/i.test(
       bodyText,
     );
   const hasAssistant = JSON.stringify(payload).includes('"role":"assistant"');
-  const hasTerminalTool = toolMatches.some(
-    ({ value }) => value.state === "output-available",
-  );
+  const hasTerminalTool =
+    toolMatches.some(({ value }) => value.state === expectedTerminalState) ||
+    (approvalAction === "deny" &&
+      approvalResponded &&
+      toolMatches.some(({ value }) => value.state === "approval-requested") &&
+      /denied/i.test(bodyText) &&
+      /no project data changed/i.test(bodyText));
   const hasToolFailure =
     containsOutputError(payload) ||
     toolMatches.some(({ value }) => targetToolFailed(value));
@@ -313,12 +449,18 @@ try {
   await page.screenshot({ path: screenshotPath, fullPage: true, timeout: 10_000 });
   const result = {
     toolName,
+    selectedProjectName,
     sessionId,
     pageUrl: page.url(),
     messagesUrl,
     screenshotPath,
     rawPath,
     toolMatchCount: toolMatches.length,
+    expectedTerminalState,
+    approvalAction,
+    approvalRequested,
+    approvalResponded,
+    approvalScreenshotPath,
     visibleToolName: bodyText.includes(toolName),
     visibleFailure,
     hasAssistant,

@@ -4,20 +4,29 @@ import { requireAdmin } from "@/app/api/admin/_shared";
 import { serviceDb } from "@/lib/supabase/service-db";
 import { createServiceClient } from "@/lib/supabase/service";
 import { GuardrailError } from "@/lib/guardrails/errors";
+import { accountabilityRangeFor, accountabilityWindowStart, buildAccountabilityAnalytics } from "./accountability";
 import { buildRecentLogins } from "./recent-logins";
 
 export const dynamic = "force-dynamic";
 
 const WHERE = "api.admin.analytics#GET";
 
-export const GET = withApiGuardrails(WHERE, async () => {
+const MAX_ACCOUNTABILITY_SESSIONS = 10_000;
+
+export const GET = withApiGuardrails(WHERE, async ({ request }) => {
   await requireAdmin(WHERE);
+
+  const rangeDays = accountabilityRangeFor(request);
+  const now = new Date();
+  const analyticsWindowStart = accountabilityWindowStart(now, rangeDays);
 
   const [
     usersResult,
     appSessionsResult,
     learningProgressResult,
     learningContentResult,
+    peopleResult,
+    accountabilitySessionsResult,
   ] = await Promise.all([
     // Profiles enrich every engagement row with a name and email. Consumed only
     // as an id-keyed lookup, so no ordering is needed.
@@ -38,6 +47,19 @@ export const GET = withApiGuardrails(WHERE, async () => {
       .select("id, title, source_type")
       .eq("content_kind", "video")
       .limit(500),
+
+    // User Management owns the editable role classification. Count only the
+    // exact stored values rather than inferring subcontractor status from a
+    // company affiliation or legacy person type.
+    serviceDb.from("people")
+      .select("auth_user_id, first_name, last_name, person_type")
+      .not("auth_user_id", "is", null),
+
+    serviceDb.from("app_usage_sessions")
+      .select("user_id, last_seen_at, entry_surface", { count: "exact" })
+      .gte("last_seen_at", analyticsWindowStart.toISOString())
+      .order("last_seen_at", { ascending: false })
+      .limit(MAX_ACCOUNTABILITY_SESSIONS + 1),
   ]);
 
   const { data: authPage, error: authError } = await createServiceClient().auth.admin.listUsers({
@@ -57,6 +79,8 @@ export const GET = withApiGuardrails(WHERE, async () => {
   const appSessions = appSessionsResult.data ?? [];
   const learningProgress = learningProgressResult.data ?? [];
   const learningContent = learningContentResult.data ?? [];
+  const people = peopleResult.data ?? [];
+  const accountabilitySessions = accountabilitySessionsResult.data ?? [];
   const recentLogins = buildRecentLogins(authPage.users, users, 100);
 
   const sourceErrors = [
@@ -64,6 +88,8 @@ export const GET = withApiGuardrails(WHERE, async () => {
     appSessionsResult.error,
     learningProgressResult.error,
     learningContentResult.error,
+    peopleResult.error,
+    accountabilitySessionsResult.error,
   ].filter(Boolean);
   if (sourceErrors.length) {
     throw new GuardrailError({
@@ -97,6 +123,17 @@ export const GET = withApiGuardrails(WHERE, async () => {
     completedAt: progress.completed_at,
     watchSeconds: progress.watch_seconds,
   }));
+  const accountabilitySessionCount = accountabilitySessionsResult.count;
+  const accountabilitySessionLimitReached = accountabilitySessionCount === null
+    || accountabilitySessionCount > MAX_ACCOUNTABILITY_SESSIONS;
+  const accountability = buildAccountabilityAnalytics({
+    people,
+    profiles: users,
+    sessions: accountabilitySessions.slice(0, MAX_ACCOUNTABILITY_SESSIONS),
+    rangeDays,
+    now,
+    isComplete: !accountabilitySessionLimitReached,
+  });
 
   return NextResponse.json({
     generatedAt: new Date().toISOString(),
@@ -105,5 +142,6 @@ export const GET = withApiGuardrails(WHERE, async () => {
       recentAppUsage,
       recentLearning,
     },
+    accountability,
   });
 });

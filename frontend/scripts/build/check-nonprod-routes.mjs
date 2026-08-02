@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { assertRouteInventoryFresh } from "./route-inventory.mjs";
 
 const frontendRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const manifestPath = path.join(frontendRoot, "scripts/build/nonprod-routes.json");
@@ -8,6 +9,8 @@ const statePath = path.join(frontendRoot, ".next-nonprod-routes/disabled-routes.
 const appRoot = path.join(frontendRoot, "src/app");
 const appSurfacePath = path.join(frontendRoot, "src/lib/app-surface/app-surface.generated.json");
 const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+
+assertRouteInventoryFresh({ frontendRoot });
 
 const missing = [];
 const disabledInSource = [];

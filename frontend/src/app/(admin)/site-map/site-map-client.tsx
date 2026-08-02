@@ -250,9 +250,9 @@ const GROUP_BY_LABELS: Record<GroupBy, string> = {
 };
 
 const TAB_LABELS: Record<SitemapTab, string> = {
+  pages: "Pages",
   all: "All",
   "access-review": "Access Review",
-  pages: "Pages",
   api: "API",
   "project-pages": "Project Pages",
   "admin-pages": "Admin Pages",
@@ -823,6 +823,39 @@ function TagCell({
             A tag with that name already exists.
           </p>
         ) : null}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+export function BulkTagAssignmentMenu({
+  catalog,
+  isBusy,
+  onApply,
+}: {
+  catalog: PageTag[];
+  isBusy: boolean;
+  onApply: (slug: string) => void;
+}) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-8 gap-1.5 text-xs"
+          disabled={catalog.length === 0 || isBusy}
+        >
+          <TagIcon className="h-3.5 w-3.5" />
+          Apply tags
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start">
+        {catalog.map((tag) => (
+          <DropdownMenuItem key={tag.slug} onSelect={() => onApply(tag.slug)}>
+            {tag.label}
+          </DropdownMenuItem>
+        ))}
       </DropdownMenuContent>
     </DropdownMenu>
   );
@@ -2662,33 +2695,13 @@ export default function SiteMapClient({
                 ))}
               </DropdownMenuSubContent>
             </DropdownMenuSub>
-            <DropdownMenuSeparator />
-            <DropdownMenuSub>
-              <DropdownMenuSubTrigger>Add tags</DropdownMenuSubTrigger>
-              <DropdownMenuSubContent>
-                {tagCatalog.length === 0 ? (
-                  <DropdownMenuLabel className="font-normal text-muted-foreground">
-                    No tags yet — create one from a row&apos;s tag cell.
-                  </DropdownMenuLabel>
-                ) : (
-                  tagCatalog.map((tag) => (
-                    <DropdownMenuItem
-                      key={tag.slug}
-                      disabled={bulkAssignTagsMutation.isPending}
-                      onSelect={(event) => {
-                        // Keep the menu open so several tags can be added in a row.
-                        event.preventDefault();
-                        handleBulkAddTag(tag.slug);
-                      }}
-                    >
-                      {tag.label}
-                    </DropdownMenuItem>
-                  ))
-                )}
-              </DropdownMenuSubContent>
-            </DropdownMenuSub>
           </DropdownMenuContent>
         </DropdownMenu>
+        <BulkTagAssignmentMenu
+          catalog={tagCatalog}
+          isBusy={bulkAssignTagsMutation.isPending}
+          onApply={handleBulkAddTag}
+        />
         <Button
           variant="outline"
           size="sm"

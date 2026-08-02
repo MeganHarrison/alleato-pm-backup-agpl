@@ -1,0 +1,84 @@
+{
+  "contractVersion": 1,
+  "taskId": "AAI-1306",
+  "riskLevel": "high",
+  "feature": "Verified Eve assistant transplant",
+  "route": "/ai",
+  "flows": [
+    {
+      "name": "Authenticated Eve assistant",
+      "steps": [
+        "Open the corrected frontend preview as an authenticated Alleato user",
+        "Send a first message",
+        "Run an authorized project read",
+        "Attempt an unauthorized project request",
+        "Deny one write approval",
+        "Approve one controlled write"
+      ],
+      "expectedOutcome": "Eve responds through the authenticated proxy, enforces project scope, performs no denied effect, and performs the approved effect exactly once with a durable receipt."
+    }
+  ],
+  "requiredEvidence": [
+    "summary",
+    "actionLog",
+    "databaseReadback",
+    "negativePath",
+    "visualReview",
+    "regressionTest"
+  ],
+  "visual": {
+    "viewports": [
+      {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      }
+    ],
+    "checks": [
+      "The Alleato AI surface renders inside the existing production shell",
+      "The conversation, tool state, approval controls, and result remain readable",
+      "No MKH or standalone-template branding appears"
+    ]
+  },
+  "independentReview": {
+    "required": true
+  },
+  "claims": [
+    {
+      "id": "authenticated-runtime",
+      "description": "The existing Alleato /ai surface sends an authenticated first turn through the transplanted Eve runtime.",
+      "evidence": [
+        { "key": "summary", "min": 1 },
+        { "key": "actionLog", "min": 1 },
+        { "key": "visualReview", "min": 1 }
+      ]
+    },
+    {
+      "id": "project-authorization",
+      "description": "An authorized project read succeeds and an unauthorized project request is rejected.",
+      "evidence": [
+        { "key": "actionLog", "min": 1 },
+        { "key": "negativePath", "min": 1 },
+        { "key": "regressionTest", "min": 1 }
+      ]
+    },
+    {
+      "id": "approval-idempotency",
+      "description": "A denied write produces zero effects and one approved write produces exactly one persisted effect and receipt.",
+      "evidence": [
+        { "key": "actionLog", "min": 1 },
+        { "key": "databaseReadback", "min": 1 },
+        { "key": "negativePath", "min": 1 },
+        { "key": "regressionTest", "min": 1 }
+      ]
+    },
+    {
+      "id": "source-delta",
+      "description": "The final source comparison accounts for all completed AI Tools Verification product changes and excludes unfinished temporary work.",
+      "evidence": [
+        { "key": "summary", "min": 1 },
+        { "key": "regressionTest", "min": 1 }
+      ]
+    }
+  ]
+}

@@ -387,7 +387,7 @@ _285/369 have a description (from the page's `PageShell` or the curated `fronten
 | `/user-management/users/[userSlug]` | User Management rejected this request. Admin permission is required before this profile can load. | frontend/src/app/(admin)/user-management/users/[userSlug]/page.tsx |
 | `/weekly-operating-review` | Weekly Operating Review is limited to users with executive briefing access. | frontend/src/app/weekly-operating-review/page.tsx |
 
-## API Endpoints (764)
+## API Endpoints (765)
 
 | Endpoint | Methods | File |
 |----------|---------|------|
@@ -486,6 +486,7 @@ _285/369 have a description (from the page's `PageShell` or the curated `fronten
 | `/api/ai-assistant/conversations/[sessionId]` | PATCH, DELETE | frontend/src/app/api/ai-assistant/conversations/[sessionId]/route.ts |
 | `/api/ai-assistant/email-draft-feedback` | POST | frontend/src/app/api/ai-assistant/email-draft-feedback/route.ts |
 | `/api/ai-assistant/email-importance-feedback` | GET, POST, DELETE | frontend/src/app/api/ai-assistant/email-importance-feedback/route.ts |
+| `/api/ai-assistant/eve/proxy/[...path]` | GET, POST | frontend/src/app/api/ai-assistant/eve/proxy/[...path]/route.ts |
 | `/api/ai-assistant/eve/tools` | GET, POST | frontend/src/app/api/ai-assistant/eve/tools/route.ts |
 | `/api/ai-assistant/feedback` | POST | frontend/src/app/api/ai-assistant/feedback/route.ts |
 | `/api/ai-assistant/marketing/assets` | POST | frontend/src/app/api/ai-assistant/marketing/assets/route.ts |
@@ -495,7 +496,7 @@ _285/369 have a description (from the page's `PageShell` or the curated `fronten
 | `/api/ai-assistant/memories` | GET, POST, DELETE | frontend/src/app/api/ai-assistant/memories/route.ts |
 | `/api/ai-assistant/memories/[memoryId]` | PATCH, DELETE | frontend/src/app/api/ai-assistant/memories/[memoryId]/route.ts |
 | `/api/ai-assistant/memories/[memoryId]/feedback` | POST | frontend/src/app/api/ai-assistant/memories/[memoryId]/feedback/route.ts |
-| `/api/ai-assistant/messages/[sessionId]` | GET | frontend/src/app/api/ai-assistant/messages/[sessionId]/route.ts |
+| `/api/ai-assistant/messages/[sessionId]` | GET, POST | frontend/src/app/api/ai-assistant/messages/[sessionId]/route.ts |
 | `/api/ai-assistant/my-feedback` | GET, PATCH, DELETE | frontend/src/app/api/ai-assistant/my-feedback/route.ts |
 | `/api/ai-assistant/packet-card-feedback` | POST | frontend/src/app/api/ai-assistant/packet-card-feedback/route.ts |
 | `/api/ai-assistant/skills` | GET | frontend/src/app/api/ai-assistant/skills/route.ts |

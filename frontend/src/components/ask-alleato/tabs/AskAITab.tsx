@@ -1,12 +1,17 @@
 "use client";
 
 import * as React from "react";
-import { Send, Sparkles } from "lucide-react";
+import { Send, Sparkles, Square } from "lucide-react";
 import { ErrorState } from "@/components/ds";
 import { InfoAlert } from "@/components/ds/InfoAlert";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { getMessageText, useAskAlleatoChat } from "../useAskAlleatoChat";
+import {
+  getMessageText,
+  type AskAlleatoChatState,
+  useAskAlleatoChat,
+  useAskAlleatoIdentity,
+} from "../useAskAlleatoChat";
 
 const EXAMPLES = [
   "What's blocking the Tampa project?",
@@ -15,8 +20,44 @@ const EXAMPLES = [
 ];
 
 export function AskAITab() {
+  const identity = useAskAlleatoIdentity();
+
+  if (identity.isLoading) {
+    return (
+      <div role="status" className="py-4 text-sm text-muted-foreground">
+        Preparing Ask Alleato…
+      </div>
+    );
+  }
+
+  if (identity.userId) {
+    return <AskAlleatoConversationWithSession userId={identity.userId} />;
+  }
+
+  return <AskAlleatoUnavailable error={identity.error} />;
+}
+
+function AskAlleatoConversationWithSession({ userId }: { userId: string }) {
+  return <AskAlleatoConversation chat={useAskAlleatoChat(userId)} />;
+}
+
+function AskAlleatoUnavailable({ error }: { error: string | null }) {
+  return (
+    <ErrorState
+      title="Ask Alleato could not start"
+      error={error || "Ask Alleato could not verify your session."}
+      className="py-4"
+    />
+  );
+}
+
+function AskAlleatoConversation({
+  chat,
+}: {
+  chat: AskAlleatoChatState;
+}) {
   const [input, setInput] = React.useState("");
-  const { messages, send, isStreaming, error } = useAskAlleatoChat();
+  const { messages, send, stop, isStreaming, error } = chat;
 
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -83,7 +124,11 @@ export function AskAITab() {
           </InfoAlert>
         )}
         {error && (
-          <ErrorState title="Ask Alleato could not respond" error={error} className="py-4" />
+          <ErrorState
+            title="Ask Alleato could not respond"
+            error={error}
+            className="py-4"
+          />
         )}
       </div>
 
@@ -96,10 +141,23 @@ export function AskAITab() {
           disabled={isStreaming}
         />
         <div className="flex justify-end">
-          <Button size="sm" disabled={!input.trim() || isStreaming}>
-            <Send className="size-3.5" />
-            Ask
-          </Button>
+          {isStreaming ? (
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={stop}
+              aria-label="Stop Ask Alleato response"
+            >
+              <Square className="size-3.5 fill-current" />
+              Stop
+            </Button>
+          ) : (
+            <Button size="sm" disabled={!input.trim()}>
+              <Send className="size-3.5" />
+              Ask
+            </Button>
+          )}
         </div>
       </form>
     </div>

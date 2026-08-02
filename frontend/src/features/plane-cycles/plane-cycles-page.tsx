@@ -799,7 +799,7 @@ export function PlaneCyclesPage({
               <Button
                 size="sm"
                 onClick={openCreate}
-                className="h-8 bg-[#075985] px-3 text-xs hover:bg-[#0c4a6e]"
+                className="h-8 bg-primary px-3 text-xs text-primary-foreground hover:bg-primary/90"
               >
                 <Plus className="size-3.5" />
                 <span className="hidden sm:inline">Add cycle</span>

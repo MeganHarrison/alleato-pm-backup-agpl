@@ -1,0 +1,25 @@
+diff --git a/dist/node_modules/@vercel/nft/package.json b/dist/node_modules/@vercel/nft/package.json
+index 719696e9e8bee925e2ddbe4cecf3525ff1c67d17..583de42e67b8d73bb41aaf757e95bb78b5fe2b6e 100644
+--- a/dist/node_modules/@vercel/nft/package.json
++++ b/dist/node_modules/@vercel/nft/package.json
+@@ -1,5 +1,6 @@
+ {
+   "name": "@vercel/nft",
+   "version": "1.10.2",
++  "type": "commonjs",
+   "main": "./out/index.js"
+ }
+diff --git a/dist/_chunks/trace.mjs b/dist/_chunks/trace.mjs
+index 73845a3..7311412 100644
+--- a/dist/_chunks/trace.mjs
++++ b/dist/_chunks/trace.mjs
+@@ -3,7 +3,8 @@ import { resolveModulePath } from "./libs/exsolve.mjs";
+ import { createRequire } from "node:module";
+ import * as fsp from "node:fs/promises";
+ import { access, readFile, writeFile } from "node:fs/promises";
+-import { nodeFileTrace } from "@vercel/nft";
++import nft from "@vercel/nft";
++const { nodeFileTrace } = nft;
+ import semver from "semver";
+ var __defProp = Object.defineProperty;
+ var __exportAll = (all, no_symbols) => {

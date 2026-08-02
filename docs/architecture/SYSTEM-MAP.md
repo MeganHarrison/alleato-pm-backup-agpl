@@ -16,7 +16,7 @@
 | Surface | Count | Detailed owner |
 | --- | ---: | --- |
 | UI/API surface rows | 369 | `docs/architecture/PROJECT-MAP.md` |
-| API endpoint sections | 764 | `docs/architecture/PROJECT-MAP.md` |
+| API endpoint sections | 765 | `docs/architecture/PROJECT-MAP.md` |
 | AI tool rows | 111 | `docs/architecture/PROJECT-MAP.md` |
 | Database metadata entries | 524 | `docs/architecture/tables.yaml` |
 | Main database entries | 500 | `docs/architecture/tables.yaml` |

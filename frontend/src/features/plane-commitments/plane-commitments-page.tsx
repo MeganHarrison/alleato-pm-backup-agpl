@@ -275,7 +275,7 @@ export function PlaneCommitmentsPage({
               <button
                 type="button"
                 onClick={() => setCreateOpen((current) => !current)}
-                className="inline-flex h-11 items-center gap-1.5 rounded bg-[#075985] px-3 text-xs font-medium text-white hover:bg-[#0c4a6e] md:h-8"
+                className="inline-flex h-11 items-center gap-1.5 rounded bg-primary px-3 text-xs font-medium text-primary-foreground hover:bg-primary/90 md:h-8"
                 aria-expanded={createOpen}
               >
                 <Plus className="size-3.5" />
@@ -528,7 +528,7 @@ export function PlaneCommitmentsPage({
                       !draftNumber.trim() ||
                       !draftTitle.trim()
                     }
-                    className="h-11 rounded bg-[#075985] px-3 text-xs font-medium text-white hover:bg-[#0c4a6e] disabled:opacity-50 md:h-8"
+                    className="h-11 rounded bg-primary px-3 text-xs font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 md:h-8"
                   >
                     {updateCommitment.isPending ? "Saving..." : "Save"}
                   </button>

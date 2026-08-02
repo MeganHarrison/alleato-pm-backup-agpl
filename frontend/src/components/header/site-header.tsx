@@ -262,65 +262,66 @@ export function SiteHeader({
           )}
         </div>
 
-        {/* ── Site-wide search — trigger visible on all viewports; the ⌘K
-            listener + dialog mount here once for the whole app shell ── */}
-        <div className="flex items-center pr-1 md:pr-2">
+        {/* ── Right: Project, company tools, and header actions ── */}
+        <div className="flex shrink-0 items-center gap-1 lg:gap-2">
+          <div className="hidden md:flex items-center gap-1 lg:gap-2">
+            <ProjectSelector
+              projectId={nav.projectId}
+              currentProject={nav.currentProject}
+              projects={nav.projects}
+              loadingProjects={nav.loadingProjects}
+              onFetchProjects={nav.fetchProjects}
+              onProjectSelect={nav.handleProjectSelect}
+              onViewAll={() => router.push("/")}
+            />
+            <ToolsDropdown
+              projectId={nav.projectId}
+              currentProject={nav.currentProject}
+              projects={nav.projects}
+              loadingProjects={nav.loadingProjects}
+              onFetchProjects={nav.fetchProjects}
+              onProjectSelect={nav.handleProjectSelect}
+              onViewAll={() => router.push("/")}
+              activeToolName={nav.activeToolName}
+              permissions={permissions}
+              isAppAdmin={isAppAdmin}
+              userType={userType}
+              isDeveloper={isDeveloper}
+              userEmail={user?.email ?? null}
+            />
+          </div>
+          {/* The single app-shell search trigger follows company tools on
+              desktop and remains available beside the mobile menu. */}
           <GlobalSearch />
-        </div>
+          <div className="hidden md:flex items-center gap-1 lg:gap-2">
+            <AiChatButton />
+            <FeedbackButton />
+            <CommentsSidebarButton />
+            <React.Suspense fallback={null}>
+              <NotificationBell />
+            </React.Suspense>
+            <HeaderUserMenu
+              user={user}
+              projectId={nav.projectId}
+              activeToolName={nav.activeToolName}
+              permissions={permissions}
+              isAppAdmin={isAppAdmin}
+              userType={userType}
+            />
+          </div>
 
-        {/* ── Right: Tools dropdown + Project selector (desktop only) ── */}
-        <div className="hidden md:flex items-center gap-1 lg:gap-2 flex-shrink-0">
-          <ProjectSelector
-            projectId={nav.projectId}
-            currentProject={nav.currentProject}
-            projects={nav.projects}
-            loadingProjects={nav.loadingProjects}
-            onFetchProjects={nav.fetchProjects}
-            onProjectSelect={nav.handleProjectSelect}
-            onViewAll={() => router.push("/")}
-          />
-          <ToolsDropdown
-            projectId={nav.projectId}
-            currentProject={nav.currentProject}
-            projects={nav.projects}
-            loadingProjects={nav.loadingProjects}
-            onFetchProjects={nav.fetchProjects}
-            onProjectSelect={nav.handleProjectSelect}
-            onViewAll={() => router.push("/")}
-            activeToolName={nav.activeToolName}
-            permissions={permissions}
-            isAppAdmin={isAppAdmin}
-            userType={userType}
-            isDeveloper={isDeveloper}
-            userEmail={user?.email ?? null}
-          />
-          <AiChatButton />
-          <FeedbackButton />
-          <CommentsSidebarButton />
-          <React.Suspense fallback={null}>
-            <NotificationBell />
-          </React.Suspense>
-          <HeaderUserMenu
-            user={user}
-            projectId={nav.projectId}
-            activeToolName={nav.activeToolName}
-            permissions={permissions}
-            isAppAdmin={isAppAdmin}
-            userType={userType}
-          />
+          {/* Mobile: Menu button on right */}
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={() => setOpenMobile(true)}
+            aria-label="Open menu"
+            className="md:hidden h-12 w-12 shrink-0 text-foreground"
+          >
+            <Menu className="size-6" strokeWidth={1.8} />
+          </Button>
         </div>
-
-        {/* Mobile: Menu button on right */}
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          onClick={() => setOpenMobile(true)}
-          aria-label="Open menu"
-          className="md:hidden h-12 w-12 shrink-0 text-foreground"
-        >
-          <Menu className="size-6" strokeWidth={1.8} />
-        </Button>
       </div>
     </header>
   );

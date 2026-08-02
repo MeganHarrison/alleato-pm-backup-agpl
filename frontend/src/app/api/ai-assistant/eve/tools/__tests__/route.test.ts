@@ -54,39 +54,50 @@ const createProductionEveRequestCatalog = jest.fn(
         execute: executeReadTool,
       },
     };
+    const writeInputSchema = z.object({
+      projectId: z.number(),
+      subject: z.string(),
+      question: z.string(),
+      ballInCourt: z.string().optional(),
+      dueDate: z.string().optional(),
+      costImpact: z.enum(["yes", "no", "tbd"]),
+      scheduleImpact: z.enum(["yes", "no", "tbd"]),
+      confirmed: z.literal(true),
+      idempotencyKey: z.string(),
+    });
     const writeEntry = {
       name: "createRFI",
       requiresProjectScope: true,
       description: "Create an RFI.",
-      inputSchema: z.object({ projectId: z.number() }),
+      inputSchema: writeInputSchema,
       effect: "write",
       approvalRequirement: "user",
       tool: {
         description: "Create an RFI.",
-        inputSchema: z.object({ projectId: z.number() }),
+        inputSchema: writeInputSchema,
         execute: executeWriteTool,
       },
     };
-    const workspaceWriteEntry = {
-      name: "saveWorkspaceArtifact",
-      requiresProjectScope: false,
-      description: "Save a workspace artifact.",
-      inputSchema: z.object({
+    const workspaceWriteInputSchema = z
+      .object({
         title: z.string(),
         content: z.string(),
         confirmed: z.boolean().optional(),
         idempotencyKey: z.string().optional(),
-      }),
+      })
+      .refine((input) => input.title !== input.content, {
+        message: "Title and content must differ.",
+      });
+    const workspaceWriteEntry = {
+      name: "saveWorkspaceArtifact",
+      requiresProjectScope: false,
+      description: "Save a workspace artifact.",
+      inputSchema: workspaceWriteInputSchema,
       effect: "write",
       approvalRequirement: "user",
       tool: {
         description: "Save a workspace artifact.",
-        inputSchema: z.object({
-          title: z.string(),
-          content: z.string(),
-          confirmed: z.boolean().optional(),
-          idempotencyKey: z.string().optional(),
-        }),
+        inputSchema: workspaceWriteInputSchema,
         execute: executeWriteTool,
       },
     };

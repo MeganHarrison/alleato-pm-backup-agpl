@@ -3,9 +3,33 @@
     "route": "/",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "127",
+    "refCount": "135",
     "file": "frontend/src/app/(main)/page.tsx",
     "refSample": "frontend/src/app/(admin)/ai-vision/page.tsx; frontend/src/app/(admin)/docs/[[...slug]]/page.tsx; frontend/src/app/(admin)/document-metadata/document-metadata-client.tsx; frontend/src/app/(admin)/feedback-inbox/helpers.ts; frontend/src/app/(admin)/procore-docs/[...slug]/page.tsx"
+  },
+  {
+    "route": "/.well-known/workflow/v1/flow",
+    "kind": "api",
+    "dynamic": "false",
+    "refCount": "0",
+    "file": "frontend/src/app/.well-known/workflow/v1/flow/route.js",
+    "refSample": ""
+  },
+  {
+    "route": "/.well-known/workflow/v1/step",
+    "kind": "api",
+    "dynamic": "false",
+    "refCount": "0",
+    "file": "frontend/src/app/.well-known/workflow/v1/step/route.js",
+    "refSample": ""
+  },
+  {
+    "route": "/.well-known/workflow/v1/webhook/[token]",
+    "kind": "api",
+    "dynamic": "true",
+    "refCount": "0",
+    "file": "frontend/src/app/.well-known/workflow/v1/webhook/[token]/route.js",
+    "refSample": ""
   },
   {
     "route": "/[projectId]/admin",
@@ -189,7 +213,7 @@
     "dynamic": "true",
     "refCount": "4",
     "file": "frontend/src/app/(main)/[projectId]/commitments/page.tsx",
-    "refSample": "frontend/src/features/knowledge/app-help-content.ts; frontend/src/lib/sitemap-utils.ts; frontend/src/lib/training-docs/qa-evaluate.ts; frontend/src/lib/training-docs/__tests__/qa-evaluate.test.ts"
+    "refSample": "frontend/src/features/knowledge/app-help-content.ts; frontend/src/lib/sitemap-utils.ts; frontend/src/lib/training-docs/__tests__/qa-evaluate.test.ts; frontend/src/lib/training-docs/qa-evaluate.ts"
   },
   {
     "route": "/[projectId]/commitments/[commitmentId]",
@@ -784,6 +808,30 @@
     "refSample": "frontend/src/lib/sitemap-utils.ts"
   },
   {
+    "route": "/[projectId]/procurement",
+    "kind": "page",
+    "dynamic": "true",
+    "refCount": "0",
+    "file": "frontend/src/app/(main)/[projectId]/procurement/page.tsx",
+    "refSample": ""
+  },
+  {
+    "route": "/[projectId]/procurement/[procurementItemId]",
+    "kind": "page",
+    "dynamic": "true",
+    "refCount": "0",
+    "file": "frontend/src/app/(main)/[projectId]/procurement/[procurementItemId]/page.tsx",
+    "refSample": ""
+  },
+  {
+    "route": "/[projectId]/procurement/new",
+    "kind": "page",
+    "dynamic": "true",
+    "refCount": "0",
+    "file": "frontend/src/app/(main)/[projectId]/procurement/new/page.tsx",
+    "refSample": ""
+  },
+  {
     "route": "/[projectId]/progress-reports",
     "kind": "page",
     "dynamic": "true",
@@ -987,7 +1035,7 @@
     "route": "/access-denied",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "15",
+    "refCount": "16",
     "file": "frontend/src/app/(main)/access-denied/page.tsx",
     "refSample": "frontend/src/app/(developer)/layout.tsx; frontend/src/app/(main)/[projectId]/client-dashboard/page.tsx; frontend/src/app/(main)/[projectId]/layout.tsx; frontend/src/app/(main)/[projectId]/my-work/page.tsx; frontend/src/features/brain/brain-data.ts"
   },
@@ -995,9 +1043,9 @@
     "route": "/accounting",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "56",
+    "refCount": "57",
     "file": "frontend/src/app/(admin)/accounting/page.tsx",
-    "refSample": "frontend/src/app/(admin)/accounting/ap-invoices/page.tsx; frontend/src/app/(admin)/accounting/ap-payments/page.tsx; frontend/src/app/(admin)/accounting/bills/page.tsx; frontend/src/app/(admin)/accounting/checks/page.tsx; frontend/src/app/(admin)/accounting/direct-costs/page.tsx"
+    "refSample": "frontend/src/app/(admin)/accounting/__tests__/accounting-dashboard-theme-contract.test.ts; frontend/src/app/(admin)/accounting/__tests__/accounting-project-balance-charts.test.ts; frontend/src/app/(admin)/accounting/ap-invoices/page.tsx; frontend/src/app/(admin)/accounting/ap-payments/page.tsx; frontend/src/app/(admin)/accounting/bills/page.tsx"
   },
   {
     "route": "/accounting/ap-invoices",
@@ -1021,7 +1069,7 @@
     "dynamic": "false",
     "refCount": "5",
     "file": "frontend/src/app/(admin)/accounting/bills/page.tsx",
-    "refSample": "frontend/src/app/(admin)/accounting/direct-costs/page.tsx; frontend/src/app/(admin)/accounting/page.tsx; frontend/src/app/(admin)/accounting/__tests__/accounting-project-balance-charts.test.ts; frontend/src/app/api/accounting/bills/route.ts; frontend/src/components/accounting/accounting-nav.tsx"
+    "refSample": "frontend/src/app/(admin)/accounting/__tests__/accounting-project-balance-charts.test.ts; frontend/src/app/(admin)/accounting/direct-costs/page.tsx; frontend/src/app/(admin)/accounting/page.tsx; frontend/src/app/api/accounting/bills/route.ts; frontend/src/components/accounting/accounting-nav.tsx"
   },
   {
     "route": "/accounting/checks",
@@ -1045,7 +1093,7 @@
     "dynamic": "false",
     "refCount": "8",
     "file": "frontend/src/app/(admin)/accounting/finance-spend/page.tsx",
-    "refSample": "frontend/src/app/(admin)/accounting/page.tsx; frontend/src/app/api/accounting/dashboard/route.ts; frontend/src/app/api/accounting/direct-costs/route.ts; frontend/src/app/api/accounting/finance-spend/route.ts; frontend/src/app/api/accounting/finance-spend/rules/route.ts"
+    "refSample": "frontend/src/app/(admin)/accounting/page.tsx; frontend/src/app/api/accounting/dashboard/route.ts; frontend/src/app/api/accounting/direct-costs/route.ts; frontend/src/app/api/accounting/finance-spend/route.ts; frontend/src/app/api/accounting/finance-spend/rules/[ruleId]/route.ts"
   },
   {
     "route": "/accounting/invoices",
@@ -1053,7 +1101,7 @@
     "dynamic": "false",
     "refCount": "6",
     "file": "frontend/src/app/(admin)/accounting/invoices/page.tsx",
-    "refSample": "frontend/src/app/(admin)/accounting/page.tsx; frontend/src/app/(admin)/accounting/payments/page.tsx; frontend/src/app/(admin)/accounting/__tests__/accounting-project-balance-charts.test.ts; frontend/src/app/(main)/ai-dashboard/accounting/accounting-overview-preview.tsx; frontend/src/app/api/accounting/invoices/route.ts"
+    "refSample": "frontend/src/app/(admin)/accounting/__tests__/accounting-project-balance-charts.test.ts; frontend/src/app/(admin)/accounting/page.tsx; frontend/src/app/(admin)/accounting/payments/page.tsx; frontend/src/app/(main)/ai-dashboard/accounting/accounting-overview-preview.tsx; frontend/src/app/api/accounting/invoices/route.ts"
   },
   {
     "route": "/accounting/payments",
@@ -1077,7 +1125,7 @@
     "dynamic": "false",
     "refCount": "8",
     "file": "frontend/src/app/(admin)/accounting/reconciliation/page.tsx",
-    "refSample": "frontend/src/app/(admin)/accounting/page.tsx; frontend/src/app/(main)/ai-dashboard/accounting/accounting-detail-preview.tsx; frontend/src/app/(main)/ai-dashboard/accounting/accounting-overview-preview.tsx; frontend/src/app/(main)/ai-dashboard/__tests__/workspace-pages.test.tsx; frontend/src/app/api/reconciliation/findings/route.ts"
+    "refSample": "frontend/src/app/(admin)/accounting/page.tsx; frontend/src/app/(main)/ai-dashboard/__tests__/workspace-pages.test.tsx; frontend/src/app/(main)/ai-dashboard/accounting/accounting-detail-preview.tsx; frontend/src/app/(main)/ai-dashboard/accounting/accounting-overview-preview.tsx; frontend/src/app/api/reconciliation/findings/route.ts"
   },
   {
     "route": "/accounting/sop-backlog",
@@ -1085,7 +1133,7 @@
     "dynamic": "false",
     "refCount": "6",
     "file": "frontend/src/app/(admin)/accounting/sop-backlog/page.tsx",
-    "refSample": "frontend/src/app/(admin)/accounting/page.tsx; frontend/src/app/api/accounting/dashboard/route.ts; frontend/src/app/api/accounting/sop-backlog/route.ts; frontend/src/app/api/accounting/sop-backlog/[sopId]/route.ts; frontend/src/components/accounting/accounting-nav.tsx"
+    "refSample": "frontend/src/app/(admin)/accounting/page.tsx; frontend/src/app/api/accounting/dashboard/route.ts; frontend/src/app/api/accounting/sop-backlog/[sopId]/route.ts; frontend/src/app/api/accounting/sop-backlog/route.ts; frontend/src/components/accounting/accounting-nav.tsx"
   },
   {
     "route": "/accounting/wip",
@@ -1093,15 +1141,15 @@
     "dynamic": "false",
     "refCount": "11",
     "file": "frontend/src/app/(admin)/accounting/wip/page.tsx",
-    "refSample": "frontend/src/app/(admin)/accounting/page.tsx; frontend/src/app/(main)/ai-dashboard/accounting/accounting-detail-preview.tsx; frontend/src/app/(main)/ai-dashboard/accounting/accounting-overview-preview.tsx; frontend/src/app/(main)/ai-dashboard/live-data.ts; frontend/src/app/(main)/ai-dashboard/__tests__/workspace-pages.test.tsx"
+    "refSample": "frontend/src/app/(admin)/accounting/page.tsx; frontend/src/app/(main)/ai-dashboard/__tests__/workspace-pages.test.tsx; frontend/src/app/(main)/ai-dashboard/accounting/accounting-detail-preview.tsx; frontend/src/app/(main)/ai-dashboard/accounting/accounting-overview-preview.tsx; frontend/src/app/(main)/ai-dashboard/live-data.ts"
   },
   {
     "route": "/actions",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "37",
+    "refCount": "43",
     "file": "frontend/src/app/(admin)/actions/page.tsx",
-    "refSample": "frontend/src/app/(admin)/actions/workflows/page.tsx; frontend/src/app/(main)/actions/executive-briefing-actions.ts; frontend/src/app/(main)/actions/__tests__/executive-briefing-actions.test.ts; frontend/src/app/(main)/directory/companies/[companyId]/page.tsx; frontend/src/app/(main)/directory/contacts/[contactId]/page.tsx"
+    "refSample": "frontend/src/app/(admin)/actions/workflows/page.tsx; frontend/src/app/(main)/[projectId]/daily-log/[dailyLogId]/edit/page.tsx; frontend/src/app/(main)/[projectId]/daily-log/site-lead-checklist/page.tsx; frontend/src/app/(main)/[projectId]/daily-log/site-lead-checklist/site-lead-checklist-client.tsx; frontend/src/app/(main)/[projectId]/directory/page.tsx"
   },
   {
     "route": "/actions/workflows",
@@ -1123,9 +1171,9 @@
     "route": "/admin",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "196",
+    "refCount": "201",
     "file": "frontend/src/app/(admin)/admin/page.tsx",
-    "refSample": "frontend/src/app/(admin)/actions/admin-action-cards.tsx; frontend/src/app/(admin)/actions/page.tsx; frontend/src/app/(admin)/actions/__tests__/page.test.tsx; frontend/src/app/(admin)/acumatica-sync-logs/page.tsx; frontend/src/app/(admin)/admin/admin-dashboard-data.ts"
+    "refSample": "frontend/src/app/(admin)/actions/__tests__/page.test.tsx; frontend/src/app/(admin)/actions/admin-action-cards.tsx; frontend/src/app/(admin)/actions/page.tsx; frontend/src/app/(admin)/acumatica-sync-logs/page.tsx; frontend/src/app/(admin)/admin/admin-dashboard-data.ts"
   },
   {
     "route": "/admin-check",
@@ -1157,7 +1205,7 @@
     "dynamic": "false",
     "refCount": "4",
     "file": "frontend/src/app/(admin)/admin/daily-briefs/page.tsx",
-    "refSample": "frontend/src/app/(admin)/admin/daily-briefs/admin-daily-briefs-table.tsx; frontend/src/features/daily-briefs/admin-daily-briefs-table-config.tsx; frontend/src/lib/performance/runtime-gates.ts; frontend/src/lib/performance/__tests__/runtime-gates.test.ts"
+    "refSample": "frontend/src/app/(admin)/admin/daily-briefs/admin-daily-briefs-table.tsx; frontend/src/features/daily-briefs/admin-daily-briefs-table-config.tsx; frontend/src/lib/performance/__tests__/runtime-gates.test.ts; frontend/src/lib/performance/runtime-gates.ts"
   },
   {
     "route": "/admin/daily-briefs/[briefId]",
@@ -1179,7 +1227,7 @@
     "route": "/ai",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "468",
+    "refCount": "488",
     "file": "frontend/src/app/(main)/ai/page.tsx",
     "refSample": "frontend/src/app/(admin)/accounting/__tests__/accounting-dashboard-theme-contract.test.ts; frontend/src/app/(admin)/admin/admin-dashboard-data.ts; frontend/src/app/(admin)/admin-layout-client.tsx; frontend/src/app/(admin)/ai/admin/agents/page.tsx; frontend/src/app/(admin)/ai/admin/skills/page.tsx"
   },
@@ -1187,9 +1235,9 @@
     "route": "/ai-assistant",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "114",
+    "refCount": "118",
     "file": "frontend/src/app/(main)/ai-assistant/page.tsx",
-    "refSample": "frontend/src/app/(admin)/ai-assistant-debug/ai-assistant-debug-console-client.tsx; frontend/src/app/(admin)/ai-assistant-debug/page.tsx; frontend/src/app/(admin)/ai-prompt-diagnostics/prompt-diagnostics-client.tsx; frontend/src/app/(admin)/task-training/TaskTrainingClient.tsx; frontend/src/app/(main)/ai/page.tsx"
+    "refSample": "frontend/src/app/(admin)/ai-assistant-debug/ai-assistant-debug-console-client.tsx; frontend/src/app/(admin)/ai-assistant-debug/page.tsx; frontend/src/app/(admin)/ai-prompt-diagnostics/prompt-diagnostics-client.tsx; frontend/src/app/(admin)/task-training/TaskTrainingClient.tsx; frontend/src/app/(main)/[projectId]/emails/emails-client.tsx"
   },
   {
     "route": "/ai-assistant-debug",
@@ -1203,9 +1251,9 @@
     "route": "/ai-assistant/feature-requests",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "6",
+    "refCount": "5",
     "file": "frontend/src/app/(main)/ai-assistant/feature-requests/page.tsx",
-    "refSample": "frontend/src/app/(main)/ai-assistant/feature-requests/[requestId]/page.tsx; frontend/src/components/feature-requests/FeatureRequestList.tsx; frontend/src/lib/ai/tools/feature-request-tools.ts; frontend/src/lib/feature-requests/planning.ts; frontend/src/lib/feature-requests/server.ts"
+    "refSample": "frontend/src/app/(main)/ai-assistant/feature-requests/[requestId]/page.tsx; frontend/src/components/feature-requests/FeatureRequestList.tsx; frontend/src/lib/feature-requests/__tests__/handoffs.test.ts; frontend/src/lib/feature-requests/planning.ts; frontend/src/lib/feature-requests/server.ts"
   },
   {
     "route": "/ai-assistant/feature-requests/[requestId]",
@@ -1213,15 +1261,15 @@
     "dynamic": "true",
     "refCount": "2",
     "file": "frontend/src/app/(main)/ai-assistant/feature-requests/[requestId]/page.tsx",
-    "refSample": "frontend/src/lib/feature-requests/planning.ts; frontend/src/lib/feature-requests/__tests__/handoffs.test.ts"
+    "refSample": "frontend/src/lib/feature-requests/__tests__/handoffs.test.ts; frontend/src/lib/feature-requests/planning.ts"
   },
   {
     "route": "/ai-assistant/marketing",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "5",
+    "refCount": "4",
     "file": "frontend/src/app/(main)/ai-assistant/marketing/page.tsx",
-    "refSample": "frontend/src/components/marketing/MarketingCalendarReview.tsx; frontend/src/lib/ai/agents/cmo.ts; frontend/src/lib/ai/services/marketing-service.ts; frontend/src/lib/ai/services/__tests__/marketing-service.test.ts; frontend/src/lib/ai/tools/marketing.ts"
+    "refSample": "frontend/src/components/marketing/MarketingCalendarReview.tsx; frontend/src/lib/ai/agents/cmo.ts; frontend/src/lib/ai/services/__tests__/marketing-service.test.ts; frontend/src/lib/ai/services/marketing-service.ts"
   },
   {
     "route": "/ai-assistant/teach",
@@ -1229,7 +1277,7 @@
     "dynamic": "false",
     "refCount": "7",
     "file": "frontend/src/app/(main)/ai-assistant/teach/page.tsx",
-    "refSample": "frontend/src/app/(main)/ai/teach/page.tsx; frontend/src/app/api/ai-assistant/teach/route.ts; frontend/src/app/api/ai-assistant/teach/__tests__/route.test.ts; frontend/src/components/ai-assistant/teach-alleato-intake.tsx; frontend/src/lib/ai/learning-promotion-view-model.ts"
+    "refSample": "frontend/src/app/(main)/ai/teach/page.tsx; frontend/src/app/api/ai-assistant/teach/__tests__/route.test.ts; frontend/src/app/api/ai-assistant/teach/route.ts; frontend/src/components/ai-assistant/teach-alleato-intake.tsx; frontend/src/lib/ai/__tests__/learning-promotion-view-model.test.ts"
   },
   {
     "route": "/ai-avatar",
@@ -1245,7 +1293,7 @@
     "dynamic": "false",
     "refCount": "4",
     "file": "frontend/src/app/(admin)/ai-chat-history/page.tsx",
-    "refSample": "frontend/src/app/(admin)/ai-chat-history/ai-chat-history-client.tsx; frontend/src/lib/navigation-config.ts; frontend/src/lib/supabase/middleware.ts; frontend/src/lib/supabase/__tests__/middleware.test.ts"
+    "refSample": "frontend/src/app/(admin)/ai-chat-history/ai-chat-history-client.tsx; frontend/src/lib/navigation-config.ts; frontend/src/lib/supabase/__tests__/middleware.test.ts; frontend/src/lib/supabase/middleware.ts"
   },
   {
     "route": "/ai-dashboard",
@@ -1253,7 +1301,7 @@
     "dynamic": "false",
     "refCount": "30",
     "file": "frontend/src/app/(main)/ai-dashboard/page.tsx",
-    "refSample": "frontend/src/app/(admin)/accounting/__tests__/accounting-dashboard-theme-contract.test.ts; frontend/src/app/(admin)/admin-layout-client.tsx; frontend/src/app/(main)/ai/company-brain/error.tsx; frontend/src/app/(main)/ai/company-brain/loading.tsx; frontend/src/app/(main)/ai/company-brain/page.tsx"
+    "refSample": "frontend/src/app/(admin)/accounting/__tests__/accounting-dashboard-theme-contract.test.ts; frontend/src/app/(admin)/admin-layout-client.tsx; frontend/src/app/(main)/ai/company-brain/__tests__/page.unit.test.tsx; frontend/src/app/(main)/ai/company-brain/error.tsx; frontend/src/app/(main)/ai/company-brain/loading.tsx"
   },
   {
     "route": "/ai-dashboard/accounting",
@@ -1261,7 +1309,7 @@
     "dynamic": "false",
     "refCount": "3",
     "file": "frontend/src/app/(main)/ai-dashboard/accounting/page.tsx",
-    "refSample": "frontend/src/app/(main)/ai-dashboard/accounting/accounting-overview-preview.tsx; frontend/src/app/(main)/ai-dashboard/workspace-shell.tsx; frontend/src/app/(main)/ai-dashboard/__tests__/workspace-pages.test.tsx"
+    "refSample": "frontend/src/app/(main)/ai-dashboard/__tests__/workspace-pages.test.tsx; frontend/src/app/(main)/ai-dashboard/accounting/accounting-overview-preview.tsx; frontend/src/app/(main)/ai-dashboard/workspace-shell.tsx"
   },
   {
     "route": "/ai-dashboard/accounting/cash-flow",
@@ -1269,7 +1317,7 @@
     "dynamic": "false",
     "refCount": "2",
     "file": "frontend/src/app/(main)/ai-dashboard/accounting/cash-flow/page.tsx",
-    "refSample": "frontend/src/app/(main)/ai-dashboard/accounting/accounting-overview-preview.tsx; frontend/src/app/(main)/ai-dashboard/__tests__/workspace-pages.test.tsx"
+    "refSample": "frontend/src/app/(main)/ai-dashboard/__tests__/workspace-pages.test.tsx; frontend/src/app/(main)/ai-dashboard/accounting/accounting-overview-preview.tsx"
   },
   {
     "route": "/ai-dashboard/accounting/reconciliation",
@@ -1285,7 +1333,7 @@
     "dynamic": "false",
     "refCount": "2",
     "file": "frontend/src/app/(main)/ai-dashboard/accounting/wip/page.tsx",
-    "refSample": "frontend/src/app/(main)/ai-dashboard/accounting/accounting-overview-preview.tsx; frontend/src/app/(main)/ai-dashboard/__tests__/workspace-pages.test.tsx"
+    "refSample": "frontend/src/app/(main)/ai-dashboard/__tests__/workspace-pages.test.tsx; frontend/src/app/(main)/ai-dashboard/accounting/accounting-overview-preview.tsx"
   },
   {
     "route": "/ai-dashboard/ai-os",
@@ -1293,7 +1341,7 @@
     "dynamic": "false",
     "refCount": "3",
     "file": "frontend/src/app/(main)/ai-dashboard/ai-os/page.tsx",
-    "refSample": "frontend/src/app/(main)/ai-dashboard/workspace-shell.tsx; frontend/src/app/(main)/ai-dashboard/__tests__/route-consolidation.test.ts; frontend/src/features/company-brain/company-brain-experience.tsx"
+    "refSample": "frontend/src/app/(main)/ai-dashboard/__tests__/route-consolidation.test.ts; frontend/src/app/(main)/ai-dashboard/workspace-shell.tsx; frontend/src/features/company-brain/company-brain-experience.tsx"
   },
   {
     "route": "/ai-dashboard/architecture",
@@ -1301,7 +1349,7 @@
     "dynamic": "false",
     "refCount": "4",
     "file": "frontend/src/app/(main)/ai-dashboard/architecture/page.tsx",
-    "refSample": "frontend/src/app/(main)/ai-dashboard/architecture/architecture-assurance-preview.tsx; frontend/src/app/(main)/ai-dashboard/executive-ai-dashboard.tsx; frontend/src/app/(main)/ai-dashboard/workspace-shell.tsx; frontend/src/app/(main)/ai-dashboard/__tests__/workspace-pages.test.tsx"
+    "refSample": "frontend/src/app/(main)/ai-dashboard/__tests__/workspace-pages.test.tsx; frontend/src/app/(main)/ai-dashboard/architecture/architecture-assurance-preview.tsx; frontend/src/app/(main)/ai-dashboard/executive-ai-dashboard.tsx; frontend/src/app/(main)/ai-dashboard/workspace-shell.tsx"
   },
   {
     "route": "/ai-dashboard/architecture/changes",
@@ -1309,7 +1357,7 @@
     "dynamic": "false",
     "refCount": "2",
     "file": "frontend/src/app/(main)/ai-dashboard/architecture/changes/page.tsx",
-    "refSample": "frontend/src/app/(main)/ai-dashboard/architecture/architecture-assurance-preview.tsx; frontend/src/app/(main)/ai-dashboard/__tests__/workspace-pages.test.tsx"
+    "refSample": "frontend/src/app/(main)/ai-dashboard/__tests__/workspace-pages.test.tsx; frontend/src/app/(main)/ai-dashboard/architecture/architecture-assurance-preview.tsx"
   },
   {
     "route": "/ai-dashboard/company-brain",
@@ -1325,7 +1373,7 @@
     "dynamic": "false",
     "refCount": "4",
     "file": "frontend/src/app/(main)/ai-dashboard/decisions/page.tsx",
-    "refSample": "frontend/src/app/(main)/ai-dashboard/visualizations/executive-dashboard-visualizations.tsx; frontend/src/app/(main)/ai-dashboard/workspace-shell.tsx; frontend/src/app/(main)/ai-dashboard/__tests__/executive-ai-dashboard.test.tsx; frontend/src/app/(main)/ai-dashboard/__tests__/workspace-pages.test.tsx"
+    "refSample": "frontend/src/app/(main)/ai-dashboard/__tests__/executive-ai-dashboard.test.tsx; frontend/src/app/(main)/ai-dashboard/__tests__/workspace-pages.test.tsx; frontend/src/app/(main)/ai-dashboard/visualizations/executive-dashboard-visualizations.tsx; frontend/src/app/(main)/ai-dashboard/workspace-shell.tsx"
   },
   {
     "route": "/ai-dashboard/projects",
@@ -1333,7 +1381,7 @@
     "dynamic": "false",
     "refCount": "2",
     "file": "frontend/src/app/(main)/ai-dashboard/projects/page.tsx",
-    "refSample": "frontend/src/app/(main)/ai-dashboard/workspace-shell.tsx; frontend/src/app/(main)/ai-dashboard/__tests__/route-consolidation.test.ts"
+    "refSample": "frontend/src/app/(main)/ai-dashboard/__tests__/route-consolidation.test.ts; frontend/src/app/(main)/ai-dashboard/workspace-shell.tsx"
   },
   {
     "route": "/ai-dashboard/rag-pipeline",
@@ -1341,7 +1389,7 @@
     "dynamic": "false",
     "refCount": "10",
     "file": "frontend/src/app/(main)/ai-dashboard/rag-pipeline/page.tsx",
-    "refSample": "frontend/src/app/(main)/ai-dashboard/live-data.ts; frontend/src/app/(main)/ai-dashboard/visualizations/executive-dashboard-visualizations.tsx; frontend/src/app/(main)/ai-dashboard/workspace-shell.tsx; frontend/src/app/(main)/ai-dashboard/__tests__/dashboard-visualizations.test.tsx; frontend/src/app/(main)/ai-dashboard/__tests__/workspace-pages.test.tsx"
+    "refSample": "frontend/src/app/(main)/ai-dashboard/__tests__/dashboard-visualizations.test.tsx; frontend/src/app/(main)/ai-dashboard/__tests__/workspace-pages.test.tsx; frontend/src/app/(main)/ai-dashboard/live-data.ts; frontend/src/app/(main)/ai-dashboard/visualizations/executive-dashboard-visualizations.tsx; frontend/src/app/(main)/ai-dashboard/workspace-shell.tsx"
   },
   {
     "route": "/ai-prompt-diagnostics",
@@ -1397,15 +1445,15 @@
     "dynamic": "false",
     "refCount": "14",
     "file": "frontend/src/app/(main)/ai/approvals/page.tsx",
-    "refSample": "frontend/src/app/(main)/home/home-action-routing.ts; frontend/src/app/(main)/home/homepage-signals.ts; frontend/src/app/(main)/home/page.tsx; frontend/src/app/(main)/home/__tests__/home-action-routing.test.ts; frontend/src/app/(main)/home/__tests__/home-page.test.tsx"
+    "refSample": "frontend/src/app/(main)/home/__tests__/home-action-routing.test.ts; frontend/src/app/(main)/home/__tests__/home-page.test.tsx; frontend/src/app/(main)/home/__tests__/homepage-signals.test.ts; frontend/src/app/(main)/home/home-action-routing.ts; frontend/src/app/(main)/home/homepage-signals.ts"
   },
   {
     "route": "/ai/company-brain",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "8",
+    "refCount": "7",
     "file": "frontend/src/app/(main)/ai/company-brain/page.tsx",
-    "refSample": "frontend/src/app/(main)/ai-dashboard/company-brain/page.tsx; frontend/src/app/(main)/ai-dashboard/workspace-shell.tsx; frontend/src/app/(main)/ai-dashboard/__tests__/route-consolidation.test.ts; frontend/src/app/(main)/layout.tsx; frontend/src/features/company-brain/company-brain-branches.tsx"
+    "refSample": "frontend/src/app/(main)/ai-dashboard/__tests__/route-consolidation.test.ts; frontend/src/app/(main)/ai-dashboard/company-brain/page.tsx; frontend/src/app/(main)/ai-dashboard/workspace-shell.tsx; frontend/src/app/(main)/layout.tsx; frontend/src/features/company-brain/__tests__/company-brain-page.test.ts"
   },
   {
     "route": "/ai/email-learning",
@@ -1429,7 +1477,7 @@
     "dynamic": "false",
     "refCount": "9",
     "file": "frontend/src/app/(main)/ai/profile/page.tsx",
-    "refSample": "frontend/src/app/(main)/home/page.tsx; frontend/src/app/(main)/home/__tests__/home-page-contract.test.ts; frontend/src/app/(main)/home/__tests__/home-page.test.tsx; frontend/src/components/ai-assistant/__tests__/assistant-action-catalog.test.tsx; frontend/src/components/ai-assistant/__tests__/rag-chat-page-access-links.test.ts"
+    "refSample": "frontend/src/app/(main)/home/__tests__/home-page-contract.test.ts; frontend/src/app/(main)/home/__tests__/home-page.test.tsx; frontend/src/app/(main)/home/page.tsx; frontend/src/components/ai-assistant/__tests__/assistant-action-catalog.test.tsx; frontend/src/components/ai-assistant/__tests__/rag-chat-page-access-links.test.ts"
   },
   {
     "route": "/ai/skills",
@@ -1437,7 +1485,7 @@
     "dynamic": "false",
     "refCount": "3",
     "file": "frontend/src/app/(main)/ai/skills/page.tsx",
-    "refSample": "frontend/src/app/api/ai-assistant/skills/[skillId]/feedback/route.ts; frontend/src/components/ai-assistant/skill-usage-disclosure.tsx; frontend/src/components/ai-assistant/__tests__/skill-usage-disclosure.test.tsx"
+    "refSample": "frontend/src/app/api/ai-assistant/skills/[skillId]/feedback/route.ts; frontend/src/components/ai-assistant/__tests__/skill-usage-disclosure.test.tsx; frontend/src/components/ai-assistant/skill-usage-disclosure.tsx"
   },
   {
     "route": "/ai/teach",
@@ -1445,15 +1493,31 @@
     "dynamic": "false",
     "refCount": "9",
     "file": "frontend/src/app/(main)/ai/teach/page.tsx",
-    "refSample": "frontend/src/app/(main)/ai-assistant/teach/page.tsx; frontend/src/app/(main)/settings/memory/page.tsx; frontend/src/components/ai-assistant/ai-profile-page.tsx; frontend/src/components/ai-assistant/teach-alleato-intake.tsx; frontend/src/components/ai-assistant/__tests__/rag-chat-page-access-links.test.ts"
+    "refSample": "frontend/src/app/(main)/ai-assistant/teach/page.tsx; frontend/src/app/(main)/settings/memory/page.tsx; frontend/src/components/ai-assistant/__tests__/rag-chat-page-access-links.test.ts; frontend/src/components/ai-assistant/ai-profile-page.tsx; frontend/src/components/ai-assistant/teach-alleato-intake.tsx"
+  },
+  {
+    "route": "/ai/testing",
+    "kind": "page",
+    "dynamic": "false",
+    "refCount": "0",
+    "file": "frontend/src/app/(main)/ai/testing/page.tsx",
+    "refSample": ""
   },
   {
     "route": "/analytics",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "6",
+    "refCount": "20",
     "file": "frontend/src/app/(admin)/analytics/page.tsx",
-    "refSample": "frontend/src/components/admin/platform-analytics-panel-dynamic.tsx; frontend/src/components/admin/platform-analytics-panel.tsx; frontend/src/components/platform-kit/hooks/use-logs.ts; frontend/src/components/platform-kit/lib/management-api-schema.d.ts; frontend/src/lib/auth/__tests__/admin-page-access.test.ts"
+    "refSample": "frontend/src/app/(main)/training/content/[contentId]/page.tsx; frontend/src/app/(main)/training/learn/[enrollmentId]/page.tsx; frontend/src/app/api/engagement/docs/link/__tests__/route.test.ts; frontend/src/app/api/engagement/docs/link/route.ts; frontend/src/app/api/engagement/docs/progress/__tests__/route.test.ts"
+  },
+  {
+    "route": "/analytics/user-adoption-prototype",
+    "kind": "page",
+    "dynamic": "false",
+    "refCount": "0",
+    "file": "frontend/src/app/(admin)/analytics/user-adoption-prototype/page.tsx",
+    "refSample": ""
   },
   {
     "route": "/annotation-inbox",
@@ -1517,7 +1581,7 @@
     "dynamic": "false",
     "refCount": "3",
     "file": "frontend/src/app/api/accounting/finance-spend/route.ts",
-    "refSample": "frontend/src/app/(admin)/accounting/finance-spend/page.tsx; frontend/src/app/api/accounting/finance-spend/rules/route.ts; frontend/src/app/api/accounting/finance-spend/rules/[ruleId]/route.ts"
+    "refSample": "frontend/src/app/(admin)/accounting/finance-spend/page.tsx; frontend/src/app/api/accounting/finance-spend/rules/[ruleId]/route.ts; frontend/src/app/api/accounting/finance-spend/rules/route.ts"
   },
   {
     "route": "/api/accounting/finance-spend/rules",
@@ -1637,7 +1701,7 @@
     "dynamic": "false",
     "refCount": "6",
     "file": "frontend/src/app/api/admin/ai-learning-promotions/route.ts",
-    "refSample": "frontend/src/app/(admin)/ai/learning-promotions/promotions-client.tsx; frontend/src/app/(admin)/ai/learning-promotions/__tests__/promotions-client.test.tsx; frontend/src/app/api/admin/ai-learning-promotions/run/__tests__/route.test.ts; frontend/src/app/api/admin/ai-learning-promotions/__tests__/route.test.ts; frontend/src/lib/auth/admin-page-access.ts"
+    "refSample": "frontend/src/app/(admin)/ai/learning-promotions/__tests__/promotions-client.test.tsx; frontend/src/app/(admin)/ai/learning-promotions/promotions-client.tsx; frontend/src/app/api/admin/ai-learning-promotions/__tests__/route.test.ts; frontend/src/app/api/admin/ai-learning-promotions/run/__tests__/route.test.ts; frontend/src/lib/auth/__tests__/admin-page-access.test.ts"
   },
   {
     "route": "/api/admin/ai-learning-promotions/activity",
@@ -1691,9 +1755,9 @@
     "route": "/api/admin/analytics",
     "kind": "api",
     "dynamic": "false",
-    "refCount": "3",
+    "refCount": "4",
     "file": "frontend/src/app/api/admin/analytics/route.ts",
-    "refSample": "frontend/src/components/admin/platform-analytics-panel.tsx; frontend/src/lib/auth/__tests__/admin-page-access.test.ts; frontend/src/lib/supabase/__tests__/middleware.test.ts"
+    "refSample": "frontend/src/components/admin/platform-analytics-panel.tsx; frontend/src/components/admin/user-adoption-analytics-prototype.tsx; frontend/src/lib/auth/__tests__/admin-page-access.test.ts; frontend/src/lib/supabase/__tests__/middleware.test.ts"
   },
   {
     "route": "/api/admin/app-errors/[groupId]",
@@ -1701,30 +1765,6 @@
     "dynamic": "true",
     "refCount": "0",
     "file": "frontend/src/app/api/admin/app-errors/[groupId]/route.ts",
-    "refSample": ""
-  },
-  {
-    "route": "/api/admin/check-all-password-resets",
-    "kind": "api",
-    "dynamic": "false",
-    "refCount": "0",
-    "file": "frontend/src/app/api/admin/check-all-password-resets/route.ts",
-    "refSample": ""
-  },
-  {
-    "route": "/api/admin/check-latest-password-reset",
-    "kind": "api",
-    "dynamic": "false",
-    "refCount": "0",
-    "file": "frontend/src/app/api/admin/check-latest-password-reset/route.ts",
-    "refSample": ""
-  },
-  {
-    "route": "/api/admin/check-password-reset-breakdown",
-    "kind": "api",
-    "dynamic": "false",
-    "refCount": "0",
-    "file": "frontend/src/app/api/admin/check-password-reset-breakdown/route.ts",
     "refSample": ""
   },
   {
@@ -1813,7 +1853,7 @@
     "dynamic": "false",
     "refCount": "27",
     "file": "frontend/src/app/api/admin/feedback/route.ts",
-    "refSample": "frontend/src/app/(admin)/actions/admin-action-cards.tsx; frontend/src/app/(admin)/annotation-inbox/page.tsx; frontend/src/app/(admin)/feedback-inbox/page.tsx; frontend/src/app/(admin)/feedback-inbox/_components/comments-section.tsx; frontend/src/app/(admin)/feedback-inbox/_components/feedback-resources-section.tsx"
+    "refSample": "frontend/src/app/(admin)/actions/admin-action-cards.tsx; frontend/src/app/(admin)/annotation-inbox/page.tsx; frontend/src/app/(admin)/feedback-inbox/_components/comments-section.tsx; frontend/src/app/(admin)/feedback-inbox/_components/feedback-resources-section.tsx; frontend/src/app/(admin)/feedback-inbox/_components/github-activity-section.tsx"
   },
   {
     "route": "/api/admin/feedback/[feedbackId]/resources",
@@ -1909,7 +1949,7 @@
     "dynamic": "false",
     "refCount": "2",
     "file": "frontend/src/app/api/admin/feedback/tools/route.ts",
-    "refSample": "frontend/src/app/(admin)/feedback-inbox/page.tsx; frontend/src/app/(admin)/feedback-inbox/_components/tool-context-section.tsx"
+    "refSample": "frontend/src/app/(admin)/feedback-inbox/_components/tool-context-section.tsx; frontend/src/app/(admin)/feedback-inbox/page.tsx"
   },
   {
     "route": "/api/admin/feedback/velt",
@@ -1917,7 +1957,7 @@
     "dynamic": "false",
     "refCount": "3",
     "file": "frontend/src/app/api/admin/feedback/velt/route.ts",
-    "refSample": "frontend/src/components/velt/VeltGlobalLayer.tsx; frontend/src/lib/supabase/middleware.ts; frontend/src/lib/supabase/__tests__/middleware.test.ts"
+    "refSample": "frontend/src/components/velt/VeltGlobalLayer.tsx; frontend/src/lib/supabase/__tests__/middleware.test.ts; frontend/src/lib/supabase/middleware.ts"
   },
   {
     "route": "/api/admin/intelligence-packets",
@@ -1933,7 +1973,7 @@
     "dynamic": "false",
     "refCount": "6",
     "file": "frontend/src/app/api/admin/meeting-templates/route.ts",
-    "refSample": "frontend/src/app/api/admin/meeting-templates/[templateId]/__tests__/route.test.ts; frontend/src/app/api/admin/meeting-templates/__tests__/route.test.ts; frontend/src/app/api/meeting-templates/route.ts; frontend/src/hooks/use-meeting-templates.ts; frontend/src/lib/auth/admin-page-access.ts"
+    "refSample": "frontend/src/app/api/admin/meeting-templates/[templateId]/__tests__/route.test.ts; frontend/src/app/api/admin/meeting-templates/__tests__/route.test.ts; frontend/src/app/api/meeting-templates/route.ts; frontend/src/hooks/use-meeting-templates.ts; frontend/src/lib/auth/__tests__/admin-page-access.test.ts"
   },
   {
     "route": "/api/admin/meeting-templates/[templateId]",
@@ -1944,36 +1984,12 @@
     "refSample": ""
   },
   {
-    "route": "/api/admin/meeting-types",
-    "kind": "api",
-    "dynamic": "false",
-    "refCount": "0",
-    "file": "frontend/src/app/api/admin/meeting-types/route.ts",
-    "refSample": ""
-  },
-  {
-    "route": "/api/admin/meeting-types/[meetingTypeId]",
-    "kind": "api",
-    "dynamic": "true",
-    "refCount": "0",
-    "file": "frontend/src/app/api/admin/meeting-types/[meetingTypeId]/route.ts",
-    "refSample": ""
-  },
-  {
     "route": "/api/admin/operations-readiness/status",
     "kind": "api",
     "dynamic": "false",
     "refCount": "1",
     "file": "frontend/src/app/api/admin/operations-readiness/status/route.ts",
     "refSample": "frontend/src/components/ai-intelligence/operations-readiness-panel.tsx"
-  },
-  {
-    "route": "/api/admin/owner-briefing/send-test",
-    "kind": "api",
-    "dynamic": "false",
-    "refCount": "0",
-    "file": "frontend/src/app/api/admin/owner-briefing/send-test/route.ts",
-    "refSample": ""
   },
   {
     "route": "/api/admin/page-tags",
@@ -2021,7 +2037,7 @@
     "dynamic": "false",
     "refCount": "4",
     "file": "frontend/src/app/api/admin/project-creation-log/route.ts",
-    "refSample": "frontend/src/app/api/admin/project-creation-log/__tests__/route.test.ts; frontend/src/hooks/use-project-creation-log-query.ts; frontend/src/lib/auth/admin-page-access.ts; frontend/src/lib/auth/__tests__/admin-page-access.test.ts"
+    "refSample": "frontend/src/app/api/admin/project-creation-log/__tests__/route.test.ts; frontend/src/hooks/use-project-creation-log-query.ts; frontend/src/lib/auth/__tests__/admin-page-access.test.ts; frontend/src/lib/auth/admin-page-access.ts"
   },
   {
     "route": "/api/admin/prp-status",
@@ -2046,30 +2062,6 @@
     "refCount": "1",
     "file": "frontend/src/app/api/admin/rag-snapshots/route.ts",
     "refSample": "frontend/src/app/(admin)/rag/page.tsx"
-  },
-  {
-    "route": "/api/admin/resend-invite-emails",
-    "kind": "api",
-    "dynamic": "false",
-    "refCount": "0",
-    "file": "frontend/src/app/api/admin/resend-invite-emails/route.ts",
-    "refSample": ""
-  },
-  {
-    "route": "/api/admin/resend-password-reset-emails",
-    "kind": "api",
-    "dynamic": "false",
-    "refCount": "0",
-    "file": "frontend/src/app/api/admin/resend-password-reset-emails/route.ts",
-    "refSample": ""
-  },
-  {
-    "route": "/api/admin/set-admin-status",
-    "kind": "api",
-    "dynamic": "false",
-    "refCount": "0",
-    "file": "frontend/src/app/api/admin/set-admin-status/route.ts",
-    "refSample": ""
   },
   {
     "route": "/api/admin/source-sync/active-alerts",
@@ -2259,17 +2251,17 @@
     "route": "/api/ai-assistant/chat",
     "kind": "api",
     "dynamic": "false",
-    "refCount": "11",
+    "refCount": "12",
     "file": "frontend/src/app/api/ai-assistant/chat/route.ts",
-    "refSample": "frontend/src/app/(main)/ai-dashboard/architecture/architecture-explorer-data.ts; frontend/src/app/api/ask-alleato/chat/route.ts; frontend/src/app/api/training/library/chat/route.ts; frontend/src/app/api/training/library/chat/__tests__/route.test.ts; frontend/src/components/ai-assistant/rag-chat-page.tsx"
+    "refSample": "frontend/src/app/(main)/ai-dashboard/architecture/architecture-explorer-data.ts; frontend/src/app/api/ai-assistant/messages/[sessionId]/__tests__/route.test.ts; frontend/src/app/api/ai-assistant/messages/[sessionId]/route.ts; frontend/src/app/api/ask-alleato/chat/route.ts; frontend/src/app/api/training/library/chat/__tests__/route.test.ts"
   },
   {
     "route": "/api/ai-assistant/conversations",
     "kind": "api",
     "dynamic": "false",
-    "refCount": "5",
+    "refCount": "4",
     "file": "frontend/src/app/api/ai-assistant/conversations/route.ts",
-    "refSample": "frontend/src/app/api/ai-assistant/conversations/[sessionId]/route.ts; frontend/src/components/ask-alleato/useAskAlleatoChat.ts; frontend/src/components/ask-alleato/__tests__/useAskAlleatoChat.test.tsx; frontend/src/components/executive/executive-chat-panel.tsx; frontend/src/hooks/use-rag-conversations.ts"
+    "refSample": "frontend/src/app/api/ai-assistant/conversations/[sessionId]/route.ts; frontend/src/components/ask-alleato/useAskAlleatoChat.ts; frontend/src/components/executive/executive-chat-panel.tsx; frontend/src/hooks/use-rag-conversations.ts"
   },
   {
     "route": "/api/ai-assistant/conversations/[sessionId]",
@@ -2285,7 +2277,7 @@
     "dynamic": "false",
     "refCount": "4",
     "file": "frontend/src/app/api/ai-assistant/email-draft-feedback/route.ts",
-    "refSample": "frontend/src/app/api/ai-assistant/email-draft-feedback/__tests__/route.test.ts; frontend/src/components/ai-assistant/assistant-widget-renderer.tsx; frontend/src/components/ai-assistant/__tests__/assistant-widget-renderer.test.tsx; frontend/src/lib/ai/agents/strategist.ts"
+    "refSample": "frontend/src/app/api/ai-assistant/email-draft-feedback/__tests__/route.test.ts; frontend/src/components/ai-assistant/__tests__/assistant-widget-renderer.test.tsx; frontend/src/components/ai-assistant/assistant-widget-renderer.tsx; frontend/src/lib/ai/agents/strategist.ts"
   },
   {
     "route": "/api/ai-assistant/email-importance-feedback",
@@ -2296,12 +2288,28 @@
     "refSample": "frontend/src/app/(main)/[projectId]/emails/emails-client.tsx; frontend/src/app/api/ai-assistant/email-importance-feedback/__tests__/route.test.ts; frontend/src/features/emails/email-importance-feedback-dialog.tsx; frontend/src/features/emails/project-emails-workspace.tsx"
   },
   {
+    "route": "/api/ai-assistant/eve/proxy/[...path]",
+    "kind": "api",
+    "dynamic": "true",
+    "refCount": "0",
+    "file": "frontend/src/app/api/ai-assistant/eve/proxy/[...path]/route.ts",
+    "refSample": ""
+  },
+  {
+    "route": "/api/ai-assistant/eve/tools",
+    "kind": "api",
+    "dynamic": "false",
+    "refCount": "1",
+    "file": "frontend/src/app/api/ai-assistant/eve/tools/route.ts",
+    "refSample": "frontend/src/app/api/ai-assistant/eve/tools/__tests__/route.test.ts"
+  },
+  {
     "route": "/api/ai-assistant/feedback",
     "kind": "api",
     "dynamic": "false",
     "refCount": "4",
     "file": "frontend/src/app/api/ai-assistant/feedback/route.ts",
-    "refSample": "frontend/src/components/ai/ai-feedback-control.tsx; frontend/src/components/ai/AiResponseFeedback.tsx; frontend/src/components/ai/__tests__/AiResponseFeedback.test.tsx; frontend/src/components/ai-assistant/assistant-widget-renderer.tsx"
+    "refSample": "frontend/src/components/ai/AiResponseFeedback.tsx; frontend/src/components/ai/__tests__/AiResponseFeedback.test.tsx; frontend/src/components/ai/ai-feedback-control.tsx; frontend/src/components/ai-assistant/assistant-widget-renderer.tsx"
   },
   {
     "route": "/api/ai-assistant/marketing/assets",
@@ -2341,7 +2349,7 @@
     "dynamic": "false",
     "refCount": "5",
     "file": "frontend/src/app/api/ai-assistant/memories/route.ts",
-    "refSample": "frontend/src/app/(main)/settings/memory/page.tsx; frontend/src/app/api/ai-assistant/memories/[memoryId]/route.ts; frontend/src/components/ai-assistant/ai-profile-page.tsx; frontend/src/components/ai-assistant/memory-usage-disclosure.tsx; frontend/src/components/ai-assistant/__tests__/memory-usage-disclosure.test.tsx"
+    "refSample": "frontend/src/app/(main)/settings/memory/page.tsx; frontend/src/app/api/ai-assistant/memories/[memoryId]/route.ts; frontend/src/components/ai-assistant/__tests__/memory-usage-disclosure.test.tsx; frontend/src/components/ai-assistant/ai-profile-page.tsx; frontend/src/components/ai-assistant/memory-usage-disclosure.tsx"
   },
   {
     "route": "/api/ai-assistant/memories/[memoryId]",
@@ -2389,7 +2397,7 @@
     "dynamic": "false",
     "refCount": "5",
     "file": "frontend/src/app/api/ai-assistant/skills/route.ts",
-    "refSample": "frontend/src/app/(main)/ai/skills/page.tsx; frontend/src/app/api/ai-assistant/skills/__tests__/route.test.ts; frontend/src/components/ai-assistant/skill-usage-disclosure.tsx; frontend/src/components/ai-assistant/__tests__/skill-usage-disclosure.test.tsx; frontend/src/components/ai-skills/__tests__/skill-library-list.test.tsx"
+    "refSample": "frontend/src/app/(main)/ai/skills/page.tsx; frontend/src/app/api/ai-assistant/skills/__tests__/route.test.ts; frontend/src/components/ai-assistant/__tests__/skill-usage-disclosure.test.tsx; frontend/src/components/ai-assistant/skill-usage-disclosure.tsx; frontend/src/components/ai-skills/__tests__/skill-library-list.test.tsx"
   },
   {
     "route": "/api/ai-assistant/skills/[skillId]/feedback",
@@ -2472,14 +2480,6 @@
     "refSample": "frontend/src/app/(main)/ai-dashboard/live-data.ts"
   },
   {
-    "route": "/api/ai-operator/presentation-preview",
-    "kind": "api",
-    "dynamic": "false",
-    "refCount": "1",
-    "file": "frontend/src/app/api/ai-operator/presentation-preview/route.ts",
-    "refSample": "frontend/src/app/api/ai-operator/presentation-preview/__tests__/route.test.ts"
-  },
-  {
     "route": "/api/ai/sql",
     "kind": "api",
     "dynamic": "false",
@@ -2499,9 +2499,9 @@
     "route": "/api/ask-alleato/chat",
     "kind": "api",
     "dynamic": "false",
-    "refCount": "2",
+    "refCount": "0",
     "file": "frontend/src/app/api/ask-alleato/chat/route.ts",
-    "refSample": "frontend/src/components/ask-alleato/useAskAlleatoChat.ts; frontend/src/components/ask-alleato/__tests__/useAskAlleatoChat.test.tsx"
+    "refSample": ""
   },
   {
     "route": "/api/assignment-inbox",
@@ -2597,7 +2597,7 @@
     "dynamic": "false",
     "refCount": "3",
     "file": "frontend/src/app/api/bot/teams/route.ts",
-    "refSample": "frontend/src/app/api/bot/teams/notify/route.ts; frontend/src/app/api/bot/[platform]/route.ts; frontend/src/app/api/settings/teams/register-webhook/route.ts"
+    "refSample": "frontend/src/app/api/bot/[platform]/route.ts; frontend/src/app/api/bot/teams/notify/route.ts; frontend/src/app/api/settings/teams/register-webhook/route.ts"
   },
   {
     "route": "/api/bot/teams/notify",
@@ -2613,14 +2613,6 @@
     "dynamic": "false",
     "refCount": "0",
     "file": "frontend/src/app/api/clients/route.ts",
-    "refSample": ""
-  },
-  {
-    "route": "/api/collaboration/comments",
-    "kind": "api",
-    "dynamic": "false",
-    "refCount": "0",
-    "file": "frontend/src/app/api/collaboration/comments/route.ts",
     "refSample": ""
   },
   {
@@ -2645,7 +2637,7 @@
     "dynamic": "false",
     "refCount": "6",
     "file": "frontend/src/app/api/comments/all/route.ts",
-    "refSample": "frontend/src/app/(main)/comments/comments-page-utils.ts; frontend/src/app/(main)/comments/__tests__/comments-page-utils.test.ts; frontend/src/components/header/comments-sidebar-button.tsx; frontend/src/features/comments/comments-split-page.tsx; frontend/src/hooks/use-comment-activity.ts"
+    "refSample": "frontend/src/app/(main)/comments/__tests__/comments-page-utils.test.ts; frontend/src/app/(main)/comments/comments-page-utils.ts; frontend/src/components/header/comments-sidebar-button.tsx; frontend/src/features/comments/comments-split-page.tsx; frontend/src/hooks/__tests__/use-comment-activity.test.ts"
   },
   {
     "route": "/api/commitments",
@@ -2653,7 +2645,7 @@
     "dynamic": "false",
     "refCount": "31",
     "file": "frontend/src/app/api/commitments/route.ts",
-    "refSample": "frontend/src/app/(main)/[projectId]/change-orders/change-orders-client.tsx; frontend/src/app/(main)/[projectId]/change-orders/commitment/[commitmentCoId]/page.tsx; frontend/src/app/(main)/[projectId]/commitments/page.tsx; frontend/src/app/(main)/[projectId]/commitments/[commitmentId]/edit/page.tsx; frontend/src/app/(main)/[projectId]/commitments/[commitmentId]/page.tsx"
+    "refSample": "frontend/src/app/(main)/[projectId]/change-orders/change-orders-client.tsx; frontend/src/app/(main)/[projectId]/change-orders/commitment/[commitmentCoId]/page.tsx; frontend/src/app/(main)/[projectId]/commitments/[commitmentId]/edit/page.tsx; frontend/src/app/(main)/[projectId]/commitments/[commitmentId]/page.tsx; frontend/src/app/(main)/[projectId]/commitments/[commitmentId]/pcos/new/page.tsx"
   },
   {
     "route": "/api/commitments/[commitmentId]",
@@ -2773,7 +2765,7 @@
     "dynamic": "false",
     "refCount": "5",
     "file": "frontend/src/app/api/companies/route.ts",
-    "refSample": "frontend/src/app/(main)/directory/contacts/page.tsx; frontend/src/app/(main)/[projectId]/estimates/[estimateId]/estimate-detail-client-v2.tsx; frontend/src/app/(tables)/deals/deals-client.tsx; frontend/src/app/api/companies/[companyId]/bid-history/route.ts; frontend/src/components/domain/contracts/subcontract-form/useSubcontractFormState.ts"
+    "refSample": "frontend/src/app/(main)/[projectId]/estimates/[estimateId]/estimate-detail-client-v2.tsx; frontend/src/app/(main)/directory/contacts/page.tsx; frontend/src/app/(tables)/deals/deals-client.tsx; frontend/src/app/api/companies/[companyId]/bid-history/route.ts; frontend/src/components/domain/contracts/subcontract-form/useSubcontractFormState.ts"
   },
   {
     "route": "/api/companies/[companyId]/bid-history",
@@ -2867,9 +2859,9 @@
     "route": "/api/crm/leads",
     "kind": "api",
     "dynamic": "false",
-    "refCount": "3",
+    "refCount": "6",
     "file": "frontend/src/app/api/crm/leads/route.ts",
-    "refSample": "frontend/src/app/api/crm/leads/[leadId]/convert/__tests__/route.test.ts; frontend/src/app/api/crm/leads/__tests__/route.test.ts; frontend/src/hooks/use-crm/use-crm-workspace.ts"
+    "refSample": "frontend/src/app/api/crm/[...operation]/__tests__/route.test.ts; frontend/src/app/api/crm/leads/[leadId]/__tests__/route.test.ts; frontend/src/app/api/crm/leads/[leadId]/convert/__tests__/route.test.ts; frontend/src/app/api/crm/leads/[leadId]/research/__tests__/route.test.ts; frontend/src/app/api/crm/leads/__tests__/route.test.ts"
   },
   {
     "route": "/api/crm/leads/[leadId]/convert",
@@ -2995,9 +2987,9 @@
     "route": "/api/cron/recruiting-uat-purge",
     "kind": "api",
     "dynamic": "false",
-    "refCount": "0",
+    "refCount": "1",
     "file": "frontend/src/app/api/cron/recruiting-uat-purge/route.ts",
-    "refSample": ""
+    "refSample": "frontend/src/app/api/cron/recruiting-uat-purge/__tests__/route.test.ts"
   },
   {
     "route": "/api/cron/rfi-email-replies",
@@ -3016,20 +3008,12 @@
     "refSample": "frontend/src/app/api/cron/sync-feedback-pr-status/__tests__/route.test.ts"
   },
   {
-    "route": "/api/database-tables-catalog/[schemaName]/[tableName]",
-    "kind": "api",
-    "dynamic": "true",
-    "refCount": "0",
-    "file": "frontend/src/app/api/database-tables-catalog/[schemaName]/[tableName]/route.ts",
-    "refSample": ""
-  },
-  {
     "route": "/api/directory/companies",
     "kind": "api",
     "dynamic": "false",
     "refCount": "5",
     "file": "frontend/src/app/api/directory/companies/route.ts",
-    "refSample": "frontend/src/app/(main)/directory/companies/page.tsx; frontend/src/app/(main)/directory/companies/[companyId]/page.tsx; frontend/src/app/api/directory/companies/[companyId]/route.ts; frontend/src/components/domain/directory/CompanyDetailSheet.tsx; frontend/src/components/header/use-header-nav.ts"
+    "refSample": "frontend/src/app/(main)/directory/companies/[companyId]/page.tsx; frontend/src/app/(main)/directory/companies/page.tsx; frontend/src/app/api/directory/companies/[companyId]/route.ts; frontend/src/components/domain/directory/CompanyDetailSheet.tsx; frontend/src/components/header/use-header-nav.ts"
   },
   {
     "route": "/api/directory/companies/[companyId]",
@@ -3128,14 +3112,6 @@
     "refSample": ""
   },
   {
-    "route": "/api/docs/check",
-    "kind": "api",
-    "dynamic": "false",
-    "refCount": "0",
-    "file": "frontend/src/app/api/docs/check/route.ts",
-    "refSample": ""
-  },
-  {
     "route": "/api/document-center/[recordType]/[recordId]/email",
     "kind": "api",
     "dynamic": "true",
@@ -3181,7 +3157,7 @@
     "dynamic": "false",
     "refCount": "4",
     "file": "frontend/src/app/api/document-picker/linked/route.ts",
-    "refSample": "frontend/src/app/(main)/[projectId]/commitments/[commitmentId]/edit/page.tsx; frontend/src/app/api/document-picker/linked/__tests__/route.test.ts; frontend/src/components/ds/document-picker.tsx; frontend/src/components/ds/__tests__/document-picker.attachments.test.tsx"
+    "refSample": "frontend/src/app/(main)/[projectId]/commitments/[commitmentId]/edit/page.tsx; frontend/src/app/api/document-picker/linked/__tests__/route.test.ts; frontend/src/components/ds/__tests__/document-picker.attachments.test.tsx; frontend/src/components/ds/document-picker.tsx"
   },
   {
     "route": "/api/document-picker/register",
@@ -3197,7 +3173,7 @@
     "dynamic": "false",
     "refCount": "3",
     "file": "frontend/src/app/api/document-picker/types/route.ts",
-    "refSample": "frontend/src/app/api/document-picker/types/__tests__/route.test.ts; frontend/src/components/ds/document-picker.tsx; frontend/src/components/ds/__tests__/document-picker.attachments.test.tsx"
+    "refSample": "frontend/src/app/api/document-picker/types/__tests__/route.test.ts; frontend/src/components/ds/__tests__/document-picker.attachments.test.tsx; frontend/src/components/ds/document-picker.tsx"
   },
   {
     "route": "/api/document-picker/upload",
@@ -3357,7 +3333,7 @@
     "dynamic": "false",
     "refCount": "7",
     "file": "frontend/src/app/api/email-inbox/route.ts",
-    "refSample": "frontend/src/app/api/email-inbox/reviewed/__tests__/route.test.ts; frontend/src/app/api/email-inbox/[emailId]/assistant-review/__tests__/route.test.ts; frontend/src/app/api/email-inbox/[emailId]/draft-reply/__tests__/route.test.ts; frontend/src/features/emails/ai-review-panel.tsx; frontend/src/features/emails/inbox/email-inbox-client.tsx"
+    "refSample": "frontend/src/app/api/email-inbox/[emailId]/assistant-review/__tests__/route.test.ts; frontend/src/app/api/email-inbox/[emailId]/draft-reply/__tests__/route.test.ts; frontend/src/app/api/email-inbox/reviewed/__tests__/route.test.ts; frontend/src/features/emails/ai-review-panel.tsx; frontend/src/features/emails/inbox/email-inbox-client.tsx"
   },
   {
     "route": "/api/email-inbox/[emailId]",
@@ -3416,12 +3392,44 @@
     "refSample": "frontend/src/components/meetings/meeting-tasks-manager.tsx; frontend/src/features/documents/teams-conversation-review-actions.tsx; frontend/src/features/tasks/tasks-kanban-page.tsx; frontend/src/hooks/use-initiative-cards.ts"
   },
   {
+    "route": "/api/engagement/docs/link",
+    "kind": "api",
+    "dynamic": "false",
+    "refCount": "3",
+    "file": "frontend/src/app/api/engagement/docs/link/route.ts",
+    "refSample": "frontend/src/app/api/engagement/docs/link/__tests__/route.test.ts; frontend/src/lib/analytics/__tests__/docs-training-assertion.test.ts; frontend/src/lib/analytics/docs-link.ts"
+  },
+  {
+    "route": "/api/engagement/docs/progress",
+    "kind": "api",
+    "dynamic": "false",
+    "refCount": "1",
+    "file": "frontend/src/app/api/engagement/docs/progress/route.ts",
+    "refSample": "frontend/src/app/api/engagement/docs/progress/__tests__/route.test.ts"
+  },
+  {
+    "route": "/api/engagement/learning-progress",
+    "kind": "api",
+    "dynamic": "false",
+    "refCount": "2",
+    "file": "frontend/src/app/api/engagement/learning-progress/route.ts",
+    "refSample": "frontend/src/components/analytics/__tests__/tracked-video-player.test.tsx; frontend/src/components/analytics/tracked-video-player.tsx"
+  },
+  {
+    "route": "/api/engagement/session",
+    "kind": "api",
+    "dynamic": "false",
+    "refCount": "1",
+    "file": "frontend/src/app/api/engagement/session/route.ts",
+    "refSample": "frontend/src/components/analytics/app-session-tracker.tsx"
+  },
+  {
     "route": "/api/entity-links",
     "kind": "api",
     "dynamic": "false",
     "refCount": "3",
     "file": "frontend/src/app/api/entity-links/route.ts",
-    "refSample": "frontend/src/app/api/entity-links/search/route.ts; frontend/src/app/api/entity-links/[linkId]/route.ts; frontend/src/hooks/use-related-items.ts"
+    "refSample": "frontend/src/app/api/entity-links/[linkId]/route.ts; frontend/src/app/api/entity-links/search/route.ts; frontend/src/hooks/use-related-items.ts"
   },
   {
     "route": "/api/entity-links/[linkId]",
@@ -3547,7 +3555,7 @@
     "route": "/api/executive/daily-brief",
     "kind": "api",
     "dynamic": "false",
-    "refCount": "23",
+    "refCount": "22",
     "file": "frontend/src/app/api/executive/daily-brief/route.ts",
     "refSample": "frontend/src/app/(admin)/actions/admin-action-cards.tsx; frontend/src/app/(admin)/admin/daily-briefs/[briefId]/page.tsx; frontend/src/app/(main)/ai-dashboard/live-data.ts; frontend/src/app/(tables)/daily-briefs/__tests__/route-ownership.test.ts; frontend/src/app/api/admin/operations-readiness/status/route.ts"
   },
@@ -3603,9 +3611,9 @@
     "route": "/api/executive/daily-brief/send-teams",
     "kind": "api",
     "dynamic": "false",
-    "refCount": "7",
+    "refCount": "6",
     "file": "frontend/src/app/api/executive/daily-brief/send-teams/route.ts",
-    "refSample": "frontend/src/app/(admin)/actions/admin-action-cards.tsx; frontend/src/app/api/admin/operations-readiness/status/route.ts; frontend/src/app/api/admin/owner-briefing/send-test/route.ts; frontend/src/app/api/cron/executive-daily-brief/route.ts; frontend/src/app/api/cron/executive-daily-brief/__tests__/route.test.ts"
+    "refSample": "frontend/src/app/(admin)/actions/admin-action-cards.tsx; frontend/src/app/api/admin/operations-readiness/status/route.ts; frontend/src/app/api/cron/executive-daily-brief/__tests__/route.test.ts; frontend/src/app/api/cron/executive-daily-brief/route.ts; frontend/src/app/api/executive/daily-brief/__tests__/send-teams-route.test.ts"
   },
   {
     "route": "/api/executive/daily-brief/tasks",
@@ -3733,7 +3741,7 @@
     "dynamic": "false",
     "refCount": "5",
     "file": "frontend/src/app/api/health/route.ts",
-    "refSample": "frontend/src/app/api/admin/source-sync/_shared.ts; frontend/src/app/api/admin/source-sync/__tests__/contracts.test.ts; frontend/src/components/header/procore-reference-panel.tsx; frontend/src/components/misc/backend-status-indicator.tsx; frontend/src/lib/api-client.unit.test.ts"
+    "refSample": "frontend/src/app/api/admin/source-sync/__tests__/contracts.test.ts; frontend/src/app/api/admin/source-sync/_shared.ts; frontend/src/components/header/procore-reference-panel.tsx; frontend/src/components/misc/backend-status-indicator.tsx; frontend/src/lib/api-client.unit.test.ts"
   },
   {
     "route": "/api/home/outlook-calendar",
@@ -3741,7 +3749,7 @@
     "dynamic": "false",
     "refCount": "2",
     "file": "frontend/src/app/api/home/outlook-calendar/route.ts",
-    "refSample": "frontend/src/app/(main)/home/page.tsx; frontend/src/app/(main)/home/__tests__/home-page-contract.test.ts"
+    "refSample": "frontend/src/app/(main)/home/__tests__/home-page-contract.test.ts; frontend/src/app/(main)/home/page.tsx"
   },
   {
     "route": "/api/ideas",
@@ -3776,22 +3784,6 @@
     "refSample": ""
   },
   {
-    "route": "/api/insight-cards/[cardId]/acknowledge",
-    "kind": "api",
-    "dynamic": "true",
-    "refCount": "0",
-    "file": "frontend/src/app/api/insight-cards/[cardId]/acknowledge/route.ts",
-    "refSample": ""
-  },
-  {
-    "route": "/api/insight-cards/[cardId]/snooze",
-    "kind": "api",
-    "dynamic": "true",
-    "refCount": "0",
-    "file": "frontend/src/app/api/insight-cards/[cardId]/snooze/route.ts",
-    "refSample": ""
-  },
-  {
     "route": "/api/invoices",
     "kind": "api",
     "dynamic": "false",
@@ -3805,7 +3797,7 @@
     "dynamic": "false",
     "refCount": "11",
     "file": "frontend/src/app/api/knowledge/route.ts",
-    "refSample": "frontend/src/app/api/knowledge/categories/route.ts; frontend/src/app/api/knowledge/signed-url/route.ts; frontend/src/app/api/knowledge/signed-url/__tests__/route.test.ts; frontend/src/app/api/knowledge/sync-sharepoint/route.ts; frontend/src/app/api/knowledge/upload/__tests__/route.test.ts"
+    "refSample": "frontend/src/app/api/knowledge/__tests__/route.test.ts; frontend/src/app/api/knowledge/categories/route.ts; frontend/src/app/api/knowledge/signed-url/__tests__/route.test.ts; frontend/src/app/api/knowledge/signed-url/route.ts; frontend/src/app/api/knowledge/sync-sharepoint/route.ts"
   },
   {
     "route": "/api/knowledge/categories",
@@ -3939,9 +3931,9 @@
     "route": "/api/outlook-intake",
     "kind": "api",
     "dynamic": "false",
-    "refCount": "3",
+    "refCount": "5",
     "file": "frontend/src/app/api/outlook-intake/route.ts",
-    "refSample": "frontend/src/app/(tables)/outlook-intake/outlook-intake-client.tsx; frontend/src/app/api/outlook-intake/__tests__/route.test.ts; frontend/src/features/emails/inbox/email-reading-pane.tsx"
+    "refSample": "frontend/src/app/(tables)/outlook-intake/outlook-intake-client.tsx; frontend/src/app/api/outlook-intake/__tests__/route.test.ts; frontend/src/features/emails/inbox/email-reading-pane.tsx; frontend/src/features/plane-intake/plane-intake-client.tsx; frontend/src/features/plane-work-items/plane-overlay.test.tsx"
   },
   {
     "route": "/api/outlook-intake/[intakeId]",
@@ -3997,7 +3989,7 @@
     "dynamic": "false",
     "refCount": "2",
     "file": "frontend/src/app/api/permissions/page-role-access/route.ts",
-    "refSample": "frontend/src/app/(admin)/site-map/site-map-client.tsx; frontend/src/app/(admin)/site-map/__tests__/layout-options.test.ts"
+    "refSample": "frontend/src/app/(admin)/site-map/__tests__/layout-options.test.ts; frontend/src/app/(admin)/site-map/site-map-client.tsx"
   },
   {
     "route": "/api/permissions/templates",
@@ -4005,7 +3997,7 @@
     "dynamic": "false",
     "refCount": "9",
     "file": "frontend/src/app/api/permissions/templates/route.ts",
-    "refSample": "frontend/src/app/(admin)/site-map/site-map-client.tsx; frontend/src/app/(admin)/site-map/__tests__/layout-options.test.ts; frontend/src/app/(admin)/user-management/page.tsx; frontend/src/app/(admin)/user-management/template-detail-page-client.tsx; frontend/src/app/(admin)/user-management/_lib/user-access-data.ts"
+    "refSample": "frontend/src/app/(admin)/site-map/__tests__/layout-options.test.ts; frontend/src/app/(admin)/site-map/site-map-client.tsx; frontend/src/app/(admin)/user-management/_lib/user-access-data.ts; frontend/src/app/(admin)/user-management/page.tsx; frontend/src/app/(admin)/user-management/template-detail-page-client.tsx"
   },
   {
     "route": "/api/permissions/templates/[templateId]",
@@ -4021,7 +4013,7 @@
     "dynamic": "false",
     "refCount": "7",
     "file": "frontend/src/app/api/permissions/users/route.ts",
-    "refSample": "frontend/src/app/(admin)/user-management/page.tsx; frontend/src/app/(admin)/user-management/users/[userSlug]/page.tsx; frontend/src/app/(admin)/user-management/_lib/user-access-data.ts; frontend/src/app/api/permissions/users/[personId]/company-template/route.ts; frontend/src/app/api/permissions/users/[personId]/project-access/__tests__/route.test.ts"
+    "refSample": "frontend/src/app/(admin)/user-management/_lib/user-access-data.ts; frontend/src/app/(admin)/user-management/page.tsx; frontend/src/app/(admin)/user-management/users/[userSlug]/page.tsx; frontend/src/app/api/permissions/users/[personId]/company-template/route.ts; frontend/src/app/api/permissions/users/[personId]/project-access/__tests__/route.test.ts"
   },
   {
     "route": "/api/permissions/users/[personId]",
@@ -4062,6 +4054,70 @@
     "refCount": "1",
     "file": "frontend/src/app/api/permissions/users/reconcile-links/route.ts",
     "refSample": "frontend/src/app/(admin)/user-management/page.tsx"
+  },
+  {
+    "route": "/api/plane-cycles",
+    "kind": "api",
+    "dynamic": "false",
+    "refCount": "3",
+    "file": "frontend/src/app/api/plane-cycles/route.ts",
+    "refSample": "frontend/src/app/api/plane-cycles/__tests__/route.test.ts; frontend/src/app/api/plane-cycles/memberships/__tests__/route.test.ts; frontend/src/features/plane-cycles-domain/api.ts"
+  },
+  {
+    "route": "/api/plane-cycles/memberships",
+    "kind": "api",
+    "dynamic": "false",
+    "refCount": "2",
+    "file": "frontend/src/app/api/plane-cycles/memberships/route.ts",
+    "refSample": "frontend/src/app/api/plane-cycles/memberships/__tests__/route.test.ts; frontend/src/features/plane-cycles-domain/api.ts"
+  },
+  {
+    "route": "/api/plane-drafts",
+    "kind": "api",
+    "dynamic": "false",
+    "refCount": "5",
+    "file": "frontend/src/app/api/plane-drafts/route.ts",
+    "refSample": "frontend/src/app/api/plane-drafts/route.test.ts; frontend/src/features/plane-drafts/plane-drafts-model.ts; frontend/src/features/plane-drafts/plane-drafts-model.unit.test.ts; frontend/src/features/plane-drafts/plane-drafts-page.test.tsx; frontend/src/features/plane-drafts/plane-drafts-page.tsx"
+  },
+  {
+    "route": "/api/plane-intake-actions",
+    "kind": "api",
+    "dynamic": "false",
+    "refCount": "2",
+    "file": "frontend/src/app/api/plane-intake-actions/route.ts",
+    "refSample": "frontend/src/app/api/plane-intake-actions/__tests__/route.test.ts; frontend/src/features/plane-intake-actions/client.ts"
+  },
+  {
+    "route": "/api/plane-modules",
+    "kind": "api",
+    "dynamic": "false",
+    "refCount": "4",
+    "file": "frontend/src/app/api/plane-modules/route.ts",
+    "refSample": "frontend/src/app/api/plane-modules/__tests__/route.test.ts; frontend/src/app/api/plane-modules/tasks/__tests__/route.test.ts; frontend/src/app/api/plane-modules/tasks/route.ts; frontend/src/features/plane-modules-domain/plane-modules-api.ts"
+  },
+  {
+    "route": "/api/plane-modules/tasks",
+    "kind": "api",
+    "dynamic": "false",
+    "refCount": "2",
+    "file": "frontend/src/app/api/plane-modules/tasks/route.ts",
+    "refSample": "frontend/src/app/api/plane-modules/tasks/__tests__/route.test.ts; frontend/src/features/plane-modules-domain/plane-modules-api.ts"
+  },
+  {
+    "route": "/api/plane-stickies",
+    "kind": "api",
+    "dynamic": "false",
+    "refCount": "2",
+    "file": "frontend/src/app/api/plane-stickies/route.ts",
+    "refSample": "frontend/src/app/api/plane-stickies/__tests__/route.test.ts; frontend/src/features/plane-stickies/plane-stickies-api.ts"
+  },
+  {
+    "route": "/api/plane-workspace-items",
+    "kind": "api",
+    "dynamic": "false",
+    "refCount": "2",
+    "file": "frontend/src/app/api/plane-workspace-items/route.ts",
+    "refSample": "frontend/src/app/api/plane-workspace-items/__tests__/route.test.ts; frontend/src/features/plane-workspace-items/plane-workspace-items-client.ts"
   },
   {
     "route": "/api/procore-docs/ask",
@@ -4123,9 +4179,9 @@
     "route": "/api/projects",
     "kind": "api",
     "dynamic": "false",
-    "refCount": "546",
+    "refCount": "556",
     "file": "frontend/src/app/api/projects/route.ts",
-    "refSample": "frontend/src/app/(admin)/projects-table-demo/projects-table.tsx; frontend/src/app/(admin)/user-management/page.tsx; frontend/src/app/(admin)/user-management/users/[userSlug]/page.tsx; frontend/src/app/(main)/create-project/page.tsx; frontend/src/app/(main)/directory/companies/[companyId]/page.tsx"
+    "refSample": "frontend/src/app/(admin)/projects-table-demo/projects-table.tsx; frontend/src/app/(admin)/user-management/page.tsx; frontend/src/app/(admin)/user-management/users/[userSlug]/page.tsx; frontend/src/app/(main)/[projectId]/admin/_components/audit-log-tab.tsx; frontend/src/app/(main)/[projectId]/admin/_components/members-tab.tsx"
   },
   {
     "route": "/api/projects/[projectId]",
@@ -4413,14 +4469,6 @@
     "dynamic": "true",
     "refCount": "0",
     "file": "frontend/src/app/api/projects/[projectId]/change-events/[changeEventId]/commitment-pcos/route.ts",
-    "refSample": ""
-  },
-  {
-    "route": "/api/projects/[projectId]/change-events/[changeEventId]/convert-to-change-order",
-    "kind": "api",
-    "dynamic": "true",
-    "refCount": "0",
-    "file": "frontend/src/app/api/projects/[projectId]/change-events/[changeEventId]/convert-to-change-order/route.ts",
     "refSample": ""
   },
   {
@@ -4720,14 +4768,6 @@
     "refSample": ""
   },
   {
-    "route": "/api/projects/[projectId]/commitment-pcos/bulk-create",
-    "kind": "api",
-    "dynamic": "true",
-    "refCount": "0",
-    "file": "frontend/src/app/api/projects/[projectId]/commitment-pcos/bulk-create/route.ts",
-    "refSample": ""
-  },
-  {
     "route": "/api/projects/[projectId]/commitment-pcos/promote-bulk",
     "kind": "api",
     "dynamic": "true",
@@ -4797,14 +4837,6 @@
     "dynamic": "true",
     "refCount": "0",
     "file": "frontend/src/app/api/projects/[projectId]/commitments/export/route.ts",
-    "refSample": ""
-  },
-  {
-    "route": "/api/projects/[projectId]/commitments/import",
-    "kind": "api",
-    "dynamic": "true",
-    "refCount": "0",
-    "file": "frontend/src/app/api/projects/[projectId]/commitments/import/route.ts",
     "refSample": ""
   },
   {
@@ -5080,14 +5112,6 @@
     "refSample": ""
   },
   {
-    "route": "/api/projects/[projectId]/direct-costs/bulk",
-    "kind": "api",
-    "dynamic": "true",
-    "refCount": "0",
-    "file": "frontend/src/app/api/projects/[projectId]/direct-costs/bulk/route.ts",
-    "refSample": ""
-  },
-  {
     "route": "/api/projects/[projectId]/direct-costs/export",
     "kind": "api",
     "dynamic": "true",
@@ -5128,14 +5152,6 @@
     "refSample": ""
   },
   {
-    "route": "/api/projects/[projectId]/directory/export",
-    "kind": "api",
-    "dynamic": "true",
-    "refCount": "0",
-    "file": "frontend/src/app/api/projects/[projectId]/directory/export/route.ts",
-    "refSample": ""
-  },
-  {
     "route": "/api/projects/[projectId]/directory/filters",
     "kind": "api",
     "dynamic": "true",
@@ -5168,14 +5184,6 @@
     "refSample": ""
   },
   {
-    "route": "/api/projects/[projectId]/directory/import",
-    "kind": "api",
-    "dynamic": "true",
-    "refCount": "0",
-    "file": "frontend/src/app/api/projects/[projectId]/directory/import/route.ts",
-    "refSample": ""
-  },
-  {
     "route": "/api/projects/[projectId]/directory/people",
     "kind": "api",
     "dynamic": "true",
@@ -5200,14 +5208,6 @@
     "refSample": ""
   },
   {
-    "route": "/api/projects/[projectId]/directory/people/[personId]/email-notifications",
-    "kind": "api",
-    "dynamic": "true",
-    "refCount": "0",
-    "file": "frontend/src/app/api/projects/[projectId]/directory/people/[personId]/email-notifications/route.ts",
-    "refSample": ""
-  },
-  {
     "route": "/api/projects/[projectId]/directory/people/[personId]/invite",
     "kind": "api",
     "dynamic": "true",
@@ -5224,59 +5224,11 @@
     "refSample": ""
   },
   {
-    "route": "/api/projects/[projectId]/directory/people/[personId]/profile-photo",
-    "kind": "api",
-    "dynamic": "true",
-    "refCount": "0",
-    "file": "frontend/src/app/api/projects/[projectId]/directory/people/[personId]/profile-photo/route.ts",
-    "refSample": ""
-  },
-  {
     "route": "/api/projects/[projectId]/directory/people/[personId]/reactivate",
     "kind": "api",
     "dynamic": "true",
     "refCount": "0",
     "file": "frontend/src/app/api/projects/[projectId]/directory/people/[personId]/reactivate/route.ts",
-    "refSample": ""
-  },
-  {
-    "route": "/api/projects/[projectId]/directory/people/[personId]/reinvite",
-    "kind": "api",
-    "dynamic": "true",
-    "refCount": "0",
-    "file": "frontend/src/app/api/projects/[projectId]/directory/people/[personId]/reinvite/route.ts",
-    "refSample": ""
-  },
-  {
-    "route": "/api/projects/[projectId]/directory/people/[personId]/resend-invite",
-    "kind": "api",
-    "dynamic": "true",
-    "refCount": "0",
-    "file": "frontend/src/app/api/projects/[projectId]/directory/people/[personId]/resend-invite/route.ts",
-    "refSample": ""
-  },
-  {
-    "route": "/api/projects/[projectId]/directory/people/[personId]/schedule-notifications",
-    "kind": "api",
-    "dynamic": "true",
-    "refCount": "0",
-    "file": "frontend/src/app/api/projects/[projectId]/directory/people/[personId]/schedule-notifications/route.ts",
-    "refSample": ""
-  },
-  {
-    "route": "/api/projects/[projectId]/directory/people/bulk-invite",
-    "kind": "api",
-    "dynamic": "true",
-    "refCount": "0",
-    "file": "frontend/src/app/api/projects/[projectId]/directory/people/bulk-invite/route.ts",
-    "refSample": ""
-  },
-  {
-    "route": "/api/projects/[projectId]/directory/people/bulk-update",
-    "kind": "api",
-    "dynamic": "true",
-    "refCount": "0",
-    "file": "frontend/src/app/api/projects/[projectId]/directory/people/bulk-update/route.ts",
     "refSample": ""
   },
   {
@@ -5309,14 +5261,6 @@
     "dynamic": "true",
     "refCount": "0",
     "file": "frontend/src/app/api/projects/[projectId]/directory/templates/[templateType]/route.ts",
-    "refSample": ""
-  },
-  {
-    "route": "/api/projects/[projectId]/directory/users/bulk-add",
-    "kind": "api",
-    "dynamic": "true",
-    "refCount": "0",
-    "file": "frontend/src/app/api/projects/[projectId]/directory/users/bulk-add/route.ts",
     "refSample": ""
   },
   {
@@ -5528,14 +5472,6 @@
     "refSample": ""
   },
   {
-    "route": "/api/projects/[projectId]/drawings/[drawingId]/revisions/upload-url",
-    "kind": "api",
-    "dynamic": "true",
-    "refCount": "0",
-    "file": "frontend/src/app/api/projects/[projectId]/drawings/[drawingId]/revisions/upload-url/route.ts",
-    "refSample": ""
-  },
-  {
     "route": "/api/projects/[projectId]/drawings/areas",
     "kind": "api",
     "dynamic": "true",
@@ -5557,14 +5493,6 @@
     "dynamic": "true",
     "refCount": "0",
     "file": "frontend/src/app/api/projects/[projectId]/drawings/bulk-download/route.ts",
-    "refSample": ""
-  },
-  {
-    "route": "/api/projects/[projectId]/drawings/bulk-status",
-    "kind": "api",
-    "dynamic": "true",
-    "refCount": "0",
-    "file": "frontend/src/app/api/projects/[projectId]/drawings/bulk-status/route.ts",
     "refSample": ""
   },
   {
@@ -5677,6 +5605,14 @@
     "dynamic": "true",
     "refCount": "0",
     "file": "frontend/src/app/api/projects/[projectId]/employees/route.ts",
+    "refSample": ""
+  },
+  {
+    "route": "/api/projects/[projectId]/erp-push",
+    "kind": "api",
+    "dynamic": "true",
+    "refCount": "0",
+    "file": "frontend/src/app/api/projects/[projectId]/erp-push/route.ts",
     "refSample": ""
   },
   {
@@ -6133,14 +6069,6 @@
     "dynamic": "true",
     "refCount": "0",
     "file": "frontend/src/app/api/projects/[projectId]/invoicing/subcontractor/invoices/[invoiceId]/pdf/route.ts",
-    "refSample": ""
-  },
-  {
-    "route": "/api/projects/[projectId]/invoicing/subcontractor/invoices/[invoiceId]/pending-owner-approval",
-    "kind": "api",
-    "dynamic": "true",
-    "refCount": "0",
-    "file": "frontend/src/app/api/projects/[projectId]/invoicing/subcontractor/invoices/[invoiceId]/pending-owner-approval/route.ts",
     "refSample": ""
   },
   {
@@ -6624,6 +6552,38 @@
     "refSample": ""
   },
   {
+    "route": "/api/projects/[projectId]/procurement",
+    "kind": "api",
+    "dynamic": "true",
+    "refCount": "0",
+    "file": "frontend/src/app/api/projects/[projectId]/procurement/route.ts",
+    "refSample": ""
+  },
+  {
+    "route": "/api/projects/[projectId]/procurement/[procurementItemId]",
+    "kind": "api",
+    "dynamic": "true",
+    "refCount": "0",
+    "file": "frontend/src/app/api/projects/[projectId]/procurement/[procurementItemId]/route.ts",
+    "refSample": ""
+  },
+  {
+    "route": "/api/projects/[projectId]/procurement/[procurementItemId]/schedule-tasks",
+    "kind": "api",
+    "dynamic": "true",
+    "refCount": "0",
+    "file": "frontend/src/app/api/projects/[projectId]/procurement/[procurementItemId]/schedule-tasks/route.ts",
+    "refSample": ""
+  },
+  {
+    "route": "/api/projects/[projectId]/procurement/[procurementItemId]/submittals",
+    "kind": "api",
+    "dynamic": "true",
+    "refCount": "0",
+    "file": "frontend/src/app/api/projects/[projectId]/procurement/[procurementItemId]/submittals/route.ts",
+    "refSample": ""
+  },
+  {
     "route": "/api/projects/[projectId]/progress-reports",
     "kind": "api",
     "dynamic": "true",
@@ -6912,14 +6872,6 @@
     "refSample": ""
   },
   {
-    "route": "/api/projects/[projectId]/scheduling/tasks/bulk",
-    "kind": "api",
-    "dynamic": "true",
-    "refCount": "0",
-    "file": "frontend/src/app/api/projects/[projectId]/scheduling/tasks/bulk/route.ts",
-    "refSample": ""
-  },
-  {
     "route": "/api/projects/[projectId]/scheduling/tasks/convert",
     "kind": "api",
     "dynamic": "true",
@@ -6949,14 +6901,6 @@
     "dynamic": "true",
     "refCount": "0",
     "file": "frontend/src/app/api/projects/[projectId]/scheduling/tasks/preview/route.ts",
-    "refSample": ""
-  },
-  {
-    "route": "/api/projects/[projectId]/scheduling/trade-alerts",
-    "kind": "api",
-    "dynamic": "true",
-    "refCount": "0",
-    "file": "frontend/src/app/api/projects/[projectId]/scheduling/trade-alerts/route.ts",
     "refSample": ""
   },
   {
@@ -7347,9 +7291,17 @@
     "route": "/api/recruiting",
     "kind": "api",
     "dynamic": "false",
-    "refCount": "10",
+    "refCount": "13",
     "file": "frontend/src/app/api/recruiting/route.ts",
-    "refSample": "frontend/src/app/api/recruiting/integrations/microsoft/callback/route.ts; frontend/src/app/api/recruiting/integrations/microsoft/callback/__tests__/route.test.ts; frontend/src/app/api/recruiting/integrations/microsoft/connect/route.ts; frontend/src/features/recruiting/MicrosoftConnectionSettings.tsx; frontend/src/features/recruiting/RecruitingIntakeUatForm.tsx"
+    "refSample": "frontend/src/app/api/recruiting/integrations/microsoft/callback/__tests__/route.test.ts; frontend/src/app/api/recruiting/integrations/microsoft/callback/route.ts; frontend/src/app/api/recruiting/integrations/microsoft/connect/route.ts; frontend/src/app/api/recruiting/uat-actions/__tests__/route.test.ts; frontend/src/features/recruiting/ApplicantTrackerWorkspace.tsx"
+  },
+  {
+    "route": "/api/recruiting/intake-batch-uat",
+    "kind": "api",
+    "dynamic": "false",
+    "refCount": "1",
+    "file": "frontend/src/app/api/recruiting/intake-batch-uat/route.ts",
+    "refSample": "frontend/src/features/recruiting/RecruitingResumeInbox.tsx"
   },
   {
     "route": "/api/recruiting/intake-uat",
@@ -7365,7 +7317,7 @@
     "dynamic": "false",
     "refCount": "7",
     "file": "frontend/src/app/api/recruiting/integrations/microsoft/route.ts",
-    "refSample": "frontend/src/app/api/recruiting/integrations/microsoft/callback/route.ts; frontend/src/app/api/recruiting/integrations/microsoft/callback/__tests__/route.test.ts; frontend/src/app/api/recruiting/integrations/microsoft/connect/route.ts; frontend/src/features/recruiting/MicrosoftConnectionSettings.tsx; frontend/src/features/recruiting/__tests__/ApplicantTrackerWorkspace.test.tsx"
+    "refSample": "frontend/src/app/api/recruiting/integrations/microsoft/callback/__tests__/route.test.ts; frontend/src/app/api/recruiting/integrations/microsoft/callback/route.ts; frontend/src/app/api/recruiting/integrations/microsoft/connect/route.ts; frontend/src/features/recruiting/MicrosoftConnectionSettings.tsx; frontend/src/features/recruiting/__tests__/ApplicantTrackerWorkspace.test.tsx"
   },
   {
     "route": "/api/recruiting/integrations/microsoft/callback",
@@ -7373,7 +7325,7 @@
     "dynamic": "false",
     "refCount": "3",
     "file": "frontend/src/app/api/recruiting/integrations/microsoft/callback/route.ts",
-    "refSample": "frontend/src/app/api/recruiting/integrations/microsoft/callback/__tests__/route.test.ts; frontend/src/lib/recruiting/microsoft-connection.ts; frontend/src/lib/recruiting/__tests__/microsoft-connection.test.ts"
+    "refSample": "frontend/src/app/api/recruiting/integrations/microsoft/callback/__tests__/route.test.ts; frontend/src/lib/recruiting/__tests__/microsoft-connection.test.ts; frontend/src/lib/recruiting/microsoft-connection.ts"
   },
   {
     "route": "/api/recruiting/integrations/microsoft/connect",
@@ -7382,6 +7334,22 @@
     "refCount": "2",
     "file": "frontend/src/app/api/recruiting/integrations/microsoft/connect/route.ts",
     "refSample": "frontend/src/features/recruiting/MicrosoftConnectionSettings.tsx; frontend/src/features/recruiting/__tests__/ApplicantTrackerWorkspace.test.tsx"
+  },
+  {
+    "route": "/api/recruiting/resumes",
+    "kind": "api",
+    "dynamic": "false",
+    "refCount": "3",
+    "file": "frontend/src/app/api/recruiting/resumes/route.ts",
+    "refSample": "frontend/src/features/recruiting/ApplicantTrackerWorkspace.tsx; frontend/src/features/recruiting/RecruitingResumeInbox.tsx; frontend/src/features/recruiting/__tests__/ApplicantTrackerWorkspace.test.tsx"
+  },
+  {
+    "route": "/api/recruiting/uat-actions",
+    "kind": "api",
+    "dynamic": "false",
+    "refCount": "2",
+    "file": "frontend/src/app/api/recruiting/uat-actions/route.ts",
+    "refSample": "frontend/src/app/api/recruiting/uat-actions/__tests__/route.test.ts; frontend/src/hooks/use-recruiting/use-production-recruiting-workspace.ts"
   },
   {
     "route": "/api/respond/rfi/[token]",
@@ -7456,28 +7424,12 @@
     "refSample": "frontend/src/app/(main)/[projectId]/daily-log/site-scribe/site-scribe-client.tsx"
   },
   {
-    "route": "/api/supabase-proxy/[...path]",
-    "kind": "api",
-    "dynamic": "true",
-    "refCount": "0",
-    "file": "frontend/src/app/api/supabase-proxy/[...path]/route.ts",
-    "refSample": ""
-  },
-  {
-    "route": "/api/table-delete",
+    "route": "/api/source-info",
     "kind": "api",
     "dynamic": "false",
-    "refCount": "0",
-    "file": "frontend/src/app/api/table-delete/route.ts",
-    "refSample": ""
-  },
-  {
-    "route": "/api/table-insert",
-    "kind": "api",
-    "dynamic": "false",
-    "refCount": "0",
-    "file": "frontend/src/app/api/table-insert/route.ts",
-    "refSample": ""
+    "refCount": "1",
+    "file": "frontend/src/app/api/source-info/route.ts",
+    "refSample": "frontend/src/app/api/source-info/route.unit.test.ts"
   },
   {
     "route": "/api/table-metadata",
@@ -7515,9 +7467,9 @@
     "route": "/api/tasks",
     "kind": "api",
     "dynamic": "false",
-    "refCount": "13",
+    "refCount": "20",
     "file": "frontend/src/app/api/tasks/route.ts",
-    "refSample": "frontend/src/app/(main)/home/page.tsx; frontend/src/app/(main)/home/__tests__/home-page.test.tsx; frontend/src/app/api/tasks/[taskId]/__tests__/route.test.ts; frontend/src/components/ai-assistant/assistant-widget-renderer.tsx; frontend/src/components/drawings/LinkPinModal.tsx"
+    "refSample": "frontend/src/app/(main)/home/__tests__/home-page.test.tsx; frontend/src/app/(main)/home/page.tsx; frontend/src/app/api/tasks/[taskId]/__tests__/route.test.ts; frontend/src/components/ai-assistant/assistant-widget-renderer.tsx; frontend/src/components/drawings/LinkPinModal.tsx"
   },
   {
     "route": "/api/tasks/[taskId]",
@@ -7624,12 +7576,20 @@
     "refSample": ""
   },
   {
+    "route": "/api/training/coaching",
+    "kind": "api",
+    "dynamic": "false",
+    "refCount": "0",
+    "file": "frontend/src/app/api/training/coaching/route.ts",
+    "refSample": ""
+  },
+  {
     "route": "/api/training/growth",
     "kind": "api",
     "dynamic": "false",
     "refCount": "3",
     "file": "frontend/src/app/api/training/growth/route.ts",
-    "refSample": "frontend/src/app/api/training/growth/__tests__/route.test.ts; frontend/src/features/training/assessment/AssessmentClient.tsx; frontend/src/features/training/SkillGrowthClient.tsx"
+    "refSample": "frontend/src/app/api/training/growth/__tests__/route.test.ts; frontend/src/features/training/SkillGrowthClient.tsx; frontend/src/features/training/assessment/AssessmentClient.tsx"
   },
   {
     "route": "/api/training/library/chat",
@@ -7637,15 +7597,15 @@
     "dynamic": "false",
     "refCount": "4",
     "file": "frontend/src/app/api/training/library/chat/route.ts",
-    "refSample": "frontend/src/app/(main)/training/ask/page.tsx; frontend/src/app/(main)/training/ask/__tests__/page.test.tsx; frontend/src/app/api/training/library/chat/__tests__/route.test.ts; frontend/src/lib/ai/training-library/__tests__/grounding.test.ts"
+    "refSample": "frontend/src/app/(main)/training/ask/__tests__/page.test.tsx; frontend/src/app/(main)/training/ask/page.tsx; frontend/src/app/api/training/library/chat/__tests__/route.test.ts; frontend/src/lib/ai/training-library/__tests__/grounding.test.ts"
   },
   {
     "route": "/api/users",
     "kind": "api",
     "dynamic": "false",
-    "refCount": "6",
+    "refCount": "8",
     "file": "frontend/src/app/api/users/route.ts",
-    "refSample": "frontend/src/app/(admin)/feedback-inbox/_components/comments-section.tsx; frontend/src/app/api/users/me/profile/route.ts; frontend/src/components/onboarding/WelcomeOnboarding.tsx; frontend/src/features/product-board/use-board-item.ts; frontend/src/features/tasks/tasks-inbox.tsx"
+    "refSample": "frontend/src/app/(admin)/feedback-inbox/_components/comments-section.tsx; frontend/src/app/api/users/me/profile/route.ts; frontend/src/components/onboarding/WelcomeOnboarding.tsx; frontend/src/features/plane-intake/plane-intake-client.tsx; frontend/src/features/plane-your-work/plane-your-work-surface.tsx"
   },
   {
     "route": "/api/users/me/onboarding",
@@ -7699,17 +7659,17 @@
     "route": "/auth/callback",
     "kind": "api",
     "dynamic": "false",
-    "refCount": "10",
+    "refCount": "8",
     "file": "frontend/src/app/auth/callback/route.ts",
-    "refSample": "frontend/src/app/api/admin/resend-invite-emails/route.ts; frontend/src/app/api/admin/resend-password-reset-emails/route.ts; frontend/src/app/api/auth/forgot-password/route.ts; frontend/src/app/api/auth/signup/route.ts; frontend/src/app/api/directory/employees/[employeeId]/resend-invite/route.ts"
+    "refSample": "frontend/src/app/api/auth/forgot-password/route.ts; frontend/src/app/api/auth/signup/route.ts; frontend/src/app/api/directory/employees/[employeeId]/resend-invite/route.ts; frontend/src/app/api/permissions/users/route.ts; frontend/src/app/api/projects/[projectId]/invoicing/subcontractor/invoices/[invoiceId]/invite/route.ts"
   },
   {
     "route": "/auth/confirm",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "5",
+    "refCount": "4",
     "file": "frontend/src/app/auth/confirm/page.tsx",
-    "refSample": "frontend/src/app/api/admin/resend-password-reset-emails/route.ts; frontend/src/app/api/projects/[projectId]/invoicing/subcontractor/invoices/[invoiceId]/invite/route.ts; frontend/src/lib/commitments/subcontractor-sov-service.ts; frontend/src/lib/email/client.unit.test.ts; frontend/src/lib/email/invite-links.ts"
+    "refSample": "frontend/src/app/api/projects/[projectId]/invoicing/subcontractor/invoices/[invoiceId]/invite/route.ts; frontend/src/lib/commitments/subcontractor-sov-service.ts; frontend/src/lib/email/client.unit.test.ts; frontend/src/lib/email/invite-links.ts"
   },
   {
     "route": "/auth/error",
@@ -7731,9 +7691,9 @@
     "route": "/auth/login",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "32",
+    "refCount": "36",
     "file": "frontend/src/app/auth/login/page.tsx",
-    "refSample": "frontend/src/app/(admin)/intelligence-vision/page.tsx; frontend/src/app/(main)/training/growth/assessment/page.tsx; frontend/src/app/(main)/training/growth/page.tsx; frontend/src/app/(main)/training/growth/__tests__/page.test.tsx; frontend/src/app/(main)/training/page.tsx"
+    "refSample": "frontend/src/app/(admin)/intelligence-vision/page.tsx; frontend/src/app/(main)/[projectId]/client-dashboard/page.tsx; frontend/src/app/(main)/[projectId]/layout.tsx; frontend/src/app/(main)/[projectId]/my-work/page.tsx; frontend/src/app/(main)/training/actions.ts"
   },
   {
     "route": "/auth/logout",
@@ -7760,12 +7720,20 @@
     "refSample": "frontend/src/components/misc/sign-up-form.tsx"
   },
   {
+    "route": "/auth/source",
+    "kind": "page",
+    "dynamic": "false",
+    "refCount": "14",
+    "file": "frontend/src/app/auth/source/page.tsx",
+    "refSample": "frontend/src/app/api/source-info/route.unit.test.ts; frontend/src/features/plane-commitments/plane-commitments-page.tsx; frontend/src/features/plane-home/plane-home-page.tsx; frontend/src/features/plane-license/source-info.ts; frontend/src/features/plane-license/source-info.unit.test.ts"
+  },
+  {
     "route": "/auth/update-password",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "6",
+    "refCount": "5",
     "file": "frontend/src/app/auth/update-password/page.tsx",
-    "refSample": "frontend/src/app/api/admin/resend-password-reset-emails/route.ts; frontend/src/app/api/projects/[projectId]/invoicing/subcontractor/invoices/[invoiceId]/invite/route.ts; frontend/src/app/robots.ts; frontend/src/lib/auth/password-update-guard.ts; frontend/src/lib/commitments/subcontractor-sov-service.ts"
+    "refSample": "frontend/src/app/api/projects/[projectId]/invoicing/subcontractor/invoices/[invoiceId]/invite/route.ts; frontend/src/app/robots.ts; frontend/src/lib/auth/password-update-guard.ts; frontend/src/lib/commitments/subcontractor-sov-service.ts; frontend/src/lib/email/invite-links.ts"
   },
   {
     "route": "/billing-periods",
@@ -7773,31 +7741,39 @@
     "dynamic": "false",
     "refCount": "9",
     "file": "frontend/src/app/(main)/billing-periods/page.tsx",
-    "refSample": "frontend/src/app/(main)/[projectId]/billing-periods/[periodId]/page.tsx; frontend/src/app/(main)/[projectId]/prime-contracts/[contractId]/invoices/[invoiceId]/page.tsx; frontend/src/app/api/projects/[projectId]/billing-periods/route.ts; frontend/src/app/api/projects/[projectId]/invoicing/billing-periods/route.ts; frontend/src/app/api/projects/[projectId]/invoicing/billing-periods/[periodId]/route.ts"
+    "refSample": "frontend/src/app/(main)/[projectId]/billing-periods/[periodId]/page.tsx; frontend/src/app/(main)/[projectId]/prime-contracts/[contractId]/invoices/[invoiceId]/page.tsx; frontend/src/app/api/projects/[projectId]/billing-periods/route.ts; frontend/src/app/api/projects/[projectId]/invoicing/billing-periods/[periodId]/route.ts; frontend/src/app/api/projects/[projectId]/invoicing/billing-periods/__tests__/route.test.ts"
+  },
+  {
+    "route": "/brandons-dashboard",
+    "kind": "page",
+    "dynamic": "false",
+    "refCount": "1",
+    "file": "frontend/src/app/(admin)/brandons-dashboard/page.tsx",
+    "refSample": "frontend/src/app/(admin)/megans-dashboard/__tests__/tagged-dashboard-client.test.ts"
   },
   {
     "route": "/calendar",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "33",
+    "refCount": "37",
     "file": "frontend/src/app/(main)/calendar/page.tsx",
-    "refSample": "frontend/src/app/(admin)/docs/ai-overview/_lib/ai-stats.ts; frontend/src/app/(admin)/rag/page.tsx; frontend/src/app/(main)/[projectId]/drawings/sets/page.tsx; frontend/src/app/(main)/[projectId]/schedule/page.tsx; frontend/src/app/api/ai-assistant/marketing/calendar/route.ts"
+    "refSample": "frontend/src/app/(admin)/docs/ai-overview/_lib/ai-stats.ts; frontend/src/app/(admin)/rag/page.tsx; frontend/src/app/(main)/[projectId]/drawings/sets/page.tsx; frontend/src/app/(main)/[projectId]/schedule/page.tsx; frontend/src/app/.well-known/workflow/v1/step/route.js"
   },
   {
     "route": "/change-events",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "120",
+    "refCount": "124",
     "file": "frontend/src/app/(tables)/change-events/page.tsx",
-    "refSample": "frontend/src/app/(main)/[projectId]/change-events/new/page.tsx; frontend/src/app/(main)/[projectId]/change-events/page.tsx; frontend/src/app/(main)/[projectId]/change-events/[changeEventId]/edit/page.tsx; frontend/src/app/(main)/[projectId]/change-events/[changeEventId]/page.tsx; frontend/src/app/(main)/[projectId]/change-events/[changeEventId]/__tests__/page.test.tsx"
+    "refSample": "frontend/src/app/(main)/[projectId]/change-events/[changeEventId]/__tests__/page.test.tsx; frontend/src/app/(main)/[projectId]/change-events/[changeEventId]/edit/page.tsx; frontend/src/app/(main)/[projectId]/change-events/[changeEventId]/page.tsx; frontend/src/app/(main)/[projectId]/change-events/new/page.tsx; frontend/src/app/(main)/[projectId]/change-events/page.tsx"
   },
   {
     "route": "/command-center",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "10",
+    "refCount": "11",
     "file": "frontend/src/app/(admin)/command-center/page.tsx",
-    "refSample": "frontend/src/app/(admin)/command-center/file/page.tsx; frontend/src/app/(main)/crm/command-center/page.tsx; frontend/src/components/admin/command-center/ops-views.tsx; frontend/src/components/layout/site-footer.tsx; frontend/src/features/crm/crm-workspace-tabs.ts"
+    "refSample": "frontend/src/app/(admin)/command-center/file/page.tsx; frontend/src/app/(main)/crm/command-center/page.tsx; frontend/src/app/.well-known/workflow/v1/step/route.js; frontend/src/components/admin/command-center/ops-views.tsx; frontend/src/components/layout/site-footer.tsx"
   },
   {
     "route": "/command-center/file",
@@ -7811,9 +7787,9 @@
     "route": "/comments",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "48",
+    "refCount": "47",
     "file": "frontend/src/app/(main)/comments/page.tsx",
-    "refSample": "frontend/src/app/(admin)/feedback-inbox/_components/comments-section.tsx; frontend/src/app/(admin)/feedback-inbox/_components/feedback-detail.tsx; frontend/src/app/(main)/comments/comments-page-utils.ts; frontend/src/app/(main)/comments/__tests__/comments-page-utils.test.ts; frontend/src/app/(main)/layout.tsx"
+    "refSample": "frontend/src/app/(admin)/feedback-inbox/_components/comments-section.tsx; frontend/src/app/(admin)/feedback-inbox/_components/feedback-detail.tsx; frontend/src/app/(main)/[projectId]/change-events/[changeEventId]/__tests__/page.test.tsx; frontend/src/app/(main)/[projectId]/change-events/[changeEventId]/page.tsx; frontend/src/app/(main)/comments/__tests__/comments-page-utils.test.ts"
   },
   {
     "route": "/company-settings",
@@ -7821,7 +7797,7 @@
     "dynamic": "false",
     "refCount": "6",
     "file": "frontend/src/app/(admin)/company-settings/page.tsx",
-    "refSample": "frontend/src/app/(admin)/company-settings/company-settings-client.tsx; frontend/src/app/(admin)/company-settings/__tests__/company-settings-client.test.tsx; frontend/src/lib/auth/admin-page-access.ts; frontend/src/lib/auth/__tests__/admin-page-access.test.ts; frontend/src/lib/company-settings/registry.ts"
+    "refSample": "frontend/src/app/(admin)/company-settings/__tests__/company-settings-client.test.tsx; frontend/src/app/(admin)/company-settings/company-settings-client.tsx; frontend/src/lib/auth/__tests__/admin-page-access.test.ts; frontend/src/lib/auth/admin-page-access.ts; frontend/src/lib/company-settings/registry.ts"
   },
   {
     "route": "/company-settings/project-creation-log",
@@ -7832,10 +7808,42 @@
     "refSample": "frontend/src/app/(admin)/company-settings/__tests__/company-settings-client.test.tsx; frontend/src/lib/company-settings/registry.ts"
   },
   {
+    "route": "/content",
+    "kind": "page",
+    "dynamic": "false",
+    "refCount": "32",
+    "file": "frontend/src/app/(main)/content/page.tsx",
+    "refSample": "frontend/src/app/(admin)/admin/admin-dashboard-data.ts; frontend/src/app/(admin)/document-metadata/document-metadata-client.tsx; frontend/src/app/(main)/content/actions.ts; frontend/src/app/(main)/content/courses/[courseId]/page.tsx; frontend/src/app/(main)/content/courses/new/page.tsx"
+  },
+  {
+    "route": "/content/courses/[courseId]",
+    "kind": "page",
+    "dynamic": "true",
+    "refCount": "0",
+    "file": "frontend/src/app/(main)/content/courses/[courseId]/page.tsx",
+    "refSample": ""
+  },
+  {
+    "route": "/content/courses/new",
+    "kind": "page",
+    "dynamic": "false",
+    "refCount": "2",
+    "file": "frontend/src/app/(main)/content/courses/new/page.tsx",
+    "refSample": "frontend/src/app/(main)/content/actions.ts; frontend/src/features/content-studio/content-create-menu.tsx"
+  },
+  {
+    "route": "/content/resources/new",
+    "kind": "page",
+    "dynamic": "false",
+    "refCount": "2",
+    "file": "frontend/src/app/(main)/content/resources/new/page.tsx",
+    "refSample": "frontend/src/app/(main)/content/actions.ts; frontend/src/features/content-studio/content-create-menu.tsx"
+  },
+  {
     "route": "/create-project",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "12",
+    "refCount": "13",
     "file": "frontend/src/app/(main)/create-project/page.tsx",
     "refSample": "frontend/src/app/(admin)/training-docs/training-doc-editor.tsx; frontend/src/app/(dashboard)/layout.tsx; frontend/src/app/(main)/layout.tsx; frontend/src/app/(main)/page.tsx; frontend/src/components/onboarding/WelcomeOnboarding.tsx"
   },
@@ -7843,9 +7851,9 @@
     "route": "/crm",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "77",
+    "refCount": "86",
     "file": "frontend/src/app/(main)/crm/page.tsx",
-    "refSample": "frontend/src/app/(main)/crm/activities/page.tsx; frontend/src/app/(main)/crm/command-center/page.tsx; frontend/src/app/(main)/crm/companies/[companyId]/page.tsx; frontend/src/app/(main)/crm/deals/page.tsx; frontend/src/app/(main)/crm/deals/[dealId]/page.tsx"
+    "refSample": "frontend/src/app/(main)/crm/activities/page.tsx; frontend/src/app/(main)/crm/command-center/page.tsx; frontend/src/app/(main)/crm/companies/[companyId]/page.tsx; frontend/src/app/(main)/crm/deals/[dealId]/page.tsx; frontend/src/app/(main)/crm/deals/page.tsx"
   },
   {
     "route": "/crm/activities",
@@ -7861,7 +7869,7 @@
     "dynamic": "false",
     "refCount": "2",
     "file": "frontend/src/app/(main)/crm/command-center/page.tsx",
-    "refSample": "frontend/src/features/crm/crm-workspace-tabs.ts; frontend/src/features/crm/__tests__/command-center.test.tsx"
+    "refSample": "frontend/src/features/crm/__tests__/command-center.test.tsx; frontend/src/features/crm/crm-workspace-tabs.ts"
   },
   {
     "route": "/crm/companies/[companyId]",
@@ -7893,15 +7901,15 @@
     "dynamic": "false",
     "refCount": "2",
     "file": "frontend/src/app/(main)/crm/growth/page.tsx",
-    "refSample": "frontend/src/features/crm/crm-workspace-tabs.ts; frontend/src/features/crm/__tests__/growth-workspace.test.tsx"
+    "refSample": "frontend/src/features/crm/__tests__/growth-workspace.test.tsx; frontend/src/features/crm/crm-workspace-tabs.ts"
   },
   {
     "route": "/crm/leads",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "6",
+    "refCount": "11",
     "file": "frontend/src/app/(main)/crm/leads/page.tsx",
-    "refSample": "frontend/src/app/api/crm/follow-ups/route.ts; frontend/src/app/api/crm/leads/[leadId]/convert/__tests__/route.test.ts; frontend/src/app/api/crm/leads/__tests__/route.test.ts; frontend/src/features/crm/relationship-dashboard-preview.tsx; frontend/src/features/tasks/__tests__/tasks-inbox-crm-context.test.ts"
+    "refSample": "frontend/src/app/api/crm/[...operation]/__tests__/route.test.ts; frontend/src/app/api/crm/follow-ups/route.ts; frontend/src/app/api/crm/leads/[leadId]/__tests__/route.test.ts; frontend/src/app/api/crm/leads/[leadId]/convert/__tests__/route.test.ts; frontend/src/app/api/crm/leads/[leadId]/research/__tests__/route.test.ts"
   },
   {
     "route": "/crm/pipeline",
@@ -7909,7 +7917,7 @@
     "dynamic": "false",
     "refCount": "3",
     "file": "frontend/src/app/(main)/crm/pipeline/page.tsx",
-    "refSample": "frontend/src/app/(tables)/deals/deals-client.tsx; frontend/src/features/crm/crm-workspace-tabs.ts; frontend/src/features/crm/__tests__/pipeline-review.test.tsx"
+    "refSample": "frontend/src/app/(tables)/deals/deals-client.tsx; frontend/src/features/crm/__tests__/pipeline-review.test.tsx; frontend/src/features/crm/crm-workspace-tabs.ts"
   },
   {
     "route": "/crm/settings",
@@ -7933,23 +7941,23 @@
     "dynamic": "false",
     "refCount": "4",
     "file": "frontend/src/app/(main)/crm/tasks/page.tsx",
-    "refSample": "frontend/src/features/crm/command-center.tsx; frontend/src/features/crm/crm-workspace-tabs.ts; frontend/src/features/crm/growth-workspace.tsx; frontend/src/features/crm/__tests__/command-center.test.tsx"
+    "refSample": "frontend/src/features/crm/__tests__/command-center.test.tsx; frontend/src/features/crm/command-center.tsx; frontend/src/features/crm/crm-workspace-tabs.ts; frontend/src/features/crm/growth-workspace.tsx"
   },
   {
     "route": "/daily-brief",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "81",
+    "refCount": "82",
     "file": "frontend/src/app/daily-brief/page.tsx",
-    "refSample": "frontend/src/app/(admin)/actions/admin-action-cards.tsx; frontend/src/app/(admin)/actions/page.tsx; frontend/src/app/(admin)/actions/__tests__/page.test.tsx; frontend/src/app/(admin)/admin/admin-dashboard-data.ts; frontend/src/app/(admin)/admin/daily-briefs/admin-daily-briefs-table.tsx"
+    "refSample": "frontend/src/app/(admin)/actions/__tests__/page.test.tsx; frontend/src/app/(admin)/actions/admin-action-cards.tsx; frontend/src/app/(admin)/actions/page.tsx; frontend/src/app/(admin)/admin/admin-dashboard-data.ts; frontend/src/app/(admin)/admin/daily-briefs/[briefId]/fanout-client.tsx"
   },
   {
     "route": "/daily-briefs",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "57",
+    "refCount": "58",
     "file": "frontend/src/app/(tables)/daily-briefs/page.tsx",
-    "refSample": "frontend/src/app/(admin)/actions/page.tsx; frontend/src/app/(admin)/admin/admin-dashboard-data.ts; frontend/src/app/(admin)/admin/daily-briefs/admin-daily-briefs-table.tsx; frontend/src/app/(admin)/admin/daily-briefs/page.tsx; frontend/src/app/(admin)/admin/daily-briefs/[briefId]/fanout-client.tsx"
+    "refSample": "frontend/src/app/(admin)/actions/page.tsx; frontend/src/app/(admin)/admin/admin-dashboard-data.ts; frontend/src/app/(admin)/admin/daily-briefs/[briefId]/fanout-client.tsx; frontend/src/app/(admin)/admin/daily-briefs/[briefId]/page.tsx; frontend/src/app/(admin)/admin/daily-briefs/admin-daily-briefs-table.tsx"
   },
   {
     "route": "/daily-briefs/[briefId]",
@@ -8021,7 +8029,7 @@
     "dynamic": "false",
     "refCount": "23",
     "file": "frontend/src/app/(tables)/deals/page.tsx",
-    "refSample": "frontend/src/app/(main)/crm/deals/page.tsx; frontend/src/app/(tables)/deals/deals-client.tsx; frontend/src/app/api/crm/attention/route.ts; frontend/src/app/api/crm/deals/route.ts; frontend/src/app/api/crm/deals/__tests__/route.test.ts"
+    "refSample": "frontend/src/app/(main)/crm/deals/page.tsx; frontend/src/app/(tables)/deals/deals-client.tsx; frontend/src/app/api/crm/attention/route.ts; frontend/src/app/api/crm/deals/__tests__/route.test.ts; frontend/src/app/api/crm/deals/route.ts"
   },
   {
     "route": "/deep-research",
@@ -8059,9 +8067,9 @@
     "route": "/directory",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "105",
+    "refCount": "95",
     "file": "frontend/src/app/(main)/directory/page.tsx",
-    "refSample": "frontend/src/app/(admin)/tables-directory/page.tsx; frontend/src/app/(main)/actions/table-actions.ts; frontend/src/app/(main)/directory/companies/page.tsx; frontend/src/app/(main)/directory/companies/[companyId]/page.tsx; frontend/src/app/(main)/directory/contacts/page.tsx"
+    "refSample": "frontend/src/app/(admin)/tables-directory/page.tsx; frontend/src/app/(main)/[projectId]/admin/_components/members-tab.tsx; frontend/src/app/(main)/[projectId]/commitments/[commitmentId]/page.tsx; frontend/src/app/(main)/[projectId]/directory/page.tsx; frontend/src/app/(main)/[projectId]/home/project-command-center.tsx"
   },
   {
     "route": "/directory/clients",
@@ -8077,7 +8085,7 @@
     "dynamic": "false",
     "refCount": "26",
     "file": "frontend/src/app/(main)/directory/companies/page.tsx",
-    "refSample": "frontend/src/app/(admin)/tables-directory/page.tsx; frontend/src/app/(main)/actions/table-actions.ts; frontend/src/app/(main)/directory/companies/[companyId]/page.tsx; frontend/src/app/(main)/directory/contacts/[contactId]/page.tsx; frontend/src/app/(main)/directory/page.tsx"
+    "refSample": "frontend/src/app/(admin)/tables-directory/page.tsx; frontend/src/app/(main)/[projectId]/commitments/[commitmentId]/page.tsx; frontend/src/app/(main)/[projectId]/directory/page.tsx; frontend/src/app/(main)/[projectId]/prime-contract-pcos/[pcoId]/page.tsx; frontend/src/app/(main)/actions/table-actions.ts"
   },
   {
     "route": "/directory/companies/[companyId]",
@@ -8091,9 +8099,9 @@
     "route": "/directory/contacts",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "14",
+    "refCount": "15",
     "file": "frontend/src/app/(main)/directory/contacts/page.tsx",
-    "refSample": "frontend/src/app/(admin)/tables-directory/page.tsx; frontend/src/app/(main)/actions/table-actions.ts; frontend/src/app/(main)/directory/companies/[companyId]/page.tsx; frontend/src/app/(main)/directory/contacts/[contactId]/page.tsx; frontend/src/app/(main)/directory/vendors/[vendorId]/page.tsx"
+    "refSample": "frontend/src/app/(admin)/tables-directory/page.tsx; frontend/src/app/(main)/[projectId]/commitments/[commitmentId]/page.tsx; frontend/src/app/(main)/[projectId]/directory/page.tsx; frontend/src/app/(main)/actions/table-actions.ts; frontend/src/app/(main)/directory/__tests__/directory-table-pages.test.ts"
   },
   {
     "route": "/directory/contacts/[contactId]",
@@ -8117,7 +8125,7 @@
     "dynamic": "false",
     "refCount": "7",
     "file": "frontend/src/app/(main)/directory/groups/page.tsx",
-    "refSample": "frontend/src/app/api/projects/[projectId]/directory/groups/route.ts; frontend/src/app/api/projects/[projectId]/directory/groups/[groupId]/members/route.ts; frontend/src/app/api/projects/[projectId]/directory/groups/[groupId]/route.ts; frontend/src/app/api/projects/[projectId]/directory/groups/__tests__/route.test.ts; frontend/src/config/directory-tabs.ts"
+    "refSample": "frontend/src/app/api/projects/[projectId]/directory/groups/[groupId]/members/route.ts; frontend/src/app/api/projects/[projectId]/directory/groups/[groupId]/route.ts; frontend/src/app/api/projects/[projectId]/directory/groups/__tests__/route.test.ts; frontend/src/app/api/projects/[projectId]/directory/groups/route.ts; frontend/src/config/directory-tabs.ts"
   },
   {
     "route": "/directory/vendors",
@@ -8125,7 +8133,7 @@
     "dynamic": "false",
     "refCount": "8",
     "file": "frontend/src/app/(main)/directory/vendors/page.tsx",
-    "refSample": "frontend/src/app/(main)/directory/vendors/[vendorId]/page.tsx; frontend/src/app/(main)/[projectId]/prime-contracts/[contractId]/components/PrimeContractOverviewTab.tsx; frontend/src/app/api/directory/vendors/__tests__/route.test.ts; frontend/src/app/api/projects/[projectId]/directory/vendors/route.ts; frontend/src/components/header/use-header-nav.ts"
+    "refSample": "frontend/src/app/(main)/[projectId]/prime-contracts/[contractId]/components/PrimeContractOverviewTab.tsx; frontend/src/app/(main)/directory/vendors/[vendorId]/page.tsx; frontend/src/app/api/directory/vendors/__tests__/route.test.ts; frontend/src/app/api/projects/[projectId]/directory/vendors/route.ts; frontend/src/components/header/use-header-nav.ts"
   },
   {
     "route": "/directory/vendors/[vendorId]",
@@ -8149,7 +8157,7 @@
     "dynamic": "false",
     "refCount": "4",
     "file": "frontend/src/app/(admin)/docs/ai-overview/page.tsx",
-    "refSample": "frontend/src/app/(admin)/ai-vision/page.tsx; frontend/src/app/(admin)/docs/ai-overview/memory/page.tsx; frontend/src/app/(admin)/docs/ai-overview/_components/section-nav.tsx; frontend/src/app/(admin)/docs/[[...slug]]/page.tsx"
+    "refSample": "frontend/src/app/(admin)/ai-vision/page.tsx; frontend/src/app/(admin)/docs/[[...slug]]/page.tsx; frontend/src/app/(admin)/docs/ai-overview/_components/section-nav.tsx; frontend/src/app/(admin)/docs/ai-overview/memory/page.tsx"
   },
   {
     "route": "/docs/ai-overview/data-sources",
@@ -8165,7 +8173,7 @@
     "dynamic": "false",
     "refCount": "2",
     "file": "frontend/src/app/(admin)/docs/ai-overview/learning/page.tsx",
-    "refSample": "frontend/src/app/(admin)/docs/ai-overview/page.tsx; frontend/src/app/(admin)/docs/ai-overview/_components/section-nav.tsx"
+    "refSample": "frontend/src/app/(admin)/docs/ai-overview/_components/section-nav.tsx; frontend/src/app/(admin)/docs/ai-overview/page.tsx"
   },
   {
     "route": "/docs/ai-overview/memory",
@@ -8173,7 +8181,7 @@
     "dynamic": "false",
     "refCount": "2",
     "file": "frontend/src/app/(admin)/docs/ai-overview/memory/page.tsx",
-    "refSample": "frontend/src/app/(admin)/docs/ai-overview/page.tsx; frontend/src/app/(admin)/docs/ai-overview/_components/section-nav.tsx"
+    "refSample": "frontend/src/app/(admin)/docs/ai-overview/_components/section-nav.tsx; frontend/src/app/(admin)/docs/ai-overview/page.tsx"
   },
   {
     "route": "/docs/ai-overview/models-and-cost",
@@ -8181,7 +8189,7 @@
     "dynamic": "false",
     "refCount": "2",
     "file": "frontend/src/app/(admin)/docs/ai-overview/models-and-cost/page.tsx",
-    "refSample": "frontend/src/app/(admin)/docs/ai-overview/page.tsx; frontend/src/app/(admin)/docs/ai-overview/_components/section-nav.tsx"
+    "refSample": "frontend/src/app/(admin)/docs/ai-overview/_components/section-nav.tsx; frontend/src/app/(admin)/docs/ai-overview/page.tsx"
   },
   {
     "route": "/docs/ai-overview/team",
@@ -8189,7 +8197,7 @@
     "dynamic": "false",
     "refCount": "2",
     "file": "frontend/src/app/(admin)/docs/ai-overview/team/page.tsx",
-    "refSample": "frontend/src/app/(admin)/docs/ai-overview/page.tsx; frontend/src/app/(admin)/docs/ai-overview/_components/section-nav.tsx"
+    "refSample": "frontend/src/app/(admin)/docs/ai-overview/_components/section-nav.tsx; frontend/src/app/(admin)/docs/ai-overview/page.tsx"
   },
   {
     "route": "/docs/ai-overview/tools",
@@ -8197,7 +8205,7 @@
     "dynamic": "false",
     "refCount": "2",
     "file": "frontend/src/app/(admin)/docs/ai-overview/tools/page.tsx",
-    "refSample": "frontend/src/app/(admin)/docs/ai-overview/page.tsx; frontend/src/app/(admin)/docs/ai-overview/_components/section-nav.tsx"
+    "refSample": "frontend/src/app/(admin)/docs/ai-overview/_components/section-nav.tsx; frontend/src/app/(admin)/docs/ai-overview/page.tsx"
   },
   {
     "route": "/document-metadata",
@@ -8213,31 +8221,31 @@
     "dynamic": "false",
     "refCount": "142",
     "file": "frontend/src/app/(tables)/documents/page.tsx",
-    "refSample": "frontend/src/app/(admin)/admin/company-info/page.tsx; frontend/src/app/(admin)/docs/ai-overview/data-sources/page.tsx; frontend/src/app/(main)/ai-dashboard/live-data.ts; frontend/src/app/(main)/intelligence/sources/[sourceDocumentId]/page.tsx; frontend/src/app/(main)/pipeline/page.tsx"
+    "refSample": "frontend/src/app/(admin)/admin/company-info/page.tsx; frontend/src/app/(admin)/docs/ai-overview/data-sources/page.tsx; frontend/src/app/(main)/[projectId]/change-orders/commitment/[commitmentCoId]/page.tsx; frontend/src/app/(main)/[projectId]/change-orders/prime/[primeCoId]/page.tsx; frontend/src/app/(main)/[projectId]/commitments/[commitmentId]/edit/page.tsx"
   },
   {
     "route": "/drawings",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "107",
+    "refCount": "105",
     "file": "frontend/src/app/(tables)/drawings/page.tsx",
-    "refSample": "frontend/src/app/(main)/layout.tsx; frontend/src/app/(main)/[projectId]/drawings/areas/page.tsx; frontend/src/app/(main)/[projectId]/drawings/board/page.tsx; frontend/src/app/(main)/[projectId]/drawings/page.tsx; frontend/src/app/(main)/[projectId]/drawings/recycle-bin/page.tsx"
+    "refSample": "frontend/src/app/(main)/[projectId]/drawings/[drawingId]/page.tsx; frontend/src/app/(main)/[projectId]/drawings/areas/page.tsx; frontend/src/app/(main)/[projectId]/drawings/board/page.tsx; frontend/src/app/(main)/[projectId]/drawings/page.tsx; frontend/src/app/(main)/[projectId]/drawings/recycle-bin/page.tsx"
   },
   {
     "route": "/emails",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "67",
+    "refCount": "65",
     "file": "frontend/src/app/(tables)/emails/page.tsx",
-    "refSample": "frontend/src/app/(admin)/outlook-draft-feedback/page.tsx; frontend/src/app/(admin)/outlook-draft-feedback/rules/page.tsx; frontend/src/app/(admin)/rag/page.tsx; frontend/src/app/(main)/executive/capabilities/page.tsx; frontend/src/app/(main)/stats/page.tsx"
+    "refSample": "frontend/src/app/(admin)/outlook-draft-feedback/page.tsx; frontend/src/app/(admin)/outlook-draft-feedback/rules/page.tsx; frontend/src/app/(admin)/rag/page.tsx; frontend/src/app/(main)/[projectId]/change-events/[changeEventId]/page.tsx; frontend/src/app/(main)/[projectId]/change-orders/prime/[primeCoId]/page.tsx"
   },
   {
     "route": "/errors",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "749",
+    "refCount": "757",
     "file": "frontend/src/app/(admin)/errors/page.tsx",
-    "refSample": "frontend/src/app/(main)/recruiting/intake-test/page.tsx; frontend/src/app/admin/errors/page.tsx; frontend/src/app/api/accounting/ap-invoices/route.ts; frontend/src/app/api/accounting/ap-payments/route.ts; frontend/src/app/api/accounting/bills/route.ts"
+    "refSample": "frontend/src/app/(main)/recruiting/intake-test/page.tsx; frontend/src/app/.well-known/workflow/v1/flow/route.js; frontend/src/app/.well-known/workflow/v1/step/route.js; frontend/src/app/admin/errors/page.tsx; frontend/src/app/api/accounting/ap-invoices/route.ts"
   },
   {
     "route": "/estimates",
@@ -8245,7 +8253,7 @@
     "dynamic": "false",
     "refCount": "48",
     "file": "frontend/src/app/(tables)/estimates/page.tsx",
-    "refSample": "frontend/src/app/(main)/estimates/[type]/estimates-type-client.tsx; frontend/src/app/(main)/estimates/[type]/page.tsx; frontend/src/app/(main)/[projectId]/estimates/estimates-client.tsx; frontend/src/app/(main)/[projectId]/estimates/estimates-table-utils.ts; frontend/src/app/(main)/[projectId]/estimates/new/page.tsx"
+    "refSample": "frontend/src/app/(main)/[projectId]/estimates/[estimateId]/edit/page.tsx; frontend/src/app/(main)/[projectId]/estimates/[estimateId]/estimate-detail-client-v2.tsx; frontend/src/app/(main)/[projectId]/estimates/estimates-client.tsx; frontend/src/app/(main)/[projectId]/estimates/estimates-table-utils.ts; frontend/src/app/(main)/[projectId]/estimates/new/page.tsx"
   },
   {
     "route": "/estimates/[type]",
@@ -8293,7 +8301,7 @@
     "dynamic": "false",
     "refCount": "13",
     "file": "frontend/src/app/(admin)/feedback-inbox/page.tsx",
-    "refSample": "frontend/src/app/(admin)/command-center/file/page.tsx; frontend/src/app/(admin)/docs/ai-overview/learning/page.tsx; frontend/src/app/(admin)/feedback-inbox/_components/list-item-context-menu.tsx; frontend/src/app/(admin)/feedback-inbox/_components/__tests__/feedback-resources-section.test.tsx; frontend/src/app/(admin)/learning-feedback/page.tsx"
+    "refSample": "frontend/src/app/(admin)/command-center/file/page.tsx; frontend/src/app/(admin)/docs/ai-overview/learning/page.tsx; frontend/src/app/(admin)/feedback-inbox/_components/__tests__/feedback-resources-section.test.tsx; frontend/src/app/(admin)/feedback-inbox/_components/list-item-context-menu.tsx; frontend/src/app/(admin)/learning-feedback/page.tsx"
   },
   {
     "route": "/files",
@@ -8301,7 +8309,7 @@
     "dynamic": "false",
     "refCount": "16",
     "file": "frontend/src/app/(tables)/files/page.tsx",
-    "refSample": "frontend/src/app/(admin)/ai-vision/page.tsx; frontend/src/app/(tables)/files/files-client.tsx; frontend/src/app/(tables)/files/__tests__/files-table-page.test.ts; frontend/src/app/api/files/table/route.ts; frontend/src/app/api/files/[docId]/download/route.ts"
+    "refSample": "frontend/src/app/(admin)/ai-vision/page.tsx; frontend/src/app/(tables)/files/__tests__/files-table-page.test.ts; frontend/src/app/(tables)/files/files-client.tsx; frontend/src/app/api/files/[docId]/download/route.ts; frontend/src/app/api/files/table/route.ts"
   },
   {
     "route": "/financial-insights",
@@ -8315,17 +8323,17 @@
     "route": "/home",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "35",
+    "refCount": "42",
     "file": "frontend/src/app/(main)/home/page.tsx",
-    "refSample": "frontend/src/app/(admin)/projects-table-demo/projects-table.tsx; frontend/src/app/(main)/ai-dashboard/decisions/decisions-preview.tsx; frontend/src/app/(main)/ai-dashboard/projects/projects-activity-preview.tsx; frontend/src/app/(main)/ai-dashboard/visualizations/executive-dashboard-visualizations.tsx; frontend/src/app/(main)/ai-dashboard/__tests__/workspace-pages.test.tsx"
+    "refSample": "frontend/src/app/(admin)/projects-table-demo/projects-table.tsx; frontend/src/app/(main)/[projectId]/client-dashboard/page.tsx; frontend/src/app/(main)/[projectId]/home/project-command-center.tsx; frontend/src/app/(main)/[projectId]/home/project-home-command-center-v2.tsx; frontend/src/app/(main)/ai-dashboard/__tests__/workspace-pages.test.tsx"
   },
   {
     "route": "/ideas",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "3",
+    "refCount": "4",
     "file": "frontend/src/app/(main)/ideas/page.tsx",
-    "refSample": "frontend/src/app/api/ideas/route.ts; frontend/src/components/ideas/IdeaInboxTable.tsx; frontend/src/lib/ai/tools/feature-request-tools.ts"
+    "refSample": "frontend/src/app/api/ideas/route.ts; frontend/src/components/ideas/IdeaInboxTable.tsx; frontend/src/lib/ai/tools/__tests__/feature-request-tools.test.ts; frontend/src/lib/ai/tools/feature-request-tools.ts"
   },
   {
     "route": "/insights",
@@ -8403,17 +8411,17 @@
     "route": "/knowledge",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "36",
+    "refCount": "39",
     "file": "frontend/src/app/(main)/knowledge/page.tsx",
-    "refSample": "frontend/src/app/(admin)/training-docs/training-doc-editor.tsx; frontend/src/app/(main)/home/page.tsx; frontend/src/app/(main)/knowledge/app/page.tsx; frontend/src/app/(main)/knowledge/app/[toolCategory]/page.tsx; frontend/src/app/(main)/knowledge/app/[toolCategory]/[docSlug]/page.tsx"
+    "refSample": "frontend/src/app/(admin)/training-docs/training-doc-editor.tsx; frontend/src/app/(main)/home/page.tsx; frontend/src/app/(main)/knowledge/app/[toolCategory]/[docSlug]/page.tsx; frontend/src/app/(main)/knowledge/app/[toolCategory]/page.tsx; frontend/src/app/(main)/knowledge/app/page.tsx"
   },
   {
     "route": "/knowledge/app",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "15",
+    "refCount": "16",
     "file": "frontend/src/app/(main)/knowledge/app/page.tsx",
-    "refSample": "frontend/src/app/(admin)/training-docs/training-doc-editor.tsx; frontend/src/app/(main)/home/page.tsx; frontend/src/app/(main)/knowledge/app/[toolCategory]/page.tsx; frontend/src/app/(main)/knowledge/app/[toolCategory]/[docSlug]/page.tsx; frontend/src/app/api/admin/training-docs/[docId]/publish/route.ts"
+    "refSample": "frontend/src/app/(admin)/training-docs/training-doc-editor.tsx; frontend/src/app/(main)/home/page.tsx; frontend/src/app/(main)/knowledge/app/[toolCategory]/[docSlug]/page.tsx; frontend/src/app/(main)/knowledge/app/[toolCategory]/page.tsx; frontend/src/app/(main)/training/guides/[guideSlug]/page.tsx"
   },
   {
     "route": "/knowledge/app/[toolCategory]",
@@ -8437,15 +8445,15 @@
     "dynamic": "false",
     "refCount": "2",
     "file": "frontend/src/app/(main)/knowledge/company/page.tsx",
-    "refSample": "frontend/src/features/knowledge/knowledge-home-page.tsx; frontend/src/features/knowledge/__tests__/knowledge-home-page.test.tsx"
+    "refSample": "frontend/src/features/knowledge/__tests__/knowledge-home-page.test.tsx; frontend/src/features/knowledge/knowledge-home-page.tsx"
   },
   {
     "route": "/knowledge/manage",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "4",
+    "refCount": "6",
     "file": "frontend/src/app/(main)/knowledge/manage/page.tsx",
-    "refSample": "frontend/src/features/knowledge/knowledge-base-page.tsx; frontend/src/features/knowledge/__tests__/knowledge-base-page.test.tsx; frontend/src/lib/navigation-config.ts; frontend/src/lib/sitemap-utils.ts"
+    "refSample": "frontend/src/features/content-studio/content-create-menu.tsx; frontend/src/features/knowledge/__tests__/knowledge-base-page.test.tsx; frontend/src/features/knowledge/knowledge-base-page.tsx; frontend/src/lib/learning/data-access.ts; frontend/src/lib/navigation-config.ts"
   },
   {
     "route": "/learning-feedback",
@@ -8477,7 +8485,7 @@
     "dynamic": "false",
     "refCount": "16",
     "file": "frontend/src/app/(admin)/meeting-templates/page.tsx",
-    "refSample": "frontend/src/app/(admin)/admin/admin-dashboard-data.ts; frontend/src/app/(admin)/company-settings/__tests__/company-settings-client.test.tsx; frontend/src/app/(admin)/meeting-templates/meeting-templates-client.tsx; frontend/src/app/(admin)/meeting-templates/[templateId]/meeting-template-editor-client.tsx; frontend/src/app/(admin)/meeting-templates/[templateId]/__tests__/meeting-template-editor-client.test.tsx"
+    "refSample": "frontend/src/app/(admin)/admin/admin-dashboard-data.ts; frontend/src/app/(admin)/company-settings/__tests__/company-settings-client.test.tsx; frontend/src/app/(admin)/meeting-templates/[templateId]/__tests__/meeting-template-editor-client.test.tsx; frontend/src/app/(admin)/meeting-templates/[templateId]/meeting-template-editor-client.tsx; frontend/src/app/(admin)/meeting-templates/meeting-templates-client.tsx"
   },
   {
     "route": "/meeting-templates/[templateId]",
@@ -8491,7 +8499,7 @@
     "route": "/meetings",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "101",
+    "refCount": "104",
     "file": "frontend/src/app/(tables)/meetings/page.tsx",
     "refSample": "frontend/src/app/(admin)/admin/daily-briefs/[briefId]/fanout-client.tsx; frontend/src/app/(admin)/ai-vision/page.tsx; frontend/src/app/(admin)/document-metadata/document-metadata-client.tsx; frontend/src/app/(admin)/meeting-templates/[templateId]/meeting-template-editor-client.tsx; frontend/src/app/(admin)/tables-directory/page.tsx"
   },
@@ -8507,9 +8515,9 @@
     "route": "/megans-dashboard",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "0",
+    "refCount": "2",
     "file": "frontend/src/app/(admin)/megans-dashboard/page.tsx",
-    "refSample": ""
+    "refSample": "frontend/src/app/(admin)/brandons-dashboard/page.tsx; frontend/src/app/(admin)/megans-dashboard/__tests__/tagged-dashboard-client.test.ts"
   },
   {
     "route": "/monthly-executive-operating-review",
@@ -8533,15 +8541,15 @@
     "dynamic": "false",
     "refCount": "12",
     "file": "frontend/src/app/(main)/notifications/page.tsx",
-    "refSample": "frontend/src/app/(main)/home/homepage-signals.ts; frontend/src/app/(main)/home/page.tsx; frontend/src/app/(main)/home/__tests__/home-page.test.tsx; frontend/src/app/(main)/home/__tests__/homepage-signals.test.ts; frontend/src/app/api/collaboration/notifications/route.ts"
+    "refSample": "frontend/src/app/(main)/home/__tests__/home-page.test.tsx; frontend/src/app/(main)/home/__tests__/homepage-signals.test.ts; frontend/src/app/(main)/home/homepage-signals.ts; frontend/src/app/(main)/home/page.tsx; frontend/src/app/api/collaboration/notifications/__tests__/route.test.ts"
   },
   {
     "route": "/observability",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "19",
+    "refCount": "22",
     "file": "frontend/src/app/(admin)/observability/page.tsx",
-    "refSample": "frontend/src/app/api/admin/source-sync/status/route.ts; frontend/src/app/api/cron/attribution-rules/route.ts; frontend/src/app/api/cron/autonomous-triage/route.ts; frontend/src/app/api/cron/autonomous-triage/__tests__/route.test.ts; frontend/src/app/api/cron/check-feedback-github-health/route.ts"
+    "refSample": "frontend/src/app/api/admin/source-sync/status/route.ts; frontend/src/app/api/ai-assistant/eve/tools/__tests__/route.test.ts; frontend/src/app/api/ai-assistant/messages/[sessionId]/__tests__/route.test.ts; frontend/src/app/api/cron/attribution-rules/route.ts; frontend/src/app/api/cron/autonomous-triage/__tests__/route.test.ts"
   },
   {
     "route": "/operations-readiness",
@@ -8571,17 +8579,17 @@
     "route": "/outlook-intake",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "4",
+    "refCount": "6",
     "file": "frontend/src/app/(tables)/outlook-intake/page.tsx",
-    "refSample": "frontend/src/app/(tables)/outlook-intake/outlook-intake-client.tsx; frontend/src/app/api/outlook-intake/__tests__/route.test.ts; frontend/src/features/ai/email-learning/email-learning-client.tsx; frontend/src/features/emails/inbox/email-reading-pane.tsx"
+    "refSample": "frontend/src/app/(tables)/outlook-intake/outlook-intake-client.tsx; frontend/src/app/api/outlook-intake/__tests__/route.test.ts; frontend/src/features/ai/email-learning/email-learning-client.tsx; frontend/src/features/emails/inbox/email-reading-pane.tsx; frontend/src/features/plane-intake/plane-intake-client.tsx"
   },
   {
     "route": "/pipeline",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "19",
+    "refCount": "20",
     "file": "frontend/src/app/(main)/pipeline/page.tsx",
-    "refSample": "frontend/src/app/(main)/ai-dashboard/rag-pipeline/rag-pipeline-preview.tsx; frontend/src/app/(main)/ai-dashboard/__tests__/workspace-pages.test.tsx; frontend/src/app/(main)/crm/pipeline/page.tsx; frontend/src/app/(tables)/deals/deals-client.tsx; frontend/src/app/api/admin/source-sync/__tests__/maturity-coverage.test.ts"
+    "refSample": "frontend/src/app/(main)/ai-dashboard/__tests__/workspace-pages.test.tsx; frontend/src/app/(main)/ai-dashboard/rag-pipeline/rag-pipeline-preview.tsx; frontend/src/app/(main)/crm/pipeline/page.tsx; frontend/src/app/(tables)/deals/deals-client.tsx; frontend/src/app/.well-known/workflow/v1/step/route.js"
   },
   {
     "route": "/potential-change-orders",
@@ -8603,7 +8611,7 @@
     "route": "/prime-contracts",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "63",
+    "refCount": "70",
     "file": "frontend/src/app/(tables)/prime-contracts/page.tsx",
     "refSample": "frontend/src/app/(main)/[projectId]/change-orders/change-orders-client.tsx; frontend/src/app/(main)/[projectId]/change-orders/prime/[primeCoId]/page.tsx; frontend/src/app/(main)/[projectId]/home/project-command-center.tsx; frontend/src/app/(main)/[projectId]/home/project-home-command-center-v2.tsx; frontend/src/app/(main)/[projectId]/hub/page.tsx"
   },
@@ -8629,7 +8637,7 @@
     "dynamic": "false",
     "refCount": "5",
     "file": "frontend/src/app/(admin)/(procore)/procore-tools/page.tsx",
-    "refSample": "frontend/src/app/(admin)/(procore)/layout.tsx; frontend/src/app/(admin)/(procore)/procore-tools/procore-tools-table-client.tsx; frontend/src/app/(admin)/(procore)/procore-tools/[slug]/page.tsx; frontend/src/app/(admin)/tools/page.tsx; frontend/src/components/layout/site-footer.tsx"
+    "refSample": "frontend/src/app/(admin)/(procore)/layout.tsx; frontend/src/app/(admin)/(procore)/procore-tools/[slug]/page.tsx; frontend/src/app/(admin)/(procore)/procore-tools/procore-tools-table-client.tsx; frontend/src/app/(admin)/tools/page.tsx; frontend/src/components/layout/site-footer.tsx"
   },
   {
     "route": "/procore-tools/[slug]",
@@ -8643,9 +8651,9 @@
     "route": "/product-board",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "6",
+    "refCount": "7",
     "file": "frontend/src/app/(admin)/product-board/page.tsx",
-    "refSample": "frontend/src/app/api/admin/feedback/board/create/route.ts; frontend/src/app/api/admin/feedback/board/create/__tests__/route.test.ts; frontend/src/app/api/admin/feedback/route.ts; frontend/src/app/api/admin/feedback/__tests__/route.test.ts; frontend/src/lib/ai/tools/write/misc-write-tools.ts"
+    "refSample": "frontend/src/app/.well-known/workflow/v1/step/route.js; frontend/src/app/api/admin/feedback/__tests__/route.test.ts; frontend/src/app/api/admin/feedback/board/create/__tests__/route.test.ts; frontend/src/app/api/admin/feedback/board/create/route.ts; frontend/src/app/api/admin/feedback/route.ts"
   },
   {
     "route": "/progress-reports",
@@ -8653,7 +8661,7 @@
     "dynamic": "false",
     "refCount": "34",
     "file": "frontend/src/app/(tables)/progress-reports/page.tsx",
-    "refSample": "frontend/src/app/(admin)/actions/admin-action-cards.tsx; frontend/src/app/(main)/executive/capabilities/page.tsx; frontend/src/app/(main)/[projectId]/home/project-home-command-center-v2.tsx; frontend/src/app/(main)/[projectId]/progress-reports/page.tsx; frontend/src/app/(main)/[projectId]/progress-reports/[reportId]/progress-report-editor.tsx"
+    "refSample": "frontend/src/app/(admin)/actions/admin-action-cards.tsx; frontend/src/app/(main)/[projectId]/home/project-home-command-center-v2.tsx; frontend/src/app/(main)/[projectId]/progress-reports/[reportId]/__tests__/progress-report-editor.test.tsx; frontend/src/app/(main)/[projectId]/progress-reports/[reportId]/progress-report-editor.tsx; frontend/src/app/(main)/[projectId]/progress-reports/page.tsx"
   },
   {
     "route": "/project-attribution",
@@ -8675,9 +8683,9 @@
     "route": "/projects",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "594",
+    "refCount": "616",
     "file": "frontend/src/app/(tables)/projects/page.tsx",
-    "refSample": "frontend/src/app/(admin)/accounting/page.tsx; frontend/src/app/(admin)/accounting/projects/page.tsx; frontend/src/app/(admin)/accounting/wip/page.tsx; frontend/src/app/(admin)/accounting/__tests__/accounting-project-balance-charts.test.ts; frontend/src/app/(admin)/document-metadata/page.tsx"
+    "refSample": "frontend/src/app/(admin)/accounting/__tests__/accounting-project-balance-charts.test.ts; frontend/src/app/(admin)/accounting/page.tsx; frontend/src/app/(admin)/accounting/projects/page.tsx; frontend/src/app/(admin)/accounting/wip/page.tsx; frontend/src/app/(admin)/document-metadata/page.tsx"
   },
   {
     "route": "/prp-status",
@@ -8691,9 +8699,9 @@
     "route": "/rag",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "50",
+    "refCount": "52",
     "file": "frontend/src/app/(admin)/rag/page.tsx",
-    "refSample": "frontend/src/app/(admin)/actions/admin-action-cards.tsx; frontend/src/app/(admin)/ai-vision/page.tsx; frontend/src/app/(admin)/rag-eval/page.tsx; frontend/src/app/(main)/ai/page.tsx; frontend/src/app/(main)/ai-dashboard/ai-os/ai-os-charts.tsx"
+    "refSample": "frontend/src/app/(admin)/actions/admin-action-cards.tsx; frontend/src/app/(admin)/ai-vision/page.tsx; frontend/src/app/(admin)/rag-eval/page.tsx; frontend/src/app/(main)/[projectId]/intelligence/page.tsx; frontend/src/app/(main)/ai/page.tsx"
   },
   {
     "route": "/rag-eval",
@@ -8707,9 +8715,9 @@
     "route": "/recruiting",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "30",
+    "refCount": "39",
     "file": "frontend/src/app/(main)/recruiting/page.tsx",
-    "refSample": "frontend/src/app/(main)/recruiting/intake-test/page.tsx; frontend/src/app/api/cron/recruiting-uat-purge/route.ts; frontend/src/app/api/recruiting/intake-uat/route.ts; frontend/src/app/api/recruiting/integrations/microsoft/callback/route.ts; frontend/src/app/api/recruiting/integrations/microsoft/callback/__tests__/route.test.ts"
+    "refSample": "frontend/src/app/(main)/recruiting/intake-test/page.tsx; frontend/src/app/api/cron/recruiting-uat-purge/__tests__/route.test.ts; frontend/src/app/api/cron/recruiting-uat-purge/route.ts; frontend/src/app/api/recruiting/intake-batch-uat/route.ts; frontend/src/app/api/recruiting/intake-uat/route.ts"
   },
   {
     "route": "/recruiting/intake-test",
@@ -8747,9 +8755,9 @@
     "route": "/settings",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "49",
+    "refCount": "51",
     "file": "frontend/src/app/(main)/settings/page.tsx",
-    "refSample": "frontend/src/app/(admin)/ai-vision/page.tsx; frontend/src/app/(admin)/design-ideas/page.tsx; frontend/src/app/(main)/crm/settings/page.tsx; frontend/src/app/(main)/settings/integrations/teams-link-panel.tsx; frontend/src/app/(main)/settings/integrations/telegram-link-panel.tsx"
+    "refSample": "frontend/src/app/(admin)/ai-vision/page.tsx; frontend/src/app/(admin)/design-ideas/page.tsx; frontend/src/app/(main)/[projectId]/drawings/areas/page.tsx; frontend/src/app/(main)/[projectId]/prime-contracts/[contractId]/page.tsx; frontend/src/app/(main)/[projectId]/prime-contracts/configure/page.tsx"
   },
   {
     "route": "/settings/account",
@@ -8773,7 +8781,7 @@
     "dynamic": "false",
     "refCount": "8",
     "file": "frontend/src/app/(main)/settings/memory/page.tsx",
-    "refSample": "frontend/src/app/(admin)/ai-vision/page.tsx; frontend/src/app/api/ai-assistant/memories/[memoryId]/feedback/route.ts; frontend/src/components/ai-assistant/ai-profile-page.tsx; frontend/src/components/ai-assistant/memory-usage-disclosure.tsx; frontend/src/components/ai-assistant/__tests__/memory-usage-disclosure.test.tsx"
+    "refSample": "frontend/src/app/(admin)/ai-vision/page.tsx; frontend/src/app/api/ai-assistant/memories/[memoryId]/feedback/route.ts; frontend/src/components/ai-assistant/__tests__/memory-usage-disclosure.test.tsx; frontend/src/components/ai-assistant/ai-profile-page.tsx; frontend/src/components/ai-assistant/memory-usage-disclosure.tsx"
   },
   {
     "route": "/settings/preferences",
@@ -8803,9 +8811,9 @@
     "route": "/site-map",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "9",
+    "refCount": "10",
     "file": "frontend/src/app/(admin)/site-map/page.tsx",
-    "refSample": "frontend/src/app/(admin)/admin/admin-dashboard-data.ts; frontend/src/app/(admin)/megans-dashboard/megans-dashboard-client.tsx; frontend/src/app/(admin)/site-map/__tests__/layout-options.test.ts; frontend/src/app/(admin)/site-map/__tests__/route-inventory-generated.test.ts; frontend/src/app/api/admin/page-tags/__tests__/route.test.ts"
+    "refSample": "frontend/src/app/(admin)/admin/admin-dashboard-data.ts; frontend/src/app/(admin)/megans-dashboard/__tests__/tagged-dashboard-client.test.ts; frontend/src/app/(admin)/megans-dashboard/megans-dashboard-client.tsx; frontend/src/app/(admin)/site-map/__tests__/layout-options.test.ts; frontend/src/app/(admin)/site-map/__tests__/route-inventory-generated.test.ts"
   },
   {
     "route": "/sitemap.xml",
@@ -8821,7 +8829,7 @@
     "dynamic": "false",
     "refCount": "14",
     "file": "frontend/src/app/(admin)/source-sync/page.tsx",
-    "refSample": "frontend/src/app/(admin)/rag/page.tsx; frontend/src/app/api/admin/operations-readiness/status/route.ts; frontend/src/app/api/admin/source-sync/active-alerts/route.ts; frontend/src/app/api/admin/source-sync/graph-sync/route.ts; frontend/src/app/api/admin/source-sync/summary/route.ts"
+    "refSample": "frontend/src/app/(admin)/rag/page.tsx; frontend/src/app/api/admin/operations-readiness/status/route.ts; frontend/src/app/api/admin/source-sync/__tests__/contracts.test.ts; frontend/src/app/api/admin/source-sync/_daily.ts; frontend/src/app/api/admin/source-sync/_shared.ts"
   },
   {
     "route": "/stats",
@@ -8837,7 +8845,7 @@
     "dynamic": "false",
     "refCount": "2",
     "file": "frontend/src/app/(admin)/(procore)/support-articles/page.tsx",
-    "refSample": "frontend/src/app/(admin)/(procore)/support-articles/support-articles-client.tsx; frontend/src/app/(admin)/(procore)/support-articles/[articleId]/page.tsx"
+    "refSample": "frontend/src/app/(admin)/(procore)/support-articles/[articleId]/page.tsx; frontend/src/app/(admin)/(procore)/support-articles/support-articles-client.tsx"
   },
   {
     "route": "/support-articles/[articleId]",
@@ -8859,17 +8867,17 @@
     "route": "/task-training",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "10",
+    "refCount": "11",
     "file": "frontend/src/app/(admin)/task-training/page.tsx",
-    "refSample": "frontend/src/app/(admin)/admin/admin-dashboard-data.ts; frontend/src/app/(admin)/learning-feedback/page.tsx; frontend/src/app/(main)/pipeline/page.tsx; frontend/src/app/api/ai-assistant/task-feedback/route.ts; frontend/src/lib/ai/bot-core.ts"
+    "refSample": "frontend/src/app/(admin)/admin/admin-dashboard-data.ts; frontend/src/app/(admin)/learning-feedback/page.tsx; frontend/src/app/(main)/pipeline/page.tsx; frontend/src/app/.well-known/workflow/v1/step/route.js; frontend/src/app/api/ai-assistant/task-feedback/route.ts"
   },
   {
     "route": "/tasks",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "97",
+    "refCount": "126",
     "file": "frontend/src/app/(tables)/tasks/page.tsx",
-    "refSample": "frontend/src/app/(admin)/tables-directory/page.tsx; frontend/src/app/(main)/crm/tasks/page.tsx; frontend/src/app/(main)/executive/capabilities/page.tsx; frontend/src/app/(main)/home/home-action-routing.ts; frontend/src/app/(main)/home/homepage-signals.ts"
+    "refSample": "frontend/src/app/(admin)/tables-directory/page.tsx; frontend/src/app/(main)/[projectId]/home/project-command-center.tsx; frontend/src/app/(main)/[projectId]/home/project-home-command-center-v2.tsx; frontend/src/app/(main)/[projectId]/intelligence/page.tsx; frontend/src/app/(main)/[projectId]/schedule/import/page.tsx"
   },
   {
     "route": "/team-chat",
@@ -8877,7 +8885,7 @@
     "dynamic": "false",
     "refCount": "21",
     "file": "frontend/src/app/(main)/team-chat/page.tsx",
-    "refSample": "frontend/src/app/(main)/layout.tsx; frontend/src/app/(main)/[projectId]/hub/page.tsx; frontend/src/app/api/ai-assistant/timeline/route.ts; frontend/src/app/api/team-chat/direct-messages/route.ts; frontend/src/app/api/team-chat/direct-messages/__tests__/route.test.ts"
+    "refSample": "frontend/src/app/(main)/[projectId]/hub/page.tsx; frontend/src/app/(main)/layout.tsx; frontend/src/app/api/ai-assistant/timeline/route.ts; frontend/src/app/api/team-chat/direct-messages/__tests__/route.test.ts; frontend/src/app/api/team-chat/direct-messages/route.ts"
   },
   {
     "route": "/teams-conversations",
@@ -8899,17 +8907,17 @@
     "route": "/tools",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "45",
+    "refCount": "52",
     "file": "frontend/src/app/(admin)/tools/page.tsx",
-    "refSample": "frontend/src/app/(admin)/docs/ai-overview/page.tsx; frontend/src/app/(admin)/docs/ai-overview/tools/page.tsx; frontend/src/app/(admin)/docs/ai-overview/_components/section-nav.tsx; frontend/src/app/(admin)/feedback-inbox/page.tsx; frontend/src/app/(admin)/feedback-inbox/_components/tool-context-section.tsx"
+    "refSample": "frontend/src/app/(admin)/docs/ai-overview/_components/section-nav.tsx; frontend/src/app/(admin)/docs/ai-overview/page.tsx; frontend/src/app/(admin)/docs/ai-overview/tools/page.tsx; frontend/src/app/(admin)/feedback-inbox/_components/tool-context-section.tsx; frontend/src/app/(admin)/feedback-inbox/page.tsx"
   },
   {
     "route": "/training",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "119",
+    "refCount": "138",
     "file": "frontend/src/app/(main)/training/page.tsx",
-    "refSample": "frontend/src/app/(admin)/admin/admin-dashboard-data.ts; frontend/src/app/(admin)/training-data/page.tsx; frontend/src/app/(admin)/training-data/[tableKey]/page.tsx; frontend/src/app/(admin)/training-docs/page.tsx; frontend/src/app/(admin)/training-docs/training-doc-editor.tsx"
+    "refSample": "frontend/src/app/(admin)/admin/admin-dashboard-data.ts; frontend/src/app/(admin)/training-data/[tableKey]/page.tsx; frontend/src/app/(admin)/training-data/page.tsx; frontend/src/app/(admin)/training-docs/[docId]/page.tsx; frontend/src/app/(admin)/training-docs/[docId]/preview/page.tsx"
   },
   {
     "route": "/training-data",
@@ -8917,7 +8925,7 @@
     "dynamic": "false",
     "refCount": "5",
     "file": "frontend/src/app/(admin)/training-data/page.tsx",
-    "refSample": "frontend/src/app/(admin)/admin/admin-dashboard-data.ts; frontend/src/app/api/admin/training-data/[tableKey]/route.ts; frontend/src/app/api/admin/training-data/[tableKey]/[recordId]/route.ts; frontend/src/features/training-admin/training-admin-config.ts; frontend/src/hooks/use-training-admin.ts"
+    "refSample": "frontend/src/app/(admin)/admin/admin-dashboard-data.ts; frontend/src/app/api/admin/training-data/[tableKey]/[recordId]/route.ts; frontend/src/app/api/admin/training-data/[tableKey]/route.ts; frontend/src/features/training-admin/training-admin-config.ts; frontend/src/hooks/use-training-admin.ts"
   },
   {
     "route": "/training-data/[tableKey]",
@@ -8931,9 +8939,9 @@
     "route": "/training-docs",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "34",
+    "refCount": "37",
     "file": "frontend/src/app/(admin)/training-docs/page.tsx",
-    "refSample": "frontend/src/app/(admin)/admin/admin-dashboard-data.ts; frontend/src/app/(admin)/training-docs/training-doc-editor.tsx; frontend/src/app/(admin)/training-docs/training-docs-client.tsx; frontend/src/app/(admin)/training-docs/[docId]/preview/page.tsx; frontend/src/app/(admin)/training-docs/[docId]/preview/training-doc-preview-client.tsx"
+    "refSample": "frontend/src/app/(admin)/admin/admin-dashboard-data.ts; frontend/src/app/(admin)/training-docs/[docId]/preview/page.tsx; frontend/src/app/(admin)/training-docs/[docId]/preview/training-doc-preview-client.tsx; frontend/src/app/(admin)/training-docs/[docId]/training-doc-detail-client.tsx; frontend/src/app/(admin)/training-docs/training-doc-editor.tsx"
   },
   {
     "route": "/training-docs/[docId]",
@@ -8965,15 +8973,39 @@
     "dynamic": "false",
     "refCount": "5",
     "file": "frontend/src/app/(main)/training/ask/page.tsx",
-    "refSample": "frontend/src/app/(main)/training/ask/__tests__/page.test.tsx; frontend/src/app/(main)/training/__tests__/page.test.tsx; frontend/src/features/training/hub-content.ts; frontend/src/features/training/nav-tabs.ts; frontend/src/features/training/TrainingMasthead.tsx"
+    "refSample": "frontend/src/app/(main)/training/__tests__/page.test.tsx; frontend/src/app/(main)/training/ask/__tests__/page.test.tsx; frontend/src/features/training/TrainingMasthead.tsx; frontend/src/features/training/hub-content.ts; frontend/src/features/training/nav-tabs.ts"
+  },
+  {
+    "route": "/training/coaching",
+    "kind": "page",
+    "dynamic": "false",
+    "refCount": "2",
+    "file": "frontend/src/app/(main)/training/coaching/page.tsx",
+    "refSample": "frontend/src/app/api/training/coaching/route.ts; frontend/src/features/training/nav-tabs.ts"
+  },
+  {
+    "route": "/training/content/[contentId]",
+    "kind": "page",
+    "dynamic": "true",
+    "refCount": "0",
+    "file": "frontend/src/app/(main)/training/content/[contentId]/page.tsx",
+    "refSample": ""
+  },
+  {
+    "route": "/training/courses/[courseSlug]",
+    "kind": "page",
+    "dynamic": "true",
+    "refCount": "0",
+    "file": "frontend/src/app/(main)/training/courses/[courseSlug]/page.tsx",
+    "refSample": ""
   },
   {
     "route": "/training/growth",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "12",
+    "refCount": "13",
     "file": "frontend/src/app/(main)/training/growth/page.tsx",
-    "refSample": "frontend/src/app/(main)/training/growth/assessment/page.tsx; frontend/src/app/(main)/training/TrainingHubClient.tsx; frontend/src/app/(main)/training/__tests__/page.test.tsx; frontend/src/app/(main)/training/__tests__/TrainingHubClient.test.tsx; frontend/src/app/api/training/growth/__tests__/route.test.ts"
+    "refSample": "frontend/src/app/(main)/training/TrainingHubClient.tsx; frontend/src/app/(main)/training/__tests__/TrainingHubClient.test.tsx; frontend/src/app/(main)/training/__tests__/page.test.tsx; frontend/src/app/(main)/training/growth/assessment/page.tsx; frontend/src/app/(main)/training/page.tsx"
   },
   {
     "route": "/training/growth/assessment",
@@ -8992,20 +9024,36 @@
     "refSample": ""
   },
   {
+    "route": "/training/learn/[enrollmentId]",
+    "kind": "page",
+    "dynamic": "true",
+    "refCount": "0",
+    "file": "frontend/src/app/(main)/training/learn/[enrollmentId]/page.tsx",
+    "refSample": ""
+  },
+  {
     "route": "/training/library",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "13",
+    "refCount": "19",
     "file": "frontend/src/app/(main)/training/library/page.tsx",
-    "refSample": "frontend/src/app/(main)/training/ask/page.tsx; frontend/src/app/(main)/training/ask/__tests__/page.test.tsx; frontend/src/app/(main)/training/TrainingHubClient.tsx; frontend/src/app/(main)/training/__tests__/page.test.tsx; frontend/src/app/(main)/training/__tests__/TrainingHubClient.test.tsx"
+    "refSample": "frontend/src/app/(main)/content/actions.ts; frontend/src/app/(main)/training/TrainingHubClient.tsx; frontend/src/app/(main)/training/__tests__/TrainingHubClient.test.tsx; frontend/src/app/(main)/training/__tests__/page.test.tsx; frontend/src/app/(main)/training/ask/__tests__/page.test.tsx"
+  },
+  {
+    "route": "/training/manage",
+    "kind": "page",
+    "dynamic": "false",
+    "refCount": "2",
+    "file": "frontend/src/app/(main)/training/manage/page.tsx",
+    "refSample": "frontend/src/app/(main)/training/page.tsx; frontend/src/lib/navigation-config.ts"
   },
   {
     "route": "/training/method",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "9",
+    "refCount": "8",
     "file": "frontend/src/app/(main)/training/method/page.tsx",
-    "refSample": "frontend/src/app/(main)/training/page.tsx; frontend/src/app/(main)/training/TrainingHubClient.tsx; frontend/src/app/(main)/training/__tests__/page.test.tsx; frontend/src/app/(main)/training/__tests__/TrainingHubClient.test.tsx; frontend/src/content/training-guides/manager-coaching-guide.mdx"
+    "refSample": "frontend/src/app/(main)/training/TrainingHubClient.tsx; frontend/src/app/(main)/training/__tests__/TrainingHubClient.test.tsx; frontend/src/app/(main)/training/__tests__/page.test.tsx; frontend/src/content/training-guides/manager-coaching-guide.mdx; frontend/src/features/training/TrainingMasthead.tsx"
   },
   {
     "route": "/training/own-your-growth",
@@ -9013,7 +9061,7 @@
     "dynamic": "false",
     "refCount": "2",
     "file": "frontend/src/app/(main)/training/own-your-growth/page.tsx",
-    "refSample": "frontend/src/features/training/ladder-content.ts; frontend/src/features/training/__tests__/role-wheel-data.test.ts"
+    "refSample": "frontend/src/features/training/__tests__/role-wheel-data.test.ts; frontend/src/features/training/ladder-content.ts"
   },
   {
     "route": "/training/prompts",
@@ -9021,7 +9069,7 @@
     "dynamic": "false",
     "refCount": "3",
     "file": "frontend/src/app/(main)/training/prompts/page.tsx",
-    "refSample": "frontend/src/features/training/hub-content.ts; frontend/src/features/training/nav-tabs.ts; frontend/src/features/training/TrainingMasthead.tsx"
+    "refSample": "frontend/src/features/training/TrainingMasthead.tsx; frontend/src/features/training/hub-content.ts; frontend/src/features/training/nav-tabs.ts"
   },
   {
     "route": "/training/resources/[resourceId]",
@@ -9035,9 +9083,9 @@
     "route": "/training/review",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "7",
+    "refCount": "13",
     "file": "frontend/src/app/(main)/training/review/page.tsx",
-    "refSample": "frontend/src/app/(main)/training/library/page.tsx; frontend/src/app/(main)/training/library/__tests__/page.test.tsx; frontend/src/app/(main)/training/review/actions.ts; frontend/src/app/(main)/training/review/finder-action.ts; frontend/src/app/(main)/training/review/__tests__/actions.test.ts"
+    "refSample": "frontend/src/app/(main)/content/actions.ts; frontend/src/app/(main)/content/courses/[courseId]/page.tsx; frontend/src/app/(main)/content/courses/new/page.tsx; frontend/src/app/(main)/content/page.tsx; frontend/src/app/(main)/content/resources/new/page.tsx"
   },
   {
     "route": "/updates",
@@ -9051,7 +9099,7 @@
     "route": "/user-management",
     "kind": "page",
     "dynamic": "false",
-    "refCount": "19",
+    "refCount": "20",
     "file": "frontend/src/app/(admin)/user-management/page.tsx",
     "refSample": "frontend/src/app/(admin)/admin/admin-dashboard-data.ts; frontend/src/app/(admin)/company-settings/__tests__/company-settings-client.test.tsx; frontend/src/app/(admin)/user-management/template-detail-page-client.tsx; frontend/src/app/(admin)/user-management/users/[userSlug]/page.tsx; frontend/src/app/(main)/[projectId]/permissions/page.tsx"
   },

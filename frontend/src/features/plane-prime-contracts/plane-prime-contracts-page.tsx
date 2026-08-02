@@ -221,7 +221,7 @@ export function PlanePrimeContractsPage({
           >
             <Link
               href={`/${projectId}/prime-contracts/new`}
-              className="ml-auto inline-flex h-11 items-center gap-1.5 rounded bg-[#075985] px-3 text-xs font-medium text-white hover:bg-[#0c4a6e] md:h-8"
+              className="ml-auto inline-flex h-11 items-center gap-1.5 rounded bg-primary px-3 text-xs font-medium text-primary-foreground hover:bg-primary/90 md:h-8"
             >
               <Plus className="size-3.5" />
               <span className="hidden sm:inline">Add prime contract</span>
@@ -417,7 +417,7 @@ export function PlanePrimeContractsPage({
                       !draftNumber.trim() ||
                       !draftTitle.trim()
                     }
-                    className="h-11 rounded bg-[#075985] px-3 text-xs font-medium text-white hover:bg-[#0c4a6e] disabled:opacity-50 md:h-8"
+                    className="h-11 rounded bg-primary px-3 text-xs font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 md:h-8"
                   >
                     {updateContract.isPending ? "Saving..." : "Save"}
                   </button>

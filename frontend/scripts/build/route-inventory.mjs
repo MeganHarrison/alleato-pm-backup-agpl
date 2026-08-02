@@ -101,6 +101,44 @@ export function writeRouteInventory(options) {
   return result;
 }
 
+/**
+ * Fails when the checked-in Page Access snapshot no longer describes the
+ * current route tree. The production build regenerates this file before
+ * Next.js bundles it, but local/CI route gates must reject drift rather than
+ * leave reviewers looking at an obsolete route list.
+ */
+export function assertRouteInventoryFresh({ frontendRoot, inventoryPath } = {}) {
+  if (!frontendRoot) throw new Error("[route-inventory] frontendRoot is required.");
+  const resolvedInventoryPath = inventoryPath ?? path.join(frontendRoot, INVENTORY_RELATIVE_PATH);
+  if (!fs.existsSync(resolvedInventoryPath)) {
+    throw new Error(
+      `[route-inventory] Missing committed inventory: ${resolvedInventoryPath}. ` +
+        "Run node scripts/verify/route-audit.mjs and commit its generated route files.",
+    );
+  }
+
+  let committedRows;
+  try {
+    committedRows = JSON.parse(fs.readFileSync(resolvedInventoryPath, "utf8"));
+  } catch {
+    throw new Error(
+      `[route-inventory] Invalid committed inventory: ${resolvedInventoryPath}. ` +
+        "Run node scripts/verify/route-audit.mjs and commit its generated route files.",
+    );
+  }
+
+  const currentRows = generateRouteInventory({ frontendRoot }).inventoryRows;
+  if (JSON.stringify(committedRows) !== JSON.stringify(currentRows)) {
+    throw new Error(
+      `[route-inventory] Committed inventory is stale (${Array.isArray(committedRows) ? committedRows.length : "invalid"} snapshot rows, ` +
+        `${currentRows.length} current source rows). Run node scripts/verify/route-audit.mjs and commit ` +
+        "frontend/src/app/(admin)/site-map/route-inventory.generated.json.",
+    );
+  }
+
+  return currentRows.length;
+}
+
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const frontendRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
   const result = writeRouteInventory({ frontendRoot });

@@ -1,0 +1,22 @@
+{
+  "projectId": 60,
+  "projectName": "Alleato Finance",
+  "approvedSubject": "AAI-1306 FINAL3 APPROVED VERIFICATION 2026-08-01",
+  "approvedCount": 1,
+  "approvedRows": [
+    {
+      "id": "64e1f5d2-d074-4525-ad79-ff3d0b8806ea",
+      "project_id": 60,
+      "number": 3,
+      "subject": "AAI-1306 FINAL3 APPROVED VERIFICATION 2026-08-01",
+      "question": "Verification only: prove the approved Eve action executes exactly once and remains durable.",
+      "status": "open",
+      "cost_impact": "no",
+      "schedule_impact": "no",
+      "created_at": "2026-08-01T02:46:34.367892+00:00"
+    }
+  ],
+  "deniedSubject": "AAI-1306 FINAL3 DENIED VERIFICATION 2026-08-01",
+  "deniedCount": 0,
+  "deniedRows": []
+}

@@ -551,13 +551,17 @@ function governedToolSchema(
   if ("confirmed" in schema.shape) omitMask.confirmed = true;
   if ("idempotencyKey" in schema.shape) omitMask.idempotencyKey = true;
 
+  const governedShape = Object.fromEntries(
+    Object.entries(schema.shape).filter(([key]) => !(key in omitMask)),
+  );
+
   return {
     ...entry.tool,
     inputSchema:
       entry.name === "createRFI"
         ? GovernedCreateRfiInput
         : Object.keys(omitMask).length > 0
-          ? schema.omit(omitMask)
+          ? z.object(governedShape).strict()
           : schema,
   };
 }
@@ -768,7 +772,14 @@ export const POST = withApiGuardrails(
             idempotencyKey: receipt.idempotencyKey,
           }
         : validatedInput;
-    const result = await execute(executionInput, {
+    const finalExecutionInput = receipt
+      ? await validateToolInput(
+          entry.tool,
+          executionInput,
+          body.toolName,
+        )
+      : executionInput;
+    const result = await execute(finalExecutionInput, {
       toolCallId: body.toolCallId,
       messages: [],
       abortSignal: request.signal,

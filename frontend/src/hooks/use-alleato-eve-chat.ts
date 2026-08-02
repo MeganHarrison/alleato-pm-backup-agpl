@@ -137,7 +137,7 @@ export async function persistEveMessages(
           .map((part) => part.text)
           .join("")
           .trim();
-        return content
+        return content || message.parts.length > 0
           ? [
               {
                 id: message.id,
@@ -202,6 +202,8 @@ export function useAlleatoEveChat({
   const eventsRef = useRef<readonly HandleMessageStreamEvent[]>(
     saved.events ?? [],
   );
+  const contextRef = useRef(context);
+  contextRef.current = context;
 
   const agent = useEveAgent({
     host: "/api/ai-assistant/eve/proxy",
@@ -219,13 +221,14 @@ export function useAlleatoEveChat({
       },
     },
     headers: async () => {
+      const currentContext = contextRef.current;
       const headers: Record<string, string> = {
         "x-alleato-assistant-surface":
-          context.assistantSurface === "ask_alleato"
+          currentContext.assistantSurface === "ask_alleato"
             ? "ask_alleato"
             : "ai_assistant",
       };
-      const projectId = context.selectedProjectId;
+      const projectId = currentContext.selectedProjectId;
       if (
         typeof projectId === "number" &&
         Number.isInteger(projectId) &&
@@ -240,7 +243,7 @@ export function useAlleatoEveChat({
     prepareSend: (input) => ({
       ...input,
       clientContext: {
-        ...context,
+        ...contextRef.current,
         currentPath:
           typeof window === "undefined" ? null : window.location.pathname,
       },

@@ -284,15 +284,6 @@ export default function TaggedDashboardClient({
         description: `${filteredRoutes.length} page${
           filteredRoutes.length === 1 ? "" : "s"
         } tagged for this dashboard`,
-        actions: (
-          <Link
-            href="/site-map"
-            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
-          >
-            Manage tags on the site map
-            <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
-        ),
       }}
       toolbar={{
         totalItems: taggedRoutes.length,

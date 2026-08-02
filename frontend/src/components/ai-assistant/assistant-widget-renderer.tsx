@@ -2,7 +2,6 @@
 
 import { useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import {
   ActivityIcon,
   AlertTriangleIcon,
@@ -791,27 +790,6 @@ function CreateTaskWidget({
   );
 }
 
-function AlleatoWordmark() {
-  return (
-    <span className="flex items-center" aria-label="Alleato Group">
-      <Image
-        src="/Alleato-Group-Logo_Dark.png"
-        alt="Alleato Group"
-        width={72}
-        height={18}
-        className="h-4 w-auto opacity-80 dark:hidden"
-      />
-      <Image
-        src="/Alleato-Group-Logo_Light.png"
-        alt="Alleato Group"
-        width={72}
-        height={18}
-        className="hidden h-4 w-auto opacity-80 dark:block"
-      />
-    </span>
-  );
-}
-
 function ContactField({
   label,
   children,
@@ -873,7 +851,7 @@ function CreateContactWidget({
       eyebrow={created ? "Contact created" : "New contact"}
       title={widget.title}
       icon={<UserIcon className="h-4 w-4 text-primary" />}
-      actions={<AlleatoWordmark />}
+      actions={<SparklesIcon className="h-4 w-4 text-primary" aria-hidden="true" />}
     >
       {created ? (
         <InfoAlert variant="success">
@@ -3437,17 +3415,17 @@ function getSourceHref(source: SourceItem): string | null {
   ).trim();
   const type = String(metadata.doc_type ?? metadata.type ?? metadata.category ?? "").toLowerCase();
 
-  // Governed evidence (Project Intelligence, Executive Reports, and any source
-  // that persists its own canonical route) is honored ONLY as a safe in-app
-  // root-relative path — never a protocol-relative (`//host`) or arbitrary-scheme
-  // (`javascript:`, `data:`) URL, which could smuggle an off-site or script link
-  // into a citation. Legitimate absolute http(s) links are handled by the
-  // external-link fallback below; anything else renders as a non-clickable card.
+  // Governed Project Intelligence and Executive Report citations carry their
+  // canonical route explicitly. Do not fall through to a document/meeting
+  // resolver: these are durable artifacts, not raw source rows.
   const explicitUrl = typeof metadata.url === "string" ? metadata.url.trim() : "";
+  // Revision-scoped evidence (for example FMDS tables and figures) persists a
+  // canonical in-app route. Honor safe root-relative routes before attempting
+  // record-type inference; otherwise valid evidence renders as a non-clickable
+  // card even though its exact source route is already known.
   if (explicitUrl.startsWith("/") && !explicitUrl.startsWith("//")) {
     return explicitUrl;
   }
-
   // Prefer the IN-APP record page — "the actual file on the app" — over an
   // external link, so a meeting citation opens our transcript page (which reads
   // document_metadata by id) rather than the raw Fireflies recording.

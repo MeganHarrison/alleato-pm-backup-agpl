@@ -3,6 +3,7 @@ import type { MemoryUsage } from "./memory-usage-disclosure";
 export interface MemoryUsageMetadataMessage {
   id: string;
   metadata?: {
+    eve_message_id?: unknown;
     response_message_id?: unknown;
     memory_usage?: MemoryUsage;
   } | null;
@@ -10,6 +11,10 @@ export interface MemoryUsageMetadataMessage {
 
 function metadataMessageIds(msg: MemoryUsageMetadataMessage): string[] {
   const ids = new Set<string>([msg.id]);
+  const eveMessageId = msg.metadata?.eve_message_id;
+  if (typeof eveMessageId === "string" && eveMessageId.trim()) {
+    ids.add(eveMessageId);
+  }
   const responseMessageId = msg.metadata?.response_message_id;
   if (typeof responseMessageId === "string" && responseMessageId.trim()) {
     ids.add(responseMessageId);

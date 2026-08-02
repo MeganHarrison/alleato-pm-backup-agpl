@@ -1,0 +1,57 @@
+{
+  "status": "PASS",
+  "taskId": "AAI-1306",
+  "evidence": {
+    "summary": [
+      "docs/ops/verification/2026-07-31-aai-1306-verification-notes.md"
+    ],
+    "actionLog": [
+      "docs/ops/verification/2026-07-31-aai-1306-verification-notes.md"
+    ],
+    "databaseReadback": [
+      "tests/agent-browser-runs/2026-07-31-aai-1306-eve-transplant/database-readback.json"
+    ],
+    "negativePath": [
+      "tests/agent-browser-runs/2026-07-31-aai-1306-eve-transplant/unauthorized-project-trace.json",
+      "tests/agent-browser-runs/2026-07-31-aai-1306-eve-transplant/denied-rfi-trace.json",
+      "docs/ops/verification/2026-07-31-aai-1306-verification-notes.md"
+    ],
+    "visualReview": [
+      "tests/agent-browser-runs/2026-07-31-aai-1306-eve-transplant/authorized-read.png",
+      "tests/agent-browser-runs/2026-07-31-aai-1306-eve-transplant/unauthorized-project-result.png",
+      "tests/agent-browser-runs/2026-07-31-aai-1306-eve-transplant/approved-rfi-result.png",
+      "tests/agent-browser-runs/2026-07-31-aai-1306-eve-transplant/denied-rfi-result.png"
+    ],
+    "regressionTest": [
+      "docs/ops/verification/2026-07-31-aai-1306-verification-notes.md"
+    ]
+  },
+  "claims": {
+    "authenticated-runtime": {
+      "summary": ["docs/ops/verification/2026-07-31-aai-1306-verification-notes.md"],
+      "actionLog": ["docs/ops/verification/2026-07-31-aai-1306-verification-notes.md"],
+      "visualReview": ["tests/agent-browser-runs/2026-07-31-aai-1306-eve-transplant/authorized-read.png"]
+    },
+    "project-authorization": {
+      "actionLog": ["docs/ops/verification/2026-07-31-aai-1306-verification-notes.md"],
+      "negativePath": ["tests/agent-browser-runs/2026-07-31-aai-1306-eve-transplant/unauthorized-project-trace.json"],
+      "regressionTest": ["docs/ops/verification/2026-07-31-aai-1306-verification-notes.md"]
+    },
+    "approval-idempotency": {
+      "actionLog": ["docs/ops/verification/2026-07-31-aai-1306-verification-notes.md"],
+      "databaseReadback": ["tests/agent-browser-runs/2026-07-31-aai-1306-eve-transplant/database-readback.json"],
+      "negativePath": ["tests/agent-browser-runs/2026-07-31-aai-1306-eve-transplant/denied-rfi-trace.json"],
+      "regressionTest": ["docs/ops/verification/2026-07-31-aai-1306-verification-notes.md"]
+    },
+    "source-delta": {
+      "summary": ["docs/ops/verification/2026-07-31-aai-1306-verification-notes.md"],
+      "regressionTest": ["docs/ops/verification/2026-07-31-aai-1306-verification-notes.md"]
+    }
+  },
+  "independentReview": {
+    "reviewer": "Claude PR Review and repository Autofix PR Manager",
+    "decision": "APPROVED",
+    "reviewedAt": "2026-08-01T03:16:00Z",
+    "artifact": "docs/ops/verification/2026-07-31-aai-1306-independent-review.md"
+  }
+}

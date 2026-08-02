@@ -51,7 +51,7 @@ function memoryUsage(overrides: Partial<MemoryUsage> = {}): MemoryUsage {
 describe("AssistantMemoryTrace", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    window.history.pushState({}, "", "/ai-assistant");
+    window.history.pushState({}, "", "/ai");
     apiFetchMock.mockResolvedValue({ success: true });
   });
 
@@ -114,7 +114,7 @@ describe("AssistantMemoryTrace", () => {
       reasonCategory: "wrong",
       source: {
         surface: "assistant_answer_memory_trace",
-        route: "/ai-assistant",
+        route: "/ai",
         messageId: "message-1",
         sessionId: "session-1",
       },

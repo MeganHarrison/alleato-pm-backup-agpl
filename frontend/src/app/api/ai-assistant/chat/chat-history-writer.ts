@@ -47,6 +47,11 @@ export interface ChatHistoryWriter {
    */
   persistRecord(record: ChatHistoryRecord): Promise<{ error: string | null }>;
   persistRecordOrThrow(record: ChatHistoryRecord, label?: string): Promise<void>;
+  replaceRecordOrThrow(
+    recordId: string,
+    record: ChatHistoryRecord,
+    label?: string,
+  ): Promise<void>;
   persistBoundRecord(record: BoundChatHistoryRecord): Promise<{ error: string | null }>;
   persist(
     role: ChatRole,
@@ -88,6 +93,29 @@ export function createChatHistoryWriter(
     const { error } = await persistRecord(record);
     if (error) {
       throw new Error(`Persisting the ${label} failed: ${error}`);
+    }
+  }
+
+  async function replaceRecordOrThrow(
+    recordId: string,
+    record: ChatHistoryRecord,
+    label = "chat turn",
+  ): Promise<void> {
+    const { error } = await supabase
+      .from("chat_history")
+      .update({
+        role: record.role,
+        content: record.content,
+        ...(record.sources !== undefined ? { sources: record.sources } : {}),
+        ...(record.metadata !== undefined
+          ? { metadata: record.metadata as Json }
+          : {}),
+      })
+      .eq("id", recordId)
+      .eq("session_id", ctx.sessionId)
+      .eq("user_id", ctx.userId);
+    if (error) {
+      throw new Error(`Replacing the ${label} failed: ${error.message}`);
     }
   }
 
@@ -133,6 +161,7 @@ export function createChatHistoryWriter(
   return {
     persistRecord,
     persistRecordOrThrow,
+    replaceRecordOrThrow,
     persistBoundRecord,
     persist,
     persistOrThrow,

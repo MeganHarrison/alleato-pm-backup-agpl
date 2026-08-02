@@ -289,7 +289,7 @@ export function PlaneDraftsPage({ projectId }: PlaneDraftsPageProps) {
         <Button
           type="button"
           size="sm"
-          className="h-8 bg-[#075985] px-3 text-white hover:bg-[#0c4a6e]"
+          className="h-8 bg-primary px-3 text-primary-foreground hover:bg-primary/90"
           onClick={() => openEditor()}
         >
           <Plus className="size-3.5" />
@@ -379,7 +379,7 @@ export function PlaneDraftsPage({ projectId }: PlaneDraftsPageProps) {
               type="submit"
               size="sm"
               disabled={saving}
-              className="bg-[#075985] text-white hover:bg-[#0c4a6e]"
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
               {saving ? "Saving..." : "Save draft"}
             </Button>
@@ -435,7 +435,7 @@ export function PlaneDraftsPage({ projectId }: PlaneDraftsPageProps) {
                 <Button
                   type="button"
                   size="sm"
-                  className="mt-4 bg-[#075985] text-white hover:bg-[#0c4a6e]"
+                  className="mt-4 bg-primary text-primary-foreground hover:bg-primary/90"
                   onClick={() => openEditor()}
                 >
                   Draft work
